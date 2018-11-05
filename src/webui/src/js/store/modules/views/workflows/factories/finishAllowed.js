@@ -5,7 +5,6 @@ export default function(finishType) {
         const type = state.get('views.workflows.type')
         const id = state.get('views.workflows.id')
         const interpretation = state.get('views.workflows.interpretation.selected')
-
         if (
             !['Not ready', 'Interpretation', 'Review', 'Medical review', 'Finalized'].includes(
                 finishType

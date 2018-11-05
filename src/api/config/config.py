@@ -48,9 +48,9 @@ config = {
                 "analysis": {
                     "finalize_requirements": {
                         "workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review'],
-                        "allow_notrelevant": True,
+                        "allow_notrelevant": False,
                         "allow_technical": True,
-                        "allow_unclassified": True
+                        "allow_unclassified": False
                     }
                 }
             },

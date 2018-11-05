@@ -1,9 +1,7 @@
 import { Compute } from 'cerebral'
 import { state, props, string } from 'cerebral/tags'
 import getClassification from '../interpretation/computed/getClassification'
-import isAlleleAssessmentReused from '../interpretation/computed/isAlleleAssessmentReused'
-import isAlleleAssessmentOutdated from '../../../../common/computes/isAlleleAssessmentOutdated'
-import getAlleleAssessment from '../interpretation/computed/getAlleleAssessment'
+import getAlleleState from '../interpretation/computed/getAlleleState'
 
 export default Compute(
     state`views.workflows.type`,
@@ -15,9 +13,10 @@ export default Compute(
             canFinalize: false,
             messages: []
         }
-        if (!alleles) {
+        if (!alleles || !interpretation) {
             return result
         }
+
         let finalizeRequirementsConfig = null
         if (
             config.user.user_config.workflows &&
@@ -34,11 +33,15 @@ export default Compute(
             return result
         }
 
-        const metRequirements = {}
-        for (const key of Object.keys(finalizeRequirementsConfig)) {
-            metRequirements[key] = false
+        if (interpretation.status !== 'Ongoing') {
+            result.canFinalize = false
+            result.messages.push('Interpretation is not Ongoing')
+            return result
         }
 
+        const metRequirements = {}
+
+        // Workflow status requirement
         if ('workflow_status' in finalizeRequirementsConfig) {
             if (
                 finalizeRequirementsConfig.workflow_status.includes(interpretation.workflow_status)
@@ -54,44 +57,69 @@ export default Compute(
             }
         }
 
-        if ('all_alleles_valid_classification' in finalizeRequirementsConfig) {
-            if (finalizeRequirementsConfig.all_alleles_valid_classification) {
-                // Ensure that we have an interpretation with a state
-                let allClassified = alleles.length === 0
-                if (
-                    interpretation &&
-                    interpretation.status === 'Ongoing' &&
-                    'allele' in interpretation.state
-                ) {
-                    // Check that all alleles
-                    // - have classification
-                    // - if reused, that they're not outdated
-                    allClassified = Object.entries(alleles).every((e) => {
-                        let [alleleId, allele] = e
-                        if (alleleId in interpretation.state.allele) {
-                            const alleleState = interpretation.state.allele[alleleId]
-                            const isReused = get(isAlleleAssessmentReused(alleleId))
-                            const isOutdated = get(isAlleleAssessmentOutdated(allele))
-                            let notReusedOutdated = true
-                            if (isReused) {
-                                notReusedOutdated = !isOutdated
-                            }
-                            const hasClassification = get(getClassification(alleleId))
-                                .hasClassification
-                            const isTechnical = alleleState.analysis.verification === 'technical'
-                            return (hasClassification && notReusedOutdated) || isTechnical
-                        }
+        // Classification related requirements
+        if (Object.values(alleles).length === 0 || finalizeRequirementsConfig.allow_unclassified) {
+            metRequirements.classifications = true
+        } else {
+            // All alleles that are not exempted in the config needs a valid
+            // (not outdated) classification before finalization
+            let notRelevantAlleleIds = []
+            let technicalAlleleIds = []
+
+            if (finalizeRequirementsConfig.allow_notrelevant) {
+                notRelevantAlleleIds = Object.values(alleles)
+                    .filter((allele) => {
+                        const alleleState = get(getAlleleState(allele.id))
+                        return alleleState.analysis.notrelevant || false
                     })
-                }
-                metRequirements.all_alleles_valid_classification = allClassified
-            } else {
-                metRequirements.all_alleles_valid_classification = true
+                    .map((a) => a.id)
             }
-            if (!metRequirements.all_alleles_valid_classification) {
-                result.messages.push('All variants need a valid (not outdated) classification')
+
+            if (finalizeRequirementsConfig.allow_technical) {
+                technicalAlleleIds = Object.values(alleles)
+                    .filter((allele) => {
+                        const alleleState = get(getAlleleState(allele.id))
+                        return alleleState.analysis.verification === 'technical' || false
+                    })
+                    .map((a) => a.id)
+            }
+
+            const allelesRequiresClassification = Object.values(alleles).filter(
+                (a) => !notRelevantAlleleIds.includes(a.id) && !technicalAlleleIds.includes(a.id)
+            )
+            // Check that remaining alleles have classification and
+            // if reused, that they're not outdated
+            const allelesMissingClassication = allelesRequiresClassification.filter((allele) => {
+                const alleleState = get(getAlleleState(allele.id))
+                if (!alleleState) {
+                    throw Error(`Allele id ${allele.id} is not in interpretation state`)
+                }
+                const classification = get(getClassification(allele.id))
+                return !(
+                    classification.hasClassification &&
+                    (classification.reused ? !classification.outdated : true)
+                )
+            })
+
+            if (allelesMissingClassication.length) {
+                metRequirements.classifications = false
+                let message = ''
+                if (allelesMissingClassication.length > 3) {
+                    result.messages.push(
+                        `${allelesMissingClassication.length} variants are missing classifications.`
+                    )
+                } else {
+                    const variantText = allelesMissingClassication
+                        .map((a) => a.formatted.display)
+                        .join(', ')
+                    result.messages.push(
+                        `Some variants are missing classifications: ${variantText}`
+                    )
+                }
+            } else {
+                metRequirements.classifications = true
             }
         }
-
         result.canFinalize = Object.values(metRequirements).every((v) => v)
         return result
     }

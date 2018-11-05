@@ -31,11 +31,7 @@ let cerebral = null
 describe('Handling of allele state', () => {
     beforeEach(() => {
         mock.setup()
-        cerebral = CerebralTest(RootModule(false), {
-            devtools: Devtools({
-                host: '172.17.0.1:9595'
-            })
-        })
+        cerebral = CerebralTest(RootModule(false), {})
         cerebral.controller.addModule(
             'test',
             new Module({
@@ -66,7 +62,22 @@ describe('Handling of allele state', () => {
                     }
                 ]
             },
-            user: { user_config: {} }
+            user: {
+                user_config: {
+                    workflows: {
+                        allele: {
+                            finalize_requirements: {
+                                workflow_status: [
+                                    'Not ready',
+                                    'Interpretation',
+                                    'Review',
+                                    'Medical review'
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
         })
         cerebral.setState('app.user', {
             id: 1
@@ -190,6 +201,7 @@ describe('Handling of allele state', () => {
                     user: {
                         id: 1
                     },
+                    workflow_status: 'Interpretation',
                     status: 'Ongoing',
                     allele_ids: [1, 2, 3, 4],
                     state: {
