@@ -263,22 +263,28 @@ class AlleleFilter(object):
             gp_allele_result[gp_key]['allele_ids'] = sorted(list(remaining_allele_ids))
 
         # Prepare result for input analysis_allele_ids
-        analysis_allele_result = dict()
-        for a_id, allele_ids in analysis_allele_ids.iteritems():
-            remaining_allele_ids = set(allele_ids)
-            analysis_allele_result[a_id] = {
-                'excluded_allele_ids': dict()
-            }
-            # Add filtered allele ids from 'analysis' based filters
-            for name, filtered_allele_ids in analysis_alleles_filtered[a_id].iteritems():
-                remaining_allele_ids -= filtered_allele_ids
-                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
-            # Add filtered allele ids from 'allele' based filters
-            for name, filtered_allele_ids in gp_alleles_filtered[analysis_genepanels[a_id]].iteritems():
-                remaining_allele_ids -= filtered_allele_ids
-                analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(allele_ids & filtered_allele_ids))
+        analysis_allele_result = {k: {'excluded_allele_ids': dict()} for k in analysis_allele_ids}
+        remaining_allele_ids = {k: v for k,v in analysis_allele_ids.iteritems() }
 
-            analysis_allele_result[a_id]['allele_ids'] = sorted(list(remaining_allele_ids))
+        # Go through filters in the order run, to put filtered alleles in the correct filter category
+        for f in filters:
+            name = f['name']
+            filter_data_type, _ = self.filter_functions[name]
+
+            for a_id, allele_ids in analysis_allele_ids.iteritems():
+                gp_key = analysis_genepanels[a_id]
+                # Intersect filtered allele ids with remaining allele ids, to avoid putting alleles in multiple categories
+                if filter_data_type == 'allele':
+                    filtered_allele_ids = gp_alleles_filtered[gp_key][name]
+                    analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(filtered_allele_ids & remaining_allele_ids[a_id]))
+                elif filter_data_type == 'analysis':
+                    filtered_allele_ids = analysis_alleles_filtered[a_id][name]
+
+                    analysis_allele_result[a_id]['excluded_allele_ids'][name] = sorted(list(filtered_allele_ids & remaining_allele_ids[a_id]))
+                remaining_allele_ids[a_id] -= filtered_allele_ids
+
+        for a_id in remaining_allele_ids:
+            analysis_allele_result[a_id]['allele_ids'] = sorted(list(remaining_allele_ids[a_id]))
 
         return gp_allele_result, analysis_allele_result
 

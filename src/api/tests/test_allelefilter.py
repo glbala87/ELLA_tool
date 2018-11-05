@@ -472,3 +472,54 @@ class TestAlleleFilter(object):
         }
 
         assert result == expected_result
+
+        filter_config = {
+            'filters': [
+                {
+                    'name': 'analysis_one_two',
+                },
+                {
+                    'name': 'allele_one_two',
+                }
+            ]
+        }
+
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        allele_testdata = {
+            ("HBOC", "v01"): [1, 2, 3, 4],
+        }
+        analysis_testdata = {
+            1: [1,2,3,4]
+        }
+
+        allele_result, analysis_result = af.filter_alleles(
+            filter_config_id,
+            allele_testdata,
+            analysis_testdata
+        )
+
+
+        expected_allele_result = {
+            ("HBOC", "v01"): {
+                "allele_ids": [3,4],
+                "excluded_allele_ids": {
+                    "allele_one_two": [1,2]
+                }
+            }
+        }
+
+        expected_analysis_result = {
+            1: {
+                "allele_ids": [3,4],
+                "excluded_allele_ids": {
+                    "analysis_one_two": [1,2],
+                    "allele_one_two": []
+                }
+            }
+        }
+
+        import json
+
+        assert allele_result == expected_allele_result
+        assert analysis_result == expected_analysis_result
