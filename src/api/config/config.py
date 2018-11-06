@@ -40,9 +40,7 @@ config = {
                 "allele": {
                     "finalize_requirements": {
                         # Workflow statuses allowing finalization
-                        "workflow_status": ['Interpretation', 'Review'],
-                        # Whether all variants must have valid (not outdated) classification
-                        "all_alleles_valid_classification": True
+                        "workflow_status": ['Interpretation', 'Review']
                     }
                 },
                 "analysis": {
@@ -50,7 +48,7 @@ config = {
                         "workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review'],
                         "allow_notrelevant": False,
                         "allow_technical": True,
-                        "allow_unclassified": False
+                        "allow_unclassified": False  # allow_unclassified implies allow_technical and allow_notrelevant
                     }
                 }
             },

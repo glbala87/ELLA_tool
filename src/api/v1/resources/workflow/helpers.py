@@ -502,10 +502,10 @@ def finalize_interpretation(session, user_id, data, filter_config_id, user_confi
     # exempted ones have a classification
     if not finalize_requirements.get('allow_unclassified'):
         needs_classification = set(loaded_interpretation['allele_ids']) - exempted_classification_allele_ids
-        missing_classification = needs_classification - (created_allele_ids + reused_allele_ids)
+        missing_classification = needs_classification - (created_allele_ids | reused_allele_ids)
         if missing_classification:
             raise ApiError("Missing alleleassessments for allele ids {}".format(
-                ','.join(sorted(list(missing_classification))))
+                ','.join(sorted(list([str(m) for m in missing_classification]))))
             )
 
     # Create/reuse allelereports
