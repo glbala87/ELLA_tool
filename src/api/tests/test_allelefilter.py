@@ -519,7 +519,5 @@ class TestAlleleFilter(object):
             }
         }
 
-        import json
-
         assert allele_result == expected_allele_result
         assert analysis_result == expected_analysis_result
