@@ -201,10 +201,10 @@
               ng-model="$ctrl.getCommentModel(allele.id).comment"></wysiwyg-editor>
           </div>
           <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
-            <button class="purple" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
-            <button class="purple" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
-            <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
-            <button class="purple" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
+            <button class="purple id-quick-technical" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
+            <button class="purple id-quick-notrelevant" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
+            <button class="purple id-quick-classu" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
+            <button class="purple id-quick-class2" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
           </div>
           <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell quick-classification"></div>
           <div ng-if="$ctrl.isTogglable()" ng-click="$ctrl.toggleClicked({alleleId: allele.id})" class="cell tab"

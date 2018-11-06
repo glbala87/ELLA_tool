@@ -379,11 +379,9 @@ class AlleleActionFinalizeResource(LogRequestResource):
             'alleleassessments',
             'referenceassessments',
             'allelereports',
-            'annotations'
-        ],
-        allowed=[
+            'annotations',
             'custom_annotations',
-            'attachments',
+            'attachments'
         ]
     )
     def post(self, session, allele_id, user_config=None, data=None, user=None):

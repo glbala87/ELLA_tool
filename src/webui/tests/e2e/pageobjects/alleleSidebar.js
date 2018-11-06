@@ -1,4 +1,5 @@
 var Page = require('./page')
+let util = require('./util')
 
 class AlleleSidebar extends Page {
     _ensureLoaded() {
@@ -15,15 +16,29 @@ class AlleleSidebar extends Page {
         return browser.getText('allele-sidebar .id-classified .nav-row .id-hgvsc')
     }
 
+    getNotRelevantAlleles() {
+        this._ensureLoaded()
+        return browser.getText('allele-sidebar .id-notrelevant .nav-row .id-hgvsc')
+    }
+
+    getTechnicalAlleles() {
+        this._ensureLoaded()
+        return browser.getText('allele-sidebar .id-technical .nav-row .id-hgvsc')
+    }
+
     getSelectedAllele() {
         this._ensureLoaded()
         return browser.getText('allele-sidebar .nav-row.active .id-hgvsc')
     }
 
     getSelectedAlleleClassification() {
-        // TODO: use method chaining to get classification from parent element
         let e = browser.element('allele-sidebar .nav-row.active')
-        return e.getText('.id-classification')
+        const current = e.getText('.id-classification .current-classification')
+        const existing = e.getText('.id-classification .existing-classification')
+        return {
+            current: current,
+            existing: existing
+        }
     }
 
     _countOf(identifier) {
@@ -55,24 +70,29 @@ class AlleleSidebar extends Page {
         this._selectAlleleByIdx(1, '.id-classified')
     }
 
-    _selectAllele(allele, identifier) {
+    _getAlleleIdx(allele, identifier) {
         // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
         let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`)
-        let allele_idx = -1 // assume no match
+        let alleleIdx = -1 // assume no match
         if (Array.isArray(all)) {
-            allele_idx = all.findIndex((s) => s === allele)
+            alleleIdx = all.findIndex((s) => s === allele)
         } else {
             // not an array, there is only one
             if (all === allele) {
                 // match
-                allele_idx = 0
+                alleleIdx = 0
             }
         }
 
-        if (allele_idx === -1) {
+        if (alleleIdx === -1) {
             throw Error(`Allele ${allele} not found among options ${all.join(',')}`)
         }
-        this._selectAlleleByIdx(allele_idx + 1, identifier)
+        return alleleIdx
+    }
+
+    _selectAllele(allele, identifier) {
+        const alleleIdx = this._getAlleleIdx(allele, identifier)
+        this._selectAlleleByIdx(alleleIdx + 1, identifier)
     }
 
     _selectAlleleByIdx(idx, identifier) {
@@ -106,6 +126,14 @@ class AlleleSidebar extends Page {
         return this._selectAlleleByIdx(idx, '.id-classified')
     }
 
+    selectTechnicalAllele(allele) {
+        this._selectAllele(allele, '.id-technical')
+    }
+
+    selectNotRelevantAllele(allele) {
+        this._selectAllele(allele, '.id-notrelevant')
+    }
+
     isAlleleInUnclassified(allele) {
         let a = this.getUnclassifiedAlleles()
         if (Array.isArray(a)) {
@@ -122,8 +150,99 @@ class AlleleSidebar extends Page {
         return a === allele
     }
 
+    isAlleleInNotRelevant(allele) {
+        let a = this.getNotRelevantAlleles()
+        if (Array.isArray(a)) {
+            return a.find((al) => al === allele) !== undefined
+        }
+        return a === allele
+    }
+
+    isAlleleInTechnical(allele) {
+        let a = this.getTechnicalAlleles()
+        if (Array.isArray(a)) {
+            return a.find((al) => al === allele) !== undefined
+        }
+        return a === allele
+    }
+
     open(page) {
         super.open('login')
+    }
+
+    isMarkedReviewed(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
+        return Boolean(
+            util.elementOrNull(
+                `allele-sidebar .id-classified .nav-row:nth-child(${alleleIdx +
+                    2}) .id-classification.reviewed`
+            )
+        )
+    }
+
+    markClassifiedReview(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
+        browser.click(
+            `allele-sidebar .id-classified .nav-row:nth-child(${alleleIdx + 2}) .id-classification`
+        )
+    }
+
+    quickSetTechnical(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
+        browser.click(
+            `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
+                2}) .quick-classification .id-quick-technical`
+        )
+    }
+
+    quickSetNotRelevant(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
+        browser.click(
+            `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
+                2}) .quick-classification .id-quick-notrelevant`
+        )
+    }
+
+    quickClassU(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
+        browser.click(
+            `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
+                2}) .quick-classification .id-quick-classu`
+        )
+    }
+
+    quickClass2(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
+        browser.click(
+            `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
+                2}) .quick-classification .id-quick-class2`
+        )
+    }
+
+    _setComment(identifier, alleleIdx, text) {
+        util.elementIntoView(
+            `allele-sidebar ${identifier} .nav-row:nth-child(${alleleIdx + 2}) .evaluation`
+        ).click()
+        browser.setValue(
+            `allele-sidebar ${identifier} .nav-row:nth-child(${alleleIdx +
+                2}) .evaluation .wysiwygeditor`,
+            text
+        )
+    }
+
+    setEvaluationComment(allele, text) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
+        this._setComment('.id-classified', alleleIdx, text)
+    }
+
+    setTechnicalComment(allele, text) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-technical')
+        this._setComment('.id-technical', alleleIdx, text)
+    }
+
+    setNotRelevantComment(allele, text) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-notrelevant')
+        this._setComment('.id-notrelevant', alleleIdx, text)
     }
 }
 

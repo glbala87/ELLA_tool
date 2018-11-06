@@ -63,6 +63,14 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                         interpretation.genepanel_version
                     )
                 )
+
+                if (!allele_state.alleleassessment.reuse) {
+                    attachments.push({
+                        allele_id: allele_state.allele_id,
+                        attachment_ids: allele_state.alleleassessment.attachment_ids
+                    })
+                }
+
                 // Get reference ids from allele, we only submit referenceassessments
                 // for references that are added (custom annotation or annotation)
                 const alleleReferences = _getAlleleReferences(allele, references)

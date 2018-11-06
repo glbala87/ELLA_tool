@@ -3,6 +3,8 @@ let util = require('./util')
 
 const SELECTOR_ACMG_INCLUDED = '.id-acmg-included'
 
+const SELECTOR_COMMENT_ANALYSIS = 'allele-sectionbox .id-comment-analysis'
+const SELECTOR_COMMENT_ANALYSIS_EDITOR = `${SELECTOR_COMMENT_ANALYSIS} .wysiwygeditor`
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification'
 const SELECTOR_COMMENT_CLASSIFICATION_EDITOR = `${SELECTOR_COMMENT_CLASSIFICATION} .wysiwygeditor`
 const SELECTOR_COMMENT_FREQUENCY = 'allele-sectionbox .id-comment-frequency'
@@ -32,6 +34,14 @@ class AlleleSectionBox {
     }
     get gnomADGenomesElement() {
         return browser.element(SELECTOR_FREQ_GNOMAD_GENOMES)
+    }
+
+    get analysisCommentElement() {
+        return util.elementIntoView(SELECTOR_COMMENT_ANALYSIS)
+    }
+
+    get analysisComment() {
+        return browser.getText(SELECTOR_COMMENT_ANALYSIS_EDITOR)
     }
 
     get classificationCommentElement() {
