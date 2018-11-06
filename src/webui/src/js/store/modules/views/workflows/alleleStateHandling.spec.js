@@ -822,6 +822,9 @@ describe('Handling of allele state', () => {
                 notrelevant: null,
                 verification: null
             },
+            workflow: {
+                reviewed: false
+            },
             alleleassessment: {
                 reuse: true,
                 reuseCheckedId: 1,
@@ -853,6 +856,9 @@ describe('Handling of allele state', () => {
                 comment: '',
                 verification: null,
                 notrelevant: null
+            },
+            workflow: {
+                reviewed: false
             },
             alleleassessment: {
                 reuse: false,
@@ -919,6 +925,9 @@ describe('Handling of allele state', () => {
                 verification: null,
                 notrelevant: null
             },
+            workflow: {
+                reviewed: false
+            },
             alleleassessment: {
                 reuse: false,
                 evaluation: {
@@ -964,6 +973,9 @@ describe('Handling of allele state', () => {
                 comment: '',
                 verification: null,
                 notrelevant: null
+            },
+            workflow: {
+                reviewed: false
             },
             alleleassessment: {
                 reuse: false,

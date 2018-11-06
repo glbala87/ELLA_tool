@@ -11,13 +11,13 @@ const ANALYSIS_SECTION_KEYS = [
 
 const BASE_SECTIONS = {
     analysis: {
-        title: 'Analysis',
+        title: 'Analysis specific',
         color: 'blue',
         options: {
             hideControlsOnCollapse: false
         },
         analysisComment: {
-            placeholder: 'ANALYSIS-COMMENTS'
+            placeholder: 'ANALYSIS-SPECIFIC-COMMENTS'
         },
         controls: ['validation', 'not-relevant'],
         content: [{ tag: 'allele-info-quality' }]

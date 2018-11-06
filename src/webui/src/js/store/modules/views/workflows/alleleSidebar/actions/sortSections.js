@@ -40,7 +40,7 @@ export default function sortSections({ state, props, resolve }) {
     }
 
     if (orderBy.notRelevant.key) {
-        technical = resolve.value(
+        notRelevant = resolve.value(
             sortAlleles(notRelevant, orderBy.notRelevant.key, orderBy.notRelevant.reverse)
         )
     } else {
