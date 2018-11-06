@@ -78,6 +78,14 @@ export function prepareAlleleStateModel(alleleState) {
         alleleState.analysis.notrelevant = null
     }
 
+    if (!('workflow' in alleleState)) {
+        alleleState.workflow = {}
+    }
+
+    if (!('reviewed' in alleleState.workflow)) {
+        alleleState.workflow.reviewed = false
+    }
+
     //
     // Migrations
     //

@@ -8,7 +8,9 @@ export default function(inverse = false, alleles) {
         state`views.workflows.interpretation.selected`,
         (alleles, interpretation, get) => {
             return alleles.filter((allele) => {
-                const hasClassification = get(getClassification(allele.id)).hasClassification
+                const hasClassification = get(
+                    getClassification(state`views.workflows.data.alleles.${allele.id}`)
+                ).hasClassification
                 return inverse ? !hasClassification : hasClassification
             })
         }

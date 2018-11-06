@@ -94,7 +94,9 @@ export default Compute(
                 if (!alleleState) {
                     throw Error(`Allele id ${allele.id} is not in interpretation state`)
                 }
-                const classification = get(getClassification(allele.id))
+                const classification = get(
+                    getClassification(state`views.workflows.data.alleles.${allele.id}`)
+                )
                 return !(
                     classification.hasClassification &&
                     (classification.reused ? !classification.outdated : true)

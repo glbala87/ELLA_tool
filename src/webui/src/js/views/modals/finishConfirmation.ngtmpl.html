@@ -22,6 +22,7 @@
 
     </div>
 
+
     <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"> </h4>
     <h4 class="id-finalize-not-possible sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize">Finalise not possible:</h4>
     <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized'" ng-repeat="m in $ctrl.canFinalize.messages">- {{m}}</h4>

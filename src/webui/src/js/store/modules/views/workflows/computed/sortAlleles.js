@@ -87,12 +87,18 @@ export default function sortAlleles(alleles, key, reverse) {
             if (!alleles) {
                 return
             }
-            const sortedAlleles = Object.values(alleles).slice()
+
+            const allelesById = {}
+            for (let allele of alleles) {
+                allelesById[allele.id] = allele
+            }
             const sortFunctions = getSortFunctions(
                 config,
-                get(getClassification),
-                get(getVerificationStatus(alleles))
+                get(getClassification(allelesById)),
+                get(getVerificationStatus(allelesById))
             )
+
+            const sortedAlleles = Object.values(alleles).slice()
 
             if (key === 'classification') {
                 sortedAlleles.sort(

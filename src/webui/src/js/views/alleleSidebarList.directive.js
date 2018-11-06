@@ -14,11 +14,14 @@ import getClassification from '../store/modules/views/workflows/alleleSidebar/co
 import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
 import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
+import getAlleleStates from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStates'
+import isReviewed from '../store/modules/views/workflows/alleleSidebar/computed/isReviewed'
+
+// Templates
 import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
-import getAlleleStates from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStates'
 
 const getAlleles = (alleleIds, alleles) => {
     return Compute(alleleIds, alleles, (alleleIds, alleles) => {
@@ -50,7 +53,8 @@ app.component('alleleSidebarList', {
         {
             selectedComponent: state`views.workflows.selectedComponent`,
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
-            classification: getClassification,
+            classification: getClassification(state`${props`allelesPath`}`),
+            reviewed: isReviewed(state`${props`allelesPath`}`),
             consequence: getConsequence(state`${props`allelesPath`}`),
             config: state`app.config`,
             isMultipleInGene: isMultipleInGene(state`${props`allelesPath`}`),
@@ -69,7 +73,7 @@ app.component('alleleSidebarList', {
             rowClicked: signal`${props`rowClickedPath`}`,
             toggleClicked: signal`${props`toggleClickedPath`}`,
             orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
-            // TODO: Consider refactoring the ones below out of this component
+            reviewedClicked: signal`views.workflows.alleleSidebar.reviewedClicked`,
             quickClassificationClicked: signal`views.workflows.alleleSidebar.quickClassificationClicked`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
             analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`
