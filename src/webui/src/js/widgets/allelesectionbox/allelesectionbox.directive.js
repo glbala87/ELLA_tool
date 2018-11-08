@@ -104,8 +104,8 @@ app.component('alleleSectionbox', {
                 state`views.workflows.selectedAllele`
             ),
             showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
-            verificationStatus: getVerificationStatus(state`views.workflows.data.alleles`),
-            notRelevant: getNotRelevant(state`views.workflows.data.alleles`),
+            verificationStatus: getVerificationStatus(state`views.workflows.selectedAllele`),
+            notRelevant: getNotRelevant(state`views.workflows.selectedAllele`),
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
             notRelevantChanged: signal`views.workflows.notRelevantChanged`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,

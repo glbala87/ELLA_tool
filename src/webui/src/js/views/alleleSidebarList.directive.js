@@ -12,7 +12,7 @@ import getAlleleRatio from '../store/modules/views/workflows/alleleSidebar/compu
 import getExternalSummary from '../store/modules/views/workflows/alleleSidebar/computed/getExternalSummary'
 import getClassification from '../store/modules/views/workflows/alleleSidebar/computed/getClassification'
 import getAlleleAssessments from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessments'
-import getVerificationStatus from '../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
+import getVerificationStatus from '../store/modules/views/workflows/alleleSidebar/computed/getVerificationStatus'
 import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import getAlleleStates from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStates'
 import isReviewed from '../store/modules/views/workflows/alleleSidebar/computed/isReviewed'
@@ -22,6 +22,7 @@ import template from './alleleSidebarList.ngtmpl.html'
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
+import getWarnings from '../store/modules/views/workflows/alleleSidebar/computed/getWarnings'
 
 const getAlleles = (alleleIds, alleles) => {
     return Compute(alleleIds, alleles, (alleleIds, alleles) => {
@@ -67,6 +68,7 @@ app.component('alleleSidebarList', {
             externalSummary: getExternalSummary(state`${props`allelesPath`}`),
             isNonsense: isNonsense(state`${props`allelesPath`}`),
             isMultipleSampleType,
+            warnings: getWarnings(state`${props`allelesPath`}`),
             orderBy: state`${props`orderByPath`}`,
             verificationStatus: getVerificationStatus(state`${props`allelesPath`}`),
             selectedAllele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -176,9 +178,6 @@ app.component('alleleSidebarList', {
                         } else if (c.reused) {
                             text = c.existing
                         }
-                        if ($ctrl.isTechnical(allele_id)) {
-                            return `(${text})`
-                        }
                         return text
                     },
                     hasQualityInformation(allele) {
@@ -246,12 +245,10 @@ app.component('alleleSidebarList', {
                         return title.join('\n')
                     },
                     hasWarning(allele) {
-                        return Boolean(allele.warnings)
+                        return $ctrl.warnings[allele.id].length > 0
                     },
                     getWarningsTitle(allele) {
-                        if (allele.warnings) {
-                            return Object.values(allele.warnings).join('\n')
-                        }
+                        return $ctrl.warnings[allele.id].map((w) => w.warning).join('\n')
                     },
                     formatFreqValue(hiFreqData) {
                         const value =

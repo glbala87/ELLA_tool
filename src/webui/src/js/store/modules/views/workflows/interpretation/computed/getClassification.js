@@ -11,8 +11,7 @@ export default function getClassification(allele) {
             reused: null,
             classification: null,
             outdated: null,
-            hasClassification: false,
-            reviewed: false
+            hasClassification: false
         }
         if (!allele) {
             return result

@@ -80,9 +80,9 @@
               <label tabindex=0
                     ng-disabled="$ctrl.readOnly"
                     class="bttn"
-                    ng-model="$ctrl.modelVerificationStatus[$ctrl.selectedAllele]"
-                    ng-model-watch="$ctrl.verificationStatus[$ctrl.selectedAllele]"
-                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus[$ctrl.selectedAllele]})"
+                    ng-model="$ctrl.modelVerificationStatus"
+                    ng-model-watch="$ctrl.verificationStatus"
+                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus})"
                     uib-btn-radio="s"
                     uncheckable="true"
                     ng-repeat="s in ['verified', 'technical']"
@@ -93,12 +93,12 @@
                 <label tabindex=0
                       ng-disabled="$ctrl.readOnly"
                       class="bttn"
-                      ng-model="$ctrl.modelNotRelevant[$ctrl.selectedAllele]"
-                      ng-model-watch="$ctrl.notRelevant[$ctrl.selectedAllele]"
-                      ng-change="$ctrl.notRelevantChanged({alleleId: $ctrl.selectedAllele, notRelevant: $ctrl.modelNotRelevant[$ctrl.selectedAllele]})"
+                      ng-model="$ctrl.modelNotRelevant"
+                      ng-model-watch="$ctrl.notRelevant"
+                      ng-change="$ctrl.notRelevantChanged({alleleId: $ctrl.selectedAllele, notRelevant: $ctrl.modelNotRelevant})"
                       uib-btn-radio="true"
                       uncheckable="true"
-                >{{$ctrl.notRelevant[$ctrl.selectedAllele] ? 'Marked not relevant' : 'Not relevant'}}</label>
+                >{{$ctrl.notRelevant ? 'Marked not relevant' : 'Not relevant'}}</label>
           </div>
       </div>
     </section>

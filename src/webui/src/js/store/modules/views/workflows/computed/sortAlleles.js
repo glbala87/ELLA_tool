@@ -2,7 +2,7 @@ import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import getClassification from '../alleleSidebar/computed/getClassification'
-import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
+import getVerificationStatus from '../alleleSidebar/computed/getVerificationStatus'
 
 function getSortFunctions(config, classification, verificationStatus) {
     return {

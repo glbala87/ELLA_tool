@@ -1,17 +1,13 @@
 import { Compute } from 'cerebral'
 import getAlleleState from './getAlleleState'
 
-export default (alleles) => {
-    return Compute(alleles, (alleles, get) => {
-        const result = {}
-        if (!alleles) {
-            return result
+export default (alleleId) => {
+    return Compute(alleleId, (alleleId, get) => {
+        if (!alleleId) {
+            return null
         }
 
-        for (let [alleleId, allele] of Object.entries(alleles)) {
-            const alleleState = get(getAlleleState(alleleId))
-            result[alleleId] = alleleState ? alleleState.analysis.verification : null
-        }
-        return result
+        const alleleState = get(getAlleleState(alleleId))
+        return alleleState ? alleleState.analysis.verification : null
     })
 }
