@@ -1,4 +1,8 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
+# used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
+UID ?= 1000
+GID ?= 1000
+
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 
 CONTAINER_NAME ?= ella-$(BRANCH)
@@ -68,9 +72,10 @@ help :
 	@echo ""
 
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release	        - Noop. See the README.md file"
+	@echo "make release	           - Noop. See the README.md file"
 	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
 	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
+	@echo "make build-singularity  - Create release singularity image"
 
 
 # Check that given variables are set and all have non-empty values,
@@ -102,7 +107,7 @@ release:
 bundle-client: build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 build-bundle-image:
-	docker build -t $(IMAGE_BUNDLE_STATIC) .
+	docker build -t $(IMAGE_BUNDLE_STATIC) --target dev .
 
 start-bundle-container:
 	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
@@ -150,7 +155,7 @@ build-diagram-image:
 
 start-diagram-container:
 	-docker rm $(DIAGRAM_CONTAINER)
-	docker run --label io.ousamg.gitversion=$(BRANCH) --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
+	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
 
 stop-diagram-container:
 	docker stop $(DIAGRAM_CONTAINER)
@@ -177,7 +182,7 @@ demo:
 		--name $(subst $(comma),-,ella-$(DEMO_NAME)) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
-		--expose 80 \
+		--expose 3114 \
 		local/ella-$(DEMO_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
 	docker exec $(subst $(comma),-,ella-$(DEMO_NAME)) make dbreset
@@ -205,7 +210,7 @@ any:
 	@true
 
 build:
-	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) .
+	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
@@ -259,7 +264,7 @@ restart:
 # and then does an 'exec' of the tests inside the container
 
 test-build:
-	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) .
+	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
 test: test-all
 test-all: test-js test-common test-api test-cli test-report test-e2e
@@ -268,25 +273,32 @@ test-js:
 	docker run \
 	  --rm \
 	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
+	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  yarn test
 
 test-js-auto:
 	docker run \
 	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
+	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  yarn test-watch
 
 test-common:
 	docker run -d \
+	  --name $(CONTAINER_NAME)-common \
+	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
+	  -e PGHOST=/socket \
 	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
-	  --name $(CONTAINER_NAME)-common $(IMAGE_NAME) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-common ops/test/run_python_tests.sh
@@ -294,12 +306,15 @@ test-common:
 
 test-api:
 	docker run -d \
+	  --name $(CONTAINER_NAME)-api \
+	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	  -e PGHOST=/socket \
 	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
-	  --name $(CONTAINER_NAME)-api $(IMAGE_NAME) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
@@ -307,11 +322,14 @@ test-api:
 
 test-api-migration:
 	docker run -d \
+	  --name $(CONTAINER_NAME)-api-migration \
+	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  --name $(CONTAINER_NAME)-api-migration $(IMAGE_NAME) \
+	  -e PGHOST=/socket \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-api-migration ops/test/run_api_migration_tests.sh
@@ -319,10 +337,13 @@ test-api-migration:
 
 test-cli:
 	docker run -d \
+	  --name $(CONTAINER_NAME)-cli \
+	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///vardb-test \
 	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
-	  --name $(CONTAINER_NAME)-cli $(IMAGE_NAME) \
+	  -e PGHOST=/socket \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-cli ops/test/run_cli_tests.sh
@@ -330,9 +351,12 @@ test-cli:
 
 test-report:
 	docker run -d \
+	  --name $(CONTAINER_NAME)-report \
+	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///postgres \
 	  -e PRODUCTION=false \
-	  --name $(CONTAINER_NAME)-report $(IMAGE_NAME) \
+	  -e PGHOST=/socket \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec -t $(CONTAINER_NAME)-report ops/test/run_report_tests.sh
@@ -343,9 +367,11 @@ test-e2e:
 	mkdir -p errorShots
 	docker run -d --hostname e2e \
 	   --name $(CONTAINER_NAME)-e2e \
+	   --user $(UID):$(GID) \
+	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgres:///postgres \
-	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -e PGHOST=/socket \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
@@ -373,4 +399,10 @@ e2e-test-local: test-build
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
-
+build-singularity:
+	docker build -t $(NAME_OF_GENERATED_IMAGE) --target production .
+	docker run --rm -d -p 29000:5000 --name ella-tmp-registry registry:2
+	docker tag $(NAME_OF_GENERATED_IMAGE) localhost:29000/$(NAME_OF_GENERATED_IMAGE)
+	docker push localhost:29000/$(NAME_OF_GENERATED_IMAGE)
+	SINGULARITY_NOHTTPS=1 singularity build ella-release.simg docker://localhost:29000/$(NAME_OF_GENERATED_IMAGE)
+	docker rm -f ella-tmp-registry

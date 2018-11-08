@@ -13,18 +13,19 @@
 if [ "$1" =  "init" ]
 then
     echo "Init of Postgres cluster in $PGDATA"
-
     mkdir -p $PGDATA
-    chown postgres $PGDATA
 
     if [ -d "$PGDATA/pg_clog" ]; then
        echo "The database data dir already exists."
     else
         echo "Creating database cluster in $PGDATA"
-        gosu postgres /usr/lib/postgresql/9.6/bin/initdb
+        /usr/lib/postgresql/9.6/bin/initdb
+
+        # Use /socket for socket
+        echo "unix_socket_directories = '/socket'" >> $PGDATA/postgresql.conf
     fi
 
-    gosu postgres /usr/lib/postgresql/9.6/bin/postgres --single -jE <<-EOSQL
+    /usr/lib/postgresql/9.6/bin/postgres --single -jE <<-EOSQL
        CREATE USER root WITH SUPERUSER PASSWORD 'omgenetics' ;
 EOSQL
 
@@ -39,14 +40,8 @@ function shutdown()
 
 echo "Starting PostgreSQL"
 
-if [ -d /var/run/postgresql ]; then
-    chmod 2775 /var/run/postgresql
-else
-    install -d -m 2775 -o postgres -g postgres /var/run/postgresql
-fi
-
 # Allow any signal which would kill a process to stop PostgreSQL using the 'shutdown' function
 # KILL goes directly to kernel, so it's useless here.
 trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
 
-exec gosu postgres /usr/lib/postgresql/9.6/bin/postgres
+exec /usr/lib/postgresql/9.6/bin/postgres
