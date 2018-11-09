@@ -30,17 +30,26 @@ config = {
             "password_match_groups_descr": ["Uppercase letters [A-Z]", "Lowercase letters [a-z]", "Digits [0-9]", "Special characters"],
             "password_num_match_groups": 3
         },
-        "user_config": {  # Default user config
+        "user_config": {
+            # Default user config
+            # Is _shallow_ merged with usergroup's and user's config at runtime
             "overview": {
                 "views": ["variants", "analyses-by-findings"]
             },
             "workflows": {
                 "allele": {
-                    # Required current workflow status for allowing finalized
-                    "finalize_required_workflow_status": ['Interpretation', 'Review']
+                    "finalize_requirements": {
+                        # Workflow statuses allowing finalization
+                        "workflow_status": ['Interpretation', 'Review']
+                    }
                 },
                 "analysis": {
-                    "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
+                    "finalize_requirements": {
+                        "workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review'],
+                        "allow_notrelevant": False,
+                        "allow_technical": True,
+                        "allow_unclassified": False  # allow_unclassified implies allow_technical and allow_notrelevant
+                    }
                 }
             },
             "acmg": {

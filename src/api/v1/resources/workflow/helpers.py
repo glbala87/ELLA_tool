@@ -15,6 +15,7 @@ from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
+from api.util.util import get_nested
 
 
 def _check_interpretation_input(allele, analysis):
@@ -425,7 +426,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_interpretation(session, user_id, data, filter_config_id, allele_id=None, analysis_id=None):
+def finalize_interpretation(session, user_id, data, filter_config_id, user_config, allele_id=None, analysis_id=None):
     """
     Finalizes an interpretation.
 
@@ -470,6 +471,42 @@ def finalize_interpretation(session, user_id, data, filter_config_id, allele_id=
     created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
     session.add_all(created_alleleassessments)
+
+    # Check that we can finalize
+    # There are different criterias deciding when finalization is allowed
+    reused_allele_ids = set([a.allele_id for a in reused_alleleassessments])
+    created_allele_ids = set([a.allele_id for a in created_alleleassessments])
+    exempted_classification_allele_ids = set()  # allele ids that don't need classification
+    assert reused_allele_ids & created_allele_ids == set()
+
+    workflow_type = 'allele' if allele_id else 'analysis'
+    finalize_requirements = get_nested(
+        user_config,
+        ['workflows', workflow_type, 'finalize_requirements']
+    )
+    if finalize_requirements.get('workflow_status'):
+        if interpretation.workflow_status not in finalize_requirements['workflow_status']:
+            raise ApiError("Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(', '.join(finalize_requirements['workflow_status'])))
+
+    if finalize_requirements.get('allow_technical'):
+        if 'technical_allele_ids' not in data:
+            raise ApiError("Missing required key 'technical_allele_ids' when finalized requirement allow_technical is true")
+        exempted_classification_allele_ids.update(set(data['technical_allele_ids']))
+
+    if finalize_requirements.get('allow_notrelevant'):
+        if 'notrelevant_allele_ids' not in data:
+            raise ApiError("Missing required key 'notrelevant_allele_ids' when finalized requirement allow_notrelevant is true")
+        exempted_classification_allele_ids.update(set(data['notrelevant_allele_ids']))
+
+    # If no "unclassified" are allowed, check that all allele ids minus the
+    # exempted ones have a classification
+    if not finalize_requirements.get('allow_unclassified'):
+        needs_classification = set(loaded_interpretation['allele_ids']) - exempted_classification_allele_ids
+        missing_classification = needs_classification - (created_allele_ids | reused_allele_ids)
+        if missing_classification:
+            raise ApiError("Missing alleleassessments for allele ids {}".format(
+                ','.join(sorted(list([str(m) for m in missing_classification]))))
+            )
 
     # Create/reuse allelereports
     all_alleleassessments = reused_alleleassessments + created_alleleassessments

@@ -1,7 +1,7 @@
 import datetime
 import pytest
 
-from vardb.datamodel import assessment
+from vardb.datamodel import assessment, user as user_model
 
 from api import ApiError
 from api.tests import *
@@ -47,6 +47,16 @@ def allele_wh():
         ALLELE_ID,
         genepanel=('HBOCUTV', 'v01')
     )
+
+
+def update_user_config(session, username, user_config):
+
+    user = session.query(user_model.User).filter(
+        user_model.User.username == username
+    ).one()
+
+    user.config = user_config
+    session.commit()
 
 
 class TestAnalysisInterpretationWorkflow(object):
@@ -372,3 +382,531 @@ class TestOther(object):
                 'testuser1'
             )
         assert 'Found no matching alleleassessment' in str(excinfo.value)
+
+
+class TestFinalizationRequirements():
+
+    @pytest.mark.ai(order=1)
+    def test_required_workflow_status_allele(self, test_database, session):
+        """
+        Test finalizing when in and when not in the required workflow status.
+        """
+
+        test_database.refresh()
+
+        # Default user id is 1
+        user_config = {
+            "workflows": {
+                "allele": {
+                    "finalize_requirements": {
+                        "workflow_status": ['Review']
+                    }
+                }
+            }
+        }
+        user = session.query(user_model.User).filter(
+            user_model.User.id == 1
+        ).one()
+
+        user.config = user_config
+        session.commit()
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'allele',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': 1,
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            }
+        ]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'allele',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Cannot finalize: Interpretation\'s workflow status is in one of required ones' in str(excinfo.value)
+
+        # Send to review, and try again
+        ih.mark_review(
+            'allele',
+            1,
+            {
+                'annotations': annotations,
+                'custom_annotations': custom_annotations,
+                'alleleassessments': alleleassessments,
+                'allelereports': allelereports
+            },
+            'testuser1'
+        )
+
+        interpretation = ih.start_interpretation(
+            'allele',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        ih.finalize(
+            'allele',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
+
+    @pytest.mark.ai(order=2)
+    def test_required_workflow_status_analysis(self, test_database, session):
+        """
+        Test finalizing when in and when not in the required workflow status.
+        """
+
+        test_database.refresh()
+
+        # Default user id is 1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "workflow_status": ['Medical review']
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        # Reuse alleleassessment
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1'
+            )
+        assert 'Cannot finalize: Interpretation\'s workflow status is in one of required ones' in str(excinfo.value)
+
+        # Send to review, and try again
+        ih.mark_medicalreview(
+            'analysis',
+            1,
+            {
+                'annotations': annotations,
+                'custom_annotations': custom_annotations,
+                'alleleassessments': alleleassessments,
+                'allelereports': allelereports
+            },
+            'testuser1'
+        )
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1'
+        )
+
+    @pytest.mark.ai(order=2)
+    def test_allow_technical(self, test_database, session):
+        """
+        Test finalization requirement allow_technical
+        """
+
+        test_database.refresh()
+
+        # Default user is testuser1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": False,
+                        "allow_notrelevant": False,
+                        "allow_unclassified": False
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+
+        # Make one variant unclassified, but reported as technical
+        notrelevant_allele_ids = []
+        technical_allele_ids = [alleleassessments[0]['allele_id']]
+        alleleassessments = alleleassessments[1:]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        # allow_technical is False, so it should fail
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1',
+                technical_allele_ids=technical_allele_ids,
+                notrelevant_allele_ids=notrelevant_allele_ids
+            )
+        assert 'Missing alleleassessments for allele ids 1' in str(excinfo.value)
+
+        # Allow technical and try again
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": True,
+                        "allow_notrelevant": False,
+                        "allow_unclassified": False
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1',
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids
+        )
+
+    @pytest.mark.ai(order=3)
+    def test_allow_notrelevant(self, test_database, session):
+        """
+        Test finalization requirement allow_notrelevant
+        """
+
+        test_database.refresh()
+
+        # Default user is testuser1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": False,
+                        "allow_notrelevant": False,
+                        "allow_unclassified": False
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+
+        # Make one variant unclassified, but reported as not relevant
+        notrelevant_allele_ids = [alleleassessments[0]['allele_id']]
+        technical_allele_ids = []
+        alleleassessments = alleleassessments[1:]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        # allow_notrelevant is False, so it should fail
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1',
+                technical_allele_ids=technical_allele_ids,
+                notrelevant_allele_ids=notrelevant_allele_ids
+            )
+        assert 'Missing alleleassessments for allele ids 1' in str(excinfo.value)
+
+        # Allow notrelevant and try again
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": False,
+                        "allow_notrelevant": True,
+                        "allow_unclassified": False
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1',
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids
+        )
+
+
+    @pytest.mark.ai(order=4)
+    def test_allow_unclassified(self, test_database, session):
+        """
+        Test finalization requirement allow_unclassified
+        """
+
+        test_database.refresh()
+
+        # Default user is testuser1
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": False,
+                        "allow_notrelevant": False,
+                        "allow_unclassified": False
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        interpretation = ih.start_interpretation(
+            'analysis',
+            1,
+            'testuser1',
+            extra={
+                'gp_name': 'HBOC',
+                'gp_version': 'v01'
+            }
+        )
+
+        alleles = ih.get_alleles(
+            'analysis',
+            1,
+            interpretation['id'],
+            interpretation['allele_ids']
+        )
+
+        alleleassessments = [
+            {
+                'allele_id': a['id'],
+                'classification': '1',
+                'evaluation': {},
+                'genepanel_name': 'HBOC',
+                'genepanel_version': 'v01'
+            } for a in alleles
+        ]
+
+        # Make two variants unclassified, one reported as technical and one not relevant
+        notrelevant_allele_ids = [alleleassessments[0]['allele_id']]
+        technical_allele_ids = [alleleassessments[1]['allele_id']]
+        alleleassessments = alleleassessments[2:]
+        referenceassessments = []
+        attachments = []
+        allelereports = []
+        annotations = [{'allele_id': a['id'], 'annotation_id': a['annotation']['annotation_id']} for a in alleles]
+        custom_annotations = []
+
+        # allow_unclassified is False, so it should fail
+        with pytest.raises(ApiError) as excinfo:
+            ih.finalize(
+                'analysis',
+                1,
+                annotations,
+                custom_annotations,
+                alleleassessments,
+                referenceassessments,
+                allelereports,
+                attachments,
+                'testuser1',
+                technical_allele_ids=technical_allele_ids,
+                notrelevant_allele_ids=notrelevant_allele_ids
+            )
+        assert 'Missing alleleassessments for allele ids 1,2' in str(excinfo.value)
+
+        # Allow unclassified and try again
+        # (allow_unclassified implies allow_technical and allow_notrelevant)
+        user_config = {
+            "workflows": {
+                "analysis": {
+                    "finalize_requirements": {
+                        "allow_technical": False,
+                        "allow_notrelevant": False,
+                        "allow_unclassified": True
+                    }
+                }
+            }
+        }
+        update_user_config(session, 'testuser1', user_config)
+
+        ih.finalize(
+            'analysis',
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            'testuser1',
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids
+        )
+

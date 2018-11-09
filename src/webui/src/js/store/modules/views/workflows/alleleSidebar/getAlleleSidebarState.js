@@ -16,6 +16,10 @@ export default function getAlleleSidebarState() {
             technical: {
                 key: null,
                 reverse: false
+            },
+            notRelevant: {
+                key: null,
+                reverse: false
             }
         }
     }

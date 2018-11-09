@@ -34,6 +34,7 @@
   </allele-sidebar-list>
   <allele-sidebar-list
     class="id-classified"
+    comment-type="evaluation"
     allele-ids-path="'views.workflows.alleleSidebar.classified'"
     alleles-path="'views.workflows.data.alleles'"
     row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
@@ -46,8 +47,26 @@
     expanded="$ctrl.expanded"
     shade-multiple-in-gene="true">
   </allele-sidebar-list>
+
+  <div class="spacer"></div>
+
+  <allele-sidebar-list
+    class="id-notrelevant"
+    comment-type="analysis"
+    allele-ids-path="'views.workflows.alleleSidebar.notRelevant'"
+    alleles-path="'views.workflows.data.alleles'"
+    row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
+    toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
+    order-by-path="'views.workflows.alleleSidebar.orderBy.notRelevant'"
+    togglable="false"
+    read-only="$ctrl.readOnly"
+    section-title="Not relevant variants"
+    expanded="$ctrl.expanded"
+    shade-multiple-in-gene="true">
+  </allele-sidebar-list>
   <allele-sidebar-list
     class="id-technical"
+    comment-type="analysis"
     allele-ids-path="'views.workflows.alleleSidebar.technical'"
     alleles-path="'views.workflows.data.alleles'"
     row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"

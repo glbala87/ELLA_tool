@@ -13,7 +13,7 @@ uri_part = {
 ANALYSIS_WORKFLOW = "analysis"
 
 
-def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments):
+def finalize_template(annotations, custom_annotations, alleleassessments, referenceassessments, allelereports, attachments, technical_allele_ids, notrelevant_allele_ids):
     return {
        'annotations': annotations,
        'custom_annotations': custom_annotations,
@@ -21,6 +21,8 @@ def finalize_template(annotations, custom_annotations, alleleassessments, refere
        'referenceassessments': referenceassessments,
        'allelereports': allelereports,
        'attachments': attachments,
+       'technical_allele_ids': technical_allele_ids,
+       'notrelevant_allele_ids': notrelevant_allele_ids
     }
 
 
@@ -288,7 +290,7 @@ def reopen_analysis(workflow_type, workflow_id, username):
 
 
 def finalize(workflow_type, analysis_id, annotations, custom_annotations, alleleassessments, referenceassessments,
-             allelereports, attachments, username):
+             allelereports, attachments, username, technical_allele_ids=None, notrelevant_allele_ids=None):
     response = api.post(
         '/workflows/{}/{}/actions/finalize/'.format(uri_part[workflow_type], analysis_id),
         finalize_template(
@@ -297,7 +299,9 @@ def finalize(workflow_type, analysis_id, annotations, custom_annotations, allele
             alleleassessments,
             referenceassessments,
             allelereports,
-            attachments
+            attachments,
+            technical_allele_ids if technical_allele_ids else [],
+            notrelevant_allele_ids if notrelevant_allele_ids else []
         ),
         username=username
     )

@@ -1,8 +1,8 @@
 import getWarningCleared from '../worklog/computed/getWarningCleared'
 const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'external', 'prediction', 'references']
 const ANALYSIS_SECTION_KEYS = [
+    'analysis',
     'classification',
-    'quality',
     'frequency',
     'external',
     'prediction',
@@ -10,6 +10,18 @@ const ANALYSIS_SECTION_KEYS = [
 ]
 
 const BASE_SECTIONS = {
+    analysis: {
+        title: 'Analysis specific',
+        color: 'blue',
+        options: {
+            hideControlsOnCollapse: false
+        },
+        analysisComment: {
+            placeholder: 'ANALYSIS-SPECIFIC-COMMENTS'
+        },
+        controls: ['validation', 'not-relevant'],
+        content: [{ tag: 'allele-info-quality' }]
+    },
     classification: {
         title: 'Classification',
         color: 'purple',
@@ -27,19 +39,6 @@ const BASE_SECTIONS = {
             placeholder: 'REPORT'
         },
         content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
-    },
-    quality: {
-        title: 'Quality',
-        subtitle: 'Analysis only',
-        color: 'purple',
-        options: {
-            hideControlsOnCollapse: true
-        },
-        qualityComment: {
-            placeholder: 'QUALITY-COMMENTS'
-        },
-        controls: ['validation'],
-        content: [{ tag: 'allele-info-quality' }]
     },
     frequency: {
         title: 'Frequency',

@@ -26,6 +26,10 @@ class AnalysisPage extends Page {
         return util.element('.id-start-analysis')
     }
 
+    get quickClassificationButton() {
+        return util.element('button.quick-classification-button')
+    }
+
     // acmg modal to choose code:
     get acmgComment() {
         return $(SELECTOR_COMMENT_ACMG)
@@ -132,6 +136,16 @@ class AnalysisPage extends Page {
 
         // Add staged code
         util.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
+    }
+
+    getFinalizePossible() {
+        browser.waitForExist('.id-finish-analysis')
+        this.finishButton.click()
+        this.finalizeButton.click()
+        const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null
+        // Close modal
+        browser.element('body').click()
+        return finalizePossible
     }
 }
 

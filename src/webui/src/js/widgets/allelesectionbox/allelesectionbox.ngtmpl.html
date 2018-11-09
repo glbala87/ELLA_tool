@@ -80,14 +80,26 @@
               <label tabindex=0
                     ng-disabled="$ctrl.readOnly"
                     class="bttn"
-                    ng-model="$ctrl.modelVerificationStatus[$ctrl.selectedAllele]"
-                    ng-model-watch="$ctrl.verificationStatus[$ctrl.selectedAllele]"
-                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus[$ctrl.selectedAllele]})"
+                    ng-model="$ctrl.modelVerificationStatus"
+                    ng-model-watch="$ctrl.verificationStatus"
+                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus})"
                     uib-btn-radio="s"
                     uncheckable="true"
                     ng-repeat="s in ['verified', 'technical']"
               >{{s | uppercase }}</label>
         </div>
+
+        <div class="bttn-set" ng-if="control == 'not-relevant'" title="Regarded as not relevant for this analysis">
+                <label tabindex=0
+                      ng-disabled="$ctrl.readOnly"
+                      class="bttn"
+                      ng-model="$ctrl.modelNotRelevant"
+                      ng-model-watch="$ctrl.notRelevant"
+                      ng-change="$ctrl.notRelevantChanged({alleleId: $ctrl.selectedAllele, notRelevant: $ctrl.modelNotRelevant})"
+                      uib-btn-radio="true"
+                      uncheckable="true"
+                >{{$ctrl.notRelevant ? 'Marked not relevant' : 'Not relevant'}}</label>
+          </div>
       </div>
     </section>
 
@@ -105,12 +117,12 @@
                        ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
                        ng-if="$ctrl.section.alleleassessmentComment"></wysiwyg-editor>
 
-    <wysiwyg-editor class="control-comment id-comment-quality"
+    <wysiwyg-editor class="control-comment id-comment-analysis"
         ng-disabled="$ctrl.readOnly"
-        placeholder="{{$ctrl.section.qualityComment.placeholder}}"
-        ng-change="$ctrl.qualityCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.quality.comment})"
-        ng-model="$ctrl.alleleState.quality.comment"
-        ng-if="$ctrl.section.qualityComment"></wysiwyg-editor>
+        placeholder="{{$ctrl.section.analysisComment.placeholder}}"
+        ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.analysis.comment})"
+        ng-model="$ctrl.alleleState.analysis.comment"
+        ng-if="$ctrl.section.analysisComment"></wysiwyg-editor>
 
     <wysiwyg-editor class="control-comment id-comment-report"
                        ng-disabled="$ctrl.readOnly"

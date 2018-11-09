@@ -1,4 +1,4 @@
-const { execSync } = require('child_process')
+const { execSync, spawnSync } = require('child_process')
 
 function waitForCerebral() {
     browser.timeouts('script', 2000).executeAsync(function(done) {
@@ -61,6 +61,14 @@ function waitForAngular() {
     })
 }
 
+function psql(sql) {
+    let result = spawnSync('psql', ['postgres', '-c', sql])
+    if (result.status != 0) {
+        throw Error(result.stderr.toString('utf8'))
+    }
+    return result.stdout.toString('utf8')
+}
+
 module.exports = function addCommands() {
     browser.addCommand('resetDb', (testset = 'e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`)
@@ -81,6 +89,7 @@ module.exports = function addCommands() {
         }
     })
 
+    browser.addCommand('psql', psql)
     browser.addCommand('getClass', (selector) => browser.getAttribute(selector, 'class').split(' '))
     browser.addCommand('isCommentEditable', (selector) => {
         let res = browser.getAttribute(selector, 'contenteditable')

@@ -30,3 +30,5 @@ export default (alleleId) => {
         return alleleAssessment
     })
 }
+
+// Show warning when new classification and technical

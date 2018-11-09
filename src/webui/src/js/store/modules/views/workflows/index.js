@@ -20,6 +20,7 @@ import interpretation from './interpretation'
 import worklog from './worklog'
 import visualization from './visualization'
 import verificationStatusChanged from './signals/verificationStatusChanged'
+import notRelevantChanged from './signals/notRelevantChanged'
 
 export default Module({
     state: {}, // State set in changeView (via parent module: ../workflows)
@@ -42,6 +43,7 @@ export default Module({
         finishClicked,
         finishConfirmationClicked,
         loadInterpretationData,
-        verificationStatusChanged
+        verificationStatusChanged,
+        notRelevantChanged
     }
 })

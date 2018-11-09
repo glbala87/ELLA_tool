@@ -1,15 +1,19 @@
 import filterClassified from '../../computed/filterClassified'
 import sortAlleles from '../../computed/sortAlleles'
 import filterTechnical from '../../computed/filterTechnical'
+import filterNotRelevant from '../../computed/filterNotRelevant'
 
 export default function sortSections({ state, props, resolve }) {
     const orderBy = state.get('views.workflows.alleleSidebar.orderBy')
-    let alleles = Object.values(state.get('views.workflows.data.alleles'))
+    const alleles = Object.values(state.get('views.workflows.data.alleles'))
 
-    const notTechnical = filterTechnical(true, alleles)
+    // Technical takes presedence over not relevant
     let technical = filterTechnical(false, alleles)
-    let unclassified = resolve.value(filterClassified(true, notTechnical))
-    let classified = resolve.value(filterClassified(false, notTechnical))
+    const notTechnical = filterTechnical(true, alleles)
+    let notRelevant = filterNotRelevant(false, notTechnical)
+    const toClassify = filterNotRelevant(true, notTechnical)
+    let unclassified = filterClassified(true, toClassify)
+    let classified = filterClassified(false, toClassify)
 
     if (orderBy.unclassified.key) {
         unclassified = resolve.value(
@@ -35,7 +39,16 @@ export default function sortSections({ state, props, resolve }) {
         technical = resolve.value(sortAlleles(technical, null, null))
     }
 
+    if (orderBy.notRelevant.key) {
+        notRelevant = resolve.value(
+            sortAlleles(notRelevant, orderBy.notRelevant.key, orderBy.notRelevant.reverse)
+        )
+    } else {
+        notRelevant = resolve.value(sortAlleles(notRelevant, null, null))
+    }
+
     state.set('views.workflows.alleleSidebar.unclassified', unclassified.map((a) => a.id))
     state.set('views.workflows.alleleSidebar.classified', classified.map((a) => a.id))
     state.set('views.workflows.alleleSidebar.technical', technical.map((a) => a.id))
+    state.set('views.workflows.alleleSidebar.notRelevant', notRelevant.map((a) => a.id))
 }

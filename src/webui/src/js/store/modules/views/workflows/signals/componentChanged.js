@@ -8,7 +8,7 @@ export default [
     prepareSelectedAllele,
     when(state`views.workflows.selectedAllele`),
     {
-        true: [selectedAlleleChanged],
+        true: [set(props`alleleId`, state`views.workflows.selectedAllele`), selectedAlleleChanged],
         false: []
     }
 ]

@@ -1,8 +1,8 @@
 import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getClassification from '../alleleSidebar/computed/getClassification'
-import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
+import getClassificationById from '../alleleSidebar/computed/getClassificationById'
+import getVerificationStatusById from '../alleleSidebar/computed/getVerificationStatusById'
 
 function getSortFunctions(config, classification, verificationStatus) {
     return {
@@ -68,7 +68,7 @@ function getSortFunctions(config, classification, verificationStatus) {
         },
         classification: (allele) => {
             return config.classification.options.findIndex(
-                (o) => o.value === classification[allele.id]
+                (o) => o.value === classification[allele.id].classification
             )
         },
         warning: (allele) => {
@@ -87,12 +87,18 @@ export default function sortAlleles(alleles, key, reverse) {
             if (!alleles) {
                 return
             }
-            const sortedAlleles = Object.values(alleles).slice()
+
+            const allelesById = {}
+            for (let allele of alleles) {
+                allelesById[allele.id] = allele
+            }
             const sortFunctions = getSortFunctions(
                 config,
-                get(getClassification),
-                get(getVerificationStatus(alleles))
+                get(getClassificationById(allelesById)),
+                get(getVerificationStatusById(allelesById))
             )
+
+            const sortedAlleles = Object.values(alleles).slice()
 
             if (key === 'classification') {
                 sortedAlleles.sort(

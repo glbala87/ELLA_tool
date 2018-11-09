@@ -76,9 +76,10 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassifiedBefore; i++) {
             let allele_element = alleleSidebar.selectClassifiedAlleleByIdx(i)
             let selected_allele = alleleSidebar.getSelectedAllele()
-            expect(alleleSidebar.getSelectedAlleleClassification()).toBe('1')
+            expect(alleleSidebar.getSelectedAlleleClassification().current).toBe('1')
             alleleSectionBox.classifyAs2()
             browser.pause(100)
+            expect(alleleSidebar.getSelectedAlleleClassification().current).toBe('2')
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
 
@@ -110,7 +111,7 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassifiedBefore; i++) {
             let allele_element = alleleSidebar.selectClassifiedAlleleByIdx(i)
             let selected_allele = alleleSidebar.getSelectedAllele()
-            expect(alleleSidebar.getSelectedAlleleClassification()).toBe('2')
+            expect(alleleSidebar.getSelectedAlleleClassification().current).toBe('2')
             alleleSectionBox.classifyAs3()
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
@@ -159,7 +160,8 @@ describe('Sample workflow ', function() {
             alleleSectionBox.classificationAcceptedBtn.click()
             alleleSectionBox.classifyAsU()
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('U', 'Previous classification should now be class U')
+            expect(classification.existing).toBe('3')
+            expect(classification.current).toBe('U')
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
 
@@ -168,7 +170,7 @@ describe('Sample workflow ', function() {
             let selected_allele = alleleSidebar.getSelectedAllele()
             alleleSectionBox.classifyAsU()
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('U', 'Unclassified should now be class U')
+            expect(classification.current).toBe('U', 'Unclassified should now be class U')
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         }
 
@@ -208,7 +210,7 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe(
+            expect(classification.current).toBe(
                 current_classifications[i - 1],
                 'Class matches for all alleles in current data (default) round'
             )
@@ -219,7 +221,7 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('1', 'Class 1 for all alleles in first (oldest) round')
+            expect(classification.current).toBe('1')
             expect(alleleSectionBox.hasExistingClassification()).toBe(
                 false,
                 'no alleles from round one' + ' had an existing classification'
@@ -231,7 +233,7 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('2', 'Class 2 for all alleles in second round')
+            expect(classification.current).toBe('2', 'Class 2 for all alleles in second round')
             expect(alleleSectionBox.hasExistingClassification()).toBe(
                 false,
                 'no alleles from round two' + ' had an existing classification'
@@ -242,7 +244,10 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('3', 'Class 3 for all alleles in third (newest) round')
+            expect(classification.current).toBe(
+                '3',
+                'Class 3 for all alleles in third (newest) round'
+            )
             expect(alleleSectionBox.hasExistingClassification()).toBe(
                 false,
                 'no alleles from round three' + ' had an existing classification'
@@ -271,7 +276,8 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification).toBe('U', 'Class U for all alleles')
+            expect(classification.existing === '3' || classification.existing === '').toBe(true)
+            expect(classification.current).toBe('U')
             if (alleleSectionBox.hasExistingClassification()) {
                 expect(alleleSectionBox.getExistingClassificationClass()).toContain(
                     'Class 3',

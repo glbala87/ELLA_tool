@@ -1,7 +1,7 @@
 import copy
-from api import config
+from api.config import config
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, dict_merge
+from api.util.util import authenticate
 
 
 class ConfigResource(LogRequestResource):
@@ -21,7 +21,7 @@ class ConfigResource(LogRequestResource):
             description: Config object
         """
 
-        c = copy.deepcopy(config.config)
+        c = copy.deepcopy(config)
         if user_config:
             c["user"]["user_config"] = user_config
 

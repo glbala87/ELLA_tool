@@ -47,6 +47,23 @@ const TITLE_REVIEW = ' • REVIEW'
 // let originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 // jasmine.DEFAULT_TIMEOUT_INTERVAL = timeOutForThisSpec;
 
+function setFinalizationRequirements(
+    allow_technical = false,
+    allow_notrelevant = false,
+    allow_unclassified = false
+) {
+    let result = browser.psql(`
+        UPDATE "user" SET config =
+        '{ "workflows": { "analysis": { "finalize_requirements": {
+            "allow_technical": ${allow_technical ? 'true' : 'false'},
+            "allow_notrelevant": ${allow_notrelevant ? 'true' : 'false'},
+            "allow_unclassified": ${allow_unclassified ? 'true' : 'false'},
+            "workflow_status": ["Not ready", "Interpretation", "Review", "Medical review"]
+            } } } }' WHERE username IN ('testuser1', 'testuser2')
+    `)
+    expect(result).toEqual('UPDATE 2\n')
+}
+
 describe('Sample workflow', function() {
     console.log(
         'Starting test suite ' +
@@ -58,18 +75,32 @@ describe('Sample workflow', function() {
         browser.resetDb()
     })
 
-    // Store entered data for interpretation round 1 {c.1234A>C: ...}
-    // Will be checked against in round two
-    let expected_analysis_1_round_1 = {}
-    let expected_analysis_2_round_1 = {}
+    it('allows and disallows finalize without classifying all variants if configured', function() {
+        // Modify user config to allow finalization with classifying all variants
 
-    it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.selectFirstUser()
         browser.localStorage('DELETE') // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
+
+        setFinalizationRequirements(true, true, true)
+        browser.refresh()
+        expect(analysisPage.getFinalizePossible()).toBe(true)
+    })
+
+    // Store entered data for interpretation round 1 {c.1234A>C: ...}
+    // Will be checked against in round two
+    let expected_analysis_1_round_1 = {}
+    let expected_analysis_2_round_1 = {}
+
+    it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        // For rest of the test, make sure all must be classified, except technical and not relevant
+        setFinalizationRequirements(true, true, false)
+        browser.refresh()
+        browser.pause(1000)
+        expect(analysisPage.getFinalizePossible()).toBe(false)
 
         // Add excluded allele
         let number_of_variants_before_filter_change = alleleSidebar.getUnclassifiedAlleles().length
@@ -84,27 +115,38 @@ describe('Sample workflow', function() {
             number_of_variants_before_filter_change + 1
         )
 
-        // Classify first three alleles quickly
-        alleleSidebar.selectFirstUnclassified()
-        alleleSidebar.selectUnclassifiedAllele('c.1233dupA')
+        // Classify first three alleles with quick classification
+        analysisPage.quickClassificationButton.click()
+        alleleSidebar.quickSetTechnical('c.1233dupA')
+        // Allele is selected automatically when setting technical
         let selected_allele = alleleSidebar.getSelectedAllele()
-        alleleSectionBox.classifyAs1()
-        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
-        expected_analysis_1_round_1[selected_allele] = { classification: '1' }
+        expect(alleleSidebar.isAlleleInTechnical(selected_allele)).toBe(true)
+        alleleSidebar.setTechnicalComment('c.1233dupA', 'TECHNICAL_ROUND_1')
+        expected_analysis_1_round_1[selected_allele] = {
+            technical: true,
+            analysisComment: 'TECHNICAL_ROUND_1'
+        }
+        alleleSidebar.quickSetNotRelevant('c.925dupT')
+        selected_allele = alleleSidebar.getSelectedAllele()
+        expect(alleleSidebar.isAlleleInNotRelevant(selected_allele)).toBe(true)
+        alleleSidebar.setNotRelevantComment('c.925dupT', 'NOTRELEVANT_ROUND_1')
+        expected_analysis_1_round_1[selected_allele] = {
+            notRelevant: true,
+            analysisComment: 'NOTRELEVANT_ROUND_1'
+        }
 
         // alleleSidebar.selectFirstUnclassified();
-        alleleSidebar.selectUnclassifiedAllele('c.925dupT')
+        alleleSidebar.quickClassU('c.1788T>C')
         selected_allele = alleleSidebar.getSelectedAllele()
-        alleleSectionBox.classifyAs2()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
-        expected_analysis_1_round_1[selected_allele] = { classification: '2' }
+        alleleSidebar.setEvaluationComment('c.1788T>C', 'EVALUATION_ROUND_1')
+        expected_analysis_1_round_1[selected_allele] = {
+            classification: 'U',
+            evaluation: 'EVALUATION_ROUND_1'
+        }
 
-        // alleleSidebar.selectFirstUnclassified();
-        alleleSidebar.selectUnclassifiedAllele('c.1788T>C')
-        selected_allele = alleleSidebar.getSelectedAllele()
-        alleleSectionBox.classifyAsU()
-        expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
-        expected_analysis_1_round_1[selected_allele] = { classification: 'U' }
+        // Classify rest using 'Full' classification view
+        analysisPage.quickClassificationButton.click()
 
         const exomesElement = alleleSectionBox.gnomADExomesElement
         expect(exomesElement).toBeDefined('Missing gnomeAD exomes box on the page')
@@ -122,6 +164,12 @@ describe('Sample workflow', function() {
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
+            // If last round, test that finalization should not be possible
+            // since we haven't classified all yet.
+            if (idx === 4) {
+                expect(analysisPage.getFinalizePossible()).toBe(false)
+            }
+
             // Move to next unclassified
             alleleSidebar.selectFirstUnclassified()
             selected_allele = alleleSidebar.getSelectedAllele()
@@ -188,9 +236,11 @@ describe('Sample workflow', function() {
             console.log('Setting class ' + (idx + 1))
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx + 1}`)
 
+            alleleSidebar.markClassifiedReview(selected_allele)
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
 
             expected_analysis_1_round_1[selected_allele] = {
+                reviewed: true,
                 references: {
                     '1': {
                         relevance: 'Yes',
@@ -229,6 +279,9 @@ describe('Sample workflow', function() {
             }
         }
 
+        // Make sure that we can finalize now
+        expect(analysisPage.getFinalizePossible()).toBe(true)
+
         console.log('Changing to the report page')
         analysisPage.selectSectionReport()
 
@@ -240,7 +293,7 @@ describe('Sample workflow', function() {
         workLog.close()
 
         expect(alleleSidebar.getClassifiedAlleles().length).toEqual(
-            6,
+            4,
             `Wrong number of variants of sample ${SAMPLE_ONE} before finish`
         )
 
@@ -299,7 +352,7 @@ describe('Sample workflow', function() {
         // Check that the others are accepted by default
         for (let idx = 0; idx < overlapping_alleles.length; idx++) {
             alleleSidebar.selectClassifiedAllele(overlapping_alleles[idx])
-            expect(alleleSidebar.getSelectedAlleleClassification()).toEqual(
+            expect(alleleSidebar.getSelectedAlleleClassification().current).toEqual(
                 overlapping_classes[idx]
             )
             expect(alleleSectionBox.classificationAcceptedBtn.getText()).toEqual(
@@ -319,6 +372,12 @@ describe('Sample workflow', function() {
                 classification: '1'
             }
         }
+
+        // Reviewed is reset since this is a new sample
+        allele_data['c.581G>A'].reviewed = false
+        allele_data['c.475+3A>G'].reviewed = false
+        allele_data['c.289G>T'].reviewed = false
+
         checkAlleleClassification(allele_data)
 
         // start: make changes to classification on a variant that overlaps with the third sample:
@@ -343,6 +402,8 @@ describe('Sample workflow', function() {
         // :end
 
         expected_analysis_2_round_1['c.581G>A'] = expected_analysis_1_round_1['c.581G>A']
+        expected_analysis_2_round_1['c.581G>A'].reviewed = false
+
         Object.assign(expected_analysis_2_round_1['c.581G>A'], {
             evaluation: 'EVALUATION_UPDATED',
             frequency: 'FREQUENCY_UPDATED',
