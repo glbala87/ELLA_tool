@@ -37,7 +37,7 @@ class Sample(Base):
     sibling_id = Column(Integer, ForeignKey("sample.id"))  # Set for siblings pointing to proband (i.e. _not_ on proband)
     sex = Column(Enum("Male", "Female", name="sample_sex"))  # Can be unknown
     affected = Column(Boolean, nullable=False)  # Can be unknown
-    deposit_date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_deposited = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
 
     __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
 
@@ -60,7 +60,8 @@ class Analysis(Base):
     warnings = Column(String)
     report = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
-    deposit_date = Column("deposit_date", DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_requested = Column(DateTime(timezone=True))
+    date_deposited = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)

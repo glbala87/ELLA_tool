@@ -89,7 +89,8 @@ class DepositAnalysis(DepositFromVCF):
                 analysis_config_data.analysis_name,
                 db_genepanel,
                 analysis_config_data.report,
-                analysis_config_data.warnings
+                analysis_config_data.warnings,
+                date_requested=analysis_config_data.date_requested
             )
         else:
             db_analysis = self.session.query(sample.Analysis).filter(

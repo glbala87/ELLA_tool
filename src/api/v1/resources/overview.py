@@ -52,25 +52,25 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
     ).all()
 
     # Get display date
-    allele_ids_deposit_date = dict()
-    # Standalone alleles are not connected to analysis, and have no deposit date.
+    allele_ids_date = dict()
+    # Standalone alleles are not connected to analysis, and have no requested or deposited date.
     # They do however have AlleleInterpretation objects with date_created.
-    allele_ids_interpretation_deposit_date = session.query(
+    allele_ids_interpretation_date = session.query(
         workflow.AlleleInterpretation.allele_id,
         func.min(workflow.AlleleInterpretation.date_created)
     ).filter(
         workflow.AlleleInterpretation.allele_id.in_(all_allele_ids)
     ).group_by(workflow.AlleleInterpretation.allele_id).all()
-    allele_ids_deposit_date.update(
-        {k: v for k, v in allele_ids_interpretation_deposit_date})
+    allele_ids_date.update(
+        {k: v for k, v in allele_ids_interpretation_date})
 
     # Preload oldest analysis for each allele, to get the oldest datetime
     # for the analysis awaiting this allele's classification
     # If we have dates from both analysis and alleleinterpretation, we let oldest analysis take priority
     if analysis_ids:
-        allele_ids_analysis_deposit_date = session.query(
+        allele_ids_analysis_date = session.query(
             allele.Allele.id,
-            func.min(sample.Analysis.deposit_date)
+            func.min(func.coalesce(sample.Analysis.date_requested, sample.Analysis.date_deposited))
         ).join(
             genotype.Genotype.alleles,
             sample.Sample,
@@ -79,8 +79,9 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
             sample.Analysis.id.in_(analysis_ids),
             allele.Allele.id.in_(all_allele_ids)
         ).group_by(allele.Allele.id).all()
-        allele_ids_deposit_date.update(
-            {k: v for k, v in allele_ids_analysis_deposit_date}
+
+        allele_ids_date.update(
+            {k: v for k, v in allele_ids_analysis_date}
         )
 
     # Preload interpretations for each allele
@@ -166,7 +167,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
             final_alleles.append({
                 'genepanel': {'name': genepanel.name, 'version': genepanel.version},
                 'allele': a,
-                'oldest_analysis': allele_ids_deposit_date[a['id']].isoformat(),
+                'oldest_analysis': allele_ids_date[a['id']].isoformat(),
                 'priority': max([
                     analysis_allele_ids_priority.get(a['id'], 1),
                     allele_allele_ids_priority.get(a['id'], 1)

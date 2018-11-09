@@ -27,7 +27,7 @@ class NonStartedAnalysesVariants(LogRequestResource):
 
         excel_file_obj = BytesIO()
         gp_keys = [(g.name, g.version) for g in user.group.genepanels]
-        filter_config_id = queries.get_default_filter_config_id(user.id).scalar()
+        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         export_sanger_variants.export_variants(
             session,
             gp_keys,
