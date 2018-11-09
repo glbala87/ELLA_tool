@@ -7,7 +7,7 @@ Create Date: 2018-11-09 11:28:58.160814
 """
 
 revision = 'da809112fd6c'
-down_revision = '4629b478b291'
+down_revision = '662204b12d07'
 branch_labels = None
 depends_on = None
 

@@ -6,7 +6,7 @@ import re
 import itertools
 from os import path
 from collections import defaultdict
-from sqlalchemy import or_, tuple_, func
+from sqlalchemy import or_, tuple_, func, text
 import xlsxwriter
 
 from api.util.alleledataloader import AlleleDataLoader
@@ -46,7 +46,7 @@ def extract_meta_from_name(analysis_name):
 
 # Column header and width
 COLUMN_PROPERTIES = [
-    (u'Importdato', 12),
+    (u'Dato', 12),
     (u'Prosjektnummer', 14),
     (u'Prøvenummer', 12),
     (u'Genpanel', 20),  # navn(versjon)
@@ -196,7 +196,7 @@ def get_warning_rows(session, ids_not_started):
         sample.Analysis.id.in_(ids_not_started),
         ~sample.Analysis.warnings.is_(None),
         sample.Analysis.warnings != ''
-    ).order_by(func.coaelsce(sample.Analysis.date_requested, sample.Analysis.date_deposited)).all()
+    ).order_by(text('COALESCE(date_requested, date_deposited)')).all()
 
     for analysis in analyses_with_warnings:
         analysis_info = get_analysis_info(analysis)
