@@ -12,8 +12,8 @@ export default function sortSections({ state, props, resolve }) {
     const notTechnical = filterTechnical(true, alleles)
     let notRelevant = filterNotRelevant(false, notTechnical)
     const toClassify = filterNotRelevant(true, notTechnical)
-    let unclassified = resolve.value(filterClassified(true, toClassify))
-    let classified = resolve.value(filterClassified(false, toClassify))
+    let unclassified = filterClassified(true, toClassify)
+    let classified = filterClassified(false, toClassify)
 
     if (orderBy.unclassified.key) {
         unclassified = resolve.value(

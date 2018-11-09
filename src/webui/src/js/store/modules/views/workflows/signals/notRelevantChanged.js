@@ -1,18 +1,3 @@
-import { set } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
-import setNotRelevant from '../actions/setNotRelevant'
-import setDirty from '../interpretation/actions/setDirty'
-import checkAddRemoveAlleleToReport from '../interpretation/actions/checkAddRemoveAllelesToReport'
-import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
+import setNotRelevant from '../sequences/setNotRelevant'
 
-export default [
-    setDirty,
-    setNotRelevant,
-    ({ props }) => {
-        return {
-            checkReportAlleleIds: [props.alleleId]
-        }
-    },
-    checkAddRemoveAlleleToReport,
-    allelesChanged
-]
+export default setNotRelevant

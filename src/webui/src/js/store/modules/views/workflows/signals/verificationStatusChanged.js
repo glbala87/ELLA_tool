@@ -1,18 +1,3 @@
-import { set } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
-import setVerificationStatus from '../actions/setVerificationStatus'
-import setDirty from '../interpretation/actions/setDirty'
-import checkAddRemoveAlleleToReport from '../interpretation/actions/checkAddRemoveAllelesToReport'
-import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
+import setVerificationStatus from '../sequences/setVerificationStatus'
 
-export default [
-    setDirty,
-    setVerificationStatus,
-    ({ props }) => {
-        return {
-            checkReportAlleleIds: [props.alleleId]
-        }
-    },
-    checkAddRemoveAlleleToReport,
-    allelesChanged
-]
+export default setVerificationStatus

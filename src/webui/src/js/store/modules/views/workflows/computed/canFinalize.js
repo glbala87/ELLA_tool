@@ -79,7 +79,7 @@ export default Compute(
                 technicalAlleleIds = Object.values(alleles)
                     .filter((allele) => {
                         const alleleState = get(getAlleleState(allele.id))
-                        return alleleState.analysis.verification === 'technical' || false
+                        return alleleState.analysis.verification === 'technical'
                     })
                     .map((a) => a.id)
             }

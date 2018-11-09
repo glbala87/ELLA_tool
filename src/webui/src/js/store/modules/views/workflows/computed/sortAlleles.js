@@ -1,8 +1,8 @@
 import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getClassification from '../alleleSidebar/computed/getClassification'
-import getVerificationStatus from '../alleleSidebar/computed/getVerificationStatus'
+import getClassificationById from '../alleleSidebar/computed/getClassificationById'
+import getVerificationStatusById from '../alleleSidebar/computed/getVerificationStatusById'
 
 function getSortFunctions(config, classification, verificationStatus) {
     return {
@@ -94,8 +94,8 @@ export default function sortAlleles(alleles, key, reverse) {
             }
             const sortFunctions = getSortFunctions(
                 config,
-                get(getClassification(allelesById)),
-                get(getVerificationStatus(allelesById))
+                get(getClassificationById(allelesById)),
+                get(getVerificationStatusById(allelesById))
             )
 
             const sortedAlleles = Object.values(alleles).slice()

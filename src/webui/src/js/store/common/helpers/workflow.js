@@ -71,6 +71,16 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                     })
                 }
 
+                // Allele reports are submitted independently of alleleassessments
+                allelereports.push(
+                    _prepareAlleleReportPayload(
+                        allele,
+                        allele_state,
+                        type === 'analysis' ? id : null,
+                        allele.allele_assessment ? allele.allele_assessment.id : null
+                    )
+                )
+
                 // Get reference ids from allele, we only submit referenceassessments
                 // for references that are added (custom annotation or annotation)
                 const alleleReferences = _getAlleleReferences(allele, references)
@@ -81,14 +91,6 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
                         type === 'analysis' ? id : null,
                         interpretation.genepanel_name,
                         interpretation.genepanel_version
-                    )
-                )
-                allelereports.push(
-                    _prepareAlleleReportPayload(
-                        allele,
-                        allele_state,
-                        type === 'analysis' ? id : null,
-                        allele.allele_assessment ? allele.allele_assessment.id : null
                     )
                 )
             }
