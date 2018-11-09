@@ -40,9 +40,15 @@ def upgrade():
             state = dict(state)
             if 'allele' in state:
                 for allele_id in state['allele']:
-                    if 'quality' in state['allele'][allele_id]:
-                        state['allele'][allele_id]['analysis'] = state['allele'][allele_id]['quality']
-                        del state['allele'][allele_id]['quality']
+                    allele_state = state['allele'][allele_id]
+                    if 'quality' in allele_state:
+                        allele_state['analysis'] = allele_state['quality']
+                        del allele_state['quality']
+                    if 'verification' in allele_state:
+                        if 'analysis' not in allele_state:
+                            allele_state['analysis'] = dict()
+                        allele_state['analysis']['verification'] = allele_state['verification']
+                        del allele_state['verification']
 
             conn.execute(model.update().where(model.c.id == i_id).values(
                 state=state
