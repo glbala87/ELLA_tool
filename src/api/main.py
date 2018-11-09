@@ -6,6 +6,10 @@ import logging
 import time
 
 DEFAULT_STATIC_FILE = 'index.html'
+REWRITES = {
+    'docs/': 'docs/index.html',
+    'docs': 'docs/index.html'
+}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request, g, make_response
@@ -24,6 +28,7 @@ VALID_STATIC_FILES = [
     'thirdparty.js',
     'templates.js',
     'fonts',
+    'docs',
     'favicon.ico'
 ]
 
@@ -80,6 +85,8 @@ def shutdown_session(exception=None):
 
 
 def serve_static(path=None):
+    path = REWRITES.get(path, path)
+
     if not path:
         path = DEFAULT_STATIC_FILE
 

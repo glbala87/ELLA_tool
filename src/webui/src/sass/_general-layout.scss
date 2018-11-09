@@ -348,7 +348,11 @@ button { outline: none; border: 1px solid Transparent;
 }
 
 
-nav {position: sticky; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;}
+nav {position: sticky; width:100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1500;
+  .right { display: flex;
+    .link {padding-left: 8rem;}
+  }
+}
 
 nav.top {
   background-color: $blue;
