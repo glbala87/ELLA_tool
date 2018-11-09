@@ -1,7 +1,7 @@
 import { runCompute } from 'cerebral/test'
 import { state } from 'cerebral/tags'
 
-import getHiFrequency from './getHiFrequency'
+import getHiFrequencyById from './getHiFrequencyById'
 
 const STATE = {
     views: {
@@ -121,7 +121,7 @@ const STATE = {
 }
 
 it('should give highest count regardless of num', () => {
-    const result = runCompute(getHiFrequency(state`views.workflows.data.alleles`, 'count'), {
+    const result = runCompute(getHiFrequencyById(state`views.workflows.data.alleles`, 'count'), {
         state: STATE
     })
     expect(result).toEqual({
@@ -134,7 +134,7 @@ it('should give highest count regardless of num', () => {
 })
 
 it('should give highest freq depending on num', () => {
-    const result = runCompute(getHiFrequency(state`views.workflows.data.alleles`, 'freq'), {
+    const result = runCompute(getHiFrequencyById(state`views.workflows.data.alleles`, 'freq'), {
         state: STATE
     })
     expect(result).toEqual({
