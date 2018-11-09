@@ -19,7 +19,8 @@ class AnalysisSchema(Schema):
         description = 'Represents one analysis'
         fields = ('id',
                   'name',
-                  'deposit_date',
+                  'date_requested',
+                  'date_deposited',
                   'interpretations',
                   'genepanel',
                   'samples',

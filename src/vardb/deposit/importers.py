@@ -945,7 +945,7 @@ class AnalysisImporter(object):
     def __init__(self, session):
         self.session = session
 
-    def process(self, analysis_name, genepanel, report, warnings):
+    def process(self, analysis_name, genepanel, report, warnings, date_requested=None):
         """Create analysis with a default gene panel for a sample"""
 
         if self.session.query(sm.Analysis).filter(
@@ -954,9 +954,13 @@ class AnalysisImporter(object):
         ).count():
             raise RuntimeError("Analysis {} is already imported.".format(analysis_name))
 
+        if isinstance(date_requested, basestring):
+            date_requested = datetime.datetime.strptime(date_requested, '%Y-%m-%d')
+
         analysis = sm.Analysis(
             name=analysis_name,
             genepanel=genepanel,
+            date_requested=date_requested,
             report=report,
             warnings=warnings
         )

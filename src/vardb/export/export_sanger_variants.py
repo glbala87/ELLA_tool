@@ -6,7 +6,7 @@ import re
 import itertools
 from os import path
 from collections import defaultdict
-from sqlalchemy import or_, tuple_
+from sqlalchemy import or_, tuple_, func
 import xlsxwriter
 
 from api.util.alleledataloader import AlleleDataLoader
@@ -63,12 +63,13 @@ COLUMN_PROPERTIES = [
 
 def get_analysis_info(analysis):
     project_name, prove_number = extract_meta_from_name(analysis.name)
+    date_field = analysis.date_requested if analysis.date_requested else analysis.date_deposited
     return {
         'genepanel_name': analysis.genepanel_name,
         'genepanel_version': analysis.genepanel_version,
         'project_name': project_name,
         'prove_number': prove_number,
-        'deposit_date': analysis.deposit_date.strftime(DATE_FORMAT)
+        'date': date_field.strftime(DATE_FORMAT)
     }
 
 
@@ -80,7 +81,7 @@ def create_variant_row(default_transcripts, analysis_info, allele_info, sanger_v
 
     classification = get_nested(allele_info, ['allele_assessment', 'classification'], "Ny")
     return [
-        analysis_info['deposit_date'],
+        analysis_info['date'],
         analysis_info['project_name'],
         analysis_info['prove_number'],
         "{name} ({version})".format(name=analysis_info['genepanel_name'],
@@ -170,7 +171,7 @@ def get_variant_rows(session, filter_config_id, ids_not_started):
 
 def create_warning_row(analysis_info, warning_info):
     return [
-        analysis_info['deposit_date'],
+        analysis_info['date'],
         analysis_info['project_name'],
         analysis_info['prove_number'],
         "{name} ({version})".format(name=analysis_info['genepanel_name'],
@@ -195,7 +196,7 @@ def get_warning_rows(session, ids_not_started):
         sample.Analysis.id.in_(ids_not_started),
         ~sample.Analysis.warnings.is_(None),
         sample.Analysis.warnings != ''
-    ).order_by(sample.Analysis.deposit_date).all()
+    ).order_by(func.coaelsce(sample.Analysis.date_requested, sample.Analysis.date_deposited)).all()
 
     for analysis in analyses_with_warnings:
         analysis_info = get_analysis_info(analysis)

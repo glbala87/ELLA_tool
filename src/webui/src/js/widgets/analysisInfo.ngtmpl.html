@@ -16,8 +16,10 @@
         Analysis info
       </maintitle>
       <contentwrapper>
+        <h5>Requested:</h5>
+        <p>{{$ctrl.analysis.date_requested | date:"yyyy-MM-dd"}}</p>
         <h5>Imported:</h5>
-        <p>{{$ctrl.analysis.deposit_date | date:"yyyy-MM-dd HH:mm"}}</p>
+        <p>{{$ctrl.analysis.date_deposited | date:"yyyy-MM-dd HH:mm"}}</p>
         <h4 class="section-header">Samples</h4>
         <div class="samples-container">
           <contentbox class="samples" title="{{s.type.toUpperCase()}}" ng-repeat="s in $ctrl.samples">
@@ -29,7 +31,7 @@
                 </div>
                 <div class="tabular-row">
                   <div class="cell"><h5>Imported:</h5></div>
-                  <div class="cell"><p>{{s.sample.deposit_date | date:'yyyy-MM-dd HH:mm'}}</p></div>
+                  <div class="cell"><p>{{s.sample.date_deposited | date:'yyyy-MM-dd HH:mm'}}</p></div>
                 </div>
                 <div class="tabular-row" ng-if="s.type == 'sibling'">
                   <div class="cell"><h5>Affected:</h5></div>
