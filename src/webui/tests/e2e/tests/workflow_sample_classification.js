@@ -428,6 +428,6 @@ describe('Sample workflow', function() {
     it('reuses the latest variant classification done in another sample', function() {
         loginPage.selectFirstUser()
         sampleSelectionPage.selectFindings(1)
-        checkAlleleClassification(expected_analysis_2_round_1, 'allele')
+        checkAlleleClassification(expected_analysis_2_round_1)
     })
 })

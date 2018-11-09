@@ -511,12 +511,8 @@ class TestFinalizationRequirements():
                 }
             }
         }
-        user = session.query(user_model.User).filter(
-            user_model.User.id == 1
-        ).one()
+        update_user_config(session, 'testuser1', user_config)
 
-        user.config = user_config
-        session.commit()
 
         interpretation = ih.start_interpretation(
             'analysis',
@@ -858,7 +854,7 @@ class TestFinalizationRequirements():
             } for a in alleles
         ]
 
-        # Make one variant unclassified, but reported as technical
+        # Make two variants unclassified, one reported as technical and one not relevant
         notrelevant_allele_ids = [alleleassessments[0]['allele_id']]
         technical_allele_ids = [alleleassessments[1]['allele_id']]
         alleleassessments = alleleassessments[2:]
