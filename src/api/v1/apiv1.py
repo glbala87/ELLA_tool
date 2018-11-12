@@ -306,6 +306,9 @@ class ApiV1(object):
         # IGV
         # ---------------------------------------------------------------------------------------------------------
 
+        self._add_resource(r.igv.IgvResource,
+                           '/api/v1/igv/<filename>')
+
         self._add_resource(r.igv.IgvSearchResource,
                            '/api/v1/igv/search/')
 

@@ -1,17 +1,6 @@
-<!---  When compiling manual pdf
-<div style="background-color: #36617F; height: 2.5rem; width: 100%; line-height: 2.5rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 2rem; display: table;">
-    <div style="display: table-row">
-        <div style="display: table-cell; width: 70%;">
-            <img style="height: 1.7rem;" src="img/ella-logo.png">
-        </div>
-        <div style="display: table-cell; color: white; font-size: 1rem;">Release notes</div>
-    </div>
-</div>
---->
-
-----
--sidebar: auto
-----
+---
+sidebar: auto
+---
 
 # Release notes
 

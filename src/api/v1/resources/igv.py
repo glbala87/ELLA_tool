@@ -432,6 +432,26 @@ def get_analysis_tracks(analysis_id, analysis_name):
     return _search_path_for_tracks(analysis_tracks_path, url_func)
 
 
+class IgvResource(LogRequestResource):
+
+    @authenticate()
+    @logger(exclude=True)
+    def get(self, session, filename, user=None):
+        if 'IGV_DATA' not in os.environ:
+            raise ApiError("Missing IGV data location (env: $IGV_DATA).")
+
+        if filename not in config['igv']['valid_resource_files']:
+            raise ApiError("File is not in list of permitted accessible files.")
+
+        final_path = os.path.join(os.environ['IGV_DATA'], filename)
+
+        start, end = get_range(request)
+        if start is None:
+            return send_file(final_path)
+        else:
+            return get_partial_response(final_path, start, end)
+
+
 class AnalysisTrackList(LogRequestResource):
 
     @authenticate()
