@@ -1,10 +1,114 @@
----
-sidebar: auto
----
+<!---  When compiling manual pdf
+<div style="background-color: #36617F; height: 2.5rem; width: 100%; line-height: 2.5rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 2rem; display: table;">
+    <div style="display: table-row">
+        <div style="display: table-cell; width: 70%;">
+            <img style="height: 1.7rem;" src="img/ella-logo.png">
+        </div>
+        <div style="display: table-cell; color: white; font-size: 1rem;">Release notes</div>
+    </div>
+</div>
+--->
+
+----
+-sidebar: auto
+----
 
 # Release notes
 
 [[toc]]
+
+## 1.3
+
+### Highlights
+
+#### Visualization *(analysis workflow)*
+
+
+
+As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ella as part of a new visualization feature. ella now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
+
+ella provides a few special tracks by default:
+
+- Genepanel: Shows the analysis' genepanel.
+- Classifications: Shows all classifications present in the database.
+- Variants: Shows the analysis variants _after_ filtering.
+
+
+<div style="text-align: center">
+<img style="width: 30rem" src="./img/1-3-visualization.png">
+<br>
+<i style="font-size: 80%;">New visualization feature</i>
+</div>
+
+
+#### Mark `Not relevant` *(analysis workflow)*
+
+Variants can now be marked as `Not relevant` for the analysis. Such variants can, depending on the user's configuration, be left without a selected class upon finalization of the analysis.
+
+#### Quick classification *(analysis workflow)*
+
+A new quick classification view is now available, aimed at certain workflows for large analyses with many variants.
+It gives a summary of the most important information necessary for classifying variants as `Technical`, `Not relevant` or `Class 2`.
+
+It is most relevant for workflows where you first perform a quicker interpretation of certain variants, before doing a more thorough interpretation of the remaining ones.
+
+<div style="text-align: center">
+<img style="width: 30rem" src="./img/1-3-quick-classification.png">
+<br>
+<i style="font-size: 80%;">Quick classification view</i>
+</div>
+
+
+#### QUALITY card renamed to ANALYSIS SPECIFIC *(analysis workflow)*
+
+The card in `Classification` view previously referred to as `QUALITY` is now called `ANALYSIS SPECIFIC` to highlight the fact that it's not part of a variant's classification, but rather just a part of the analysis.
+
+The card is blue and collapsed by default, to further separate it from the classification related cards.
+
+
+#### Improved view of existing and current class in sidebar *(analysis workflow)*
+
+The view of a variant's class in the sidebar has been improved.
+
+Left number is existing class, right is new. An arrow indicates that a new classification will be created. Blue background indicates that the variant has been reviewed. You can toggle the review status by clicking on the class in the sidebar.
+
+<div style="text-align: center">
+<img style="width: 15rem" src="./img/1-3-sidebar-classification.png">
+<br>
+<i style="font-size: 80%;"></i>
+</div>
+
+
+#### New user manual
+
+A new, online user manual is now available from within ella itelf. You can access it by clicking `Documentation` in the top navigation bar in the overview.
+
+### New features
+
+- Visualization *(analysis workflow)*
+- Ability to mark variants `Not relevant` *(analysis workflow)*
+- Quick classification *(analysis workflow)*
+- Filters and their parameters are now configurable per user group
+- New filter: Quality
+- Region filter now can save variants with certain (configurable) consequences from being filtered.
+- New variant warning: HGVSc and HGVSp mismatch between corresponding Refseq and Ensembl transcripts.
+- Integrated documentation within ella
+
+
+### Other additions and fixes
+- Filtered variants are now shown as a list *(analysis workflow)*
+- `QUALITY` card is renamed to `ANALYSIS SPECIFIC` *(analysis workflow)*
+- Improved view of class in sidebar *(analysis workflow)*
+- Workflows can now be finalized with technical, not relevant and/or missing classifictions (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behaviour). *(analysis workflow)*
+- `Requested date` is now read from input `.analysis` file and used in overview.
+- Too wide images in comments will not make the page scrollable in the horizontal direction.
+- Overview comment is now visible for `Finalised` analyses and variants in overview.
+- Low quality warning is removed for Sanger variants, as there is no quality data.
+- HTML content is now properly sanitized when pasted into comment fields.
+- Fix issue where technical status was not reflected in the `TECHNICAL` button in the `QUALITY` card under certain conditions.
+- Fix issue where image could not be resized in reference evaluation.
+
+
 
 ## 1.2
 
