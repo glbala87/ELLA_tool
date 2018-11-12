@@ -175,7 +175,7 @@ DEMO_NAME ?= demo
 # Docker containers/images are prefixed with ella- and local/ella- respectively. The DEMO_NAME is also used for host
 # resolution and is depending in our DNS entries.
 demo:
-	docker build -t local/ella-$(DEMO_NAME) .
+	docker build -t local/ella-$(DEMO_NAME) --target dev .
 	-docker stop $(subst $(comma),-,ella-$(DEMO_NAME))
 	-docker rm $(subst $(comma),-,ella-$(DEMO_NAME))
 	docker run -d \

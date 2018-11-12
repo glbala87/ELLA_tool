@@ -136,7 +136,8 @@ COPY --from=production-build /ella /ella
 RUN chown ella-user:ella-user -R /ella
 
 USER ella-user
-ENTRYPOINT ['/ella/ops/prod/entrypoint.sh']
+WORKDIR /ella
+CMD /ella/ops/prod/entrypoint.sh
 
 #####
 # Default is production
