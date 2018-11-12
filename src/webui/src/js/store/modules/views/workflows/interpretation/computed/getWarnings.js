@@ -9,7 +9,7 @@ export default (allele) => {
             return []
         }
 
-        const warnings = []
+        let warnings = []
         const verificationStatus = get(getVerificationStatus(allele.id))
         const notRelevant = get(getNotRelevant(allele.id))
         const classification = get(getClassification(allele))
@@ -38,7 +38,7 @@ export default (allele) => {
         if (allele.warnings) {
             warnings = warnings.concat(
                 Object.values(allele.warnings).map((w) => {
-                    warning: w
+                    return { warning: w }
                 })
             )
         }
