@@ -1,6 +1,5 @@
 attachments
 .git/
-docs/
 node_modules/
 IGV_DATA/
 **/*.pyc

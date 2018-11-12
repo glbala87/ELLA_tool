@@ -1,11 +1,10 @@
-<div style="background-color: #36617F; height: 2.5rem; width: 100%; line-height: 2.5rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 2rem; display: table;">
-    <div style="display: table-row">
-        <div style="display: table-cell; width: 70%;">
-            <img style="height: 1.7rem;" src="img/releasenotes/ella-logo.png">
-        </div>
-        <div style="display: table-cell; color: white; font-size: 1rem;">Release notes</div>
-    </div>
-</div>
+---
+sidebar: auto
+---
+
+# Release notes
+
+[[toc]]
 
 ## 1.2
 
@@ -26,7 +25,7 @@ The most powerful filtering requires two parents to be present in the analysis, 
 some segregation filters and tags also apply to analyses with only siblings (unaffected and/or affected).
 
 <div style="text-align: center">
-<img style="width: 7rem" src="img/releasenotes/1-2-family-tags.png">
+<img style="width: 10rem" src="./img/1-2-family-tags.png">
 <br>
 <i style="font-size: 80%;">Segregation tags in sidebar</i>
 </div>
@@ -45,14 +44,15 @@ The analysis and variant workflows now have their own `Work log`. The work log c
 
 All options in the work log can be changed at any time, without having to start a new interpretation round.
 
-<div style="text-align: center;"><img style="width: 20rem" src="img/releasenotes/1-2-work-log.png"><br>
+<div style="text-align: center;">
+<img style="width: 30rem" src="./img/1-2-work-log.png"><br>
 <i style="font-size: 80%;">Work log example</i>
 </div>
 
 If there are any messages since last time the workflow was `Finalised`, the work log button will appear in purple, along with the current message count.
 
 <div style="text-align: center">
-<img style="width: 5rem" src="img/releasenotes/1-2-worklog-button.png">
+<img style="width: 7rem" src="./img/1-2-worklog-button.png">
 <br>
 <i style="font-size: 80%;">2 messages since beginning or last finalisation.</i>
 </div>
@@ -68,13 +68,14 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 
 
 <div style="text-align: center">
-<img style="width: 20rem" src="img/releasenotes/1-2-variant-warning-example.png">
+<img style="width: 40rem" src="./img/1-2-variant-warning-example.png">
 <br>
 <i style="font-size: 80%;">Example warning.</i>
 </div>
 
+
 <div style="text-align: center">
-<img style="width: 15rem" src="img/releasenotes/1-2-variant-warning-tags.png">
+<img style="width: 25rem" src="./img/1-2-variant-warning-tags.png">
 <br>
 <i style="font-size: 80%;">Warning tags in sidebar.</i>
 </div>
@@ -131,7 +132,9 @@ ella now lets you re-import previously run samples, using either an existing gen
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
-<div style="text-align: center"><img style="width: 20rem" src="img/releasenotes/1-1-import.png"></div>
+<div style="text-align: center">
+<img style="width: 30rem" src="./img/1-1-import.png">
+</div>
 
 
 #### Frontend code improvements

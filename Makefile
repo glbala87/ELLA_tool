@@ -111,12 +111,7 @@ __check_defined = \
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-client: check-release-tag build-bundle-image start-bundle-container tar-web-build stop-bundle-container
-
-check-release-tag:
-	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
-	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}"
-	git ls-remote --exit-code --tags origin "refs/tags/$(RELEASE_TAG)"
+bundle-client: build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 build-bundle-image:
 	docker build -t $(IMAGE_BUNDLE_STATIC) .
@@ -132,6 +127,7 @@ start-bundle-container:
 
 tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn build
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn docs
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
