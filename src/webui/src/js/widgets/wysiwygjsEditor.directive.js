@@ -246,7 +246,7 @@ export class WysiwygEditorController {
             if (e.clipboardData.types.indexOf('text/html') > -1) {
                 let text = e.clipboardData.getData('text/html')
                 e.preventDefault()
-                document.execCommand('insertHTML', true, sanitize(text))
+                this.editor.insertHTML(sanitize(text))
             } else {
                 for (let item of e.clipboardData.items) {
                     if (item.kind !== 'file') {
