@@ -72,6 +72,7 @@ GLOBAL_CONFIG = {
 FILTER_CONFIG = {
     "splice_region": [-10, 5],
     "utr_region": [-12, 20],
+    "genepanel_consequences_only": True,
     "exclude_consequences": [
         "transcript_ablation",
         "splice_donor_variant",

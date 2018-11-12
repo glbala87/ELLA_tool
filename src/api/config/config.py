@@ -239,6 +239,7 @@ config = {
             "region": {
                 "splice_region": [-20, 6],
                 "utr_region": [0, 0],
+                "genepanel_consequences_only": False,
                 "exclude_consequences": [
                     "transcript_ablation",
                     "splice_donor_variant",
