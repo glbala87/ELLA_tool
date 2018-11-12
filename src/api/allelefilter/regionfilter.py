@@ -412,17 +412,22 @@ class RegionFilter(object):
 
             exclude_consequences = filter_config['exclude_consequences']
 
-            # Unnest consequences. Include only consequences for genes in genepanel.
+            # Unnest consequences
             consequences_unnested = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
                 func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label("unnested_consequences")
             ).filter(
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
-                or_(
-                    annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
-                    annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
-                )
             )
+
+            # Include only consequences for genes in genepanel if specified in filter config
+            if filter_config['genepanel_consequences_only']:
+                consequences_unnested = consequences_unnested.filter(
+                    or_(
+                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
+                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
+                       )
+                )
 
             # As opposed to the HGVSc and genomic region filter, we here consider all transcripts, given that they
             # match the transcript inclusion regex (if exists)
@@ -442,7 +447,7 @@ class RegionFilter(object):
                 consequences_unnested.c.allele_id
             ).subquery()
 
-            # Check if aggregated consequences overlap array of severe consequences
+            # Check if aggregated consequences overlap array of exclude consequences
             allele_ids_severe_consequences = self.session.query(
                 consequences_agg.c.allele_id
             ).filter(
