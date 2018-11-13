@@ -161,7 +161,7 @@ app.component('alleleSidebarList', {
                         if (!c.existing) {
                             return ''
                         }
-                        return c.current ? `${c.existing}${c.outdated ? '*' : ''}` : ''
+                        return !c.reused ? `${c.existing}${c.outdated ? '*' : ''}` : ''
                     },
                     getArrowClassificationText(allele_id) {
                         const c = $ctrl.classification[allele_id]
