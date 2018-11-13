@@ -412,20 +412,6 @@ config = {
             'human_g1k_v37_decoy.fasta.fai'
         ]
     },
-    'deposit': {
-        'postprocess': [
-            {
-                'name': '^Diag-EKG.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            },
-            {
-                'name': '^Diag-Target.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            }
-        ]
-    },
     "import": {
         "automatic_deposit_with_sample_id": False,
         "preimport_script": os.path.join(os.path.split(os.path.abspath(__file__))[0], "../../../scripts/preimport.py")

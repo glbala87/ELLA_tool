@@ -42,9 +42,6 @@ class DepositFromVCF(object):
         self.allele_interpretation_importer = AlleleInterpretationImporter(self.session)
         self.counter = defaultdict(int)
 
-    def get_postprocessors(self, type):
-        return [p for p in config['deposit']['postprocess'] if p['type'] == type]
-
     def get_genepanel(self, gp_name, gp_version):
         try:
             genepanel = self.session.query(gene.Genepanel).filter(and_(
