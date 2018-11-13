@@ -224,4 +224,5 @@ class AlleleAnalysisListResource(LogRequestResource):
             allele.Allele.id == allele_id
         ).all()
 
-        return schemas.AnalysisSchema(strict=True).dump(analyses, many=True).data
+        aschema = schemas.AnalysisSchema(strict=True)
+        return [aschema.dump(a).data for a in analyses]

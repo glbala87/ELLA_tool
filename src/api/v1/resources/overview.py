@@ -596,7 +596,8 @@ def get_categorized_analyses(session, user=None):
             sample.Analysis.id.in_(user_analysis_ids),
             sample.Analysis.id.in_(subquery),
         ).all()
-        final_analyses[key] = aschema.dump(analyses, many=True).data
+        # FIXME: many=True is broken when some fields (date_requested) are None
+        final_analyses[key] = [aschema.dump(a).data for a in analyses]
 
         # Load in priority, warning_cleared and review_comment
         analysis_ids = [a.id for a in analyses]
@@ -650,8 +651,9 @@ def get_finalized_analyses(session, user=None, page=None, per_page=None):
         end = page * per_page
         finalized_analyses = finalized_analyses.slice(start, end)
 
-
-    finalized_analyses_data = schemas.AnalysisSchema().dump(finalized_analyses.all(), many=True).data
+    aschema = schemas.AnalysisSchema()
+    # FIXME: many=True is broken when some fields (date_requested) are None
+    finalized_analyses_data = [aschema.dump(a).data for a in finalized_analyses.all()]
 
     # Insert review comment in analyses
     analysis_ids = [a['id'] for a in finalized_analyses_data]
