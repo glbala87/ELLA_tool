@@ -56,6 +56,13 @@ module.exports = {
                     ]
                 },
 				{
+                    title: 'VISUALISATION page',
+                    collapsable: false,
+                    children: [
+                        '/manual/visualisation-page'
+                    ]
+                },
+				{
                     title: 'REPORT page',
                     collapsable: false,
                     children: [
@@ -77,6 +84,15 @@ module.exports = {
                         '/technical/testing',
                         '/technical/acmg-rule-engine',
                         '/technical/preconfigured-gene-panels'
+                    ]
+                }
+            ],
+			'/releasenotes/': [
+                {
+                    title: 'Release notes',
+                    collapsable: false,
+                    children: [
+                        '/releasenotes/'
                     ]
                 }
             ]

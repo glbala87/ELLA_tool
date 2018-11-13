@@ -6,9 +6,13 @@ title: Evidence sections
 
 [[toc]]
 
-## Quality
+## Analysis specific (ANALYSES only)
 
-This section displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).
+This section is specific to the current sample (analysis) and displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).
+
+::: warning Note
+This is the only section on this page that is specific to the sample (analysis), all other sections are tied to the variant interpretation, which is independent of samples. This also means that any comments you add here will be visible in this analysis only.
+:::
 
 ### Quality information 
 
@@ -37,15 +41,21 @@ Quality information is tied to a particular sample, and is therefore only availa
 
 Variants with quality issues are marked with NEEDS VERIFICATION in red in the QUALITY card. Note that indels are always marked, irrespective of other parameters.
 
-### Mark as verified/technical
+### Mark as verified/technical/not relevant
 
-In the header of the QUALITY section, you can mark variants as verified or technical:
+In the header of the ANALYSIS SPECIFIC section, you can mark variants as verified, technical or 'not relevant':
 
 <div style="text-indent: 4%;"><img src="./img/verified_btn.png"></div>
 
-  - Marking as VERIFIED means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green “V” tag in the “Q” column of the [side bar](/manual/side-bar.html).
+  - VERIFIED means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green “V” tag in the “Q” column of the [side bar](/manual/side-bar.html).
 
-  - Marking as TECHNICAL means the variant is a false variant call in this sample/run. This adds a red “T” tag in the “Q” column of the [side bar](/manual/side-bar.html) and moves the variant to a separate section TECHNICAL VARIANTS in the side bar.
+  - TECHNICAL means the variant is a false variant call in this sample (analysis). This adds a red “T” tag in the “Q” column of the [side bar](/manual/side-bar.html) and moves the variant to a separate section TECHNICAL VARIANTS in the side bar.
+  
+  - NOT RELEVANT means the variant should be disregarded in this analysis. 
+  
+::: tip Note 
+Variants marked as TECHNICAL or NOT RELEVANT can, depending on the your configuration, be left without a selected class upon finalisation of the analysis.
+:::
 
 ## Frequency
 

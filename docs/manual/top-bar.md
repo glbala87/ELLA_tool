@@ -16,31 +16,6 @@ The view in VARIANTS workflow is almost the same but contains no sample-specific
 When you have selected a variant or sample, no changes are possible or saved before you press the START … button in the upper right corner. This commits the sample/variant (depending on chosen workflow) to you, and marks it as ongoing (“Others’ analyses/variants”) to other users.
 :::
 
-## Excluded variants
-
-Some variants have been automatically filtered from view before you start an analysis. These variants are still accessible via a button in the upper right corner:
-
-<div style="text-indent: 4%;"><img src="./img/excluded_btn.png"></div>
-
-In this particular sample, there are a total of 572 filtered variants, one of these has manually been added back to the analysis by the user. Pushing the button brings up a window where you may select individual variants and add them back to the analysis:
-
-<div style="text-indent: 4%;"><img src="./img/excluded.png"></div>
-
-Excluded variants include, in this order:
-
-  - FREQUENCY: Variants with a population frequency above the threshold for neutral variants (ACMG criterion BA1), predefined for the corresponding gene in the gene panel
-
-  - REGION: UTR variants outside c.-20/c\*20, intron variants outside +6/-20, and other, custom regions defined outside the scope of analysis. Variants are not excluded if they are annotated with a “worse” consequence than UTR/intron in an alternative RefSeq NM\_ transcript for that gene.
-
-  - QUALITY: Variants not meeting minimum quality criteria (if set).
-
-  - SEGREGATION: Relevant for trio/family data only (joint called). This includes variants that are *not*:
-    
-      - De novo
-      - Autosomal recessive homozygous
-      - X-linked recessive
-      - Compound heterozygous
-
 ## Analysis history for previously finished samples
 
 When a previously analysed sample is opened in ANALYSES mode, a drop-down menu in the top bar (right) provides an option for viewing the exact state at an earlier, finished step (review or finalize):
