@@ -29,11 +29,18 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
 
 - [Top bar](/manual/top-bar.html) – information and actions (excluded variants, work log)
-- [Side bar](/manual/side-bar.html) – variant list
+- [Side bar](/manual/side-bar.html) – variant list and quick classification
 - [Sections for evidence](/manual/evidence-sections.html) - evaluate annotation and studies
 - [Section for classification](/manual/classification-section.html) - summarise and set ACMG criteria and classification
 	  
 <hr>
+
+[VISUALISATION page](/manual/visualisation-page.html)  
+*Visualise variants, bam files and tracks*
+
+<div style="text-indent: 4%;"><img src="./img/nav_visualisation_btn.png"></div>
+
+<hr>	
 
 [REPORT page](/manual/report-page.html)  
 *Generate a clinical report*

@@ -8,6 +8,6 @@ export default (alleleId) => {
         }
 
         const alleleState = get(getAlleleState(alleleId))
-        return alleleState ? alleleState.analysis.notrelevant : null
+        return alleleState && alleleState.analysis ? alleleState.analysis.notrelevant : null
     })
 }

@@ -23,7 +23,7 @@ export default function getClassification(allele) {
         // interpretation state, e.g. if displaying a independant
         // allele from backend
         const alleleState = get(getAlleleState(allele.id))
-        if (alleleState) {
+        if (alleleState && alleleState.alleleassessment) {
             result.current = alleleState.alleleassessment.classification || null
             result.reused = alleleState.alleleassessment.reuse
             result.classification = result.reused ? result.existing : result.current

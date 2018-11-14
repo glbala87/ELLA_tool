@@ -10,7 +10,8 @@ export default (alleles) => {
 
         for (const alleleId of Object.keys(alleles)) {
             const alleleState = get(getAlleleState(alleleId))
-            result[alleleId] = alleleState ? alleleState.workflow.reviewed : null
+            result[alleleId] =
+                alleleState && alleleState.workflow ? alleleState.workflow.reviewed : null
         }
         return result
     })

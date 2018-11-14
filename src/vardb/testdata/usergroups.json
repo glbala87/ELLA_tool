@@ -57,6 +57,18 @@
                         "comment": "a comment from the ACMG config"
                     }
                 }
+            },
+            "deposit": {
+                "postprocess": [
+                    {
+                        "name": "^NonExistingPattern.*",
+                        "type": "analysis",
+                        "methods": [
+                            "analysis_not_ready_findings",
+                            "analysis_finalize_without_findings"
+                        ]
+                    }
+                ]
             }
         }
     },

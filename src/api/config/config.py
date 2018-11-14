@@ -13,7 +13,6 @@ def str2bool(v):
 config = {
     "app": {
         # Disable by default for now
-        "enable_igv": str2bool(os.environ.get("ENABLE_IGV", "false")),
         "links_to_clipboard": str2bool(os.environ.get("OFFLINE_MODE", "true")),
         "non_production_warning": os.environ.get('NON_PRODUCTION_WARNING'),
         "user_confirmation_on_state_change": str2bool(os.environ.get("USER_CONFIRMATION_ON_STATE_CHANGE", "true")),
@@ -410,20 +409,6 @@ config = {
             'cytoBand.txt',
             'human_g1k_v37_decoy.fasta',
             'human_g1k_v37_decoy.fasta.fai'
-        ]
-    },
-    'deposit': {
-        'postprocess': [
-            {
-                'name': '^Diag-EKG.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            },
-            {
-                'name': '^Diag-Target.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            }
         ]
     },
     "import": {

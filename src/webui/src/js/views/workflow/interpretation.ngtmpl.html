@@ -1,8 +1,5 @@
 <div class="interpretation-container">
-    <div class="no-alleles" ng-if="!$ctrl.hasAlleles && $ctrl.selectedComponent !== 'Info'">
-      <h2>No variants to show for analysis.</h2>
-      <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
-    </div>
+
     <article class="single-sample-analysis-container" ng-switch="$ctrl.selectedComponent">
         <allele-sidebar ng-if="$ctrl.showSidebar"></allele-sidebar>
 
@@ -10,10 +7,15 @@
           <div ng-switch-when="Info">
             <analysis-info></analysis-info>
           </div>
-          <div ng-switch-when="Classification" ng-if="$ctrl.hasAlleles && !$ctrl.sidebarExpanded">
-            <allele-warning></allele-warning>
+          <div ng-switch-when="Classification" ng-if="!$ctrl.sidebarExpanded">
+            <div class="no-alleles" ng-if="!$ctrl.hasAlleles">
+              <h2>No variants to show for analysis.</h2>
+              <h4>Either there are no variants in this analysis or they all matched a filter criteria.</h4>
+            </div>
+            <allele-warning ng-if="$ctrl.hasAlleles"></allele-warning>
             <allele-sectionbox
               section-key="sectionKey"
+              ng-if="$ctrl.hasAlleles"
               ng-repeat="sectionKey in $ctrl.sectionKeys">
             </allele-sectionbox>
           </div>
@@ -21,7 +23,6 @@
           </visualization>
 
         <report-card
-          ng-if="$ctrl.hasAlleles"
           ng-switch-when="Report">
         </report-card>
 

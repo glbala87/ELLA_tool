@@ -21,7 +21,12 @@ Different information is placed in separate sections (shown here in collapsed mo
 
 <div style="text-indent: 4%;"><img src="./img/classification_sections.png"></div>
 
-The sections are described in more detail in [Evidence sections](/manual/evidence-sections.html) and [Classification section](/manual/classification-section.html).
+The different parts are described in more detail in:
+  
+  - [Top bar](/manual/top-bar.html)
+  - [Side bar](/manual/side-bar.html)
+  - [Evidence sections](/manual/evidence-sections.html)
+  - [Classification section](/manual/classification-section.html)
 
 ## Example classification workflows
 

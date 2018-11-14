@@ -12,7 +12,7 @@ export default Compute(
             if (!alleles) {
                 return
             }
-            return selectedComponent !== 'Info' && Object.keys(alleles).length
+            return selectedComponent !== 'Info'
         }
     }
 )
