@@ -10,10 +10,6 @@
     <!-- Controls -->
     <section class="line-wrapper" ng-if=$ctrl.section.controls.length>
       <div class="button" ng-repeat="control in $ctrl.section.controls" ng-if="$ctrl.showControls()">
-          <!-- <button class="id-igv"
-                  ng-if="control == 'igv' && $ctrl.config.app.enable_igv"
-                  ng-click="vm.showIgv()">Show in IGV
-          </button> -->
           <button class="id-classification-outdated"
                   ng-if="control == 'reuse_classification' && $ctrl.isAlleleAssessmentOutdated"
                   disabled>Classification outdated
