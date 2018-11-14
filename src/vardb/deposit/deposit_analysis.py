@@ -16,6 +16,7 @@ import itertools
 from collections import OrderedDict, defaultdict
 
 
+import jsonschema
 from sqlalchemy import tuple_
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
@@ -25,6 +26,7 @@ from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, Sample
                                     batch_generator, get_allele_from_record
 
 from vardb.datamodel import sample, workflow, user, gene, assessment, allele
+from vardb.datamodel.jsonschemas import load_schema
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -39,7 +41,10 @@ def import_filterconfigs(session, filterconfigs):
         'updated': 0,
         'created': 0
     }
+    filter_config_schema = load_schema('filterconfig.json')
+
     for filterconfig in filterconfigs:
+        jsonschema.validate(filterconfig, filter_config_schema)
         filterconfig = dict(filterconfig)
         usergroup_name = filterconfig.pop('usergroup')
         usergroup_id = session.query(user.UserGroup.id).filter(

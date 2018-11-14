@@ -1,0 +1,71 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["name", "usergroup", "default", "filterconfig"],
+    "properties": {
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "pattern": "^(.+)$"
+        },
+        "usergroup": {
+            "$id": "#/properties/usergroup",
+            "type": "string",
+            "pattern": "^(.+)$"
+        },
+        "default": {
+            "$id": "#/properties/default",
+            "type": "boolean"
+        },
+        "filterconfig": {
+            "$id": "#/properties/filterconfig",
+            "type": "object",
+            "required": ["filters"],
+            "properties": {
+                "filters": {
+                    "$id": "#/properties/filterconfig/properties/filters",
+                    "type": "array",
+                    "items": {
+                        "$id": "#/properties/filterconfig/properties/filters/items",
+                        "type": "object",
+                        "required": ["name", "config"],
+                        "optional": ["exceptions"],
+                        "properties": {
+                            "name": {
+                                "$id": "#/properties/filterconfig/properties/filters/items/properties/name",
+                                "type": "string",
+                                "pattern": "^(.*)$"
+                            },
+                            "config": {
+                                "$id": "#/properties/filterconfig/properties/filters/items/properties/config",
+                                "type": "object"
+                            },
+                            "exceptions": {
+                                "$id": "#/properties/filterconfig/properties/filters/items/properties/exceptions",
+                                "type": "array",
+                                "items": {
+                                    "$id": "#/properties/filterconfig/properties/filters/items/properties/exceptions/items",
+                                    "type": "object",
+                                    "required": ["name", "config"],
+                                    "properties": {
+                                        "name": {
+                                            "$id": "#/properties/filterconfig/properties/filters/items/properties/exceptions/items/properties/name",
+                                            "type": "string",
+                                            "pattern": "^(.+)$"
+                                        },
+                                        "config": {
+                                            "$id": "#/properties/filterconfig/properties/filters/items/properties/exceptions/items/properties/config",
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
