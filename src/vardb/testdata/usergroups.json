@@ -61,7 +61,7 @@
             "deposit": {
                 "postprocess": [
                     {
-                        "name": "^.*",
+                        "name": "^NonExistingPattern.*",
                         "type": "analysis",
                         "methods": [
                             "analysis_not_ready_findings",
