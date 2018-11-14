@@ -12,8 +12,7 @@ const TYPES = {
 function getAcmgCodes({ http, path, state, props, resolve }) {
     const alleles = state.get('views.workflows.data.alleles')
     const references = Object.values(state.get('views.workflows.data.references'))
-    const genepanelName = state.get('views.workflows.data.genepanel.name')
-    const genepanelVersion = state.get('views.workflows.data.genepanel.version')
+    const genepanel = state.get('views.workflows.selectedGenepanel')
     const referenceAssessments = []
 
     // We need to get all referenceassessments, either from state or from allele if reused
@@ -35,8 +34,8 @@ function getAcmgCodes({ http, path, state, props, resolve }) {
         return http
             .post(`acmg/alleles/`, {
                 allele_ids: Object.keys(alleles),
-                gp_name: genepanelName,
-                gp_version: genepanelVersion,
+                gp_name: genepanel.name,
+                gp_version: genepanel.version,
                 referenceassessments: referenceAssessments
             })
             .then((response) => {

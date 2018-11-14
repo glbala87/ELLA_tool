@@ -1,9 +1,14 @@
-import { parallel } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import loadAlleles from '../sequences/loadAlleles'
+import { set, debounce } from 'cerebral/operators'
+import { state, props } from 'cerebral/tags'
+import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 
 export default [
-    set(state`modals.addExcludedAlleles.selectedPage`, props`selectedPage`),
-    loadAlleles
+    debounce(300),
+    {
+        continue: [
+            set(state`modals.addExcludedAlleles.selectedPage`, props`selectedPage`),
+            loadExcludedAlleles
+        ],
+        discard: []
+    }
 ]

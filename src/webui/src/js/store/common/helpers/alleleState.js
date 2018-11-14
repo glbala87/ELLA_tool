@@ -62,14 +62,28 @@ export function prepareAlleleStateModel(alleleState) {
         }
     }
 
-    if (!('verification' in alleleState)) {
-        alleleState.verification = null
+    if (!('analysis' in alleleState)) {
+        alleleState.analysis = {}
     }
 
-    if (!('quality' in alleleState)) {
-        alleleState.quality = {
-            comment: ''
-        }
+    if (!('comment' in alleleState.analysis)) {
+        alleleState.analysis.comment = ''
+    }
+
+    if (!('verification' in alleleState.analysis)) {
+        alleleState.analysis.verification = null
+    }
+
+    if (!('notrelevant' in alleleState.analysis)) {
+        alleleState.analysis.notrelevant = null
+    }
+
+    if (!('workflow' in alleleState)) {
+        alleleState.workflow = {}
+    }
+
+    if (!('reviewed' in alleleState.workflow)) {
+        alleleState.workflow.reviewed = false
     }
 
     //

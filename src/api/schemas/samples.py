@@ -9,7 +9,7 @@ class SampleSchema(Schema):
             'id',
             'identifier',
             'sample_type',
-            'deposit_date',
+            'date_deposited',
             'affected',
             'proband',
             'family_id',

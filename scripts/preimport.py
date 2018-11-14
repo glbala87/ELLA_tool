@@ -69,9 +69,6 @@ def get_connection(host):
     return conn
 
 
-
-
-
 def get_transcripts(conn, genepanel_name, genepanel_version):
     res = conn.execute(
         sa.select(
@@ -86,19 +83,8 @@ def get_transcripts(conn, genepanel_name, genepanel_version):
         ),
     )
 
-    # Database transcripts are zero-based, while anno-scripts use 1-based transcripts
-    transcripts_one_based = []
-    for t in list(res):
-        t = dict(t)
-        t["tx_start"] = t["tx_start"] + 1
-        t["tx_end"] = t["tx_end"] + 1
-        t["cds_start"] = t["cds_start"] + 1
-        t["cds_end"] = t["cds_end"] + 1
-        t["exon_starts"] = [es+1 for es in t["exon_starts"]]
-        t["exon_ends"] = [ee+1 for ee in t["exon_ends"]]
-        transcripts_one_based.append(t)
-
-    return transcripts_one_based
+    transcripts = [dict(t) for t in list(res)]
+    return transcripts
 
 
 def get_phenotypes(conn, genepanel_name, genepanel_version):
@@ -115,6 +101,14 @@ def get_phenotypes(conn, genepanel_name, genepanel_version):
         )
     )
     return list(res)
+
+chr_int_map = dict(zip([str(x) for x in range(1,23)]+["X", "Y", "MT"], range(1,26)))
+
+def sort_rows(r1, r2):
+    if r1[0] != r2[0]:
+        return chr_int_map[r1[0]] - chr_int_map[r2[0]]
+    else:
+        return int(r1[1]) - int(r2[1])
 
 
 def _get_phenotype_data(phenotypes):
@@ -158,9 +152,12 @@ def _get_transcript_data(transcripts):
 
     transcript_data = "#\n"+"\t".join(transcript_columns.keys())
 
+    rows = []
     for t in transcripts:
         row = [v(t) for v in transcript_columns.values()]
-        transcript_data += "\n"+"\t".join(row)
+        rows.append(row)
+    for r in sorted(rows, cmp=sort_rows):
+        transcript_data += "\n"+"\t".join(r)
     return transcript_data
 
 
@@ -175,9 +172,7 @@ def _get_slop(transcripts, slop):
     slop_columns["strand"] = lambda t, *args: t["strand"]
 
     slop_data = "\t".join(slop_columns.keys())
-    starts = []
-    ends = []
-    names = []
+    rows = []
 
     for t in transcripts:
         # SLOP is created from cds start and cds end, for exons containing these
@@ -207,10 +202,10 @@ def _get_slop(transcripts, slop):
                 break
         for (es, ee, exon_no) in ranges:
             row = [v(t, es, ee, slop, exon_no) for v in slop_columns.values()]
-            slop_data += "\n" + "\t".join(row)
-            starts.append(int(row[1]))
-            ends.append(int(row[2]))
-            names.append(row[3])
+            rows.append(row)
+
+    for r in sorted(rows, cmp=sort_rows):
+        slop_data += "\n" + "\t".join(r)
 
     return slop_data
 

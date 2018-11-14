@@ -2,6 +2,7 @@ import { set } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import closeModal from '../../../../common/actions/closeModal'
 import loadAlleles from '../../../views/workflows/sequences/loadAlleles'
+import loadVisualization from '../../../views/workflows/visualization/sequences/loadVisualization'
 
 export default [
     set(
@@ -10,5 +11,6 @@ export default [
     ),
     set(props`modalName`, 'addExcludedAlleles'),
     closeModal,
-    loadAlleles // Reload workflows alleles
+    loadAlleles, // Reload workflows alleles
+    loadVisualization
 ]

@@ -1,10 +1,9 @@
-import { sequence } from 'cerebral'
-import { set } from 'cerebral/operators'
+import { sequence, parallel } from 'cerebral'
+import { set, wait } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAnalysis from '../actions/getAnalysis'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
-import loadGenepanel from '../sequences/loadGenepanel'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import toast from '../../../../common/factories/toast'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
@@ -13,6 +12,7 @@ import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import progress from '../../../../common/factories/progress'
 import getWorkflowTitle from '../computed/getWorkflowTitle'
 import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
+import loadVisualization from '../visualization/sequences/loadVisualization'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -36,15 +36,20 @@ export default [
                         version: analysis.genepanel.version
                     })
                 },
-                loadGenepanel,
                 loadInterpretations,
                 setNavbarTitle(getWorkflowTitle),
-                loadInterpretationLogs,
-                // Interpretation logs are needed in prepareComponents for analysis
-                prepareComponents,
-                prepareSelectedAllele
+                parallel([
+                    loadVisualization,
+                    [
+                        loadInterpretationLogs,
+                        // Interpretation logs are needed in prepareComponents for analysis
+                        prepareComponents,
+                        prepareSelectedAllele
+                    ]
+                ])
             ]
         }
     ]),
+
     progress('done')
 ]

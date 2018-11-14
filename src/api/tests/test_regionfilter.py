@@ -18,19 +18,10 @@ import hypothesis.strategies as st
 
 
 GLOBAL_CONFIG = {
-    'variant_criteria': {
-        "splice_region": [-10, 5],
-        "utr_region": [-12, 20],
-        "frequencies": {
-            "groups": {
-                "external": {
-                    "ExAC": ["G", "FIN"],
-                    "1000g": ["G"],
-                    "esp6500": ["AA", "EA"]
-                },
-                "internal": {
-                    "inDB": ['AF']
-                }
+    'frequencies': {
+        'groups': {
+            'not_used': {
+                'NA': ['NONE']
             }
         }
     },
@@ -76,6 +67,31 @@ GLOBAL_CONFIG = {
         "severe_consequence_threshold": 'mature_miRNA_variant',
         'inclusion_regex': "NM_.*"
     }
+}
+
+FILTER_CONFIG = {
+    "splice_region": [-10, 5],
+    "utr_region": [-12, 20],
+    "genepanel_consequences_only": True,
+    "exclude_consequences": [
+        "transcript_ablation",
+        "splice_donor_variant",
+        "splice_acceptor_variant",
+        "stop_gained",
+        "frameshift_variant",
+        "start_lost",
+        "initiator_codon_variant",
+        "stop_lost",
+        "inframe_insertion",
+        "inframe_deletion",
+        "missense_variant",
+        "protein_altering_variant",
+        "transcript_amplification",
+        "incomplete_terminal_codon_variant",
+        "synonymous_variant",
+        "stop_retained_variant",
+        "coding_sequence_variant",
+    ]
 }
 
 
@@ -249,7 +265,6 @@ def create_genepanel(genepanel_config):
         name='testpanel',
         version='v01',
         genome_reference='GRCh37',
-        config=genepanel_config
     )
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
@@ -318,7 +333,7 @@ class TestRegionFilter(object):
         allele_ids = [al.id]
         gp_key = ('testpanel', 'v01')
         rf = RegionFilter(session, GLOBAL_CONFIG)
-        result = rf.filter_alleles({gp_key: allele_ids})
+        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         # Manually curated test cases
         if manually_curated_result is not None:
@@ -333,8 +348,8 @@ class TestRegionFilter(object):
             gene.Genepanel.version == 'v01'
         ).one()
 
-        splice_region = GLOBAL_CONFIG['variant_criteria']['splice_region']
-        utr_region = GLOBAL_CONFIG['variant_criteria']['utr_region']
+        splice_region = FILTER_CONFIG['splice_region']
+        utr_region = FILTER_CONFIG['utr_region']
 
         splice_include_regions = []
         coding_include_regions = []
@@ -469,24 +484,21 @@ class TestRegionFilter(object):
 
         session.commit()
 
-
         gp_key = ('testpanel', 'v01')
         allele_ids = [a1.id, a2.id, a3.id, a4.id, na1.id]
 
+        rf = RegionFilter(session, GLOBAL_CONFIG)
         # Run first with no padding, to make sure that all are filtered out
-        config_no_padding = copy.deepcopy(GLOBAL_CONFIG)
-        config_no_padding['variant_criteria']['splice_region'] = [0, 0]
-        config_no_padding['variant_criteria']['utr_region'] = [0, 0]
 
-        rf = RegionFilter(session, config_no_padding)
+        config_no_padding = copy.deepcopy(FILTER_CONFIG)
+        config_no_padding['splice_region'] = [0, 0]
+        config_no_padding['utr_region'] = [0, 0]
 
-        result = rf.filter_alleles({gp_key: allele_ids})
+        result = rf.filter_alleles({gp_key: allele_ids}, config_no_padding)
         assert result[gp_key] == set(allele_ids)
 
-        # Apply the global config, to ensure that these are captured by the computed distance
-        rf = RegionFilter(session, GLOBAL_CONFIG)
-
-        result = rf.filter_alleles({gp_key: allele_ids})
+        # Apply the normal config, to ensure that these are captured by the computed distance
+        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert result[gp_key] == set([na1.id])
 
@@ -496,9 +508,9 @@ class TestRegionFilter(object):
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST',
+                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
                         'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['intron_variant']
+                        'consequences': ['stop_gained'] # Won't be considered, as gene is not in genepanel
                     }
                 ],
             },
@@ -545,23 +557,21 @@ class TestRegionFilter(object):
             }
         )
 
-        session.commit()
 
-        rf = RegionFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id]
-        result = rf.filter_alleles({gp_key: allele_ids})
-
-        assert result[gp_key] == set(allele_ids)
-
-        # Should be saved as annotated with exon_distance -10
-        na1, _ = create_allele_with_annotation(session,
+        pa4, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST',
-                        'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['splice_region_variant']
+                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
+                        'hgnc_id': 0,
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['frameshift_variant']
+                    },
+                    {
+                        'symbol': 'GENE1',
+                        'hgnc_id': int(1e6),
+                        'transcript': 'NM_1AD.1',
+                        'consequences': ['downstream_gene_variant']
                     }
                 ],
             },
@@ -570,7 +580,30 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with exon_distance +5
+        session.commit()
+
+        rf = RegionFilter(session, GLOBAL_CONFIG)
+        gp_key = ('testpanel', 'v01')
+        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
+        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
+
+        assert result[gp_key] == set(allele_ids)
+
+        na1, _ = create_allele_with_annotation(session,
+            {
+                'transcripts': [
+                    {
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_DOES_NOT_EXIST',
+                        'consequences': ['frameshift_variant']
+                    }
+                ],
+            },
+            {
+                "chromosome": "CSQ",
+            }
+        )
+
         na2, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
@@ -578,7 +611,7 @@ class TestRegionFilter(object):
                         'symbol': 'GENE1',
                         'hgnc_id': int(1e6),
                         'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant','splice_region_variant']
+                        'consequences': ['intron_variant', 'stop_gained']
                     }
                 ],
             },
@@ -587,17 +620,17 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with coding_region_distance -12
         na3, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
                     {
-                        'symbol': 'DOES_NOT_EXIST1',
+                        'symbol': 'GENE1AD',
                         'transcript': 'NM_DOES_NOT_EXIST.1',
                         'consequences': ['intron_variant']
                     },
                     {
-                        'symbol': 'DOES_NOT_EXIST2',
+                        'symbol': 'GENE2',
+                        'hgnc_id': 0, # Wrong hgnc id shouldn't matter
                         'transcript': 'NM_DOES_NOT_EXIST2.1',
                         'consequences': ['missense_variant']
                     }
@@ -608,16 +641,19 @@ class TestRegionFilter(object):
             }
         )
 
-        # Should be saved as annotated with coding_region_distance +20
         na4, _ = create_allele_with_annotation(session,
             {
                 'transcripts': [
                     {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'exon_distance': 0,
-                        'coding_region_distance': 20,
+                        'symbol': 'GENE1AD',
+                        'transcript': 'NM_DOES_NOT_EXIST.1',
+                        'consequences': ['intron_variant']
+                    },
+                    {
+                        'symbol': 'SOME_ALIAS_FOR_GENE2', # Wrong gene name shouldn't matter
+                        'hgnc_id': int(3e6),
+                        'transcript': 'NM_DOES_NOT_EXIST2.1',
+                        'consequences': ['missense_variant']
                     }
                 ],
             },
@@ -631,6 +667,6 @@ class TestRegionFilter(object):
         rf = RegionFilter(session, GLOBAL_CONFIG)
         gp_key = ('testpanel', 'v01')
         allele_ids = [na1.id, na2.id, na3.id, na4.id]
-        result = rf.filter_alleles({gp_key: allele_ids})
+        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert not result[gp_key]

@@ -4,8 +4,7 @@ export default function postGenepanel({ props, http, path }) {
     // Restructure to backend format
     const payload = {
         name: genepanel.name,
-        version: genepanel.version,
-        config: genepanel.config
+        version: genepanel.version
     }
     payload.genes = Object.values(genepanel.genes).map((g) => {
         return {

@@ -65,8 +65,9 @@ class Resource(flask_resource):
 
         s = query.all()
         if schema:
-            result = schema.dump(s, many=True)
-            return result.data, count
+            # FIXME: many=True is broken when some fields are None
+            result = [schema.dump(_s).data for _s in s]
+            return result, count
         else:
             return s, count
 

@@ -15,6 +15,8 @@ import logging
 import itertools
 from collections import OrderedDict, defaultdict
 
+
+from sqlalchemy import tuple_
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
@@ -22,7 +24,7 @@ from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, Sample
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter, \
                                     batch_generator
 
-from vardb.datamodel import sample, workflow
+from vardb.datamodel import sample, workflow, user, gene
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -31,16 +33,103 @@ log = logging.getLogger(__name__)
 
 VARIANT_GENOTYPES = ['0/1', '1/.', './1', '1/1']
 
+
+def import_filterconfigs(session, filterconfigs):
+    result = {
+        'updated': 0,
+        'created': 0
+    }
+    for filterconfig in filterconfigs:
+        filterconfig = dict(filterconfig)
+        usergroup_name = filterconfig.pop('usergroup')
+        usergroup_id = session.query(user.UserGroup.id).filter(
+            user.UserGroup.name == usergroup_name
+        ).scalar()
+
+        filterconfig['usergroup_id'] = usergroup_id
+
+        existing = session.query(sample.FilterConfig).filter(
+            sample.FilterConfig.usergroup_id == usergroup_id,
+            sample.FilterConfig.name == filterconfig['name']
+        ).one_or_none()
+
+        if existing:
+            for k, v in filterconfig.iteritems():
+                setattr(existing, k, v)
+            result['updated'] += 1
+        else:
+            fc = sample.FilterConfig(**filterconfig)
+            session.add(fc)
+            result['created'] += 1
+    return result
+
+
 class DepositAnalysis(DepositFromVCF):
 
     def postprocess(self, db_analysis, db_analysis_interpretation):
-        candidate_processors = self.get_postprocessors('analysis')
-        for c in candidate_processors:
-            if re.search(c['name'], db_analysis.name):
-                for method in c['methods']:
-                    if method == 'analysis_not_ready_findings':
-                        from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
-                        analysis_not_ready_findings(self.session, db_analysis, db_analysis_interpretation)
+        """
+        Postprocessors can be defined in the usergroup configs.
+
+        Example:
+        "deposit": {
+            "postprocess": [
+                {
+                    "name": "^.*",
+                    "type": "analysis",
+                    "methods": ["analysis_not_ready_findings"]
+                },
+                {
+                    "name": "^SomePattern.*",
+                    "type": "analysis",
+                    "methods": ["analysis_finalize_without_findings"]
+                }
+            ]
+        }
+
+        """
+
+        usergroup_configs = self.session.query(
+            user.UserGroup.id,
+            user.UserGroup.config
+        ).join(
+            user.UserGroup.genepanels
+        ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (db_analysis.genepanel_name, db_analysis.genepanel_version)
+        ).all()
+
+        for usergroup_id, usergroup_config in usergroup_configs:
+            candidate_processors = usergroup_config.get('deposit', {}).get('postprocess', [])
+            if not candidate_processors:
+                continue
+
+            filter_config_id = self.session.query(sample.FilterConfig.id).join(
+                user.UserGroup
+            ).filter(
+                user.UserGroup.id == usergroup_id,
+                sample.FilterConfig.default.is_(True)
+            ).scalar()
+
+            for c in candidate_processors:
+                if re.search(c['name'], db_analysis.name):
+
+                    for method in c['methods']:
+                        if method == 'analysis_not_ready_findings':
+                            from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
+                            analysis_not_ready_findings(
+                                self.session,
+                                db_analysis,
+                                db_analysis_interpretation,
+                                filter_config_id
+                            )
+
+                        elif method == 'analysis_finalize_without_findings':
+                            from .postprocessors import analysis_finalize_without_findings  # FIXME: Has circular import, so must import here...
+                            analysis_finalize_without_findings(
+                                self.session,
+                                db_analysis,
+                                db_analysis_interpretation,
+                                filter_config_id
+                            )
 
     def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", append=False):
 
@@ -58,7 +147,8 @@ class DepositAnalysis(DepositFromVCF):
                 analysis_config_data.analysis_name,
                 db_genepanel,
                 analysis_config_data.report,
-                analysis_config_data.warnings
+                analysis_config_data.warnings,
+                date_requested=analysis_config_data.date_requested
             )
         else:
             db_analysis = self.session.query(sample.Analysis).filter(

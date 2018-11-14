@@ -1,7 +1,7 @@
 import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation, user
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
 from api.config import config
@@ -40,7 +40,7 @@ def allele_ids_with_valid_alleleassessments(session):
     )
 
 
-def workflow_by_status(session, model, model_id_attr, workflow_status=None, status=None):
+def workflow_by_status(session, model, model_id_attr, workflow_status=None, status=None, finalized=False):
     """
     Fetches all allele_id/analysis_id where the last interpretation matches provided
     workflow status and/or status.
@@ -57,16 +57,17 @@ def workflow_by_status(session, model, model_id_attr, workflow_status=None, stat
     See https://www.postgresql.org/docs/10.0/static/sql-select.html#SQL-DISTINCT
     """
 
-    if workflow_status is None and status is None:
-        raise RuntimeError("You must provide either 'workflow_status' or 'status' argument")
+    if workflow_status is None and status is None and not finalized:
+        raise RuntimeError("You must provide either 'workflow_status' or 'status' argument, or specify finalized=True")
 
     latest_interpretation = session.query(
         getattr(model, model_id_attr),
         model.workflow_status,
         model.status,
+        model.finalized,
     ).order_by(
         getattr(model, model_id_attr),
-        model.date_last_update.desc(),
+        model.date_created.desc(),
     ).distinct(
         getattr(model, model_id_attr),  # DISTINCT ON
     ).subquery()
@@ -80,19 +81,21 @@ def workflow_by_status(session, model, model_id_attr, workflow_status=None, stat
         filters.append(
             latest_interpretation.c.status == status
         )
+    if finalized:
+        filters.append(
+            latest_interpretation.c.finalized.is_(True)
+        )
     return session.query(getattr(latest_interpretation.c, model_id_attr)).filter(*filters)
 
 
 def workflow_analyses_finalized(session):
-    """
-    Definition of Finalized: latest interpretation is 'Done'
-    """
     return workflow_by_status(
         session,
         workflow.AnalysisInterpretation,
         'analysis_id',
         workflow_status=None,
-        status='Done'
+        status=None,
+        finalized=True,
     )
 
 
@@ -177,7 +180,8 @@ def workflow_alleles_finalized(session):
         workflow.AlleleInterpretation,
         'allele_id',
         workflow_status=None,
-        status='Done'
+        status=None,
+        finalized=True,
     )
 
 
@@ -313,16 +317,16 @@ def workflow_allele_review_comment(session, allele_ids=None):
     )
 
 
-def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_version):
+def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all genes with _only_ {inheritance} phenotypes.
+    Fetches all hgnc_ids with _only_ {inheritance} phenotypes.
 
     e.g. only 'AD' or only 'AR'
     """
     # Get phenotypes having only one kind of inheritance
     # e.g. only 'AD' or only 'AR' etc...
-    gene_ids = session.query(
-        gene.Phenotype.gene_id
+    hgnc_ids = session.query(
+        gene.Phenotype.gene_id.label('hgnc_id')
     ).filter(
         gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
         gene.genepanel_phenotype.c.genepanel_name == gp_name,
@@ -333,9 +337,7 @@ def distinct_inheritance_genes_for_genepanel(session, inheritance, gp_name, gp_v
         gene.Phenotype.gene_id
     ).having(func.every(gene.Phenotype.inheritance == inheritance))
 
-    return session.query(gene.Gene.hgnc_symbol).filter(
-        gene.Gene.hgnc_id.in_(gene_ids)
-    )
+    return hgnc_ids
 
 
 def allele_genepanels(session, genepanel_keys, allele_ids=None):
@@ -427,3 +429,14 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
     result = result.distinct()
 
     return result
+
+
+def get_default_filter_config_id(session, user_id):
+
+    return session.query(sample.FilterConfig.id).join(
+        user.UserGroup,
+        user.User
+    ).filter(
+        user.User.id == user_id,
+        sample.FilterConfig.default.is_(True)
+    )

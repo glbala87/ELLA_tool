@@ -6,6 +6,10 @@ import logging
 import time
 
 DEFAULT_STATIC_FILE = 'index.html'
+REWRITES = {
+    'docs/': 'docs/index.html',
+    'docs': 'docs/index.html'
+}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request, g, make_response
@@ -24,6 +28,7 @@ VALID_STATIC_FILES = [
     'thirdparty.js',
     'templates.js',
     'fonts',
+    'docs',
     'favicon.ico'
 ]
 
@@ -80,6 +85,8 @@ def shutdown_session(exception=None):
 
 
 def serve_static(path=None):
+    path = REWRITES.get(path, path)
+
     if not path:
         path = DEFAULT_STATIC_FILE
 
@@ -128,7 +135,13 @@ if __name__ == '__main__':
     is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, '').lower() == 'true'
     if is_dev:
         opts['use_reloader'] = True
-        os.environ['ANALYSES_PATH'] = '/ella/src/vardb/testdata/analyses/small/'
+
+        # Enable remote debugging
+        if os.environ.get('PTVS_PORT'):
+            import ptvsd
+            if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+                print "Enabled python remote debugging at port {}".format(os.environ['PTVS_PORT'])
+                ptvsd.enable_attach(address=('0.0.0.0', os.environ['PTVS_PORT']))
 
     if is_dev:
         print "!!!!!DEVELOPMENT MODE!!!!!"

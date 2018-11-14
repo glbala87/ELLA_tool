@@ -14,7 +14,6 @@ import './modals/referenceEvalModal.service'
 import './modals/igvModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resource as therefore still in use
-import './services/resources/alleleResource.service'
 import './services/resources/alleleAssessmentResource.service'
 import './services/resources/customAnnotationResource.service'
 import './services/resources/analysisResource.service'
@@ -43,6 +42,7 @@ import './views/login.directive'
 import './views/alleleSidebar.directive'
 import './views/alleleSidebarList.directive'
 import './views/navbar.directive'
+import './views/visualization.directive'
 
 import './widgets/alleleinfo/alleleInfoAcmgSelection.directive'
 import './widgets/alleleinfo/alleleInfoQuality.directive'
@@ -125,6 +125,9 @@ class AppConfig {
                 reconnect: false // Can be annoying when devtools not open
             })
         }
+        // DEV: Comment out line below to activate devtools
+        // (impacts performance even without debugger running)
+        config.devtools = null
 
         cerebralProvider.configure(RootModule(), config)
 

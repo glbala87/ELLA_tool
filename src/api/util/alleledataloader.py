@@ -1,9 +1,9 @@
 from collections import defaultdict
 import json
-from vardb.datamodel import allele, sample, genotype, annotationshadow
+from vardb.datamodel import allele, sample, genotype, annotationshadow, gene
 from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
-from sqlalchemy import or_, and_, text, func
+from sqlalchemy import or_, and_, text, func, tuple_, case
 from sqlalchemy.orm import aliased
 
 from api.allelefilter.segregationfilter import SegregationFilter
@@ -12,7 +12,7 @@ from api.util import queries
 from api.schemas import AlleleSchema, GenotypeSchema, GenotypeSampleDataSchema, AnnotationSchema, CustomAnnotationSchema, AlleleAssessmentSchema, ReferenceAssessmentSchema, AlleleReportSchema, SampleSchema
 from api.util.annotationprocessor import AnnotationProcessor
 from api.config import config
-from .calculate_qc import genotype_calculate_qc
+from api.util.calculate_qc import genotype_calculate_qc
 
 
 # Top level keys:
@@ -34,6 +34,151 @@ SEGREGATION_TAGS = [
     'autosomal_recessive_homozygous',
     'xlinked_recessive_homozygous'
 ]
+
+
+class Warnings(object):
+    def __init__(self, session, alleles, genepanel=None, analysis_id=None):
+        self.session = session
+        self.alleles = alleles
+        self.allele_ids = [al['id'] for al in alleles]
+        if genepanel:
+            self.gp_key = (genepanel.name, genepanel.version)
+        else:
+            self.gp_key = None
+
+    def get_warnings(self):
+        allele_id_warnings = defaultdict(dict)
+        nearby_warnings = self._check_nearby()
+        for aid in nearby_warnings:
+            allele_id_warnings[aid]["nearby_allele"] = nearby_warnings[aid]
+
+        worse_consequence = self._check_worse_consequence()
+        for aid in worse_consequence:
+            allele_id_warnings[aid]["worse_consequence"] = worse_consequence[aid]
+
+        if self.gp_key:
+            hgvs_consistency_warnings = self._check_refseq_ensembl_consistency()
+            for aid in hgvs_consistency_warnings:
+                allele_id_warnings[aid]["hgvs_consistency"] = hgvs_consistency_warnings[aid]
+
+        return allele_id_warnings
+
+
+    def _check_nearby(self):
+        nearby_warnings = dict()
+        # Alleles within 3bp nearby
+        allele1 = aliased(allele.Allele)
+        allele2 = aliased(allele.Allele)
+        nearby_alleles = self.session.query(
+            allele1.id,
+            allele2.id,
+        ).filter(
+            or_(
+                func.abs(allele1.start_position - allele2.start_position) < 4,
+                func.abs(allele1.start_position - allele2.open_end_position) < 4,
+                func.abs(allele1.open_end_position - allele2.open_end_position) < 4
+            ),
+            allele1.id != allele2.id,
+            allele1.id.in_(self.allele_ids),
+            allele2.id.in_(self.allele_ids)
+        ).distinct()
+
+        for allele_id, _ in nearby_alleles.all():
+            nearby_warnings[allele_id] = 'Another variant is within 3 bp of this variant'
+
+        return nearby_warnings
+
+    def _check_worse_consequence(self):
+        worse_consequence_warnings = dict()
+        for al in self.alleles:
+
+            # Worse consequence
+            worst_consequence = al.get('annotation', {}).get('worst_consequence', [])
+            filtered_transcripts = al.get('annotation', {}).get('filtered_transcripts', [])
+            if not set(worst_consequence) & set(filtered_transcripts):
+                consequences = dict()
+                for w in worst_consequence:
+                    transcript_data = next(t for t in al['annotation']['transcripts'] if t['transcript'] == w)
+                    consequences[w] = ','.join(transcript_data['consequences'])
+                worse_consequence_warnings[al['id']] = 'Worse consequences found in: {}'.format(
+                    ', '.join(['{} ({})'.format(k, v) for k, v in consequences.iteritems()])
+                )
+
+        return worse_consequence_warnings
+
+
+    def _check_refseq_ensembl_consistency(self):
+        consistency_warnings = dict()
+
+
+        # Fetch genepanel transcripts
+        #
+        # Select corresponding transcript based on transcript type
+        corresponding_transcript = case(
+            [(gene.Transcript.type == 'RefSeq', gene.Transcript.corresponding_ensembl),
+            (gene.Transcript.type == 'Ensembl', gene.Transcript.corresponding_refseq)]
+        )
+
+        genepanel_transcripts = self.session.query(
+            gene.Transcript.id,
+            gene.Transcript.transcript_name,
+            corresponding_transcript.label("corresponding_transcript"),
+            gene.Transcript.gene_id,
+        ).join(gene.Genepanel.transcripts).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == self.gp_key
+        ).subquery()
+
+        # Split transcript on '.', and create a string for LIKE comparison
+        # E.g. NM_12345.2 -> NM_12345%
+        # Matches NM_12345dabla.3 LIKE NM_12345%
+        def split_tx(col):
+            return func.split_part(col, '.', 1).op('||')('%')
+
+
+        # Find allele ids in AnnotationShadowTranscript where hgvsc and/or hgvsp does not match
+        # between genepanel transcript and corresponding transcript
+        annotation_gp = aliased(annotationshadow.AnnotationShadowTranscript)
+        annotation_corresponding = aliased(annotationshadow.AnnotationShadowTranscript)
+        result = self.session.query(
+            annotation_gp.allele_id,
+            annotation_gp.transcript.label('gp_transcript'),
+            annotation_gp.hgvsc,
+            annotation_gp.hgvsp,
+            annotation_corresponding.transcript.label('corr_tx'),
+            annotation_corresponding.hgvsc.label('corr_hgvsc'),
+            annotation_corresponding.hgvsp.label('corr_hgvsp')
+        ).join(
+            genepanel_transcripts,
+            genepanel_transcripts.c.gene_id == annotation_gp.hgnc_id,
+        ).join(
+            annotation_corresponding,
+            and_(
+                annotation_corresponding.allele_id == annotation_gp.allele_id,
+                annotation_corresponding.hgnc_id == annotation_gp.hgnc_id,
+                genepanel_transcripts.c.corresponding_transcript.op("LIKE")(split_tx(annotation_corresponding.transcript))
+            )
+        ).filter(
+            annotation_gp.allele_id.in_(self.allele_ids),
+            genepanel_transcripts.c.transcript_name.op("LIKE")(split_tx(annotation_gp.transcript)),
+            # Check if either hgvsc or hgvsp does not match
+            or_(
+                annotation_gp.hgvsc != annotation_corresponding.hgvsc,
+                and_(
+                    # Only check if both hgvsp-annotations are on the form p.xxxxxx
+                    # Otherwise, could give a false positive on annotations like p.= and c.xxx(p.=)
+                    annotation_corresponding.hgvsp.op('LIKE')('p.%'),
+                    annotation_gp.hgvsp.op('LIKE')('p.%'),
+                    annotation_gp.hgvsp != annotation_corresponding.hgvsp
+                )
+            )
+        )
+
+        for r in result:
+            corr_hgvsp = "({})".format(r.corr_hgvsp) if r.corr_hgvsp else "(No hgsvp)"
+            corr_hgvsc = r.corr_hgvsc if r.corr_hgvsc else "N/A"
+            consistency_warnings[r.allele_id] = "Annotation for {} does not match corresponding transcript: {}:{} {}".format(r.gp_transcript, r.corr_tx, r.corr_hgvsc, corr_hgvsp)
+
+        return consistency_warnings
 
 
 class AlleleDataLoader(object):
@@ -65,10 +210,12 @@ class AlleleDataLoader(object):
                 if any(s['genotype']['type'] == 'Homozygous' for s in proband_samples):
                     allele_ids_tags[allele_id].add('homozygous')
 
-                # Low quality
                 keys = ['qual', 'pass', 'dp', 'allele_ratio']
-                if any(not v for s in al['samples'] for k, v in s['genotype']['needs_verification_checks'].iteritems() if k in keys):
-                    allele_ids_tags[allele_id].add('low_quality')
+                for s in al['samples']:
+                     verification_checks = s['genotype']['needs_verification_checks']
+                     if any(not v for k,v in verification_checks.iteritems() if k in keys) and verification_checks['hts']:
+                         allele_ids_tags[allele_id].add('low_quality')
+                         break
 
                 if segregation_results:
                     for tag in SEGREGATION_TAGS:
@@ -76,47 +223,6 @@ class AlleleDataLoader(object):
                             allele_ids_tags[allele_id].add(tag)
 
         return allele_ids_tags
-
-    def get_warnings(self, alleles):
-
-        allele_id_warnings = defaultdict(dict)
-        allele_ids = [al['id'] for al in alleles]
-
-        # Alleles within 3bp nearby
-        allele1 = aliased(allele.Allele)
-        allele2 = aliased(allele.Allele)
-        nearby_alleles = self.session.query(
-            allele1.id,
-            allele2.id,
-        ).filter(
-            or_(
-                func.abs(allele1.start_position - allele2.start_position) < 4,
-                func.abs(allele1.start_position - allele2.open_end_position) < 4,
-                func.abs(allele1.open_end_position - allele2.open_end_position) < 4
-            ),
-            allele1.id != allele2.id,
-            allele1.id.in_(allele_ids),
-            allele2.id.in_(allele_ids)
-        ).distinct()
-
-        for allele_id, _ in nearby_alleles.all():
-            allele_id_warnings[allele_id]['nearby_allele'] = 'Another variant is within 3 bp of this variant'
-
-        for al in alleles:
-
-            # Worse consequence
-            worst_consequence = al.get('annotation', {}).get('worst_consequence', [])
-            filtered_transcripts = al.get('annotation', {}).get('filtered_transcripts', [])
-            if not set(worst_consequence) & set(filtered_transcripts):
-                consequences = dict()
-                for w in worst_consequence:
-                    transcript_data = next(t for t in al['annotation']['transcripts'] if t['transcript'] == w)
-                    consequences[w] = ','.join(transcript_data['consequences'])
-                allele_id_warnings[al['id']]['worse_consequence'] = 'Worse consequences found in: {}'.format(
-                    ', '.join(['{} ({})'.format(k, v) for k, v in consequences.iteritems()])
-                )
-
-        return allele_id_warnings
 
     def get_formatted_genotypes(self, allele_ids, sample_id):
         """
@@ -612,7 +718,7 @@ class AlleleDataLoader(object):
             analysis_id=analysis_id,
             segregation_results=segregation_results
         )
-        allele_ids_warnings = self.get_warnings(final_alleles)
+        allele_ids_warnings = Warnings(self.session, final_alleles, genepanel=genepanel, analysis_id=analysis_id).get_warnings()
 
         for allele_id in allele_ids:
             final_allele = next(f for f in final_alleles if f['id'] == allele_id)
@@ -680,6 +786,12 @@ class AlleleDataLoader(object):
 if __name__ == '__main__':
     from api import db
 
+    gp = db.session.query(
+        gene.Genepanel
+    ).filter(
+        tuple_(gene.Genepanel.name, gene.Genepanel.version) == ("Mendeliome", "v01")
+    ).one()
+
     adl = AlleleDataLoader(db.session)
     alleles = db.session.query(allele.Allele).limit(100).all()
-    adl.from_objs(alleles)
+    adl.from_objs(alleles, genepanel=gp)

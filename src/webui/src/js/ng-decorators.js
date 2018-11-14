@@ -44,6 +44,15 @@ const ngModelWatchDirective = [
                         $scope.$$parsedNgModelWatch = {}
                     }
                     $scope.$$parsedNgModelWatch[$attrs.ngModelWatch] = $parse($attrs.ngModelWatch)
+
+                    // We cache the ngModel value, to evaluate whether to set a new ngModel value
+                    if (!$scope.$$parsedNgModelWatchPrevious) {
+                        $scope.$$parsedNgModelWatchPrevious = {}
+                    }
+                    // Initialize with ngModel value, to avoid an unnecessary ngModelSet below
+                    $scope.$$parsedNgModelWatchPrevious[$attrs.ngModelWatch] = $parse(
+                        $attrs.ngModel
+                    )($scope)
                 }
             ],
             link: function(scope, element, attr, ctrls) {
@@ -51,11 +60,22 @@ const ngModelWatchDirective = [
 
                 scope.$watch(
                     () => {
-                        // HACK: Use attr ngModelWatch attr string to get the get() function
-                        return scope.$$parsedNgModelWatch[attr.ngModelWatch](scope)
+                        // Evaluate whether ngModelWatch has changed
+                        return JSON.stringify({
+                            ngModelWatchValue: scope.$$parsedNgModelWatch[attr.ngModelWatch](scope),
+                            ngModelValue: attr.ngModelWatch
+                        })
                     },
+
                     (n, o) => {
-                        ngModel.$$ngModelSet(scope, n)
+                        let current = JSON.parse(n).ngModelWatchValue
+                        let previous = scope.$$parsedNgModelWatchPrevious[attr.ngModelWatch]
+
+                        // If the ngModelWatch value is different from the previous ngModelWatch value, we update ngModel
+                        if (current !== previous) {
+                            ngModel.$$ngModelSet(scope, current)
+                            scope.$$parsedNgModelWatchPrevious[attr.ngModelWatch] = current
+                        }
                     }
                 )
             }

@@ -484,7 +484,8 @@ class SearchResource(LogRequestResource):
             *self._get_analyses_filters(session, query, genepanels)
         ).distinct().limit(SearchResource.ANALYSIS_LIMIT).all()
         if analyses:
-            return schemas.AnalysisSchema().dump(analyses, many=True).data
+            aschema = schemas.AnalysisSchema()
+            return [aschema.dump(a).data for a in analyses]
         else:
             return []
 

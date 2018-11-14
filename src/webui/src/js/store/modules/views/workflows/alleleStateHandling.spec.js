@@ -31,11 +31,7 @@ let cerebral = null
 describe('Handling of allele state', () => {
     beforeEach(() => {
         mock.setup()
-        cerebral = CerebralTest(RootModule(false), {
-            devtools: Devtools({
-                host: '172.17.0.1:9595'
-            })
-        })
+        cerebral = CerebralTest(RootModule(false), {})
         cerebral.controller.addModule(
             'test',
             new Module({
@@ -53,6 +49,9 @@ describe('Handling of allele state', () => {
     afterEach(() => mock.teardown())
 
     it('handles assessments/reports: no existing, new, new outdated and new with old', async () => {
+        // We need to make sure all expects in the API mocks are called
+        expect.assertions(37)
+
         cerebral.setState('app.config', {
             classification: {
                 options: [
@@ -63,7 +62,22 @@ describe('Handling of allele state', () => {
                     }
                 ]
             },
-            user: { user_config: {} }
+            user: {
+                user_config: {
+                    workflows: {
+                        allele: {
+                            finalize_requirements: {
+                                workflow_status: [
+                                    'Not ready',
+                                    'Interpretation',
+                                    'Review',
+                                    'Medical review'
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
         })
         cerebral.setState('app.user', {
             id: 1
@@ -187,6 +201,7 @@ describe('Handling of allele state', () => {
                     user: {
                         id: 1
                     },
+                    workflow_status: 'Interpretation',
                     status: 'Ongoing',
                     allele_ids: [1, 2, 3, 4],
                     state: {
@@ -501,7 +516,7 @@ describe('Handling of allele state', () => {
         })
     })
 
-    it('migrates old state correctly', () => {
+    it('migrates old state correctly', async () => {
         cerebral.setState('app.config', {
             classification: {
                 options: [
@@ -535,7 +550,6 @@ describe('Handling of allele state', () => {
                             comment: 'TEST'
                         }
                     },
-                    verification: null,
                     alleleassessment: {
                         reuse: true,
                         evaluation: {
@@ -590,7 +604,6 @@ describe('Handling of allele state', () => {
                             comment: ''
                         }
                     },
-                    verification: null,
                     alleleassessment: {
                         reuse: false,
                         evaluation: {
@@ -657,7 +670,6 @@ describe('Handling of allele state', () => {
                             comment: ''
                         }
                     },
-                    verification: null,
                     alleleassessment: {
                         reuse: false,
                         evaluation: {
@@ -696,7 +708,6 @@ describe('Handling of allele state', () => {
                             comment: 'TEST2'
                         }
                     },
-                    verification: null,
                     alleleassessment: {
                         reuse: false,
                         evaluation: {
@@ -790,208 +801,218 @@ describe('Handling of allele state', () => {
             }
         })
 
-        return cerebral
-            .runSignal('test.prepareInterpretationState', {})
-            .then(({ state }) => {
-                const interpretationState = state.views.workflows.interpretation.selected.state
+        const { state } = await cerebral.runSignal('test.prepareInterpretationState', {})
 
-                // Allele 584: Was reused before migration -> should have cleaned out alleleassessment
-                expect(interpretationState.allele['584']).toEqual({
-                    report: {
-                        included: true
-                    },
+        const interpretationState = state.views.workflows.interpretation.selected.state
+
+        // Allele 584: Was reused before migration -> should have cleaned out alleleassessment
+        expect(interpretationState.allele['584']).toEqual({
+            report: {
+                included: true
+            },
+            allele_id: 584,
+            allelereport: {
+                copiedFromId: 1,
+                evaluation: {
+                    comment: 'TEST'
+                }
+            },
+            analysis: {
+                comment: '',
+                notrelevant: null,
+                verification: null
+            },
+            workflow: {
+                reviewed: false
+            },
+            alleleassessment: {
+                reuse: true,
+                reuseCheckedId: 1,
+                allele_id: 584
+            },
+            referenceassessments: [
+                {
+                    id: 1,
+                    reuse: true,
                     allele_id: 584,
-                    allelereport: {
-                        copiedFromId: 1,
-                        evaluation: {
-                            comment: 'TEST'
-                        }
-                    },
-                    quality: {
-                        comment: ''
-                    },
-                    verification: null,
-                    alleleassessment: {
-                        reuse: true,
-                        reuseCheckedId: 1,
-                        allele_id: 584
-                    },
-                    referenceassessments: [
-                        {
-                            id: 1,
-                            reuse: true,
-                            allele_id: 584,
-                            reuseCheckedId: 1,
-                            reference_id: 521
-                        }
-                    ]
-                })
+                    reuseCheckedId: 1,
+                    reference_id: 521
+                }
+            ]
+        })
 
-                // Allele 585: Had user content, empty referenceassessments should be removed
-                expect(interpretationState.allele['585']).toEqual({
-                    allele_id: 585,
-                    report: {
-                        included: false
+        // Allele 585: Had user content, empty referenceassessments should be removed
+        expect(interpretationState.allele['585']).toEqual({
+            allele_id: 585,
+            report: {
+                included: false
+            },
+            allelereport: {
+                evaluation: {
+                    comment: ''
+                }
+            },
+            analysis: {
+                comment: '',
+                verification: null,
+                notrelevant: null
+            },
+            workflow: {
+                reviewed: false
+            },
+            alleleassessment: {
+                reuse: false,
+                evaluation: {
+                    acmg: {
+                        included: [],
+                        suggested: [
+                            {
+                                op: '$in',
+                                code: 'REQ_GP_last_exon_not_important',
+                                match: ['LENI'],
+                                source: 'genepanel.last_exon_important'
+                            },
+                            {
+                                op: null,
+                                code: 'PVS1',
+                                match: null,
+                                source: null
+                            },
+                            {
+                                op: null,
+                                code: 'PPxPM2',
+                                match: null,
+                                source: null
+                            }
+                        ],
+                        suggested_classification: null
                     },
-                    allelereport: {
-                        evaluation: {
-                            comment: ''
-                        }
-                    },
-                    quality: {
+                    external: {
                         comment: ''
                     },
-                    verification: null,
-                    alleleassessment: {
-                        reuse: false,
-                        evaluation: {
-                            acmg: {
-                                included: [],
-                                suggested: [
-                                    {
-                                        op: '$in',
-                                        code: 'REQ_GP_last_exon_not_important',
-                                        match: ['LENI'],
-                                        source: 'genepanel.last_exon_important'
-                                    },
-                                    {
-                                        op: null,
-                                        code: 'PVS1',
-                                        match: null,
-                                        source: null
-                                    },
-                                    {
-                                        op: null,
-                                        code: 'PPxPM2',
-                                        match: null,
-                                        source: null
-                                    }
-                                ],
-                                suggested_classification: null
-                            },
-                            external: {
-                                comment: ''
-                            },
-                            frequency: {
-                                comment: ''
-                            },
-                            reference: {
-                                comment: ''
-                            },
-                            prediction: {
-                                comment: ''
-                            },
-                            classification: {
-                                comment: ''
-                            }
-                        },
-                        attachment_ids: [],
-                        classification: null
+                    frequency: {
+                        comment: ''
                     },
-                    referenceassessments: []
-                })
+                    reference: {
+                        comment: ''
+                    },
+                    prediction: {
+                        comment: ''
+                    },
+                    classification: {
+                        comment: ''
+                    }
+                },
+                attachment_ids: [],
+                classification: null
+            },
+            referenceassessments: []
+        })
 
-                // Allele 586: Was empty. Should be almost same
-                expect(interpretationState.allele['586']).toEqual({
-                    allele_id: 586,
-                    report: {
-                        included: false
+        // Allele 586: Was empty. Should be almost same
+        expect(interpretationState.allele['586']).toEqual({
+            allele_id: 586,
+            report: {
+                included: false
+            },
+            allelereport: {
+                evaluation: {
+                    comment: ''
+                }
+            },
+            analysis: {
+                comment: '',
+                verification: null,
+                notrelevant: null
+            },
+            workflow: {
+                reviewed: false
+            },
+            alleleassessment: {
+                reuse: false,
+                evaluation: {
+                    acmg: {
+                        included: [],
+                        suggested: []
                     },
-                    allelereport: {
-                        evaluation: {
-                            comment: ''
-                        }
-                    },
-                    quality: {
+                    external: {
                         comment: ''
                     },
-                    verification: null,
-                    alleleassessment: {
-                        reuse: false,
-                        evaluation: {
-                            acmg: {
-                                included: [],
-                                suggested: []
-                            },
-                            external: {
-                                comment: ''
-                            },
-                            frequency: {
-                                comment: ''
-                            },
-                            reference: {
-                                comment: ''
-                            },
-                            prediction: {
-                                comment: ''
-                            },
-                            classification: {
-                                comment: ''
-                            }
-                        },
-                        attachment_ids: [],
-                        classification: null
+                    frequency: {
+                        comment: ''
                     },
-                    referenceassessments: []
-                })
+                    reference: {
+                        comment: ''
+                    },
+                    prediction: {
+                        comment: ''
+                    },
+                    classification: {
+                        comment: ''
+                    }
+                },
+                attachment_ids: [],
+                classification: null
+            },
+            referenceassessments: []
+        })
 
-                // Allele 589: Has alleleassessment, but is not reused. Alleleassessment content should be kept.
-                expect(interpretationState.allele['589']).toEqual({
-                    report: {
-                        included: true
+        // Allele 589: Has alleleassessment, but is not reused. Alleleassessment content should be kept.
+        expect(interpretationState.allele['589']).toEqual({
+            report: {
+                included: true
+            },
+            allele_id: 589,
+            allelereport: {
+                copiedFromId: 2,
+                evaluation: {
+                    comment: 'TEST2'
+                }
+            },
+            analysis: {
+                comment: '',
+                verification: null,
+                notrelevant: null
+            },
+            workflow: {
+                reviewed: false
+            },
+            alleleassessment: {
+                reuse: false,
+                reuseCheckedId: 2,
+                evaluation: {
+                    acmg: {
+                        included: [],
+                        suggested: [
+                            {
+                                op: '$in',
+                                code: 'REQ_GP_last_exon_not_important',
+                                match: ['LENI'],
+                                source: 'genepanel.last_exon_important'
+                            }
+                        ],
+                        suggested_classification: null
                     },
-                    allele_id: 589,
-                    allelereport: {
-                        copiedFromId: 2,
-                        evaluation: {
-                            comment: 'TEST2'
-                        }
-                    },
-                    quality: {
+                    external: {
                         comment: ''
                     },
-                    verification: null,
-                    alleleassessment: {
-                        reuse: false,
-                        reuseCheckedId: 2,
-                        evaluation: {
-                            acmg: {
-                                included: [],
-                                suggested: [
-                                    {
-                                        op: '$in',
-                                        code: 'REQ_GP_last_exon_not_important',
-                                        match: ['LENI'],
-                                        source: 'genepanel.last_exon_important'
-                                    }
-                                ],
-                                suggested_classification: null
-                            },
-                            external: {
-                                comment: ''
-                            },
-                            frequency: {
-                                comment: ''
-                            },
-                            reference: {
-                                comment: ''
-                            },
-                            prediction: {
-                                comment: ''
-                            },
-                            classification: {
-                                comment: 'TEST2'
-                            }
-                        },
-                        attachment_ids: [],
-                        classification: '4'
+                    frequency: {
+                        comment: ''
                     },
-                    referenceassessments: []
-                })
-            })
-            .catch((err) => {
-                console.error(err.message, err.stack)
-                expect(1).toBe(0)
-            })
+                    reference: {
+                        comment: ''
+                    },
+                    prediction: {
+                        comment: ''
+                    },
+                    classification: {
+                        comment: 'TEST2'
+                    }
+                },
+                attachment_ids: [],
+                classification: '4'
+            },
+            referenceassessments: []
+        })
     })
 })

@@ -1,28 +1,29 @@
-import { props } from 'cerebral/tags'
-import { when } from 'cerebral/operators'
-import canUpdateAlleleAssessment from '../../interpretation/operators/canUpdateAlleleAssessment'
-import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
-import setDirty from '../../interpretation/actions/setDirty'
+import { props, state } from 'cerebral/tags'
+import { when, set } from 'cerebral/operators'
 import changeClassification from '../../interpretation/sequences/changeClassification'
-import toast from '../../../../../common/factories/toast'
-import addAcmgCode from '../../interpretation/actions/addAcmgCode'
+import selectedAlleleChanged from './selectedAlleleChanged'
+import setVerificationStatus from '../../sequences/setVerificationStatus'
+import setNotRelevant from '../../sequences/setNotRelevant'
 
 export default [
+    // Select the allele
+    set(state`views.workflows.selectedAllele`, props`alleleId`),
+    selectedAlleleChanged,
+
+    // Update relevant data
     when(props`classification`),
     {
         true: changeClassification,
         false: []
     },
-    when(props`code`),
+    when(props`verificationStatus`),
     {
-        true: [
-            canUpdateAlleleAssessment,
-            {
-                true: [addAcmgCode, updateSuggestedClassification, setDirty],
-                false: [toast('error', 'Could not add ACMG code')]
-            }
-        ],
-
+        true: setVerificationStatus,
+        false: []
+    },
+    when(props`notRelevant`),
+    {
+        true: setNotRelevant,
         false: []
     }
 ]

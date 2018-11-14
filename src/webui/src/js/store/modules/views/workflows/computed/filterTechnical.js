@@ -8,7 +8,7 @@ export default function(inverse = false, alleles) {
         (alleles, interpretation) => {
             return alleles.filter((allele) => {
                 const technical = Boolean(
-                    interpretation.state.allele[allele.id].verification === 'technical'
+                    interpretation.state.allele[allele.id].analysis.verification === 'technical'
                 )
                 return inverse ? !technical : technical
             })

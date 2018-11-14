@@ -235,7 +235,8 @@ class PubMedFetcher(object):
         references = []
         pmparser = PubMedParser()
         for pubmed_article in pubmed_article_set.findall("./*"):
-            reference = pmparser.parse_pubmed_article(pubmed_article)
+            pubmed_xml = ET.tostring(pubmed_article)
+            reference = pmparser.from_xml_string(pubmed_xml)
             references.append(reference)
 
         return references

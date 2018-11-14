@@ -1,6 +1,6 @@
 <sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="$ctrl.close">
   <maintitle>
-    ADD EXCLUDED VARIANTS
+    ADD FILTERED VARIANTS
   </maintitle>
   <controls>
     <section class="line-wrapper pinned-right">
@@ -8,31 +8,24 @@
     </section>
   </controls>
   <contentwrapper>
-    <article ng-repeat="alleleId in $ctrl.includedAlleleIds track by alleleId">
-      <sectionbox class="nobody" color="blue" collapsible="false">
-        <maintitle>
-          included
-        </maintitle>
-        <controls>
-          <div class="line-wrapper spaced only-control">
-            <allelebar class="allele-info" genepanel-path="$ctrl.genepanelPath" allele-path="'modals.addExcludedAlleles.data.includedAlleles.' + alleleId"></allelebar>
-            <section>
-              <checkable-button class="id-exclude-allele"
-                                check-model="$ctrl.modelNotUsed[alleleId]"
-                                on-change="$ctrl.excludeAlleleClicked({alleleId: alleleId})"
-                                ng-if="!$ctrl.readOnly">
-                EXCLUDE
-              </checkable-button>
-            </section>
-          </div>
-        </controls>
-      </sectionbox>
-    </article>
+    <div class="included-allele-list">
+        <allele-sidebar-list
+          class="id-included"
+          section-title="Included variants"
+          allele-ids-path="'modals.addExcludedAlleles.includedAlleleIds'"
+          alleles-path="'modals.addExcludedAlleles.data.includedAlleles'"
+          toggle-clicked-path="'modals.addExcludedAlleles.excludeAlleleClicked'"
+          togglable="true"
+          toggled="$ctrl.isToggled"
+          read-only="$ctrl.readOnly"
+          expanded="true">
+        </allele-sidebar-list>
+      </div>
 
     <!-- END INCLUDED -->
 
     <!-- START MODAL CONTROLS -->
-    <hr ng-if="vm.included_alleles.length">
+    <hr ng-if="$ctrl.includedAlleleIds.length">
     <div class="question small line-wrapper spaced">
       <section class="line-wrapper">
         <div class="bttn-set multiple-question-element">
@@ -69,38 +62,17 @@
     <!-- END MODAL CONTROLS -->
 
     <!-- START EXCLUDED -->
-    <article class="allele" ng-repeat="alleleId in $ctrl.alleleIds track by alleleId">
-      <sectionbox color="purple" collapsible="false">
-        <maintitle>
-          excluded
-        </maintitle>
-        <controls>
-          <div class="line-wrapper spaced">
-            <allelebar class="allele-info" genepanel-path="$ctrl.genepanelPath" allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId"></allelebar>
-            <section>
-              <checkable-button class="id-include-allele"
-                                check-model="$ctrl.modelIncludedAlleleIds[alleleId]"
-                                on-change="$ctrl.includeAlleleClicked({alleleId: alleleId})"
-                                ng-disabled="$ctrl.readOnly">
-                INCLUDE
-              </checkable-button>
-            </section>
-          </div>
-        </controls>
-        <contentwrapper>
-
-          <article class="sectionbox-content">
-            <allele-info-frequency-gnomad-exomes allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId "></allele-info-frequency-gnomad-exomes>
-            <allele-info-frequency-gnomad-genomes allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId "></allele-info-frequency-gnomad-genomes>
-            <allele-info-frequency-exac allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId "></allele-info-frequency-exac>
-            <allele-info-frequency-indb allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId "></allele-info-frequency-indb>
-            <allele-info-consequence allele-path="'modals.addExcludedAlleles.data.alleles.' + alleleId "></allele-info-consequence>
-          </article>
-        </contentwrapper>
-      </sectionbox>
-    </article>
-
-    <!-- END EXCLUDED -->
-
+    <div class="excluded-allele-list">
+      <allele-sidebar-list
+        class="id-excluded"
+        allele-ids-path="'modals.addExcludedAlleles.viewAlleleIds'"
+        alleles-path="'modals.addExcludedAlleles.data.alleles'"
+        toggle-clicked-path="'modals.addExcludedAlleles.includeAlleleClicked'"
+        togglable="true"
+        toggled="$ctrl.isToggled"
+        read-only="$ctrl.readOnly"
+        expanded="true">
+      </allele-sidebar-list>
+    </div>
   </contentwrapper>
 </sectionbox>

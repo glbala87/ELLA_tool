@@ -1,8 +1,8 @@
 import thenBy from 'thenby'
 import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getClassification from '../alleleSidebar/computed/getClassification'
-import getVerificationStatus from '../interpretation/computed/getVerificationStatus'
+import getClassificationById from '../alleleSidebar/computed/getClassificationById'
+import getVerificationStatusById from '../alleleSidebar/computed/getVerificationStatusById'
 
 function getSortFunctions(config, classification, verificationStatus) {
     return {
@@ -13,12 +13,18 @@ function getSortFunctions(config, classification, verificationStatus) {
             return allele.formatted.inheritance
         },
         gene: (allele) => {
-            return allele.annotation.filtered[0].symbol
+            if (allele.annotation.filtered && allele.annotation.filtered.length) {
+                return allele.annotation.filtered[0].symbol
+            }
+            return -1
         },
         hgvsc: (allele) => {
-            const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
-            const pos = s.match(/[cg]\.(\d+)/)
-            return pos ? parseInt(pos[1]) : 0
+            if (allele.annotation.filtered && allele.annotation.filtered.length) {
+                const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
+                const pos = s.match(/[cg]\.(\d+)/)
+                return pos ? parseInt(pos[1]) : 0
+            }
+            return -1
         },
         consequence: (allele) => {
             let consequence_priority = config.transcripts.consequences
@@ -62,7 +68,7 @@ function getSortFunctions(config, classification, verificationStatus) {
         },
         classification: (allele) => {
             return config.classification.options.findIndex(
-                (o) => o.value === classification[allele.id]
+                (o) => o.value === classification[allele.id].classification
             )
         },
         warning: (allele) => {
@@ -81,12 +87,18 @@ export default function sortAlleles(alleles, key, reverse) {
             if (!alleles) {
                 return
             }
-            const sortedAlleles = Object.values(alleles).slice()
+
+            const allelesById = {}
+            for (let allele of alleles) {
+                allelesById[allele.id] = allele
+            }
             const sortFunctions = getSortFunctions(
                 config,
-                get(getClassification),
-                get(getVerificationStatus)
+                get(getClassificationById(allelesById)),
+                get(getVerificationStatusById(allelesById))
             )
+
+            const sortedAlleles = Object.values(alleles).slice()
 
             if (key === 'classification') {
                 sortedAlleles.sort(

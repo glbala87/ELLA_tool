@@ -15,6 +15,7 @@ from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
+from api.util.util import get_nested
 
 
 def _check_interpretation_input(allele, analysis):
@@ -73,7 +74,7 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
         model_id = analysis_id
     return session.query(model).filter(
         field == model_id,
-    ).order_by(model.id.desc()).first()
+    ).order_by(model.date_created.desc()).first()
 
 
 def get_alleles(session,
@@ -190,7 +191,6 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data['transcripts'] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
     genepanel_data['phenotypes'] = schemas.PhenotypeFullSchema().dump(phenotypes, many=True).data
-    genepanel_data['config'] = genepanel.config
     return genepanel_data
 
 
@@ -242,7 +242,7 @@ def update_interpretation(session, user_id, data, alleleinterpretation_id=None, 
     return interpretation
 
 
-def get_interpretation(session, genepanels, alleleinterpretation_id=None, analysisinterpretation_id=None):
+def get_interpretation(session, genepanels, filter_config_id, alleleinterpretation_id=None, analysisinterpretation_id=None):
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
     interpretation_model = _get_interpretation_model(alleleinterpretation_id, analysisinterpretation_id)
 
@@ -252,11 +252,11 @@ def get_interpretation(session, genepanels, alleleinterpretation_id=None, analys
     ).one()
 
     idl = InterpretationDataLoader(session)
-    obj = idl.from_obj(interpretation)
+    obj = idl.from_obj(interpretation, filter_config_id)
     return obj
 
 
-def get_interpretations(session, genepanels, allele_id=None, analysis_id=None):
+def get_interpretations(session, genepanels, filter_config_id, allele_id=None, analysis_id=None):
 
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
     interpretation_model_field = _get_interpretation_model_field(allele_id, analysis_id)
@@ -275,7 +275,7 @@ def get_interpretations(session, genepanels, allele_id=None, analysis_id=None):
     idl = InterpretationDataLoader(session)
 
     for interpretation in interpretations:
-        loaded_interpretations.append(idl.from_obj(interpretation))
+        loaded_interpretations.append(idl.from_obj(interpretation, filter_config_id))
 
     return loaded_interpretations
 
@@ -341,7 +341,7 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     return interpretation
 
 
-def mark_interpretation(session, workflow_status, data, allele_id=None, analysis_id=None):
+def mark_interpretation(session, workflow_status, data, filter_config_id, allele_id=None, analysis_id=None):
     """
     Marks (and copies) an interpretation for a new workflow_status,
     creating Snapshot objects to record history.
@@ -355,7 +355,8 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation)
+
+    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation, filter_config_id)
 
     presented_alleleassessment_ids = [a['presented_alleleassessment_id'] for a in data['alleleassessments'] if 'presented_alleleassessment_id' in a]
     presented_alleleassessments = session.query(assessment.AlleleAssessment).filter(
@@ -390,20 +391,20 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
     return interpretation, interpretation_next
 
 
-def marknotready_interpretation(session, data, analysis_id=None):
-    return mark_interpretation(session, 'Not ready', data, analysis_id=analysis_id)
+def marknotready_interpretation(session, data, filter_config_id, analysis_id=None):
+    return mark_interpretation(session, 'Not ready', data, filter_config_id, analysis_id=analysis_id)
 
 
-def markinterpretation_interpretation(session, data, allele_id=None, analysis_id=None):
-    return mark_interpretation(session, 'Interpretation', data, allele_id=allele_id, analysis_id=analysis_id)
+def markinterpretation_interpretation(session, data, filter_config_id, allele_id=None, analysis_id=None):
+    return mark_interpretation(session, 'Interpretation', data, filter_config_id, allele_id=allele_id, analysis_id=analysis_id)
 
 
-def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
-    return mark_interpretation(session, 'Review', data, allele_id=allele_id, analysis_id=analysis_id)
+def markreview_interpretation(session, data, filter_config_id, allele_id=None, analysis_id=None):
+    return mark_interpretation(session, 'Review', data, filter_config_id, allele_id=allele_id, analysis_id=analysis_id)
 
 
-def markmedicalreview_interpretation(session, data, analysis_id=None):
-    return mark_interpretation(session, 'Medical review', data, analysis_id=analysis_id)
+def markmedicalreview_interpretation(session, data, filter_config_id, analysis_id=None):
+    return mark_interpretation(session, 'Medical review', data, filter_config_id, analysis_id=analysis_id)
 
 
 def reopen_interpretation(session, allele_id=None, analysis_id=None):
@@ -425,7 +426,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=None):
+def finalize_interpretation(session, user_id, data, filter_config_id, user_config, allele_id=None, analysis_id=None):
     """
     Finalizes an interpretation.
 
@@ -454,7 +455,7 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
 
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation)
+    loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation, filter_config_id)
 
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(
@@ -470,6 +471,42 @@ def finalize_interpretation(session, user_id, data, allele_id=None, analysis_id=
     created_alleleassessments = grouped_alleleassessments['alleleassessments']['created']
 
     session.add_all(created_alleleassessments)
+
+    # Check that we can finalize
+    # There are different criterias deciding when finalization is allowed
+    reused_allele_ids = set([a.allele_id for a in reused_alleleassessments])
+    created_allele_ids = set([a.allele_id for a in created_alleleassessments])
+    exempted_classification_allele_ids = set()  # allele ids that don't need classification
+    assert reused_allele_ids & created_allele_ids == set()
+
+    workflow_type = 'allele' if allele_id else 'analysis'
+    finalize_requirements = get_nested(
+        user_config,
+        ['workflows', workflow_type, 'finalize_requirements']
+    )
+    if finalize_requirements.get('workflow_status'):
+        if interpretation.workflow_status not in finalize_requirements['workflow_status']:
+            raise ApiError("Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(', '.join(finalize_requirements['workflow_status'])))
+
+    if finalize_requirements.get('allow_technical'):
+        if 'technical_allele_ids' not in data:
+            raise ApiError("Missing required key 'technical_allele_ids' when finalized requirement allow_technical is true")
+        exempted_classification_allele_ids.update(set(data['technical_allele_ids']))
+
+    if finalize_requirements.get('allow_notrelevant'):
+        if 'notrelevant_allele_ids' not in data:
+            raise ApiError("Missing required key 'notrelevant_allele_ids' when finalized requirement allow_notrelevant is true")
+        exempted_classification_allele_ids.update(set(data['notrelevant_allele_ids']))
+
+    # If no "unclassified" are allowed, check that all allele ids minus the
+    # exempted ones have a classification
+    if not finalize_requirements.get('allow_unclassified'):
+        needs_classification = set(loaded_interpretation['allele_ids']) - exempted_classification_allele_ids
+        missing_classification = needs_classification - (created_allele_ids | reused_allele_ids)
+        if missing_classification:
+            raise ApiError("Missing alleleassessments for allele ids {}".format(
+                ','.join(sorted(list([str(m) for m in missing_classification]))))
+            )
 
     # Create/reuse allelereports
     all_alleleassessments = reused_alleleassessments + created_alleleassessments

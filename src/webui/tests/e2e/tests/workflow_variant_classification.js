@@ -148,7 +148,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
         analysisPage.startButton.click()
-        checkAlleleClassification(interpretation_expected_values)
+        checkAlleleClassification(interpretation_expected_values, 'allele')
 
         workLog.open()
         expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')

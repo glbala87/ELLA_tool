@@ -14,19 +14,7 @@
 
   </div>
   <section>
-    <button class="id-add-excluded" ng-click="$ctrl.addExcludedAllelesClicked({
-      analysisId: $ctrl.analysis.id,
-      readOnly: $ctrl.readOnly,
-      genepanelPath: 'views.workflows.data.genepanel',
-      includedAlleleIds: $ctrl.selectedInterpretation.state.manuallyAddedAlleles,
-      excludedAlleleIds: $ctrl.selectedInterpretation.excluded_allele_ids,
-    })">
-      <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-        <path d="M16 2 L16 30 M2 16 L30 16" />
-      </svg>
-      <span> {{$ctrl.selectedInterpretation.state.manuallyAddedAlleles.length || 0}}/{{$ctrl.getExcludedAlleleCount()}}</span><span class="add-excluded-button">Excluded</span></button>
     <button ng-click="$ctrl.copyAllAlamutClicked()">Copy all to alamut</button>
-
     <div class="dropdown white" ng-if="$ctrl.showHistory()">
       <select
           class="id-interpretationrounds-dropdown"

@@ -5,7 +5,7 @@ import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysi
 import vanillaColorPicker from 'exports-loader?window.vanillaColorPicker!../../thirdparty/vanilla-color-picker/vanilla-color-picker.min'
 
 import { Directive, Inject } from '../ng-decorators'
-import { EventListeners, UUID } from '../util'
+import { EventListeners, UUID, sanitize } from '../util'
 import template from './wysiwygEditor.ngtmpl.html'
 
 @Directive({
@@ -243,20 +243,28 @@ export class WysiwygEditorController {
             // IMPORTANT: Use clipboardData.items rather than clipboardData.files, as this does not work for older versions of Chrome
             if (!e.clipboardData.items.length) return
             let hasAttachment = false
-            for (let item of e.clipboardData.items) {
-                if (item.kind !== 'file') continue
-                this.attachmentResource.post(item.getAsFile()).then((id) => {
-                    let uuid = UUID()
-                    let label = `Attachment ${id} ${uuid}`
-                    let src = `/api/v1/attachments/${id}`
-                    this.editor.insertHTML(
-                        `<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`
-                    )
-                })
-                hasAttachment = true
-            }
-            if (hasAttachment) {
+            if (e.clipboardData.types.indexOf('text/html') > -1) {
+                let text = e.clipboardData.getData('text/html')
                 e.preventDefault()
+                this.editor.insertHTML(sanitize(text))
+            } else {
+                for (let item of e.clipboardData.items) {
+                    if (item.kind !== 'file') {
+                        continue
+                    }
+                    this.attachmentResource.post(item.getAsFile()).then((id) => {
+                        let uuid = UUID()
+                        let label = `Attachment ${id} ${uuid}`
+                        let src = `/api/v1/attachments/${id}`
+                        this.editor.insertHTML(
+                            `<img id="${uuid}" src="${src}" alt="${label}" title="${label}">`
+                        )
+                    })
+                    hasAttachment = true
+                }
+                if (hasAttachment) {
+                    e.preventDefault()
+                }
             }
         })
 
@@ -278,6 +286,7 @@ export class WysiwygEditorController {
 
         // Create div with slider
         let sliderContainer = document.createElement('div')
+        sliderContainer.classList.add('image-slider')
         let slider = document.createElement('input')
         sliderContainer.appendChild(slider)
 
@@ -288,15 +297,26 @@ export class WysiwygEditorController {
         slider.step = 0.01
 
         // Position slider
-        sliderContainer.style.position = 'absolute'
         const rect = img.getBoundingClientRect()
-        const left = rect.left + window.scrollX
-        const top = rect.top + window.scrollY
+
+        // If we're in a modal, we should append slider to modal-content, to scroll with modal.
+        // Otherwise, we append the slider to document.body, to scroll with window
+        let left, top, parent
+        if (document.getElementsByClassName('modal-content').length) {
+            parent = document.getElementsByClassName('modal-content')[0]
+            let modalDialog = document.getElementsByClassName('modal-dialog')[0]
+            left = rect.left + parent.scrollLeft - modalDialog.offsetLeft
+            top = rect.top + parent.scrollTop - modalDialog.offsetTop
+        } else {
+            parent = document.body
+            left = rect.left + window.scrollX
+            top = rect.top + window.scrollY
+        }
+
         sliderContainer.style.left = left + 'px'
         sliderContainer.style.top = top + 'px'
 
         // Append slider to parent element
-        const parent = document.body
         parent.appendChild(sliderContainer)
 
         slider.value = currentScale
@@ -491,7 +511,7 @@ export class WysiwygEditorController {
         // To circumvent this, we pass in this as thisObj in those cases
         if (!thisObj) thisObj = this
 
-        if (!force && thisObj.linkform.includes(document.activeElement)) {
+        if (!force && thisObj.linkform.contains(document.activeElement)) {
             // Link form is still active
             return
         }
@@ -513,7 +533,7 @@ export class WysiwygEditorController {
 
         if (
             src.nodeName !== 'INPUT' &&
-            (src === this.buttons['link'] || this.buttons['link'].includes(src))
+            (src === this.buttons['link'] || this.buttons['link'].contains(src))
         ) {
             // Open or close link form
             if (this.linkform.hidden) {

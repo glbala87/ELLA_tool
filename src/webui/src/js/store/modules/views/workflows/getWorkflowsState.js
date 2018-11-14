@@ -20,18 +20,6 @@ export default function getWorkflowsState() {
         id: null, // analysis id or allele id
         interpretation: getInterpretationState(),
         loaded: false, // Whether view should render
-        modals: {
-            addExcludedAlleles: {
-                show: false,
-                data: {},
-                totalCount: null,
-                numPerPage: 2,
-                currentPage: 1,
-                geneOptions: [],
-                showAlleleIds: [] // Holds ids for current view selection
-                //categories: [continue here!]
-            }
-        },
         selectedAllele: null, // id of selected allele
         selectedComponent: null, // Set in prepareComponents
         type: null // 'analysis' or 'allele'

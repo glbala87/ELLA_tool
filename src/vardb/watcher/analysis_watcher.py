@@ -159,6 +159,7 @@ class AnalysisWatcher(object):
             gp_name, gp_version = gp.split('_')
             analysis_name = analysis_config['name']
             priority = analysis_config.get('priority', 1)
+            date_requested = analysis_config.get('date_analysis_requested')
 
             report = None
             warnings = None
@@ -180,6 +181,7 @@ class AnalysisWatcher(object):
                 gp_name,
                 gp_version,
                 priority=priority,
+                date_requested=date_requested,
                 ped_path=analysis_ped_path,
                 report=report,
                 warnings=warnings

@@ -14,7 +14,7 @@ from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 
-VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+-(?P<genepanel_name>.+)-(?P<genepanel_version>.+))\.vcf')
+VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf')
 
 
 def validate_file_exists(path):
@@ -87,15 +87,14 @@ def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     """
     logging.basicConfig(level=logging.DEBUG)
 
-    if not genepanel_name:
-        matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
-        genepanel_name = matches.group('genepanel_name')
-        genepanel_version = matches.group('genepanel_version')
-
     db = DB()
     db.connect()
     da = DepositAlleles(db.session)
     for f in vcf:
+        if not genepanel_name:
+            matches = re.match(VCF_FIELDS_RE, os.path.basename(f))
+            genepanel_name = matches.group('genepanel_name')
+            genepanel_version = matches.group('genepanel_version')
         da.import_vcf(
             f,
             genepanel_name,
@@ -163,14 +162,12 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
 @click.option('--genepanel_version')
 @click.option('--transcripts_path')
 @click.option('--phenotypes_path')
-@click.option('--config_path')
 @click.option('--replace', is_flag=True)
 @click.option('--folder', help="Folder to look for files assuming standard filenames")
 def cmd_deposit_genepanel(genepanel_name,
                           genepanel_version,
                           transcripts_path,
                           phenotypes_path,
-                          config_path,
                           replace,
                           folder):
     """
@@ -184,9 +181,6 @@ def cmd_deposit_genepanel(genepanel_name,
         phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
         genepanel_name, genepanel_version = prefix.split('_',1)
         assert genepanel_version.startswith('v')
-        if config_path is None:
-            config_path = folder + "/" + prefix + ".config.json"
-            config_path = config_path if validate_file_exists(config_path) else None  # not a mandatory file
 
     db = DB()
     db.connect()
@@ -195,7 +189,6 @@ def cmd_deposit_genepanel(genepanel_name,
                      phenotypes_path,
                      genepanel_name,
                      genepanel_version,
-                     configPath=config_path,
                      replace=replace)
 
 

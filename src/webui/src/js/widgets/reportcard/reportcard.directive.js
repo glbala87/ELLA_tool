@@ -52,18 +52,20 @@ const getReportAlleleData = Compute(
 
         includedAlleles.sort(
             thenBy((a) => {
-                const classification = get(getClassification(a.id, true))
-                return config.classification.options.findIndex((o) => o.value === classification)
+                const classification = get(getClassification(a))
+                return config.classification.options.findIndex(
+                    (o) => o.value === classification.classification
+                )
             }, -1)
                 .thenBy((a) => a.annotation.filtered[0].symbol)
                 .thenBy((a) => a.annotation.filtered[0].HGVSc_short)
         )
 
         for (let allele of includedAlleles) {
-            const classification = get(getClassification(allele.id, true))
+            const classification = get(getClassification(allele))
             const alleleReport = get(getAlleleReport(allele.id))
             result.push({
-                hgvsc: formatHGVS(allele, classification, config),
+                hgvsc: formatHGVS(allele, classification.classification, config),
                 comment: alleleReport.evaluation.comment
             })
         }

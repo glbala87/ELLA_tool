@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import copy
 from .acmgconfig import acmgconfig
 from .customannotationconfig import customannotationconfig
 
@@ -12,7 +13,6 @@ def str2bool(v):
 config = {
     "app": {
         # Disable by default for now
-        "enable_igv": str2bool(os.environ.get("ENABLE_IGV", "false")),
         "links_to_clipboard": str2bool(os.environ.get("OFFLINE_MODE", "true")),
         "non_production_warning": os.environ.get('NON_PRODUCTION_WARNING'),
         "user_confirmation_on_state_change": str2bool(os.environ.get("USER_CONFIRMATION_ON_STATE_CHANGE", "true")),
@@ -29,18 +29,65 @@ config = {
             "password_match_groups_descr": ["Uppercase letters [A-Z]", "Lowercase letters [a-z]", "Digits [0-9]", "Special characters"],
             "password_num_match_groups": 3
         },
-        "user_config": {  # Default user config
+        "user_config": {
+            # Default user config
+            # Is _shallow_ merged with usergroup's and user's config at runtime
             "overview": {
                 "views": ["variants", "analyses-by-findings"]
             },
             "workflows": {
                 "allele": {
-                    # Required current workflow status for allowing finalized
-                    "finalize_required_workflow_status": ['Interpretation', 'Review']
+                    "finalize_requirements": {
+                        # Workflow statuses allowing finalization
+                        "workflow_status": ['Interpretation', 'Review']
+                    }
                 },
                 "analysis": {
-                    "finalize_required_workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review']
+                    "finalize_requirements": {
+                        "workflow_status": ['Not ready', 'Interpretation', 'Review', 'Medical review'],
+                        "allow_notrelevant": False,
+                        "allow_technical": True,
+                        "allow_unclassified": False  # allow_unclassified implies allow_technical and allow_notrelevant
+                    }
                 }
+            },
+            "acmg": {
+                "frequency": {
+                    "thresholds": {  # 'external'/'internal' references the groups under 'frequency->groups'
+                        "AD": {
+                            "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
+                            "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+                        },
+                        "default": {
+                            "external": {"hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0},
+                            "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+                        }
+                    },
+                    "num_thresholds": {
+                        "GNOMAD_GENOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        },
+                        "GNOMAD_EXOMES": {
+                            "G": 5000,
+                            "AFR": 5000,
+                            "AMR": 5000,
+                            "EAS": 5000,
+                            "FIN": 5000,
+                            "NFE": 5000,
+                            "OTH": 5000,
+                            "SAS": 5000
+                        }
+                    }
+                },
+                "disease_mode": "ANY",
+                "last_exon_important": "LEI"
             }
         }
     },
@@ -67,6 +114,35 @@ config = {
         }
     },
     "frequencies": {
+        "groups": {
+            "external": {
+                "GNOMAD_GENOMES": [
+                    "G",
+                    "AFR",
+                    "AMR",
+                    "EAS",
+                    "FIN",
+                    "NFE",
+                    "OTH",
+                    "SAS"
+                ],
+                "GNOMAD_EXOMES": [
+                    "G",
+                    "AFR",
+                    "AMR",
+                    "EAS",
+                    "FIN",
+                    "NFE",
+                    "OTH",
+                    "SAS"
+                ]
+            },
+            "internal": {
+                "inDB": [
+                    'OUSWES'
+                ]
+            }
+        },
         "view": {
             "groups": {
                 "GNOMAD_GENOMES": [
@@ -155,80 +231,72 @@ config = {
             }
         }
     },
-    "variant_criteria": {  # Config related to criterias for filtering/displaying variants
-        # Region thresholds to use when filtering out intronic or utr variants. Distance from exon start/end.
-        # Filters variants with -20 or +6 as intronic, e.g. c.123-21A>G and c.123+7T>C
-        # Computed from genomic region, but uses computed HGVSc distance as fallback
-        "splice_region": [-20, 6],
-        "utr_region": [0,0],
-        "freq_num_thresholds": {  # Specifies (optional) requirements for >= 'num' count for each freq
-            "GNOMAD_GENOMES": {
-                "G": 5000,
-                "AFR": 5000,
-                "AMR": 5000,
-                "EAS": 5000,
-                "FIN": 5000,
-                "NFE": 5000,
-                "OTH": 5000,
-                "SAS": 5000
+    "filter": {
+        # These defaults will be used as base when applying any FilterConfig's filter configurations
+        # The configs are shallow merged on top of the following defaults
+        "default_filter_config": {
+            "region": {
+                "splice_region": [-20, 6],
+                "utr_region": [0, 0],
+                "genepanel_consequences_only": False,
+                "exclude_consequences": [
+                    "transcript_ablation",
+                    "splice_donor_variant",
+                    "splice_acceptor_variant",
+                    "stop_gained",
+                    "frameshift_variant",
+                    "start_lost",
+                    "initiator_codon_variant",
+                    "stop_lost",
+                    "inframe_insertion",
+                    "inframe_deletion",
+                    "missense_variant",
+                    "protein_altering_variant",
+                    "transcript_amplification",
+                    "incomplete_terminal_codon_variant",
+                    "synonymous_variant",
+                    "stop_retained_variant",
+                    "coding_sequence_variant",
+                ]
             },
-            "GNOMAD_EXOMES": {
-                "G": 5000,
-                "AFR": 5000,
-                "AMR": 5000,
-                "EAS": 5000,
-                "FIN": 5000,
-                "NFE": 5000,
-                "OTH": 5000,
-                "SAS": 5000
-            }
-
-        },
-        "genepanel_config": {  # Default config for genepanels
-            "freq_cutoff_groups": {  # 'external'/'internal' references the groups under 'frequencies->groups' key below
-                "AD": {
-                    "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
-                    "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+            "frequency": {
+                "num_thresholds": {
+                    "GNOMAD_GENOMES": {
+                        "G": 5000,
+                        "AFR": 5000,
+                        "AMR": 5000,
+                        "EAS": 5000,
+                        "FIN": 5000,
+                        "NFE": 5000,
+                        "OTH": 5000,
+                        "SAS": 5000
+                    },
+                    "GNOMAD_EXOMES": {
+                        "G": 5000,
+                        "AFR": 5000,
+                        "AMR": 5000,
+                        "EAS": 5000,
+                        "FIN": 5000,
+                        "NFE": 5000,
+                        "OTH": 5000,
+                        "SAS": 5000
+                    }
                 },
-                "default": {
-                    "external": {"hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0},
-                    "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0}
+                "thresholds": {
+                    "AD": {
+                        "external": 0.005,
+                        "internal": 0.05
+                    },
+                    "default": {
+                        "external": 0.01,
+                        "internal": 0.05
+                    }
                 }
             },
-            "disease_mode": "ANY",
-            "last_exon_important": "LEI",
-        },
-        "frequencies": {  # Frequency groups to be used as part of cutoff calculation (and by extension class 1 filtering)
-            "groups": {
-                "external": {
-                    "GNOMAD_GENOMES": [
-                        "G",
-                        "AFR",
-                        "AMR",
-                        "EAS",
-                        "FIN",
-                        "NFE",
-                        "OTH",
-                        "SAS"
-                    ],
-                    "GNOMAD_EXOMES": [
-                        "G",
-                        "AFR",
-                        "AMR",
-                        "EAS",
-                        "FIN",
-                        "NFE",
-                        "OTH",
-                        "SAS"
-                    ]
-                },
-                "internal": {
-                    "inDB": [
-                        'AF',  # TODO: Deprecated. Remove once in production
-                        'OUSWES'
-                    ]
-                }
-            }
+            "quality": {
+                "qual": 100
+            },
+            "segregation": {}
         }
     },
     "classification": {
@@ -327,40 +395,20 @@ config = {
             "feature_truncation",
             "intergenic_variant"
         ],
-        "severe_consequence_threshold": "mature_miRNA_variant",
         # None includes all transcripts available in annotation
         # Will also include transcripts defined in genepanel
         "inclusion_regex": "NM_.*",
     },
     "igv": {
         "reference": {
-            "fastaURL": "api/v1/igv/human_g1k_v37_decoy.fasta" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
-            "cytobandURL": "api/v1/igv/cytoBand.txt" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
-        },
-        "tracks": {
-            "gencode": "api/v1/igv/gencode.v18.collapsed.bed" if os.environ.get('OFFLINE_MODE') else "//igv.broadinstitute.org/annotations/hg19/genes/gencode.v18.collapsed.bed",
+            "fastaURL": "api/v1/igv/human_g1k_v37_decoy.fasta" if str2bool(os.environ.get('OFFLINE_MODE', '')) else "//igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
+            "cytobandURL": "api/v1/igv/cytoBand.txt" if str2bool(os.environ.get('OFFLINE_MODE', '')) else "//igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt"
         },
         # Files permitted accessible on /igv/<file> resource, relative to $IGV_DATA env
         "valid_resource_files": [
-            'gencode.v18.collapsed.bed',
-            'gencode.v18.collapsed.bed.idx',
             'cytoBand.txt',
             'human_g1k_v37_decoy.fasta',
             'human_g1k_v37_decoy.fasta.fai'
-        ]
-    },
-    'deposit': {
-        'postprocess': [
-            {
-                'name': '^Diag-EKG.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            },
-            {
-                'name': '^Diag-Target.*',
-                'type': 'analysis',
-                'methods': ['analysis_not_ready_findings']
-            }
         ]
     },
     "import": {
@@ -369,7 +417,33 @@ config = {
     }
 }
 
-config.update({
-    'acmg': acmgconfig,
-    'custom_annotation': customannotationconfig
-})
+config['acmg'] = acmgconfig
+config['custom_annotation'] = customannotationconfig
+
+
+def get_user_config(app_config, usergroup_config, user_config):
+    # Use json instead of copy.deepcopy for performance
+    merged_config = copy.deepcopy(app_config['user']['user_config'])
+    merged_config.update(copy.deepcopy(usergroup_config))
+    merged_config.update(copy.deepcopy(user_config))
+    return merged_config
+
+
+def get_filter_config(app_config, filter_config):
+    """
+    filter_config is shallow merged with the default
+    provided in application config.
+    """
+
+    merged_filters = list()
+    assert 'filters' in filter_config
+    for filter_step in filter_config['filters']:
+        base_config = dict(app_config['filter']['default_filter_config'][filter_step['name']])
+        base_config.update(filter_step.get('config', {}))
+        merged_filters.append({
+            'name': filter_step['name'],
+            'config': base_config,
+            'exceptions': filter_step.get('exceptions', [])
+        })
+    merged_filters = copy.deepcopy(merged_filters)
+    return merged_filters

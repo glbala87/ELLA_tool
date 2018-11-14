@@ -1,12 +1,13 @@
 import copy
-from api import config
+from api.config import config
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, dict_merge
+from api.util.util import authenticate
 
 
 class ConfigResource(LogRequestResource):
-    @authenticate(optional=True)
-    def get(self, session, user=None):
+
+    @authenticate(user_config=True, optional=True)
+    def get(self, session, user=None, user_config=None):
         """
         Returns application configuration.
         ---
@@ -20,9 +21,8 @@ class ConfigResource(LogRequestResource):
             description: Config object
         """
 
-        c = copy.deepcopy(config.config)
-        if user is not None:
-            dict_merge(c["user"]["user_config"], user.group.config)
-            dict_merge(c["user"]["user_config"], user.config)
+        c = copy.deepcopy(config)
+        if user_config:
+            c["user"]["user_config"] = user_config
 
         return c

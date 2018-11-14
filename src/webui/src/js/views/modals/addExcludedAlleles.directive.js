@@ -14,9 +14,11 @@ const getGeneOptions = Compute(
         const alleleIds = new Set(categoryAlleleIds)
         return alleleIdsByGene
             .filter((a) => {
-                return a.allele_ids.some((alleleId) => {
-                    return alleleIds.has(alleleId)
-                })
+                return (
+                    a.allele_ids.some((alleleId) => {
+                        return alleleIds.has(alleleId)
+                    }) && a.symbol
+                )
             })
             .map((a) => a.symbol)
             .sort()
@@ -42,6 +44,24 @@ const getMetrics = Compute(
     }
 )
 
+const isToggled = Compute(
+    state`modals.addExcludedAlleles.includedAlleleIds`,
+    state`modals.addExcludedAlleles.viewAlleleIds`,
+    (includedAlleleIds, viewAlleleIds) => {
+        const result = {}
+        if (!includedAlleleIds || !viewAlleleIds) {
+            return result
+        }
+        for (const aId of includedAlleleIds) {
+            result[aId] = true
+        }
+        for (const aId of viewAlleleIds) {
+            result[aId] = false
+        }
+        return result
+    }
+)
+
 app.component('addExcludedAlleles', {
     templateUrl: 'addExcludedAlleles.ngtmpl.html',
     controller: connect(
@@ -49,6 +69,7 @@ app.component('addExcludedAlleles', {
             config: state`app.config`,
             geneOptions: getGeneOptions,
             metrics: getMetrics,
+            isToggled,
             genepanelPath: state`modals.addExcludedAlleles.genepanelPath`,
             geneAlleleIds: state`modals.addExcludedAlleles.geneAlleleIds`,
             alleleIds: state`modals.addExcludedAlleles.viewAlleleIds`,

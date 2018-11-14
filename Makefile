@@ -111,12 +111,7 @@ __check_defined = \
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-client: check-release-tag build-bundle-image start-bundle-container tar-web-build stop-bundle-container
-
-check-release-tag:
-	@$(call check_defined, RELEASE_TAG, 'Missing tag. Please provide a value on the command line')
-	git rev-parse --verify "refs/tags/$(RELEASE_TAG)^{tag}"
-	git ls-remote --exit-code --tags origin "refs/tags/$(RELEASE_TAG)"
+bundle-client: build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 build-bundle-image:
 	docker build -t $(IMAGE_BUNDLE_STATIC) .
@@ -132,6 +127,7 @@ start-bundle-container:
 
 tar-web-build:
 	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn build
+	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn docs
 	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
 	@echo "Bundled static web files in $(WEB_BUNDLE)"
 
@@ -235,10 +231,14 @@ dev:
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+	  -e PTVS_PORT=5678 \
+	  -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+	  -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
 	  -p 35729:35729 \
+	  -p 5678:5678 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
 	  $(NAME_OF_GENERATED_IMAGE) \
@@ -354,7 +354,7 @@ test-cli: test-build # container $(PIPELINE_ID)-cli
 	docker run -d \
 	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e DB_URL=postgres:///vardb-test \
-	  -e PANEL_PATH=/ella/src/vardb/testdata/clinicalGenePanels \
+	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
 	  --name $(PIPELINE_ID)-cli $(NAME_OF_GENERATED_IMAGE) \
 	  supervisord -c /ella/ops/test/supervisor.cfg

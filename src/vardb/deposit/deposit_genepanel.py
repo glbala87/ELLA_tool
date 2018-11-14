@@ -12,7 +12,6 @@ import json
 from sqlalchemy import and_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
-from vardb.deposit.genepanel_config_validation import config_valid
 from vardb.deposit.importers import bulk_insert_nonexisting
 
 log = logging.getLogger(__name__)
@@ -45,15 +44,6 @@ def load_phenotypes(phenotypes_path):
         return phenotypes
 
 
-def load_config(config_path):
-    if not config_path:
-        return None
-    with io.open(os.path.abspath(os.path.normpath(config_path)), encoding="utf-8") as f:
-        config = json.load(f)
-        config_valid(config['config'])
-        return config['config']
-
-
 def load_transcripts(transcripts_path):
     with io.open(os.path.abspath(os.path.normpath(transcripts_path)), encoding="utf-8") as f:
         transcripts = []
@@ -66,17 +56,12 @@ def load_transcripts(transcripts_path):
                 continue
             if not header:
                 raise RuntimeError("Found no valid header in {}. Header should start with '#chromosome'. ".format(transcripts_path))
-
-            # Transcripts files are 1-based. We use zero-based in the database.
-            def zero_based_int(x):
-                return int(x)-1
-
             data = dict(zip(header, [l.strip() for l in line.split('\t')]))
             data['HGNC'] = int(data['HGNC'])
-            data['txStart'], data['txEnd'], = zero_based_int(data['txStart']), zero_based_int(data['txEnd'])
-            data['cdsStart'], data['cdsEnd'] = zero_based_int(data['cdsStart']), zero_based_int(data['cdsEnd'])
-            data['exonsStarts'] = map(zero_based_int, data['exonsStarts'].split(','))
-            data['exonEnds'] = map(zero_based_int, data['exonEnds'].split(','))
+            data['txStart'], data['txEnd'], = int(data['txStart']), int(data['txEnd'])
+            data['cdsStart'], data['cdsEnd'] = int(data['cdsStart']), int(data['cdsEnd'])
+            data['exonsStarts'] = map(int, data['exonsStarts'].split(','))
+            data['exonEnds'] = map(int, data['exonEnds'].split(','))
             transcripts.append(data)
         return transcripts
 
@@ -236,7 +221,6 @@ class DepositGenepanel(object):
                       genepanel_name,
                       genepanel_version,
                       genomeRef='GRCh37',
-                      configPath=None,
                       replace=False):
 
         if not transcripts_path:
@@ -245,7 +229,6 @@ class DepositGenepanel(object):
             raise RuntimeError("Missing mandatory argument: path to phenotypes file")
 
         # Insert genepanel
-        config = load_config(configPath) if configPath else None
         existing_panel = self.session.query(gm.Genepanel).filter(
             gm.Genepanel.name == genepanel_name,
             gm.Genepanel.version == genepanel_version
@@ -257,7 +240,6 @@ class DepositGenepanel(object):
                 name=genepanel_name,
                 version=genepanel_version,
                 genome_reference=genomeRef,
-                config=config,
                 official=True
             )
             self.session.add(genepanel)
@@ -265,7 +247,6 @@ class DepositGenepanel(object):
         else:
             if replace:
                 log.info("Genepanel {} {} exists in database, will overwrite.".format(genepanel_name, genepanel_version))
-                existing_panel.config = config
                 existing_panel.genome_reference = genomeRef
             else:
                 log.info("Genepanel {} {} exists in database, backing out. Use the 'replace' to force overwrite."
@@ -329,16 +310,13 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(
         description="""Adds or updates gene panels in varDB.
-                       Use any or all of --transcripts/phenotypes/config.
+                       Use any or all of --transcripts/phenotypes.
                        If the panel exists you must add the --replace option.\n
                        When creating a new panel, use -transcripts and --phenotypes without --replace""")
     parser.add_argument("--transcripts", action="store", dest="transcriptsPath",
                         required=True, help="Path to gene panel transcripts file")
     parser.add_argument("--phenotypes", action="store", dest="phenotypesPath",
                         required=True, help="Path to gene panel phenotypes file")
-    parser.add_argument("--config", action="store", dest="configPath",
-                        required=False, default=None,
-                        help="Path to gene panel config file")
     parser.add_argument("--genepanelname", action="store", dest="genepanelName",
                         required=True, help="Name for gene panel")
     parser.add_argument("--genepanelversion", action="store", dest="genepanelVersion",
@@ -366,7 +344,6 @@ def main(argv=None):
                             genepanel_name,
                             genepanel_version,
                             genomeRef=args.genomeRef,
-                            configPath=args.configPath,
                             replace=args.replace)
 
 

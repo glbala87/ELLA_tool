@@ -13,7 +13,7 @@ class RegionFilter(object):
         self.session = session
         self.config = config
 
-    def create_gene_padding_table(self, gene_ids):
+    def create_gene_padding_table(self, gene_ids, filter_config):
         """
         Create a temporary table for the gene specific padding of the form
         ------------------------------------------------------------------------------------------------
@@ -28,8 +28,8 @@ class RegionFilter(object):
 
 
         #TODO: Replace with genepanel/gene specific padding values when available
-        splice_region = self.config['variant_criteria']['splice_region']
-        utr_region = self.config['variant_criteria']['utr_region']
+        splice_region = filter_config['splice_region']
+        utr_region = filter_config['utr_region']
         values = []
         for gene_id in gene_ids:
             values.append(str((gene_id, splice_region[0], splice_region[1], utr_region[0], utr_region[1])))
@@ -55,7 +55,7 @@ class RegionFilter(object):
         )
         return t
 
-    def filter_alleles(self, gp_allele_ids):
+    def filter_alleles(self, gp_allele_ids, filter_config):
         """
          Filter alleles outside regions of interest. Regions of interest are based on these criteria:
           - Coding region
@@ -85,19 +85,21 @@ class RegionFilter(object):
                 continue
 
             # Fetch all gene ids associated with the genepanel
-            genepanel_genes = self.session.query(
+            gp_genes = self.session.query(
                 gene.Transcript.gene_id,
+                gene.Gene.hgnc_symbol
             ).join(
-                 gene.genepanel_transcript,
-                 and_(
-                    gene.genepanel_transcript.c.transcript_id == gene.Transcript.id,
-                    tuple_(gene.genepanel_transcript.c.genepanel_name, gene.genepanel_transcript.c.genepanel_version) == gp_key
-                 )
+                gene.Genepanel.transcripts
+            ).join(
+                gene.Gene
+            ).filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key,
             )
-            genepanel_hgnc_ids = [t[0] for t in genepanel_genes]
+
+            gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
 
             # Create temporary gene padding table for the genes in the genepanel
-            tmp_gene_padding = self.create_gene_padding_table(genepanel_hgnc_ids)
+            tmp_gene_padding = self.create_gene_padding_table(gp_gene_ids, filter_config)
 
             max_padding = self.session.query(
                 func.abs(func.max(tmp_gene_padding.c.exon_upstream)),
@@ -407,29 +409,51 @@ class RegionFilter(object):
             # Save alleles with a severe consequence in other transcript
             #
             # Whether a consequence is severe or not is determined by the config
-            all_consequences = self.config.get('transcripts', {}).get('consequences')
-            severe_consequence_threshold = self.config.get('transcripts', {}).get('severe_consequence_threshold')
-            if all_consequences and severe_consequence_threshold:
-                severe_consequences = all_consequences[:all_consequences.index(severe_consequence_threshold)+1]
-            else:
-                severe_consequences = []
 
-            allele_ids_severe_consequences = self.session.query(
+            exclude_consequences = filter_config['exclude_consequences']
+
+            # Unnest consequences
+            consequences_unnested = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
-                annotationshadow.AnnotationShadowTranscript.consequences,
+                func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label("unnested_consequences")
             ).filter(
-                # && checks if two arrays overlap
-                annotationshadow.AnnotationShadowTranscript.consequences.cast(ARRAY(Text)).op('&&')(severe_consequences),
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
             )
+
+            # Include only consequences for genes in genepanel if specified in filter config
+            if filter_config['genepanel_consequences_only']:
+                consequences_unnested = consequences_unnested.filter(
+                    or_(
+                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
+                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
+                       )
+                )
 
             # As opposed to the HGVSc and genomic region filter, we here consider all transcripts, given that they
             # match the transcript inclusion regex (if exists)
             inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
-                allele_ids_severe_consequences = allele_ids_severe_consequences.filter(
-                    text("transcript ~ :reg").params(reg=inclusion_regex)
+                consequences_unnested = consequences_unnested.filter(
+                    annotationshadow.AnnotationShadowTranscript.transcript.op('~')(inclusion_regex)
                 )
+
+            consequences_unnested = consequences_unnested.subquery()
+
+            # Aggregate filtered consequences
+            consequences_agg = self.session.query(
+                consequences_unnested.c.allele_id.label('allele_id'),
+                func.array_agg(consequences_unnested.c.unnested_consequences).label('consequences')
+            ).group_by(
+                consequences_unnested.c.allele_id
+            ).subquery()
+
+            # Check if aggregated consequences overlap array of exclude consequences
+            allele_ids_severe_consequences = self.session.query(
+                consequences_agg.c.allele_id
+            ).filter(
+                # Operator '&&' checks if two arrays overlap
+                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(exclude_consequences),
+            )
 
             allele_ids_severe_consequences = set([a[0] for a in allele_ids_severe_consequences])
             allele_ids_outside_region -= allele_ids_severe_consequences
