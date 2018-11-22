@@ -1,18 +1,42 @@
 ---
+image: docker:latest
+services:
+  - docker:dind
+
 variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  DOCKER_DRIVER: overlay2
   BRANCH: $CI_COMMIT_REF_NAME
   PIPELINE_ID: ella-$CI_PIPELINE_ID
 
+before_script:
+  - apk add --update make
+
+
 stages:
+  - build
   - test
   - e2e
-  - deploy
   - review
   - release
 
 
+build:
+  stage: build
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:latest | cat || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $IMAGE_NAME
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+
 test_api:
   stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-api
   except:
@@ -24,6 +48,10 @@ test_api:
 
 test_api_migration:
   stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-api-migration
   except:
@@ -35,6 +63,10 @@ test_api_migration:
 
 test_js:
   stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-js
   except:
@@ -46,6 +78,10 @@ test_js:
 
 test_python:
   stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-common
   except:
@@ -57,6 +93,10 @@ test_python:
 
 test_cli:
   stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-cli
   after_script:
@@ -65,6 +105,10 @@ test_cli:
 
 test_report:
   stage: e2e
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make test-report
   after_script:
@@ -73,10 +117,13 @@ test_report:
 
 test_e2e:
   stage: e2e
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
+    - rm -rf errorShots
   script:
     - make test-e2e
-  before_script:
-    - rm -rf errorShots
   after_script:
     - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
     - docker rm  -f -v ${PIPELINE_ID}-e2e
@@ -94,13 +141,17 @@ test_e2e:
 
 start_review:
   stage: review
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
   environment:
     name: review/$CI_BUILD_REF_SLUG
     url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
     on_stop: stop_review
-  when: always
+  when: manual
   only:
     - branches
   except:
@@ -113,6 +164,10 @@ start_review:
 # Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
 stop_review:
   stage: review
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   variables:
     GIT_STRATEGY: none
   script:

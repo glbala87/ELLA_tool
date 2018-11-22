@@ -7,7 +7,7 @@ var debug = process.env.DEBUG
 var defaultCapabilities = [
     {
         chromeOptions: {
-            args: ['headless', 'disable-gpu', '--window-size=1440,1080']
+            args: ['headless', 'disable-gpu', '--no-sandbox', '--window-size=1440,1080']
         },
         maxInstances: 1,
         browserName: 'chrome'
