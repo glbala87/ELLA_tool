@@ -78,8 +78,10 @@ app.component('reportCard', {
     controller: connect(
         {
             reportComment: state`views.workflows.interpretation.selected.state.report.comment`,
+            indicationsComment: state`views.workflows.interpretation.selected.state.report.indicationscomment`,
             readOnly: isReadOnly,
             reportAlleles: getReportAlleleData,
+            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
             reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`
         },
         'ReportCard',
