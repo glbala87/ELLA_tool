@@ -117,6 +117,27 @@ class AlleleFilter(object):
 
         return set([a[0] for a in pathogenic_allele_ids])
 
+    def get_allele_ids_with_pathogenic_hgmd(self, allele_ids):
+        """
+        Return the allele_ids that have >=2 Clinvar
+        'clinical_significance_descr' that are 'Pathogenic'
+        """
+
+        pathogenic_criteria = ['DM', 'DM?']
+
+        pathogenic_allele_ids = self.session.query(
+            annotation.Annotation.allele_id,
+            # annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').label('tag')
+        ).filter(
+            annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').in_(pathogenic_criteria)
+        )
+        # DEBUG
+        # from api.util.util import query_print_table
+        # query_print_table(pathogenic_allele_ids)
+
+        return set([a[0] for a in pathogenic_allele_ids])
+
+
     def get_filter_exceptions(self, exceptions_config, allele_ids):
         """
         Checks whether any of allele_ids should be excepted from filtering,
@@ -130,6 +151,8 @@ class AlleleFilter(object):
             elif e['name'] == 'clinvar_pathogenic':
                 # TODO: clinvar_pathogenic strategy needs refinement
                filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
+            elif e['name'] == 'hgmd_pathogenic':
+               filter_exceptions |= self.get_allele_ids_with_pathogenic_hgmd(allele_ids)
         return filter_exceptions
 
     def filter_alleles(self, filter_config_id, gp_allele_ids, analysis_allele_ids):
