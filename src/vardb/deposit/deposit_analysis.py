@@ -66,26 +66,11 @@ def import_filterconfigs(session, filterconfigs):
 
 class DepositAnalysis(DepositFromVCF):
 
-    def postprocess(self, db_analysis, db_analysis_interpretation):
+    def get_usergroup_deposit_config(self, db_analysis):
         """
-        Postprocessors can be defined in the usergroup configs.
-
-        Example:
-        "deposit": {
-            "postprocess": [
-                {
-                    "name": "^.*",
-                    "type": "analysis",
-                    "methods": ["analysis_not_ready_findings"]
-                },
-                {
-                    "name": "^SomePattern.*",
-                    "type": "analysis",
-                    "methods": ["analysis_finalize_without_findings"]
-                }
-            ]
-        }
-
+        Goes through all usergroup configs and searches
+        for deposit configuration with match patterns on
+        analysis.
         """
 
         usergroup_configs = self.session.query(
@@ -97,41 +82,121 @@ class DepositAnalysis(DepositFromVCF):
             tuple_(gene.Genepanel.name, gene.Genepanel.version) == (db_analysis.genepanel_name, db_analysis.genepanel_version)
         ).all()
 
+        matched_configs = []
         for usergroup_id, usergroup_config in usergroup_configs:
-            candidate_processors = usergroup_config.get('deposit', {}).get('postprocess', [])
-            if not candidate_processors:
-                continue
+            candidate_configs = usergroup_config.get('deposit', {}).get('analysis', [])
+            for candidate_config in candidate_configs:
+                if re.search(candidate_config['pattern'], db_analysis.name):
+                    matched_configs.append((usergroup_id, candidate_config))
+
+        # If multiple configurations match on patterns, raise an exception
+        # as we cannot handle the conflict
+        if len(matched_configs) > 1:
+            exc_text = "Got multiple matching deposit analysis configuration with differing user groups (id, config):\n"
+            for m in matched_configs:
+                exc_text += 'Usergroup id: {}\nConfig: {}\n'.format(*m)
+            raise RuntimeError(exc_text)
+
+        assert len(matched_configs) <= 1
+        return matched_configs[0] if matched_configs else (None, {})
+
+    def prefilter_records(self, records, proband_sample_name, previous_batch_last_record):
+        """
+        Checks whether a record should be prefiltered, i.e. not imported.
+        We do this to reduce the amount of data to import for large analyses.
+
+        Current criteria:
+
+        - Not multiallelic for proband
+        - GnomAD GENOMES.G > 0.05, num > 5000
+        - No existing classifications
+        - No variants within +/- 3bp
+        """
+
+        result_records = []
+        previous_record = previous_batch_last_record
+        for record in records:
+            checks = {
+                'non_multiallelic': record['SAMPLES'][proband_sample_name]['GT'] in ['0/1', '1/1'],
+                'frequency': 'GNOMAD_GENOMES' in record['INFO']['ALL'] and
+                             record['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.05 and
+                             record['INFO']['ALL']['GNOMAD_GENOMES']['AN'] > 5000,
+                'position': bool(previous_record) and (abs(record['POS'] - previous_record['POS']) > 3 or record['CHROM'] != previous_record['CHROM'])
+            }
+            previous_record = record
+            if not all(checks.values()):
+                result_records.append(record)
+
+        return result_records
+
+    def postprocess(self, deposit_usergroup_id, deposit_usergroup_config, db_analysis, db_analysis_interpretation):
+        """
+        Postprocessors can be defined in the usergroup configs.
+
+        Example:
+        "deposit": {
+            "analyses": [
+                {
+                    "pattern": "^.*",
+                    "postprocess": ["analysis_not_ready_findings"]
+                },
+                {
+                    "pattern": "^SomePattern.*",
+                    "postprocess": ["analysis_finalize_without_findings"]
+                }
+            ]
+        }
+
+        """
+        if deposit_usergroup_config.get('postprocess'):
 
             filter_config_id = self.session.query(sample.FilterConfig.id).join(
                 user.UserGroup
             ).filter(
-                user.UserGroup.id == usergroup_id,
+                user.UserGroup.id == deposit_usergroup_id,
                 sample.FilterConfig.default.is_(True)
             ).scalar()
 
-            for c in candidate_processors:
-                if re.search(c['name'], db_analysis.name):
+            for method in deposit_usergroup_config['postprocess']:
+                if method == 'analysis_not_ready_findings':
+                    from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
+                    analysis_not_ready_findings(
+                        self.session,
+                        db_analysis,
+                        db_analysis_interpretation,
+                        filter_config_id
+                    )
 
-                    for method in c['methods']:
-                        if method == 'analysis_not_ready_findings':
-                            from .postprocessors import analysis_not_ready_findings  # FIXME: Has circular import, so must import here...
-                            analysis_not_ready_findings(
-                                self.session,
-                                db_analysis,
-                                db_analysis_interpretation,
-                                filter_config_id
-                            )
-
-                        elif method == 'analysis_finalize_without_findings':
-                            from .postprocessors import analysis_finalize_without_findings  # FIXME: Has circular import, so must import here...
-                            analysis_finalize_without_findings(
-                                self.session,
-                                db_analysis,
-                                db_analysis_interpretation,
-                                filter_config_id
-                            )
+                elif method == 'analysis_finalize_without_findings':
+                    from .postprocessors import analysis_finalize_without_findings  # FIXME: Has circular import, so must import here...
+                    analysis_finalize_without_findings(
+                        self.session,
+                        db_analysis,
+                        db_analysis_interpretation,
+                        filter_config_id
+                    )
 
     def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", append=False):
+        """
+        Deposit related configs can be defined in the usergroup configs.
+
+        Example:
+        "deposit": {
+            "analysis": [
+                {
+                    "pattern": "^.*",
+                    "postprocess": ["analysis_not_ready_findings"],
+                    "prefilter": True
+                },
+                {
+                    "pattern": "^SomePattern.*",
+                    "postprocess": ["analysis_finalize_without_findings"],
+                    "prefilter": False
+                }
+            ]
+        }
+
+        """
 
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
         vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
@@ -171,6 +236,12 @@ class DepositAnalysis(DepositFromVCF):
             ped_file=analysis_config_data.ped_path
         )
 
+        deposit_usergroup_id, deposit_usergroup_config = self.get_usergroup_deposit_config(db_analysis)
+        if deposit_usergroup_config:
+            log.info("Using deposit configuration from usergroup id {} with pattern {}".format(deposit_usergroup_id, deposit_usergroup_config['pattern']))
+            log.info("Prefilter: {}".format('Yes' if deposit_usergroup_config.get('prefilter') else 'No'))
+            log.info("Postprocess: {}".format(', '.join(deposit_usergroup_config.get('postprocess', []))))
+
         # Due to the nature of decomposed + normalized variants, we need to be careful how we
         # process the data. Variants belonging to the same sample's genotype can be on different positions
         # after decomposition. Example:
@@ -194,11 +265,14 @@ class DepositAnalysis(DepositFromVCF):
         proband_alleles = []  # One or two alleles belonging to proband, for creating one genotype
         proband_records = []  # One or two records belonging to proband, for creating one genotype
         block_records = []  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
+        previous_batch_last_record = None  # Stores the last record of the previous batch, used in prefilter function
         records_count = 0
         imported_records_count = 0
+
         for batch_records in batch_generator(vi.iter, batch_size):
 
-            # First import batch as alleles
+            # First fetch the records we want
+            processed_records = []
             for record in batch_records:
 
                 # if not self.is_inside_transcripts(record, db_genepanel):
@@ -206,34 +280,42 @@ class DepositAnalysis(DepositFromVCF):
                 #     error += "%s\t%s\t%s\t%s\t%s\n" % (record["CHROM"], record["POS"], record["ID"], record["REF"], ",".join(record["ALT"]))
                 #     raise RuntimeError(error)
 
-                # If a non-multialleleic site for proband, check against import filter.
-                # FIXME: Check number > 5000 for filtering
-                # if record['SAMPLES'][proband_sample_name]['GT'] in ['0/1', '1/1']:
-                #    if 'GNOMAD_GENOMES' in record['INFO']['ALL'] and record['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.2:
-                #        continue
-
                 # We only import variants found in proband
                 if record['SAMPLES'][proband_sample_name]['GT'] in VARIANT_GENOTYPES:
-                    self.allele_importer.add(record)
+                    processed_records.append(record)
                 else:
                     continue
 
+            if deposit_usergroup_config.get('prefilter'):
+                current_last_record = processed_records[-1]
+                processed_records = self.prefilter_records(
+                    processed_records,
+                    proband_sample_name,
+                    previous_batch_last_record
+                )
+                previous_batch_last_record = current_last_record
+
+            for record in processed_records:
+                self.allele_importer.add(record)
             alleles = self.allele_importer.process()
 
             # Process batch again to import annotation and genotypes (which both needs allele ids)
+            # We need to process the original batch_records and not processed_records, since
+            # we also use data from the non-proband and prefiltered variants
             for record in batch_records:
 
                 if record['SAMPLES'][proband_sample_name]['GT'] in VARIANT_GENOTYPES:
-                    allele = self.get_allele_from_record(record, alleles)
-                    # We might have skipped importing the record as allele due to import filtering
-                    if not allele:
-                        continue
 
-                    # Annotation
-                    self.annotation_importer.add(record, allele['id'])
-                    proband_alleles.append(allele)
-                    proband_records.append(record)
+                    allele = self.get_allele_from_record(record, alleles)
+                    # We might have skipped importing the record as allele due to prefiltering
+                    if allele:
+                        # Annotation
+                        self.annotation_importer.add(record, allele['id'])
+                        proband_alleles.append(allele)
+                        proband_records.append(record)
+
                     block_records.append(record)
+
                 elif any(needs_secondallele.values()):
                     block_records.append(record)
 
@@ -281,7 +363,12 @@ class DepositAnalysis(DepositFromVCF):
         assert len(proband_records) == 0
 
         if not append:
-            self.postprocess(db_analysis, db_analysis_interpretation)
+            self.postprocess(
+                deposit_usergroup_id,
+                deposit_usergroup_config,
+                db_analysis,
+                db_analysis_interpretation
+            )
 
         log.info('All done, committing')
         self.session.commit()

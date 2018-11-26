@@ -59,11 +59,10 @@
                 }
             },
             "deposit": {
-                "postprocess": [
+                "analysis": [
                     {
-                        "name": "^NonExistingPattern.*",
-                        "type": "analysis",
-                        "methods": [
+                        "pattern": "^NonExistingPattern.*",
+                        "postprocess": [
                             "analysis_not_ready_findings",
                             "analysis_finalize_without_findings"
                         ]
@@ -79,6 +78,20 @@
         "config": {
             "overview": {
                 "views": ["analyses", "import"]
+            },
+            "deposit": {
+                "analysis": [
+                    {
+                        "pattern": "^HG002-Trio.Mendeliome_v01",
+                        "postprocess": [],
+                        "prefilter": true
+                    },
+                    {
+                        "pattern": ".*Ciliopati.*",
+                        "postprocess": [],
+                        "prefilter": true
+                    }
+                ]
             }
         }
     }
