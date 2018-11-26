@@ -1,5 +1,5 @@
 <div style="text-align: center;padding-top: 50px;padding-bottom: 50px">
-	<img width="250px;" src="/docs/logo_blue.svg">
+	<img width="250px;" src="https://gitlab.com/alleles/ella/raw/dev/docs/logo_blue.svg">
 </div>
 
 *ella* is a web app based on AngularJS with a Flask REST backend.
