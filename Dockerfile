@@ -35,6 +35,7 @@ RUN apt-get update && \
     htop \
     imagemagick \
     ghostscript \
+    unzip \
     fontconfig && \
     echo "Additional tools:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
@@ -47,6 +48,8 @@ RUN apt-get update && \
     echo "deb https://dl-ssl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
 	apt-get -yqq update && \
     apt-get -yqq install google-chrome-stable && \
+    echo "Chromedriver:" && \
+    curl -L -O https://chromedriver.storage.googleapis.com/2.44/chromedriver_linux64.zip && unzip -d /usr/local/bin chromedriver_linux64.zip && rm chromedriver_linux64.zip && \
     echo "Cleanup:" && \
     apt-get clean && \
     apt-get autoclean && \
