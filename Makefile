@@ -400,9 +400,9 @@ e2e-test-local: test-build
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 build-singularity:
-	docker build -t $(NAME_OF_GENERATED_IMAGE) --target production .
+	docker build -t $(IMAGE_NAME) --target production .
 	docker run --rm -d -p 29000:5000 --name ella-tmp-registry registry:2
-	docker tag $(NAME_OF_GENERATED_IMAGE) localhost:29000/$(NAME_OF_GENERATED_IMAGE)
-	docker push localhost:29000/$(NAME_OF_GENERATED_IMAGE)
-	SINGULARITY_NOHTTPS=1 singularity build ella-release.simg docker://localhost:29000/$(NAME_OF_GENERATED_IMAGE)
+	docker tag $(IMAGE_NAME) localhost:29000/$(IMAGE_NAME)
+	docker push localhost:29000/$(IMAGE_NAME)
+	SINGULARITY_NOHTTPS=1 singularity build $(CONTAINER_NAME).simg docker://localhost:29000/$(IMAGE_NAME)
 	docker rm -f ella-tmp-registry
