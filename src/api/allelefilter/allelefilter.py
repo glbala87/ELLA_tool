@@ -9,6 +9,8 @@ from api.allelefilter.frequencyfilter import FrequencyFilter
 from api.allelefilter.segregationfilter import SegregationFilter
 from api.allelefilter.regionfilter import RegionFilter
 from api.allelefilter.qualityfilter import QualityFilter
+from api.allelefilter.classificationfilter import ClassificationFilter
+from api.allelefilter.externalfilter import ExternalFilter
 
 
 class AlleleFilter(object):
@@ -20,122 +22,11 @@ class AlleleFilter(object):
         self.filter_functions = {
             'frequency': ('allele', FrequencyFilter(self.session, self.config).filter_alleles),
             'region': ('allele', RegionFilter(self.session, self.config).filter_alleles),
+            'classification': ('allele', ClassificationFilter(self.session, self.config).filter_alleles),
+            'external': ('allele', ExternalFilter(self.session, self.config).filter_alleles),
             'quality': ('analysis', QualityFilter(self.session, self.config).filter_alleles),
-            'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles)
+            'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles),
         }
-
-    def get_allele_ids_with_classification(self, allele_ids):
-        """
-        Return the allele ids, among the provided allele_ids,
-        that have have an existing classification according with
-        global config ['classification']['options'].
-        """
-
-        options = self.config['classification']['options']
-        exclude_for_class = [o['value'] for o in options if o.get('exclude_filtering_existing_assessment')]
-
-        with_classification = set()
-
-        if allele_ids:
-            with_classification = self.session.query(assessment.AlleleAssessment.allele_id).filter(
-                assessment.AlleleAssessment.classification.in_(exclude_for_class),
-                assessment.AlleleAssessment.allele_id.in_(allele_ids),
-                assessment.AlleleAssessment.date_superceeded.is_(None)
-            ).all()
-            with_classification = set([t[0] for t in with_classification])
-
-        return with_classification
-
-    def get_allele_ids_with_pathogenic_clinvar(self, allele_ids):
-        """
-        Return the allele_ids that have >=2 Clinvar
-        'clinical_significance_descr' that are 'Pathogenic'
-        """
-
-        # Use this to evaluate the number of stars
-        filter_signifiance_descr = [k for k,v in self.config['annotation']['clinvar']['clinical_significance_status'].items() if v >= 2]
-
-        # Expand clinvar submissions
-        expanded_clinvar = self.session.query(
-            annotation.Annotation.allele_id,
-            literal_column("jsonb_array_elements(annotations->'external'->'CLINVAR'->'items')").label('entry'),
-        ).filter(
-            annotation.Annotation.allele_id.in_(allele_ids),
-            annotation.Annotation.date_superceeded.is_(None),
-        ).subquery()
-
-        # Extract clinical significance for all SCVs
-        clinvar_clinsigs = self.session.query(
-            expanded_clinvar.c.allele_id,
-            expanded_clinvar.c.entry.op('->>')('rcv').label('scv'),
-            expanded_clinvar.c.entry.op('->>')('clinical_significance_descr').label('clinsig')
-        ).filter(
-            expanded_clinvar.c.entry.op('->>')('rcv').op('ILIKE')('SCV%')
-        ).subquery()
-
-        def count_matches(pattern):
-            return func.count(clinvar_clinsigs.c.clinsig).filter(clinvar_clinsigs.c.clinsig.op('ILIKE')(pattern))
-
-        # Count the number of Pathogenic/Likely pathogenic, Uncertain significance, and Benign/Likely benign
-        clinsig_counts = self.session.query(
-            clinvar_clinsigs.c.allele_id,
-            count_matches('%pathogenic%').label('count_pathogenic'),
-            count_matches('%uncertain%').label('count_uncertain'),
-            count_matches('%benign%').label('count_benign'),
-            func.count(clinvar_clinsigs.c.clinsig).label('total')
-        ).group_by(
-            clinvar_clinsigs.c.allele_id
-        ).order_by(clinvar_clinsigs.c.allele_id).subquery()
-
-        # Extract allele ids that matches the rules for clinvar pathogenic alleles
-        pathogenic_allele_ids = self.session.query(
-            clinsig_counts.c.allele_id,
-            clinsig_counts.c.count_pathogenic,
-            clinsig_counts.c.count_uncertain,
-            clinsig_counts.c.count_benign,
-            clinsig_counts.c.total,
-            annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->')('variant_description').label("variant_description"),
-            annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->')('variant_id').label("variant_id"),
-        ).join(
-            annotation.Annotation,
-            annotation.Annotation.allele_id == clinsig_counts.c.allele_id
-        ).filter(
-            or_(
-                and_(
-                    clinsig_counts.c.count_pathogenic > clinsig_counts.c.count_benign,
-                    # clinsig_counts.c.count_uncertain <= 1,
-                    # clinsig_counts.c.count_benign <= 1,
-                ),
-                # Potential to add more refined rules
-            ),
-            annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->>')('variant_description').in_(filter_signifiance_descr)
-        )
-
-        # DEBUG
-        # from api.util.util import query_print_table
-        # query_print_table(pathogenic_allele_ids)
-
-        return set([a[0] for a in pathogenic_allele_ids])
-
-    def get_allele_ids_with_pathogenic_hgmd(self, allele_ids):
-        """
-        Return the allele_ids that have >=2 Clinvar
-        'clinical_significance_descr' that are 'Pathogenic'
-        """
-
-        pathogenic_criteria = ['DM', 'DM?']
-
-        pathogenic_allele_ids = self.session.query(
-            annotation.Annotation.allele_id,
-            # annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').label('tag')
-        ).filter(
-            annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').in_(pathogenic_criteria)
-        )
-        # DEBUG
-        # from api.util.util import query_print_table
-        # query_print_table(pathogenic_allele_ids)
-
-        return set([a[0] for a in pathogenic_allele_ids])
 
 
     def get_filter_exceptions(self, exceptions_config, allele_ids):
@@ -143,17 +34,14 @@ class AlleleFilter(object):
         Checks whether any of allele_ids should be excepted from filtering,
         given checks given by exceptions_config
         """
-
         filter_exceptions = set()
         for e in exceptions_config:
-            if e['name'] == 'classification':
-                filter_exceptions |= self.get_allele_ids_with_classification(allele_ids)
-            elif e['name'] == 'clinvar_pathogenic':
-                # TODO: clinvar_pathogenic strategy needs refinement
-               filter_exceptions |= self.get_allele_ids_with_pathogenic_clinvar(allele_ids)
-            elif e['name'] == 'hgmd_pathogenic':
-               filter_exceptions |= self.get_allele_ids_with_pathogenic_hgmd(allele_ids)
+            name, config = e["name"], e["config"]
+            filter_type, filter_func = self.filter_functions[name]
+            assert filter_type == 'allele', "Unable to run exception on filter_type {}".format(filter_type)
+            filter_exceptions |= filter_func(allele_ids, config)
         return filter_exceptions
+
 
     def filter_alleles(self, filter_config_id, gp_allele_ids, analysis_allele_ids):
         """

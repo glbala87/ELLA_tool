@@ -296,7 +296,21 @@ config = {
             "quality": {
                 "qual": 100
             },
-            "segregation": {}
+            "segregation": {},
+            "external": {
+                "hgmd": {
+                    "tags": [None] # Variants that are not in HGMD
+                },
+                "clinvar": {
+                    "combinations": [
+                        ['benign', '>', 'pathogenic'] # Number of benign submissons greater than number of pathogenic
+                    ],
+                    "stars": [">=", 2]
+                },
+            },
+            "classification": {
+                "classes": ["1", "U"]
+            }
         }
     },
     "classification": {
