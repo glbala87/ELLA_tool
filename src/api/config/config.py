@@ -452,12 +452,23 @@ def get_filter_config(app_config, filter_config):
     merged_filters = list()
     assert 'filters' in filter_config
     for filter_step in filter_config['filters']:
+
         base_config = dict(app_config['filter']['default_filter_config'][filter_step['name']])
         base_config.update(filter_step.get('config', {}))
+
+        filter_exceptions = []
+        for filter_exception in filter_step.get('exceptions', []):
+            base_exception_config = dict(app_config['filter']['default_filter_config'][filter_exception['name']])
+            base_exception_config.update(filter_exception.get('config', {}))
+            filter_exceptions.append({
+                "name": filter_exception['name'],
+                "config": base_exception_config
+            })
+
         merged_filters.append({
             'name': filter_step['name'],
             'config': base_config,
-            'exceptions': filter_step.get('exceptions', [])
+            'exceptions': filter_exceptions
         })
     merged_filters = copy.deepcopy(merged_filters)
     return merged_filters

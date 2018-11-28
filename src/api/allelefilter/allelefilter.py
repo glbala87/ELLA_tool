@@ -1,9 +1,5 @@
-import itertools
-import copy
-
-from sqlalchemy import literal_column, text, or_, and_, func
 from api.config import config as global_config, get_filter_config
-from vardb.datamodel import assessment, sample, allele, genotype, annotation
+from vardb.datamodel import sample
 
 from api.allelefilter.frequencyfilter import FrequencyFilter
 from api.allelefilter.segregationfilter import SegregationFilter
@@ -29,17 +25,27 @@ class AlleleFilter(object):
         }
 
 
-    def get_filter_exceptions(self, exceptions_config, allele_ids):
+    def get_filter_exceptions(self, exceptions_config, gp_allele_ids, analysis_allele_ids):
         """
         Checks whether any of allele_ids should be excepted from filtering,
         given checks given by exceptions_config
         """
+
+        filter_gp_exceptions = {k: set() for k in gp_allele_ids}
+        filter_analysis_exceptions = {k: set() for k in analysis_allele_ids}
         filter_exceptions = set()
+
         for e in exceptions_config:
             name, config = e["name"], e["config"]
             filter_type, filter_func = self.filter_functions[name]
-            assert filter_type == 'allele', "Unable to run exception on filter_type {}".format(filter_type)
-            filter_exceptions |= filter_func(allele_ids, config)
+            if filter_type == 'allele':
+                filter_result = filter_func(gp_allele_ids, config)
+            elif filter_type == 'analysis':
+                filter_result = filter_func(analysis_allele_ids, config)
+
+            for filtered_allele_ids in filter_result.itervalues():
+                filter_exceptions |= filtered_allele_ids
+
         return filter_exceptions
 
 
@@ -145,43 +151,49 @@ class AlleleFilter(object):
                 filter_data_type, filter_function = self.filter_functions[name]
                 assert filter_data_type in ['allele', 'analysis'], "Unknown filter data type '{}'".format(filter_data_type)
 
+
+
+
                 # Create container for keeping filter results
                 filtered_allele_ids = dict()
 
                 # Run filter
                 if filter_data_type == 'allele':
+                    # Check that all exception types are of type allele. It makes no sense to run an analysis exception filter
+                    # on an allele filter
+                    exception_data_types = [self.filter_functions[e['name']][0] for e in exceptions_config]
+                    assert all(t == 'allele' for t in exception_data_types), "All exception filter types must be 'allele' for an 'allele' filter"
+
                     # Merge analysis_gp_allele_ids and gp_allele_ids
                     gp_alleles_merged = {gp_key: analysis_gp_allele_ids.get(gp_key, set()) | gp_allele_ids.get(gp_key, set()) for gp_key in all_gp_keys}
 
-                    filtered = filter_function(gp_alleles_merged, filter_config)
+                    filtered_gp_allele_ids = filter_function(gp_alleles_merged, filter_config)
+                    filtered_analysis_allele_ids = dict()
 
-                    filter_exceptions = self.get_filter_exceptions(
-                        exceptions_config,
-                        set(itertools.chain.from_iterable(filtered.values()))
-                    )
-
-                    for gp_key, allele_ids in filtered.iteritems():
-                        # Subtract alleles that should be excepted from filtering
-                        filtered_allele_ids[gp_key] = set(allele_ids) - filter_exceptions
 
                 elif filter_data_type == 'analysis':
-                    filtered = filter_function(analysis_allele_ids, filter_config)
+                    filtered_analysis_allele_ids = filter_function(analysis_allele_ids, filter_config)
+                    filtered_gp_allele_ids = {analysis_genepanels[a_id]: allele_ids for a_id, allele_ids in filtered_analysis_allele_ids.iteritems()}
 
-                    filter_exceptions = self.get_filter_exceptions(
-                        exceptions_config,
-                        set(itertools.chain.from_iterable(filtered.values()))
-                    )
+                filter_exceptions = self.get_filter_exceptions(
+                    exceptions_config,
+                    filtered_gp_allele_ids,
+                    filtered_analysis_allele_ids
+                )
 
-                    for a_id, allele_ids in filtered.iteritems():
-                        # Subtract alleles that should be excepted from filtering
-                        filtered_allele_ids[a_id] = set(allele_ids) - filter_exceptions
+                for gp_key, allele_ids in filtered_gp_allele_ids.iteritems():
+                    # Subtract alleles that should be excepted from filtering
+                    filtered_gp_allele_ids[gp_key] = set(allele_ids) - filter_exceptions
+
+                for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
+                    filtered_analysis_allele_ids[a_id] = set(allele_ids) - filter_exceptions
 
                 # Update data structures gp_allele_ids, analysis_gp_allele_ids, and analysis_allele_ids by removing filtered alleles from the remaining alleles
                 # This is done to:
                 # 1. Improve performance by not running already filtered alleles in subsequent filters
                 # 2. Prevent alleles from ending up in multiple filters
                 if filter_data_type == 'allele':
-                    for gp_key, allele_ids in filtered_allele_ids.iteritems():
+                    for gp_key, allele_ids in filtered_gp_allele_ids.iteritems():
                         if gp_key in gp_allele_ids:
                             # Insert filter result in genepanel data structure to be returned
                             gp_allele_result[gp_key]["excluded_allele_ids"][name] = sorted(list(gp_allele_ids[gp_key] & allele_ids))
@@ -198,7 +210,7 @@ class AlleleFilter(object):
                                     analysis_allele_ids[a_id] -= allele_ids
 
                 elif filter_data_type == 'analysis':
-                    for a_id, allele_ids in filtered_allele_ids.iteritems():
+                    for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
                         # Insert filter result in analysis data structure to be returned
                         analysis_allele_result[a_id]["excluded_allele_ids"][name] = sorted(list(analysis_allele_ids[a_id] & allele_ids))
                         analysis_allele_ids[a_id] -= allele_ids
