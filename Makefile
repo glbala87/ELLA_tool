@@ -337,15 +337,17 @@ test-report:
 
 test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e
+	mkdir -p errorShots
 	docker run -d --hostname e2e \
 	   --name $(CONTAINER_NAME)-e2e \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgres:///postgres \
+	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
 	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
-	@-docker rm -f $(CONTAINER_NAME)-e2e
+	@docker rm -f $(CONTAINER_NAME)-e2e
 
 
 #---------------------------------------------

@@ -16,7 +16,6 @@ before_script:
 stages:
   - build
   - test
-  - e2e
   - review
   - release
 
@@ -104,7 +103,7 @@ test_cli:
 
 
 test_report:
-  stage: e2e
+  stage: test
   before_script:
     - apk add --update make
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -116,7 +115,7 @@ test_report:
 
 
 test_e2e:
-  stage: e2e
+  stage: test
   before_script:
     - apk add --update make
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -125,9 +124,7 @@ test_e2e:
   script:
     - make test-e2e
   after_script:
-    - docker exec ${PIPELINE_ID}-e2e tar c -C /ella/errorShots/ -f - . > errorShots.tar && mkdir errorShots && tar x -C errorShots -f errorShots.tar
     - docker rm  -f -v ${PIPELINE_ID}-e2e
-    - docker rm  -f -v ${PIPELINE_ID}-chromebox
   except:
     - /^ui-.*$/
     - /^ops-.*$/

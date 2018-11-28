@@ -32,7 +32,7 @@ var debugCapabilities = [
         //     },
     }
 ]
-var defaultTimeoutInterval = 120000 // ms
+var defaultTimeoutInterval = 300000 // ms
 var defaultMaxInstances = 1
 let specHome = 'src/webui/tests/e2e/tests/**'
 var defaultSpecs = [`${specHome}/*.js`]
