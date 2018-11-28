@@ -607,7 +607,7 @@ class TestInheritanceFilter(object):
                     fs = next(s for s in entry['genotypes'] if s.name == sample_names['father'])
                     ms = next(s for s in entry['genotypes'] if s.name == sample_names['mother'])
                     if len(set([fs.genotype == 'Heterozygous', ms.genotype == 'Heterozygous'])) != 1:
-                        rule_one_result.add(allele_id)
+                        rule_three_result.add(allele_id)
             else:
                 # If no parents, all entries "pass" this rule
                 rule_three_result = set(entries_allele_ids)
