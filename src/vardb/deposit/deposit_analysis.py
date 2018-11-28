@@ -24,7 +24,7 @@ from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, Sample
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter, \
                                     batch_generator
 
-from vardb.datamodel import sample, workflow, user, gene
+from vardb.datamodel import sample, workflow, user, gene, assessment, allele
 
 from deposit_from_vcf import DepositFromVCF
 
@@ -115,18 +115,43 @@ class DepositAnalysis(DepositFromVCF):
 
         result_records = []
         previous_record = previous_batch_last_record
-        for record in records:
-            checks = {
-                'non_multiallelic': record['SAMPLES'][proband_sample_name]['GT'] in ['0/1', '1/1'],
-                'frequency': 'GNOMAD_GENOMES' in record['INFO']['ALL'] and
-                             record['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.05 and
-                             record['INFO']['ALL']['GNOMAD_GENOMES']['AN'] > 5000,
-                'position': bool(previous_record) and (abs(record['POS'] - previous_record['POS']) > 3 or record['CHROM'] != previous_record['CHROM'])
-            }
-            previous_record = record
-            if not all(checks.values()):
-                result_records.append(record)
 
+        allele_data = [
+            (r['CHROM'], r['POS'], r['REF'], r['ALT'][0]) for r in records
+        ]
+
+        alleles_classifications = self.session.query(
+            allele.Allele.chromosome,
+            allele.Allele.vcf_pos,
+            allele.Allele.vcf_ref,
+            allele.Allele.vcf_alt
+        ).join(
+            assessment.AlleleAssessment
+        ).filter(
+            tuple_(
+                allele.Allele.chromosome,
+                allele.Allele.vcf_pos,
+                allele.Allele.vcf_ref,
+                allele.Allele.vcf_alt
+            ).in_(allele_data)
+        ).distinct().all()
+
+        for r in records:
+            has_classification = next(
+                (a == (r['CHROM'], r['POS'], r['REF'], r['ALT'][0]) for a in alleles_classifications),
+                False
+            )
+            checks = {
+                'non_multiallelic': r['SAMPLES'][proband_sample_name]['GT'] in ['0/1', '1/1'],
+                'hi_frequency': 'GNOMAD_GENOMES' in r['INFO']['ALL'] and
+                                r['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.05 and
+                                r['INFO']['ALL']['GNOMAD_GENOMES']['AN'] > 5000,
+                'position_not_nearby': bool(previous_record) and (abs(r['POS'] - previous_record['POS']) > 3 or r['CHROM'] != previous_record['CHROM']),
+                'no_classification': not has_classification
+            }
+            previous_record = r
+            if not all(checks.values()):
+                result_records.append(r)
         return result_records
 
     def postprocess(self, deposit_usergroup_id, deposit_usergroup_config, db_analysis, db_analysis_interpretation):

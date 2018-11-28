@@ -4,11 +4,13 @@ from collections import defaultdict
 from contextlib import contextmanager
 
 import hypothesis as ht
+from hypothesis import strategies as st
 from sqlalchemy import or_
+from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
-from vardb.datamodel import genotype, sample, allele
-from .vcftestgenerator import vcf_strategy
+from vardb.datamodel import genotype, sample, allele, assessment
+from .vcftestgenerator import vcf_family_strategy, vcf_prefilter_strategy
 
 import logging
 log = logging.getLogger()
@@ -30,8 +32,8 @@ def tempinput(data):
 ANALYSIS_NUM = 0
 
 
-@ht.given(vcf_strategy(6))
-@ht.settings(deadline=None, max_examples=300)
+@ht.given(vcf_family_strategy(6))
+@ht.settings(deadline=None, max_examples=100)  # A bit heavy, so few tests by default
 def test_analysis_multiple(test_database, session, vcf_data):
     global ANALYSIS_NUM
     ANALYSIS_NUM += 1
@@ -195,3 +197,104 @@ def test_analysis_multiple(test_database, session, vcf_data):
                 else:
                     assert gsd.genotype_likelihood is None
                 assert gsd.allele_depth == sample_allele_depth[sample_name]
+
+
+@ht.given(
+    vcf_prefilter_strategy(),
+    st.booleans()
+)
+@ht.settings(deadline=None, max_examples=100)  # A bit heavy, so few tests by default
+def test_analysis_prefilter(test_database, session, vcf_data, insert_classification):
+    session.rollback()
+    global ANALYSIS_NUM
+    ANALYSIS_NUM += 1
+    analysis_name = 'TEST_ANALYSIS {}'.format(ANALYSIS_NUM)
+
+    vcf_string, ped_string, meta = vcf_data
+
+    # Clear out alleleassessment from previous run
+    session.execute("""UPDATE usergroup SET config = '{"deposit": {"analysis": [{"pattern": ".*TEST.*", "prefilter": true}]}}'""")
+    session.execute('DELETE FROM alleleassessment')
+
+    with tempinput(vcf_string) as vcf_file:
+        if insert_classification:
+            # Create alleles first so we can create classification
+            DepositAlleles(session).import_vcf(vcf_file, annotation_only=True)
+
+            last_allele_id = session.query(allele.Allele.id).order_by(
+                allele.Allele.id.desc()
+            ).limit(1).scalar()
+
+            aa = assessment.AlleleAssessment(
+                allele_id=last_allele_id,
+                genepanel_name='HBOCUTV',
+                genepanel_version='v01',
+                classification='1',
+            )
+            session.add(aa)
+            session.commit()
+
+        # Import generated analysis
+        with tempinput(ped_string or '') as ped_file:
+            acd = AnalysisConfigData(
+                vcf_file,
+                analysis_name,
+                'HBOCUTV',
+                'v01',
+                ped_path=ped_file if ped_string else None
+            )
+            da = DepositAnalysis(session)
+            da.import_vcf(acd)
+
+    analysis = session.query(sample.Analysis).filter(
+        sample.Analysis.name == analysis_name
+    ).one()
+
+    analysis_allele_ids = session.query(allele.Allele.id).join(
+        genotype.Genotype.alleles
+    ).join(
+        sample.Sample
+    ).join(
+        sample.Analysis
+    ).filter(
+        sample.Analysis.id == analysis.id
+    ).distinct().all()
+    analysis_allele_ids = [a[0] for a in analysis_allele_ids]
+
+    prev_variant = None
+    for variant in meta['variants']:
+        # Load allele for this variant. Might not exist if filtered.
+        variant_allele = session.query(
+            allele.Allele
+        ).filter(
+            allele.Allele.chromosome == variant['chromosome'],
+            allele.Allele.vcf_pos == variant['pos'],
+            allele.Allele.vcf_ref == variant['ref'],
+            allele.Allele.vcf_alt == variant['alt']
+        ).one_or_none()
+
+        # Check if we earlier inserted a classification for this variant
+        classification = None
+        if variant_allele:
+            classification = session.query(assessment.AlleleAssessment).filter(
+                assessment.AlleleAssessment.allele_id == variant_allele.id
+            ).one_or_none()
+
+        # Check criterias
+        no_classification = not bool(classification)
+        not_multiallelic = variant['samples'][0]['GT'] not in ['1/.', './1']
+        hi_freq = float(variant['annotation']['GNOMAD_GENOMES__AF']) > 0.05 and \
+                   int(variant['annotation']['GNOMAD_GENOMES__AN']) > 5000
+        not_nearby_variant = False
+        if prev_variant:
+            not_nearby_variant = abs(variant['pos'] - prev_variant['pos']) > 3
+
+        checks = [no_classification, not_multiallelic, hi_freq, not_nearby_variant]
+        if all(checks):
+            assert variant_allele is None or \
+                   variant_allele.id not in analysis_allele_ids
+        else:
+            assert variant_allele.id in analysis_allele_ids
+
+        prev_variant = variant
+
