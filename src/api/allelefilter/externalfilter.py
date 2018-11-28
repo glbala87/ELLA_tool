@@ -2,8 +2,6 @@ from vardb.datamodel import annotation
 import operator
 from sqlalchemy import and_, or_, literal_column, func
 
-from api.util.util import query_print_table
-
 OPERATORS = {
     '==': operator.eq,
     '>=': operator.ge,
@@ -35,15 +33,13 @@ class ExternalFilter(object):
         return filters
 
     def _filter_clinvar(self, allele_ids, clinvar_config):
-
-
         # Use this to evaluate the number of stars
         star_op, num_stars = clinvar_config.get('num_stars', ('>=', 0))
         star_op = OPERATORS[star_op]
 
-        combinations = clinvar_config['combinations']
-
         filter_signifiance_descr = [k for k,v in self.config['annotation']['clinvar']['clinical_significance_status'].items() if star_op(v,num_stars)]
+
+        combinations = clinvar_config.get('combinations', [])
 
         # Expand clinvar submissions
         expanded_clinvar = self.session.query(
@@ -78,26 +74,18 @@ class ExternalFilter(object):
         ).order_by(clinvar_clinsigs.c.allele_id).subquery()
 
         filters = self._build_clinvar_filters(clinsig_counts, combinations)
-        # Extract allele ids that matches the rules for clinvar pathogenic alleles
+
+        # Extract allele ids that matches the config rules
         filtered_allele_ids = self.session.query(
             clinsig_counts.c.allele_id,
-            # clinsig_counts.c.pathogenic,
-            # clinsig_counts.c.uncertain,
-            # clinsig_counts.c.benign,
-            # clinsig_counts.c.total,
-            # annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->')('variant_description').label("variant_description"),
-            # annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->')('variant_id').label("variant_id"),
         ).join(
             annotation.Annotation,
             annotation.Annotation.allele_id == clinsig_counts.c.allele_id
         ).filter(
             and_(*filters),
+            annotation.Annotation.date_superceeded.is_(None),
             annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->>')('variant_description').in_(filter_signifiance_descr)
         )
-
-        # DEBUG
-        # from api.util.util import query_print_table
-        # query_print_table(pathogenic_allele_ids)
 
         return set([a[0] for a in filtered_allele_ids])
 
@@ -118,13 +106,10 @@ class ExternalFilter(object):
         filtered_allele_ids = self.session.query(
             annotation.Annotation.allele_id,
         ).filter(
+            annotation.Annotation.date_superceeded.is_(None),
             annotation.Annotation.allele_id.in_(allele_ids),
             or_(*filters)
         )
-
-        # DEBUG
-        # from api.util.util import query_print_table
-        # query_print_table(filtered_allele_ids)
 
         return set([a[0] for a in filtered_allele_ids])
 
