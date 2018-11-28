@@ -5,7 +5,7 @@
 set -e # exit on first failure
 source ./scripts/bash-util.sh
 
-mkdir /ella/errorShots
+mkdir -p /ella/errorShots
 
 yellow "Building web assets"
 /ella/ops/common/symlink_node_modules
