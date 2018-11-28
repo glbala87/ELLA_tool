@@ -129,7 +129,7 @@ class ExternalFilter(object):
         return set([a[0] for a in filtered_allele_ids])
 
 
-    def filter_alleles(self, allele_ids, filter_config):
+    def filter_alleles(self, gp_allele_ids, filter_config):
         """
         Filter alleles on external annotations. Supported external databases are clinvar and hgmd.
         Filters only alleles which satisify *both* clinvar and hgmd configurations. If only one of clinvar or
@@ -151,24 +151,31 @@ class ExternalFilter(object):
         }
 
         """
-        clinvar_config = filter_config.get('clinvar')
-        if clinvar_config:
-            clinvar_filtered_allele_ids = self._filter_clinvar(allele_ids, clinvar_config)
-        else:
-            clinvar_filtered_allele_ids = None
+        result = dict()
+        for gp_key, allele_ids in gp_allele_ids.iteritems():
+            if not allele_ids:
+                result[gp_key] = set()
 
-        hgmd_config = filter_config.get('hgmd')
-        if hgmd_config:
-            hgmd_filtered_allele_ids = self._filter_hgmd(allele_ids, hgmd_config)
-        else:
-            hgmd_filtered_allele_ids = None
+            clinvar_config = filter_config.get('clinvar')
+            if clinvar_config:
+                clinvar_filtered_allele_ids = self._filter_clinvar(allele_ids, clinvar_config)
+            else:
+                clinvar_filtered_allele_ids = None
 
-        # Union hgmd filtered and clinvar filtered if both have been run, otherwise return the result of the run one
-        if clinvar_filtered_allele_ids is not None and hgmd_filtered_allele_ids is not None:
-            return clinvar_filtered_allele_ids & hgmd_filtered_allele_ids
-        elif clinvar_filtered_allele_ids is not None:
-            return clinvar_filtered_allele_ids
-        elif hgmd_filtered_allele_ids is not None:
-            return hgmd_filtered_allele_ids
-        else:
-            return set()
+            hgmd_config = filter_config.get('hgmd')
+            if hgmd_config:
+                hgmd_filtered_allele_ids = self._filter_hgmd(allele_ids, hgmd_config)
+            else:
+                hgmd_filtered_allele_ids = None
+
+            # Union hgmd filtered and clinvar filtered if both have been run, otherwise return the result of the run one
+            if clinvar_filtered_allele_ids is not None and hgmd_filtered_allele_ids is not None:
+                result[gp_key] = clinvar_filtered_allele_ids & hgmd_filtered_allele_ids
+            elif clinvar_filtered_allele_ids is not None:
+                result[gp_key] = clinvar_filtered_allele_ids
+            elif hgmd_filtered_allele_ids is not None:
+                result[gp_key] = hgmd_filtered_allele_ids
+            else:
+                result[gp_key] = set()
+
+        return result
