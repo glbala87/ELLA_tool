@@ -100,7 +100,7 @@ class DepositAnalysis(DepositFromVCF):
         assert len(matched_configs) <= 1
         return matched_configs[0] if matched_configs else (None, {})
 
-    def prefilter_records(self, records, proband_sample_name, previous_batch_last_record):
+    def prefilter_records(self, records, proband_sample_name, previous_batch_last_record, previous_batch_last_record_imported):
         """
         Checks whether a record should be prefiltered, i.e. not imported.
         We do this to reduce the amount of data to import for large analyses.
@@ -115,6 +115,7 @@ class DepositAnalysis(DepositFromVCF):
 
         result_records = []
         previous_record = previous_batch_last_record
+        previous_record_imported = previous_batch_last_record_imported
 
         allele_data = [
             (r['CHROM'], r['POS'], r['REF'], r['ALT'][0]) for r in records
@@ -149,10 +150,20 @@ class DepositAnalysis(DepositFromVCF):
                 'position_not_nearby': bool(previous_record) and (abs(r['POS'] - previous_record['POS']) > 3 or r['CHROM'] != previous_record['CHROM']),
                 'no_classification': not has_classification
             }
-            previous_record = r
+            # If current record is nearby previous record, we need to ensure that
+            # the previous record also is imported
+            if not checks['position_not_nearby'] and not previous_record_imported:
+                result_records.append(previous_record)
+
             if not all(checks.values()):
                 result_records.append(r)
-        return result_records
+                previous_record_imported = True
+            else:
+                previous_record_imported = False
+
+            previous_record = r
+
+        return result_records, previous_record_imported
 
     def postprocess(self, deposit_usergroup_id, deposit_usergroup_config, db_analysis, db_analysis_interpretation):
         """
@@ -291,6 +302,7 @@ class DepositAnalysis(DepositFromVCF):
         proband_records = []  # One or two records belonging to proband, for creating one genotype
         block_records = []  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
         previous_batch_last_record = None  # Stores the last record of the previous batch, used in prefilter function
+        previous_batch_last_record_imported = False  # Indicates whether last record in previous batch was imported
         records_count = 0
         imported_records_count = 0
 
@@ -312,13 +324,13 @@ class DepositAnalysis(DepositFromVCF):
                     continue
 
             if deposit_usergroup_config.get('prefilter'):
-                current_last_record = processed_records[-1]
-                processed_records = self.prefilter_records(
+                prefiltered_records, previous_batch_last_record_imported = self.prefilter_records(
                     processed_records,
                     proband_sample_name,
                     previous_batch_last_record
                 )
-                previous_batch_last_record = current_last_record
+                previous_batch_last_record = processed_records[-1]
+                processed_records = prefiltered_records
 
             for record in processed_records:
                 self.allele_importer.add(record)
