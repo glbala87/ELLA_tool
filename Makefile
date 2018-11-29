@@ -10,6 +10,7 @@ API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 TESTSET ?= 'default'
+HYPOTHESIS_PROFILE ?= 'default'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
@@ -284,6 +285,7 @@ test-common:
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
+	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  --name $(CONTAINER_NAME)-common $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -296,6 +298,7 @@ test-api:
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  --name $(CONTAINER_NAME)-api $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
