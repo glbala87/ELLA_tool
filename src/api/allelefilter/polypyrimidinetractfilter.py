@@ -10,14 +10,14 @@ class PolypyrimidineTractFilter(object):
 
     def filter_alleles(self, gp_allele_ids, filter_config):
         """
-        Filter alleles in the polypyrimidine tract (defined as 3 to 20 bases upstream of exon start,
+        Filter alleles in the polypyrimidine tract (defined by filter_config['ppy_tract_region'],
         strandedness taken into account)
 
         Only filter out alleles that are either SNPs from C->T, T->C, or deletions of
         C, T, CC, TT, CT, TC (strandedness taken into account)
 
         We do *not* filter out alleles where a deletion is flanked by A (positive strand)
-        or G (negative strand), as this could create a new AG splice site. Ideally, we would check if
+        or C (negative strand), as this could create a new AG splice site. Ideally, we would check if
         the deletion was flanked by A on one side and G on another, but since we do not use a FASTA-file,
         we are unable to check both sides. The one side we do check comes from the vcf_ref-column in
         the allele-table
@@ -28,26 +28,14 @@ class PolypyrimidineTractFilter(object):
             if not allele_ids:
                 ppy_filtered[gp_key] = set()
                 continue
-            gp_genes = self.session.query(
-                gene.Transcript.gene_id,
-                gene.Gene.hgnc_symbol
-            ).join(
-                gene.Genepanel.transcripts
-            ).join(
-                gene.Gene
-            ).filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key,
-            )
-
-            gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
 
             ppy_tract_region = filter_config['ppy_tract_region']
-            ppy_padding = abs(ppy_tract_region[0])
-
+            assert all(v<0 for v in ppy_tract_region), "Polypyrimidine tract should be upstream of the exon start (region should be defined as negative numbers)"
+            ppy_padding = max(abs(v) for v in ppy_tract_region)
 
             # Extract transcripts associated with the genepanel
             # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
-            # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
+            # overlapping in the region [tx_start-ppy_padding, tx_end+ppy_padding]. The filter clause in the query
             # should have no effect on the result, but is included only for performance
 
             genepanel_transcripts = self.session.query(
@@ -93,12 +81,7 @@ class PolypyrimidineTractFilter(object):
                 genepanel_transcripts.c.cds_end,
                 func.unnest(genepanel_transcripts.c.exon_starts).label('exon_start'),
                 func.unnest(genepanel_transcripts.c.exon_ends).label('exon_end'),
-            )
-
-            # query_print_table(genepanel_transcript_exons)
-
-            genepanel_transcript_exons = genepanel_transcript_exons.subquery()
-
+            ).subquery()
 
             # Regions with applied padding
             def _create_region(transcripts, region_start, region_end):
@@ -109,9 +92,9 @@ class PolypyrimidineTractFilter(object):
                     region_end.label('region_end')
                 ).distinct()
 
-            # Upstream region for positive strand transcript is [exon_start+ppy_tract[0], exon_start+ppy_tract[1])
-            # Upstream region for reverse strand transcript is (exon_end-ppy_tract_region[0], exon_end-exon_upstream-ppy_tract_region[1]]
             # Note: ppy_tract_region[0]/ppy_tract_region[1] is a *negative* number
+            # Upstream region for positive strand transcript is [exon_start+ppy_tract[0], exon_start+ppy_tract[1]]
+            # Upstream region for reverse strand transcript is (exon_end-ppy_tract_region[0], exon_end-exon_upstream-ppy_tract_region[1]]
             ppytract_start = case(
                 [(genepanel_transcript_exons.c.strand == '-', genepanel_transcript_exons.c.exon_end-ppy_tract_region[1])],
                 else_=genepanel_transcript_exons.c.exon_start + ppy_tract_region[0],
@@ -122,11 +105,7 @@ class PolypyrimidineTractFilter(object):
                 else_=genepanel_transcript_exons.c.exon_start + ppy_tract_region[1],
             )
 
-            ppytract = _create_region(genepanel_transcript_exons, ppytract_start, ppytract_end)
-
-            # query_print_table(ppytract)
-
-            ppytract = ppytract.subquery()
+            ppytract = _create_region(genepanel_transcript_exons, ppytract_start, ppytract_end).subquery()
 
             # Find allele ids within ppy tract region
             ppy_allele_ids = self.session.query(
@@ -157,6 +136,7 @@ class PolypyrimidineTractFilter(object):
                             and_(
                                 allele.Allele.change_type == 'del',
                                 allele.Allele.change_from.in_(['C', 'T', 'CT', 'CC', 'TT', 'TC']),
+                                # Special case to avoid possible new AG splice sites
                                 allele.Allele.vcf_alt != 'A'
                             ),
                             and_(
@@ -174,7 +154,8 @@ class PolypyrimidineTractFilter(object):
                             and_(
                                 allele.Allele.change_type == 'del',
                                 allele.Allele.change_from.in_(['G', 'A', 'GA', 'GG', 'AA', 'AG']),
-                                allele.Allele.vcf_alt != 'G'
+                                # Special case to avoid possible new AG splice sites (reverse: CT)
+                                allele.Allele.vcf_alt != 'C'
                             ),
                             and_(
                                 allele.Allele.change_type == 'SNP',
