@@ -7,10 +7,10 @@ import hypothesis as ht
 from hypothesis import strategies as st
 from sqlalchemy import or_
 from vardb.deposit.deposit_alleles import DepositAlleles
-from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_analysis import DepositAnalysis, PrefilterBatchGenerator, MultiAllelicBlockIterator
 from vardb.datamodel.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele, assessment
-from .vcftestgenerator import vcf_family_strategy, vcf_prefilter_strategy
+from .vcftestgenerator import vcf_family_strategy
 
 import logging
 log = logging.getLogger()
@@ -32,9 +32,305 @@ def tempinput(data):
 ANALYSIS_NUM = 0
 
 
+@st.composite
+def prefilter_batch_strategy(draw, max_size=5):
+    """
+    Generates batches of testdata for
+    testing PrefilterBatchGenerator
+    """
+
+    ALLELE_POS = 1
+
+    NEARBY_DISTANCE = 3
+    FREQ_THRESHOLD = 0.05
+    NUM_THRESHOLD = 5000
+
+    batch_size = draw(st.integers(1, max_size))
+    batch = list()
+    for idx in xrange(batch_size):
+
+        pos_increment = draw(st.integers(NEARBY_DISTANCE - 1, NEARBY_DISTANCE + 10))
+        ALLELE_POS += pos_increment
+        record = {
+            'CHROM': '1',
+            'POS': ALLELE_POS,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {
+                'TEST_SAMPLE': {
+                    'GT': draw(st.sampled_from(['0/1', './.', './1', '1/.']))
+                }
+            },
+            'INFO': {
+                'ALL': {}
+            }
+        }
+        has_freq = draw(st.booleans())
+        if has_freq:
+            freq_options = [FREQ_THRESHOLD - 0.0001, FREQ_THRESHOLD, FREQ_THRESHOLD + 0.00001]
+            num_options = [NUM_THRESHOLD - 1, NUM_THRESHOLD, NUM_THRESHOLD + 1]
+            record['INFO']['ALL']['GNOMAD_GENOMES'] = {
+                'AF': [draw(st.sampled_from(freq_options))],
+                'AN': draw(st.sampled_from(num_options))
+            }
+
+        # Whether to simulate classification for this record
+        record['__HAS_CLASSIFICATION'] = draw(st.booleans())
+
+        batch.append(record)
+    return batch
+
+# Nearby
+@ht.example(
+    [
+        {
+            'CHROM': '1',
+            'POS': 1,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 10,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        }
+    ],
+    1,
+    [1, 10]  # POS that should be not prefiltered
+)
+# Classification
+@ht.example(
+    [
+        {
+            'CHROM': '1',
+            'POS': 1,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 10,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': True
+        }
+    ],
+    1,
+    [1, 10]
+)
+# Multiallelic
+@ht.example(
+    [
+        {
+            'CHROM': '1',
+            'POS': 1,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': './1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 10,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '1/.'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        }
+    ],
+    1,
+    [1, 10]
+)
+# Frequency
+@ht.example(
+    [
+        {
+            'CHROM': '1',
+            'POS': 1,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {}
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 10,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 100,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.049],
+                        'AN': 5001
+                    }
+                }
+            },
+            '__HAS_CLASSIFICATION': False
+        },
+        {
+            'CHROM': '1',
+            'POS': 1000,
+            'REF': 'A',
+            'ALT': ['T'],
+            'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
+            'INFO': {
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 4999
+                    }
+                }
+            },
+            '__HAS_CLASSIFICATION': False
+        }
+    ],
+    1,
+    [1, 100, 1000]
+)
+@ht.given(
+    prefilter_batch_strategy(),
+    st.integers(1, 5),
+    st.just(None)
+)
+def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_result):
+
+    # Insert classifications if applicable
+    session.execute('DELETE FROM alleleassessment')
+
+    for r in batch:
+        if r['__HAS_CLASSIFICATION']:
+            a = session.query(allele.Allele).filter(
+                allele.Allele.chromosome == r['CHROM'],
+                allele.Allele.vcf_pos == r['POS'],
+                allele.Allele.vcf_ref == r['REF'],
+                allele.Allele.vcf_alt == r['ALT'][0]
+            ).one_or_none()
+
+            if a is None:
+                a = allele.Allele(
+                    genome_reference='foo',
+                    chromosome=r['CHROM'],
+                    start_position=r['POS'],
+                    open_end_position=r['POS']+1,
+                    change_from=r['REF'],
+                    change_to=r['ALT'][0],
+                    change_type='SNP',
+                    vcf_pos=r['POS'],
+                    vcf_ref=r['REF'],
+                    vcf_alt=r['ALT'][0]
+                )
+                session.add(a)
+                session.flush()
+
+            aa = assessment.AlleleAssessment(
+                allele_id=a.id,
+                classification='1',
+                genepanel_name='HBOC',
+                genepanel_version='v01'
+            )
+            session.add(aa)
+            session.commit()
+
+    batch_generator = (r for r in batch)
+    pbg = PrefilterBatchGenerator(
+        session,
+        'TEST_SAMPLE',
+        batch_generator,
+        prefilter=True,
+        batch_size=batch_size
+    )
+
+    total_prefiltered = list()
+    total_batch = list()
+    for prefiltered_batch, received_batch in pbg:
+        total_prefiltered += prefiltered_batch
+        total_batch += received_batch
+
+    if manually_curated_result is not None:
+        total_prefiltered_pos = [r['POS'] for r in total_prefiltered]
+        assert manually_curated_result == total_prefiltered_pos
+
+    included = list()
+    proband_batch = [r for r in batch if r['SAMPLES']['TEST_SAMPLE']['GT'] != './.']
+    for idx, r in enumerate(proband_batch):
+
+        if idx == 0:
+            # Implementation always includes first record in prefiltered_batch
+            # due to no previous
+            prev_pos = r['POS']
+        else:
+            prev_pos = proband_batch[idx - 1]['POS']
+
+        if idx < len(proband_batch) - 1:
+            next_pos = proband_batch[idx + 1]['POS']
+        else:
+            next_pos = -1000
+
+        nearby = abs(r['POS'] - prev_pos) <= 3 or abs(r['POS'] - next_pos) <= 3
+        checks = {
+            'not_multiallelic': r['SAMPLES']['TEST_SAMPLE']['GT'] in ['0/1', '1/1'],
+            'hi_freq': ('GNOMAD_GENOMES' in r['INFO']['ALL'] and
+                        r['INFO']['ALL']['GNOMAD_GENOMES']['AF'][0] > 0.05 and
+                        r['INFO']['ALL']['GNOMAD_GENOMES']['AN'] > 5000),
+            'not_nearby': not nearby,
+            'no_classification': not r['__HAS_CLASSIFICATION']
+        }
+        if not all(checks.values()):
+            included.append(r)
+
+    assert included == total_prefiltered
+    assert batch == total_batch
+
+
 @ht.given(vcf_family_strategy(6))
 @ht.settings(deadline=None, max_examples=100)  # A bit heavy, so few tests by default
-def test_analysis_multiple(test_database, session, vcf_data):
+def test_analysis_multiple(session, vcf_data):
     global ANALYSIS_NUM
     ANALYSIS_NUM += 1
     analysis_name = 'TEST_ANALYSIS {}'.format(ANALYSIS_NUM)
@@ -197,104 +493,3 @@ def test_analysis_multiple(test_database, session, vcf_data):
                 else:
                     assert gsd.genotype_likelihood is None
                 assert gsd.allele_depth == sample_allele_depth[sample_name]
-
-
-@ht.given(
-    vcf_prefilter_strategy(),
-    st.booleans()
-)
-@ht.settings(deadline=None, max_examples=100)  # A bit heavy, so few tests by default
-def test_analysis_prefilter(test_database, session, vcf_data, insert_classification):
-    session.rollback()
-    global ANALYSIS_NUM
-    ANALYSIS_NUM += 1
-    analysis_name = 'TEST_ANALYSIS {}'.format(ANALYSIS_NUM)
-
-    vcf_string, ped_string, meta = vcf_data
-
-    # Clear out alleleassessment from previous run
-    session.execute("""UPDATE usergroup SET config = '{"deposit": {"analysis": [{"pattern": ".*TEST.*", "prefilter": true}]}}'""")
-    session.execute('DELETE FROM alleleassessment')
-
-    with tempinput(vcf_string) as vcf_file:
-        if insert_classification:
-            # Create alleles first so we can create classification
-            DepositAlleles(session).import_vcf(vcf_file, annotation_only=True)
-
-            last_allele_id = session.query(allele.Allele.id).order_by(
-                allele.Allele.id.desc()
-            ).limit(1).scalar()
-
-            aa = assessment.AlleleAssessment(
-                allele_id=last_allele_id,
-                genepanel_name='HBOCUTV',
-                genepanel_version='v01',
-                classification='1',
-            )
-            session.add(aa)
-            session.commit()
-
-        # Import generated analysis
-        with tempinput(ped_string or '') as ped_file:
-            acd = AnalysisConfigData(
-                vcf_file,
-                analysis_name,
-                'HBOCUTV',
-                'v01',
-                ped_path=ped_file if ped_string else None
-            )
-            da = DepositAnalysis(session)
-            da.import_vcf(acd)
-
-    analysis = session.query(sample.Analysis).filter(
-        sample.Analysis.name == analysis_name
-    ).one()
-
-    analysis_allele_ids = session.query(allele.Allele.id).join(
-        genotype.Genotype.alleles
-    ).join(
-        sample.Sample
-    ).join(
-        sample.Analysis
-    ).filter(
-        sample.Analysis.id == analysis.id
-    ).distinct().all()
-    analysis_allele_ids = [a[0] for a in analysis_allele_ids]
-
-    prev_variant = None
-    for variant in meta['variants']:
-        # Load allele for this variant. Might not exist if filtered.
-        variant_allele = session.query(
-            allele.Allele
-        ).filter(
-            allele.Allele.chromosome == variant['chromosome'],
-            allele.Allele.vcf_pos == variant['pos'],
-            allele.Allele.vcf_ref == variant['ref'],
-            allele.Allele.vcf_alt == variant['alt']
-        ).one_or_none()
-
-        # Check if we earlier inserted a classification for this variant
-        classification = None
-        if variant_allele:
-            classification = session.query(assessment.AlleleAssessment).filter(
-                assessment.AlleleAssessment.allele_id == variant_allele.id
-            ).one_or_none()
-
-        # Check criterias
-        no_classification = not bool(classification)
-        not_multiallelic = variant['samples'][0]['GT'] not in ['1/.', './1']
-        hi_freq = float(variant['annotation']['GNOMAD_GENOMES__AF']) > 0.05 and \
-                   int(variant['annotation']['GNOMAD_GENOMES__AN']) > 5000
-        not_nearby_variant = False
-        if prev_variant:
-            not_nearby_variant = abs(variant['pos'] - prev_variant['pos']) > 3
-
-        checks = [no_classification, not_multiallelic, hi_freq, not_nearby_variant]
-        if all(checks):
-            assert variant_allele is None or \
-                   variant_allele.id not in analysis_allele_ids
-        else:
-            assert variant_allele.id in analysis_allele_ids
-
-        prev_variant = variant
-

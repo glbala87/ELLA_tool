@@ -678,29 +678,3 @@ def vcf_family_strategy(draw, max_num_samples):
         'ped_info': ped_info
     }
     return vcf, ped, meta
-
-
-@st.composite
-def vcf_prefilter_strategy(draw):
-    sample_names = ['PROBAND']
-    variants = draw(variants_strategy(5, 5))
-
-    current_pos = 1
-    for variant in variants:
-        freq_value = '{0:.3f}'.format(draw(st.floats(min_value=0, max_value=0.1)))
-        freq_num = str(draw(st.integers(min_value=4900, max_value=5100)))
-        variant['annotation'] = {
-            'GNOMAD_GENOMES__AF': freq_value,
-            'GNOMAD_GENOMES__AN': freq_num
-        }
-
-    vcf = create_vcf(variants, sample_names)
-
-    ped, ped_info = draw(pedigree_strategy(sample_names))
-    meta = {
-        'variants': variants,
-        'sample_names': sample_names,
-        'ped_info': ped_info
-    }
-    return vcf, ped, meta
-
