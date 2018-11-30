@@ -8,20 +8,24 @@
                 {
                     "name": "frequency",
                     "config": {},
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
                         }
                     ]
                 },
                 {
                     "name": "region",
                     "config": {},
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
                         }
                     ]
                 }
@@ -97,10 +101,21 @@
                             }
                         }
                     },
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
                         }
                     ]
                 },
@@ -110,10 +125,29 @@
                         "splice_region": [-20, 6],
                         "utr_region": [0, 0]
                     },
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
                         }
                     ]
                 },
@@ -122,20 +156,58 @@
                     "config": {
                         "qual": 100
                     },
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
                         }
                     ]
                 },
                 {
                     "name": "segregation",
                     "config": {},
-                    "exclusions": [
+                    "exceptions": [
                         {
                             "name": "classification",
-                            "config": {}
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
                         }
                     ]
                 }
