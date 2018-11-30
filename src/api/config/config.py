@@ -293,24 +293,10 @@ config = {
                     }
                 }
             },
-            "quality": {
-                "qual": 100
-            },
+            "quality": {},
             "segregation": {},
-            "external": {
-                "hgmd": {
-                    "tags": [None] # Variants that are not in HGMD
-                },
-                "clinvar": {
-                    "combinations": [
-                        ['benign', '>', 'pathogenic'] # Number of benign submissons greater than number of pathogenic
-                    ],
-                    "stars": [">=", 2]
-                },
-            },
-            "classification": {
-                "classes": ["1", "U"]
-            }
+            "external": {},
+            "classification": {}
         }
     },
     "classification": {
@@ -331,7 +317,6 @@ config = {
                 "name": "Class 2",
                 "value": "2",
                 "outdated_after_days": 180,  # Marked as outdated after N number of days
-                "exclude_filtering_existing_assessment": True
             },
             {
                 "name": "Class 3",
@@ -339,7 +324,6 @@ config = {
                 "outdated_after_days": 180,
                 "include_report": True,  # Include in report by default
                 "include_analysis_with_findings": True,
-                "exclude_filtering_existing_assessment": True
             },
             {
                 "name": "Class 4",
@@ -347,7 +331,6 @@ config = {
                 "outdated_after_days": 180,
                 "include_report": True,
                 "include_analysis_with_findings": True,
-                "exclude_filtering_existing_assessment": True
             },
             {
                 "name": "Class 5",
@@ -355,7 +338,6 @@ config = {
                 "outdated_after_days": 365,
                 "include_report": True,
                 "include_analysis_with_findings": True,
-                "exclude_filtering_existing_assessment": True
             }
         ]
     },
@@ -458,11 +440,9 @@ def get_filter_config(app_config, filter_config):
 
         filter_exceptions = []
         for filter_exception in filter_step.get('exceptions', []):
-            base_exception_config = dict(app_config['filter']['default_filter_config'][filter_exception['name']])
-            base_exception_config.update(filter_exception.get('config', {}))
             filter_exceptions.append({
                 "name": filter_exception['name'],
-                "config": base_exception_config
+                "config": filter_exception.get('config', {})
             })
 
         merged_filters.append({

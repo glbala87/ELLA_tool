@@ -1,9 +1,6 @@
 from sqlalchemy import or_
 from vardb.datamodel import assessment, allele
 
-
-from api.util.util import query_print_table
-
 class ClassificationFilter(object):
 
     def __init__(self, session, config):
@@ -16,18 +13,16 @@ class ClassificationFilter(object):
         that have have an existing classification in the provided filter_config['classes'].
         This filter does *not* check for outdated classification, these are treated as valid classifications
         """
+        filter_classes = filter_config['classes']
+        available_classes = list(assessment.AlleleAssessment.classification.property.columns[0].type.enums)
+
+        assert not set(filter_classes) - set(available_classes), "Invalid class(es) to filter on in {}. Available classes are {}.".format(filter_classes, available_classes)
+
         result = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
-            if not allele_ids:
+            if not allele_ids or not filter_classes:
                 result[gp_key] = set()
-
-            filter_classes = filter_config['classes']
-            available_classes = list(assessment.AlleleAssessment.classification.property.columns[0].type.enums)
-
-            assert not set(filter_classes) - set(available_classes), "Invalid class(es) to filter on in {}. Available classes are {}.".format(filter_classes, available_classes)
-
-            if not filter_classes:
-                result[gp_key] = set()
+                continue
 
             filtered_allele_ids = self.session.query(
                 assessment.AlleleAssessment.allele_id,

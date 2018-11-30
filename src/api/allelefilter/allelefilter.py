@@ -30,9 +30,6 @@ class AlleleFilter(object):
         Checks whether any of allele_ids should be excepted from filtering,
         given checks given by exceptions_config
         """
-
-        filter_gp_exceptions = {k: set() for k in gp_allele_ids}
-        filter_analysis_exceptions = {k: set() for k in analysis_allele_ids}
         filter_exceptions = set()
 
         for e in exceptions_config:
@@ -151,9 +148,6 @@ class AlleleFilter(object):
                 filter_data_type, filter_function = self.filter_functions[name]
                 assert filter_data_type in ['allele', 'analysis'], "Unknown filter data type '{}'".format(filter_data_type)
 
-
-
-
                 # Create container for keeping filter results
                 filtered_allele_ids = dict()
 
@@ -173,7 +167,9 @@ class AlleleFilter(object):
 
                 elif filter_data_type == 'analysis':
                     filtered_analysis_allele_ids = filter_function(analysis_allele_ids, filter_config)
-                    filtered_gp_allele_ids = {analysis_genepanels[a_id]: allele_ids for a_id, allele_ids in filtered_analysis_allele_ids.iteritems()}
+                    filtered_gp_allele_ids = {analysis_genepanels[a_id]: set() for a_id in filtered_analysis_allele_ids}
+                    for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
+                        filtered_gp_allele_ids[analysis_genepanels[a_id]] |= allele_ids
 
                 filter_exceptions = self.get_filter_exceptions(
                     exceptions_config,
