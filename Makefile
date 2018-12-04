@@ -275,7 +275,6 @@ test-js:
 	  --name $(CONTAINER_NAME)-js \
 	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
-	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  yarn test
 
@@ -285,7 +284,6 @@ test-js-auto:
 	  --user $(UID):$(GID) \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
-	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  yarn test-watch
 
@@ -296,7 +294,6 @@ test-common:
 	  -e DB_URL=postgres:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e PGHOST=/socket \
 	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
@@ -312,7 +309,6 @@ test-api:
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  -e PGHOST=/socket \
 	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
@@ -328,7 +324,6 @@ test-api-migration:
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -342,7 +337,6 @@ test-cli:
 	  -e DB_URL=postgres:///vardb-test \
 	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
-	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -355,7 +349,6 @@ test-report:
 	  --user $(UID):$(GID) \
 	  -e DB_URL=postgres:///postgres \
 	  -e PRODUCTION=false \
-	  -e PGHOST=/socket \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
@@ -371,7 +364,6 @@ test-e2e:
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgres:///postgres \
-	   -e PGHOST=/socket \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
