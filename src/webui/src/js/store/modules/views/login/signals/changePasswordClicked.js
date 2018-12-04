@@ -17,7 +17,11 @@ export default [
                     postChangePassword,
                     {
                         success: [
-                            toast('success', `Password changed successfully.`, 1000),
+                            toast(
+                                'success',
+                                `Password changed successfully. You can now login with your new password.`,
+                                10000
+                            ),
                             set(state`views.login.mode`, 'Login'),
                             set(state`views.login.password`, ''),
                             set(state`views.login.newPassword`, ''),
