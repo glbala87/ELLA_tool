@@ -5,7 +5,7 @@ Since it consists mostly of database queries, it's tested on a live database.
 import copy
 import pytest
 
-from api.allelefilter.consequence_filter import ConsequenceFilter
+from api.allelefilter.consequencefilter import ConsequenceFilter
 from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
 
 import hypothesis as ht
