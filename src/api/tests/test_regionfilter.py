@@ -17,81 +17,9 @@ import hypothesis.strategies as st
 #logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
 
 
-GLOBAL_CONFIG = {
-    'frequencies': {
-        'groups': {
-            'not_used': {
-                'NA': ['NONE']
-            }
-        }
-    },
-    'transcripts': {
-        "consequences": [
-            "transcript_ablation",
-            "splice_donor_variant",
-            "splice_acceptor_variant",
-            "stop_gained",
-            "frameshift_variant",
-            "start_lost",
-            "initiator_codon_variant",
-            "stop_lost",
-            "inframe_insertion",
-            "inframe_deletion",
-            "missense_variant",
-            "protein_altering_variant",
-            "transcript_amplification",
-            "splice_region_variant",
-            "incomplete_terminal_codon_variant",
-            "synonymous_variant",
-            "stop_retained_variant",
-            "coding_sequence_variant",
-            "mature_miRNA_variant",
-            "5_prime_UTR_variant",
-            "3_prime_UTR_variant",
-            "non_coding_transcript_exon_variant",
-            "non_coding_transcript_variant",
-            "intron_variant",
-            "NMD_transcript_variant",
-            "upstream_gene_variant",
-            "downstream_gene_variant",
-            "TFBS_ablation",
-            "TFBS_amplification",
-            "TF_binding_site_variant",
-            "regulatory_region_variant",
-            "regulatory_region_ablation",
-            "regulatory_region_amplification",
-            "feature_elongation",
-            "feature_truncation",
-            "intergenic_variant"
-        ],
-        "severe_consequence_threshold": 'mature_miRNA_variant',
-        'inclusion_regex': "NM_.*"
-    }
-}
-
 FILTER_CONFIG = {
     "splice_region": [-10, 5],
     "utr_region": [-12, 20],
-    "genepanel_consequences_only": True,
-    "exclude_consequences": [
-        "transcript_ablation",
-        "splice_donor_variant",
-        "splice_acceptor_variant",
-        "stop_gained",
-        "frameshift_variant",
-        "start_lost",
-        "initiator_codon_variant",
-        "stop_lost",
-        "inframe_insertion",
-        "inframe_deletion",
-        "missense_variant",
-        "protein_altering_variant",
-        "transcript_amplification",
-        "incomplete_terminal_codon_variant",
-        "synonymous_variant",
-        "stop_retained_variant",
-        "coding_sequence_variant",
-    ]
 }
 
 
@@ -278,10 +206,6 @@ class TestRegionFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-        # We need to recreate the annotation shadow tables,
-        # since we want to use our test config
-        annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
-
         gp = create_genepanel({})
         session.add(gp)
         session.commit()
@@ -317,6 +241,7 @@ class TestRegionFilter(object):
         """
         Tests both using manually curated test and parallell implementation in Python.
         """
+        session.rollback()
 
         chromosome, start_position, open_end_position = positions
         al, _ = create_allele_with_annotation(session,
@@ -332,7 +257,7 @@ class TestRegionFilter(object):
 
         allele_ids = [al.id]
         gp_key = ('testpanel', 'v01')
-        rf = RegionFilter(session, GLOBAL_CONFIG)
+        rf = RegionFilter(session, None)
         result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         # Manually curated test cases
@@ -487,7 +412,7 @@ class TestRegionFilter(object):
         gp_key = ('testpanel', 'v01')
         allele_ids = [a1.id, a2.id, a3.id, a4.id, na1.id]
 
-        rf = RegionFilter(session, GLOBAL_CONFIG)
+        rf = RegionFilter(session, None)
         # Run first with no padding, to make sure that all are filtered out
 
         config_no_padding = copy.deepcopy(FILTER_CONFIG)
@@ -501,172 +426,3 @@ class TestRegionFilter(object):
         result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert result[gp_key] == set([na1.id])
-
-    @pytest.mark.aa(order=3)
-    def test_consequence_filtering(self, session):
-        pa1, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
-                        'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['stop_gained'] # Won't be considered, as gene is not in genepanel
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        pa2, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        pa3, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant']
-                    },
-                    {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['downstream_gene_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-
-        pa4, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'SOME_GENE_NOT_IN_GENEPANEL',
-                        'hgnc_id': 0,
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['frameshift_variant']
-                    },
-                    {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['downstream_gene_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        session.commit()
-
-        rf = RegionFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [pa1.id, pa2.id, pa3.id, pa4.id]
-        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
-
-        assert result[gp_key] == set(allele_ids)
-
-        na1, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1AD',
-                        'transcript': 'NM_DOES_NOT_EXIST',
-                        'consequences': ['frameshift_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        na2, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1',
-                        'hgnc_id': int(1e6),
-                        'transcript': 'NM_1AD.1',
-                        'consequences': ['intron_variant', 'stop_gained']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        na3, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1AD',
-                        'transcript': 'NM_DOES_NOT_EXIST.1',
-                        'consequences': ['intron_variant']
-                    },
-                    {
-                        'symbol': 'GENE2',
-                        'hgnc_id': 0, # Wrong hgnc id shouldn't matter
-                        'transcript': 'NM_DOES_NOT_EXIST2.1',
-                        'consequences': ['missense_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        na4, _ = create_allele_with_annotation(session,
-            {
-                'transcripts': [
-                    {
-                        'symbol': 'GENE1AD',
-                        'transcript': 'NM_DOES_NOT_EXIST.1',
-                        'consequences': ['intron_variant']
-                    },
-                    {
-                        'symbol': 'SOME_ALIAS_FOR_GENE2', # Wrong gene name shouldn't matter
-                        'hgnc_id': int(3e6),
-                        'transcript': 'NM_DOES_NOT_EXIST2.1',
-                        'consequences': ['missense_variant']
-                    }
-                ],
-            },
-            {
-                "chromosome": "CSQ",
-            }
-        )
-
-        session.commit()
-
-        rf = RegionFilter(session, GLOBAL_CONFIG)
-        gp_key = ('testpanel', 'v01')
-        allele_ids = [na1.id, na2.id, na3.id, na4.id]
-        result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
-
-        assert not result[gp_key]

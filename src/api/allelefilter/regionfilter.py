@@ -405,59 +405,6 @@ class RegionFilter(object):
                 region_filtered[gp_key] = set()
                 continue
 
-            #
-            # Save alleles with a severe consequence in other transcript
-            #
-            # Whether a consequence is severe or not is determined by the config
-
-            exclude_consequences = filter_config['exclude_consequences']
-
-            # Unnest consequences
-            consequences_unnested = self.session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id,
-                func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label("unnested_consequences")
-            ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids_outside_region),
-            )
-
-            # Include only consequences for genes in genepanel if specified in filter config
-            if filter_config['genepanel_consequences_only']:
-                consequences_unnested = consequences_unnested.filter(
-                    or_(
-                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
-                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
-                       )
-                )
-
-            # As opposed to the HGVSc and genomic region filter, we here consider all transcripts, given that they
-            # match the transcript inclusion regex (if exists)
-            inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
-            if inclusion_regex:
-                consequences_unnested = consequences_unnested.filter(
-                    annotationshadow.AnnotationShadowTranscript.transcript.op('~')(inclusion_regex)
-                )
-
-            consequences_unnested = consequences_unnested.subquery()
-
-            # Aggregate filtered consequences
-            consequences_agg = self.session.query(
-                consequences_unnested.c.allele_id.label('allele_id'),
-                func.array_agg(consequences_unnested.c.unnested_consequences).label('consequences')
-            ).group_by(
-                consequences_unnested.c.allele_id
-            ).subquery()
-
-            # Check if aggregated consequences overlap array of exclude consequences
-            allele_ids_severe_consequences = self.session.query(
-                consequences_agg.c.allele_id
-            ).filter(
-                # Operator '&&' checks if two arrays overlap
-                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(exclude_consequences),
-            )
-
-            allele_ids_severe_consequences = set([a[0] for a in allele_ids_severe_consequences])
-            allele_ids_outside_region -= allele_ids_severe_consequences
-
             region_filtered[gp_key] = allele_ids_outside_region
 
         return region_filtered

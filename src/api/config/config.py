@@ -277,7 +277,7 @@ config = {
             "segregation": {},
             "external": {},
             "classification": {},
-            "ppy": {}
+            "ppy": {},
             "consequence": {},
         }
     },

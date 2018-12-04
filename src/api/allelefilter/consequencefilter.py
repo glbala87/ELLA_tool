@@ -31,7 +31,7 @@ class ConsequenceFilter(object):
                 annotationshadow.AnnotationShadowTranscript.allele_id,
             ).filter(
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
-                annotationshadow.AnnotationShadowTranscript.consequences.cast(ARRAY(Text)).op("&&")(consequences)
+                annotationshadow.AnnotationShadowTranscript.consequences.op("&&")(consequences)
             ).distinct()
 
             inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
@@ -65,32 +65,3 @@ class ConsequenceFilter(object):
             result[gp_key] = set([a[0] for a in allele_ids_with_consequence])
 
         return result
-
-
-if __name__ == '__main__':
-    from vardb.util.db import DB
-    from vardb.datamodel import allele
-    db = DB()
-    db.connect()
-    session = db.session
-
-    allele_ids = session.query(
-        allele.Allele.id
-    ).all()
-    allele_ids = [a[0] for a in allele_ids]
-
-    gp_key = ("Mendeliome", "v01")
-
-    filter_config = {
-        "consequences": ["synonymous_variant"],
-        "genepanel_only": True
-    }
-    from api.config.config import config
-    cf = ConsequenceFilter(session, config)
-    result = cf.filter_alleles({gp_key: allele_ids}, filter_config)
-
-    filter_config = {
-        "consequences": ["splice_region_variant"],
-        "genepanel_only": True
-    }
-    cf.filter_alleles(result, filter_config)
