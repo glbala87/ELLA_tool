@@ -7,6 +7,7 @@ from api.allelefilter.regionfilter import RegionFilter
 from api.allelefilter.qualityfilter import QualityFilter
 from api.allelefilter.classificationfilter import ClassificationFilter
 from api.allelefilter.externalfilter import ExternalFilter
+from api.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 
 
 class AlleleFilter(object):
@@ -20,6 +21,7 @@ class AlleleFilter(object):
             'region': ('allele', RegionFilter(self.session, self.config).filter_alleles),
             'classification': ('allele', ClassificationFilter(self.session, self.config).filter_alleles),
             'external': ('allele', ExternalFilter(self.session, self.config).filter_alleles),
+            'ppy': ('allele', PolypyrimidineTractFilter(self.session, self.config).filter_alleles),
             'quality': ('analysis', QualityFilter(self.session, self.config).filter_alleles),
             'segregation': ('analysis', SegregationFilter(self.session, self.config).filter_alleles),
         }

@@ -296,7 +296,8 @@ config = {
             "quality": {},
             "segregation": {},
             "external": {},
-            "classification": {}
+            "classification": {},
+            "ppy": {}
         }
     },
     "classification": {

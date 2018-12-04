@@ -152,6 +152,9 @@
                     ]
                 },
                 {
+                    "name": "ppy"
+                },
+                {
                     "name": "quality",
                     "config": {
                         "qual": 100

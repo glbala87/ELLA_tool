@@ -56,7 +56,9 @@ def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
             assert any(i != 'AD' for i in gene_inheritances)
 
 
-def test_annotation_transcripts_genepanel(session):
+def test_annotation_transcripts_genepanel(session, test_database):
+
+    test_database.refresh()
 
     def insert_data():
 

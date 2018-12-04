@@ -38,6 +38,7 @@ class InterpretationDataLoader(object):
             excluded_allele_ids = {
                 'frequency': [],
                 'region': [],
+                'ppy': [],
                 'quality': [],
                 'segregation': []
             }
@@ -75,6 +76,7 @@ class InterpretationDataLoader(object):
         categories = {
             'FREQUENCY': 'frequency',
             'REGION': 'region',
+            'POLYPYRIMIDINE': 'ppy',
             'GENE': 'gene',
             'QUALITY': 'quality',
             'SEGREGATION': 'segregation'

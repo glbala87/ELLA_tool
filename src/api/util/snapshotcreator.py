@@ -10,6 +10,7 @@ class SnapshotCreator(object):
     EXCLUDED_FLAG = {
         'frequency': 'FREQUENCY',
         'region': 'REGION',
+        'ppy': 'POLYPYRIMIDINE',
         'gene': 'GENE',
         'quality': 'QUALITY',
         'segregation': 'SEGREGATION'
