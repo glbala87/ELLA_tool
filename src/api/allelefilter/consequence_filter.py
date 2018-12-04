@@ -3,6 +3,7 @@ from sqlalchemy.types import Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from vardb.datamodel import annotationshadow, gene
 
+from api.util.util import query_print_table
 
 class ConsequenceFilter(object):
 
@@ -12,12 +13,13 @@ class ConsequenceFilter(object):
 
     def filter_alleles(self, gp_allele_ids, filter_config):
         """
-        Returns allele_ids that can be filtered _out_.
+        Filter alleles that have consequence in list of consequences for any of the transcripts matching
+        the global include regex (if specified). Can be specified to look at genepanel genes only.
         """
         gp_csq_only = filter_config.get("genepanel_only", False)
 
-        include_consequences = filter_config["include_consequences"]
-        exclude_consequences = filter_config.get("exclude_consequences", [])
+        consequences = filter_config["consequences"]
+        assert not set(consequences) - set(self.config['transcripts']['consequences']), "Invalid consequences passed to filter: {}".format(consequences)
 
         result = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
@@ -25,13 +27,20 @@ class ConsequenceFilter(object):
                 result[gp_key] = set()
                 continue
 
-            consequences_unnested = self.session.query(
+            allele_ids_with_consequence = self.session.query(
                 annotationshadow.AnnotationShadowTranscript.allele_id,
-                func.unnest(annotationshadow.AnnotationShadowTranscript.consequences).label("unnested_consequences")
             ).filter(
                 annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                annotationshadow.AnnotationShadowTranscript.consequences.cast(ARRAY(Text)).op("&&")(consequences)
+            ).distinct()
 
-            )
+            inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
+            if inclusion_regex:
+                allele_ids_with_consequence = allele_ids_with_consequence.filter(
+                    text("transcript ~ :reg").params(reg=inclusion_regex)
+                )
+
+            # Only include genes in genepanel if flag gp_csq_only
             if gp_csq_only:
                 gp_genes = self.session.query(
                     gene.Transcript.gene_id,
@@ -46,36 +55,42 @@ class ConsequenceFilter(object):
 
                 gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
 
-                consequences_unnested = consequences_unnested.filter(
+                allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
                         annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
                     )
                 )
 
-            inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
-            if inclusion_regex:
-                consequences_unnested = consequences_unnested.filter(
-                    text("transcript ~ :reg").params(reg=inclusion_regex)
-                )
-
-            consequences_unnested = consequences_unnested.subquery()
-
-            consequences_agg = self.session.query(
-                consequences_unnested.c.allele_id.label('allele_id'),
-                func.array_agg(consequences_unnested.c.unnested_consequences).label('consequences')
-            ).group_by(
-                consequences_unnested.c.allele_id
-            ).subquery()
-
-            # Find allele ids that have worst consequence equal to consequence cutoff
-            allele_ids_worst_consequence_cutoff = self.session.query(
-                consequences_agg.c.allele_id
-            ).filter(
-                ~consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(exclude_consequences),
-                consequences_agg.c.consequences.cast(ARRAY(Text)).op('&&')(include_consequences)
-            )
-
-            result[gp_key] = set([a[0] for a in allele_ids_worst_consequence_cutoff])
+            result[gp_key] = set([a[0] for a in allele_ids_with_consequence])
 
         return result
+
+
+if __name__ == '__main__':
+    from vardb.util.db import DB
+    from vardb.datamodel import allele
+    db = DB()
+    db.connect()
+    session = db.session
+
+    allele_ids = session.query(
+        allele.Allele.id
+    ).all()
+    allele_ids = [a[0] for a in allele_ids]
+
+    gp_key = ("Mendeliome", "v01")
+
+    filter_config = {
+        "consequences": ["synonymous_variant"],
+        "genepanel_only": True
+    }
+    from api.config.config import config
+    cf = ConsequenceFilter(session, config)
+    result = cf.filter_alleles({gp_key: allele_ids}, filter_config)
+
+    filter_config = {
+        "consequences": ["splice_region_variant"],
+        "genepanel_only": True
+    }
+    cf.filter_alleles(result, filter_config)
