@@ -1,14 +1,14 @@
 """Add polypyrimidine to interpretationsnapsho
 
 Revision ID: 250c9c10baee
-Revises: 4629b478b291
+Revises: da809112fd6c
 Create Date: 2018-11-05 09:57:17.975367
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '250c9c10baee'
-down_revision = '4629b478b291'
+down_revision = 'da809112fd6c'
 branch_labels = None
 depends_on = None
 
