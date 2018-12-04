@@ -90,24 +90,34 @@ def prefilter_batch_strategy(draw, max_size=5):
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': False
         },
         {
             'CHROM': '1',
-            'POS': 10,
+            'POS': 3,
             'REF': 'A',
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': False
         }
     ],
     1,
-    [1, 10]  # POS that should be not prefiltered
+    [1, 3]  # POS that should be not prefiltered
 )
 # Classification
 @ht.example(
@@ -119,7 +129,12 @@ def prefilter_batch_strategy(draw, max_size=5):
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': False
         },
@@ -130,7 +145,12 @@ def prefilter_batch_strategy(draw, max_size=5):
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': '0/1'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': True
         }
@@ -148,7 +168,12 @@ def prefilter_batch_strategy(draw, max_size=5):
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': './1'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': False
         },
@@ -159,7 +184,12 @@ def prefilter_batch_strategy(draw, max_size=5):
             'ALT': ['T'],
             'SAMPLES': {'TEST_SAMPLE': {'GT': '1/.'}},
             'INFO': {
-                'ALL': {}
+                'ALL': {
+                    'GNOMAD_GENOMES': {
+                        'AF': [0.051],
+                        'AN': 5001
+                    }
+                }
             },
             '__HAS_CLASSIFICATION': False
         }
@@ -301,8 +331,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
     for idx, r in enumerate(proband_batch):
 
         if idx == 0:
-            # Implementation always includes first record in prefiltered_batch
-            # due to no previous
+            # Implementation always includes first record due to no previous
             prev_pos = r['POS']
         else:
             prev_pos = proband_batch[idx - 1]['POS']
