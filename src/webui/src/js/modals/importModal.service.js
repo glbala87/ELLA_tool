@@ -216,7 +216,6 @@ export class ImportModal {
                 ImportController
             ],
             controllerAs: 'vm',
-            size: 'lg',
             backdrop: 'static'
         })
 

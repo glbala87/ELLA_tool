@@ -1,14 +1,28 @@
 .modal {
+  top: 8.8rem;
   &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0;
-    max-height: calc(90vh - 12.4rem);
     overflow: auto;
     sectionbox[modal="true"] > section {
       min-height: 20rem;
     }
   }
-  &-dialog { margin-left: 25.3rem; margin-top: 12.4rem; margin-bottom: 0; }
+  // Set width logic to our own preferences
+  &-dialog {
+    margin: auto auto;
+    max-width: calc(30rem + 50vw);
+    max-width: calc(90vw);
+    width: inherit;
+    margin-bottom: 5rem;
+    overflow-y: auto;
+  }
   &-lg { width: inherit; }
-  &-backdrop { bottom: 0; position: fixed; top: 0; }
+  &-backdrop { bottom: 0; position: fixed; top: 0;
+    z-index: 100000000;
+    opacity: 0.6;
+    &.in {
+      opacity: 0.6;
+    }
+  }
 }
 
 // - Primarily used in modals for user prompts and information
@@ -126,11 +140,6 @@ $interpretationlog-width: 70rem;
 .pagination * { border-radius: 0 !important; }
 
 .allele-control-bar { margin-bottom: 1.3rem; }
-.allele-info { @extend nav.top; position: static; color: $purple; background-color: Transparent; width: calc(100% - 13rem); flex-direction: column; height: auto; padding: 0;
-  &.included { color: $blue; }
-  .clickable { border-color: inherit; }
-  aside { width: 100%; }
-}
 
 .reference-eval-popover {
   max-width: 30vw;

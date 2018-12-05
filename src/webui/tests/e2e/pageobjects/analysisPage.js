@@ -103,7 +103,7 @@ class AnalysisPage extends Page {
      *
      */
     addAcmgCode(category, code, comment, adjust_levels = 0) {
-        let buttonSelector = 'nav.bottom button.id-add-acmg' // Select top sectionbox' button
+        let buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
         browser.click(buttonSelector)
         browser.waitForExist('.id-acmg-selection-popover', 100) // make sure the popover appeared
         browser.pause(500) // Wait for popover animation to settle

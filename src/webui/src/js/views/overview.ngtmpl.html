@@ -1,26 +1,5 @@
 <div class="main">
-    <nav class="secondary">
-        <!--<search class="search-box"></search>-->
-        <section style="margin-left: auto; margin-right: 1rem; ">
-            <a href="/api/v1/reports/non-started-analyses-variants/" target="_self"><button>Variant report</button></a>
-            <button ng-click="$ctrl.showImportModal()">Import
-              <!--Section: With status icons-->
-              <span>
-              <svg id="i-status-ok" class="button-status-green" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <circle cx="50%" cy="50%" r="50%"></circle>
-              </svg>
-              {{$ctrl.importJobsStatus.running}}
 
-              <svg id="i-status-failed" class="button-status-red" viewBox="0 0 32 32" width="32" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <circle cx="50%" cy="50%" r="50%"></circle>
-              </svg>
-              {{$ctrl.importJobsStatus.failed}}
-              </span>
-              <!--End section-->
-
-            </button>
-        </section>
-    </nav>
 
 
     <div class="overviewcontainer">

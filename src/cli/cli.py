@@ -5,6 +5,7 @@ Ella command line interface
 
 import os
 import click
+from commands.broadcast.broadcast import broadcast
 from commands.database.database import database
 from commands.deposit.deposit import deposit
 from commands.analyses.analyses import analyses
@@ -24,6 +25,7 @@ def download_igv(target):
 def cli():
     pass
 
+cli.add_command(broadcast)
 cli.add_command(database)
 cli.add_command(deposit)
 cli.add_command(analyses)
