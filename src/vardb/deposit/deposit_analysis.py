@@ -20,7 +20,7 @@ from sqlalchemy import tuple_
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
-                                    SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter, \
                                     batch_generator
 
@@ -134,7 +134,6 @@ class DepositAnalysis(DepositFromVCF):
     def import_vcf(self, analysis_config_data, batch_size=1000, sample_type="HTS", append=False):
 
         vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
-        vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 

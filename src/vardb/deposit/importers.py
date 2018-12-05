@@ -702,47 +702,6 @@ class HGMDInfoProcessor(SplitToDictInfoProcessor):
             info_data['ALL'][section]['pmid'] = int(info_data['ALL'][section]['pmid'])
 
 
-class SpliceInfoProcessor(vcfiterator.BaseInfoProcessor):
-    """
-    Processes Splice data.
-
-    Typical ##INFO header:
-     - ##INFO=<ID=splice,Number=1,Type=String,Description="Splice effect. Format: Transcript|Effect|MaxEntScan-wild|MaxEntScan-mut|MaxEntScan-closest|dist">
-
-    Typical INFO field:
-     - splice=NM_000059|consensus_not_affected|6.1|6.1
-     - splice=NM_000059|predicted_lost|8.35|0.0&NM_000059|splice_donor_variant
-     - splice=NM_000059|consensus_not_affected|9.79|9.79&NM_000059|de_novo|1.47|3.32|9.79|49
-
-    Several effects are combined with '&'
-    """
-
-    field = 'splice'
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.fields = self._parseFormat()
-
-    def _parseFormat(self):
-        field = next((e for e in self.meta['INFO'] if e['ID'] == SpliceInfoProcessor.field), None)
-        if not field:
-            return None
-        fields = field['Description'].split('Format: ', 1)[1].split('|')
-        return fields
-
-    def accepts(self, key, value, processed):
-        if not self.fields:
-            return False
-        return key == SpliceInfoProcessor.field
-
-    def process(self, key, value, info_data, alleles, processed):
-        data = []
-        for effect in value.split('&'):
-            d = {k: v for k, v in zip(self.fields, effect.split('|')) if not v == ''}
-            data.append(d)
-        info_data['ALL'][key] = data
-
-
 class AnnotationImporter(object):
 
     def __init__(self, session):
@@ -771,17 +730,6 @@ class AnnotationImporter(object):
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 
         transcripts = annotationconverters.convert_csq(merged_annotation)
-        splice_transcripts = annotationconverters.convert_splice(merged_annotation)
-        # Merge splice's transcript objects into the ones from CSQ
-        # If refseq transcript, ignore the version when comparing.
-        for st in splice_transcripts:
-            transcript = next((t for t in transcripts if AnnotationImporter._compare_transcript(t['transcript'], st['transcript'])), None)
-            if not transcript:
-                transcripts.append(st)
-            else:
-                # Remove transcript from splice, we use version from CSQ.
-                st.pop('transcript')
-                transcript.update(st)
 
         external = dict()
         external.update(annotationconverters.convert_hgmd(merged_annotation))
