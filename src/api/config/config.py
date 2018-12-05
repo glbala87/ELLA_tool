@@ -287,6 +287,7 @@ config = {
         },
         "options": [  # Also defines sorting order
             # Adding a class needs ENUM update in DB, along with migration
+
             {
                 "name": "Class U",
                 "value": "U",
@@ -320,7 +321,11 @@ config = {
                 "outdated_after_days": 365,
                 "include_report": True,
                 "include_analysis_with_findings": True,
-            }
+            },
+            {
+                "name": "Drug response",
+                "value": "DR",
+            },
         ]
     },
 

@@ -21,7 +21,9 @@ then
 	/ella/ella-cli database refresh -f
 	py.test --color=yes "/ella/src/api/" -s
 else
-  $1
+  /ella/ella-cli database ci-migration-head -f
+  /ella/ella-cli database refresh -f
+  $@
 fi
 
 echo "exits $BASH_SOURCE"

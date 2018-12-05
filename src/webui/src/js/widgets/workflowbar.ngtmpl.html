@@ -52,11 +52,9 @@
                 ng-disabled="$ctrl.readOnly"
         >Add ACMG
         </button>
-        <upload ng-if="!vm.readOnly"
+        <upload ng-if="!$ctrl.readOnly"
                   mode="'browse'"
-                  buttontext="'Add attachment'"
-                  allele-state="vm.getAlleleState(vm.allele)"
-                  read-only="vm.readOnly">
+                  buttontext="'Add attachment'">
         </upload>
         <button class="id-collapse-all"
                 ng-click="$ctrl.collapseAllAlleleSectionboxClicked()">Collapse all
