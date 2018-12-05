@@ -352,8 +352,8 @@ class SegregationFilter(object):
             genotype_with_allele_table.c.allele_id
         ).filter(
             # Exclude no coverage
-            getattr(genotype_with_allele_table.c, father_sample + '_type') != 'No coverage',
-            getattr(genotype_with_allele_table.c, mother_sample + '_type') != 'No coverage',
+            func.coalesce(getattr(genotype_with_allele_table.c, father_sample + '_type'), 'No coverage') != 'No coverage',
+            func.coalesce(getattr(genotype_with_allele_table.c, mother_sample + '_type'), 'No coverage') != 'No coverage',
             or_(
                 # Autosomal
                 # Proband heterozygous, parent with mosaicism ratio
@@ -807,7 +807,7 @@ class SegregationFilter(object):
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier
-            ) - no_coverage_results
+            )
 
             result[analysis_id]['compound_heterozygous'] = self.compound_heterozygous(
                 genotype_query,

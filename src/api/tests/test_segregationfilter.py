@@ -5,7 +5,7 @@ import uuid
 from hypothesis import given, example, settings, reproduce_failure, assume
 import hypothesis.strategies as st
 
-from sqlalchemy import Table, Column, Boolean, Integer, Enum
+from sqlalchemy import Table, Column, Boolean, Integer, Enum, Float
 from sqlalchemy.schema import CreateTable
 from vardb.datamodel import allele, annotation, gene, annotationshadow, Base
 from api.allelefilter.segregationfilter import SegregationFilter, PAR1_START, PAR1_END, PAR2_START, PAR2_END
@@ -28,53 +28,59 @@ class Sample:
     affected_sibling = False
     unaffected_sibling = False
     genotype = None
+    allele_ratio = 0.0
 
     def __repr__(self):
-        return '<{}: {}>'.format(self.name, self.genotype)
+        return '<{}: {} {:.2f}>'.format(self.name, self.genotype, self.allele_ratio)
 
 
-def ps(gt, sex='Female'):
+def ps(gt, sex='Female', ar=0.0):
     s = Sample()
     s.name = 'Proband'
     s.sex = sex
     s.proband = True
     s.genotype = gt
+    s.allele_ratio = ar
     return s
 
 
-def fs(gt):
+def fs(gt, ar=0.0):
     s = Sample()
     s.name = 'Father'
     s.sex = 'Male'
     s.father = True
     s.genotype = gt
+    s.allele_ratio = ar
     return s
 
 
-def ms(gt):
+def ms(gt, ar=0.0):
     s = Sample()
     s.name = 'Mother'
     s.sex = 'Female'
     s.mother = True
     s.genotype = gt
+    s.allele_ratio = ar
     return s
 
 
-def uss(gt, num=1, sex='Female'):
+def uss(gt, num=1, sex='Female', ar=0.0):
     s = Sample()
     s.name = 'Unaffected {sex} sibling #{num}'.format(num=num, sex=sex)
     s.sex = sex
     s.unaffected_sibling = True
     s.genotype = gt
+    s.allele_ratio = ar
     return s
 
 
-def ass(gt, num=1, sex='Female'):
+def ass(gt, num=1, sex='Female', ar=0.0):
     s = Sample()
     s.name = 'Affected {sex} sibling #{num}'.format(num=num, sex=sex)
     s.sex = sex
     s.affected_sibling = True
     s.genotype = gt
+    s.allele_ratio = ar
     return s
 
 
@@ -125,8 +131,13 @@ gene_strategy = st.sampled_from(['GENE1', 'GENE2'])
 
 
 @st.composite
-def sample_strategy(draw, include_father=None, include_mother=None, affected_siblings_num=None, affected_siblings_sex=None, unaffected_siblings_num=None, unaffected_siblings_sex=None):
-
+def sample_strategy(draw, include_father=None, include_mother=None, affected_siblings_num=None, affected_siblings_sex=None, unaffected_siblings_num=None, unaffected_siblings_sex=None, allele_ratio_sample_from=None):
+    """
+    allele_ratio_sample_from: Generating floats using st.floats() doesn't play with postgres since
+      precision changes between Python and PostgreSQL, which breaks any threshold tests.
+      Therefore, make a manual list of values to sample from, which are somewhat smaller/larger
+      than threshold values of interest.
+    """
     if include_father is None:
         include_father = draw(st.booleans())
     if include_mother is None:
@@ -143,24 +154,30 @@ def sample_strategy(draw, include_father=None, include_mother=None, affected_sib
     # If only proband, don't bother to run tests
     assume(any([include_father, include_mother, bool(affected_siblings_num), bool(unaffected_siblings_num)]))
 
-    samples = [ps(draw(genotype_strategy))]
+    def get_allele_ratio():
+        if allele_ratio_sample_from:
+            return draw(st.sampled_from(allele_ratio_sample_from))
+        else:
+            return 0.0
+
+    samples = [ps(draw(genotype_strategy), ar=get_allele_ratio())]
     if include_father:
         samples.append(
-            fs(draw(genotype_strategy))
+            fs(draw(genotype_strategy), ar=get_allele_ratio())
         )
     if include_mother:
         samples.append(
-            ms(draw(genotype_strategy))
+            ms(draw(genotype_strategy), ar=get_allele_ratio())
         )
     if affected_siblings_num:
         for idx in xrange(affected_siblings_num):
             samples.append(
-                ass(draw(genotype_strategy), num=idx + 1, sex=affected_siblings_sex[idx])
+                ass(draw(genotype_strategy), num=idx + 1, sex=affected_siblings_sex[idx], ar=get_allele_ratio())
             )
     if unaffected_siblings_num:
         for idx in xrange(unaffected_siblings_num):
             samples.append(
-                uss(draw(genotype_strategy), num=idx + 1, sex=unaffected_siblings_sex[idx])
+                uss(draw(genotype_strategy), num=idx + 1, sex=unaffected_siblings_sex[idx], ar=get_allele_ratio())
             )
 
     return samples
@@ -218,7 +235,8 @@ def create_genotype_table(session, samples, entries):
     for s in samples:
         sample_columns.extend([
             Column(s[0] + '_type', type),
-            Column(s[0] + '_sex', sex)
+            Column(s[0] + '_sex', sex),
+            Column(s[0] + '_ar', Float)
         ])
 
     genotype_table_definition = Table(
@@ -232,7 +250,8 @@ def create_genotype_table(session, samples, entries):
     for e in entries:
         row = [e[0]]
         for idx, s in enumerate(samples):
-            row.extend([e[idx + 1], s[1]])  # e.g. ['Homozygous', 'Male']
+            idx = 2 * idx + 1
+            row.extend([e[idx], s[1], e[idx + 1]])  # e.g. ['Homozygous', 'Male', 0.0]
         rows.append(row)
 
     session.execute('DROP TABLE IF EXISTS genotype_test_table')
@@ -379,9 +398,11 @@ class TestInheritanceFilter(object):
 
         replace_allele_table(session, [allele_data])
         samples = [(s.name, s.sex) for s in entry]
-        genotypes = [s.genotype for s in entry]
+        genotype_data = [allele_id]
+        for s in entry:
+            genotype_data += [s.genotype, 0.0]
 
-        genotype_table = create_genotype_table(session, samples, [[allele_id] + genotypes])
+        genotype_table = create_genotype_table(session, samples, [genotype_data])
 
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).denovo(
@@ -516,7 +537,10 @@ class TestInheritanceFilter(object):
             allele_id = 1000 + idx
             entries_allele_ids.append(allele_id)
             allele_entries.append((allele_id, '1', 1 + idx, 2 + idx))
-            genotype_entries.append([allele_id] + [s.genotype for s in entry['genotypes']])
+            genotype_entry = [allele_id]
+            for s in entry['genotypes']:
+                genotype_entry += [s.genotype, 0.0]
+            genotype_entries.append(genotype_entry)
             annotationshadow_entries.append((1000 + idx, allele_id, entry['gene']))
 
         replace_allele_table(session, allele_entries)
@@ -716,7 +740,9 @@ class TestInheritanceFilter(object):
         replace_allele_table(session, [allele_data])
 
         samples = [(s.name, s.sex) for s in entry]
-        genotype_table_data = [allele_id] + [s.genotype for s in entry]
+        genotype_table_data = [allele_id]
+        for s in entry:
+            genotype_table_data += [s.genotype, 0.0]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).autosomal_recessive_homozygous(
@@ -852,7 +878,9 @@ class TestInheritanceFilter(object):
         replace_allele_table(session, [allele_data])
 
         samples = [(s.name, s.sex) for s in entry]
-        genotype_table_data = [allele_id] + [s.genotype for s in entry]
+        genotype_table_data = [allele_id]
+        for s in entry:
+            genotype_table_data += [s.genotype, 0.0]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).xlinked_recessive_homozygous(
@@ -927,7 +955,9 @@ class TestInheritanceFilter(object):
         replace_allele_table(session, [allele_data])
 
         samples = [(s.name, s.sex) for s in entry]
-        genotype_table_data = [allele_id] + [s.genotype for s in entry]
+        genotype_table_data = [allele_id]
+        for s in entry:
+            genotype_table_data += [s.genotype, 0.0]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).homozygous_unaffected_siblings(
@@ -941,3 +971,101 @@ class TestInheritanceFilter(object):
             assert result_allele_ids == set([allele_id])
         else:
             assert result_allele_ids == set([])
+
+    # Autosomal
+    @example('A', (ps('Heterozygous', ar=0.31), ms('Reference', ar=0.3), fs('Reference', ar=0.0)), True)
+    @example('A', (ps('Heterozygous', ar=0.3), ms('Reference', ar=0.3), fs('Reference', ar=0.0)), False)
+    @example('A', (ps('Heterozygous', ar=0.31), ms('No coverage', ar=0.3), fs('Reference', ar=0.0)), False)
+    @example('A', (ps('Heterozygous', ar=0.3), ms('Heterozygous', ar=0.3), fs('Reference', ar=0.0)), False)
+    @example('A', (ps('Heterozygous', ar=0.31), ms('Reference', ar=0.0), fs('Reference', ar=0.3)), True)
+    @example('A', (ps('Heterozygous', ar=0.3), ms('Reference', ar=0.0), fs('Reference', ar=0.3)), False)
+    @example('A', (ps('Heterozygous', ar=0.31), ms('Reference', ar=0.0), fs('No coverage', ar=0.3)), False)
+    @example('A', (ps('Heterozygous', ar=0.3), ms('Reference', ar=0.0), fs('Heterozygous', ar=0.3)), False)
+    @example('A', (ps('Reference', ar=0.8), ms('Reference', ar=0.3), fs('Reference', ar=0.0)), False)
+    # X-linked (proband sex is not considered)
+    @example('X', (ps('Heterozygous', ar=0.5), ms('Reference', ar=0.3), fs('Reference', ar=0.0)), True)
+    @example('X', (ps('Homozygous', ar=0.5), ms('Reference', ar=0.3), fs('Reference', ar=0.0)), True)
+    @example('X', (ps('Heterozygous', ar=0.5), ms('Reference', ar=0.0), fs('Reference', ar=0.8)), True)
+    @example('X', (ps('Homozygous', ar=0.5), ms('Reference', ar=0.0), fs('Reference', ar=0.5)), True)
+    @given(
+        st.sampled_from(['A', 'X']),
+        sample_strategy(
+            include_father=True,
+            include_mother=True,
+            allele_ratio_sample_from=[0.0, 0.29, 0.3, 0.31, 0.79, 0.8, 0.81, 1.0]
+        ),
+        st.just(None)
+    )
+    @settings(deadline=None)
+    def test_inherited_mosaicism(self, session, a_or_x, entry, manually_curated_result):
+        # Hypothesis reuses session, make sure it's rolled back
+        session.rollback()
+
+        if a_or_x == 'A':
+            allele_data = (10001, '1', 1, 2)
+        elif a_or_x == 'X':
+            allele_data = (10001, 'X', PAR1_START-10, PAR1_START-9)
+        else:
+            raise RuntimeError("Invalid type {}".format(a_or_x))
+
+        allele_id = allele_data[0]
+
+        replace_allele_table(session, [allele_data])
+
+        samples = [(s.name, s.sex) for s in entry]
+        genotype_table_data = [allele_id]
+        for s in entry:
+            genotype_table_data += [s.genotype, s.allele_ratio]
+        genotype_table = create_genotype_table(session, samples, [genotype_table_data])
+        sample_names = get_sample_names(entry)
+
+        result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).inherited_mosaicism(
+            genotype_table,
+            sample_names['proband'],
+            sample_names['father'],
+            sample_names['mother']
+        )
+
+        if manually_curated_result is not None:
+            if manually_curated_result:
+                assert result_allele_ids == set([allele_id])
+            else:
+                assert result_allele_ids == set()
+
+        MOSAICISM_HETEROZYGOUS_THRESHOLD = [0, 0.3]  # (start, end]
+        MOSAICISM_HOMOZYGOUS_THRESHOLD = [0, 0.8]  # (start, end]
+
+        NON_MOSAICISM_THRESHOLD = 0.3
+
+        ps = next(e for e in entry if e.name == sample_names['proband'])
+        fs = next(e for e in entry if e.name == sample_names['father'])
+        ms = next(e for e in entry if e.name == sample_names['mother'])
+
+        # - In autosomal regions:
+        #     - Proband has variant
+        #     - Father or mother has allele_ratio between given heterozygous thresholds
+        # - In X:
+        #     - Proband has variant
+        #     - Father or mother has allele_ratio between given (mother: heterozygous, father: homozygous) thresholds
+
+        proband_not_mosacism = ps.allele_ratio > NON_MOSAICISM_THRESHOLD
+        mother_has_coverage = ms.genotype not in ['No coverage', None]
+        father_has_coverage = fs.genotype not in ['No coverage', None]
+        if a_or_x == 'A':
+            proband_has_variant = ps.genotype == 'Heterozygous'
+            mother_mosaicism = ms.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[0] and ms.allele_ratio <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+            father_mosaicism = fs.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[0] and fs.allele_ratio <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+        else:
+            proband_has_variant = ps.genotype in ['Heterozygous', 'Homozygous']
+            mother_mosaicism = ms.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[0] and ms.allele_ratio <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+            father_mosaicism = fs.allele_ratio > MOSAICISM_HOMOZYGOUS_THRESHOLD[0] and fs.allele_ratio <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1]
+
+        if proband_has_variant and \
+           proband_not_mosacism and \
+           mother_has_coverage and \
+           father_has_coverage and \
+           (mother_mosaicism or father_mosaicism):
+            assert result_allele_ids == set([allele_id])
+        else:
+            assert result_allele_ids == set()
+
