@@ -1,14 +1,14 @@
 """Broadcast
 
 Revision ID: 61b990b84ed2
-Revises: bbe1686834a4
+Revises: 250c9c10baee
 Create Date: 2018-09-28 14:46:50.660436
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '61b990b84ed2'
-down_revision = 'bbe1686834a4'
+down_revision = '250c9c10baee'
 branch_labels = None
 depends_on = None
 

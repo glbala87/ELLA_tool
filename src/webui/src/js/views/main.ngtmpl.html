@@ -4,6 +4,11 @@
   <navbar>
     <overview-navbar ng-if="$ctrl.views.current == 'overview'"></overview-navbar>
     <workflowbar ng-if="$ctrl.views.current == 'workflows'"></workflowbar>
+    <nav class="secondary" ng-if="$ctrl.views.current == 'dashboard'">
+      <div class="dashboard-navbar">
+        <button class="id-logout-btn logout-btn" ng-click="$ctrl.logoutClicked()">LOGOUT</button>
+      </div>
+    </nav>
   </navbar>
 
   <overview ng-if="$ctrl.views.current == 'overview'"></overview>
