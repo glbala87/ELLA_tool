@@ -1,14 +1,14 @@
 """genotypesampledata allele_ratio
 
 Revision ID: 1ff294ee1c64
-Revises: d099628590c9
+Revises: 250c9c10baee
 Create Date: 2018-10-22 17:56:30.684035
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '1ff294ee1c64'
-down_revision = 'd099628590c9'
+down_revision = '250c9c10baee'
 branch_labels = None
 depends_on = None
 
