@@ -30,22 +30,40 @@ function getUrls(allele) {
         ensembl: `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${
             allele.chromosome
         }%3A${allele.start_position + 1}-${allele.open_end_position}`,
-        gnomad: `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${
-            allele.vcf_ref
-        }-${allele.vcf_alt}`
+
     }
+
+    if ('GNOMAD_EXOMES' in allele.annotation.frequencies || 'GNOMAD_GENOMES' in allele.annotation.frequencies) {
+        urls.gnomad = `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${
+                allele.vcf_ref
+            }-${allele.vcf_alt}`
+    } else {
+        urls.gnomad = `http://gnomad.broadinstitute.org/region/${allele.chromosome}-${allele.vcf_pos-10}-${allele.open_end_position+10}`
+    }
+
+
 
     if ('HGMD' in allele.annotation.external && 'acc_num' in allele.annotation.external.HGMD) {
         urls.hgmd = `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${
             allele.annotation.external.HGMD.acc_num
         }`
+    } else {
+        const gene_symbols = allele.annotation.transcripts.filter(t => allele.annotation.filtered_transcripts.indexOf(t.transcript) > -1).map(t => t.symbol)
+        if (gene_symbols.length) {
+            // HGMD only support one gene symbol for specific search
+            const gene_symbol = gene_symbols[0];
+            urls.hgmd = `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${gene_symbol}`
+        }
     }
 
     if ('CLINVAR' in allele.annotation.external) {
         urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/variation/${
             allele.annotation.external.CLINVAR.variant_id
         }`
+    } else {
+        urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/?term=${allele.chromosome}[chr]%E2%80%8C+AND+${allele.vcf_pos-10}:${allele.open_end_position+10}[chrpos37]`
     }
+
 
     return urls
 }
