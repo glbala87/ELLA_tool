@@ -10,7 +10,6 @@ app.component('userDashboard', {
     templateUrl: 'userDashboard.ngtmpl.html',
     controller: connect(
         {
-            logoutClicked: signal`views.dashboard.logoutClicked`,
             user: state`app.user`,
             usersInGroup: state`views.dashboard.data.usersInGroup`,
             userStats: state`views.dashboard.data.userStats`
