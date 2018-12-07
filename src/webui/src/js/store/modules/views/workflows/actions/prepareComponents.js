@@ -1,11 +1,11 @@
 import getWarningCleared from '../worklog/computed/getWarningCleared'
-const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'external', 'prediction', 'references']
+const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'prediction', 'external', 'references']
 const ANALYSIS_SECTION_KEYS = [
     'analysis',
     'classification',
     'frequency',
-    'external',
     'prediction',
+    'external',
     'references'
 ]
 
@@ -60,6 +60,20 @@ const BASE_SECTIONS = {
             { tag: 'allele-info-dbsnp' }
         ]
     },
+    prediction: {
+        title: 'Prediction',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
+        options: {
+            hideControlsOnCollapse: true
+        },
+        controls: ['custom_prediction'],
+        alleleassessmentComment: {
+            placeholder: 'PREDICTION-COMMENTS',
+            name: 'prediction'
+        },
+        content: [{ tag: 'allele-info-consequence' }, { tag: 'allele-info-prediction-other' }]
+    },
     external: {
         title: 'External',
         color: 'purple',
@@ -77,20 +91,6 @@ const BASE_SECTIONS = {
             { tag: 'allele-info-clinvar' },
             { tag: 'allele-info-external-other' }
         ]
-    },
-    prediction: {
-        title: 'Prediction',
-        color: 'purple',
-        alleleAssessmentReusedColor: 'green',
-        options: {
-            hideControlsOnCollapse: true
-        },
-        controls: ['custom_prediction'],
-        alleleassessmentComment: {
-            placeholder: 'PREDICTION-COMMENTS',
-            name: 'prediction'
-        },
-        content: [{ tag: 'allele-info-consequence' }, { tag: 'allele-info-prediction-other' }]
     },
     references: {
         title: 'Studies & References',
