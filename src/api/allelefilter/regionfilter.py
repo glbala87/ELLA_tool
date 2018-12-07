@@ -1,5 +1,4 @@
-from sqlalchemy import or_, and_, tuple_, text, func, case, Table, Column, MetaData, Integer
-from sqlalchemy.types import Text
+from sqlalchemy import or_, and_, tuple_, func, case, Table, Column, MetaData, Integer, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from vardb.datamodel import gene, annotationshadow, allele
@@ -55,6 +54,59 @@ class RegionFilter(object):
         )
         return t
 
+    def create_genepanel_transcripts_table(self, gp_key, allele_ids, max_padding):
+        # Extract transcripts associated with the genepanel
+        # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
+        # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
+        # should have no effect on the result, but is included only for performance
+
+        return self.session.query(
+            gene.Transcript.id,
+            gene.Transcript.gene_id,
+            gene.Transcript.transcript_name,
+            gene.Transcript.chromosome,
+            gene.Transcript.strand,
+            gene.Transcript.tx_start,
+            gene.Transcript.tx_end,
+            gene.Transcript.cds_start,
+            gene.Transcript.cds_end,
+            gene.Transcript.exon_starts,
+            gene.Transcript.exon_ends,
+        ).join(
+                gene.genepanel_transcript,
+                and_(
+                    gene.genepanel_transcript.c.transcript_id == gene.Transcript.id,
+                    tuple_(gene.genepanel_transcript.c.genepanel_name, gene.genepanel_transcript.c.genepanel_version) == gp_key
+                )
+        ).filter(
+            allele.Allele.id.in_(allele_ids),
+            allele.Allele.chromosome == gene.Transcript.chromosome,
+            or_(
+                and_(
+                    allele.Allele.start_position >= gene.Transcript.tx_start - max_padding,
+                    allele.Allele.start_position <= gene.Transcript.tx_end + max_padding,
+                ),
+                and_(
+                    allele.Allele.open_end_position > gene.Transcript.tx_start - max_padding,
+                    allele.Allele.open_end_position < gene.Transcript.tx_end + max_padding,
+                )
+            )
+        ).temp_table('region_filter_internal_genepanel_transcripts')
+
+    def create_genepanel_transcript_exons_table(self, genepanel_transcripts):
+
+        # Unwrap the exons for the genepanel transcript
+        return self.session.query(
+            genepanel_transcripts.c.id,
+            genepanel_transcripts.c.gene_id,
+            genepanel_transcripts.c.chromosome,
+            genepanel_transcripts.c.strand,
+            genepanel_transcripts.c.cds_start,
+            genepanel_transcripts.c.cds_end,
+            func.unnest(genepanel_transcripts.c.exon_starts).label('exon_start'),
+            func.unnest(genepanel_transcripts.c.exon_ends).label('exon_end'),
+        ).temp_table('region_filter_internal')
+
     def filter_alleles(self, gp_allele_ids, filter_config):
         """
          Filter alleles outside regions of interest. Regions of interest are based on these criteria:
@@ -109,55 +161,9 @@ class RegionFilter(object):
             )
             max_padding = max(*max_padding.all())
 
-            # Extract transcripts associated with the genepanel
-            # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
-            # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
-            # should have no effect on the result, but is included only for performance
-
-            genepanel_transcripts = self.session.query(
-                gene.Transcript.id,
-                gene.Transcript.gene_id,
-                gene.Transcript.transcript_name,
-                gene.Transcript.chromosome,
-                gene.Transcript.strand,
-                gene.Transcript.tx_start,
-                gene.Transcript.tx_end,
-                gene.Transcript.cds_start,
-                gene.Transcript.cds_end,
-                gene.Transcript.exon_starts,
-                gene.Transcript.exon_ends,
-            ).join(
-                 gene.genepanel_transcript,
-                 and_(
-                    gene.genepanel_transcript.c.transcript_id == gene.Transcript.id,
-                    tuple_(gene.genepanel_transcript.c.genepanel_name, gene.genepanel_transcript.c.genepanel_version) == gp_key
-                 )
-            ).filter(
-                allele.Allele.id.in_(allele_ids),
-                allele.Allele.chromosome == gene.Transcript.chromosome,
-                or_(
-                    and_(
-                        allele.Allele.start_position >= gene.Transcript.tx_start-max_padding,
-                        allele.Allele.start_position <= gene.Transcript.tx_end+max_padding,
-                    ),
-                    and_(
-                        allele.Allele.open_end_position > gene.Transcript.tx_start-max_padding,
-                        allele.Allele.open_end_position < gene.Transcript.tx_end+max_padding,
-                    )
-                )
-            ).subquery()
-
-            # Unwrap the exons for the genepanel transcript
-            genepanel_transcript_exons = self.session.query(
-                genepanel_transcripts.c.id,
-                genepanel_transcripts.c.gene_id,
-                genepanel_transcripts.c.chromosome,
-                genepanel_transcripts.c.strand,
-                genepanel_transcripts.c.cds_start,
-                genepanel_transcripts.c.cds_end,
-                func.unnest(genepanel_transcripts.c.exon_starts).label('exon_start'),
-                func.unnest(genepanel_transcripts.c.exon_ends).label('exon_end'),
-            ).subquery()
+            # Create temp tables
+            genepanel_transcripts = self.create_genepanel_transcripts_table(gp_key, allele_ids, max_padding)
+            genepanel_transcript_exons = self.create_genepanel_transcript_exons_table(genepanel_transcripts)
 
             # Create queries for
             # - Coding regions

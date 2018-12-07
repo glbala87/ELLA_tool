@@ -2,7 +2,6 @@ from flask import Flask, Response
 from werkzeug.contrib.fixers import ProxyFix
 
 from vardb.datamodel import DB
-from rest_query import RestQuery
 
 
 app = Flask(__name__)
@@ -15,7 +14,7 @@ engine_kwargs = {
     "max_overflow": 10,
     "pool_timeout": 30
 }
-db.connect(engine_kwargs=engine_kwargs, query_cls=RestQuery)
+db.connect(engine_kwargs=engine_kwargs)
 
 
 class ApiError(RuntimeError):
