@@ -9,9 +9,6 @@ variables:
   BRANCH: $CI_COMMIT_REF_NAME
   PIPELINE_ID: ella-$CI_PIPELINE_ID
 
-before_script:
-  - apk add --update make
-
 
 stages:
   - build
@@ -162,33 +159,24 @@ dependency_scanning:
 
 start_review:
   stage: review
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
   script:
     - make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
   environment:
     name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.$APPS_DOMAIN
+    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
     on_stop: stop_review
-  when: manual
   only:
     - branches
   except:
     - master
   tags:
-    - web
+    - review
 
 
 # when: manual is also run upon branch deletion
 # Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
 stop_review:
   stage: review
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
   variables:
     GIT_STRATEGY: none
   script:
@@ -202,7 +190,7 @@ stop_review:
   except:
     - master
   tags:
-    - web
+    - review
 
 
 release:
