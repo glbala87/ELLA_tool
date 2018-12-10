@@ -122,8 +122,15 @@ const BASE_SECTIONS = {
             {
                 tag: 'allele-info-references',
                 attr: {
-                    title: 'Excluded',
-                    type: 'excluded'
+                    title: 'Not relevant',
+                    type: 'notrelevant'
+                }
+            },
+            {
+                tag: 'allele-info-references',
+                attr: {
+                    title: 'Ignored',
+                    type: 'ignored'
                 }
             }
         ]
