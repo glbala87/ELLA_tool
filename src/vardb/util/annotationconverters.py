@@ -31,31 +31,6 @@ SPLICE_FIELDS = [
 ]
 
 
-def convert_splice(annotation):
-    if 'splice' not in annotation:
-        return list()
-
-    transcripts = list()
-
-    for data in annotation['splice']:
-        if 'Transcript' not in data:
-            continue
-
-        splice_data = {k[1]: data[k[0]] for k in SPLICE_FIELDS if k[0] in data}
-
-        transcript = next((t for t in transcripts if t['transcript'] == splice_data['transcript']), None)
-
-        if transcript:
-            transcript['splice'].append(splice_data)
-        else:
-            transcripts.append({
-                'transcript': splice_data['transcript'],
-                'splice': [splice_data]
-            })
-
-    return transcripts
-
-
 CSQ_FIELDS = [
     # (source, dest) key names
     ('Consequence', 'consequences'),

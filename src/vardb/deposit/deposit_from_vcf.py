@@ -22,7 +22,7 @@ from vardb.datamodel import gene
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
                                     GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
-                                    SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor, AlleleInterpretationImporter, get_allele_from_record
 
 

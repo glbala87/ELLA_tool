@@ -15,7 +15,7 @@ import sqlalchemy.orm.exc
 from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
 from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, AlleleImporter, \
-                                    SpliceInfoProcessor, HGMDInfoProcessor, \
+                                    HGMDInfoProcessor, \
                                     SplitToDictInfoProcessor
 
 logging.basicConfig(level=logging.DEBUG)
@@ -55,7 +55,6 @@ class DepositAssessments(object):
                    update_annotations=True):
 
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(SpliceInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
