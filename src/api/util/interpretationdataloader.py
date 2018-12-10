@@ -40,6 +40,7 @@ class InterpretationDataLoader(object):
                 'region': [],
                 'ppy': [],
                 'quality': [],
+                'consequence': [],
                 'segregation': []
             }
             return [interpretation.allele.id], excluded_allele_ids
@@ -79,6 +80,7 @@ class InterpretationDataLoader(object):
             'POLYPYRIMIDINE': 'ppy',
             'GENE': 'gene',
             'QUALITY': 'quality',
+            'CONSEQUENCE': 'consequence',
             'SEGREGATION': 'segregation'
         }
 

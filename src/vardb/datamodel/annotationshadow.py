@@ -1,5 +1,5 @@
 from vardb.datamodel import Base
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, Index, text, func
+from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, text, func
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from api.config import config as global_config
@@ -16,7 +16,7 @@ class AnnotationShadowTranscript(Base):
     hgvsc = Column(String)
     protein = Column(String)
     hgvsp = Column(String)
-    consequences = Column(ARRAY(String))
+    consequences = Column(ARRAY(Text))
     exon_distance = Column(Integer)
     coding_region_distance = Column(Integer)
 
