@@ -20,7 +20,6 @@ class SegregationFilter(object):
         self.config = config
 
     def denovo_p_value(self, allele_ids, genotype_table, proband_sample, father_sample, mother_sample):
-        genotype_table = genotype_table.subquery('genotype_table')
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery()
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
@@ -169,8 +168,10 @@ class SegregationFilter(object):
         genotype_query = without_secondallele.union(with_secondallele).subquery()
         genotype_query = self.session.query(genotype_query)
 
-        assert genotype_query.count() == len(allele_ids)
-        return genotype_query
+        genotype_table = genotype_query.temp_table('genotype_query')
+
+        assert self.session.query(genotype_table.c.allele_id).count() == len(allele_ids)
+        return genotype_table
 
     def get_x_minus_par_filter(self, genotype_with_allele_table):
         """
@@ -236,7 +237,6 @@ class SegregationFilter(object):
         if not mother_sample or not father_sample:
             return set()
 
-        genotype_table = genotype_table.subquery('genotype_table')
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
@@ -420,8 +420,6 @@ class SegregationFilter(object):
         if not father_sample or not mother_sample:
             return set()
 
-        genotype_table = genotype_table.subquery('genotype_table')
-
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
@@ -461,8 +459,6 @@ class SegregationFilter(object):
 
         if not father_sample or not mother_sample:
             return set()
-
-        genotype_table = genotype_table.subquery('genotype_table')
 
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
@@ -547,8 +543,6 @@ class SegregationFilter(object):
         # If only proband, we are not able to compute compound heterozygous candidate alleles.
         if len(sample_names) == 1:
             return set()
-
-        genotype_table = genotype_table.subquery('genotype_table')
 
         # Get candidates for compound heterozygosity. Covers the following rules:
         # 1. A variant has to be in a heterozygous state in all affected individuals.
@@ -673,7 +667,6 @@ class SegregationFilter(object):
         if not father_sample or not mother_sample:
             return set()
 
-        genotype_table = genotype_table.subquery('genotype_table')
         no_coverage_allele_ids = self.session.query(
             genotype_table.c.allele_id
         ).filter(
@@ -696,7 +689,6 @@ class SegregationFilter(object):
         if not unaffected_sibling_samples:
             return set()
 
-        genotype_table = genotype_table.subquery()
         filters = list()
         for s in [proband_sample] + unaffected_sibling_samples:
             filters.append(
@@ -787,16 +779,16 @@ class SegregationFilter(object):
             unaffected_sibling_sample_names = [s.identifier for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
-            genotype_query = self.get_genotype_query(allele_ids, family_sample_ids)
+            genotype_table = self.get_genotype_query(allele_ids, family_sample_ids)
 
             result[analysis_id]['no_coverage_parents'] = self.no_coverage_father_mother(
-                genotype_query,
+                genotype_table,
                 father_sample.identifier,
                 mother_sample.identifier
             )
 
             result[analysis_id]['denovo'] = self.denovo(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier
@@ -810,7 +802,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]['compound_heterozygous'] = self.compound_heterozygous(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
@@ -819,7 +811,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]['autosomal_recessive_homozygous'] = self.autosomal_recessive_homozygous(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
@@ -828,7 +820,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]['xlinked_recessive_homozygous'] = self.xlinked_recessive_homozygous(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
@@ -837,7 +829,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]['homozygous_unaffected_siblings'] = self.homozygous_unaffected_siblings(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 unaffected_sibling_sample_names
             )
