@@ -17,6 +17,5 @@ class GenotypeSampleDataSchema(Schema):
                   'multiallelic',
                   'genotype_quality',
                   'sequencing_depth',
-                  'genotype_likelihood',
                   'allele_depth',
                 )
