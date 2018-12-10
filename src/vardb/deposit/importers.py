@@ -365,9 +365,6 @@ class GenotypeImporter(object):
         :note: Phasing is not supported.
         """
 
-        assert (len(records) == 1 and len(alleles) == 1) or \
-               (len(records) == 2 and len(alleles) == 2)
-
         proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
 
         a1 = alleles[0]
