@@ -436,6 +436,8 @@ class DepositAnalysis(DepositFromVCF):
         block_iterator = MultiAllelicBlockIterator(proband_sample_name, vcf_sample_names)
 
         prefilter = deposit_usergroup_config.get('prefilter', False)
+        # prefiltered_records are proband-only, filtered records
+        # batch_records are _all_ records
         for prefiltered_records, batch_records in PrefilterBatchGenerator(self.session, proband_sample_name, vi.iter(), prefilter=prefilter):
             for record in prefiltered_records:
                 self.allele_importer.add(record)
@@ -445,8 +447,8 @@ class DepositAnalysis(DepositFromVCF):
                 allele = get_allele_from_record(record, alleles)
                 self.annotation_importer.add(record, allele['id'])
 
-            # We need to process the original batch_records and not prefiltered_records, since
-            # we also use data from the non-proband and prefiltered variants
+            # block_iterator splits batch_records into "multiallelic blocks",
+            # yielding the proband's records along with data about the other samples used in genotype_importer
             for proband_records, proband_alleles, block_records, samples_missing_coverage in block_iterator.iter_blocks(batch_records, alleles):
                 self.genotype_importer.add(
                     proband_records,
