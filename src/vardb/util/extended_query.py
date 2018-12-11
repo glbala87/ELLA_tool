@@ -1,10 +1,27 @@
 import json
-from sqlalchemy import sql
+import random
+import string
+from sqlalchemy import table
+from sqlalchemy.sql import text
 from sqlalchemy.orm import Query
-from sqlalchemy.orm.base import _entity_descriptor
 
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
+
+
+class CreateTempTableAs(Executable, ClauseElement):
+
+    def __init__(self, name, query):
+        self.name = name
+        self.query = query.statement
+
+
+@compiles(CreateTempTableAs, "postgresql")
+def _create_temp_table_as(element, compiler, **kw):
+    return "CREATE TEMP TABLE %s ON COMMIT DROP AS %s" % (
+        element.name,
+        compiler.process(element.query)
+    )
 
 
 class explain(Executable, ClauseElement):
@@ -27,7 +44,7 @@ def pg_explain(element, compiler, **kw):
     return text
 
 
-class RestQuery(Query):
+class ExtendedQuery(Query):
 
     def explain(self, analyze=False, print_json=False, stdout=True):
         """
@@ -48,3 +65,29 @@ class RestQuery(Query):
                     print ','.join(e)
         else:
             return explained
+
+    def temp_table(self, name, analyze=True):
+        """
+        Creates a ON COMMIT DROP temporary table from query with provided name.
+
+        name is prefixed with 'tmp_table' and a random hash to avoid name clashing, e.g.
+        tmp_table_edomlfph_<name>
+
+        :warning: name is not escaped.
+
+        Returns table() structure of query.
+        """
+
+        prefix = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+
+        name = 'tmp_table_' + prefix + '_' + name
+        self.session.execute(text('DROP TABLE IF EXISTS {}'.format(name)))
+        self.session.execute(CreateTempTableAs(name, self))
+
+        if analyze:
+            self.session.execute(text('ANALYZE {}'.format(name)))
+
+        return table(
+            name,
+            *[c for c in self.subquery().columns]
+        )

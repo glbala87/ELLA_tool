@@ -1,7 +1,6 @@
 import os
-import sys
-from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import scoped_session
+from extended_query import ExtendedQuery
 
 
 class DB(object):
@@ -12,8 +11,8 @@ class DB(object):
 
     def connect(self,
                 host=None,
-                engine_kwargs=None,
-                query_cls=None):
+                engine_kwargs=None):
+
         # Lazy load dependencies to avoid problems in code not actually using DB, but uses modules from which this module is referenced.
         from sqlalchemy import create_engine
         from sqlalchemy.orm import sessionmaker
@@ -30,12 +29,11 @@ class DB(object):
             client_encoding='utf8',
             **engine_kwargs
         )
-        args = {
-            'bind': self.engine
-        }
-        if query_cls:
-            args.update({'query_cls': query_cls})
-        self.sessionmaker = sessionmaker(**args)  # Class for creating session instances
+
+        self.sessionmaker = sessionmaker(  # Class for creating session instances
+            bind=self.engine,
+            query_cls=ExtendedQuery
+        )
         self.session = scoped_session(self.sessionmaker)
 
     def disconnect(self):
