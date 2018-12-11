@@ -2,7 +2,8 @@ import { Compute } from 'cerebral'
 import {
     getReferencesIdsForAllele,
     findReferencesFromIds,
-    isIgnored
+    isIgnored,
+    isNotRelevant
 } from '../../../../../common/helpers/reference'
 import getReferenceAssessment from './getReferenceAssessment'
 
@@ -17,7 +18,7 @@ export default function(type, allele, interpretation, references) {
                 return null
             }
 
-            if (!['pending', 'evaluated', 'excluded'].includes(type)) {
+            if (!['pending', 'evaluated', 'ignored', "notrelevant"].includes(type)) {
                 throw Error(`Invalid type ${type}`)
             }
             references = Object.values(references)
@@ -58,6 +59,7 @@ export default function(type, allele, interpretation, references) {
                 result.evaluated.published = referencesForAllele.filter(
                     (r) =>
                         !isIgnored(get(getReferenceAssessment(allele.id, r.id))) &&
+                        !isNotRelevant(get(getReferenceAssessment(allele.id, r.id))) &&
                         r.published &&
                         get(getReferenceAssessment(allele.id, r.id))
                 )
@@ -65,20 +67,34 @@ export default function(type, allele, interpretation, references) {
                 result.evaluated.unpublished = referencesForAllele.filter(
                     (r) =>
                         !isIgnored(get(getReferenceAssessment(allele.id, r.id))) &&
+                        !isNotRelevant(get(getReferenceAssessment(allele.id, r.id))) &&
                         !r.published &&
                         get(getReferenceAssessment(allele.id, r.id))
                 )
             }
 
             //
-            // Excluded
+            // Not relevant
             //
-            if (type === 'excluded') {
-                result.excluded.published = referencesForAllele.filter(
+            if (type === 'notrelevant') {
+                result.notrelevant.published = referencesForAllele.filter(
+                    (r) => isNotRelevant(get(getReferenceAssessment(allele.id, r.id))) && r.published
+                )
+
+                result.notrelevant.unpublished = referencesForAllele.filter(
+                    (r) => isNotRelevant(get(getReferenceAssessment(allele.id, r.id))) && !r.published
+                )
+            }
+
+            //
+            // Ignored
+            //
+            if (type === 'ignored') {
+                result.ignored.published = referencesForAllele.filter(
                     (r) => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && r.published
                 )
 
-                result.excluded.unpublished = referencesForAllele.filter(
+                result.ignored.unpublished = referencesForAllele.filter(
                     (r) => isIgnored(get(getReferenceAssessment(allele.id, r.id))) && !r.published
                 )
             }

@@ -48,3 +48,10 @@ export function isIgnored(referenceAssessment) {
     }
     return false
 }
+
+export function isNotRelevant(referenceAssessment) {
+    if (referenceAssessment && referenceAssessment.evaluation) {
+        return referenceAssessment.evaluation.relevance === 'No'
+    }
+    return false
+}
