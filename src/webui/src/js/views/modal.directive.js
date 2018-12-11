@@ -16,9 +16,14 @@ app.component('modal', {
         ($scope, cerebral) => {
             const $ctrl = $scope.$ctrl
 
+            document.body.classList.add('modal-open')
+            $scope.$on('$destroy', () => {
+                document.body.classList.remove('modal-open')
+            })
             Object.assign($ctrl, {
                 dismiss() {
                     if ($ctrl.dismissSignal) {
+
                         cerebral.controller.getSignal($ctrl.dismissSignal)({
                             modalName: $ctrl.name
                         })

@@ -18,7 +18,7 @@ export default [
     set(state`modals.addExcludedAlleles.includedAlleleIds`, props`includedAlleleIds`),
     set(state`modals.addExcludedAlleles.readOnly`, props`readOnly`),
     set(state`modals.addExcludedAlleles.category`, 'all'),
-    set(state`modals.addExcludedAlleles.itemsPerPage`, 15),
+    set(state`modals.addExcludedAlleles.itemsPerPage`, 20),
     set(state`modals.addExcludedAlleles.selectedPage`, 1),
     set(state`modals.addExcludedAlleles.show`, true),
     set(state`modals.addExcludedAlleles.categoryAlleleIds`, getAlleleIdsCategory),
