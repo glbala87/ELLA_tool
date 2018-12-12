@@ -17,9 +17,6 @@ class AnalysisStatsResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, user=None):
-        """
-        Returns genepanel for analysis, only including relevant transcripts and phenotypes.
-        """
 
         # Number of alleles
         allele_count = session.query(allele.Allele.id).join(
