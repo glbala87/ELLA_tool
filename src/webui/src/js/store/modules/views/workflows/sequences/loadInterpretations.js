@@ -22,8 +22,7 @@ export default sequence('loadInterpretations', [
             prepareStartMode,
             updateLoadingPhase('variants'),
             loadInterpretationData,
-            updateLoadingPhase('done'),
-            set(state`views.workflows.loaded`, true)
+            updateLoadingPhase('done')
         ]
     }
 ])
