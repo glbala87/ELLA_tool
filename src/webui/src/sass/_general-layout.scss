@@ -328,6 +328,20 @@ button { outline: none; border: 1px solid Transparent;
       border: solid white 3px;
   }
 
+  .loading {
+    height: 80vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .loading-animation {
+      max-width: 20rem;
+    }
+    .loading-text {
+      font-family: $slim; font-size: 2.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25;
+    }
+  }
 }
 .app .search-area { margin-left: 42rem; }
 .single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }

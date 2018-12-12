@@ -2,6 +2,7 @@ import { sequence, parallel } from 'cerebral'
 import { set, wait } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAnalysis from '../actions/getAnalysis'
+import getAnalysisStats from '../actions/getAnalysisStats'
 import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
@@ -24,29 +25,36 @@ export default [
         state.set('views.workflows.id', parseInt(props.analysisId))
     },
     sequence('loadAnalysis', [
-        getAnalysis,
+        getAnalysisStats,
         {
-            error: [toast('error', 'Failed to load analysis', 30000)],
+            error: [toast('error', 'Failed to load analysis stats', 30000)],
             success: [
-                set(state`views.workflows.data.analysis`, props`result`),
-                ({ state }) => {
-                    const analysis = state.get('views.workflows.data.analysis')
-                    state.set('views.workflows.selectedGenepanel', {
-                        name: analysis.genepanel.name,
-                        version: analysis.genepanel.version
-                    })
-                },
-                loadInterpretations,
-                setNavbarTitle(getWorkflowTitle),
-                parallel([
-                    loadVisualization,
-                    [
-                        loadInterpretationLogs,
-                        // Interpretation logs are needed in prepareComponents for analysis
-                        prepareComponents,
-                        prepareSelectedAllele
+                set(state`views.workflows.data.stats`, props`result`),
+                getAnalysis,
+                {
+                    error: [toast('error', 'Failed to load analysis', 30000)],
+                    success: [
+                        set(state`views.workflows.data.analysis`, props`result`),
+                        ({ state }) => {
+                            const analysis = state.get('views.workflows.data.analysis')
+                            state.set('views.workflows.selectedGenepanel', {
+                                name: analysis.genepanel.name,
+                                version: analysis.genepanel.version
+                            })
+                        },
+                        loadInterpretations,
+                        setNavbarTitle(getWorkflowTitle),
+                        parallel([
+                            loadVisualization,
+                            [
+                                loadInterpretationLogs,
+                                // Interpretation logs are needed in prepareComponents for analysis
+                                prepareComponents,
+                                prepareSelectedAllele
+                            ]
+                        ])
                     ]
-                ])
+                }
             ]
         }
     ]),

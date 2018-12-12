@@ -13,6 +13,29 @@ from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 
 
+class AnalysisStatsResource(LogRequestResource):
+
+    @authenticate()
+    def get(self, session, analysis_id, user=None):
+        """
+        Returns genepanel for analysis, only including relevant transcripts and phenotypes.
+        """
+
+        # Number of alleles
+        allele_count = session.query(allele.Allele.id).join(
+            genotype.Genotype.alleles,
+            sample.Sample
+        ).filter(
+            sample.Sample.analysis_id == analysis_id
+        ).count()
+
+        stats = {
+            'allele_count': allele_count
+        }
+
+        return stats
+
+
 class AnalysisGenepanelResource(LogRequestResource):
 
     @authenticate()
