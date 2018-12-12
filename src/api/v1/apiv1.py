@@ -226,6 +226,9 @@ class ApiV1(object):
         # Workflow analysis
         # ---------------------------------------------------------------------------------------------------------
 
+        self._add_resource(r.workflow.analysis.AnalysisStatsResource,
+                           '/api/v1/workflows/analyses/<int:analysis_id>/stats/')
+
         self._add_resource(r.workflow.analysis.AnalysisInterpretationListResource,
                            '/api/v1/workflows/analyses/<int:analysis_id>/interpretations/')
 
