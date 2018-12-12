@@ -135,6 +135,7 @@ class SegregationFilter(object):
                     aliased_genotypesampledata[s.id].type.label(s.identifier + '_type'),
                     literal(s.sex).label(s.identifier + '_sex'),
                     aliased_genotypesampledata[s.id].genotype_likelihood.label(s.identifier + '_gl'),
+                    aliased_genotypesampledata[s.id].allele_ratio.label(s.identifier + '_ar')
                 ])
 
             if secondallele:
@@ -319,6 +320,89 @@ class SegregationFilter(object):
 
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
         return denovo_result
+
+    def inherited_mosaicism(self, genotype_table, proband_sample, father_sample, mother_sample):
+        """
+        Inherited mosaicism
+
+        Checks whether there are variants that is inherited from a parent with possible mosasicm.
+
+        - In autosomal regions:
+            - Proband has variant
+            - Father or mother has allele_ratio between given heterozygous thresholds
+        - In X:
+            - Proband has variant
+            - Father or mother has allele_ratio between given (mother: heterozygous, father: homozygous) thresholds
+        """
+
+        MOSAICISM_HETEROZYGOUS_THRESHOLD = [0, 0.3]  # (start, end]
+        MOSAICISM_HOMOZYGOUS_THRESHOLD = [0, 0.8]  # (start, end]
+
+        NON_MOSAICISM_THRESHOLD = 0.3
+
+        if not mother_sample or not father_sample:
+            return set()
+
+        genotype_table = genotype_table.subquery('genotype_table')
+        genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
+        genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
+        x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
+
+        inherited_mosacism_allele_ids = self.session.query(
+            genotype_with_allele_table.c.allele_id
+        ).filter(
+            # Exclude no coverage
+            func.coalesce(getattr(genotype_with_allele_table.c, father_sample + '_type'), 'No coverage') != 'No coverage',
+            func.coalesce(getattr(genotype_with_allele_table.c, mother_sample + '_type'), 'No coverage') != 'No coverage',
+            or_(
+                # Autosomal
+                # Proband heterozygous, parent with mosaicism ratio
+                and_(
+                    ~x_minus_par_filter,
+                    getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Heterozygous',
+                    getattr(genotype_with_allele_table.c, proband_sample + '_ar') > NON_MOSAICISM_THRESHOLD,
+                    # We don't check the genotype for the parents,
+                    # as in this case we care more about the ratio than the called result
+                    or_(
+                        # Father mosaicism
+                        and_(
+                            getattr(genotype_with_allele_table.c, father_sample + '_ar') > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
+                            getattr(genotype_with_allele_table.c, father_sample + '_ar') <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+                        ),
+                        # Mother mosaicism
+                        and_(
+                            getattr(genotype_with_allele_table.c, mother_sample + '_ar') > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
+                            getattr(genotype_with_allele_table.c, mother_sample + '_ar') <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+                        )
+                    )
+                ),
+                # X-linked
+                # Treat father mosacism different than mothers
+                and_(
+                    x_minus_par_filter,
+                    or_(
+                        getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Heterozygous',
+                        getattr(genotype_with_allele_table.c, proband_sample + '_type') == 'Homozygous'
+                    ),
+                    getattr(genotype_with_allele_table.c, proband_sample + '_ar') > NON_MOSAICISM_THRESHOLD,
+                    or_(
+                        # Father mosaicism
+                        and_(
+                            getattr(genotype_with_allele_table.c, father_sample + '_ar') > MOSAICISM_HOMOZYGOUS_THRESHOLD[0],
+                            getattr(genotype_with_allele_table.c, father_sample + '_ar') <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1]
+                        ),
+                        # Mother mosaicism
+                        and_(
+                            getattr(genotype_with_allele_table.c, mother_sample + '_ar') > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
+                            getattr(genotype_with_allele_table.c, mother_sample + '_ar') <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+                        )
+                    )
+                )
+            )
+        )
+
+        inherited_mosaicism_result = set([a[0] for a in inherited_mosacism_allele_ids.all()])
+        return inherited_mosaicism_result
 
     def autosomal_recessive_homozygous(self, genotype_table, proband_sample, father_sample, mother_sample, affected_sibling_samples=None, unaffected_sibling_samples=None):
         """
@@ -718,6 +802,13 @@ class SegregationFilter(object):
                 mother_sample.identifier
             )
 
+            result[analysis_id]['inherited_mosaicism'] = self.inherited_mosaicism(
+                genotype_query,
+                proband_sample.identifier,
+                father_sample.identifier,
+                mother_sample.identifier
+            )
+
             result[analysis_id]['compound_heterozygous'] = self.compound_heterozygous(
                 genotype_query,
                 proband_sample.identifier,
@@ -775,6 +866,7 @@ class SegregationFilter(object):
             filtered = set()
             if has_parents:
                 non_filtered = segregation_results[analysis_id]['denovo'] | \
+                           segregation_results[analysis_id]['inherited_mosaicism'] | \
                            segregation_results[analysis_id]['compound_heterozygous'] | \
                            segregation_results[analysis_id]['autosomal_recessive_homozygous'] | \
                            segregation_results[analysis_id]['xlinked_recessive_homozygous'] | \

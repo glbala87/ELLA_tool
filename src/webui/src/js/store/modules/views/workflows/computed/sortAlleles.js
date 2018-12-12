@@ -34,16 +34,18 @@ function getSortFunctions(config, classification, verificationStatus) {
             return Math.min(...consequence_indices)
         },
         segregation: (allele) => {
-            if (allele.tags.includes('denovo')) {
+            if (allele.tags.includes('inherited_mosaicism')) {
                 return 0
-            } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
+            } else if (allele.tags.includes('denovo')) {
                 return 1
-            } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
+            } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
                 return 2
-            } else if (allele.tags.includes('recessive_compound_heterozygous')) {
+            } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
                 return 3
-            } else {
+            } else if (allele.tags.includes('recessive_compound_heterozygous')) {
                 return 4
+            } else {
+                return 5
             }
         },
         homozygous: (allele) => {
