@@ -17,8 +17,7 @@ API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
 DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
-CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
-E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
+CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
 
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
@@ -370,7 +369,7 @@ e2e-test-local: test-build
 	   -p 5000:5000 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 

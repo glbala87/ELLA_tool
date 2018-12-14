@@ -3,8 +3,21 @@ import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import getClassificationById from '../alleleSidebar/computed/getClassificationById'
 import getVerificationStatusById from '../alleleSidebar/computed/getVerificationStatusById'
+import getDepthById from '../alleleSidebar/computed/getDepthById'
+import getAlleleRatioById from '../alleleSidebar/computed/getAlleleRatioById'
+import getHiFrequencyById from '../alleleSidebar/computed/getHiFrequencyById'
+import getExternalSummaryById from '../alleleSidebar/computed/getExternalSummaryById'
 
-function getSortFunctions(config, classification, verificationStatus) {
+function getSortFunctions(
+    config,
+    classification,
+    verificationStatus,
+    readDepth,
+    alleleRatio,
+    hiFreq,
+    hiCount,
+    externalSummary
+) {
     return {
         inheritance: (allele) => {
             if (allele.formatted.inheritance === 'AD') {
@@ -42,7 +55,7 @@ function getSortFunctions(config, classification, verificationStatus) {
                 return 2
             } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
                 return 3
-            } else if (allele.tags.includes('recessive_compound_heterozygous')) {
+            } else if (allele.tags.includes('compound_heterozygous')) {
                 return 4
             } else {
                 return 5
@@ -75,6 +88,46 @@ function getSortFunctions(config, classification, verificationStatus) {
         },
         warning: (allele) => {
             return allele.warnings ? -1 : 1
+        },
+        readDepth: (allele) => {
+            if (allele.id in readDepth) {
+                const dp = parseInt(readDepth[allele.id].split(',')[0])
+                return isNaN(dp) ? 1 : -dp
+            }
+            return 0
+        },
+        ratio: (allele) => {
+            if (allele.id in alleleRatio) {
+                const ar = parseFloat(alleleRatio[allele.id].split(',')[0])
+                return isNaN(ar) ? 1 : -ar
+            }
+            return 0
+        },
+        freq: (allele) => {
+            const f = hiFreq[allele.id]
+            if (f && f.maxMeetsThresholdValue) {
+                return -f.maxMeetsThresholdValue
+            } else if (f && f.maxValue) {
+                return -f.maxValue
+            } else {
+                return 1
+            }
+        },
+        count: (allele) => {
+            const c = hiCount[allele.id]
+            if (c && c.maxMeetsThresholdValue) {
+                return -c.maxMeetsThresholdValue
+            } else if (c && c.maxValue) {
+                return -c.maxValue
+            } else {
+                return 1
+            }
+        },
+        external: (allele) => {
+            if (allele.id in externalSummary) {
+                return -externalSummary[allele.id].length
+            }
+            return 0
         }
     }
 }
@@ -97,7 +150,12 @@ export default function sortAlleles(alleles, key, reverse) {
             const sortFunctions = getSortFunctions(
                 config,
                 get(getClassificationById(allelesById)),
-                get(getVerificationStatusById(allelesById))
+                get(getVerificationStatusById(allelesById)),
+                get(getDepthById(allelesById)),
+                get(getAlleleRatioById(allelesById)),
+                get(getHiFrequencyById(allelesById, 'freq')),
+                get(getHiFrequencyById(allelesById, 'count')),
+                get(getExternalSummaryById(allelesById))
             )
 
             const sortedAlleles = Object.values(alleles).slice()
