@@ -90,18 +90,24 @@ function getSortFunctions(
             return allele.warnings ? -1 : 1
         },
         readDepth: (allele) => {
-            const dp = parseInt(readDepth[allele.id].split(',')[0])
-            return isNaN(dp) ? 1 : -dp
+            if (allele.id in readDepth) {
+                const dp = parseInt(readDepth[allele.id].split(',')[0])
+                return isNaN(dp) ? 1 : -dp
+            }
+            return 0
         },
         ratio: (allele) => {
-            const ar = parseFloat(alleleRatio[allele.id].split(',')[0])
-            return isNaN(ar) ? 1 : -ar
+            if (allele.id in alleleRatio) {
+                const ar = parseFloat(alleleRatio[allele.id].split(',')[0])
+                return isNaN(ar) ? 1 : -ar
+            }
+            return 0
         },
         freq: (allele) => {
             const f = hiFreq[allele.id]
-            if (f.maxMeetsThresholdValue) {
+            if (f && f.maxMeetsThresholdValue) {
                 return -f.maxMeetsThresholdValue
-            } else if (f.maxValue) {
+            } else if (f && f.maxValue) {
                 return -f.maxValue
             } else {
                 return 1
@@ -109,16 +115,19 @@ function getSortFunctions(
         },
         count: (allele) => {
             const c = hiCount[allele.id]
-            if (c.maxMeetsThresholdValue) {
+            if (c && c.maxMeetsThresholdValue) {
                 return -c.maxMeetsThresholdValue
-            } else if (c.maxValue) {
+            } else if (c && c.maxValue) {
                 return -c.maxValue
             } else {
                 return 1
             }
         },
         external: (allele) => {
-            return -externalSummary[allele.id].length
+            if (allele.id in externalSummary) {
+                return -externalSummary[allele.id].length
+            }
+            return 0
         }
     }
 }

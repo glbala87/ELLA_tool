@@ -8,9 +8,11 @@ export default (alleles) => {
             return result
         }
         for (let [alleleId, allele] of Object.entries(alleles)) {
-            result[alleleId] = allele.samples
-                .map((s) => s.genotype.sequencing_depth || '-')
-                .join(', ')
+            if (allele.samples) {
+                result[alleleId] = allele.samples
+                    .map((s) => s.genotype.sequencing_depth || '-')
+                    .join(', ')
+            }
         }
         return result
     })
