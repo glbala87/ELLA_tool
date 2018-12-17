@@ -343,7 +343,6 @@ class SegregationFilter(object):
         if not mother_sample or not father_sample:
             return set()
 
-        genotype_table = genotype_table.subquery('genotype_table')
         genotype_with_allele_table = self.get_genotype_with_allele(genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery('genotype_with_allele_table')
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
