@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Wrapper for starting nginx with custom port from $PORT
+
+# This is done by writing substituting a template to /socket
+# and using that as config
+
+if [ -z "$PORT" ]; then
+    echo "Missing required env \$PORT"
+    exit 1
+fi
+
+envsubst '$PORT' < /ella/ops/common/nginx.tmpl.conf > /socket/nginx.conf
+
+echo "Starting nginx listening on port ${PORT}"
+exec nginx -c /socket/nginx.conf
+

@@ -1,6 +1,6 @@
 # aka debian:stretch
-FROM debian:9.2
-MAINTAINER OUS AMG <erik@ousamg.io>
+FROM debian:9.2 AS base
+MAINTAINER OUS AMG <ella-support@medisin.uio.no>
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANGUAGE C.UTF-8
@@ -11,31 +11,56 @@ RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
 # Install as much as reasonable in one go to reduce image size
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    gnupg2 \
+    gettext-base \
     python \
-    python-dev \
-    bash \
-    curl \
     make \
-    build-essential \
-    gcc \
+    bash \
+    libpq5 \
     supervisor \
-    postgresql \
-    postgresql-contrib \
-    postgresql-client \
-    libpq-dev \
-    libffi-dev \
-    ca-certificates \
-    git \
     less \
-    sudo \
     nano \
     nginx-light \
+    postgresql-client \
+    iotop \
     htop \
     imagemagick \
-    ghostscript \
+    ghostscript && \
+    apt-get clean && \
+    apt-get autoclean && \
+    echo "Cleanup:" && \
+    rm -rf /var/lib/apt/lists/* && \
+    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
+    rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
+
+RUN useradd -ms /bin/bash ella-user
+RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
+
+ENV PORT=3114
+
+####
+# dev image
+# (also compiles files for production)
+####
+
+FROM base AS dev
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gnupg2 \
+    python-dev \
+    make \
+    build-essential \
+    git \
+    curl \
+    gcc \
     unzip \
+    ca-certificates \
+    postgresql \
+    postgresql-contrib \
+    libpq-dev \
+    libffi-dev \
     fontconfig && \
     echo "Additional tools:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
@@ -49,13 +74,8 @@ RUN apt-get update && \
 	apt-get -yqq update && \
     apt-get -yqq install google-chrome-stable && \
     echo "Chromedriver:" && \
-    curl -L -O https://chromedriver.storage.googleapis.com/2.44/chromedriver_linux64.zip && unzip -d /usr/local/bin chromedriver_linux64.zip && rm chromedriver_linux64.zip && \
-    echo "Cleanup:" && \
-    apt-get clean && \
-    apt-get autoclean && \
-    rm -rf /var/lib/apt/lists/* && \
-    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
-    rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
+    curl -L -O https://chromedriver.storage.googleapis.com/2.44/chromedriver_linux64.zip && unzip -d /usr/local/bin chromedriver_linux64.zip && rm chromedriver_linux64.zip
+
 
 # Add our requirements files
 COPY ./requirements.txt /dist/requirements.txt
@@ -64,12 +84,15 @@ COPY ./requirements-prod.txt  /dist/requirements-prod.txt
 
 # pip
 RUN cd /dist && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -r requirements-test.txt && \
-    pip install --no-cache-dir -r requirements-prod.txt
+    pip install virtualenv && \
+    WORKON_HOME="/dist" virtualenv ella-python && \
+    /dist/ella-python/bin/pip install --no-cache-dir -r requirements.txt && \
+    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt && \
+    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-prod.txt
 
-# npm
-# changes to package.json does a fresh install as Docker won't use it's cache
+ENV PATH="/dist/ella-python/bin:${PATH}"
+ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
+
 COPY ./package.json /dist/package.json
 COPY ./yarn.lock /dist/yarn.lock
 
@@ -77,15 +100,45 @@ RUN cd /dist &&  \
     yarn install && \
     yarn cache clean
 
-RUN mkdir -p /logs /socket /repo/imported/ /repo/incoming/ /repo/genepanels
-
+USER root
 # See .dockerignore for files that won't be copied
 COPY . /ella
-WORKDIR /ella
+# Older docker doesn't support --chown
+RUN chown ella-user:ella-user -R /ella
 
+USER ella-user
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 
+ENV PGHOST="/socket"
+ENV PGDATA="/pg-data"
+WORKDIR /ella
+
+
+####
+# production image
+####
+
+FROM dev AS production-build
+
+RUN cd /ella && yarn production
+
+FROM base AS production
+
+USER root
+COPY --from=production-build /dist/ella-python /dist/ella-python
+RUN chown ella-user:ella-user -R /dist
+
+ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
-# Set production as default cmd
+COPY --from=production-build /ella /ella
+RUN chown ella-user:ella-user -R /ella
+
+USER ella-user
+WORKDIR /ella
 CMD /ella/ops/prod/entrypoint.sh
+
+#####
+# Default is production
+#####
+FROM production

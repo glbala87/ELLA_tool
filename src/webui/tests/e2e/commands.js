@@ -76,7 +76,7 @@ module.exports = function addCommands() {
             execSync(`/ella/ella-cli database drop -f`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
-            execSync(`psql -U postgres -d postgres < /dbdump_${testset}.sql`, {
+            execSync(`psql postgres < /ella/dbdump_${testset}.sql`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
             console.log('Database reset from dump done!')
@@ -84,7 +84,7 @@ module.exports = function addCommands() {
             execSync(`make -C /ella dbreset TESTSET=${testset}`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
-            execSync(`pg_dump -U postgres -d postgres > /dbdump_${testset}.sql`)
+            execSync(`pg_dump postgres > /ella/dbdump_${testset}.sql`)
             console.log('Database reset done!')
         }
     })

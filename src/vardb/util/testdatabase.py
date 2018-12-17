@@ -53,7 +53,7 @@ class TestDatabase(object):
 
         with open(os.devnull, "w") as f:
             # Connect to template1 so we can remove whatever db name
-            subprocess.check_call('psql postgres://postgres@/template1 < {path}'.format(uri=os.environ["DB_URL"], path=dump_path), shell=True, stdout=f)
+            subprocess.check_call('psql postgres:///template1 < {path}'.format(uri=os.environ["DB_URL"], path=dump_path), shell=True, stdout=f)
 
     def cleanup(self):
         print "Disconnecting..."
