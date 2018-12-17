@@ -188,8 +188,15 @@ def compound_heterozygous_strategy(draw):
     entries = []
     include_father = draw(st.booleans())
     include_mother = draw(st.booleans())
-    affected_siblings_num = draw(st.integers(min_value=0, max_value=2))
-    unaffected_siblings_num = draw(st.integers(min_value=0, max_value=2))
+
+    # Adjust test to generate siblings at lower rate
+    r = draw(st.randoms())
+    if r.random() > 0.2:
+        affected_siblings_num = 0
+        unaffected_siblings_num = 0
+    else:
+        affected_siblings_num = draw(st.integers(min_value=0, max_value=2))
+        unaffected_siblings_num = draw(st.integers(min_value=0, max_value=2))
 
     # If only proband, don't bother to run tests
     assume(any([include_father, include_mother, bool(affected_siblings_num), bool(unaffected_siblings_num)]))
@@ -197,6 +204,7 @@ def compound_heterozygous_strategy(draw):
     affected_siblings_sex = [draw(sex_strategy) for _ in xrange(affected_siblings_num)]
     unaffected_siblings_sex = [draw(sex_strategy) for _ in xrange(unaffected_siblings_num)]
 
+    per_gene = dict()
     for allele_count in xrange(draw(st.integers(min_value=1, max_value=4))):
         samples = draw(
             sample_strategy(
@@ -208,10 +216,34 @@ def compound_heterozygous_strategy(draw):
                 unaffected_siblings_sex=unaffected_siblings_sex
             )
         )
-        entries.append({
+        entry = {
             'gene': draw(gene_strategy),
             'genotypes': samples
-        })
+        }
+        if entry['gene'] not in per_gene:
+            per_gene[entry['gene']] = list()
+        per_gene[entry['gene']].append(entry)
+        entries.append(entry)
+
+    # Adjust towards generating compund heterozygous-like cases
+    # There will be lots of cases generated not fitting the assumes below,
+    # but more will have multiple hits per gene with some genotypes being heterozygous
+    # This makes us hit the last part (rule_four_five) of the compound heterozygous test more often,
+    # while still allowing all possible cases to be generated
+    if r.random() > 0.05:
+        is_multiple_gene = next((k for k, v in per_gene.iteritems() if len(v) > 2), None)
+        assume(is_multiple_gene)
+        assume(include_father and include_mother)
+        proband_heterozygous = next(
+            (e for e in per_gene[is_multiple_gene] for g in e['genotypes'] if g.genotype == 'Heterozygous' and g.proband), None
+        )
+        father_heterozygous = next(
+            (e for e in per_gene[is_multiple_gene] for g in e['genotypes'] if g.genotype == 'Heterozygous' and g.father), None
+        )
+        mother_heterozygous = next(
+            (e for e in per_gene[is_multiple_gene] for g in e['genotypes'] if g.genotype == 'Heterozygous' and g.mother), None
+        )
+        assume(proband_heterozygous and father_heterozygous and mother_heterozygous and mother_heterozygous != father_heterozygous)
 
     return entries
 
@@ -521,7 +553,7 @@ class TestInheritanceFilter(object):
     ], [])
     @given(compound_heterozygous_strategy(), st.just(None))
     @settings(deadline=None)
-    def test_compund_heterozygous(self, session, entries, manually_curated_result):
+    def test_compound_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
 
@@ -561,91 +593,91 @@ class TestInheritanceFilter(object):
             # Manual tests
             matched_allele_ids = set([entries_allele_ids[idx] for idx in manually_curated_result])
             assert result_allele_ids == matched_allele_ids
+
+        # Parallell implementation of the five rules to compare against database queries
+        # in the actual implementation
+        affected_samples = [sample_names['proband']] + sample_names.get('affected_siblings', [])
+        unaffected_samples = sample_names.get('unaffected_siblings', [])
+        if sample_names.get('father'):
+            unaffected_samples.append(sample_names['father'])
+        if sample_names.get('mother'):
+            unaffected_samples.append(sample_names['mother'])
+
+        candidates = set(entries_allele_ids)
+
+        rule_one_result = set()
+        # 1. A variant has to be in a heterozygous state in all affected individuals.
+        for allele_id, entry in zip(entries_allele_ids, entries):
+            het_in_affected = True
+            for name in affected_samples:
+                es = next(s for s in entry['genotypes'] if s.name == name)
+                if es.genotype != 'Heterozygous':
+                    het_in_affected = False
+            if het_in_affected:
+                rule_one_result.add(allele_id)
+
+        candidates = candidates & rule_one_result
+
+        # 2. A variant must not occur in a homozygous state in any of the unaffected individuals.
+        rule_two_result = set()
+        for allele_id, entry in zip(entries_allele_ids, entries):
+            not_hom_in_unaffected = True
+            for name in unaffected_samples:
+                es = next(s for s in entry['genotypes'] if s.name == name)
+                if es.genotype == 'Homozygous':
+                    not_hom_in_unaffected = False
+            if not_hom_in_unaffected:
+                rule_two_result.add(allele_id)
+
+        candidates = candidates & rule_two_result
+
+        # 3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
+        if sample_names.get('father') and sample_names.get('mother'):
+            rule_three_result = set()
+            for allele_id, entry in zip(entries_allele_ids, entries):
+                fs = next(s for s in entry['genotypes'] if s.name == sample_names['father'])
+                ms = next(s for s in entry['genotypes'] if s.name == sample_names['mother'])
+                if (fs.genotype == 'Heterozygous' and ms.genotype == 'Reference') or \
+                   (fs.genotype == 'Reference' and ms.genotype == 'Heterozygous'):
+                    rule_three_result.add(allele_id)
         else:
+            # If no parents, all entries "pass" this rule
+            rule_three_result = set(entries_allele_ids)
 
-            # Parallell implementation of the five rules to compare against database queries
-            # in the actual implementation
-            affected_samples = [sample_names['proband']] + sample_names.get('affected_siblings', [])
-            unaffected_samples = sample_names.get('unaffected_siblings', [])
-            if sample_names.get('father'):
-                unaffected_samples.append(sample_names['father'])
-            if sample_names.get('mother'):
-                unaffected_samples.append(sample_names['mother'])
+        candidates = candidates & rule_three_result
 
-            candidates = set(entries_allele_ids)
-
-            rule_one_result = set()
-            # 1. A variant has to be in a heterozygous state in all affected individuals.
-            for allele_id, entry in zip(entries_allele_ids, entries):
-                het_in_affected = True
-                for name in affected_samples:
-                    es = next(s for s in entry['genotypes'] if s.name == name)
-                    if es.genotype != 'Heterozygous':
-                        het_in_affected = False
-                if het_in_affected:
-                    rule_one_result.add(allele_id)
-
-            candidates = candidates & rule_one_result
-
-            # 2. A variant must not occur in a homozygous state in any of the unaffected individuals.
-            rule_two_result = set()
-            for allele_id, entry in zip(entries_allele_ids, entries):
-                not_hom_in_unaffected = True
-                for name in unaffected_samples:
-                    es = next(s for s in entry['genotypes'] if s.name == name)
-                    if es.genotype == 'Homozygous':
-                        not_hom_in_unaffected = False
-                if not_hom_in_unaffected:
-                    rule_two_result.add(allele_id)
-
-            candidates = candidates & rule_two_result
-
-            # 3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
+        # 4. A gene must have two or more heterozygous variants in each of the affected individuals.
+        #  Rule 1 checked for heterozygous in affected already.
+        #  We just need to check that we have two or more variants in the gene left in candidates
+        # 5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
+        allele_ids_per_gene = defaultdict(set)
+        father_per_gene = defaultdict(int)
+        mother_per_gene = defaultdict(int)
+        for allele_id, entry in zip(entries_allele_ids, entries):
+            if allele_id not in candidates:
+                continue
+            allele_ids_per_gene[entry['gene']].add(allele_id)
             if sample_names.get('father') and sample_names.get('mother'):
-                rule_three_result = set()
-                for allele_id, entry in zip(entries_allele_ids, entries):
-                    fs = next(s for s in entry['genotypes'] if s.name == sample_names['father'])
-                    ms = next(s for s in entry['genotypes'] if s.name == sample_names['mother'])
-                    if len(set([fs.genotype == 'Heterozygous', ms.genotype == 'Heterozygous'])) != 1:
-                        rule_one_result.add(allele_id)
-            else:
-                # If no parents, all entries "pass" this rule
-                rule_three_result = set(entries_allele_ids)
+                fs = next(s for s in entry['genotypes'] if s.name == sample_names['father'])
+                # Homozygous is checked already per rule 2
+                if fs.genotype == 'Heterozygous':
+                    father_per_gene[entry['gene']] += 1
+                ms = next(s for s in entry['genotypes'] if s.name == sample_names['mother'])
+                if ms.genotype == 'Heterozygous':
+                    mother_per_gene[entry['gene']] += 1
 
-            candidates = candidates & rule_three_result
-
-            # 4. A gene must have two or more heterozygous variants in each of the affected individuals.
-            #  Rule 1 checked for heterozygous in affected already.
-            #  We just need to check that we have two or more variants in the gene left in candidates
-            # 5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
-            allele_ids_per_gene = defaultdict(set)
-            father_per_gene = defaultdict(int)
-            mother_per_gene = defaultdict(int)
-            for allele_id, entry in zip(entries_allele_ids, entries):
-                if allele_id not in candidates:
-                    continue
-                allele_ids_per_gene[entry['gene']].add(allele_id)
+        rule_four_five_result = set()
+        for gene_symbol, allele_ids in allele_ids_per_gene.iteritems():
+            if len(allele_ids) > 1:
                 if sample_names.get('father') and sample_names.get('mother'):
-                    fs = next(s for s in entry['genotypes'] if s.name == sample_names['father'])
-                    # Homozygous is checked already per rule 2
-                    if fs.genotype == 'Heterozygous':
-                        father_per_gene[entry['gene']] += 1
-                    ms = next(s for s in entry['genotypes'] if s.name == sample_names['mother'])
-                    if ms.genotype == 'Heterozygous':
-                        mother_per_gene[entry['gene']] += 1
-
-            rule_four_five_result = set()
-            for gene_symbol, allele_ids in allele_ids_per_gene.iteritems():
-                if len(allele_ids) > 1:
-                    if sample_names.get('father') and sample_names.get('mother'):
-                        if father_per_gene[gene_symbol] > 0 and mother_per_gene[gene_symbol] > 0:
-                            rule_four_five_result.update(allele_ids)
-                    else:
+                    if father_per_gene[gene_symbol] > 0 and mother_per_gene[gene_symbol] > 0:
                         rule_four_five_result.update(allele_ids)
+                else:
+                    rule_four_five_result.update(allele_ids)
 
-            final_candidates = candidates & rule_four_five_result
+        final_candidates = candidates & rule_four_five_result
 
-            assert result_allele_ids == final_candidates
+        assert result_allele_ids == final_candidates
 
     # Outside PAR
     @example(
