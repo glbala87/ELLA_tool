@@ -180,8 +180,10 @@ demo:
 	-docker rm $(subst $(comma),-,ella-$(DEMO_NAME))
 	docker run -d \
 		--name $(subst $(comma),-,ella-$(DEMO_NAME)) \
+		--user $(UID):$(GID) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(DEMO_NAME) \
+		-e PORT=3114 \
 		--expose 3114 \
 		local/ella-$(DEMO_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg

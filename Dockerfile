@@ -13,6 +13,7 @@ RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
+    gettext-base \
     python \
     make \
     bash \
@@ -21,6 +22,7 @@ RUN apt-get update && \
     less \
     nano \
     nginx-light \
+    postgresql-client \
     iotop \
     htop \
     imagemagick \
@@ -35,6 +37,7 @@ RUN apt-get update && \
 RUN useradd -ms /bin/bash ella-user
 RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
 
+ENV PORT=3114
 
 ####
 # dev image
@@ -56,7 +59,6 @@ RUN apt-get update && \
     ca-certificates \
     postgresql \
     postgresql-contrib \
-    postgresql-client \
     libpq-dev \
     libffi-dev \
     fontconfig && \
@@ -91,12 +93,8 @@ RUN cd /dist && \
 ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
-# npm
-# changes to package.json does a fresh install as Docker won't use it's cache
 COPY ./package.json /dist/package.json
 COPY ./yarn.lock /dist/yarn.lock
-
-USER ella-user
 
 RUN cd /dist &&  \
     yarn install && \
@@ -112,6 +110,7 @@ USER ella-user
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 
 ENV PGHOST="/socket"
+ENV PGDATA="/pg-data"
 WORKDIR /ella
 
 

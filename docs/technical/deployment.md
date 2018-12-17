@@ -21,11 +21,12 @@ where `{image_name}` is what you want to name the image.
 The production container defines a few mount points.
 If you're not using containers for deployment, you can skip this section.
 
-| Destination	| Description  	                       |
-|------------	|----------------------	               |
-| /logs/      | Destination for the log files        |
-| /data/      | Data files           	               |
-| /socket/    | Location for unix sockets (optional) |
+| Destination	| Description  	                          |
+|------------	|----------------------	                  |
+| /logs/      | Destination for the log files           |
+| /data/      | Data files           	                  |
+| /socket/    | Location for unix sockets (optional)    |
+| /tmp/       | Location for temporary files (optional) |
 
 
 ### Data directory
@@ -57,6 +58,7 @@ There are a few environment variables that should be set.
 | Variable  	    | Description  	                                 | Values  |
 |------------	    | ---------------------------------------------- | ------  |
 | DB_URL    | URI to PostgreSQL database.	                         | ex. postgresql://dbuser@host/dbname   |
+| PORT      | Listen port for nginx.	                         | Default: 3114   |
 | ANALYSES_PATH   | Path to imported analyses. 	| path, ex. /data/analyses/imported |
 | ANALYSES_INCOMING   | Path to incoming analyses. Used by analysis watcher to import new analyses 	| path, ex. /data/analyses/incoming |
 | IGV_DATA   | Path to IGV resources. 	| path, ex. /data/igv_data |

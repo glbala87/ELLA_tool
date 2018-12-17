@@ -22,7 +22,7 @@ then
         /usr/lib/postgresql/9.6/bin/initdb
 
         # Use /socket for socket
-        echo "unix_socket_directories = '/socket'" >> $PGDATA/postgresql.conf
+        echo "unix_socket_directories = '${PGHOST}'" >> $PGDATA/postgresql.conf
     fi
 
     /usr/lib/postgresql/9.6/bin/postgres --single -jE <<-EOSQL

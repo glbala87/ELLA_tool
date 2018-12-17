@@ -7,3 +7,4 @@ daemon = False
 loglevel = 'debug'
 errorlog = '-'
 accesslog = '-'
+limit_request_line = 8190
