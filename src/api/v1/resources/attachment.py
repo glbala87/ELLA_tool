@@ -74,7 +74,7 @@ class AttachmentResource(LogRequestResource):
             try:
                 cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
                 subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
-            except subprocess.CalledProcessError, e:
+            except subprocess.CalledProcessError as e:
                 pass
 
         # Create database object

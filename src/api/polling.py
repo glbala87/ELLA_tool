@@ -280,7 +280,7 @@ def process_running(annotation_service, running_jobs):
             if not response["active"]:
                 status = "ANNOTATED"
             message = ""
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             status = "FAILED (ANNOTATION)"
             message = get_error_message(e)
 
@@ -303,7 +303,7 @@ def process_submitted(annotation_service, submitted_jobs):
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             status = "FAILED (SUBMISSION)"
             message = get_error_message(e)
             task_id = ""
@@ -319,7 +319,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         try:
             annotated_vcf = annotation_service.process(task_id)
             annotation_jobs.commit()
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError as e:
             status = "FAILED (PROCESSING)"
             message = get_error_message(e)
             yield id, {"status": status, "message": message}
@@ -333,7 +333,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
             annotation_jobs.deposit(id, annotated_vcf)
             status = "DONE"
             message = ""
-        except Exception, e:
+        except Exception as e:
             annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
             message = e.__class__.__name__+": "+e.message
@@ -345,7 +345,7 @@ def patch_annotation_job(annotation_jobs, id, updates):
     try:
         annotation_jobs.patch(id, **updates)
         annotation_jobs.commit()
-    except Exception, e:
+    except Exception as e:
         log.error("Failed patch of annotation job {id} ({update}): {error}".format(
             id, str(updates), e.message))
         annotation_jobs.rollback()
@@ -391,7 +391,7 @@ def polling(session):
                 # Remove session to avoid a hanging session
                 session.remove()
                 time.sleep(5)
-            except OperationalError, e:
+            except OperationalError as e:
                 # Database is not alive
                 log.warning("Failed to poll annotation jobs (%s)" % e.message)
                 session.remove()
@@ -400,7 +400,7 @@ def polling(session):
 
     try:
         loop(session)
-    except Exception, e:
+    except Exception as e:
         session.remove()
         import traceback
         traceback.print_exc()
