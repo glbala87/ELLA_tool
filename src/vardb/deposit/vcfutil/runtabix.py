@@ -15,6 +15,8 @@ for filePath in sys.argv[1:]:
     #     sortedBed = b.sort()
     #     sortedBed.tabix(in_place=False, is_sorted=True) # temporary files only...
     # elif filePath.lower().endswith(".vcf"):
-    os.system("cat %s | python %s/sort_vcf.py | bgzip -c > %s.gz" % (filePath, scriptDirectory, filePath))
+    os.system(
+        "cat %s | python %s/sort_vcf.py | bgzip -c > %s.gz" % (filePath, scriptDirectory, filePath)
+    )
     os.system("tabix -p vcf %s.gz" % filePath)
 sys.exit(0)

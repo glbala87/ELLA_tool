@@ -3,17 +3,17 @@ import operator
 from sqlalchemy import and_, or_, literal_column, func
 
 OPERATORS = {
-    '==': operator.eq,
-    '>=': operator.ge,
-    '<=': operator.le,
-    '>': operator.gt,
-    '<': operator.lt
+    "==": operator.eq,
+    ">=": operator.ge,
+    "<=": operator.le,
+    ">": operator.gt,
+    "<": operator.lt,
 }
 
-HGMD_TAGS = set([None, 'FP', 'DM', 'DFP', 'R', 'DP', 'DM?'])
+HGMD_TAGS = set([None, "FP", "DM", "DFP", "R", "DP", "DM?"])
+
 
 class ExternalFilter(object):
-
     def __init__(self, session, config):
         self.session = session
         self.config = config
@@ -27,9 +27,10 @@ class ExternalFilter(object):
             ["benign", ">", "uncertain"]] # More benign than uncertain submissions
 
         """
+
         def get_filter_count(v):
             if isinstance(v, basestring):
-                assert v in ['benign', 'pathogenic', 'uncertain']
+                assert v in ["benign", "pathogenic", "uncertain"]
                 return getattr(clinsig_counts.c, v)
             else:
                 assert isinstance(v, (int, long, float))
@@ -43,83 +44,108 @@ class ExternalFilter(object):
 
     def _filter_clinvar(self, allele_ids, clinvar_config):
         # Use this to evaluate the number of stars
-        star_op, num_stars = clinvar_config.get('num_stars', ('>=', 0))
+        star_op, num_stars = clinvar_config.get("num_stars", (">=", 0))
         star_op = OPERATORS[star_op]
 
         # Extract clinical_significance_status that matches the num_stars criteria
         # The clinical_significance_status to stars mapping is given in the config
-        filter_signifiance_descr = [k for k,v in self.config['annotation']['clinvar']['clinical_significance_status'].items() if star_op(v,num_stars)]
+        filter_signifiance_descr = [
+            k
+            for k, v in self.config["annotation"]["clinvar"]["clinical_significance_status"].items()
+            if star_op(v, num_stars)
+        ]
 
-        combinations = clinvar_config.get('combinations', [])
+        combinations = clinvar_config.get("combinations", [])
 
         # Expand clinvar submissions, where clinical_significance_status satisfies
-        clinvar_entries = self.session.query(
-            annotation.Annotation.allele_id,
-            literal_column("jsonb_array_elements(annotations->'external'->'CLINVAR'->'items')").label('entry'),
-        ).filter(
-            annotation.Annotation.allele_id.in_(allele_ids),
-            annotation.Annotation.date_superceeded.is_(None),
-            annotation.Annotation.annotations.op('->')('external').op('->')('CLINVAR').op('->>')('variant_description').in_(filter_signifiance_descr)
-        ).subquery()
+        clinvar_entries = (
+            self.session.query(
+                annotation.Annotation.allele_id,
+                literal_column(
+                    "jsonb_array_elements(annotations->'external'->'CLINVAR'->'items')"
+                ).label("entry"),
+            )
+            .filter(
+                annotation.Annotation.allele_id.in_(allele_ids),
+                annotation.Annotation.date_superceeded.is_(None),
+                annotation.Annotation.annotations.op("->")("external")
+                .op("->")("CLINVAR")
+                .op("->>")("variant_description")
+                .in_(filter_signifiance_descr),
+            )
+            .subquery()
+        )
 
         # Extract clinical significance for all SCVs
-        clinvar_clinsigs = self.session.query(
-            clinvar_entries.c.allele_id,
-            clinvar_entries.c.entry.op('->>')('clinical_significance_descr').label('clinsig')
-        ).filter(
-            clinvar_entries.c.entry.op('->>')('rcv').op('ILIKE')('SCV%')
-        ).subquery()
+        clinvar_clinsigs = (
+            self.session.query(
+                clinvar_entries.c.allele_id,
+                clinvar_entries.c.entry.op("->>")("clinical_significance_descr").label("clinsig"),
+            )
+            .filter(clinvar_entries.c.entry.op("->>")("rcv").op("ILIKE")("SCV%"))
+            .subquery()
+        )
 
         def count_matches(pattern):
-            return func.count(clinvar_clinsigs.c.clinsig).filter(clinvar_clinsigs.c.clinsig.op('ILIKE')(pattern))
+            return func.count(clinvar_clinsigs.c.clinsig).filter(
+                clinvar_clinsigs.c.clinsig.op("ILIKE")(pattern)
+            )
 
         # Count the number of Pathogenic/Likely pathogenic, Uncertain significance, and Benign/Likely benign
         # Note: This does not match any clinsig with e.g. Drug response or similar
-        clinsig_counts = self.session.query(
-            clinvar_clinsigs.c.allele_id,
-            count_matches('%pathogenic%').label('pathogenic'),
-            count_matches('%uncertain%').label('uncertain'),
-            count_matches('%benign%').label('benign'),
-        ).group_by(
-            clinvar_clinsigs.c.allele_id
-        ).order_by(clinvar_clinsigs.c.allele_id).subquery()
+        clinsig_counts = (
+            self.session.query(
+                clinvar_clinsigs.c.allele_id,
+                count_matches("%pathogenic%").label("pathogenic"),
+                count_matches("%uncertain%").label("uncertain"),
+                count_matches("%benign%").label("benign"),
+            )
+            .group_by(clinvar_clinsigs.c.allele_id)
+            .order_by(clinvar_clinsigs.c.allele_id)
+            .subquery()
+        )
 
         filters = self._build_clinvar_filters(clinsig_counts, combinations)
 
         # Extract allele ids that matches the config rules
-        filtered_allele_ids = self.session.query(
-            clinsig_counts.c.allele_id,
-        ).filter(
-            and_(*filters),
-        )
+        filtered_allele_ids = self.session.query(clinsig_counts.c.allele_id).filter(and_(*filters))
 
         return set([a[0] for a in filtered_allele_ids])
 
     def _filter_hgmd(self, allele_ids, hgmd_config):
 
-        hgmd_tags = hgmd_config['tags']
+        hgmd_tags = hgmd_config["tags"]
         assert hgmd_tags, "No tags provided to hgmd filter, even though config is defined"
-        assert not set(hgmd_tags) - HGMD_TAGS, "Invalid tag(s) to filter on in {}. Available tags are {}.".format(hgmd_tags, HGMD_TAGS)
+        assert (
+            not set(hgmd_tags) - HGMD_TAGS
+        ), "Invalid tag(s) to filter on in {}. Available tags are {}.".format(hgmd_tags, HGMD_TAGS)
 
         # Need to separate check for specific tag and check for no HGMD data (tag is None)
         filters = []
         if None in hgmd_tags:
             hgmd_tags.pop(hgmd_tags.index(None))
-            filters.append(annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').is_(None))
+            filters.append(
+                annotation.Annotation.annotations.op("->")("external")
+                .op("->")("HGMD")
+                .op("->>")("tag")
+                .is_(None)
+            )
 
         if hgmd_tags:
-            filters.append(annotation.Annotation.annotations.op('->')('external').op('->')('HGMD').op('->>')('tag').in_(hgmd_tags))
+            filters.append(
+                annotation.Annotation.annotations.op("->")("external")
+                .op("->")("HGMD")
+                .op("->>")("tag")
+                .in_(hgmd_tags)
+            )
 
-        filtered_allele_ids = self.session.query(
-            annotation.Annotation.allele_id,
-        ).filter(
+        filtered_allele_ids = self.session.query(annotation.Annotation.allele_id).filter(
             annotation.Annotation.date_superceeded.is_(None),
             annotation.Annotation.allele_id.in_(allele_ids),
-            or_(*filters)
+            or_(*filters),
         )
 
         return set([a[0] for a in filtered_allele_ids])
-
 
     def filter_alleles(self, gp_allele_ids, filter_config):
         """
@@ -149,11 +175,11 @@ class ExternalFilter(object):
                 result[gp_key] = set()
                 continue
 
-            clinvar_config = filter_config.get('clinvar')
+            clinvar_config = filter_config.get("clinvar")
             if clinvar_config:
                 clinvar_filtered_allele_ids = self._filter_clinvar(allele_ids, clinvar_config)
 
-            hgmd_config = filter_config.get('hgmd')
+            hgmd_config = filter_config.get("hgmd")
             if hgmd_config:
                 hgmd_filtered_allele_ids = self._filter_hgmd(allele_ids, hgmd_config)
 

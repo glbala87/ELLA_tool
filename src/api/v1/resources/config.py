@@ -5,7 +5,6 @@ from api.util.util import authenticate
 
 
 class ConfigResource(LogRequestResource):
-
     @authenticate(user_config=True, optional=True)
     def get(self, session, user=None, user_config=None):
         """

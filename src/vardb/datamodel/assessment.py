@@ -10,35 +10,52 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 
 from vardb.datamodel import Base
-from vardb.datamodel import gene, annotation, user, sample, attachment  # Needed, implicit imports used by sqlalchemy
+from vardb.datamodel import (
+    gene,
+    annotation,
+    user,
+    sample,
+    attachment,
+)  # Needed, implicit imports used by sqlalchemy
 from vardb.util.mutjson import JSONMutableDict
 
 
-AlleleAssessmentReferenceAssessment = Table('alleleassessmentreferenceassessment', Base.metadata,
-    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id')),
-    Column('referenceassessment_id', Integer, ForeignKey('referenceassessment.id'))
+AlleleAssessmentReferenceAssessment = Table(
+    "alleleassessmentreferenceassessment",
+    Base.metadata,
+    Column("alleleassessment_id", Integer, ForeignKey("alleleassessment.id")),
+    Column("referenceassessment_id", Integer, ForeignKey("referenceassessment.id")),
 )
 
-AlleleAssessmentAttachment = Table('alleleassessmentattachment', Base.metadata,
-    Column('alleleassessment_id', Integer, ForeignKey('alleleassessment.id')),
-    Column('attachment_id', Integer, ForeignKey('attachment.id')),
+AlleleAssessmentAttachment = Table(
+    "alleleassessmentattachment",
+    Base.metadata,
+    Column("alleleassessment_id", Integer, ForeignKey("alleleassessment.id")),
+    Column("attachment_id", Integer, ForeignKey("attachment.id")),
 )
+
 
 class AlleleAssessment(Base):
     """Represents an assessment of one allele."""
+
     __tablename__ = "alleleassessment"
 
     id = Column(Integer, primary_key=True)
-    classification = Column(Enum('1', '2', '3', '4', '5', 'U', 'DR', name="alleleassessment_classification"), nullable=False)
+    classification = Column(
+        Enum("1", "2", "3", "4", "5", "U", "DR", name="alleleassessment_classification"),
+        nullable=False,
+    )
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     date_superceeded = Column(DateTime(timezone=True))
     previous_assessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
     previous_assessment = relationship("AlleleAssessment", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    allele = relationship("Allele", uselist=False, backref='assessments')
+    allele = relationship("Allele", uselist=False, backref="assessments")
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
@@ -48,24 +65,33 @@ class AlleleAssessment(Base):
     custom_annotation_id = Column(Integer, ForeignKey("customannotation.id"))
     custom_annotation = relationship("CustomAnnotation")
 
-
-    referenceassessments = relationship("ReferenceAssessment",
-                                        secondary=AlleleAssessmentReferenceAssessment)
+    referenceassessments = relationship(
+        "ReferenceAssessment", secondary=AlleleAssessmentReferenceAssessment
+    )
     attachments = relationship("Attachment", secondary=AlleleAssessmentAttachment)
 
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]
+        ),
+    )
 
     def __repr__(self):
-        return "<AlleleAssessment('%s','%s', '%s')>" % (self.id, self.allele_id, self.classification)
+        return "<AlleleAssessment('%s','%s', '%s')>" % (
+            self.id,
+            self.allele_id,
+            self.classification,
+        )
 
     def __str__(self):
         return "%s, %s" % (self.classification, self.date_created)
 
 
-Index('ix_assessment_alleleid_unique',
+Index(
+    "ix_assessment_alleleid_unique",
     AlleleAssessment.allele_id,
     postgresql_where=(AlleleAssessment.date_superceeded.is_(None)),
-    unique=True
+    unique=True,
 )
 
 
@@ -76,6 +102,7 @@ class ReferenceAssessment(Base):
     usage of AssessmentReference can therefore be sidestepped
     if it is not necessary to change values to the extra attributes in this class.
     """
+
     __tablename__ = "referenceassessment"
 
     id = Column(Integer, primary_key=True)
@@ -84,7 +111,9 @@ class ReferenceAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     date_superceeded = Column(DateTime(timezone=True))
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
@@ -94,21 +123,28 @@ class ReferenceAssessment(Base):
     previous_assessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
     previous_assessment = relationship("ReferenceAssessment", uselist=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]
+        ),
+    )
 
     def __str__(self):
         return "%s, %s, %s" % (str(self.user), self.reference, self.evaluation)
 
-Index('ix_referenceassessment_alleleid_referenceid_unique',
-      ReferenceAssessment.allele_id,
-      ReferenceAssessment.reference_id,
-      postgresql_where=(ReferenceAssessment.date_superceeded.is_(None)),
-      unique=True
+
+Index(
+    "ix_referenceassessment_alleleid_referenceid_unique",
+    ReferenceAssessment.allele_id,
+    ReferenceAssessment.reference_id,
+    postgresql_where=(ReferenceAssessment.date_superceeded.is_(None)),
+    unique=True,
 )
 
 
 class Reference(Base, SearchQueryMixin):
     """Represents a reference that brings information to this assessment."""
+
     __tablename__ = "reference"
 
     id = Column(Integer, primary_key=True)
@@ -119,13 +155,20 @@ class Reference(Base, SearchQueryMixin):
     year = Column(String())
     pubmed_id = Column(Integer, unique=True)
     published = Column(Boolean(), default=True, nullable=False)
-    attachment_id = Column(Integer, ForeignKey('attachment.id'))
-    attachment = relationship('Attachment', uselist=False)
+    attachment_id = Column(Integer, ForeignKey("attachment.id"))
+    attachment = relationship("Attachment", uselist=False)
 
-    search = Column(TSVectorType("authors", "title", "journal", "year",
-                    weights={"authors": 'A', "title": 'A', "journal": 'B', "year": 'C'}))
+    search = Column(
+        TSVectorType(
+            "authors",
+            "title",
+            "journal",
+            "year",
+            weights={"authors": "A", "title": "A", "journal": "B", "year": "C"},
+        )
+    )
 
-    __table_args__ = (Index("ix_pubmedid", "pubmed_id", unique=True), )
+    __table_args__ = (Index("ix_pubmedid", "pubmed_id", unique=True),)
 
     def __repr__(self):
         return "<Reference('%s','%s', '%s')>" % (self.authors, self.title, self.year)
@@ -148,12 +191,14 @@ class AlleleReport(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     date_superceeded = Column(DateTime(timezone=True))
     previous_report_id = Column(Integer, ForeignKey("allelereport.id"))
     previous_report = relationship("AlleleReport", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    allele = relationship("Allele", uselist=False, backref='reports')
+    allele = relationship("Allele", uselist=False, backref="reports")
     analysis_id = Column(Integer, ForeignKey("analysis.id"))
     alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
     alleleassessment = relationship("AlleleAssessment")
@@ -162,8 +207,9 @@ class AlleleReport(Base):
         return "<AlleleReport('%s','%s', '%s')>" % (self.id, self.allele_id, str(self.user))
 
 
-Index('ix_allelereport_alleleid_unique',
-      AlleleReport.allele_id,
-      postgresql_where=(AlleleReport.date_superceeded.is_(None)),
-      unique=True
+Index(
+    "ix_allelereport_alleleid_unique",
+    AlleleReport.allele_id,
+    postgresql_where=(AlleleReport.date_superceeded.is_(None)),
+    unique=True,
 )

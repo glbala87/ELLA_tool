@@ -46,13 +46,19 @@ def import_references(session, filename):
     with open(filename) as f:
         for reference_batch in get_reference_batches(f):
             # Query by pubmed_id to get list of pointers to existing_references
-            pmids = [ref['pubmed_id'] for ref in reference_batch]
-            existing_references = session.query(assessment.Reference).\
-                                  filter(assessment.Reference.pubmed_id.in_(pmids)).all()
+            pmids = [ref["pubmed_id"] for ref in reference_batch]
+            existing_references = (
+                session.query(assessment.Reference)
+                .filter(assessment.Reference.pubmed_id.in_(pmids))
+                .all()
+            )
             existing_pmids = [ref.pubmed_id for ref in existing_references]
 
             for reference in reference_batch:
-                existing_reference = next((er for er in existing_references if er.pubmed_id == reference['pubmed_id']), None)
+                existing_reference = next(
+                    (er for er in existing_references if er.pubmed_id == reference["pubmed_id"]),
+                    None,
+                )
                 if existing_reference:
                     updated += 1
                     for key, value in reference.iteritems():
@@ -63,14 +69,18 @@ def import_references(session, filename):
 
             session.commit()
 
-    log.info("References successfully imported (created: {created}, updated: {updated})!"
-             .format(created=created, updated=updated))
+    log.info(
+        "References successfully imported (created: {created}, updated: {updated})!".format(
+            created=created, updated=updated
+        )
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Deposit references from file")
-    parser.add_argument('json_file', type=str,
-                        help='relative path to file containing list of references')
+    parser.add_argument(
+        "json_file", type=str, help="relative path to file containing list of references"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)

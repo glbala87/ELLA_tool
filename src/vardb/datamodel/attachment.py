@@ -12,9 +12,10 @@ class Attachment(Base):
     sha256 = Column(String())
     filename = Column(String(), nullable=False)
     size = Column(BigInteger)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     mimetype = Column(String())
     extension = Column(String())
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     user = relationship("User", uselist=False)
-

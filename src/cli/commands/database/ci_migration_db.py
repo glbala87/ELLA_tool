@@ -15,19 +15,19 @@ def ci_migration_db_remake():
     db.connect()
 
     # Drop all tables, including alembic one...
-    db.engine.execute('DROP SCHEMA public CASCADE')
-    db.engine.execute('CREATE SCHEMA public')
+    db.engine.execute("DROP SCHEMA public CASCADE")
+    db.engine.execute("CREATE SCHEMA public")
     Base.metadata.create_all(db.engine)
 
 
 def ci_migration_upgrade_downgrade():
     ci_migration_head()
-    migration_downgrade('base')
+    migration_downgrade("base")
 
 
 def ci_migration_head():
     ci_migration_db_remake()
-    migration_upgrade('head')
+    migration_upgrade("head")
 
 
 def make_migration_base_db():
@@ -35,4 +35,3 @@ def make_migration_base_db():
     db = DB()
     db.connect()
     Base.metadata.create_all(db.engine)
-

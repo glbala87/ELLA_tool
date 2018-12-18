@@ -7,8 +7,8 @@ SCHEMA_VERSION_1 = "1"
 SCHEMA_VERSION_2 = "2"
 
 SCHEMA_VERSIONS = {
-    SCHEMA_VERSION_1: '../datamodel/genepanel-config-schema.json',
-    SCHEMA_VERSION_2: '../datamodel/genepanel-config-schema_v2.json'
+    SCHEMA_VERSION_1: "../datamodel/genepanel-config-schema.json",
+    SCHEMA_VERSION_2: "../datamodel/genepanel-config-schema_v2.json",
 }
 
 

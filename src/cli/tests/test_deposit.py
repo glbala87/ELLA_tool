@@ -4,7 +4,9 @@ from sqlalchemy import tuple_
 from vardb.datamodel import sample, assessment, gene, user
 
 TESTDATA = os.environ["TESTDATA"]
-VCF = os.path.join(TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf")
+VCF = os.path.join(
+    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf"
+)
 
 
 def test_deposit_analysis(session, run_command):
@@ -17,7 +19,9 @@ def test_deposit_analysis(session, run_command):
     result = run_command(["deposit", "analysis", VCF])
     assert result.exit_code == 0
 
-    session.query(sample.Analysis).filter(sample.Analysis.name == os.path.splitext(os.path.basename(VCF))[0]).one()
+    session.query(sample.Analysis).filter(
+        sample.Analysis.name == os.path.splitext(os.path.basename(VCF))[0]
+    ).one()
 
 
 def test_deposit_alleles(session, run_command):
@@ -50,11 +54,16 @@ def test_deposit_genepanel(session, run_command):
 
     assert (
         not session.query(gene.Genepanel)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (genepanel_name, genepanel_version))
+        .filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version)
+            == (genepanel_name, genepanel_version)
+        )
         .count()
     )
 
-    genepanel_folder = os.path.join(TESTDATA, "clinicalGenePanels/{}_{}".format(genepanel_name, genepanel_version))
+    genepanel_folder = os.path.join(
+        TESTDATA, "clinicalGenePanels/{}_{}".format(genepanel_name, genepanel_version)
+    )
     result = run_command(["deposit", "genepanel", "--folder", genepanel_folder])
     assert result.exit_code == 0
     session.query(gene.Genepanel).filter(
@@ -69,9 +78,15 @@ def test_append_genepanel_to_usergroup(session, test_database, run_command):
     usergroup = "testgroup01"
 
     ug = session.query(user.UserGroup).filter(user.UserGroup.name == usergroup)
-    assert (genepanel_name, genepanel_version) not in [(gp.name, gp.version) for gp in ug.one().genepanels]
+    assert (genepanel_name, genepanel_version) not in [
+        (gp.name, gp.version) for gp in ug.one().genepanels
+    ]
 
-    result = run_command(["deposit", "append_genepanel_to_usergroup", genepanel_name, genepanel_version, usergroup])
+    result = run_command(
+        ["deposit", "append_genepanel_to_usergroup", genepanel_name, genepanel_version, usergroup]
+    )
     assert result.exit_code == 0
 
-    assert (genepanel_name, genepanel_version) in [(gp.name, gp.version) for gp in ug.one().genepanels]
+    assert (genepanel_name, genepanel_version) in [
+        (gp.name, gp.version) for gp in ug.one().genepanels
+    ]

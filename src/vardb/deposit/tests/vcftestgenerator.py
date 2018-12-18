@@ -5,7 +5,7 @@ from hypothesis import strategies as st
 
 log = logging.getLogger(__name__)
 
-VCF_TEMPLATE = '''##fileformat=VCFv4.1
+VCF_TEMPLATE = """##fileformat=VCFv4.1
 ##FILTER=<ID=FSFilter,Description="FS > 200.0">
 ##FILTER=<ID=LowQual,Description="Low quality">
 ##FILTER=<ID=PASS,Description="All filters passed">
@@ -384,11 +384,11 @@ VCF_TEMPLATE = '''##fileformat=VCFv4.1
 ##GVCFBlock=minGQ=0(inclusive),maxGQ=1(exclusive)
 ##source=SelectVariants
 ##VEP=v79 cache=/anno/data/VEP/cache/homo_sapiens_merged/79_GRCh37 db=.
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	{sample_names}'''
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	{sample_names}"""
 
-VCF_LINE_TEMPLATE = '''{chromosome}	{pos}	CI101425	{ref}	{alt}	5000.0	PASS	{annotation}	GT:AD:DP:GQ:PL	{sample_data}'''
-VCF_SAMPLE_TEMPLATE = '''{GT}:{AD}:{DP}:{GQ}:{PL}'''
-DEFAULT_ANNOTATION = 'CSQ=A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000380152|protein_coding|10/27||ENST00000380152.3:c.1233dupA|ENSP00000369497.3:p.Pro412ThrfsTer9|1465-1466|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|HGNC|1101||CCDS9344.1|ENSP00000369497||||hmmpanther:PTHR11289&hmmpanther:PTHR11289:SF0&PIRSF_domain:PIRSF002397||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|675|Transcript|NM_000059.3|protein_coding|10/27||NM_000059.3:c.1233dupA|NP_000050.2:p.Pro412ThrfsTer9|1459-1460|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|||YES||NP_000050.2|rseq_mrna_nonmatch&rseq_cds_mismatch&rseq_ens_match_cds|||||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000530893|protein_coding|10/10||ENST00000530893.2:c.864dupA|ENSP00000435699.2:p.Pro289ThrfsTer9|1430-1431|863-864|288|I/IX|ata/atAa|CI101425|1||1|HGNC|1101|||ENSP00000435699||||hmmpanther:PTHR11289:SF0&hmmpanther:PTHR11289||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000544455|protein_coding|10/28||ENST00000544455.1:c.1233dupA|ENSP00000439902.1:p.Pro412ThrfsTer9|1459-1460|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|HGNC|1101|YES|CCDS9344.1|ENSP00000439902||||hmmpanther:PTHR11289:SF0&hmmpanther:PTHR11289&PIRSF_domain:PIRSF002397||||||||||||||||;BIC__BRCA2__Accession_Number=3029;BIC__BRCA2__Exon=10;BIC__BRCA2__NT=1461;BIC__BRCA2__Codon=411;BIC__BRCA2__Base_Change=ins@#SPA;BIC__BRCA2__AA_Change=Stop@#SP420;BIC__BRCA2__Designation=1461insA;BIC__BRCA2__HGVS_cDNA=c.1233_1234insA;BIC__BRCA2__HGVS_Protein=p.Ile411_Pro412?fs;BIC__BRCA2__Genotype=-;BIC__BRCA2__dbSNP=rs80359270;BIC__BRCA2__Mutation_Type=F;BIC__BRCA2__Mutation_Effect=*;BIC__BRCA2__Clinically_Important=yes;BIC__BRCA2__Depositor=Myriad;BIC__BRCA2__Patient_Sample_Source=-;BIC__BRCA2__ID_Number=15434;BIC__BRCA2__Number_Reported=-;BIC__BRCA2__G_or_S=G;BIC__BRCA2__Detection_Method=DS;BIC__BRCA2__Proband_Tumor_Type=-;BIC__BRCA2__nChr=-;BIC__BRCA2__A=-;BIC__BRCA2__C=-;BIC__BRCA2__G=-;BIC__BRCA2__T=-;BIC__BRCA2__Reference=-;BIC__BRCA2__Contact_Person=clinresearch@myriad.com;BIC__BRCA2__Notes=-;BIC__BRCA2__Creation_Date=12-JUN-00;BIC__BRCA2__Ethnicity=-;BIC__BRCA2__Nationality=Central/Eastern@#SPEurope;BIC__BRCA2__Addition_Information=no;CLINVARJSON=7B226F7665726C617073223A5B5B223133222C223332393036383437222C225441434343435441545447222C2241434154225D5D2C227075626D656473223A5B223230313034353834225D2C2276617269616E745F6964223A35313038382C2272637673223A7B22534356303030313435383337223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2063726974657269612070726F7669646564225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B224272656173742D6F76617269616E2063616E6365722C2066616D696C69616C2032225D2C227472616974735F6D656467656E5F6964223A5B224332363735353230225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B5D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B224249432028425243413229225D2C227472616974735F6F6D696D5F6964223A5B5D7D2C22534356303030333236353231223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B2263726974657269612070726F76696465642C2073696E676C65207375626D6974746572225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B5D2C227472616974735F6D656467656E5F6964223A5B5D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230322F31302F32303135225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B2243494D4241225D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D2C22534356303030303731373736223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2070726F7669646564225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B2246616D696C69616C2063616E636572206F6620627265617374225D2C227472616974735F6D656467656E5F6964223A5B224330333436313533225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B226E6F742070726F7669646564225D2C226C6173745F6576616C7561746564223A5B2230312F30322F32303133225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B22496E76697461652C225D2C227472616974735F6F6D696D5F6964223A5B5D7D2C22524356303030313132383938223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B227265766965776564206279206578706572742070616E656C225D2C224847565370223A5B22702E50726F3431325468726673225D2C2274726169746E616D6573223A5B224272656173742D6F76617269616E2063616E6365722C2066616D696C69616C2032225D2C227472616974735F6D656467656E5F6964223A5B224332363735353230225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B223531303838225D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230382F30392F32303136225D2C2272734944223A5B223830333539323730225D2C227472616974735F6F727068616E65745F6964223A5B22313435225D2C227375626D6974746572223A5B5D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D2C22524356303030303433373633223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2070726F7669646564225D2C224847565370223A5B22702E50726F3431325468726673225D2C2274726169746E616D6573223A5B2246616D696C69616C2063616E636572206F6620627265617374225D2C227472616974735F6D656467656E5F6964223A5B224330333436313533225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B223531303838225D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B226E6F742070726F7669646564225D2C226C6173745F6576616C7561746564223A5B2230312F30322F32303133225D2C2272734944223A5B223830333539323730225D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B5D2C227472616974735F6F6D696D5F6964223A5B22313134343830225D7D2C22534356303030333030343130223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B227265766965776564206279206578706572742070616E656C225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B5D2C227472616974735F6D656467656E5F6964223A5B5D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230382F30392F32303136225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B22454E49474D41225D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D7D2C2276617269616E745F6465736372697074696F6E223A227265766965776564206279206578706572742070616E656C227D;HGMD__HGMD_type=insertion;HGMD__acc_num=CI101425;HGMD__author=Borg;HGMD__chromosome=13;HGMD__codon=411;HGMD__comments=None;HGMD__coordEND=32906849;HGMD__coordSTART=32906848;HGMD__disease=Breast@#SPcancer;HGMD__entrezID=675;HGMD__fullname=Hum@#SPMutat;HGMD__gene=BRCA2;HGMD__hgvs=1233dupA;HGMD__insertion=GGAGAAA^ATAaCCCCTATTGC;HGMD__journal=HUM@#SPMUT;HGMD__new_date=2010-03-12;HGMD__nucleotide=1233;HGMD__omimid=600185;HGMD__page=E1200;HGMD__pmid=20104584;HGMD__refCORE=NM_000059;HGMD__refVER=3;HGMD__score=0;HGMD__strand=+;HGMD__tag=DM;HGMD__vol=31;HGMD__year=2010'
+VCF_LINE_TEMPLATE = """{chromosome}	{pos}	CI101425	{ref}	{alt}	5000.0	PASS	{annotation}	GT:AD:DP:GQ:PL	{sample_data}"""
+VCF_SAMPLE_TEMPLATE = """{GT}:{AD}:{DP}:{GQ}:{PL}"""
+DEFAULT_ANNOTATION = "CSQ=A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000380152|protein_coding|10/27||ENST00000380152.3:c.1233dupA|ENSP00000369497.3:p.Pro412ThrfsTer9|1465-1466|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|HGNC|1101||CCDS9344.1|ENSP00000369497||||hmmpanther:PTHR11289&hmmpanther:PTHR11289:SF0&PIRSF_domain:PIRSF002397||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|675|Transcript|NM_000059.3|protein_coding|10/27||NM_000059.3:c.1233dupA|NP_000050.2:p.Pro412ThrfsTer9|1459-1460|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|||YES||NP_000050.2|rseq_mrna_nonmatch&rseq_cds_mismatch&rseq_ens_match_cds|||||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000530893|protein_coding|10/10||ENST00000530893.2:c.864dupA|ENSP00000435699.2:p.Pro289ThrfsTer9|1430-1431|863-864|288|I/IX|ata/atAa|CI101425|1||1|HGNC|1101|||ENSP00000435699||||hmmpanther:PTHR11289:SF0&hmmpanther:PTHR11289||||||||||||||||,A|frameshift_variant|HIGH|BRCA2|ENSG00000139618|Transcript|ENST00000544455|protein_coding|10/28||ENST00000544455.1:c.1233dupA|ENSP00000439902.1:p.Pro412ThrfsTer9|1459-1460|1232-1233|411|I/IX|ata/atAa|CI101425|1||1|HGNC|1101|YES|CCDS9344.1|ENSP00000439902||||hmmpanther:PTHR11289:SF0&hmmpanther:PTHR11289&PIRSF_domain:PIRSF002397||||||||||||||||;BIC__BRCA2__Accession_Number=3029;BIC__BRCA2__Exon=10;BIC__BRCA2__NT=1461;BIC__BRCA2__Codon=411;BIC__BRCA2__Base_Change=ins@#SPA;BIC__BRCA2__AA_Change=Stop@#SP420;BIC__BRCA2__Designation=1461insA;BIC__BRCA2__HGVS_cDNA=c.1233_1234insA;BIC__BRCA2__HGVS_Protein=p.Ile411_Pro412?fs;BIC__BRCA2__Genotype=-;BIC__BRCA2__dbSNP=rs80359270;BIC__BRCA2__Mutation_Type=F;BIC__BRCA2__Mutation_Effect=*;BIC__BRCA2__Clinically_Important=yes;BIC__BRCA2__Depositor=Myriad;BIC__BRCA2__Patient_Sample_Source=-;BIC__BRCA2__ID_Number=15434;BIC__BRCA2__Number_Reported=-;BIC__BRCA2__G_or_S=G;BIC__BRCA2__Detection_Method=DS;BIC__BRCA2__Proband_Tumor_Type=-;BIC__BRCA2__nChr=-;BIC__BRCA2__A=-;BIC__BRCA2__C=-;BIC__BRCA2__G=-;BIC__BRCA2__T=-;BIC__BRCA2__Reference=-;BIC__BRCA2__Contact_Person=clinresearch@myriad.com;BIC__BRCA2__Notes=-;BIC__BRCA2__Creation_Date=12-JUN-00;BIC__BRCA2__Ethnicity=-;BIC__BRCA2__Nationality=Central/Eastern@#SPEurope;BIC__BRCA2__Addition_Information=no;CLINVARJSON=7B226F7665726C617073223A5B5B223133222C223332393036383437222C225441434343435441545447222C2241434154225D5D2C227075626D656473223A5B223230313034353834225D2C2276617269616E745F6964223A35313038382C2272637673223A7B22534356303030313435383337223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2063726974657269612070726F7669646564225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B224272656173742D6F76617269616E2063616E6365722C2066616D696C69616C2032225D2C227472616974735F6D656467656E5F6964223A5B224332363735353230225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B5D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B224249432028425243413229225D2C227472616974735F6F6D696D5F6964223A5B5D7D2C22534356303030333236353231223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B2263726974657269612070726F76696465642C2073696E676C65207375626D6974746572225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B5D2C227472616974735F6D656467656E5F6964223A5B5D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230322F31302F32303135225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B2243494D4241225D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D2C22534356303030303731373736223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2070726F7669646564225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B2246616D696C69616C2063616E636572206F6620627265617374225D2C227472616974735F6D656467656E5F6964223A5B224330333436313533225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B226E6F742070726F7669646564225D2C226C6173745F6576616C7561746564223A5B2230312F30322F32303133225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B22496E76697461652C225D2C227472616974735F6F6D696D5F6964223A5B5D7D2C22524356303030313132383938223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B227265766965776564206279206578706572742070616E656C225D2C224847565370223A5B22702E50726F3431325468726673225D2C2274726169746E616D6573223A5B224272656173742D6F76617269616E2063616E6365722C2066616D696C69616C2032225D2C227472616974735F6D656467656E5F6964223A5B224332363735353230225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B223531303838225D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230382F30392F32303136225D2C2272734944223A5B223830333539323730225D2C227472616974735F6F727068616E65745F6964223A5B22313435225D2C227375626D6974746572223A5B5D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D2C22524356303030303433373633223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B226E6F20617373657274696F6E2070726F7669646564225D2C224847565370223A5B22702E50726F3431325468726673225D2C2274726169746E616D6573223A5B2246616D696C69616C2063616E636572206F6620627265617374225D2C227472616974735F6D656467656E5F6964223A5B224330333436313533225D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B223531303838225D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B226E6F742070726F7669646564225D2C226C6173745F6576616C7561746564223A5B2230312F30322F32303133225D2C2272734944223A5B223830333539323730225D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B5D2C227472616974735F6F6D696D5F6964223A5B22313134343830225D7D2C22534356303030333030343130223A7B22636C696E6963616C5F7369676E69666963616E63655F737461747573223A5B227265766965776564206279206578706572742070616E656C225D2C224847565370223A5B5D2C2274726169746E616D6573223A5B5D2C227472616974735F6D656467656E5F6964223A5B5D2C2264627661724944223A5B5D2C2276617269616E745F6964223A5B5D2C22636C696E6963616C5F7369676E69666963616E63655F6465736372223A5B22506174686F67656E6963225D2C226C6173745F6576616C7561746564223A5B2230382F30392F32303136225D2C2272734944223A5B5D2C227472616974735F6F727068616E65745F6964223A5B5D2C227375626D6974746572223A5B22454E49474D41225D2C227472616974735F6F6D696D5F6964223A5B22363132353535225D7D7D2C2276617269616E745F6465736372697074696F6E223A227265766965776564206279206578706572742070616E656C227D;HGMD__HGMD_type=insertion;HGMD__acc_num=CI101425;HGMD__author=Borg;HGMD__chromosome=13;HGMD__codon=411;HGMD__comments=None;HGMD__coordEND=32906849;HGMD__coordSTART=32906848;HGMD__disease=Breast@#SPcancer;HGMD__entrezID=675;HGMD__fullname=Hum@#SPMutat;HGMD__gene=BRCA2;HGMD__hgvs=1233dupA;HGMD__insertion=GGAGAAA^ATAaCCCCTATTGC;HGMD__journal=HUM@#SPMUT;HGMD__new_date=2010-03-12;HGMD__nucleotide=1233;HGMD__omimid=600185;HGMD__page=E1200;HGMD__pmid=20104584;HGMD__refCORE=NM_000059;HGMD__refVER=3;HGMD__score=0;HGMD__strand=+;HGMD__tag=DM;HGMD__vol=31;HGMD__year=2010"
 
 
 def create_vcf(variants, sample_names):
@@ -398,63 +398,49 @@ def create_vcf(variants, sample_names):
     Annotation is optional, if provided it should be a list of strings with same
     length as variant
     """
-    vcf_data = VCF_TEMPLATE.format(sample_names='\t'.join(sample_names))
+    vcf_data = VCF_TEMPLATE.format(sample_names="\t".join(sample_names))
     for variant in variants:
         variant_data = dict(variant)
         sample_data = []
-        for sample in variant_data.pop('samples'):
+        for sample in variant_data.pop("samples"):
             sample_data.append(VCF_SAMPLE_TEMPLATE.format(**sample))
-        variant_data['sample_data'] = '\t'.join(sample_data)
-        additional_annotation = ';'.join(['{}={}'.format(k, v) for k, v in variant_data['annotation'].iteritems()])
-        variant_data['annotation'] = DEFAULT_ANNOTATION
+        variant_data["sample_data"] = "\t".join(sample_data)
+        additional_annotation = ";".join(
+            ["{}={}".format(k, v) for k, v in variant_data["annotation"].iteritems()]
+        )
+        variant_data["annotation"] = DEFAULT_ANNOTATION
         if additional_annotation:
-            variant_data['annotation'] = ';' + additional_annotation
-        vcf_data += '\n' + VCF_LINE_TEMPLATE.format(**variant_data)
+            variant_data["annotation"] = ";" + additional_annotation
+        vcf_data += "\n" + VCF_LINE_TEMPLATE.format(**variant_data)
 
     return vcf_data
 
 
 def v(chr, pos, ref, alt, samples=None):
-    variant = {
-        'chromosome': chr,
-        'pos': pos,
-        'ref': ref,
-        'alt': alt
-    }
+    variant = {"chromosome": chr, "pos": pos, "ref": ref, "alt": alt}
     if samples:
-        variant['samples'] = samples
+        variant["samples"] = samples
     return variant
 
 
-ALLELE_ALT = 'T'
+ALLELE_ALT = "T"
+
 
 def gv(samples):
     global ALLELE_ALT
-    ALLELE_ALT += 'T'
-    variant = {
-        'chromosome': '5',
-        'pos': 123,
-        'ref': 'A',
-        'alt': ALLELE_ALT,
-        'annotation': {}
-    }
-    variant['samples'] = samples
+    ALLELE_ALT += "T"
+    variant = {"chromosome": "5", "pos": 123, "ref": "A", "alt": ALLELE_ALT, "annotation": {}}
+    variant["samples"] = samples
     return variant
 
 
 def s(gt, ad, dp, gq, pl):
-    return {
-        'GT': gt,
-        'AD': ad,
-        'DP': dp,
-        'GQ': gq,
-        'PL': pl
-    }
+    return {"GT": gt, "AD": ad, "DP": dp, "GQ": gq, "PL": pl}
 
 
 def s_gt(gt):
     """ When you don't care about extra sample data """
-    return s(gt, '0, 100', '100', '99', '0,10,20')
+    return s(gt, "0, 100", "100", "99", "0,10,20")
 
 
 @st.composite
@@ -464,8 +450,8 @@ def block_strategy(draw, samples):
     """
 
     # Genotypes that say something and are not just 'fillers'
-    genotypes = ['0/1', '1/1', '0/0', './.']
-    multiallelic_genotypes = genotypes + ['1/.', './1']
+    genotypes = ["0/1", "1/1", "0/0", "./."]
+    multiallelic_genotypes = genotypes + ["1/.", "./1"]
     block = list()
 
     # Track whether the genotype for each sample.
@@ -484,7 +470,7 @@ def block_strategy(draw, samples):
                 if block_size == 1:
                     gt = draw(st.sampled_from(genotypes))
                 else:
-                    gt = draw(st.sampled_from(genotypes + ['1/.']))
+                    gt = draw(st.sampled_from(genotypes + ["1/."]))
             else:
                 # Multiallelic case
                 # This is rather complex, we need to check what genotype
@@ -493,37 +479,37 @@ def block_strategy(draw, samples):
                 if block_size > 1:
                     sample_gt = sample_genotype[sample]
                     # Block as been started and last round -> finish it
-                    if sample_gt == '1/.' and idx == block_size - 1:
-                        gt = './1'
+                    if sample_gt == "1/." and idx == block_size - 1:
+                        gt = "./1"
                     # Block has been started, not last round ->
                     # random pick of finishing it or null data
-                    elif sample_gt == '1/.' and idx != block_size - 1:
+                    elif sample_gt == "1/." and idx != block_size - 1:
                         # We cannot risk ending all samples with './1'
                         # when we're not on the record in the block
                         # since one sample needs to end the block
-                        if len([a for a in sample_genotype.values() if a == '1/.']) > 1:
-                            gt = draw(st.sampled_from(['./1', './.']))
+                        if len([a for a in sample_genotype.values() if a == "1/."]) > 1:
+                            gt = draw(st.sampled_from(["./1", "./."]))
                         else:
-                            gt = './.'
+                            gt = "./."
                     # Already ended, cannot have more variants
-                    elif sample_gt == './1':
-                        gt = './.'
+                    elif sample_gt == "./1":
+                        gt = "./."
                     # Heterozygous variant, will not have others (they are other positions)
-                    elif sample_gt == '0/1':
-                        gt = '0/.'
-                    elif sample_gt == '1/1':
-                        gt = './.'
-                    elif sample_gt == '0/0':
-                        gt = '0/0'
+                    elif sample_gt == "0/1":
+                        gt = "0/."
+                    elif sample_gt == "1/1":
+                        gt = "./."
+                    elif sample_gt == "0/0":
+                        gt = "0/0"
                     # If no coverage on initial draw, keep giving no coverage
-                    elif sample_gt == './.':
-                        gt = './.'
+                    elif sample_gt == "./.":
+                        gt = "./."
                     else:
                         assert False, "Shouldn't happen: {}".format(sample_gt)
 
             if gt in multiallelic_genotypes:
                 # Don't overwrite original genotype with './.
-                if sample not in sample_genotype or gt != './.':
+                if sample not in sample_genotype or gt != "./.":
                     sample_genotype[sample] = gt
 
             # Draw from a limited pool to avoid too many combinations
@@ -531,34 +517,34 @@ def block_strategy(draw, samples):
                 s(
                     gt,
                     # AD (nonsensical values as we don't take GT into account)
-                    '{},{}'.format(
+                    "{},{}".format(
                         draw(st.integers(min_value=0, max_value=4)),
-                        draw(st.integers(min_value=100, max_value=104))
+                        draw(st.integers(min_value=100, max_value=104)),
                     ),
                     # DP
                     draw(st.integers(min_value=100, max_value=103)),
                     # GQ
                     draw(st.integers(min_value=90, max_value=93)),
                     # PL (nonsensical values as we don't take GT into account)
-                    '{},{},{}'.format(
+                    "{},{},{}".format(
                         draw(st.integers(min_value=0, max_value=4)),
                         draw(st.integers(min_value=50, max_value=54)),
-                        draw(st.integers(min_value=100, max_value=104))
-                    )
+                        draw(st.integers(min_value=100, max_value=104)),
+                    ),
                 )
             )
         # If we have a block, at least one sample must start with '1/.',
         # or it makes no sense
         if idx == 1 and block_size > 1:
-            assume(any(a == '1/.' for a in sample_genotype.values()))
-        if block_size > 1 and idx == block_size-1:
-            assume(any(a == './1' for a in sample_genotype.values()))
+            assume(any(a == "1/." for a in sample_genotype.values()))
+        if block_size > 1 and idx == block_size - 1:
+            assume(any(a == "./1" for a in sample_genotype.values()))
 
         block.append(block_samples)
     log.debug("Created block of size {} with {} samples".format(block_size, len(samples)))
 
     # Debug: Print GTs the block
-    #for b in block:
+    # for b in block:
     #    print([sa['GT'] for sa in b])
 
     return block
@@ -570,8 +556,8 @@ def variants_strategy(draw, num_variants, pos_gap):
     Generates num_variants variants for a single sample.
     """
     variants = list()
-    NORMAL_GENOTYPES = ['0/1', '1/1']
-    MULTIALLELIC_GENOTYPES = ['0/1', '1/1', '1/.']
+    NORMAL_GENOTYPES = ["0/1", "1/1"]
+    MULTIALLELIC_GENOTYPES = ["0/1", "1/1", "1/."]
     current_pos = 10000
     multiallelic_missing_stop = False  # True if '1/.' has been insterted and missing './1'
     for idx in xrange(num_variants):
@@ -584,20 +570,18 @@ def variants_strategy(draw, num_variants, pos_gap):
             gt = draw(st.sampled_from(MULTIALLELIC_GENOTYPES))
         # Override if necessary
         if multiallelic_missing_stop:
-            gt = './1'
+            gt = "./1"
             multiallelic_missing_stop = False
-        if gt == '1/.':
+        if gt == "1/.":
             multiallelic_missing_stop = True
 
         variant = {
-            'chromosome': '12',
-            'pos': current_pos,
-            'ref': 'A',
-            'alt': 'T',
-            'annotation': {},
-            'samples': [
-                s(gt, '0,100', 100, 99, '12,0,110')
-            ]
+            "chromosome": "12",
+            "pos": current_pos,
+            "ref": "A",
+            "alt": "T",
+            "annotation": {},
+            "samples": [s(gt, "0,100", 100, 99, "12,0,110")],
         }
         variants.append(variant)
     return variants
@@ -609,11 +593,11 @@ def pedigree_strategy(draw, sample_names):
     Samples are implicitly: <proband>, <father>, <mother>, <sibling1>, ...
     """
 
-    PED_LINE = '{fam}\t{sample}\t{father}\t{mother}\t{sex}\t{affected}\t{proband}'
+    PED_LINE = "{fam}\t{sample}\t{father}\t{mother}\t{sex}\t{affected}\t{proband}"
 
     # For single sample, ped file isn't needed
     if len(sample_names) == 1:
-        return None, {sample_names[0]: {'affected': '2', 'proband': '1', 'sex': None}}
+        return None, {sample_names[0]: {"affected": "2", "proband": "1", "sex": None}}
 
     proband_sample = sample_names[0]
     father_sample = None
@@ -623,7 +607,7 @@ def pedigree_strategy(draw, sample_names):
     if len(sample_names) > 2:
         mother_sample = sample_names[2]
 
-    ped_file = ''
+    ped_file = ""
     ped_infos = dict()
     if len(sample_names) > 1:
         for idx, sample_name in enumerate(sample_names):
@@ -631,51 +615,48 @@ def pedigree_strategy(draw, sample_names):
             is_parents = idx == 1 or idx == 2
             is_sibling = idx > 2
 
-            affected = '1'
+            affected = "1"
             if is_proband:
-                affected = '2'
-                sex = draw(st.sampled_from(['1', '2']))
+                affected = "2"
+                sex = draw(st.sampled_from(["1", "2"]))
             elif is_sibling:
-                affected = '2' if draw(st.booleans()) else '1'
-                sex = draw(st.sampled_from(['1', '2']))
+                affected = "2" if draw(st.booleans()) else "1"
+                sex = draw(st.sampled_from(["1", "2"]))
             elif is_parents:
                 if idx == 1:
-                    sex = '1'
+                    sex = "1"
                 elif idx == 2:
-                    sex = '2'
+                    sex = "2"
 
             ped_info = {
-                'fam': 'TEST_FAM',
-                'sample': sample_name,
-                'father': father_sample if is_proband and father_sample else '0',
-                'mother': mother_sample if is_proband and mother_sample else '0',
-                'sex': sex,
-                'affected': affected,
-                'proband': '1' if is_proband else '0'
+                "fam": "TEST_FAM",
+                "sample": sample_name,
+                "father": father_sample if is_proband and father_sample else "0",
+                "mother": mother_sample if is_proband and mother_sample else "0",
+                "sex": sex,
+                "affected": affected,
+                "proband": "1" if is_proband else "0",
             }
-            ped_file += PED_LINE.format(**ped_info) + '\n'
+            ped_file += PED_LINE.format(**ped_info) + "\n"
             ped_infos[sample_name] = ped_info
 
     return ped_file, ped_infos
+
 
 @st.composite
 def vcf_family_strategy(draw, max_num_samples):
     num_samples = draw(st.integers(min_value=1, max_value=max_num_samples))
 
-    base_names = ['PROBAND', 'FATHER', 'MOTHER']
+    base_names = ["PROBAND", "FATHER", "MOTHER"]
     sample_names = base_names[:num_samples]
 
     if num_samples > 3:
-        sample_names += ['SIBLING_{}'.format(idx - 3) for idx in xrange(3, num_samples)]
+        sample_names += ["SIBLING_{}".format(idx - 3) for idx in xrange(3, num_samples)]
     block = draw(block_strategy(sample_names))
 
     variants = [gv(s) for s in block]
     vcf = create_vcf(variants, sample_names)
 
     ped, ped_info = draw(pedigree_strategy(sample_names))
-    meta = {
-        'variants': variants,
-        'sample_names': sample_names,
-        'ped_info': ped_info
-    }
+    meta = {"variants": variants, "sample_names": sample_names, "ped_info": ped_info}
     return vcf, ped, meta

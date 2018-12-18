@@ -4,30 +4,28 @@ and started in conftest.py"""
 
 import json
 
-from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, \
-    ANNOTATION_SERVICE_URL
+from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 from api.polling import process_annotated, process_submitted, process_running
+
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
 
 
 def test_annotationserver_running(client):
-    response = client.get('/api/v1/import/service/running/')
+    response = client.get("/api/v1/import/service/running/")
     assert response.status_code == 200
     assert json.loads(response.get_data())["running"]
 
 
 def test_polling(session, client, test_database):
     # Submit to database
-    data = dict(mode="Analysis",
-                user_id=1,
-                data="Dummy vcf data for testing",
-                genepanel_name="HBOC",
-                genepanel_version="v01",
-                properties=dict(
-                    analysis_name="abc",
-                    create_or_append="Create",
-                    sample_type="HTS"
-                ))
+    data = dict(
+        mode="Analysis",
+        user_id=1,
+        data="Dummy vcf data for testing",
+        genepanel_name="HBOC",
+        genepanel_version="v01",
+        properties=dict(analysis_name="abc", create_or_append="Create", sample_type="HTS"),
+    )
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
@@ -42,8 +40,12 @@ def test_polling(session, client, test_database):
     running = annotationjob_interface.get_with_status("RUNNING")
     updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(
+        ["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"]
+    )
+    updates_annotated = list(
+        process_annotated(annotationservice_interface, annotationjob_interface, annotated)
+    )
 
     assert len(updates_submitted) == 1
     assert len(updates_running) == 0
@@ -54,7 +56,9 @@ def test_polling(session, client, test_database):
     assert update["task_id"] == "123456789"
 
     # Update database
-    annotationjob_interface.patch(id, status=update["status"], message=update["message"], task_id=update["task_id"])
+    annotationjob_interface.patch(
+        id, status=update["status"], message=update["message"], task_id=update["task_id"]
+    )
 
     # Process running #1
     # First call to test annotation service status should return "PENDING" ("RUNNING")
@@ -64,8 +68,12 @@ def test_polling(session, client, test_database):
     running = annotationjob_interface.get_with_status("RUNNING")
     updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(
+        ["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"]
+    )
+    updates_annotated = list(
+        process_annotated(annotationservice_interface, annotationjob_interface, annotated)
+    )
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 1
@@ -83,8 +91,12 @@ def test_polling(session, client, test_database):
     running = annotationjob_interface.get_with_status("RUNNING")
     updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(
+        ["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"]
+    )
+    updates_annotated = list(
+        process_annotated(annotationservice_interface, annotationjob_interface, annotated)
+    )
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 1
@@ -95,7 +107,9 @@ def test_polling(session, client, test_database):
     assert update["task_id"] == "123456789"
 
     # Update database
-    annotationjob_interface.patch(id, status=update["status"], message=update["message"], task_id=update["task_id"])
+    annotationjob_interface.patch(
+        id, status=update["status"], message=update["message"], task_id=update["task_id"]
+    )
 
     # Process annotated
     submitted = annotationjob_interface.get_with_status("SUBMITTED")
@@ -104,12 +118,19 @@ def test_polling(session, client, test_database):
     running = annotationjob_interface.get_with_status("RUNNING")
     updates_running = list(process_running(annotationservice_interface, running))
 
-    annotated = annotationjob_interface.get_with_status(["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"])
-    updates_annotated = list(process_annotated(annotationservice_interface, annotationjob_interface, annotated))
+    annotated = annotationjob_interface.get_with_status(
+        ["ANNOTATED", "FAILED (PROCESSING)", "FAILED (DEPOSIT)"]
+    )
+    updates_annotated = list(
+        process_annotated(annotationservice_interface, annotationjob_interface, annotated)
+    )
 
     assert len(updates_submitted) == 0
     assert len(updates_running) == 0
     assert len(updates_annotated) == 1
 
     id, update = updates_annotated[0]
-    assert update["message"] == "RuntimeError: Couldn't import samples to database. (db_samples: [], sample_names: [])"
+    assert (
+        update["message"]
+        == "RuntimeError: Couldn't import samples to database. (db_samples: [], sample_names: [])"
+    )

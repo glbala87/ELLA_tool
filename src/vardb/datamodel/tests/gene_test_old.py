@@ -16,10 +16,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.expression import BinaryExpression as BE
 from sqlalchemy.exc import IntegrityError
 
-from vardb.datamodel import Base # Must use same Base as tested modules
+from vardb.datamodel import Base  # Must use same Base as tested modules
 from vardb.datamodel import gene
 
-if sys.platform.startswith('win'):
+if sys.platform.startswith("win"):
     Engine = create_engine("postgresql+psycopg2://postgres@localhost/testvardb")
 else:
     Engine = create_engine("postgresql+psycopg2://localhost/testvardb")
@@ -40,8 +40,7 @@ class TestGene(unittest.TestCase):
     def tearDown(self):
         self.trans.rollback()
         self.session.close()
-        self.connection.close() # Return connection to the Engine
-
+        self.connection.close()  # Return connection to the Engine
 
     def test_add_gene(self):
         g = gene.Gene.create_or_update_gene(self.session, "BRCA1", "ENSG00000012048", "Dom")
@@ -58,7 +57,6 @@ class TestGene(unittest.TestCase):
         self.session.commit()
         self.assertEqual(g, g2)
         self.assertEqual(g.dominance, "Res")
-
 
 
 class TestTranscript(unittest.TestCase):
@@ -86,8 +84,6 @@ class TestTranscript(unittest.TestCase):
     #     self.assertEqual(tInDB[0].refseqName, "NM_123")
 
 
-
-
 class TestGenepanel(unittest.TestCase):
     """Test Genepanel class"""
 
@@ -97,10 +93,22 @@ class TestGenepanel(unittest.TestCase):
         self.session = Session(bind=self.connection)
         self.g1 = gene.Gene("BRCA1", "ENS123", "dom")
         self.transcripts = []
-        self.transcripts.append(gene.Transcript(self.g1, "NM_123", "ENST1", "GRCh37", "1", 100, 200, '+',
-                                105, 166, [105, 140, 160], [110, 150, 175]))
-
-
+        self.transcripts.append(
+            gene.Transcript(
+                self.g1,
+                "NM_123",
+                "ENST1",
+                "GRCh37",
+                "1",
+                100,
+                200,
+                "+",
+                105,
+                166,
+                [105, 140, 160],
+                [110, 150, 175],
+            )
+        )
 
     def tearDown(self):
         self.trans.rollback()

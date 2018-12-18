@@ -10,8 +10,8 @@ from alembic import command
 from vardb.util import DB
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-ALEMBIC_CFG = os.path.join(SCRIPT_DIR, '../../../vardb/datamodel/migration/alembic.ini')
-ALEMBIC_DIR = os.path.join(SCRIPT_DIR, '../../../vardb/datamodel/migration/alembic/')
+ALEMBIC_CFG = os.path.join(SCRIPT_DIR, "../../../vardb/datamodel/migration/alembic.ini")
+ALEMBIC_DIR = os.path.join(SCRIPT_DIR, "../../../vardb/datamodel/migration/alembic/")
 
 
 def _get_alembic_config():
@@ -25,7 +25,7 @@ def migration_upgrade(rev):
     db = DB()
     db.connect()
     with db.engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.attributes["connection"] = connection
     command.upgrade(alembic_cfg, rev)
 
 
@@ -34,7 +34,7 @@ def migration_downgrade(rev):
     db = DB()
     db.connect()
     with db.engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.attributes["connection"] = connection
         command.downgrade(alembic_cfg, rev)
 
 
@@ -43,7 +43,7 @@ def migration_current():
     db = DB()
     db.connect()
     with db.engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.attributes["connection"] = connection
         command.current(alembic_cfg)
 
 
@@ -52,7 +52,7 @@ def migration_history(range=None, verbose=False):
     db = DB()
     db.connect()
     with db.engine.begin() as connection:
-        alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.attributes["connection"] = connection
         command.history(alembic_cfg, rev_range=range, verbose=verbose)
 
 
@@ -64,7 +64,7 @@ def migration_compare():
         context = MigrationContext.configure(connection)
         db_head_rev = context.get_current_revision()
 
-        alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.attributes["connection"] = connection
         script = ScriptDirectory.from_config(alembic_cfg)
         script_rev_head = script.get_current_head()
 
@@ -75,4 +75,3 @@ def migration_compare():
             sys.exit(1)
         else:
             print("Migration status OK!")
-

@@ -125,4 +125,5 @@ class JSONMutableList(MutableList):
             return Mutable.coerce(key, value)
         return value
 
+
 MutableList.associate_with(postgresql.ARRAY)

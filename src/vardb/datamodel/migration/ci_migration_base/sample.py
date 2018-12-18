@@ -23,16 +23,19 @@ class Sample(Base):
     This happens when multiple analyses, using the same sample data in pipeline, is imported.
     They can have been run on different regions.
     """
+
     __tablename__ = "sample"
 
     id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship('Analysis', backref='samples')
+    analysis = relationship("Analysis", backref="samples")
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
-    deposit_date = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    deposit_date = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
 
-    __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
+    __table_args__ = (Index("ix_sampleidentifier", "identifier"),)
 
     def __repr__(self):
         return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
@@ -44,6 +47,7 @@ class Analysis(Base):
     An Analysis will have produced variant descriptions (e.g. VCF),
     that are an object for Interpretation.
     """
+
     __tablename__ = "analysis"
 
     id = Column(Integer, primary_key=True)
@@ -53,11 +57,24 @@ class Analysis(Base):
     warnings = Column(String)
     report = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
-    deposit_date = Column("deposit_date", DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    deposit_date = Column(
+        "deposit_date",
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.datetime.now(pytz.utc),
+    )
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
     priority = Column(Integer, nullable=False, default=1)
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]
+        ),
+    )
 
     def __repr__(self):
-        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
+        return "<Analysis('%s, %s, %s')>" % (
+            self.samples,
+            self.genepanel_name,
+            self.genepanel_version,
+        )

@@ -21,9 +21,11 @@ class AnnotationShadowTranscript(Base):
 
 
 def iter_freq_groups(config):
-    frequency_groups = config['frequencies']['groups']
+    frequency_groups = config["frequencies"]["groups"]
     for freq_group in frequency_groups:
-        for freq_provider, freq_keys in frequency_groups[freq_group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
+        for freq_provider, freq_keys in frequency_groups[
+            freq_group
+        ].iteritems():  # 'ExAC', ['G', 'SAS', ...]
             for freq_key in freq_keys:
                 yield freq_provider, freq_key
 
@@ -43,8 +45,8 @@ class AnnotationShadowFrequency(Base):
 def update_annotation_shadow_columns(config):
     # Dynamically add frequency columns
     for freq_provider, freq_key in iter_freq_groups(config):
-        freq_column_name = freq_provider + '.' + freq_key
-        freq_num_column_name = freq_provider + '_num.' + freq_key
+        freq_column_name = freq_provider + "." + freq_key
+        freq_num_column_name = freq_provider + "_num." + freq_key
 
         # Add frequency
         if not hasattr(AnnotationShadowFrequency, freq_column_name):
@@ -53,6 +55,7 @@ def update_annotation_shadow_columns(config):
         # Add frequency number, e.g. 'ExAC_num.SAS'
         if not hasattr(AnnotationShadowFrequency, freq_num_column_name):
             setattr(AnnotationShadowFrequency, freq_num_column_name, Column(Integer, index=True))
+
 
 # By default, create using app global config
 # which is what we want in production
@@ -71,10 +74,18 @@ def create_trigger_sql(config):
     for freq_provider, freq_key in iter_freq_groups(config):
         freq_insert_into.append('"{}.{}"'.format(freq_provider, freq_key))
         freq_insert_into.append('"{}_num.{}"'.format(freq_provider, freq_key))
-        freq_values.append("(annotations->'frequencies'->'{}'->'freq'->>'{}')::float".format(freq_provider, freq_key))
-        freq_values.append("(annotations->'frequencies'->'{}'->'num'->>'{}')::integer".format(freq_provider, freq_key))
+        freq_values.append(
+            "(annotations->'frequencies'->'{}'->'freq'->>'{}')::float".format(
+                freq_provider, freq_key
+            )
+        )
+        freq_values.append(
+            "(annotations->'frequencies'->'{}'->'num'->>'{}')::integer".format(
+                freq_provider, freq_key
+            )
+        )
 
-    return '''
+    return """
     CREATE OR REPLACE FUNCTION insert_annotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
     LANGUAGE plpgsql
     AS $$
@@ -157,7 +168,9 @@ def create_trigger_sql(config):
     CREATE TRIGGER annotation_to_annotationshadow
     BEFORE INSERT OR UPDATE OR DELETE ON annotation
         FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadow();
-    '''.format(frequency_insert_into=',\n'.join(freq_insert_into), frequency_values=',\n'.join(freq_values))
+    """.format(
+        frequency_insert_into=",\n".join(freq_insert_into), frequency_values=",\n".join(freq_values)
+    )
 
 
 def create_shadow_tables(session, config, create_transcript=True, create_frequency=True):
@@ -185,6 +198,10 @@ def create_shadow_tables(session, config, create_transcript=True, create_frequen
     session.execute(create_trigger_sql(config))
 
     if create_transcript:
-        session.execute('SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL')
+        session.execute(
+            "SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
+        )
     if create_frequency:
-        session.execute('SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL')
+        session.execute(
+            "SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
+        )

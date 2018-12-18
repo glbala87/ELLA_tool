@@ -36,10 +36,11 @@ def import_custom_annotations(session, filename):
     log.info("Custom annotations successfully imported!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Deposit custom annotations from file")
-    parser.add_argument('json_file', type=str,
-                        help='relative path to file containing list of custom annotations')
+    parser.add_argument(
+        "json_file", type=str, help="relative path to file containing list of custom annotations"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)

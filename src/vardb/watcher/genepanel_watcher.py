@@ -16,24 +16,17 @@ log = logging.getLogger(__name__)
 
 
 class GenepanelWatcher(object):
-
     def __init__(self, session, watch_path):
         self.session = session
         self.watch_path = watch_path
 
-    def import_genepanel(self,
-                         transcripts_path,
-                         phenotypes_path,
-                         genepanel_name,
-                         genepanel_version):
+    def import_genepanel(
+        self, transcripts_path, phenotypes_path, genepanel_name, genepanel_version
+    ):
 
         deposit_genepanel = DepositGenepanel(self.session)
         deposit_genepanel.add_genepanel(
-            transcripts_path,
-            phenotypes_path,
-            genepanel_name,
-            genepanel_version,
-            replace=True
+            transcripts_path, phenotypes_path, genepanel_name, genepanel_version, replace=True
         )
 
     def check_and_import(self):
@@ -46,24 +39,25 @@ class GenepanelWatcher(object):
                 if not os.path.isdir(os.path.join(self.watch_path, genepanel_dir)):
                     continue
 
-                genepanel_path = os.path.join(
-                    self.watch_path,
-                    genepanel_dir
-                )
+                genepanel_path = os.path.join(self.watch_path, genepanel_dir)
 
-                genepanel_name, genepanel_version = genepanel_dir.split('_', 1)
+                genepanel_name, genepanel_version = genepanel_dir.split("_", 1)
 
-                if self.session.query(gene.Genepanel).filter(
-                    gene.Genepanel.name == genepanel_name,
-                    gene.Genepanel.version == genepanel_version
-                ).count():
+                if (
+                    self.session.query(gene.Genepanel)
+                    .filter(
+                        gene.Genepanel.name == genepanel_name,
+                        gene.Genepanel.version == genepanel_version,
+                    )
+                    .count()
+                ):
                     log.debug("Genepanel {} already imported.".format(genepanel_dir))
                     continue
                 else:
                     log.info("Genepanel {} not in database, importing...".format(genepanel_dir))
 
-                transcripts_path = os.path.join(genepanel_path, genepanel_dir + '.transcripts.csv')
-                phenotypes_path = os.path.join(genepanel_path, genepanel_dir + '.phenotypes.csv')
+                transcripts_path = os.path.join(genepanel_path, genepanel_dir + ".transcripts.csv")
+                phenotypes_path = os.path.join(genepanel_path, genepanel_dir + ".phenotypes.csv")
 
                 if not os.path.exists(transcripts_path):
                     raise RuntimeError("Missing transcripts file at {}".format(transcripts_path))
@@ -73,10 +67,7 @@ class GenepanelWatcher(object):
                     phenotypes_path = None
 
                 self.import_genepanel(
-                    transcripts_path,
-                    phenotypes_path,
-                    genepanel_name,
-                    genepanel_version
+                    transcripts_path, phenotypes_path, genepanel_name, genepanel_version
                 )
 
                 # All is apparantly good, let's commit!

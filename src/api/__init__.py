@@ -9,11 +9,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app)  # Sets REMOTE_ADDR from proxy headers etc
 
 
 db = DB()
-engine_kwargs = {
-    "pool_size": 5,
-    "max_overflow": 10,
-    "pool_timeout": 30
-}
+engine_kwargs = {"pool_size": 5, "max_overflow": 10, "pool_timeout": 30}
 db.connect(engine_kwargs=engine_kwargs)
 
 
@@ -25,6 +21,7 @@ class AuthenticationError(ApiError):
     def __init__(self, message, status_code=401):
         ApiError.__init__(self, message)
         self.status_code = status_code
+
 
 class ConflictError(ApiError):
     def __init__(self, message, status_code=409):

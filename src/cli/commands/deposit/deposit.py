@@ -14,24 +14,26 @@ from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 
-VCF_FIELDS_RE = re.compile('(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf')
+VCF_FIELDS_RE = re.compile(
+    "(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf"
+)
 
 
 def validate_file_exists(path):
     return os.path.isfile(path)
 
 
-@click.group(help='Data deposit')
+@click.group(help="Data deposit")
 def deposit():
     pass
 
 
-@deposit.command('analysis')
-@click.argument('vcf', type=click.Path(exists=True), )
-@click.option('--ped', type=click.Path(exists=True), )
-@click.option('--report', type=click.Path(exists=True), )
-@click.option('--warnings', type=click.Path(exists=True), )
-@click.option('--priority', type=click.INT, default=1)
+@deposit.command("analysis")
+@click.argument("vcf", type=click.Path(exists=True))
+@click.option("--ped", type=click.Path(exists=True))
+@click.option("--report", type=click.Path(exists=True))
+@click.option("--warnings", type=click.Path(exists=True))
+@click.option("--priority", type=click.INT, default=1)
 def cmd_deposit_analysis(vcf, ped=None, report=None, warnings=None, priority=None):
     """
     Deposit an analysis given input vcf.
@@ -56,28 +58,28 @@ def cmd_deposit_analysis(vcf, ped=None, report=None, warnings=None, priority=Non
 
     analysis_config_data = AnalysisConfigData(
         vcf,
-        matches.group('analysis_name'),
-        matches.group('genepanel_name'),
-        matches.group('genepanel_version'),
+        matches.group("analysis_name"),
+        matches.group("genepanel_name"),
+        matches.group("genepanel_version"),
         priority,
         ped_path=ped,
         report=report_data,
-        warnings=warnings_data
+        warnings=warnings_data,
     )
     da.import_vcf(analysis_config_data)
     db.session.commit()
 
 
-@deposit.command('exists')
-@click.argument('fs', nargs=-1, type=click.Path(exists=True), )
+@deposit.command("exists")
+@click.argument("fs", nargs=-1, type=click.Path(exists=True))
 def all_exists(fs):
     click.echo("OK")
 
 
-@deposit.command('alleles')
-@click.argument('vcf', nargs=-1, type=click.Path(exists=True))
-@click.option('--genepanel_name')
-@click.option('--genepanel_version')
+@deposit.command("alleles")
+@click.argument("vcf", nargs=-1, type=click.Path(exists=True))
+@click.option("--genepanel_name")
+@click.option("--genepanel_version")
 def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     """
     Deposit alleles given input vcf.
@@ -93,19 +95,15 @@ def cmd_deposit_alleles(vcf, genepanel_name, genepanel_version):
     for f in vcf:
         if not genepanel_name:
             matches = re.match(VCF_FIELDS_RE, os.path.basename(f))
-            genepanel_name = matches.group('genepanel_name')
-            genepanel_version = matches.group('genepanel_version')
-        da.import_vcf(
-            f,
-            genepanel_name,
-            genepanel_version
-        )
+            genepanel_name = matches.group("genepanel_name")
+            genepanel_version = matches.group("genepanel_version")
+        da.import_vcf(f, genepanel_name, genepanel_version)
     db.session.commit()
     click.echo("Deposited " + str(len(vcf)) + " files.")
 
 
-@deposit.command('annotation')
-@click.argument('vcf')
+@deposit.command("annotation")
+@click.argument("vcf")
 def cmd_deposit_annotation(vcf):
     """
     Update/deposit alleles with annotation only given input vcf.
@@ -120,15 +118,15 @@ def cmd_deposit_annotation(vcf):
     da = DepositAlleles(db.session)
     da.import_vcf(
         vcf,
-        matches.group('genepanel_name'),
-        matches.group('genepanel_version'),
-        annotation_only=True
+        matches.group("genepanel_name"),
+        matches.group("genepanel_version"),
+        annotation_only=True,
     )
     db.session.commit()
 
 
-@deposit.command('references')
-@click.argument('references_json')
+@deposit.command("references")
+@click.argument("references_json")
 def cmd_deposit_references(references_json):
     """
     Deposit/update a set of references into database given by DB_URL.
@@ -142,8 +140,8 @@ def cmd_deposit_references(references_json):
     import_references(db.session, references_json)
 
 
-@deposit.command('custom_annotation')
-@click.argument('custom_annotation_json')
+@deposit.command("custom_annotation")
+@click.argument("custom_annotation_json")
 def cmd_deposit_custom_annotations(custom_annotation_json):
     """
     Deposit/update a set of custom annotations into database given by DB_URL.
@@ -157,42 +155,37 @@ def cmd_deposit_custom_annotations(custom_annotation_json):
     import_custom_annotations(db.session, custom_annotation_json)
 
 
-@deposit.command('genepanel')
-@click.option('--genepanel_name')
-@click.option('--genepanel_version')
-@click.option('--transcripts_path')
-@click.option('--phenotypes_path')
-@click.option('--replace', is_flag=True)
-@click.option('--folder', help="Folder to look for files assuming standard filenames")
-def cmd_deposit_genepanel(genepanel_name,
-                          genepanel_version,
-                          transcripts_path,
-                          phenotypes_path,
-                          replace,
-                          folder):
+@deposit.command("genepanel")
+@click.option("--genepanel_name")
+@click.option("--genepanel_version")
+@click.option("--transcripts_path")
+@click.option("--phenotypes_path")
+@click.option("--replace", is_flag=True)
+@click.option("--folder", help="Folder to look for files assuming standard filenames")
+def cmd_deposit_genepanel(
+    genepanel_name, genepanel_version, transcripts_path, phenotypes_path, replace, folder
+):
     """
     Create or replace genepanel. If replacing genepanel, use --replace flag.
     """
     logging.basicConfig(level=logging.DEBUG)
 
     if folder:
-        prefix = folder.split('/')[-1]
+        prefix = folder.split("/")[-1]
         transcripts_path = folder + "/" + prefix + ".transcripts.csv"
         phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
-        genepanel_name, genepanel_version = prefix.split('_',1)
-        assert genepanel_version.startswith('v')
+        genepanel_name, genepanel_version = prefix.split("_", 1)
+        assert genepanel_version.startswith("v")
 
     db = DB()
     db.connect()
     dg = DepositGenepanel(db.session)
-    dg.add_genepanel(transcripts_path,
-                     phenotypes_path,
-                     genepanel_name,
-                     genepanel_version,
-                     replace=replace)
+    dg.add_genepanel(
+        transcripts_path, phenotypes_path, genepanel_name, genepanel_version, replace=replace
+    )
 
 
-@deposit.command('append_genepanel_to_usergroup')
+@deposit.command("append_genepanel_to_usergroup")
 @click.argument("genepanel_name", required=True)
 @click.argument("genepanel_version", required=True)
 @click.argument("user_group_name", required=True)
@@ -207,21 +200,30 @@ def cmd_append_genepanel_to_usergroup(genepanel_name, genepanel_version, user_gr
     db = DB()
     db.connect()
 
-    user_group = db.session.query(user.UserGroup).filter(
-        user.UserGroup.name == user_group_name
-    ).one()
+    user_group = (
+        db.session.query(user.UserGroup).filter(user.UserGroup.name == user_group_name).one()
+    )
 
-    gp = db.session.query(gene.Genepanel).filter(
-        gene.Genepanel.name == genepanel_name,
-        gene.Genepanel.version == genepanel_version
-    ).one()
+    gp = (
+        db.session.query(gene.Genepanel)
+        .filter(gene.Genepanel.name == genepanel_name, gene.Genepanel.version == genepanel_version)
+        .one()
+    )
 
     if gp in user_group.genepanels:
-        click.echo("Genepanel ({gp_name},{gp_version}) already exists in user group {user_group}".format(gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name))
+        click.echo(
+            "Genepanel ({gp_name},{gp_version}) already exists in user group {user_group}".format(
+                gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name
+            )
+        )
         return
 
     user_group.genepanels.append(gp)
 
     db.session.commit()
 
-    click.echo("Appended genepanel ({gp_name},{gp_version}) to user group {user_group}".format(gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name))
+    click.echo(
+        "Appended genepanel ({gp_name},{gp_version}) to user group {user_group}".format(
+            gp_name=genepanel_name, gp_version=genepanel_version, user_group=user_group_name
+        )
+    )

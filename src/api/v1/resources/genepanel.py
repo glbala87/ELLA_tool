@@ -9,7 +9,6 @@ from api.v1.resource import LogRequestResource
 
 
 class GenepanelListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -46,11 +45,11 @@ class GenepanelListResource(LogRequestResource):
             gene.Genepanel,
             schema=schemas.GenepanelSchema(),
             rest_filter=rest_filter,
-            order_by=['name', 'version']
+            order_by=["name", "version"],
         )
 
     @authenticate()
-    @request_json(['name', 'version', 'genes'])
+    @request_json(["name", "version", "genes"])
     def post(self, session, data=None, user=None):
         """
         Creates a new genepanel.
@@ -87,33 +86,31 @@ class GenepanelListResource(LogRequestResource):
               type: null
             description: No response
         """
-        if not data['name']:
-            raise ApiError('No name given for genepanel')
+        if not data["name"]:
+            raise ApiError("No name given for genepanel")
 
-        if not data['version']:
-            raise ApiError('No version given for genepanel')
+        if not data["version"]:
+            raise ApiError("No version given for genepanel")
 
         transcript_ids = list()
         phenotype_ids = list()
-        for g in data['genes']:
-            transcript_ids += [t['id'] for t in g['transcripts']]
-            phenotype_ids += [p['id'] for p in g['phenotypes']]
+        for g in data["genes"]:
+            transcript_ids += [t["id"] for t in g["transcripts"]]
+            phenotype_ids += [p["id"] for p in g["phenotypes"]]
 
-        transcripts = session.query(gene.Transcript).filter(
-            gene.Transcript.id.in_(transcript_ids)
-        ).all()
+        transcripts = (
+            session.query(gene.Transcript).filter(gene.Transcript.id.in_(transcript_ids)).all()
+        )
 
-        phenotypes = session.query(gene.Phenotype).filter(
-            gene.Phenotype.id.in_(phenotype_ids)
-        ).all()
+        phenotypes = (
+            session.query(gene.Phenotype).filter(gene.Phenotype.id.in_(phenotype_ids)).all()
+        )
 
         assert len(transcripts) == len(transcript_ids)
         assert len(phenotypes) == len(phenotype_ids)
 
         genepanel = gene.Genepanel(
-            name=data['name'],
-            genome_reference='GRCh37',
-            version=data['version'],
+            name=data["name"], genome_reference="GRCh37", version=data["version"]
         )
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
@@ -127,7 +124,6 @@ class GenepanelListResource(LogRequestResource):
 
 
 class GenepanelResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, name=None, version=None, user=None):
         """
@@ -156,71 +152,66 @@ class GenepanelResource(LogRequestResource):
         if version is None:
             raise ApiError("No genepanel version is provided")
 
-        if not session.query(gene.Genepanel.name, gene.Genepanel.version).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
-        ).count():
+        if (
+            not session.query(gene.Genepanel.name, gene.Genepanel.version)
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
+            .count()
+        ):
             raise ApiError("Invalid genepanel name or version")
 
-        transcripts = session.query(
-            gene.Gene.hgnc_symbol,
-            gene.Gene.hgnc_id,
-            gene.Transcript.id,
-            gene.Transcript.transcript_name
-        ).join(
-            gene.Genepanel.transcripts,
-            gene.Transcript.gene
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version)
-        ).order_by(gene.Gene.hgnc_symbol).all()
+        transcripts = (
+            session.query(
+                gene.Gene.hgnc_symbol,
+                gene.Gene.hgnc_id,
+                gene.Transcript.id,
+                gene.Transcript.transcript_name,
+            )
+            .join(gene.Genepanel.transcripts, gene.Transcript.gene)
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
+            .order_by(gene.Gene.hgnc_symbol)
+            .all()
+        )
 
-        phenotypes = session.query(
-            gene.Gene.hgnc_symbol,
-            gene.Gene.hgnc_id,
-            gene.Phenotype.id,
-            gene.Phenotype.inheritance
-        ).join(
-            gene.Phenotype.gene
-        ).join(
-            gene.genepanel_phenotype
-        ).filter(
-            gene.genepanel_phenotype.c.genepanel_name == name,
-            gene.genepanel_phenotype.c.genepanel_version == version
-        ).order_by(gene.Gene.hgnc_symbol).all()
+        phenotypes = (
+            session.query(
+                gene.Gene.hgnc_symbol,
+                gene.Gene.hgnc_id,
+                gene.Phenotype.id,
+                gene.Phenotype.inheritance,
+            )
+            .join(gene.Phenotype.gene)
+            .join(gene.genepanel_phenotype)
+            .filter(
+                gene.genepanel_phenotype.c.genepanel_name == name,
+                gene.genepanel_phenotype.c.genepanel_version == version,
+            )
+            .order_by(gene.Gene.hgnc_symbol)
+            .all()
+        )
 
         genes = {}
         for t in transcripts:
             if t.hgnc_id in genes:
-                genes[t.hgnc_id]['transcripts'].append({
-                    'id': t.id,
-                    'transcript_name': t.transcript_name
-                })
+                genes[t.hgnc_id]["transcripts"].append(
+                    {"id": t.id, "transcript_name": t.transcript_name}
+                )
             else:
                 genes[t.hgnc_id] = {
-                    'hgnc_id': t.hgnc_id,
-                    'hgnc_symbol': t.hgnc_symbol,
-                    'transcripts': [{
-                        'id': t.id,
-                        'transcript_name': t.transcript_name
-                    }],
-                    'phenotypes': []
+                    "hgnc_id": t.hgnc_id,
+                    "hgnc_symbol": t.hgnc_symbol,
+                    "transcripts": [{"id": t.id, "transcript_name": t.transcript_name}],
+                    "phenotypes": [],
                 }
 
         for p in phenotypes:
             if p.hgnc_id in genes:
-                genes[p.hgnc_id]['phenotypes'].append({
-                    'id': p.id,
-                    'inheritance': p.inheritance
-                })
+                genes[p.hgnc_id]["phenotypes"].append({"id": p.id, "inheritance": p.inheritance})
 
         genes = genes.values()
-        genes.sort(key=lambda x: x['hgnc_symbol'])
+        genes.sort(key=lambda x: x["hgnc_symbol"])
         for g in genes:
-            g['transcripts'].sort(key=lambda x: x['transcript_name'])
-            g['phenotypes'].sort(key=lambda x: x['inheritance'])
+            g["transcripts"].sort(key=lambda x: x["transcript_name"])
+            g["phenotypes"].sort(key=lambda x: x["inheritance"])
 
-        result = {
-            'name': name,
-            'version': version,
-            'genes': genes
-        }
+        result = {"name": name, "version": version, "genes": genes}
         return result

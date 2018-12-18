@@ -9,44 +9,43 @@ log = logging.getLogger(__name__)
 
 # the annotation key is found in the VCF
 # the result key is put in our annotation database
-EXAC_ANNOTATION_KEY = 'EXAC'
-EXAC_RESULT_KEY = 'ExAC'
+EXAC_ANNOTATION_KEY = "EXAC"
+EXAC_RESULT_KEY = "ExAC"
 
-GNOMAD_EXOMES_ANNOTATION_KEY = 'GNOMAD_EXOMES'
-GNOMAD_EXOMES_RESULT_KEY = 'GNOMAD_EXOMES'
+GNOMAD_EXOMES_ANNOTATION_KEY = "GNOMAD_EXOMES"
+GNOMAD_EXOMES_RESULT_KEY = "GNOMAD_EXOMES"
 
-GNOMAD_GENOMES_ANNOTATION_KEY = 'GNOMAD_GENOMES'
-GNOMAD_GENOMES_RESULT_KEY = 'GNOMAD_GENOMES'
+GNOMAD_GENOMES_ANNOTATION_KEY = "GNOMAD_GENOMES"
+GNOMAD_GENOMES_RESULT_KEY = "GNOMAD_GENOMES"
 
-INDB_ANNOTATION_KEY = 'inDB'
-INDB_RESULT_KEY = 'inDB'
+INDB_ANNOTATION_KEY = "inDB"
+INDB_RESULT_KEY = "inDB"
 
 SPLICE_FIELDS = [
-    ('Effect', 'effect'),
-    ('Transcript', 'transcript'),
-    ('MaxEntScan-mut', 'maxentscan_mut'),
-    ('MaxEntScan-wild', 'maxentscan_wild'),
-    ('MaxEntScan-closest', 'maxentscan_closest'),  # relevant for 'de novo'
-    ('dist', 'dist')  # relevant for 'de novo'
+    ("Effect", "effect"),
+    ("Transcript", "transcript"),
+    ("MaxEntScan-mut", "maxentscan_mut"),
+    ("MaxEntScan-wild", "maxentscan_wild"),
+    ("MaxEntScan-closest", "maxentscan_closest"),  # relevant for 'de novo'
+    ("dist", "dist"),  # relevant for 'de novo'
 ]
 
 
 CSQ_FIELDS = [
     # (source, dest) key names
-    ('Consequence', 'consequences'),
-    ('HGNC_ID', 'hgnc_id'),
-    ('SYMBOL', 'symbol'),
-    ('HGVSc', 'HGVSc'),
-    ('HGVSp', 'HGVSp'),
-    ('STRAND', 'strand'),
-    ('Amino_acids', 'amino_acids'),
-    ('Existing_variation', 'dbsnp'),
-    ('EXON', 'exon'),
-    ('INTRON', 'intron'),
-    ('Codons', 'codons'),
-    ('Feature', 'transcript'),
-    ('CANONICAL', 'is_canonical')
-
+    ("Consequence", "consequences"),
+    ("HGNC_ID", "hgnc_id"),
+    ("SYMBOL", "symbol"),
+    ("HGVSc", "HGVSc"),
+    ("HGVSp", "HGVSp"),
+    ("STRAND", "strand"),
+    ("Amino_acids", "amino_acids"),
+    ("Existing_variation", "dbsnp"),
+    ("EXON", "exon"),
+    ("INTRON", "intron"),
+    ("Codons", "codons"),
+    ("Feature", "transcript"),
+    ("CANONICAL", "is_canonical"),
 ]
 
 # Should match all possible valid HGVSc annotations (without transcript)
@@ -62,37 +61,41 @@ CSQ_FIELDS = [
 # c.-315_-314delAC
 
 HGVSC_DISTANCE_CHECK = [
-    r'(?P<c>[cn])\.', # Coding or non-coding
-    r'(?P<utr1>[\*\-]?)', # UTR direction (asterisk is 5' UTR, minus is 3' UTR),
-    r'(?P<p1>[0-9]+)', # Position (distance into UTR if UTR region)
-    r'(?P<pm1>[\-\+]?)', # Intron direction if variant is intronic
-    r'(?P<ed1>([0-9]+)?)', # Distance from intron if variant is intronic
-    r'((?P<region>_)', # If del/dup/ins, we could have a region, denoted by a '_'. What follows below is only applicable to those cases
-    r'(?P<utr2>[\*\-]?)',
-    r'(?P<p2>[0-9]+)',
-    r'(?P<pm2>[\-\+]?)',
-    r'(?P<ed2>([0-9]+)?)',
-    r')?', # End of region
-    r'([ACGT]|[BDHKMNRSVWY]|del|dup|ins)' # All possible options following the position
+    r"(?P<c>[cn])\.",  # Coding or non-coding
+    r"(?P<utr1>[\*\-]?)",  # UTR direction (asterisk is 5' UTR, minus is 3' UTR),
+    r"(?P<p1>[0-9]+)",  # Position (distance into UTR if UTR region)
+    r"(?P<pm1>[\-\+]?)",  # Intron direction if variant is intronic
+    r"(?P<ed1>([0-9]+)?)",  # Distance from intron if variant is intronic
+    r"((?P<region>_)",  # If del/dup/ins, we could have a region, denoted by a '_'. What follows below is only applicable to those cases
+    r"(?P<utr2>[\*\-]?)",
+    r"(?P<p2>[0-9]+)",
+    r"(?P<pm2>[\-\+]?)",
+    r"(?P<ed2>([0-9]+)?)",
+    r")?",  # End of region
+    r"([ACGT]|[BDHKMNRSVWY]|del|dup|ins)",  # All possible options following the position
 ]
-HGVSC_DISTANCE_CHECK_REGEX = re.compile(''.join(HGVSC_DISTANCE_CHECK))
+HGVSC_DISTANCE_CHECK_REGEX = re.compile("".join(HGVSC_DISTANCE_CHECK))
 
 
 def _map_hgnc_id(transcripts):
     symbol_hgnc_id = dict()
     for t in transcripts:
-        if t.get('hgnc_id') and isinstance(t.get('hgnc_id'), int):
-            if t['symbol'] in symbol_hgnc_id:
-                assert symbol_hgnc_id[t['symbol']] == t['hgnc_id'], 'Got different HGNC ({} vs {}) id for same gene symbol ({})'.format(t['hgnc_id'], symbol_hgnc_id[t['symbol']], t['symbol'])
-            symbol_hgnc_id[t['symbol']] = t['hgnc_id']
+        if t.get("hgnc_id") and isinstance(t.get("hgnc_id"), int):
+            if t["symbol"] in symbol_hgnc_id:
+                assert (
+                    symbol_hgnc_id[t["symbol"]] == t["hgnc_id"]
+                ), "Got different HGNC ({} vs {}) id for same gene symbol ({})".format(
+                    t["hgnc_id"], symbol_hgnc_id[t["symbol"]], t["symbol"]
+                )
+            symbol_hgnc_id[t["symbol"]] = t["hgnc_id"]
     return symbol_hgnc_id
 
 
 def convert_csq(annotation):
     def _get_is_last_exon(transcript_data):
-        exon = transcript_data.get('exon')
+        exon = transcript_data.get("exon")
         if exon:
-            parts = exon.split('/')
+            parts = exon.split("/")
             return parts[0] == parts[1]
         return False
 
@@ -142,7 +145,9 @@ def convert_csq(annotation):
                 return d1, d2
 
         if match_data["region"]:
-            match_data["ed1"], match_data["ed2"] = fix_region_distance(match_data["ed1"], match_data["ed2"])
+            match_data["ed1"], match_data["ed2"] = fix_region_distance(
+                match_data["ed1"], match_data["ed2"]
+            )
 
         def get_distance(pm1, d1, pm2, d2):
             if not (pm1 or pm2):
@@ -151,135 +156,138 @@ def convert_csq(annotation):
             elif d1 and not d2:
                 # Happens for simple snips, e.g c.123-46A>G or c.*123A>G
                 assert not pm2
-                return -int(d1) if pm1 == '-' else int(d1)
+                return -int(d1) if pm1 == "-" else int(d1)
             elif d1 and d2:
                 # Take the minimum of the two, as this is closest position to the exon/coding start
                 d = min(int(d1), int(d2))
                 if int(d1) == d:
-                    return -d if pm1 == '-' else d
+                    return -d if pm1 == "-" else d
                 else:
-                    return -d if pm2 == '-' else d
+                    return -d if pm2 == "-" else d
             else:
-                raise RuntimeError("Unable to compute distance from ({}, {}), ({}, {})".format(pm1, d1, pm2, d2))
+                raise RuntimeError(
+                    "Unable to compute distance from ({}, {}), ({}, {})".format(pm1, d1, pm2, d2)
+                )
 
-        exon_distance = get_distance(match_data["pm1"], match_data['ed1'], match_data["pm2"], match_data['ed2'])
+        exon_distance = get_distance(
+            match_data["pm1"], match_data["ed1"], match_data["pm2"], match_data["ed2"]
+        )
 
         if exon_distance == 0:
-            if (match_data['p1'] and not match_data['utr1']) or (match_data['p2'] and not match_data['utr2']):
+            if (match_data["p1"] and not match_data["utr1"]) or (
+                match_data["p2"] and not match_data["utr2"]
+            ):
                 # Since utr1/utr2 is always shown as either * or - for UTR regions, we know that we are in a coding region
                 # if either of those are empty
                 coding_region_distance = 0
             else:
-                coding_region_distance = get_distance(match_data['utr1'], match_data['p1'], match_data['utr2'], match_data['p2'])
+                coding_region_distance = get_distance(
+                    match_data["utr1"], match_data["p1"], match_data["utr2"], match_data["p2"]
+                )
 
         return exon_distance, coding_region_distance
 
-    if 'CSQ' not in annotation:
+    if "CSQ" not in annotation:
         return list()
 
     transcripts = list()
     # Invert CSQ data to map to transcripts
-    for data in annotation['CSQ']:
+    for data in annotation["CSQ"]:
         # Filter out non-transcripts,
         # and only include normal RefSeq or Ensembl transcripts
-        if data.get('Feature_type') != 'Transcript' or \
-           not any(data.get('Feature', '').startswith(t) for t in ['NM_', 'ENST']):
+        if data.get("Feature_type") != "Transcript" or not any(
+            data.get("Feature", "").startswith(t) for t in ["NM_", "ENST"]
+        ):
             continue
 
         transcript_data = {k[1]: data[k[0]] for k in CSQ_FIELDS if k[0] in data}
 
-        if 'hgnc_id' in transcript_data:
-            transcript_data['hgnc_id'] = int(transcript_data['hgnc_id'])
+        if "hgnc_id" in transcript_data:
+            transcript_data["hgnc_id"] = int(transcript_data["hgnc_id"])
 
         # Only keep dbSNP data (e.g. rs123456789)
-        if 'dbsnp' in transcript_data:
-            transcript_data['dbsnp'] = [t for t in transcript_data['dbsnp'] if t.startswith('rs')]
+        if "dbsnp" in transcript_data:
+            transcript_data["dbsnp"] = [t for t in transcript_data["dbsnp"] if t.startswith("rs")]
 
         # Convert 'is_canonical' to bool
-        transcript_data['is_canonical'] = transcript_data.get('is_canonical') == 'YES'
+        transcript_data["is_canonical"] = transcript_data.get("is_canonical") == "YES"
 
         # Add custom types
-        if 'HGVSc' in transcript_data:
+        if "HGVSc" in transcript_data:
 
-            transcript_name, hgvsc = transcript_data['HGVSc'].split(':', 1)
-            transcript_data['HGVSc'] = hgvsc  # Remove transcript part
+            transcript_name, hgvsc = transcript_data["HGVSc"].split(":", 1)
+            transcript_data["HGVSc"] = hgvsc  # Remove transcript part
 
             # Split away transcript part and remove long (>10 nt) insertions/deletions/duplications
             def repl_len(m):
-                return "("+str(len(m.group()))+")"
+                return "(" + str(len(m.group())) + ")"
 
-            s = re.sub('(?<=ins)([ACGT]{10,})', repl_len, hgvsc)
-            insertion = re.search('(?<=ins)([ACGT]{10,})', hgvsc)
+            s = re.sub("(?<=ins)([ACGT]{10,})", repl_len, hgvsc)
+            insertion = re.search("(?<=ins)([ACGT]{10,})", hgvsc)
             if insertion is not None:
                 transcript_data["HGVSc_insertion"] = insertion.group()
-            s = re.sub('(?<=[del|dup])[ACGT]{10,}', '', s)
-            transcript_data['HGVSc_short'] = s
+            s = re.sub("(?<=[del|dup])[ACGT]{10,}", "", s)
+            transcript_data["HGVSc_short"] = s
 
             exon_distance, coding_region_distance = _calculate_distances(hgvsc)
-            transcript_data['exon_distance'] = exon_distance
-            transcript_data['coding_region_distance'] = coding_region_distance
+            transcript_data["exon_distance"] = exon_distance
+            transcript_data["coding_region_distance"] = coding_region_distance
 
-        if 'HGVSp' in transcript_data:  # Remove transcript part
-            transcript_data['protein'], transcript_data['HGVSp'] = transcript_data['HGVSp'].split(':', 1)
+        if "HGVSp" in transcript_data:  # Remove transcript part
+            transcript_data["protein"], transcript_data["HGVSp"] = transcript_data["HGVSp"].split(
+                ":", 1
+            )
 
-        transcript_data['in_last_exon'] = 'yes' if _get_is_last_exon(transcript_data) else 'no'
+        transcript_data["in_last_exon"] = "yes" if _get_is_last_exon(transcript_data) else "no"
 
         # All lists must be deterministic
-        if 'consequences' in transcript_data:
-            transcript_data['consequences'] = sorted(transcript_data['consequences'])
+        if "consequences" in transcript_data:
+            transcript_data["consequences"] = sorted(transcript_data["consequences"])
         transcripts.append(transcript_data)
 
     # VEP output is not deterministic, but we need it to be so
     # we can compare correctly in database
-    transcripts = sorted(transcripts, key=lambda x: x['transcript'])
+    transcripts = sorted(transcripts, key=lambda x: x["transcript"])
 
     # Hack: Since hgnc_id is not provided by VEP for Refseq,
     # we steal it from matching Ensembl transcript (by gene symbol)
     # Tested on 100k exome annotated variants, all RefSeq had corresponding match in Ensembl
     symbol_hgnc_id = _map_hgnc_id(transcripts)
     for t in transcripts:
-        if not t.get('hgnc_id') and t.get('symbol') and t['symbol'] in symbol_hgnc_id:
-            t['hgnc_id'] = symbol_hgnc_id[t['symbol']]
+        if not t.get("hgnc_id") and t.get("symbol") and t["symbol"] in symbol_hgnc_id:
+            t["hgnc_id"] = symbol_hgnc_id[t["symbol"]]
 
     return transcripts
 
 
-HGMD_FIELDS = [
-    'acc_num',
-    'codon',
-    'disease',
-    'tag',
-]
+HGMD_FIELDS = ["acc_num", "codon", "disease", "tag"]
 
 
 def convert_hgmd(annotation):
-    if 'HGMD' not in annotation:
+    if "HGMD" not in annotation:
         return dict()
 
-    data = {k: annotation['HGMD'][k] for k in HGMD_FIELDS if k in annotation['HGMD']}
-    return {'HGMD': data}
+    data = {k: annotation["HGMD"][k] for k in HGMD_FIELDS if k in annotation["HGMD"]}
+    return {"HGMD": data}
 
 
 CLINVAR_RCV_FIELDS = [
-    'traitnames',
-    'clinical_significance_descr',
+    "traitnames",
+    "clinical_significance_descr",
     #'clinical_significance_status',
-    'variant_id',
-    'submitter',
-    'last_evaluated'
+    "variant_id",
+    "submitter",
+    "last_evaluated",
 ]
 
-CLINVAR_FIELDS = [
-    'variant_description',
-    'variant_id'
-]
+CLINVAR_FIELDS = ["variant_description", "variant_id"]
 
 
 def convert_clinvar(annotation):
-    if 'CLINVARJSON' not in annotation:
+    if "CLINVARJSON" not in annotation:
         return dict()
 
-    clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+    clinvarjson = json.loads(base64.b16decode(annotation["CLINVARJSON"]))
 
     if any(k not in clinvarjson for k in CLINVAR_FIELDS):
         return dict()
@@ -291,7 +299,7 @@ def convert_clinvar(annotation):
         item["rcv"] = rcv
         data["items"].append(item)
 
-    return {'CLINVAR': data}
+    return {"CLINVAR": data}
 
 
 def extract_annotation_frequencies(annotation, annotation_key, result_key):
@@ -313,41 +321,39 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     filter_status = {}
     indications = {}
     for key, value in annotation[annotation_key].iteritems():
-        if value == ['.'] or value == '.':
+        if value == ["."] or value == ".":
             continue
-        if key == 'AS_FilterStatus':  # gnomAD specific
+        if key == "AS_FilterStatus":  # gnomAD specific
             assert len(value) == 1
-            filter_status = {
-                'G': value[0].split('|')
-            }
-        elif key.startswith('filter_'):
-            pop = key.split('filter_')[1]
-            filter_status[pop] = re.split(',|\|', value)
+            filter_status = {"G": value[0].split("|")}
+        elif key.startswith("filter_"):
+            pop = key.split("filter_")[1]
+            filter_status[pop] = re.split(",|\|", value)
         # Be careful if rearranging!
-        elif key == 'AC':
-            count['G'] = extract_int_list(value)
-        elif key in ['AC_Hom', 'Hom']:
-            hom['G'] = extract_int_list(value)
-        elif key in ['AC_Hemi', 'Hemi']:
-            hemi['G'] = extract_int_list(value)
-        elif key == 'AN':
-            num['G'] = value
-        elif key.startswith('AC_'):
-            pop = key.split('AC_')[1]
+        elif key == "AC":
+            count["G"] = extract_int_list(value)
+        elif key in ["AC_Hom", "Hom"]:
+            hom["G"] = extract_int_list(value)
+        elif key in ["AC_Hemi", "Hemi"]:
+            hemi["G"] = extract_int_list(value)
+        elif key == "AN":
+            num["G"] = value
+        elif key.startswith("AC_"):
+            pop = key.split("AC_")[1]
             count[pop] = extract_int_list(value)
-        elif key.startswith('AN_'):
-            pop = key.split('AN_')[1]
+        elif key.startswith("AN_"):
+            pop = key.split("AN_")[1]
             num[pop] = extract_int_list(value)
-        elif key.startswith('Hom_'):
-            pop = key.split('Hom_')[1]
+        elif key.startswith("Hom_"):
+            pop = key.split("Hom_")[1]
             hom[pop] = extract_int_list(value)
-        elif key.startswith('Hemi_'):
-            pop = key.split('Hemi_')[1]
+        elif key.startswith("Hemi_"):
+            pop = key.split("Hemi_")[1]
             hemi[pop] = extract_int_list(value)
-        elif key.startswith('indications_'):
-            pop = key.split('indications_')[1]
+        elif key.startswith("indications_"):
+            pop = key.split("indications_")[1]
             # foo:x,bar:y -> {foo: x, bar:y}
-            indications[pop] = {f.split(':', 1)[0]: f.split(':', 1)[1] for f in value.split(',')}
+            indications[pop] = {f.split(":", 1)[0]: f.split(":", 1)[1] for f in value.split(",")}
 
     for key in count:
         if key in num and num[key]:
@@ -357,24 +363,24 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     # ExAC should use Adj, NOT the default AC and AN!
     if result_key == EXAC_RESULT_KEY:
         for item in [count, num, freq]:
-            if 'Adj' in item:
-                item['G'] = item['Adj']
-                del item['Adj']
+            if "Adj" in item:
+                item["G"] = item["Adj"]
+                del item["Adj"]
 
     if freq:
-        frequencies[result_key].update({'freq': freq})
+        frequencies[result_key].update({"freq": freq})
     if hom:
-        frequencies[result_key].update({'hom': hom})
+        frequencies[result_key].update({"hom": hom})
     if hemi:
-        frequencies[result_key].update({'hemi': hemi})
+        frequencies[result_key].update({"hemi": hemi})
     if num:
-        frequencies[result_key].update({'num': num})
+        frequencies[result_key].update({"num": num})
     if count:
-        frequencies[result_key].update({'count': count})
+        frequencies[result_key].update({"count": count})
     if filter_status:
-        frequencies[result_key].update({'filter': filter_status})
+        frequencies[result_key].update({"filter": filter_status})
     if indications:
-        frequencies[result_key].update({'indications': indications})
+        frequencies[result_key].update({"indications": indications})
 
     return dict(frequencies)
 
@@ -390,9 +396,7 @@ def exac_frequencies(annotation):
     if EXAC_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_frequencies(
-            annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY
-        )
+        return extract_annotation_frequencies(annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY)
 
 
 def gnomad_exomes_frequencies(annotation):
@@ -437,38 +441,35 @@ def indb_frequencies(annotation):
     if INDB_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_frequencies(
-            annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY
-        )
+        return extract_annotation_frequencies(annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY)
 
 
 def csq_frequencies(annotation):
-    if 'CSQ' not in annotation:
+    if "CSQ" not in annotation:
         return {}
 
     # Get first elem which has frequency data (it's the same in all elements)
     frequencies = dict()
-    freq_data = next((d for d in annotation['CSQ'] if any('MAF' in k for k in d)), None)
+    freq_data = next((d for d in annotation["CSQ"] if any("MAF" in k for k in d)), None)
     if freq_data:
         # Check whether the allele provided for the frequency is the same as the one we have in our allele.
         # VEP gives minor allele for some fields, which can be the reference instead of the allele
         processed = {
-            k.replace('_MAF', '').replace('MAF', ''): v[freq_data['Allele']]
+            k.replace("_MAF", "").replace("MAF", ""): v[freq_data["Allele"]]
             for k, v in freq_data.iteritems()
-            if 'MAF' in k and
-            freq_data['Allele'] in v
+            if "MAF" in k and freq_data["Allele"] in v
         }
         if processed:
             # ESP6500 freqs
             esp6500_freq = dict()
-            for f in ['AA', 'EA']:
+            for f in ["AA", "EA"]:
                 if f in processed:
                     esp6500_freq[f] = processed.pop(f)
             if esp6500_freq:
-                frequencies['esp6500'] = {'freq': esp6500_freq}
+                frequencies["esp6500"] = {"freq": esp6500_freq}
 
             if processed:
-                frequencies['1000g'] = {'freq': processed}
+                frequencies["1000g"] = {"freq": processed}
 
     return dict(frequencies)
 
@@ -483,46 +484,46 @@ class ConvertReferences(object):
     }
 
     def _hgmd_pubmeds(self, annotation):
-        if 'HGMD' not in annotation:
+        if "HGMD" not in annotation:
             return dict()
         total = dict()
 
-        if 'pmid' in annotation['HGMD']:
-            pmid = annotation['HGMD']['pmid']
+        if "pmid" in annotation["HGMD"]:
+            pmid = annotation["HGMD"]["pmid"]
             reftag = "Primary literature report"
-            comments = annotation['HGMD'].get("comments", "No comments")
+            comments = annotation["HGMD"].get("comments", "No comments")
             comments = "No comments." if comments == "None" else comments
             total[pmid] = [reftag, comments]
 
         for er in annotation["HGMD"].get("extrarefs", []):
             if "pmid" in er:
 
-                pmid = er['pmid']
+                pmid = er["pmid"]
                 reftag = ConvertReferences.REFTAG.get(er.get("reftag"), "Reftag not specified")
                 comments = er.get("comments", "No comments.")
                 comments = "No comments." if comments == "None" else comments
 
                 # The comment on APR is the disease/phenotype
                 if er.get("reftag") == "APR" and comments == "No comments.":
-                   comments = er.get("disease", comments)
+                    comments = er.get("disease", comments)
 
                 total[pmid] = [reftag, comments]
 
         # Format reftag, comments to string
         for pmid, info in total.items():
-            info_string = ". ".join([v.strip().strip('.') for v in info])+"."
+            info_string = ". ".join([v.strip().strip(".") for v in info]) + "."
             total[pmid] = info_string
 
         return total
 
     def _clinvar_pubmeds(self, annotation):
-        if 'CLINVARJSON' not in annotation:
+        if "CLINVARJSON" not in annotation:
             return dict()
 
-        clinvarjson = json.loads(base64.b16decode(annotation['CLINVARJSON']))
+        clinvarjson = json.loads(base64.b16decode(annotation["CLINVARJSON"]))
 
         pubmeds = clinvarjson.get("pubmeds", [])
-        pubmeds = dict(zip(pubmeds, [""]*len(pubmeds)))  # Return as dict (empty values)
+        pubmeds = dict(zip(pubmeds, [""] * len(pubmeds)))  # Return as dict (empty values)
 
         return pubmeds
 
@@ -558,8 +559,6 @@ class ConvertReferences(object):
                 if clinvar_pubmeds[pmid] != "":
                     sourceInfo["CLINVAR"] = clinvar_pubmeds[pmid]
 
-            references.append({
-                'pubmed_id': pmid, 'sources': sources, "source_info": sourceInfo,
-            })
+            references.append({"pubmed_id": pmid, "sources": sources, "source_info": sourceInfo})
 
         return references

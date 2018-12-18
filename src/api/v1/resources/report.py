@@ -10,7 +10,6 @@ from vardb.export import export_sanger_variants
 
 
 class NonStartedAnalysesVariants(LogRequestResource):
-
     @authenticate()
     @logger(hide_response=True)
     def get(self, session, user=None):
@@ -28,20 +27,15 @@ class NonStartedAnalysesVariants(LogRequestResource):
         excel_file_obj = BytesIO()
         gp_keys = [(g.name, g.version) for g in user.group.genepanels]
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        export_sanger_variants.export_variants(
-            session,
-            gp_keys,
-            filter_config_id,
-            excel_file_obj
-        )
+        export_sanger_variants.export_variants(session, gp_keys, filter_config_id, excel_file_obj)
         excel_file_obj.seek(0)
-        filename = 'non-started-analyses-variants-{}.xlsx'.format(
+        filename = "non-started-analyses-variants-{}.xlsx".format(
             datetime.datetime.now().strftime("%Y-%m-%d-%H_%M")
         )
         return send_file(
             excel_file_obj,
             as_attachment=True,
             attachment_filename=filename,
-            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            cache_timeout=-1
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            cache_timeout=-1,
         )

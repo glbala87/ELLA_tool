@@ -19,9 +19,4 @@ def make_db(db):
 def refresh(db):
     # Although the annotationshadow tables were created above in create_all()
     # they have extra logic with triggers on dynamic fields, so we need to (re)create them
-    create_shadow_tables(
-        db.session,
-        config,
-        create_transcript=True,
-        create_frequency=True
-    )
+    create_shadow_tables(db.session, config, create_transcript=True, create_frequency=True)

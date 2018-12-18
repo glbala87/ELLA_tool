@@ -14,65 +14,68 @@ from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSc
 
 
 class AnalysisStatsResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, user=None):
 
         # Number of alleles
-        allele_count = session.query(allele.Allele.id).join(
-            genotype.Genotype.alleles,
-            sample.Sample
-        ).filter(
-            sample.Sample.analysis_id == analysis_id
-        ).count()
+        allele_count = (
+            session.query(allele.Allele.id)
+            .join(genotype.Genotype.alleles, sample.Sample)
+            .filter(sample.Sample.analysis_id == analysis_id)
+            .count()
+        )
 
-        stats = {
-            'allele_count': allele_count
-        }
+        stats = {"allele_count": allele_count}
 
         return stats
 
 
 class AnalysisGenepanelResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, gp_name, gp_version, user=None):
         """
         Returns genepanel for analysis, only including relevant transcripts and phenotypes.
         """
-        allele_ids = request.args.get('allele_ids', '')
+        allele_ids = request.args.get("allele_ids", "")
         if not allele_ids:
             allele_ids = []
         else:
-            allele_ids = allele_ids.split(',')
+            allele_ids = allele_ids.split(",")
         return helpers.load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version)
 
 
 class AnalysisInterpretationAllelesListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     def get(self, session, analysis_id, interpretation_id, user=None, page=None, per_page=None):
-        if not session.query(AnalysisInterpretation).filter(
-            AnalysisInterpretation.id == interpretation_id,
-            AnalysisInterpretation.analysis_id == analysis_id
-        ).count():
-            raise ApiError("Interpretation id {} is not part of analysis with id {}".format(
-                interpretation_id, analysis_id
-            ))
-        allele_ids = request.args.get('allele_ids').split(',')
-        current = request.args.get('current', '').lower() == 'true'
-        return helpers.get_alleles(
-            session,
-            allele_ids,
-            user.group.genepanels,
-            analysisinterpretation_id=interpretation_id,
-            current_allele_data=current
-        ), len(allele_ids)
+        if (
+            not session.query(AnalysisInterpretation)
+            .filter(
+                AnalysisInterpretation.id == interpretation_id,
+                AnalysisInterpretation.analysis_id == analysis_id,
+            )
+            .count()
+        ):
+            raise ApiError(
+                "Interpretation id {} is not part of analysis with id {}".format(
+                    interpretation_id, analysis_id
+                )
+            )
+        allele_ids = request.args.get("allele_ids").split(",")
+        current = request.args.get("current", "").lower() == "true"
+        return (
+            helpers.get_alleles(
+                session,
+                allele_ids,
+                user.group.genepanels,
+                analysisinterpretation_id=interpretation_id,
+                current_allele_data=current,
+            ),
+            len(allele_ids),
+        )
 
 
 class AnalysisInterpretationResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, interpretation_id, user=None):
         """
@@ -128,17 +131,11 @@ class AnalysisInterpretationResource(LogRequestResource):
             session,
             user.group.genepanels,
             filter_config_id,
-            analysisinterpretation_id=interpretation_id
+            analysisinterpretation_id=interpretation_id,
         )
 
     @authenticate()
-    @request_json(
-        ['id'],
-        allowed=[
-            'state',
-            'user_state'
-        ]
-    )
+    @request_json(["id"], allowed=["state", "user_state"])
     def patch(self, session, analysis_id, interpretation_id, data=None, user=None):
         """
         Updates the current interpretation inplace.
@@ -171,14 +168,15 @@ class AnalysisInterpretationResource(LogRequestResource):
             type: null
             description: OK
         """
-        helpers.update_interpretation(session, user.id, data, analysisinterpretation_id=interpretation_id)
+        helpers.update_interpretation(
+            session, user.id, data, analysisinterpretation_id=interpretation_id
+        )
         session.commit()
 
         return None, 200
 
 
 class AnalysisInterpretationListResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, user=None):
         """
@@ -204,15 +202,11 @@ class AnalysisInterpretationListResource(LogRequestResource):
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         return helpers.get_interpretations(
-            session,
-            user.group.genepanels,
-            filter_config_id,
-            analysis_id=analysis_id
+            session, user.group.genepanels, filter_config_id, analysis_id=analysis_id
         )
 
 
 class AnalysisActionOverrideResource(LogRequestResource):
-
     @authenticate()
     def post(self, session, analysis_id, user=None):
         """
@@ -244,7 +238,6 @@ class AnalysisActionOverrideResource(LogRequestResource):
 
 
 class AnalysisActionStartResource(LogRequestResource):
-
     @authenticate()
     def post(self, session, analysis_id, user=None):
         """
@@ -275,16 +268,8 @@ class AnalysisActionStartResource(LogRequestResource):
 
 
 class AnalysisActionMarkNotReadyResource(LogRequestResource):
-
     @authenticate()
-    @request_json(
-        [
-            'alleleassessments',
-            'annotations',
-            'custom_annotations',
-            'allelereports'
-        ]
-    )
+    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis as Not ready.
@@ -312,10 +297,7 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         helpers.marknotready_interpretation(
-            session,
-            data,
-            filter_config_id,
-            analysis_id=analysis_id
+            session, data, filter_config_id, analysis_id=analysis_id
         )
         session.commit()
 
@@ -323,16 +305,8 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
 
 
 class AnalysisActionMarkInterpretationResource(LogRequestResource):
-
     @authenticate()
-    @request_json(
-        [
-            'alleleassessments',
-            'annotations',
-            'custom_annotations',
-            'allelereports'
-        ]
-    )
+    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for interpretation.
@@ -360,10 +334,7 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         helpers.markinterpretation_interpretation(
-            session,
-            data,
-            filter_config_id,
-            analysis_id=analysis_id
+            session, data, filter_config_id, analysis_id=analysis_id
         )
         session.commit()
 
@@ -371,16 +342,8 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
 
 
 class AnalysisActionMarkReviewResource(LogRequestResource):
-
     @authenticate()
-    @request_json(
-        [
-            'alleleassessments',
-            'annotations',
-            'custom_annotations',
-            'allelereports'
-        ]
-    )
+    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for review.
@@ -407,28 +370,15 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
         """
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markreview_interpretation(
-            session,
-            data,
-            filter_config_id,
-            analysis_id=analysis_id
-        )
+        helpers.markreview_interpretation(session, data, filter_config_id, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
 
 
 class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
-
     @authenticate()
-    @request_json(
-        [
-            'alleleassessments',
-            'annotations',
-            'custom_annotations',
-            'allelereports'
-        ]
-    )
+    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for medical review.
@@ -456,10 +406,7 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         helpers.markmedicalreview_interpretation(
-            session,
-            data,
-            filter_config_id,
-            analysis_id=analysis_id
+            session, data, filter_config_id, analysis_id=analysis_id
         )
         session.commit()
 
@@ -467,7 +414,6 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
 
 
 class AnalysisActionReopenResource(LogRequestResource):
-
     @authenticate()
     def post(self, session, analysis_id, user=None):
         """
@@ -502,18 +448,17 @@ class AnalysisActionReopenResource(LogRequestResource):
 
 
 class AnalysisActionFinalizeResource(LogRequestResource):
-
     @authenticate(user_config=True)
     @request_json(
         [
-            'alleleassessments',
-            'referenceassessments',
-            'allelereports',
-            'annotations',
-            'custom_annotations',
-            'attachments',
-            'notrelevant_allele_ids',
-            'technical_allele_ids'
+            "alleleassessments",
+            "referenceassessments",
+            "allelereports",
+            "annotations",
+            "custom_annotations",
+            "attachments",
+            "notrelevant_allele_ids",
+            "technical_allele_ids",
         ]
     )
     def post(self, session, analysis_id, user_config=None, data=None, user=None):
@@ -803,12 +748,7 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 
         filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         result = helpers.finalize_interpretation(
-            session,
-            user.id,
-            data,
-            filter_config_id,
-            user_config,
-            analysis_id=analysis_id
+            session, user.id, data, filter_config_id, user_config, analysis_id=analysis_id
         )
         session.commit()
 
@@ -816,10 +756,17 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, analysis_id, user=None):
-        f = session.query(AnalysisInterpretationSnapshot).filter(
-            Analysis.id == analysis_id,
-            tuple_(Analysis.genepanel_name, Analysis.genepanel_version).in_((gp.name, gp.version) for gp in user.group.genepanels)
-        ).join(AnalysisInterpretation, Analysis).all()
+        f = (
+            session.query(AnalysisInterpretationSnapshot)
+            .filter(
+                Analysis.id == analysis_id,
+                tuple_(Analysis.genepanel_name, Analysis.genepanel_version).in_(
+                    (gp.name, gp.version) for gp in user.group.genepanels
+                ),
+            )
+            .join(AnalysisInterpretation, Analysis)
+            .all()
+        )
 
         result = AnalysisInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
         return result
@@ -829,39 +776,36 @@ class AnalysisCollisionResource(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
 
-        allele_ids = request.args.get('allele_ids')
+        allele_ids = request.args.get("allele_ids")
         if allele_ids is None:
             raise ApiError("Missing required arg allele_ids")
 
         if not allele_ids:
             return []
 
-        allele_ids = [int(i) for i in allele_ids.split(',')]
+        allele_ids = [int(i) for i in allele_ids.split(",")]
 
-        return helpers.get_workflow_allele_collisions(
-            session,
-            allele_ids,
-            analysis_id=analysis_id
-        )
+        return helpers.get_workflow_allele_collisions(session, allele_ids, analysis_id=analysis_id)
 
 
 class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
     @authenticate()
     @rest_filter
     def get(self, session, analysis_id, interpretation_id, rest_filter=None, data=None, user=None):
-        sample_ids = session.query(sample.Sample.id).filter(
-            sample.Sample.analysis_id == analysis_id
-        ).all()
+        sample_ids = (
+            session.query(sample.Sample.id).filter(sample.Sample.analysis_id == analysis_id).all()
+        )
         sample_ids = [s[0] for s in sample_ids]
 
-        if not sample_ids == rest_filter['sample_ids']:
-            raise ConflictError("Can not finish interpretation. Additional data have been added to this analysis. Please refresh.")
+        if not sample_ids == rest_filter["sample_ids"]:
+            raise ConflictError(
+                "Can not finish interpretation. Additional data have been added to this analysis. Please refresh."
+            )
         else:
             return None, 200
 
 
 class AnalysisInterpretationLogListResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, user=None):
         """
@@ -888,15 +832,7 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
         return logs, 200
 
     @authenticate()
-    @request_json(
-        [],
-        allowed=[
-            'warning_cleared',
-            'priority',
-            'message',
-            'review_comment'
-        ]
-    )
+    @request_json([], allowed=["warning_cleared", "priority", "message", "review_comment"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Create a new interpretation log entry for an analysis workflow.
@@ -924,11 +860,8 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
 
 
 class AnalysisInterpretationLogResource(LogRequestResource):
-
     @authenticate()
-    @request_json(
-        ['message']
-    )
+    @request_json(["message"])
     def patch(self, session, analysis_id, log_id, data=None, user=None):
         """
         Patch an interpretation log entry.
@@ -950,11 +883,7 @@ class AnalysisInterpretationLogResource(LogRequestResource):
             description: Error
         """
         helpers.patch_interpretationlog(
-          session,
-          user.id,
-          log_id,
-          data['message'],
-          analysis_id=analysis_id
+            session, user.id, log_id, data["message"], analysis_id=analysis_id
         )
         session.commit()
 
@@ -985,12 +914,7 @@ class AnalysisInterpretationLogResource(LogRequestResource):
           500:
             description: Error
         """
-        helpers.delete_interpretationlog(
-          session,
-          user.id,
-          log_id,
-          analysis_id=analysis_id
-        )
+        helpers.delete_interpretationlog(session, user.id, log_id, analysis_id=analysis_id)
         session.commit()
 
         return None, 200

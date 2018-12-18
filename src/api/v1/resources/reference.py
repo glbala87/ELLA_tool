@@ -9,12 +9,13 @@ from api.v1.resource import LogRequestResource
 
 
 class ReferenceListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
     @search_filter
-    def get(self, session, rest_filter=None, search_filter=None, page=None, per_page=None, user=None):
+    def get(
+        self, session, rest_filter=None, search_filter=None, page=None, per_page=None, user=None
+    ):
         """
         Returns a list of references.
 
@@ -46,7 +47,7 @@ class ReferenceListResource(LogRequestResource):
                 search_filter=search_filter,
                 schema=schemas.ReferenceSchema(strict=True),
                 page=page,
-                per_page=per_page
+                per_page=per_page,
             )
         else:
             return self.list_query(
@@ -55,11 +56,11 @@ class ReferenceListResource(LogRequestResource):
                 schemas.ReferenceSchema(strict=True),
                 rest_filter=rest_filter,
                 page=page,
-                per_page=per_page
+                per_page=per_page,
             )
 
     @authenticate()
-    @request_json([], allowed=['xml', 'manual'])
+    @request_json([], allowed=["xml", "manual"])
     def post(self, session, data=None, user=None):
         """
         Creates a new Reference from the input [Pubmed](http://www.ncbi.nlm.nih.gov/pubmed) XML.
@@ -91,48 +92,48 @@ class ReferenceListResource(LogRequestResource):
               $ref: '#/definitions/Reference'
             description: Created reference
         """
-        assert 'xml' in data or 'manual' in data
-        assert not ('xml' in data and 'manual' in data)
-        if 'xml' in data:
-            ref_data = PubMedParser().from_xml_string(data['xml'].encode('utf-8'))
+        assert "xml" in data or "manual" in data
+        assert not ("xml" in data and "manual" in data)
+        if "xml" in data:
+            ref_data = PubMedParser().from_xml_string(data["xml"].encode("utf-8"))
 
-            reference = session.query(assessment.Reference).filter(
-                assessment.Reference.pubmed_id == ref_data['pubmed_id']
-            ).one_or_none()
+            reference = (
+                session.query(assessment.Reference)
+                .filter(assessment.Reference.pubmed_id == ref_data["pubmed_id"])
+                .one_or_none()
+            )
 
             if not reference:
-                ref_obj = assessment.Reference(
-                    **ref_data
-                )
+                ref_obj = assessment.Reference(**ref_data)
                 session.add(ref_obj)
                 session.commit()
 
-                reference = session.query(assessment.Reference).filter(
-                    assessment.Reference.pubmed_id == ref_data['pubmed_id']
-                ).one()
+                reference = (
+                    session.query(assessment.Reference)
+                    .filter(assessment.Reference.pubmed_id == ref_data["pubmed_id"])
+                    .one()
+                )
 
             return schemas.ReferenceSchema().dump(reference).data
-        elif 'manual' in data:
+        elif "manual" in data:
 
-
-            reference = session.query(assessment.Reference).filter(
-                *[getattr(assessment.Reference, k) == v for k, v in data['manual'].items()]
-            ).first()
+            reference = (
+                session.query(assessment.Reference)
+                .filter(*[getattr(assessment.Reference, k) == v for k, v in data["manual"].items()])
+                .first()
+            )
             if reference is not None:
                 return schemas.ReferenceSchema().dump(reference).data
 
-            ref_obj=assessment.Reference(
-                **data['manual']
-            )
+            ref_obj = assessment.Reference(**data["manual"])
 
             session.add(ref_obj)
             session.commit()
 
-            reference = session.query(assessment.Reference).filter(
-                *[getattr(assessment.Reference, k) == v for k,v in data['manual'].items()]
-            ).one()
+            reference = (
+                session.query(assessment.Reference)
+                .filter(*[getattr(assessment.Reference, k) == v for k, v in data["manual"].items()])
+                .one()
+            )
 
             return schemas.ReferenceSchema().dump(reference).data
-
-
-

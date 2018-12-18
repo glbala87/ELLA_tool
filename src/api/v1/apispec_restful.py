@@ -38,10 +38,11 @@ import yaml
 def path_from_resource(spec, api, resource, **kwargs):
     """Extracts swagger spec from `resource` methods."""
     from apispec import Path
+
     assert resource is not None
 
     for endpoint, view in api.app.view_functions.iteritems():
-        if getattr(view, 'view_class', None) == resource:
+        if getattr(view, "view_class", None) == resource:
             break
     else:
         raise RuntimeError
@@ -52,25 +53,25 @@ def path_from_resource(spec, api, resource, **kwargs):
     else:
         raise RuntimeError
 
-    path = re.sub(r'<(?:[^:<>]+:)?([^<>]+)>', r'{\1}', rule.rule)
+    path = re.sub(r"<(?:[^:<>]+:)?([^<>]+)>", r"{\1}", rule.rule)
 
     operations = {}
     for method in map(str.lower, resource.methods):
         docstring = getattr(resource, method.lower()).__doc__
         operations[method] = {}
         if docstring:
-            if '---' in docstring:
-                desc, doc = docstring.split('---', 1)
+            if "---" in docstring:
+                desc, doc = docstring.split("---", 1)
                 desc = dedent(desc)
                 doc = dedent(doc)
-                operations[method]['description'] = desc
+                operations[method]["description"] = desc
                 try:
                     operations[method].update(yaml.load(doc))
                 except Exception:
                     print("Error while parsing docstring for resource {}:".format(path))
                     traceback.print_exc()
             else:
-                operations[method]['description'] = dedent(docstring)
+                operations[method]["description"] = dedent(docstring)
 
     return Path(path=path, operations=operations)
 
