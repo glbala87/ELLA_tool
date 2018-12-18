@@ -382,6 +382,7 @@ e2e-test-local: test-build
 	-docker rm -f $(CONTAINER_NAME)-e2e-local
 	docker run -d \
 	   --name $(CONTAINER_NAME)-e2e-local \
+	   --user $(UID):$(GID) \
        -it \
        -v $(shell pwd):/ella \
 	   -e PRODUCTION=false \
