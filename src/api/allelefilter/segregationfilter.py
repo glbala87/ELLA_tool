@@ -98,7 +98,7 @@ class SegregationFilter(object):
         )
         return genotype_with_allele
 
-    def get_genotype_query(self, allele_ids, sample_ids):
+    def get_genotype_temp_table(self, allele_ids, sample_ids):
         """
         Creates a combined genotype table (query)
         which looks like the following:
@@ -778,7 +778,7 @@ class SegregationFilter(object):
             unaffected_sibling_sample_names = [s.identifier for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
-            genotype_table = self.get_genotype_query(allele_ids, family_sample_ids)
+            genotype_table = self.get_genotype_temp_table(allele_ids, family_sample_ids)
 
             result[analysis_id]['no_coverage_parents'] = self.no_coverage_father_mother(
                 genotype_table,
