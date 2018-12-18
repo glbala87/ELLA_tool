@@ -1,6 +1,12 @@
 import pytest
 from vardb.datamodel import user
-from api.util.useradmin import authenticate_user, generate_password, change_password, password_expired, get_user
+from api.util.useradmin import (
+    authenticate_user,
+    generate_password,
+    change_password,
+    password_expired,
+    get_user,
+)
 
 
 def test_user_list(run_command):
@@ -31,7 +37,11 @@ def test_user_reset_password(test_database, session, run_command, username):
 def test_user_lock(session, username, run_command):
     result = run_command(["users", "lock", username])
     assert result.exit_code == 0
-    u = session.query(user.User).filter(user.User.username == username, user.User.active.is_(False)).one()
+    u = (
+        session.query(user.User)
+        .filter(user.User.username == username, user.User.active.is_(False))
+        .one()
+    )
 
 
 def test_user_modify(session, run_command):
@@ -55,7 +65,7 @@ def test_user_modify(session, run_command):
             "--email",
             email,
         ],
-        input="y\n"
+        input="y\n",
     )
     assert result.exit_code == 0
 
@@ -63,7 +73,10 @@ def test_user_modify(session, run_command):
     assert old_user is None
 
     session.query(user.User).filter(
-        user.User.username == new_username, user.User.first_name == first_name, user.User.last_name == last_name, user.User.email == email
+        user.User.username == new_username,
+        user.User.first_name == first_name,
+        user.User.last_name == last_name,
+        user.User.email == email,
     ).one()
 
 
@@ -89,7 +102,7 @@ def test_user_add(session, run_command):
             "--usergroup",
             usergroup,
         ],
-        input="y\n"
+        input="y\n",
     )
     assert result.exit_code == 0
 

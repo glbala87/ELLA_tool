@@ -5,7 +5,13 @@ from vardb.datamodel import user as user_model
 
 from api import schemas, ApiError
 from api.util.util import paginate, rest_filter, request_json, authenticate
-from api.util.useradmin import authenticate_user, create_session, change_password, logout, get_usersession_by_token
+from api.util.useradmin import (
+    authenticate_user,
+    create_session,
+    change_password,
+    logout,
+    get_usersession_by_token,
+)
 
 from api.v1.resource import Resource, LogRequestResource
 
@@ -13,7 +19,6 @@ log = logging.getLogger(__name__)
 
 
 class UserListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -50,12 +55,11 @@ class UserListResource(LogRequestResource):
             schemas.UserFullSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            per_page=per_page
+            per_page=per_page,
         )
 
 
 class UserResource(LogRequestResource):
-
     def get(self, session, user_id=None):
         """
         Returns a single user.
@@ -108,14 +112,12 @@ class ChangePasswordResource(Resource):
 
 
 class CurrentUser(LogRequestResource):
-
     @authenticate()
     def get(self, session, user=None):
         return schemas.UserFullSchema().dump(user).data
 
 
 class LogoutResource(LogRequestResource):
-
     @authenticate()
     def post(self, session, user=None):
 
@@ -133,4 +135,3 @@ class LogoutResource(LogRequestResource):
 
         logout(user_session)
         session.commit()
-

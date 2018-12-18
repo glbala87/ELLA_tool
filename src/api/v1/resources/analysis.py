@@ -7,7 +7,6 @@ from api.v1.resource import LogRequestResource
 
 
 class AnalysisListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -38,19 +37,19 @@ class AnalysisListResource(LogRequestResource):
             rest_filter = dict()
         if not ("genepanel_name", "genepanel_version") in rest_filter:
             rest_filter[("genepanel_name", "genepanel_version")] = [
-                (gp.name, gp.version) for gp in user.group.genepanels]
+                (gp.name, gp.version) for gp in user.group.genepanels
+            ]
         return self.list_query(
             session,
             sample.Analysis,
             schema=schemas.AnalysisSchema(),
             rest_filter=rest_filter,
             per_page=per_page,
-            page=page
+            page=page,
         )
 
 
 class AnalysisResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, analysis_id, user=None):
         """
@@ -70,10 +69,15 @@ class AnalysisResource(LogRequestResource):
                 $ref: '#/definitions/Analysis'
             description: Analysis object
         """
-        a = session.query(sample.Analysis).filter(
-            sample.Analysis.id == analysis_id,
-            tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
-                (gp.name, gp.version) for gp in user.group.genepanels)
-        ).one()
+        a = (
+            session.query(sample.Analysis)
+            .filter(
+                sample.Analysis.id == analysis_id,
+                tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
+                    (gp.name, gp.version) for gp in user.group.genepanels
+                ),
+            )
+            .one()
+        )
         analysis = schemas.AnalysisSchema().dump(a).data
         return analysis

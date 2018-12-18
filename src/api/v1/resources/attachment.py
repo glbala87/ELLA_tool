@@ -33,7 +33,7 @@ class AttachmentListResource(LogRequestResource):
             schemas.AttachmentSchema(strict=True),
             rest_filter=rest_filter,
             per_page=None,
-            page=None
+            page=None,
         )
         return vals
 
@@ -52,10 +52,10 @@ class AttachmentResource(LogRequestResource):
         size = 0
 
         # Read and write file in blocks of 64kb, and update hash
-        with open(tmp_path, 'w') as tmp_file:
+        with open(tmp_path, "w") as tmp_file:
             while True:
                 s = file_obj.read(65536)
-                if s == '':
+                if s == "":
                     break
                 size += len(s)
                 tmp_file.write(s)
@@ -64,17 +64,17 @@ class AttachmentResource(LogRequestResource):
         # Move file to attachment_storage/sha_val[:2]/sha_val
         sha_val = sha_val.hexdigest()
         folder = os.path.join(config["app"]["attachment_storage"], sha_val[:2])
-        mkdir_p(folder) # Make sure folder structure exists
+        mkdir_p(folder)  # Make sure folder structure exists
         path = os.path.join(folder, sha_val)
         os.rename(tmp_path, path)
 
         # Try to create thumbnail
-        thumbnail_path = path+".thumbnail"
+        thumbnail_path = path + ".thumbnail"
         if not os.path.isfile(thumbnail_path):
             try:
                 cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
                 subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
-            except subprocess.CalledProcessError, e:
+            except subprocess.CalledProcessError as e:
                 pass
 
         # Create database object
@@ -82,9 +82,9 @@ class AttachmentResource(LogRequestResource):
             "sha256": sha_val,
             "filename": file_obj.filename,
             "size": size,
-            "extension": file_obj.filename.rsplit('.',1)[-1] if "." in file_obj.filename else "",
+            "extension": file_obj.filename.rsplit(".", 1)[-1] if "." in file_obj.filename else "",
             "mimetype": file_obj.content_type,
-            "user_id": user.id
+            "user_id": user.id,
         }
 
         atchmt = attachment.Attachment(**data)
@@ -95,9 +95,13 @@ class AttachmentResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, attachment_id, user=None):
-        atchmt = session.query(attachment.Attachment).filter(
-            attachment.Attachment.id == attachment_id
-        ).one()
+        atchmt = (
+            session.query(attachment.Attachment)
+            .filter(attachment.Attachment.id == attachment_id)
+            .one()
+        )
         atchmt_schema = schemas.AttachmentSchema(strict=True)
 
-        return send_file(atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename)
+        return send_file(
+            atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename
+        )

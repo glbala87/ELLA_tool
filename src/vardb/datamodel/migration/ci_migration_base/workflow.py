@@ -20,11 +20,18 @@ class InterpretationMixin(object):
 
     user_state = Column("user_state", JSONMutableDict.as_mutable(JSONB), default={})
     state = Column(JSONMutableDict.as_mutable(JSONB), default={})
-    status = Column(Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
-                    default="Not started", nullable=False)
+    status = Column(
+        Enum("Not started", "Ongoing", "Done", name="interpretation_status"),
+        default="Not started",
+        nullable=False,
+    )
     end_action = Column(Enum("Mark review", "Finalize", name="interpretation_endaction"))
-    date_last_update = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_last_update = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
 
     @declared_attr
     def user_id(cls):
@@ -40,7 +47,11 @@ class InterpretationMixin(object):
 
     @declared_attr
     def __table_args__(cls):
-        return (ForeignKeyConstraint(['genepanel_name', 'genepanel_version'], ["genepanel.name", "genepanel.version"]),)
+        return (
+            ForeignKeyConstraint(
+                ["genepanel_name", "genepanel_version"], ["genepanel.name", "genepanel.version"]
+            ),
+        )
 
     @classmethod
     def create_next(cls, old):
@@ -53,12 +64,18 @@ class InterpretationMixin(object):
 class InterpretationSnapshotMixin(object):
 
     id = Column(Integer, primary_key=True)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
-    filtered = Column(Enum("FREQUENCY", "INTRON", "GENE", "UTR", name="interpretationsnapshot_filtered"),)  # If the allele was filtered, this describes which type of filtering
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
+    filtered = Column(
+        Enum("FREQUENCY", "INTRON", "GENE", "UTR", name="interpretationsnapshot_filtered")
+    )  # If the allele was filtered, this describes which type of filtering
 
     @declared_attr
     def annotation_id(cls):
-        return Column(Integer, ForeignKey("annotation.id"), nullable=True)  # None for an excluded allele
+        return Column(
+            Integer, ForeignKey("annotation.id"), nullable=True
+        )  # None for an excluded allele
 
     @declared_attr
     def customannotation_id(cls):
@@ -88,9 +105,10 @@ class AnalysisInterpretation(Base, InterpretationMixin):
     The table stores both normal state and user-specific state for each round,
     while keeping a history of the state upon update.
     """
+
     __tablename__ = "analysisinterpretation"
 
-    __next_attrs__ = ['analysis_id', 'state', 'genepanel_name', 'genepanel_version']
+    __next_attrs__ = ["analysis_id", "state", "genepanel_name", "genepanel_version"]
 
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
@@ -105,12 +123,15 @@ class AnalysisInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     at the time when it was marked as 'Done'.
     It's logging all relevant context for the interpretation.
     """
+
     __tablename__ = "analysisinterpretationsnapshot"
 
-    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"), nullable=False,)
-    analysisinterpretation = relationship("AnalysisInterpretation", backref='snapshots')
+    analysisinterpretation_id = Column(
+        Integer, ForeignKey("analysisinterpretation.id"), nullable=False
+    )
+    analysisinterpretation = relationship("AnalysisInterpretation", backref="snapshots")
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    __table_args__ = (UniqueConstraint("analysisinterpretation_id", "allele_id"), )
+    __table_args__ = (UniqueConstraint("analysisinterpretation_id", "allele_id"),)
 
 
 class AlleleInterpretation(Base, InterpretationMixin):
@@ -120,9 +141,10 @@ class AlleleInterpretation(Base, InterpretationMixin):
     The table stores both normal state and user-specific state for each round,
     while keeping a history of the state upon update.
     """
+
     __tablename__ = "alleleinterpretation"
 
-    __next_attrs__ = ['allele_id', 'state', 'genepanel_name', 'genepanel_version']
+    __next_attrs__ = ["allele_id", "state", "genepanel_name", "genepanel_version"]
 
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False)
@@ -137,12 +159,13 @@ class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     at the time when it was marked as 'Done'.
     It's logging all relevant context for the interpretation.
     """
+
     __tablename__ = "alleleinterpretationsnapshot"
 
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"), nullable=False)
-    alleleinterpretation = relationship("AlleleInterpretation", backref='snapshots')
+    alleleinterpretation = relationship("AlleleInterpretation", backref="snapshots")
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
-    __table_args__ = (UniqueConstraint("alleleinterpretation_id", "allele_id"), )
+    __table_args__ = (UniqueConstraint("alleleinterpretation_id", "allele_id"),)
 
 
 class InterpretationStateHistory(Base):
@@ -151,11 +174,14 @@ class InterpretationStateHistory(Base):
     Every time the [allele|analysis]interpretation state is updated (i.e. when user saves),
     it's copied into this table.
     """
+
     __tablename__ = "interpretationstatehistory"
 
     id = Column(Integer, primary_key=True)
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
     analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    date_created = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     state = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)

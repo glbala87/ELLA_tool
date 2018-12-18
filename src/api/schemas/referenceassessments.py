@@ -9,18 +9,20 @@ ma = Marshmallow(app)
 
 class ReferenceAssessmentSchema(Schema):
     class Meta:
-        title = 'ReferenceAssessment'
+        title = "ReferenceAssessment"
         description = "Represents an assessment of one reference in context of one allele."
-        fields = ('id',
-                  'allele_id',
-                  'reference_id',
-                  'analysis_id',
-                  'genepanel_name',
-                  'genepanel_version',
-                  'date_created',
-                  'date_superceeded',
-                  'user_id',
-                  'evaluation')
+        fields = (
+            "id",
+            "allele_id",
+            "reference_id",
+            "analysis_id",
+            "genepanel_name",
+            "genepanel_version",
+            "date_created",
+            "date_superceeded",
+            "user_id",
+            "evaluation",
+        )
 
     user_id = fields.Integer(allow_none=True)  # Debug only
     date_created = fields.DateTime()
@@ -34,17 +36,18 @@ class ReferenceAssessmentSchema(Schema):
 
 class ReferenceAssessmentInputSchema(Schema):
     class Meta:
-        title = 'ReferenceAssessmentInput'
+        title = "ReferenceAssessmentInput"
         description = "Data needed to create a reference assessment"
-        fields = ('allele_id',
-                  'reference_id',
-                  'analysis_id',
-                  'genepanel_name',
-                  'genepanel_version',
-                  'user_id',
-                  'evaluation')
+        fields = (
+            "allele_id",
+            "reference_id",
+            "analysis_id",
+            "genepanel_name",
+            "genepanel_version",
+            "user_id",
+            "evaluation",
+        )
 
     user_id = fields.Integer(allow_none=True)  # Debug only
     date_superceeded = fields.DateTime(allow_none=True)
     evaluation = fields.Field(required=True)
-

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 from collections import defaultdict
 import re
@@ -5,21 +6,10 @@ import abc
 
 
 # Official fields in specification
-SPEC_FIELDS = [
-    'CHROM',
-    'POS',
-    'ID',
-    'REF',
-    'ALT',
-    'QUAL',
-    'FILTER',
-    'INFO',
-    'FORMAT'
-]
+SPEC_FIELDS = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]
 
 
 class Util(object):
-
     @staticmethod
     def conv_to_number(value):
         """
@@ -47,17 +37,19 @@ class Util(object):
         :param extract_single: If value ends up being a single value, do not return a list. Default: False
         :type extract_single: bool
         """
+
         def inner(x):
-            l = [conv_func(i) for i in x.split(',', split_max)]
+            l = [conv_func(i) for i in x.split(",", split_max)]
             if len(l) == 1 and extract_single:
                 l = l[0]
             return l
+
         return inner
 
     @staticmethod
     def open(path_or_fileobject):
         if isinstance(path_or_fileobject, basestring):
-            return open(path_or_fileobject, 'r')
+            return open(path_or_fileobject, "r")
         else:
             # Reset file object and return
             path_or_fileobject.seek(0)
@@ -97,20 +89,20 @@ class BaseInfoProcessor(object):
 
     def getConvertFunction(self, meta, key):
         # Search for meta item
-        f = next((m for m in meta['INFO'] if m['ID'] == key), None)
-        func = lambda x: x.decode('latin-1', 'replace')
+        f = next((m for m in meta["INFO"] if m["ID"] == key), None)
+        func = lambda x: x.decode("latin-1", "replace")
         if f:
             parse_func = str
-            if f['Type'] == 'Integer':
+            if f["Type"] == "Integer":
                 parse_func = int
-            elif f['Type'] in ['Number', 'Double', 'Float']:
+            elif f["Type"] in ["Number", "Double", "Float"]:
                 parse_func = float
-            elif f['Type'] == 'Flag':
+            elif f["Type"] == "Flag":
                 parse_func = bool
-            elif f['Type'] == 'String':
-                parse_func = lambda x: x.decode('latin-1', 'replace')
+            elif f["Type"] == "String":
+                parse_func = lambda x: x.decode("latin-1", "replace")
 
-            number = f['Number']
+            number = f["Number"]
 
             try:
                 # Number == int
@@ -118,11 +110,11 @@ class BaseInfoProcessor(object):
                 func = Util.split_and_convert(parse_func, split_max=n, extract_single=True)
             except ValueError:
                 # Number == Allele specific
-                if number == 'A':
+                if number == "A":
                     func = Util.split_and_convert(parse_func)
                 # Number == Unknown
                 else:
-                    if f['Type'] == 'Integer':
+                    if f["Type"] == "Integer":
                         func = Util.split_and_convert(parse_func, extract_single=True)
                     else:
                         func = parse_func
@@ -135,43 +127,45 @@ class VEPInfoProcessor(BaseInfoProcessor):
     Parser for the VEP INFO field.
     """
 
-    field = 'CSQ'
+    field = "CSQ"
 
     def __init__(self, meta):
         self.meta = meta
         self.fields = self._parseFieldsFromMeta()
         self.converters = {
-            'AA_MAF': self._parseMAF,
-            'AFR_MAF': self._parseMAF,
-            'AMR_MAF': self._parseMAF,
-            'ALLELE_NUM': int,
-            'ASN_MAF': self._parseMAF,
-            'EA_MAF': self._parseMAF,
-            'EUR_MAF': self._parseMAF,
-            'EAS_MAF': self._parseMAF,
-            'SAS_MAF': self._parseMAF,
-            'GMAF': self._parseMAF,
-            'EAS_MAF': self._parseMAF,
-            'SAS_MAF': self._parseMAF,
-            'Consequence': lambda x: [i for i in x.split('&')],
-            'Existing_variation': lambda x: [i for i in x.split('&')],
-            'DISTANCE': int,
-            'STRAND': int,
-            'PUBMED': lambda x: [int(i) for i in x.split('&')],
+            "AA_MAF": self._parseMAF,
+            "AFR_MAF": self._parseMAF,
+            "AMR_MAF": self._parseMAF,
+            "ALLELE_NUM": int,
+            "ASN_MAF": self._parseMAF,
+            "EA_MAF": self._parseMAF,
+            "EUR_MAF": self._parseMAF,
+            "EAS_MAF": self._parseMAF,
+            "SAS_MAF": self._parseMAF,
+            "GMAF": self._parseMAF,
+            "EAS_MAF": self._parseMAF,
+            "SAS_MAF": self._parseMAF,
+            "Consequence": lambda x: [i for i in x.split("&")],
+            "Existing_variation": lambda x: [i for i in x.split("&")],
+            "DISTANCE": int,
+            "STRAND": int,
+            "PUBMED": lambda x: [int(i) for i in x.split("&")],
         }
 
     def _parseFieldsFromMeta(self):
-        info_line = next((l for l in self.meta['INFO'] if l.get('ID') == VEPInfoProcessor.field), None)
+        info_line = next(
+            (l for l in self.meta["INFO"] if l.get("ID") == VEPInfoProcessor.field), None
+        )
         if info_line:
-            fields = info_line['Description'].split('Format: ', 1)[1].split('|')
+            fields = info_line["Description"].split("Format: ", 1)[1].split("|")
             return fields
         return list()
 
     def _parseMAF(self, val):
         maf = dict()
-        alleles = val.split('&')
+        alleles = val.split("&")
         for allele in alleles:
-            v = allele.split(':')
+            v = allele.split(":")
             for key, value in zip(v[0::2], v[1::2]):
                 try:
                     maf[key] = float(value)
@@ -183,16 +177,19 @@ class VEPInfoProcessor(BaseInfoProcessor):
         return key == VEPInfoProcessor.field
 
     def process(self, key, value, info_data, alleles, processed):
-        transcripts = value.split(',')
+        transcripts = value.split(",")
 
         all_data = [
             {
-                k: self.converters.get(k, lambda x: x.decode('latin-1', 'replace'))(v) for k, v in zip(self.fields, t.split('|')) if v is not ''
-            } for t in transcripts
+                k: self.converters.get(k, lambda x: x.decode("latin-1", "replace"))(v)
+                for k, v in zip(self.fields, t.split("|"))
+                if v is not ""
+            }
+            for t in transcripts
         ]
 
         for a_idx, allele in enumerate(alleles):
-            info_data[allele][key] = [d for d in all_data if d['ALLELE_NUM']-1 == a_idx]
+            info_data[allele][key] = [d for d in all_data if d["ALLELE_NUM"] - 1 == a_idx]
 
 
 class SnpEffInfoProcessor(BaseInfoProcessor):
@@ -200,16 +197,12 @@ class SnpEffInfoProcessor(BaseInfoProcessor):
     Parser for the snpEff INFO field.
     """
 
-    field = 'EFF'
+    field = "EFF"
 
     def __init__(self, meta):
         self.meta = meta
         self.fields = self._parseFieldsFromMeta()
-        self.converters = {
-            'Genotype_Number': int,
-            'Exon_Rank': int,
-            'Amino_Acid_length': int
-        }
+        self.converters = {"Genotype_Number": int, "Exon_Rank": int, "Amino_Acid_length": int}
 
     def _parseFormat(self, line):
         """
@@ -218,18 +211,25 @@ class SnpEffInfoProcessor(BaseInfoProcessor):
         """
         fields = list()
 
-        line = line.replace('(', '|').replace(')', '').replace('[ | ERRORS | WARNINGS ]', '').replace('\'', '')
-        fields = line.split('|')
+        line = (
+            line.replace("(", "|")
+            .replace(")", "")
+            .replace("[ | ERRORS | WARNINGS ]", "")
+            .replace("'", "")
+        )
+        fields = line.split("|")
 
         fields = [f.strip() for f in fields]
 
         return fields
 
     def _parseFieldsFromMeta(self):
-        info_line = next((l for l in self.meta['INFO'] if l.get('ID') == SnpEffInfoProcessor.field), None)
+        info_line = next(
+            (l for l in self.meta["INFO"] if l.get("ID") == SnpEffInfoProcessor.field), None
+        )
         if info_line:
-            fields = self._parseFormat(info_line['Description'].split('Format: \'', 1)[1])
-            fields.append('ERRORS')
+            fields = self._parseFormat(info_line["Description"].split("Format: '", 1)[1])
+            fields.append("ERRORS")
             return fields
         return list()
 
@@ -237,16 +237,19 @@ class SnpEffInfoProcessor(BaseInfoProcessor):
         return key == SnpEffInfoProcessor.field
 
     def process(self, key, value, info_data, alleles, processed):
-        transcripts = value.split(',')
+        transcripts = value.split(",")
 
         all_data = [
             {
-                k: self.converters.get(k, lambda x: x.decode('latin-1', 'replace'))(v) for k, v in zip(self.fields, self._parseFormat(t)) if v is not ''
-            } for t in transcripts
+                k: self.converters.get(k, lambda x: x.decode("latin-1", "replace"))(v)
+                for k, v in zip(self.fields, self._parseFormat(t))
+                if v is not ""
+            }
+            for t in transcripts
         ]
 
         for a_idx, allele in enumerate(alleles):
-            info_data[allele][key] = [d for d in all_data if d['Genotype_Number']-1 == a_idx]
+            info_data[allele][key] = [d for d in all_data if d["Genotype_Number"] - 1 == a_idx]
 
 
 class CsvAlleleParser(BaseInfoProcessor):
@@ -254,7 +257,7 @@ class CsvAlleleParser(BaseInfoProcessor):
     Parses comma separated values, and inserts them into the data according to the allele the value belongs to.
     """
 
-    fields = ['AC', 'AF', 'MLEAC', 'MLEAF']
+    fields = ["AC", "AF", "MLEAC", "MLEAF"]
 
     def __init__(self, meta):
         self.meta = meta
@@ -264,16 +267,18 @@ class CsvAlleleParser(BaseInfoProcessor):
         return key in CsvAlleleParser.fields
 
     def process(self, key, value, info_data, alleles, processed):
-        allele_values = value.split(',')
+        allele_values = value.split(",")
         if not len(allele_values) == len(alleles):
-            raise RuntimeError("Number of allele values for {} not matching number of alleles".format(key))
+            raise RuntimeError(
+                "Number of allele values for {} not matching number of alleles".format(key)
+            )
 
         for a_idx, allele in enumerate(alleles):
             info_data[allele][key] = self.conv_func(allele_values[a_idx])
 
 
 class NativeInfoProcessor(BaseInfoProcessor):
-        """
+    """
         Fallback processor, invoked if none of the custom ones accepted the data.
 
         It searches the INFO fields in the header metadata, trying to use the specified type and length.
@@ -282,20 +287,20 @@ class NativeInfoProcessor(BaseInfoProcessor):
         into the 'ALL' key in 'INFO' in the resulting dictionary.
         """
 
-        def __init__(self, meta):
-            self.meta = meta
+    def __init__(self, meta):
+        self.meta = meta
 
-        def accepts(self, key, value, processed):
-            return not processed
+    def accepts(self, key, value, processed):
+        return not processed
 
-        def process(self, key, value, info_data, alleles):
+    def process(self, key, value, info_data, alleles):
 
-            if isinstance(value, bool):
-                info_data['ALL'][key] = value
-            else:
-                func = self.getConvertFunction(self.meta, key)
-                # We ignore alleles for these values, but return them in the 'ALL' key
-                info_data['ALL'][key] = func(value)
+        if isinstance(value, bool):
+            info_data["ALL"][key] = value
+        else:
+            func = self.getConvertFunction(self.meta, key)
+            # We ignore alleles for these values, but return them in the 'ALL' key
+            info_data["ALL"][key] = func(value)
 
 
 class HeaderParser(object):
@@ -308,9 +313,9 @@ class HeaderParser(object):
     def __init__(self, path_or_fileobject):
         self.path_or_fileobject = path_or_fileobject
         self.metaProccessors = {
-            'INFO': self._parseMetaInfo,
-            'FILTER': self._parseMetaInfo,
-            'FORMAT': self._parseMetaInfo
+            "INFO": self._parseMetaInfo,
+            "FILTER": self._parseMetaInfo,
+            "FORMAT": self._parseMetaInfo,
         }
 
     def _getSamples(self, header):
@@ -328,15 +333,15 @@ class HeaderParser(object):
         # Read in metadata and header
         with Util.open(self.path_or_fileobject) as fd:
             for line in fd:
-                line = line.replace('\n', '')
-                if line.startswith('##'):
-                    key, value = line[2:].split('=', 1)
+                line = line.replace("\n", "")
+                if line.startswith("##"):
+                    key, value = line[2:].split("=", 1)
                     meta[key].append(value)
-                elif(line.startswith('#')):
-                    line = line.replace('#', '')
+                elif line.startswith("#"):
+                    line = line.replace("#", "")
                     header = re.split("\s+", line)
-                    #header = line.split('\t')
-                    #header =
+                    # header = line.split('\t')
+                    # header =
                 else:
                     # End of header
                     break
@@ -360,7 +365,6 @@ class HeaderParser(object):
 
 
 class DataParser(object):
-
     def __init__(self, path_or_fileobject, meta, header, samples):
         self.path_or_fileobject = path_or_fileobject
 
@@ -379,22 +383,20 @@ class DataParser(object):
         Parses the INFO data into data structures.
         Data is split into general ('ALL') and allele specific data.
         """
-        alleles = data['ALT']
+        alleles = data["ALT"]
 
-        fields = data['INFO'].split(';')
+        fields = data["INFO"].split(";")
 
         # Create dict for allele specific INFO
-        info_data = {
-            k: dict() for k in alleles
-        }
+        info_data = {k: dict() for k in alleles}
         # And include INFO for 'ALL' alleles
-        info_data['ALL'] = dict()
+        info_data["ALL"] = dict()
 
         for f in fields:
             if not f:  # Avoid empty keys
                 continue
-            if '=' in f:
-                key, value = f.split('=', 1)
+            if "=" in f:
+                key, value = f.split("=", 1)
             else:
                 key, value = f, True
             # Process keys by processor, if present, or use native processor
@@ -407,40 +409,38 @@ class DataParser(object):
             # If no processors handled the data, use the native header processor
             if not processed:
                 self.fallbackProcessor.process(key, value, info_data, alleles)
-        data['INFO'] = info_data
+        data["INFO"] = info_data
 
     def _parseDataSampleFields(self, data):
-        if 'FORMAT' not in data:
+        if "FORMAT" not in data:
             return
-        sample_format = data['FORMAT'].split(':')
+        sample_format = data["FORMAT"].split(":")
 
         samples = dict()
         extract = Util.split_and_convert(Util.conv_to_number, extract_single=True)
         for sample_name in self.samples:
             sample_text = data.pop(sample_name)
             samples[sample_name] = {
-                k: extract(v) for k, v in zip(sample_format, sample_text.split(':'))
+                k: extract(v) for k, v in zip(sample_format, sample_text.split(":"))
             }
 
-        data['SAMPLES'] = samples
+        data["SAMPLES"] = samples
 
-        del data['FORMAT']
+        del data["FORMAT"]
 
     def _parseData(self, line):
-        data = {
-            k: v for k, v in zip(self.header, re.split('\s+', line))
-        }
+        data = {k: v for k, v in zip(self.header, re.split("\s+", line))}
 
         # Split by alleles
-        data['ALT'] = data['ALT'].split(',')
+        data["ALT"] = data["ALT"].split(",")
 
         self._parseDataInfoField(data)
 
         self._parseDataSampleFields(data)
 
         # Manual conversion
-        data['POS'] = Util.conv_to_number(data['POS'])
-        data['QUAL'] = Util.conv_to_number(data['QUAL'])
+        data["POS"] = Util.conv_to_number(data["POS"])
+        data["QUAL"] = Util.conv_to_number(data["QUAL"])
 
         return data
 
@@ -449,25 +449,26 @@ class DataParser(object):
         with Util.open(self.path_or_fileobject) as fd:
             for line_idx, line in enumerate(fd):
                 # Skip header, wait for #CHROM to signal start of data
-                if line.startswith('#CHROM') and not found_data_start:
+                if line.startswith("#CHROM") and not found_data_start:
                     found_data_start = True
                     continue
                 if not found_data_start:
                     continue
-                line = line.replace('\n', '')
+                line = line.replace("\n", "")
                 try:
                     data = self._parseData(line)
                 except Exception:
                     if throw_exceptions:
                         raise
                     else:
-                        sys.stderr.write("WARNING: Line {} failed to parse: \n {}".format(line_idx, line))
+                        sys.stderr.write(
+                            "WARNING: Line {} failed to parse: \n {}".format(line_idx, line)
+                        )
 
                 yield data
 
 
 class VcfIterator(object):
-
     def __init__(self, path_or_fileobject):
         self.path_or_fileobject = path_or_fileobject
         self.meta, self.header, self.samples = HeaderParser(self.path_or_fileobject).parse()
@@ -494,12 +495,11 @@ class VcfIterator(object):
             yield r
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import json
 
     path = sys.argv[1]
     v = VcfIterator(path)
 
     for value in v.iter():
-        print json.dumps(value, indent=4)
-
+        print(json.dumps(value, indent=4))

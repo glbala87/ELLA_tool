@@ -5,8 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_searchable import make_searchable
 
-class CustomBase(object):
 
+class CustomBase(object):
     @classmethod
     def get_or_create(cls, session, defaults=None, **kwargs):
         """
@@ -62,16 +62,28 @@ class CustomBase(object):
 # Add manual naming conventions to assist consistency when
 # writing migration scripts
 convention = {
-  "ix": 'ix_%(column_0_label)s',
-  "uq": "uq_%(table_name)s_%(column_0_name)s",
-  "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-  "pk": "pk_%(table_name)s"
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
 }
 
 
-Base = declarative_base(cls=CustomBase) # NB! Use this Base instance always.
+Base = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
 make_searchable()  # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
 
 # Don't remove!
-from vardb.datamodel.migration.ci_migration_base import allele, annotation, annotationshadow, annotationjob, sample, assessment, genotype, gene, user, workflow, log
+from vardb.datamodel.migration.ci_migration_base import (
+    allele,
+    annotation,
+    annotationshadow,
+    annotationjob,
+    sample,
+    assessment,
+    genotype,
+    gene,
+    user,
+    workflow,
+    log,
+)

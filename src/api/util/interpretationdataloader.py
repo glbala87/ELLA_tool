@@ -36,35 +36,33 @@ class InterpretationDataLoader(object):
 
         if isinstance(interpretation, workflow.AlleleInterpretation):
             excluded_allele_ids = {
-                'frequency': [],
-                'region': [],
-                'ppy': [],
-                'quality': [],
-                'consequence': [],
-                'segregation': []
+                "frequency": [],
+                "region": [],
+                "ppy": [],
+                "quality": [],
+                "consequence": [],
+                "segregation": [],
             }
             return [interpretation.allele.id], excluded_allele_ids
 
         elif isinstance(interpretation, workflow.AnalysisInterpretation):
             analysis_id = interpretation.analysis_id
-            analysis_allele_ids = self.session.query(
-                allele.Allele.id
-            ).join(
-                genotype.Genotype.alleles,
-                sample.Sample,
-                sample.Analysis
-            ).filter(
-                sample.Analysis.id == analysis_id
-            ).all()
+            analysis_allele_ids = (
+                self.session.query(allele.Allele.id)
+                .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
+                .filter(sample.Analysis.id == analysis_id)
+                .all()
+            )
 
             af = AlleleFilter(self.session)
             _, filtered_alleles = af.filter_alleles(
-                filter_config_id,
-                None,
-                {analysis_id: [a[0] for a in analysis_allele_ids]}
+                filter_config_id, None, {analysis_id: [a[0] for a in analysis_allele_ids]}
             )
 
-            return filtered_alleles[analysis_id]['allele_ids'], filtered_alleles[analysis_id]['excluded_allele_ids']
+            return (
+                filtered_alleles[analysis_id]["allele_ids"],
+                filtered_alleles[analysis_id]["excluded_allele_ids"],
+            )
 
     def group_alleles_by_finalization_filtering_status(self, interpretation):
         if not interpretation.snapshots:
@@ -75,19 +73,19 @@ class InterpretationDataLoader(object):
         # Don't remove category below as long as it's part of snapshot tables' enums
         # even if it's not a filter being used anymore. Otherwise, viewing historic analyses will break
         categories = {
-            'FREQUENCY': 'frequency',
-            'REGION': 'region',
-            'POLYPYRIMIDINE': 'ppy',
-            'GENE': 'gene',
-            'QUALITY': 'quality',
-            'CONSEQUENCE': 'consequence',
-            'SEGREGATION': 'segregation'
+            "FREQUENCY": "frequency",
+            "REGION": "region",
+            "POLYPYRIMIDINE": "ppy",
+            "GENE": "gene",
+            "QUALITY": "quality",
+            "CONSEQUENCE": "consequence",
+            "SEGREGATION": "segregation",
         }
 
         excluded_allele_ids = {k: [] for k in categories.values()}
 
         for snapshot in interpretation.snapshots:
-            if hasattr(snapshot, 'filtered'):
+            if hasattr(snapshot, "filtered"):
                 if snapshot.filtered in categories:
                     excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
                 else:
@@ -98,12 +96,20 @@ class InterpretationDataLoader(object):
         return allele_ids, excluded_allele_ids
 
     def from_obj(self, interpretation, filter_config_id):
-        if interpretation.status == 'Done':
-            allele_ids, excluded_ids = self.group_alleles_by_finalization_filtering_status(interpretation)
+        if interpretation.status == "Done":
+            allele_ids, excluded_ids = self.group_alleles_by_finalization_filtering_status(
+                interpretation
+            )
         else:
-            allele_ids, excluded_ids = self.group_alleles_by_config_and_annotation(interpretation, filter_config_id)
+            allele_ids, excluded_ids = self.group_alleles_by_config_and_annotation(
+                interpretation, filter_config_id
+            )
 
-        result = InterpretationDataLoader._get_interpretation_schema(interpretation)().dump(interpretation).data
-        result['allele_ids'] = allele_ids
-        result['excluded_allele_ids'] = excluded_ids
+        result = (
+            InterpretationDataLoader._get_interpretation_schema(interpretation)()
+            .dump(interpretation)
+            .data
+        )
+        result["allele_ids"] = allele_ids
+        result["excluded_allele_ids"] = excluded_ids
         return result

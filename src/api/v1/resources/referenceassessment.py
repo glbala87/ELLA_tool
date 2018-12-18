@@ -9,7 +9,6 @@ from api.v1.resource import LogRequestResource
 
 
 class ReferenceAssessmentResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, ra_id=None, user=None):
         """
@@ -29,15 +28,16 @@ class ReferenceAssessmentResource(LogRequestResource):
                 $ref: '#/definitions/ReferenceAssessment'
             description: ReferenceAssessment object
         """
-        a = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.id == ra_id
-        ).one()
+        a = (
+            session.query(assessment.ReferenceAssessment)
+            .filter(assessment.ReferenceAssessment.id == ra_id)
+            .one()
+        )
         result = schemas.ReferenceAssessmentSchema(strict=True).dump(a).data
         return result
 
 
 class ReferenceAssessmentListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -70,21 +70,21 @@ class ReferenceAssessmentListResource(LogRequestResource):
             schemas.ReferenceAssessmentSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            per_page=100000  # FIXME: Fix proper pagination...
+            per_page=100000,  # FIXME: Fix proper pagination...
         )
 
     @authenticate()
     @request_json(
         [
-            'allele_id',
-            'reference_id',
-            'evaluation',
-            'genepanel_name',
-            'genepanel_version',
-            'analysis_id',
-            'user_id'
+            "allele_id",
+            "reference_id",
+            "evaluation",
+            "genepanel_name",
+            "genepanel_version",
+            "analysis_id",
+            "user_id",
         ],
-        True
+        True,
     )
     def post(self, session, data=None, user=None):
         """
@@ -158,12 +158,16 @@ class ReferenceAssessmentListResource(LogRequestResource):
 
         # If there exists an assessment already for this allele_id which is not yet curated,
         # we update that one instead.
-        existing_ass = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.allele_id == obj.allele_id,
-            assessment.ReferenceAssessment.reference_id == obj.reference_id,
-            assessment.ReferenceAssessment.date_superceeded == None,
-            assessment.ReferenceAssessment.status == 0
-        ).one_or_none()
+        existing_ass = (
+            session.query(assessment.ReferenceAssessment)
+            .filter(
+                assessment.ReferenceAssessment.allele_id == obj.allele_id,
+                assessment.ReferenceAssessment.reference_id == obj.reference_id,
+                assessment.ReferenceAssessment.date_superceeded == None,
+                assessment.ReferenceAssessment.status == 0,
+            )
+            .one_or_none()
+        )
 
         if existing_ass:
             obj.id = existing_ass.id
@@ -174,9 +178,9 @@ class ReferenceAssessmentListResource(LogRequestResource):
         session.commit()
 
         # Reload to fetch all data
-        new_obj = session.query(assessment.ReferenceAssessment).filter(
-            assessment.ReferenceAssessment.id == obj.id
-        ).one()
+        new_obj = (
+            session.query(assessment.ReferenceAssessment)
+            .filter(assessment.ReferenceAssessment.id == obj.id)
+            .one()
+        )
         return schemas.ReferenceAssessmentSchema(strict=True).dump(new_obj).data, 200
-
-

@@ -8,7 +8,6 @@ from api.util import queries
 
 
 class FrequencyFilter(object):
-
     def __init__(self, session, config):
         self.session = session
         self.config = config
@@ -22,21 +21,37 @@ class FrequencyFilter(object):
 
         if freq_provider in num_thresholds and freq_key in num_thresholds[freq_provider]:
             num_threshold = num_thresholds[freq_provider][freq_key]
-            assert isinstance(num_threshold, int), 'Provided frequency num threshold is not an integer'
-            return getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '_num.' + freq_key) >= num_threshold
+            assert isinstance(
+                num_threshold, int
+            ), "Provided frequency num threshold is not an integer"
+            return (
+                getattr(
+                    annotationshadow.AnnotationShadowFrequency, freq_provider + "_num." + freq_key
+                )
+                >= num_threshold
+            )
 
         return None
 
     def _get_freq_threshold_filter(self, thresholds, num_thresholds, threshold_func, combine_func):
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
-        frequency_groups = self.config['frequencies']['groups']
+        frequency_groups = self.config["frequencies"]["groups"]
 
         filters = list()
-        for group, thresholds in thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
+        for (
+            group,
+            thresholds,
+        ) in thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
-                raise RuntimeError("Group {} specified in freq_cutoffs, but it doesn't exist in configuration".format(group))
+                raise RuntimeError(
+                    "Group {} specified in freq_cutoffs, but it doesn't exist in configuration".format(
+                        group
+                    )
+                )
 
-            for freq_provider, freq_keys in frequency_groups[group].iteritems():  # 'ExAC', ['G', 'SAS', ...]
+            for freq_provider, freq_keys in frequency_groups[
+                group
+            ].iteritems():  # 'ExAC', ['G', 'SAS', ...]
                 for freq_key in freq_keys:
                     filters.append(
                         threshold_func(num_thresholds, freq_provider, freq_key, thresholds)
@@ -50,11 +65,14 @@ class FrequencyFilter(object):
         Example: ExAG.G > hi_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = FrequencyFilter._get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key)
+        num_filter = FrequencyFilter._get_freq_num_threshold_filter(
+            provider_numbers, freq_provider, freq_key
+        )
         if num_filter is not None:
             freq_key_filters.append(num_filter)
         freq_key_filters.append(
-            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['hi_freq_cutoff']
+            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
+            >= thresholds["hi_freq_cutoff"]
         )
 
         return and_(*freq_key_filters)
@@ -65,14 +83,18 @@ class FrequencyFilter(object):
         Example: ExAG.G < hi_freq_cutoff AND ExAG.G >= lo_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = FrequencyFilter._get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key)
+        num_filter = FrequencyFilter._get_freq_num_threshold_filter(
+            provider_numbers, freq_provider, freq_key
+        )
         if num_filter is not None:
             freq_key_filters.append(num_filter)
 
         freq_key_filters.append(
             and_(
-                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['hi_freq_cutoff'],
-                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) >= thresholds['lo_freq_cutoff']
+                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
+                < thresholds["hi_freq_cutoff"],
+                getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
+                >= thresholds["lo_freq_cutoff"],
             )
         )
 
@@ -84,11 +106,14 @@ class FrequencyFilter(object):
         Example: ExAG.G < lo_freq_cutoff
         """
         freq_key_filters = list()
-        num_filter = FrequencyFilter._get_freq_num_threshold_filter(provider_numbers, freq_provider, freq_key)
+        num_filter = FrequencyFilter._get_freq_num_threshold_filter(
+            provider_numbers, freq_provider, freq_key
+        )
         if num_filter is not None:
             freq_key_filters.append(num_filter)
         freq_key_filters.append(
-            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key) < thresholds['lo_freq_cutoff']
+            getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
+            < thresholds["lo_freq_cutoff"]
         )
 
         return and_(*freq_key_filters)
@@ -101,9 +126,13 @@ class FrequencyFilter(object):
 
         :note: Function signature is same as other threshold filters in order for them to be called dynamically.
         """
-        return getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + '.' + freq_key).is_(None)
+        return getattr(
+            annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key
+        ).is_(None)
 
-    def _create_freq_filter(self, filter_config, genepanels, gp_allele_ids, threshold_func, combine_func):
+    def _create_freq_filter(
+        self, filter_config, genepanels, gp_allele_ids, threshold_func, combine_func
+    ):
 
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
@@ -111,11 +140,14 @@ class FrequencyFilter(object):
         # hgnc ids. We want to use int, so we convert the config.
         filter_config = dict(filter_config)
 
-        per_gene_config = filter_config.pop('genes', {})
+        per_gene_config = filter_config.pop("genes", {})
         per_gene_config = {int(k): v for k, v in per_gene_config.iteritems()}
         per_gene_hgnc_ids = per_gene_config.keys()
 
-        for gp_key, gp_allele_ids in gp_allele_ids.iteritems():  # loop over every genepanel, with related genes
+        for (
+            gp_key,
+            gp_allele_ids,
+        ) in gp_allele_ids.iteritems():  # loop over every genepanel, with related genes
 
             # Create the different kinds of frequency filters
             #
@@ -131,7 +163,9 @@ class FrequencyFilter(object):
             # TODO: Fix overlapping genes with one gene with specified thresholds less trict than default (or other gene)
 
             # "Compiling" queries is slow, so cache the slowest
-            ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+            ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                gp_allele_ids
+            )
 
             gp_final_filter = list()
 
@@ -141,23 +175,34 @@ class FrequencyFilter(object):
 
                 # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
                 # that overlap with the alleles in question.
-                present_hgnc_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id).filter(
-                    annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(per_gene_hgnc_ids),
-                    ast_gp_alleles,
-                ).distinct().all()
+                present_hgnc_ids = (
+                    self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id)
+                    .filter(
+                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(per_gene_hgnc_ids),
+                        ast_gp_alleles,
+                    )
+                    .distinct()
+                    .all()
+                )
                 present_hgnc_ids = [a[0] for a in present_hgnc_ids]
 
                 for hgnc_id in present_hgnc_ids:
                     # Create merged filter_config for this gene
                     gene_filter_config = dict(filter_config)
                     # If a gene is overridden, overiding 'thresholds' is required
-                    if 'thresholds' not in per_gene_config[hgnc_id]:
-                        raise RuntimeError("Missing required key 'thresholds' when overriding filter config for hgnc_id {}".format(hgnc_id))
+                    if "thresholds" not in per_gene_config[hgnc_id]:
+                        raise RuntimeError(
+                            "Missing required key 'thresholds' when overriding filter config for hgnc_id {}".format(
+                                hgnc_id
+                            )
+                        )
                     gene_filter_config.update(per_gene_config[hgnc_id])
 
-                    allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                    allele_ids_for_genes = self.session.query(
+                        annotationshadow.AnnotationShadowTranscript.allele_id
+                    ).filter(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id == hgnc_id,
-                        ast_gp_alleles
+                        ast_gp_alleles,
                     )
 
                     # Update overridden allele ids: This will not be filtered on AD or default
@@ -165,45 +210,50 @@ class FrequencyFilter(object):
 
                     gp_final_filter.append(
                         and_(
-                            annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
+                            annotationshadow.AnnotationShadowFrequency.allele_id.in_(
+                                allele_ids_for_genes
+                            ),
                             self._get_freq_threshold_filter(
-                                gene_filter_config['thresholds'],
-                                gene_filter_config['num_thresholds'],
+                                gene_filter_config["thresholds"],
+                                gene_filter_config["num_thresholds"],
                                 threshold_func,
-                                combine_func
-                            )
+                                combine_func,
+                            ),
                         )
                     )
 
             # 2. AD genes
             ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
-                self.session,
-                'AD',
-                gp_key[0],
-                gp_key[1]
+                self.session, "AD", gp_key[0], gp_key[1]
             )
             if ad_hgnc_ids:
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
-                    ast_gp_alleles
+                    ast_gp_alleles,
                 ]
 
                 if overridden_allele_ids:
-                    ad_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids))
+                    ad_filters.append(
+                        ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                            overridden_allele_ids
+                        )
+                    )
 
-                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                    *ad_filters
-                )
+                allele_ids_for_genes = self.session.query(
+                    annotationshadow.AnnotationShadowTranscript.allele_id
+                ).filter(*ad_filters)
 
                 gp_final_filter.append(
                     and_(
-                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(
+                            allele_ids_for_genes
+                        ),
                         self._get_freq_threshold_filter(
-                            filter_config['thresholds']['AD'],
-                            filter_config['num_thresholds'],
+                            filter_config["thresholds"]["AD"],
+                            filter_config["num_thresholds"],
                             threshold_func,
-                            combine_func
-                        )
+                            combine_func,
+                        ),
                     )
                 )
 
@@ -212,25 +262,31 @@ class FrequencyFilter(object):
             # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_filters = [
                 ~annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
-                ast_gp_alleles
+                ast_gp_alleles,
             ]
 
             if overridden_allele_ids:
-                default_filters.append(~annotationshadow.AnnotationShadowTranscript.allele_id.in_(overridden_allele_ids),)
+                default_filters.append(
+                    ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                        overridden_allele_ids
+                    )
+                )
 
-            allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                *default_filters
-            ).distinct()
+            allele_ids_for_genes = (
+                self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
+                .filter(*default_filters)
+                .distinct()
+            )
 
             gp_final_filter.append(
                 and_(
                     annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
                     self._get_freq_threshold_filter(
-                        filter_config['thresholds']['default'],
-                        filter_config['num_thresholds'],
+                        filter_config["thresholds"]["default"],
+                        filter_config["num_thresholds"],
                         threshold_func,
-                        combine_func
-                    )
+                        combine_func,
+                    ),
                 )
             )
 
@@ -306,28 +362,28 @@ class FrequencyFilter(object):
         """
 
         # First get all genepanel object for the genepanels given in input
-        genepanels = self.session.query(
-            gene.Genepanel
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys())
-        ).all()
+        genepanels = (
+            self.session.query(gene.Genepanel)
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys()))
+            .all()
+        )
 
-        commonness_entries = [
-            ('common', dict()),
-        ]
+        commonness_entries = [("common", dict())]
         if not common_only:
             commonness_entries += [
-                ('less_common', dict()),
-                ('low_freq', dict()),
-                ('null_freq', dict())
+                ("less_common", dict()),
+                ("low_freq", dict()),
+                ("null_freq", dict()),
             ]
-        commonness_result = OrderedDict(commonness_entries)  # Ordered to get final_result processing correct later
+        commonness_result = OrderedDict(
+            commonness_entries
+        )  # Ordered to get final_result processing correct later
 
         threshold_funcs = {
-            'common': (self._common_threshold, or_),
-            'less_common': (self._less_common_threshold, or_),
-            'low_freq': (self._low_freq_threshold, or_),
-            'null_freq': (self._is_freq_null, and_)
+            "common": (self._common_threshold, or_),
+            "less_common": (self._less_common_threshold, or_),
+            "low_freq": (self._low_freq_threshold, or_),
+            "null_freq": (self._is_freq_null, and_),
         }
 
         for commonness_group, result in commonness_result.iteritems():
@@ -338,15 +394,19 @@ class FrequencyFilter(object):
                 genepanels,
                 gp_allele_ids,
                 threshold_funcs[commonness_group][0],
-                combine_func=threshold_funcs[commonness_group][1]
+                combine_func=threshold_funcs[commonness_group][1],
             )
 
             for gp_key, al_ids in gp_allele_ids.iteritems():
                 assert all(isinstance(a, int) for a in al_ids)
-                allele_ids = self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id).filter(
-                    gp_filters[gp_key],
-                    annotationshadow.AnnotationShadowFrequency.allele_id.in_(al_ids)
-                ).distinct()
+                allele_ids = (
+                    self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id)
+                    .filter(
+                        gp_filters[gp_key],
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(al_ids),
+                    )
+                    .distinct()
+                )
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
         # Create final result structure.
@@ -356,13 +416,15 @@ class FrequencyFilter(object):
         for gp_key in final_result:
             added_thus_far = set()
             for k, v in commonness_result.iteritems():
-                final_result[gp_key][k] = set([aid for aid in v[gp_key] if aid not in added_thus_far])
+                final_result[gp_key][k] = set(
+                    [aid for aid in v[gp_key] if aid not in added_thus_far]
+                )
                 added_thus_far.update(set(v[gp_key]))
 
             if not common_only:
                 # Add all not part of the groups to a 'num_threshold' group,
                 # since they must have missed freq num threshold
-                final_result[gp_key]['num_threshold'] = set(gp_allele_ids[gp_key]) - added_thus_far
+                final_result[gp_key]["num_threshold"] = set(gp_allele_ids[gp_key]) - added_thus_far
 
         return final_result
 
@@ -410,22 +472,24 @@ class FrequencyFilter(object):
         # common_only, we only need to provide 'hi_freq_cutoff'
 
         filter_config = copy.deepcopy(filter_config)
-        for key in ['AD', 'default']:
-            for group in filter_config['thresholds'][key]:
-                filter_config['thresholds'][key][group] = {
-                    "hi_freq_cutoff": filter_config['thresholds'][key][group]
+        for key in ["AD", "default"]:
+            for group in filter_config["thresholds"][key]:
+                filter_config["thresholds"][key][group] = {
+                    "hi_freq_cutoff": filter_config["thresholds"][key][group]
                 }
-        for hgnc_id in filter_config.get('genes', []):
+        for hgnc_id in filter_config.get("genes", []):
             # 'thresholds' is mandatory for gene overrides
-            for group in filter_config['genes'][hgnc_id]['thresholds']:
-                filter_config['genes'][hgnc_id]['thresholds'][group] = {
-                    "hi_freq_cutoff": filter_config['genes'][hgnc_id]['thresholds'][group]
+            for group in filter_config["genes"][hgnc_id]["thresholds"]:
+                filter_config["genes"][hgnc_id]["thresholds"][group] = {
+                    "hi_freq_cutoff": filter_config["genes"][hgnc_id]["thresholds"][group]
                 }
 
-        commonness_result = self.get_commonness_groups(gp_allele_ids, filter_config, common_only=True)
+        commonness_result = self.get_commonness_groups(
+            gp_allele_ids, filter_config, common_only=True
+        )
         frequency_filtered = dict()
 
         for gp_key, commonness_group in commonness_result.iteritems():
-            frequency_filtered[gp_key] = commonness_group['common']
+            frequency_filtered[gp_key] = commonness_group["common"]
 
         return frequency_filtered

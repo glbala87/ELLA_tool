@@ -23,23 +23,28 @@ class Sample(Base):
     This happens when multiple analyses, using the same sample data in pipeline, is imported.
     They can have been run on different regions.
     """
+
     __tablename__ = "sample"
 
     id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
-    analysis = relationship('Analysis', backref='samples')
+    analysis = relationship("Analysis", backref="samples")
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     proband = Column(Boolean, nullable=False)
     family_id = Column(String())
     father_id = Column(Integer, ForeignKey("sample.id"))  # Set on proband
     mother_id = Column(Integer, ForeignKey("sample.id"))  # Set on proband
-    sibling_id = Column(Integer, ForeignKey("sample.id"))  # Set for siblings pointing to proband (i.e. _not_ on proband)
+    sibling_id = Column(
+        Integer, ForeignKey("sample.id")
+    )  # Set for siblings pointing to proband (i.e. _not_ on proband)
     sex = Column(Enum("Male", "Female", name="sample_sex"))  # Can be unknown
     affected = Column(Boolean, nullable=False)  # Can be unknown
-    date_deposited = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_deposited = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
 
-    __table_args__ = (Index("ix_sampleidentifier", "identifier"), )
+    __table_args__ = (Index("ix_sampleidentifier", "identifier"),)
 
     def __repr__(self):
         return "<Sample('%s', '%s')>" % (self.identifier, self.sample_type)
@@ -51,6 +56,7 @@ class Analysis(Base):
     An Analysis will have produced variant descriptions (e.g. VCF),
     that are an object for Interpretation.
     """
+
     __tablename__ = "analysis"
 
     id = Column(Integer, primary_key=True)
@@ -61,13 +67,23 @@ class Analysis(Base):
     report = Column(String)
     genepanel = relationship("Genepanel", uselist=False)
     date_requested = Column(DateTime(timezone=True))
-    date_deposited = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc))
+    date_deposited = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
     interpretations = relationship("AnalysisInterpretation", order_by="AnalysisInterpretation.id")
     properties = Column(JSONMutableDict.as_mutable(JSONB))  # Holds commments, tags etc
-    __table_args__ = (ForeignKeyConstraint([genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]),)
+    __table_args__ = (
+        ForeignKeyConstraint(
+            [genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]
+        ),
+    )
 
     def __repr__(self):
-        return "<Analysis('%s, %s, %s')>" % (self.samples, self.genepanel_name, self.genepanel_version)
+        return "<Analysis('%s, %s, %s')>" % (
+            self.samples,
+            self.genepanel_name,
+            self.genepanel_version,
+        )
 
 
 class FilterConfig(Base):
@@ -79,10 +95,11 @@ class FilterConfig(Base):
     Note that one analysis can utilise several AnalysisConfigs as part of
     a workflow/interpretation.
     """
+
     __tablename__ = "filterconfig"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False, unique=True)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
-    usergroup_id = Column(Integer, ForeignKey('usergroup.id'), nullable=False)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     default = Column(Boolean, nullable=False, default=False)

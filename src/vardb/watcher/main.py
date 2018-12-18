@@ -31,15 +31,26 @@ def start_polling(session, analyses_path, destination_path, genepanels_path):
         time.sleep(POLL_INTERVAL)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Watch a folder for new analyses to import into database.")
-    parser.add_argument("--analyses", dest="analyses_path", required=True,
-                        help="Path to watch for new analyses")
-    parser.add_argument("--dest", dest="dest", required=True,
-                        help="Destination path into which the processed data will be copied.")
-    parser.add_argument("--genepanels", dest="genepanels_path", required=True,
-                        help="Path to watch for new genepanels.")
+    parser = argparse.ArgumentParser(
+        description="Watch a folder for new analyses to import into database."
+    )
+    parser.add_argument(
+        "--analyses", dest="analyses_path", required=True, help="Path to watch for new analyses"
+    )
+    parser.add_argument(
+        "--dest",
+        dest="dest",
+        required=True,
+        help="Destination path into which the processed data will be copied.",
+    )
+    parser.add_argument(
+        "--genepanels",
+        dest="genepanels_path",
+        required=True,
+        help="Path to watch for new genepanels.",
+    )
 
     args = parser.parse_args()
 
@@ -49,9 +60,4 @@ if __name__ == '__main__':
     db = DB()
     db.connect()
 
-    start_polling(
-        db.session,
-        args.analyses_path,
-        args.dest,
-        args.genepanels_path
-    )
+    start_polling(db.session, args.analyses_path, args.dest, args.genepanels_path)

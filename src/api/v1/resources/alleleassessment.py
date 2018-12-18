@@ -7,7 +7,6 @@ from api.v1.resource import LogRequestResource
 
 
 class AlleleAssessmentResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, aa_id=None, user=None):
         """
@@ -27,15 +26,16 @@ class AlleleAssessmentResource(LogRequestResource):
                 $ref: '#/definitions/AlleleAssessment'
             description: AlleleAssessment object
         """
-        a = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.id == aa_id
-        ).one()
+        a = (
+            session.query(assessment.AlleleAssessment)
+            .filter(assessment.AlleleAssessment.id == aa_id)
+            .one()
+        )
         result = schemas.AlleleAssessmentSchema(strict=True).dump(a).data
         return result
 
 
 class AlleleAssessmentListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -69,6 +69,5 @@ class AlleleAssessmentListResource(LogRequestResource):
             schemas.AlleleAssessmentSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            per_page=per_page
+            per_page=per_page,
         )
-

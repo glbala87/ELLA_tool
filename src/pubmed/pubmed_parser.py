@@ -11,12 +11,12 @@ log = logging.getLogger(__name__)
 
 NOT_IN_PUBMED = "NOT IN PUBMED"
 
-class PubMedParser(object):
 
+class PubMedParser(object):
     def from_xml_string(self, pubmed_xml):
         # Strip out basic formatting tags from xml
-        p = re.compile('</?[ibu]>')
-        pubmed_xml = re.sub(p, '', pubmed_xml)
+        p = re.compile("</?[ibu]>")
+        pubmed_xml = re.sub(p, "", pubmed_xml)
 
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
@@ -26,11 +26,11 @@ class PubMedParser(object):
                                or PubmedBookArticle class
         """
 
-        if pubmed_article.tag == 'PubmedArticle':
+        if pubmed_article.tag == "PubmedArticle":
             base_tree = "./MedlineCitation/Article/%s"
             base_tree_year = base_tree % "Journal/JournalIssue/PubDate/%s"
             base_tree_abstract = base_tree
-        elif pubmed_article.tag == 'PubmedBookArticle':
+        elif pubmed_article.tag == "PubmedBookArticle":
             base_tree = "./BookDocument/Book/%s"
             base_tree_year = base_tree % "PubDate/%s"
             base_tree_abstract = base_tree % "../%s"
@@ -39,18 +39,17 @@ class PubMedParser(object):
 
         # Get field: pubmed_id
         pmid = int(self.get_field(pubmed_article, base_tree % "../PMID"))
-        log.debug('Processing %s' % str(pmid))
+        log.debug("Processing %s" % str(pmid))
 
         # Get field: year
         try:
             year = self.get_field(pubmed_article, base_tree_year % "Year")
         except AttributeError:
-            year = self.get_field(pubmed_article,
-                                  base_tree_year % "MedlineDate")
-            log.debug('Set MedlineDate as year: %s' % year)
+            year = self.get_field(pubmed_article, base_tree_year % "MedlineDate")
+            log.debug("Set MedlineDate as year: %s" % year)
 
         # Get field: title
-        if pubmed_article.tag == 'PubmedArticle':
+        if pubmed_article.tag == "PubmedArticle":
             title = self.get_field(pubmed_article, base_tree % "ArticleTitle")
         else:
             title_book = self.get_field(pubmed_article, base_tree % "BookTitle")
@@ -62,48 +61,58 @@ class PubMedParser(object):
                 title_book = None
 
         # Get field: authors
-        author_patterns = {'author': "./Author",
-                           'last_name': "./LastName",
-                           'initials': "./Initials",
-                           'collective_name': "./CollectiveName"}
+        author_patterns = {
+            "author": "./Author",
+            "last_name": "./LastName",
+            "initials": "./Initials",
+            "collective_name": "./CollectiveName",
+        }
         author_list = pubmed_article.find(base_tree % "AuthorList")
         authors = self.format_authors(author_list, author_patterns)
 
         # For books: Allow for fact that authors may turn out to be editors
-        if pubmed_article.tag == 'PubmedBookArticle':
+        if pubmed_article.tag == "PubmedBookArticle":
             editors = None
-            if author_list is not None and author_list.attrib['Type'] == 'editors':
+            if author_list is not None and author_list.attrib["Type"] == "editors":
                 editors = authors
                 # Finding the actual authors:
                 author_list = pubmed_article.find(base_tree % "../AuthorList")
                 authors = self.format_authors(author_list, author_patterns)
 
         # Get field: journal
-        if pubmed_article.tag == 'PubmedArticle':
+        if pubmed_article.tag == "PubmedArticle":
             base_tree_journal = base_tree % "Journal/%s"
-            journal_patterns = {'journal_iso': "ISOAbbreviation",
-                                'journal_title': "Title",
-                                'volume': "JournalIssue/Volume",
-                                'issue': "JournalIssue/Issue",
-                                'pages': "../Pagination/MedlinePgn"}
-            journal = self.format_journal(pubmed_article,
-                                          base_tree_journal, journal_patterns)
+            journal_patterns = {
+                "journal_iso": "ISOAbbreviation",
+                "journal_title": "Title",
+                "volume": "JournalIssue/Volume",
+                "issue": "JournalIssue/Issue",
+                "pages": "../Pagination/MedlinePgn",
+            }
+            journal = self.format_journal(pubmed_article, base_tree_journal, journal_patterns)
         else:
             base_tree_publisher = base_tree % "Publisher/%s"
-            publisher_patterns = {'publisher_name': 'PublisherName',
-                                  'publisher_location': 'PublisherLocation'}
-            book_info = {'title_book': title_book,
-                         'editors': editors}
-            journal = self.format_book(pubmed_article, base_tree_publisher,
-                                       publisher_patterns, **book_info)
+            publisher_patterns = {
+                "publisher_name": "PublisherName",
+                "publisher_location": "PublisherLocation",
+            }
+            book_info = {"title_book": title_book, "editors": editors}
+            journal = self.format_book(
+                pubmed_article, base_tree_publisher, publisher_patterns, **book_info
+            )
 
         # Get field: abstract
-        abstract_parts = pubmed_article.findall(base_tree_abstract %
-                                                "Abstract/AbstractText")
+        abstract_parts = pubmed_article.findall(base_tree_abstract % "Abstract/AbstractText")
         abstract = self.format_abstract(abstract_parts)
 
-        reference = {'pubmed_id': pmid, 'authors': authors, 'title': title,
-                     'year': year, 'journal': journal, 'abstract': abstract}
+        reference = {
+            "pubmed_id": pmid,
+            "authors": authors,
+            "title": title,
+            "year": year,
+            "journal": journal,
+            "abstract": abstract,
+        }
         return self.remove_empty_keys(reference)
 
     def remove_empty_keys(self, reference):
@@ -127,16 +136,16 @@ class PubMedParser(object):
         try:
             field_value = article_field.text
         except AttributeError as e:
-            att_err = 'Field %s was not found: %s' % (pattern, e)
+            att_err = "Field %s was not found: %s" % (pattern, e)
             log.debug(att_err)
             raise AttributeError(att_err)
 
         try:
             if len(field_value) == 0:
-                len_err = 'Field %s was empty string' % pattern
+                len_err = "Field %s was empty string" % pattern
                 log.warning(len_err)
         except TypeError as e:
-            type_err = 'Field %s was NoneType: %s' % (pattern, e)
+            type_err = "Field %s was NoneType: %s" % (pattern, e)
             log.debug(type_err)
             raise TypeError(type_err)
 
@@ -151,33 +160,28 @@ class PubMedParser(object):
         """
 
         try:
-            title = self.get_field(pubmed_article,
-                                   base_tree_journal % patterns['journal_iso'])
+            title = self.get_field(pubmed_article, base_tree_journal % patterns["journal_iso"])
         except AttributeError:
-            title = self.get_field(pubmed_article,
-                                   base_tree_journal % patterns['journal_title'])
+            title = self.get_field(pubmed_article, base_tree_journal % patterns["journal_title"])
 
         journal_pattern = u"{journal_title}: ".format(journal_title=title)
 
         try:
-            volume = self.get_field(pubmed_article,
-                                    base_tree_journal % patterns['volume'])
+            volume = self.get_field(pubmed_article, base_tree_journal % patterns["volume"])
         except AttributeError:
             pass
         else:
             journal_pattern += u"{volume}".format(volume=volume)
 
         try:
-            issue = self.get_field(pubmed_article,
-                                   base_tree_journal % patterns['issue'])
+            issue = self.get_field(pubmed_article, base_tree_journal % patterns["issue"])
         except AttributeError:
             pass
         else:
             journal_pattern += u"({issue})".format(issue=issue)
 
         try:
-            pages = self.get_field(pubmed_article,
-                                   base_tree_journal % patterns['pages'])
+            pages = self.get_field(pubmed_article, base_tree_journal % patterns["pages"])
         except (AttributeError, TypeError):
             journal_pattern += u"."
             pass
@@ -186,8 +190,9 @@ class PubMedParser(object):
 
         return journal_pattern
 
-    def format_book(self, pubmed_article, base_tree_publisher,
-                    patterns, editors=None, title_book=None):
+    def format_book(
+        self, pubmed_article, base_tree_publisher, patterns, editors=None, title_book=None
+    ):
         """
         :param pubmed_article: xml tree of PubmedArticle type
         :param base_tree_publisher: path in xml tree to locate publisher fields
@@ -204,7 +209,7 @@ class PubMedParser(object):
 
         book_pattern = []
         if editors:
-            if ' & ' in editors or 'et al' in editors:
+            if " & " in editors or "et al" in editors:
                 editor_pattern = u"{editors} (eds)."
             else:
                 editor_pattern = u"{editors} (ed)."
@@ -214,16 +219,18 @@ class PubMedParser(object):
 
         # Get publisher name and location
         try:
-            publisher_name = self.get_field(pubmed_article,
-                                            base_tree_publisher % patterns['publisher_name'])
+            publisher_name = self.get_field(
+                pubmed_article, base_tree_publisher % patterns["publisher_name"]
+            )
         except AttributeError:
             pass
         else:
             book_pattern += [u"{name}".format(name=publisher_name)]
 
         try:
-            publisher_location = self.get_field(pubmed_article,
-                                                base_tree_publisher % patterns['publisher_location'])
+            publisher_location = self.get_field(
+                pubmed_article, base_tree_publisher % patterns["publisher_location"]
+            )
         except AttributeError:
             pass
         else:
@@ -259,7 +266,7 @@ class PubMedParser(object):
         """
 
         try:
-            authors = iter(author_list.findall(patterns['author']))
+            authors = iter(author_list.findall(patterns["author"]))
             n_authors = authors.__length_hint__()
         except AttributeError as e:
             log.warning("No authors found: %s" % e)
@@ -272,18 +279,18 @@ class PubMedParser(object):
             author = authors.next()
 
             try:
-                name = self.get_field(author, patterns['last_name'])
+                name = self.get_field(author, patterns["last_name"])
             except AttributeError:
-                log.debug('Author #%s is collective name' % (i_author+1))
-                name = self.get_field(author, patterns['collective_name'])
+                log.debug("Author #%s is collective name" % (i_author + 1))
+                name = self.get_field(author, patterns["collective_name"])
 
             author_formatted = u"{last_name}".format(last_name=name)
 
             try:
-                initials = self.get_field(author, patterns['initials'])
+                initials = self.get_field(author, patterns["initials"])
                 author_formatted += u" {initials}".format(initials=initials)
             except AttributeError:
-                log.debug('Author #%s has no initials' % (i_author+1))
+                log.debug("Author #%s has no initials" % (i_author + 1))
 
             authors_to_format.append(author_formatted)
 

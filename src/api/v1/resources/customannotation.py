@@ -9,7 +9,6 @@ from api.v1.resource import LogRequestResource
 
 
 class CustomAnnotationList(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -40,17 +39,11 @@ class CustomAnnotationList(LogRequestResource):
             session,
             annotation.CustomAnnotation,
             schemas.CustomAnnotationSchema(),
-            rest_filter=rest_filter
+            rest_filter=rest_filter,
         )
 
     @authenticate()
-    @request_json(
-        [
-            'allele_id',
-            'annotations'
-        ],
-        True
-    )
+    @request_json(["allele_id", "annotations"], True)
     def post(self, session, data=None, user=None):
         """
         Creates new CustomAnnotation(s) for a given allele id(s).
@@ -87,23 +80,23 @@ class CustomAnnotationList(LogRequestResource):
               $ref: '#/definitions/CustomAnnotation'
             description: Created customannotation
         """
-        allele_id = data['allele_id']
+        allele_id = data["allele_id"]
 
         # Check for existing CustomAnnotations
-        existing_ca = session.query(annotation.CustomAnnotation).filter(
-            annotation.CustomAnnotation.allele_id == allele_id,
-            annotation.CustomAnnotation.date_superceeded == None
-        ).one_or_none()
+        existing_ca = (
+            session.query(annotation.CustomAnnotation)
+            .filter(
+                annotation.CustomAnnotation.allele_id == allele_id,
+                annotation.CustomAnnotation.date_superceeded == None,
+            )
+            .one_or_none()
+        )
 
-        ca_data = {
-            'user_id': user.id,
-            'annotations': data['annotations'],
-            'allele_id': allele_id
-        }
+        ca_data = {"user_id": user.id, "annotations": data["annotations"], "allele_id": allele_id}
 
         if existing_ca:
             # Replace current
-            ca_data['previous_annotation_id'] = existing_ca.id
+            ca_data["previous_annotation_id"] = existing_ca.id
             existing_ca.date_superceeded = datetime.datetime.now(pytz.utc)
 
         ca = annotation.CustomAnnotation(**ca_data)

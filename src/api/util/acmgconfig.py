@@ -5,8 +5,8 @@ from api.util import queries
 
 from api.util.util import dict_merge
 
-INHERITANCE_GROUP_AD = 'AD'
-INHERITANCE_GROUP_DEFAULT = 'default'
+INHERITANCE_GROUP_AD = "AD"
+INHERITANCE_GROUP_DEFAULT = "default"
 
 
 def _choose_cutoff_group(cutoff_groups, is_ad=False):
@@ -101,14 +101,14 @@ class AcmgConfig(object):
             }
         }
         """
-        frequency_config = copy.deepcopy(self.acmgconfig['frequency'])
-        per_gene_config = copy.deepcopy(self.acmgconfig.get('genes', {}))
+        frequency_config = copy.deepcopy(self.acmgconfig["frequency"])
+        per_gene_config = copy.deepcopy(self.acmgconfig.get("genes", {}))
 
         for hgnc_id, override in per_gene_config.iteritems():
-            if 'frequency' in override:
-                if 'genes' not in frequency_config:
-                    frequency_config['genes'] = dict()
-                frequency_config['genes'][hgnc_id] = override['frequency']
+            if "frequency" in override:
+                if "genes" not in frequency_config:
+                    frequency_config["genes"] = dict()
+                frequency_config["genes"][hgnc_id] = override["frequency"]
 
         return frequency_config
 
@@ -139,56 +139,53 @@ class AcmgConfig(object):
         # Deep copy the result from the provided defaults
         result_config = copy.deepcopy(self.acmgconfig)
         # Pop the data that's not part of final result
-        frequency_config = result_config.pop('frequency')
-        per_gene_config = result_config.pop('genes', {})
+        frequency_config = result_config.pop("frequency")
+        per_gene_config = result_config.pop("genes", {})
         # HGNC ids must be int, but source might have strings from JSON data
         per_gene_config = {int(k): v for k, v in per_gene_config.iteritems()}
 
         if not hgnc_id:
             # If there's no hgnc_id, use frequency cutoffs for 'default'
             logging.warning("hgnc_id not defined when resolving genepanel config values")
-            result_config['freq_cutoffs'] = frequency_config['thresholds']['default']
+            result_config["freq_cutoffs"] = frequency_config["thresholds"]["default"]
         else:
             hgnc_id = int(hgnc_id)
             # Find the inheritance 'mode' (AD, AR or neither) for the provided hgnc_id:
             # These are cached in case of subsequent calls to this function
             if self._ad_hgnc_ids_cache is None:
                 ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
-                    self.session,
-                    'AD',
-                    self.genepanel.name,
-                    self.genepanel.version
+                    self.session, "AD", self.genepanel.name, self.genepanel.version
                 ).all()
                 self._ad_hgnc_ids_cache = list(set([a[0] for a in ad_hgnc_ids]))
 
             if self._ar_hgnc_ids_cache is None:
                 ar_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
-                    self.session,
-                    'AR',
-                    self.genepanel.name,
-                    self.genepanel.version
+                    self.session, "AR", self.genepanel.name, self.genepanel.version
                 ).all()
                 self._ar_hgnc_ids_cache = list(set([a[0] for a in ar_hgnc_ids]))
 
             # Add inheritance, used by rule engine:
             assert not (hgnc_id in self._ad_hgnc_ids_cache and hgnc_id in self._ar_hgnc_ids_cache)
             if hgnc_id in self._ad_hgnc_ids_cache:
-                result_config['inheritance'] = 'AD'
+                result_config["inheritance"] = "AD"
             if hgnc_id in self._ar_hgnc_ids_cache:
-                result_config['inheritance'] = 'AR'
+                result_config["inheritance"] = "AR"
 
             # Add the relevant frequency cutoff for this inheritance (AD/default)
-            result_config['freq_cutoffs'] = copy.deepcopy(
-                _choose_cutoff_group(frequency_config['thresholds'], hgnc_id in self._ad_hgnc_ids_cache))
+            result_config["freq_cutoffs"] = copy.deepcopy(
+                _choose_cutoff_group(
+                    frequency_config["thresholds"], hgnc_id in self._ad_hgnc_ids_cache
+                )
+            )
 
             # Look for any gene specific overrides for this hgnc_id:
             if per_gene_config and hgnc_id in per_gene_config:
                 gene_specific_overrides = per_gene_config[hgnc_id]
 
                 # Handle frequency specially
-                if 'frequency' in gene_specific_overrides:
-                    gene_frequency_config = gene_specific_overrides.pop('frequency')
-                    result_config['freq_cutoffs'] = gene_frequency_config['thresholds']
+                if "frequency" in gene_specific_overrides:
+                    gene_frequency_config = gene_specific_overrides.pop("frequency")
+                    result_config["freq_cutoffs"] = gene_frequency_config["thresholds"]
 
                 # Merge the remaining
                 dict_merge(result_config, gene_specific_overrides)

@@ -15,15 +15,13 @@ def analysis_not_ready_findings(session, analysis, interpretation, filter_config
     aschema = schemas.AnalysisSchema()
     dumped_analysis = aschema.dump(analysis).data
     without_findings = bool(
-        categorize_analyses_by_findings(
-            session,
-            [dumped_analysis],
-            filter_config_id
-        )['without_findings']
+        categorize_analyses_by_findings(session, [dumped_analysis], filter_config_id)[
+            "without_findings"
+        ]
     )
 
     if analysis.warnings or not without_findings:
-        interpretation.workflow_status = 'Not ready'
+        interpretation.workflow_status = "Not ready"
 
 
 def analysis_finalize_without_findings(session, analysis, interpretation, filter_config_id):
@@ -36,11 +34,9 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
     aschema = schemas.AnalysisSchema()
     dumped_analysis = aschema.dump(analysis).data
     without_findings = bool(
-        categorize_analyses_by_findings(
-            session,
-            [dumped_analysis],
-            filter_config_id
-        )['without_findings']
+        categorize_analyses_by_findings(session, [dumped_analysis], filter_config_id)[
+            "without_findings"
+        ]
     )
 
     if without_findings and not analysis.warnings:
@@ -49,48 +45,53 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         # Log item must be created before finalization so that the dates are correct
         il = workflow.InterpretationLog(
             analysisinterpretation_id=interpretation.id,
-            message='Analysis had no findings at time of import. Automatically finalised by system.'
+            message="Analysis had no findings at time of import. Automatically finalised by system.",
         )
         session.add(il)
 
         # Create interpretationsnapshot
-        loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation, filter_config_id)
+        loaded_interpretation = InterpretationDataLoader(session).from_obj(
+            interpretation, filter_config_id
+        )
 
-        allele_annotation_ids = session.query(
-            annotation.Annotation.allele_id,
-            annotation.Annotation.id
-        ).filter(
-            annotation.Annotation.date_superceeded.is_(None),
-            annotation.Annotation.allele_id.in_(loaded_interpretation['allele_ids'])
-        ).all()
+        allele_annotation_ids = (
+            session.query(annotation.Annotation.allele_id, annotation.Annotation.id)
+            .filter(
+                annotation.Annotation.date_superceeded.is_(None),
+                annotation.Annotation.allele_id.in_(loaded_interpretation["allele_ids"]),
+            )
+            .all()
+        )
 
-        alleleassessments = session.query(
-            assessment.AlleleAssessment
-        ).filter(
-            assessment.AlleleAssessment.date_superceeded.is_(None),
-            assessment.AlleleAssessment.allele_id.in_(loaded_interpretation['allele_ids'])
-        ).all()
+        alleleassessments = (
+            session.query(assessment.AlleleAssessment)
+            .filter(
+                assessment.AlleleAssessment.date_superceeded.is_(None),
+                assessment.AlleleAssessment.allele_id.in_(loaded_interpretation["allele_ids"]),
+            )
+            .all()
+        )
 
-        allelereports = session.query(
-            assessment.AlleleReport
-        ).filter(
-            assessment.AlleleReport.date_superceeded.is_(None),
-            assessment.AlleleReport.allele_id.in_(loaded_interpretation['allele_ids'])
-        ).all()
+        allelereports = (
+            session.query(assessment.AlleleReport)
+            .filter(
+                assessment.AlleleReport.date_superceeded.is_(None),
+                assessment.AlleleReport.allele_id.in_(loaded_interpretation["allele_ids"]),
+            )
+            .all()
+        )
 
-        annotation_data = [{'allele_id': a.allele_id, 'annotation_id': a.id} for a in allele_annotation_ids]
+        annotation_data = [
+            {"allele_id": a.allele_id, "annotation_id": a.id} for a in allele_annotation_ids
+        ]
         snapshot_objects = SnapshotCreator(session).create_from_data(
-            'analysis',
-            loaded_interpretation,
-            annotation_data,
-            alleleassessments,
-            allelereports
+            "analysis", loaded_interpretation, annotation_data, alleleassessments, allelereports
         )
 
         session.add_all(snapshot_objects)
 
         # Finalize interpretation
-        interpretation.status = 'Done'
+        interpretation.status = "Done"
         interpretation.finalized = True
         interpretation.user_id = 1
         interpretation.date_last_update = datetime.datetime.now(pytz.utc)

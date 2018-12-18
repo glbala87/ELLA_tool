@@ -5,8 +5,8 @@ from vardb.datamodel import annotationshadow, gene
 
 from api.util.util import query_print_table
 
-class ConsequenceFilter(object):
 
+class ConsequenceFilter(object):
     def __init__(self, session, config):
         self.session = session
         self.config = config
@@ -19,7 +19,9 @@ class ConsequenceFilter(object):
         gp_csq_only = filter_config.get("genepanel_only", False)
 
         consequences = filter_config["consequences"]
-        assert not set(consequences) - set(self.config['transcripts']['consequences']), "Invalid consequences passed to filter: {}".format(consequences)
+        assert not set(consequences) - set(
+            self.config["transcripts"]["consequences"]
+        ), "Invalid consequences passed to filter: {}".format(consequences)
 
         result = dict()
         for gp_key, allele_ids in gp_allele_ids.iteritems():
@@ -27,12 +29,14 @@ class ConsequenceFilter(object):
                 result[gp_key] = set()
                 continue
 
-            allele_ids_with_consequence = self.session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id,
-            ).filter(
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
-                annotationshadow.AnnotationShadowTranscript.consequences.op("&&")(consequences)
-            ).distinct()
+            allele_ids_with_consequence = (
+                self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
+                .filter(
+                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                    annotationshadow.AnnotationShadowTranscript.consequences.op("&&")(consequences),
+                )
+                .distinct()
+            )
 
             inclusion_regex = self.config.get("transcripts", {}).get("inclusion_regex")
             if inclusion_regex:
@@ -42,15 +46,11 @@ class ConsequenceFilter(object):
 
             # Only include genes in genepanel if flag gp_csq_only
             if gp_csq_only:
-                gp_genes = self.session.query(
-                    gene.Transcript.gene_id,
-                    gene.Gene.hgnc_symbol
-                ).join(
-                    gene.Genepanel.transcripts
-                ).join(
-                    gene.Gene
-                ).filter(
-                    tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key,
+                gp_genes = (
+                    self.session.query(gene.Transcript.gene_id, gene.Gene.hgnc_symbol)
+                    .join(gene.Genepanel.transcripts)
+                    .join(gene.Gene)
+                    .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
                 )
 
                 gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
@@ -58,7 +58,7 @@ class ConsequenceFilter(object):
                 allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
-                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols)
+                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols),
                     )
                 )
 

@@ -3,8 +3,8 @@ from apispec import APISpec
 from flask_swagger_ui import get_swaggerui_blueprint
 
 
-title = 'Ella API'
-version = '1.0'
+title = "Ella API"
+version = "1.0"
 desc = """
 #### **Use only with permission.**
 
@@ -42,7 +42,6 @@ Pagination information is returned as part of the HTTP header. The following hea
 
 
 class ApiV1Docs:
-
     def __init__(self, app, api):
         self.app = app
         self.api = api
@@ -56,18 +55,13 @@ class ApiV1Docs:
         spec = APISpec(
             title=title,
             version=version,
-            info=dict(
-                description=desc
-            ),
-            plugins=['apispec.ext.marshmallow', 'api.v1.apispec_restful']
+            info=dict(description=desc),
+            plugins=["apispec.ext.marshmallow", "api.v1.apispec_restful"],
         )
         return spec
 
     def _attach_swagger_ui(self, swagger_base_url, api_url):
-        swagger_ui = get_swaggerui_blueprint(
-            swagger_base_url,
-            api_url
-        )
+        swagger_ui = get_swaggerui_blueprint(swagger_base_url, api_url)
         self.app.register_blueprint(swagger_ui, url_prefix=swagger_base_url)
 
     def init_api_docs(self, docs_url, specs_url):
@@ -80,9 +74,10 @@ class ApiV1Docs:
 
             def serve_spec():
                 return json.dumps(specs.to_dict())
+
             return serve_spec
 
-        self.app.add_url_rule(specs_url, 'v1_spec', serve_spec_closure())
+        self.app.add_url_rule(specs_url, "v1_spec", serve_spec_closure())
 
     def add_schema(self, schema_name, schema):
         """
@@ -90,7 +85,7 @@ class ApiV1Docs:
         """
         self.specs.definition(schema_name, schema=schema)
 
-    def add_resource(self, path,  resource):
+    def add_resource(self, path, resource):
         """
         Adds 'flask restful' resource to paths in spec.
         """

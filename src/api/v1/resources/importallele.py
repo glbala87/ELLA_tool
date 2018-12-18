@@ -5,9 +5,8 @@ from vardb.deposit import importers
 
 
 class ImportAlleleList(Resource):
-
     @authenticate()
-    @request_json(['allele', 'genepanel'], True)
+    @request_json(["allele", "genepanel"], True)
     def post(self, session, data=None, user=None):
         """
         Imports alleles into the database and creates AlleleInterpretation objects
@@ -276,20 +275,22 @@ class ImportAlleleList(Resource):
 
             # Create or update allele + annotation
             allele_importer = importers.AlleleImporter(session)
-            allele = allele_importer.process(item['allele']['vcf'])[0]
+            allele = allele_importer.process(item["allele"]["vcf"])[0]
 
             annotation_importer = importers.AnnotationImporter(session)
             annotation_importer.create_or_update_annotation(
-                session,
-                allele,
-                item['allele']['annotation']
+                session, allele, item["allele"]["annotation"]
             )
 
             # Create workflow object if it doesn't exist
-            genepanel = session.query(gene.Genepanel).filter(
-                gene.Genepanel.name == item['genepanel']['name'],
-                gene.Genepanel.version == item['genepanel']['version']
-            ).one()
+            genepanel = (
+                session.query(gene.Genepanel)
+                .filter(
+                    gene.Genepanel.name == item["genepanel"]["name"],
+                    gene.Genepanel.version == item["genepanel"]["version"],
+                )
+                .one()
+            )
 
             ali = importers.AlleleInterpretationImporter(session)
             ali.process(genepanel, allele.id)
@@ -298,4 +299,4 @@ class ImportAlleleList(Resource):
 
         session.commit()
 
-        return {'allele_ids': imported_allele_ids}
+        return {"allele_ids": imported_allele_ids}
