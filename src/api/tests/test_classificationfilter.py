@@ -22,7 +22,7 @@ def classifications(session):
 
 @st.composite
 def filter_data(draw):
-    classes = draw(st.lists(elements=st.sampled_from(['1', '2', '3','4','5','U', 'non-existing-class']), unique=True))
+    classes = draw(st.lists(elements=st.sampled_from(['1', '2', '3','4','5','U', 'DR', 'non-existing-class']), unique=True))
     allele_ids = draw(st.lists(elements=st.integers(min_value=1, max_value=10), unique=True))
     return classes, allele_ids
 

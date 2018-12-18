@@ -61,7 +61,7 @@
           </button>
 
         <section class="line-wrapper" ng-if="control == 'classification'">
-          <div class="dropdown">
+          <div class="dropdown" ng-class="{'disabled': $ctrl.readOnly}">
               <select class="id-select-classification"
                       ng-class="{'readOnly': $ctrl.readOnly}"
                       ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
