@@ -2,7 +2,7 @@ from collections import defaultdict
 import pytest
 import uuid
 
-from hypothesis import given, example, settings, reproduce_failure, assume
+from hypothesis import given, example, settings, reproduce_failure, assume, HealthCheck
 import hypothesis.strategies as st
 
 from sqlalchemy import Table, Column, Boolean, Integer, Enum, Float
@@ -552,7 +552,7 @@ class TestInheritanceFilter(object):
         {'gene': 'GENE1', 'genotypes': (ps('Heterozygous'), ass('Heterozygous'))},
     ], [])
     @given(compound_heterozygous_strategy(), st.just(None))
-    @settings(deadline=None)
+    @settings(deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
     def test_compound_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
