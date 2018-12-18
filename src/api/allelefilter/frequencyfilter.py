@@ -130,46 +130,50 @@ class FrequencyFilter(object):
 
             # TODO: Fix overlapping genes with one gene with specified thresholds less trict than default (or other gene)
 
+            # "Compiling" queries is slow, so cache the slowest
+            ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+
             gp_final_filter = list()
 
             # 1. Gene specific filters
             overridden_allele_ids = set()
+            if per_gene_hgnc_ids:
 
-            # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
-            # that overlap with the alleles in question.
-            present_hgnc_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id).filter(
-                annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(per_gene_hgnc_ids),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids),
-            ).distinct().all()
-            present_hgnc_ids = [a[0] for a in present_hgnc_ids]
+                # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
+                # that overlap with the alleles in question.
+                present_hgnc_ids = self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id).filter(
+                    annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(per_gene_hgnc_ids),
+                    ast_gp_alleles,
+                ).distinct().all()
+                present_hgnc_ids = [a[0] for a in present_hgnc_ids]
 
-            for hgnc_id in present_hgnc_ids:
-                # Create merged filter_config for this gene
-                gene_filter_config = dict(filter_config)
-                # If a gene is overridden, overiding 'thresholds' is required
-                if 'thresholds' not in per_gene_config[hgnc_id]:
-                    raise RuntimeError("Missing required key 'thresholds' when overriding filter config for hgnc_id {}".format(hgnc_id))
-                gene_filter_config.update(per_gene_config[hgnc_id])
+                for hgnc_id in present_hgnc_ids:
+                    # Create merged filter_config for this gene
+                    gene_filter_config = dict(filter_config)
+                    # If a gene is overridden, overiding 'thresholds' is required
+                    if 'thresholds' not in per_gene_config[hgnc_id]:
+                        raise RuntimeError("Missing required key 'thresholds' when overriding filter config for hgnc_id {}".format(hgnc_id))
+                    gene_filter_config.update(per_gene_config[hgnc_id])
 
-                allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
-                    annotationshadow.AnnotationShadowTranscript.hgnc_id == hgnc_id,
-                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
-                )
+                    allele_ids_for_genes = self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id).filter(
+                        annotationshadow.AnnotationShadowTranscript.hgnc_id == hgnc_id,
+                        ast_gp_alleles
+                    )
 
-                # Update overridden allele ids: This will not be filtered on AD or default
-                overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
+                    # Update overridden allele ids: This will not be filtered on AD or default
+                    overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
 
-                gp_final_filter.append(
-                    and_(
-                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
-                        self._get_freq_threshold_filter(
-                            gene_filter_config['thresholds'],
-                            gene_filter_config['num_thresholds'],
-                            threshold_func,
-                            combine_func
+                    gp_final_filter.append(
+                        and_(
+                            annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
+                            self._get_freq_threshold_filter(
+                                gene_filter_config['thresholds'],
+                                gene_filter_config['num_thresholds'],
+                                threshold_func,
+                                combine_func
+                            )
                         )
                     )
-                )
 
             # 2. AD genes
             ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
@@ -181,7 +185,7 @@ class FrequencyFilter(object):
             if ad_hgnc_ids:
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
-                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                    ast_gp_alleles
                 ]
 
                 if overridden_allele_ids:
@@ -208,7 +212,7 @@ class FrequencyFilter(object):
             # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
             default_filters = [
                 ~annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
-                annotationshadow.AnnotationShadowTranscript.allele_id.in_(gp_allele_ids)
+                ast_gp_alleles
             ]
 
             if overridden_allele_ids:

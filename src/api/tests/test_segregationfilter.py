@@ -289,7 +289,7 @@ def create_genotype_table(session, samples, entries):
     session.execute('DROP TABLE IF EXISTS genotype_test_table')
     session.execute(CreateTable(genotype_table_definition))
     session.execute(genotype_table_definition.insert().values(rows))
-    return session.query(genotype_table_definition)
+    return genotype_table_definition
 
 
 def replace_allele_table(session, entries):

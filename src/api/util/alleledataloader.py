@@ -388,10 +388,10 @@ class AlleleDataLoader(object):
         father_sample = self.segregation_filter.get_father_sample(proband_sample)
         mother_sample = self.segregation_filter.get_mother_sample(proband_sample)
 
-        genotype_query = self.segregation_filter.get_genotype_query(allele_ids, sample_ids)
+        genotype_table = self.segregation_filter.get_genotype_temp_table(allele_ids, sample_ids)
         return self.segregation_filter.denovo_p_value(
             allele_ids,
-            genotype_query,
+            genotype_table,
             proband_sample.identifier,
             father_sample.identifier,
             mother_sample.identifier
