@@ -2,7 +2,7 @@
  * Parses identifer like 12-1231-4435-A-G and fetches
  * the corresponding allele from backend as {result}
  */
-function getAlleleByIdentifier({ http, path, props, state }) {
+function getAlleleByIdentifier({ http, path, props }) {
     let parts = props.alleleIdentifier.split('-')
     if (parts.length !== 4) {
         throw Error("Variant selector doesn't contain 4 items")

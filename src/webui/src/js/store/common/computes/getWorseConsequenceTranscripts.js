@@ -1,4 +1,3 @@
-import { state, props, string } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
 /**

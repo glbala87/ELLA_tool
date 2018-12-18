@@ -1,4 +1,4 @@
-import { set, equals, unset } from 'cerebral/operators'
+import { set, unset } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import { redirect } from '@cerebral/router/operators'
 import toast from '../../../../common/factories/toast'

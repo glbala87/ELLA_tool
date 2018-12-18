@@ -1,5 +1,3 @@
-import { deepCopy } from '../../../util'
-import isAlleleAssessmentOutdated from '../computes/isAlleleAssessmentOutdated'
 
 export function prepareAlleleAssessmentModel(alleleAssessment) {
     if (alleleAssessment.reuse) {

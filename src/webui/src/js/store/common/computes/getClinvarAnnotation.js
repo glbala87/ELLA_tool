@@ -1,6 +1,6 @@
 import thenBy from 'thenby'
 
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
 function sort(item) {

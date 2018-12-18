@@ -1,19 +1,19 @@
-import { sequence, parallel } from 'cerebral'
-import { set, wait } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getAnalysis from '../actions/getAnalysis'
-import getAnalysisStats from '../actions/getAnalysisStats'
-import prepareComponents from '../actions/prepareComponents'
-import loadInterpretations from '../sequences/loadInterpretations'
-import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
-import toast from '../../../../common/factories/toast'
-import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
-import showExitWarning from '../showExitWarning'
-import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
-import progress from '../../../../common/factories/progress'
-import getWorkflowTitle from '../computed/getWorkflowTitle'
-import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
-import loadVisualization from '../visualization/sequences/loadVisualization'
+import { parallel, sequence } from 'cerebral';
+import { set } from 'cerebral/operators';
+import { props, state, string } from 'cerebral/tags';
+import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload';
+import progress from '../../../../common/factories/progress';
+import setNavbarTitle from '../../../../common/factories/setNavbarTitle';
+import toast from '../../../../common/factories/toast';
+import getAnalysis from '../actions/getAnalysis';
+import getAnalysisStats from '../actions/getAnalysisStats';
+import prepareComponents from '../actions/prepareComponents';
+import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele';
+import getWorkflowTitle from '../computed/getWorkflowTitle';
+import loadInterpretations from '../sequences/loadInterpretations';
+import showExitWarning from '../showExitWarning';
+import loadVisualization from '../visualization/sequences/loadVisualization';
+import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs';
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 

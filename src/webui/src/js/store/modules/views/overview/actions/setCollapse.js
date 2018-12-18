@@ -1,5 +1,3 @@
-import { deepCopy } from '../../../../../util'
-import { AVAILABLE_SECTIONS } from '../getOverviewState'
 
 export default function setCollapse({ props, state }) {
     for (let name of ['section', 'name', 'collapsed']) {

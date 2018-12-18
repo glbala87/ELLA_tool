@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import { Directive, Inject } from '../ng-decorators'
+import { Directive } from '../ng-decorators'
 import template from './checkablebutton.ngtmpl.html'
 
 /**

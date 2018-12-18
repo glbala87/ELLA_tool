@@ -1,5 +1,3 @@
-import getAlleleState from '../computed/getAlleleState'
-
 export default function toggleReuseAlleleAssessment({ state, resolve, props }) {
     const { alleleId } = props
     const copyExistingAlleleAssessmentAlleleIds = []

@@ -1,6 +1,5 @@
 import { set, toggle, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
 import setDirty from '../../interpretation/actions/setDirty'
 import getClassification from '../../interpretation/computed/getClassification'
 import selectedAlleleChanged from './selectedAlleleChanged'

@@ -1,6 +1,5 @@
 import thenBy from 'thenby'
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
 
 export default function sortedAnalyses(analyses) {
     return Compute(analyses, (analyses) => {

@@ -2,7 +2,6 @@ import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import { getConfig } from '../actions'
 import toast from './toast'
-import loadBroadcast from '../sequences/loadBroadcast'
 import interval from './interval'
 
 const BROADCAST_UPDATE_INTERVAL = 10 * 60 * 1000

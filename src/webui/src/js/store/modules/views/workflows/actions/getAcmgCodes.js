@@ -4,12 +4,7 @@ import {
     findReferencesFromIds
 } from '../../../../common/helpers/reference'
 
-const TYPES = {
-    analysis: 'analyses',
-    allele: 'alleles'
-}
-
-function getAcmgCodes({ http, path, state, props, resolve }) {
+function getAcmgCodes({ http, path, state, resolve }) {
     const alleles = state.get('views.workflows.data.alleles')
     const references = Object.values(state.get('views.workflows.data.references'))
     const genepanel = state.get('views.workflows.selectedGenepanel')

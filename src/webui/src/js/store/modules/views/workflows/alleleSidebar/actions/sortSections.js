@@ -3,7 +3,7 @@ import sortAlleles from '../../computed/sortAlleles'
 import filterTechnical from '../../computed/filterTechnical'
 import filterNotRelevant from '../../computed/filterNotRelevant'
 
-export default function sortSections({ state, props, resolve }) {
+export default function sortSections({ state, resolve }) {
     const orderBy = state.get('views.workflows.alleleSidebar.orderBy')
     const alleles = Object.values(state.get('views.workflows.data.alleles'))
 

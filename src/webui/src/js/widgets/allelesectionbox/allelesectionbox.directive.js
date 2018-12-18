@@ -17,9 +17,9 @@ import {
     isIgnored
 } from '../../store/common/helpers/reference'
 import { deepCopy } from '../../util'
-import template from './allelesectionbox.ngtmpl.html'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
+import template from './allelesectionbox.ngtmpl.html'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,

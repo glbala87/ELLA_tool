@@ -1,5 +1,5 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 
 export default Compute(
     state`modals.addExcludedAlleles.geneAlleleIds`,

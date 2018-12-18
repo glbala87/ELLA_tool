@@ -1,4 +1,4 @@
-export default function saveOverviewState({ props, state, storage }) {
+export default function saveOverviewState({ state, storage }) {
     const overviewState = state.get('views.overview.state')
     storage.set('overviewState', overviewState)
 }

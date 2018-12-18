@@ -1,10 +1,7 @@
-import { deepCopy } from '../../../../../util'
-import { parallel, sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getAcmgCodes from '../actions/getAcmgCodes'
-import prepareSuggestedAcmg from '../actions/prepareSuggestedAcmg'
-import toast from '../../../../common/factories/toast'
+import { sequence } from 'cerebral';
+import toast from '../../../../common/factories/toast';
+import getAcmgCodes from '../actions/getAcmgCodes';
+import prepareSuggestedAcmg from '../actions/prepareSuggestedAcmg';
 
 export default sequence('loadAcmg', [
     getAcmgCodes,

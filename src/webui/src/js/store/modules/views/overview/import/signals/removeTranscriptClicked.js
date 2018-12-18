@@ -1,5 +1,3 @@
-import { push } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
 import removeTranscripts from '../actions/removeTranscripts'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 

@@ -1,5 +1,5 @@
 /* jshint esnext: true */
-import { deepEquals, deepCopy } from '../util'
+import { deepCopy } from '../util'
 import { Service, Inject } from '../ng-decorators'
 import template from './customAnnotationModal.ngtmpl.html'
 

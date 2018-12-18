@@ -1,12 +1,11 @@
-import mock from 'xhr-mock'
-import Devtools from 'cerebral/devtools'
-import { CerebralTest } from 'cerebral/test'
-import RootModule from '../..'
-import { Module } from 'cerebral'
-import prepareInterpretationState from './sequences/prepareInterpretationState'
-import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
-import finishConfirmationClicked from './signals/finishConfirmationClicked'
-import setReferenceAssessment from './interpretation/actions/setReferenceAssessment'
+import { Module } from 'cerebral';
+import { CerebralTest } from 'cerebral/test';
+import mock from 'xhr-mock';
+import RootModule from '../..';
+import setReferenceAssessment from './interpretation/actions/setReferenceAssessment';
+import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked';
+import prepareInterpretationState from './sequences/prepareInterpretationState';
+import finishConfirmationClicked from './signals/finishConfirmationClicked';
 
 const EMPTY_EVALUATION = {
     prediction: {

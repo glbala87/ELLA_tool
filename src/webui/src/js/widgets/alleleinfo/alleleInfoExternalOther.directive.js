@@ -1,6 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, string, signal } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import template from './alleleInfoExternalOther.ngtmpl.html'
 
 app.component('alleleInfoExternalOther', {

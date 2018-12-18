@@ -1,7 +1,6 @@
 import processAnalyses from '../../../../common/helpers/processAnalyses'
 
-export default function getOverviewAnalysesFinalized({ module, http, path, props }) {
-    let sections = module.get('sections')
+export default function getOverviewAnalysesFinalized({ http, path, props }) {
     const { page: selectedPage } = props
 
     return http
