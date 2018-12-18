@@ -7,6 +7,7 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
+from __future__ import print_function
 import sys
 import argparse
 import json
@@ -78,16 +79,16 @@ class DepositFromVCF(object):
 
     def printStats(self):
         stats = self.getCounter()
-        print "Samples to add: {}".format(stats["nSamplesAdded"])
-        print "Variants in file: {}".format(stats.get('nVariantsInFile', '???'))
-        print "Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???'))
-        print "Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???'))
-        print
-        print "Novel annotations to add: {}".format(stats.get("nNovelAnnotation", '???'))
-        print "Updated annotations: {}".format(stats.get("nUpdatedAnnotation", '???'))
-        print "Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", '???'))
-        print
-        print "Genotypes hetro ref: {}".format(stats.get('nGenotypeHetroRef', '???'))
-        print "Genotypes homo nonref: {}".format(stats.get('nGenotypeHomoNonRef', '???'))
-        print "Genotypes hetro nonref: {}".format(stats.get('nGenotypeHetroNonRef', '???'))
-        print "Genotypes not added (not variant/not called/sample not added): {}".format(stats.get('nGenotypeNotAdded', '???'))
+        print("Samples to add: {}".format(stats["nSamplesAdded"]))
+        print("Variants in file: {}".format(stats.get('nVariantsInFile', '???')))
+        print("Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???')))
+        print("Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???')))
+        print()
+        print("Novel annotations to add: {}".format(stats.get("nNovelAnnotation", '???')))
+        print("Updated annotations: {}".format(stats.get("nUpdatedAnnotation", '???')))
+        print("Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", '???')))
+        print()
+        print("Genotypes hetro ref: {}".format(stats.get('nGenotypeHetroRef', '???')))
+        print("Genotypes homo nonref: {}".format(stats.get('nGenotypeHomoNonRef', '???')))
+        print("Genotypes hetro nonref: {}".format(stats.get('nGenotypeHetroNonRef', '???')))
+        print("Genotypes not added (not variant/not called/sample not added): {}".format(stats.get('nGenotypeNotAdded', '???')))

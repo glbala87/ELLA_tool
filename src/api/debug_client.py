@@ -1,3 +1,4 @@
+from __future__ import print_function
 import requests
 import json
 
@@ -17,7 +18,7 @@ url = url_add("http://localhost:5000/api/v1/references/", {
     'embed': ':id:authors',
     'q': json.dumps({'id': [74341, 74342, 74343, 74344, 74345, 74346, 74347, 74348, 74349, 74350]})})
 r = requests.get(url)
-print url
+print(url)
 
-print r.text
+print(r.text)
 

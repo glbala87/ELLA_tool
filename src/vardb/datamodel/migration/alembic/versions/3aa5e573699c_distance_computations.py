@@ -5,6 +5,7 @@ Revises: 6d7548a6dfd9
 Create Date: 2018-05-30 11:15:00.392793
 
 """
+from __future__ import print_function
 
 # revision identifiers, used by Alembic.
 revision = '3aa5e573699c'
@@ -201,7 +202,7 @@ def upgrade():
                 annotations=a.annotations
             )
         )
-    print "!!! Remember to run refresh on shadow tables !!!"
+    print("!!! Remember to run refresh on shadow tables !!!")
 
 def downgrade():
     raise NotImplementedError("Downgrade not possible")
@@ -275,7 +276,6 @@ if __name__ == '__main__':
     ]
 
     for hgvsc, exon_distance, coding_region_distance in cases:
-        print hgvsc
         ed, cdr = _calculate_distances(hgvsc)
         assert ed == exon_distance, "{} failed {}!={}".format(hgvsc, ed, exon_distance)
         assert cdr == coding_region_distance, "{} failed {}!={}".format(hgvsc, cdr, coding_region_distance)

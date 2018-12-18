@@ -4,7 +4,7 @@ from .. grl import GRL
 from .. grm import GRM
 
 class GraTest(unittest.TestCase):
-    
+
     jsonrules = [
     {
         "code": "BP1",
@@ -105,7 +105,7 @@ class GraTest(unittest.TestCase):
     }
 ]
 
-    
+
     jsondata = {
     "frequencies": {
         "1000g": {
@@ -143,7 +143,7 @@ class GraTest(unittest.TestCase):
     "genomic": {
         "Conservation": "conserved"
     },
-    "transcript": { 
+    "transcript": {
         "Consequence": [
             "synonymous_variant"
         ],
@@ -166,7 +166,7 @@ class GraTest(unittest.TestCase):
         "lo_freq_cutoff": 0.001,
         "disease_mode": "lof_only"
     }
-}        
+}
 
     def testExpandMultiRules(self):
         dataflattened = {".".join(list(k)): v for k,v in GRA().parseNodeToSourceKeyedDict(self.jsondata).iteritems()}
@@ -188,19 +188,18 @@ class GraTest(unittest.TestCase):
         self.assertEquals(data[("transcript", "Consequence")], ["synonymous_variant"])
         self.assertEquals(data[("transcript", "Existing_variation")], ["rs1799943"])
         self.assertEquals(data[("transcript", "Transcript_version_CLINVAR")], "3")
-    
+
     def testApplyRules(self):
         (passed, notpassed) = GRA().applyRules(GRL().parseRules(self.jsonrules),
                                                GRA().parseNodeToSourceKeyedDict(self.jsondata))
         self.assertEquals([rule.code for rule in passed], [u'BP1', u'BP1', u'rBP7-1', u'rBP7-4', u'BP8', u'PP8', u'GP1', u'PP10', u'PP11', u'PP11.2', u'PP11.2.1', u'PP13'])
         self.assertEquals(passed[0].source, "transcript.Consequence")
         self.assertEquals([rule.code for rule in notpassed], ['BP2', 'rBP7-2', 'rBP7-3', 'BP7', 'PP7', 'PP9', 'PP11.1', 'PP11.3', 'PP12', 'PP14'])
-        
+
     def testJsonReport(self):
         (passed, notpassed) = GRA().applyRules(GRL().parseRules(self.jsonrules),
                                                GRA().parseNodeToSourceKeyedDict(self.jsondata))
         jsonrep = GRA().jsonReport(passed, notpassed)
-        #print jsonrep
         self.assertEquals(jsonrep,
 """{
 "codes": [

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import os
 import json
 from collections import OrderedDict
@@ -251,13 +251,13 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
     variables["GP_NAME"] = genepanel_name
     variables["GP_VERSION"] = genepanel_version
 
-    print json.dumps(
+    print(json.dumps(
         {
             "files": files,
             'variables': variables
         },
         indent=4,
-    )
+    ))
 
 
 if __name__ == "__main__":

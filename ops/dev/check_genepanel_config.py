@@ -2,7 +2,7 @@
 """
 Standalone script for checking syntax of genepanel config.
 """
-
+from __future__ import print_function
 import argparse
 import json
 import os
@@ -21,14 +21,14 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(args.config_file):
-            print "missing file " + args.config_file
+            print("missing file " + args.config_file)
             exit(1)
 
     with open(args.config_file) as config_file:
         config_json = json.load(config_file)
         config_data =  config_json['config'] if 'config' in config_json else config_json
         config_valid(config_data, args.schema_version)
-        print "File " + args.config_file + " appears to be OK"
+        print("File " + args.config_file + " appears to be OK")
         exit(0)
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import os
 import sys
 from alembic.script import ScriptDirectory
@@ -68,11 +68,11 @@ def migration_compare():
         script = ScriptDirectory.from_config(alembic_cfg)
         script_rev_head = script.get_current_head()
 
-        print "Database HEAD: {}".format(db_head_rev)
-        print "Migration script HEAD: {}".format(script_rev_head)
+        print("Database HEAD: {}".format(db_head_rev))
+        print("Migration script HEAD: {}".format(script_rev_head))
         if not db_head_rev == script_rev_head:
-            print "Database HEAD does not match migration script HEAD!"
+            print("Database HEAD does not match migration script HEAD!")
             sys.exit(1)
         else:
-            print "Migration status OK!"
+            print("Migration status OK!")
 

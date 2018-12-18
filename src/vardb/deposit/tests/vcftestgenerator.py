@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 from hypothesis import assume
 from hypothesis import strategies as st
@@ -558,7 +559,7 @@ def block_strategy(draw, samples):
 
     # Debug: Print GTs the block
     #for b in block:
-    #    print [sa['GT'] for sa in b]
+    #    print([sa['GT'] for sa in b])
 
     return block
 

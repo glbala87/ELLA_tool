@@ -5,7 +5,7 @@ Revises: 30b6557cf2d0
 Create Date: 2018-06-19 11:44:22.507543
 
 """
-
+from __future__ import print_function
 # revision identifiers, used by Alembic.
 revision = '780575a06f97'
 down_revision = '30b6557cf2d0'
@@ -17,7 +17,7 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    print "Creating indexes, this can take a while..."
+    print("Creating indexes, this can take a while...")
     op.drop_constraint(u'uq_gene_hgnc_symbol', 'gene', type_='unique')
     op.execute('CREATE UNIQUE INDEX ix_gene_hgnc_symbol ON gene USING btree(lower(hgnc_symbol) text_pattern_ops)')
     op.execute('DROP INDEX IF EXISTS ix_annotationshadowtranscript_hgvsc')

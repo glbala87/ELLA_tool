@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import json
@@ -46,7 +47,7 @@ def print_metadata(input):
             data[code]['sources'] = [v.strip() for v in row[6].value.split(',')]
             data[code]['sources'] = [c for c in data[code]['sources'] for r in CODES if c.startswith(r)]
 
-    print json.dumps(data, indent=4)
+    print(json.dumps(data, indent=4))
 
 
 print_metadata(EXCELDOC)

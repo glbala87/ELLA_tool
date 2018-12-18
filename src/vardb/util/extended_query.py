@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import random
 import string
@@ -56,13 +57,13 @@ class ExtendedQuery(Query):
         """
         explained = self.session.execute(explain(self, analyze=analyze, json=print_json)).fetchall()
         if stdout:
-            print '''                                                       QUERY PLAN
----------------------------------------------------------------------------------------------------------------------------'''
+            print('''                                                       QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------''')
             for e in explained:
                 if json:
-                    print json.dumps(e[0])
+                    print(json.dumps(e[0]))
                 else:
-                    print ','.join(e)
+                    print(','.join(e))
         else:
             return explained
 

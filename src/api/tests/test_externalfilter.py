@@ -74,7 +74,6 @@ def annotations(draw):
         num_stars = draw(st.integers(min_value=0, max_value=4))
         hgmd_tag = draw(st.sampled_from([None, 'FP', 'DM', 'DFP', 'R', 'DP', 'DM?']))
 
-        #print i, num_benign, num_uncertain, num_pathogenic, hgmd_tag
         ann.append({
             "allele_id": i,
             "num_benign": num_benign,

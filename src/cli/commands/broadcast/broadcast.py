@@ -58,7 +58,7 @@ def cmd_list_active(all, tail):
                 message=msg.message
             ))
     else:
-        print 'No messages'
+        click.echo('No messages')
 
 
 @broadcast.command('new', help="Create new message. Activated immediately.")

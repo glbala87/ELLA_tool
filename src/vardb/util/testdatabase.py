@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import subprocess
 import tempfile
@@ -37,16 +38,16 @@ class TestDatabase(object):
             dump_path = self.dump_path
         # Note the --clean and --create flags, which will recreate db when run
         subprocess.check_call('pg_dump {uri} --file={path} --clean --create'.format(uri=os.environ["DB_URL"], path=dump_path), shell=True)
-        print "Temporary database file created at {}.".format(dump_path)
+        print("Temporary database file created at {}.".format(dump_path))
 
     def refresh(self):
         """
         Wipes out whole database, and recreates a clean copy from the dump.
         """
-        print "Refreshing database with data from dump"
+        print("Refreshing database with data from dump")
 
         if os.environ.get('TEST_DB_DUMP') and os.path.exists(os.environ.get('TEST_DB_DUMP')):
-            print "Reusing dump from {}".format(os.environ['TEST_DB_DUMP'])
+            print("Reusing dump from {}".format(os.environ['TEST_DB_DUMP']))
             dump_path = os.environ['TEST_DB_DUMP']
         else:
             dump_path = self.dump_path
@@ -56,12 +57,12 @@ class TestDatabase(object):
             subprocess.check_call('psql postgres:///template1 < {path}'.format(uri=os.environ["DB_URL"], path=dump_path), shell=True, stdout=f)
 
     def cleanup(self):
-        print "Disconnecting..."
+        print("Disconnecting...")
         db.disconnect()
-        print "Removing database in TestDatabase"
+        print("Removing database in TestDatabase")
         subprocess.call('dropdb {uri}'.format(uri=os.environ["DB_URL"]), shell=True)
         try:
             os.remove(self.dump_path)
-            print "Temporary database file removed."
+            print("Temporary database file removed.")
         except OSError:
             pass

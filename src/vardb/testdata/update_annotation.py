@@ -49,7 +49,7 @@ def annotate(inputfile):
 
     resp = urllib2.urlopen(os.path.join(ANNOTATION_SERVICE_URL, "annotate"), data=json.dumps({"vcf": data}))
     task_id = json.loads(resp.read())["task_id"]
-    print "Started annotation with task_id=", task_id
+    print("Started annotation with task_id=", task_id)
     resp = urllib2.urlopen(os.path.join(ANNOTATION_SERVICE_URL, "process", task_id))
     resp = json.loads(resp.read())
     assert resp["status"] == "SUCCESS"
@@ -67,7 +67,7 @@ def main(command, inputfile, outputfile):
         with open(outputfile, 'w') as f:
             f.write(data)
     else:
-        print data
+        print(data)
 
 def get_vcf_map():
     vcf_map = []

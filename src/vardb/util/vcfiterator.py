@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 from collections import defaultdict
 import re
@@ -501,5 +502,5 @@ if __name__ == '__main__':
     v = VcfIterator(path)
 
     for value in v.iter():
-        print json.dumps(value, indent=4)
+        print(json.dumps(value, indent=4))
 

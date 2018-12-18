@@ -1,3 +1,4 @@
+from __future__ import print_function
 from functools import wraps
 import json
 import datetime
@@ -52,16 +53,16 @@ def query_print_table(sa_query):
 
     h_divider = '-' * (sum(column_width.values()) + len(column_width) * 3)
 
-    print h_divider
+    print(h_divider)
     row_format = '| '
     for name in column_names:
         row_format += '{:<' + str(column_width[name]) + '} | '
 
-    print row_format.format(*column_names)
+    print(row_format.format(*column_names))
 
-    print h_divider
+    print(h_divider)
     for r in data:
-        print row_format.format(*r)
+        print(row_format.format(*r))
 
 from vardb.datamodel import user
 

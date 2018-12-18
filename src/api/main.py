@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import threading
 import os
@@ -140,10 +141,10 @@ if __name__ == '__main__':
         if os.environ.get('PTVS_PORT'):
             import ptvsd
             if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-                print "Enabled python remote debugging at port {}".format(os.environ['PTVS_PORT'])
+                print("Enabled python remote debugging at port {}".format(os.environ['PTVS_PORT']))
                 ptvsd.enable_attach(address=('0.0.0.0', os.environ['PTVS_PORT']))
 
     if is_dev:
-        print "!!!!!DEVELOPMENT MODE!!!!!"
+        print("!!!!!DEVELOPMENT MODE!!!!!")
 
     app.run(**opts)

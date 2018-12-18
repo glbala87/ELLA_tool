@@ -27,7 +27,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+from __future__ import print_function
 import re
 import traceback
 from textwrap import dedent
@@ -67,7 +67,7 @@ def path_from_resource(spec, api, resource, **kwargs):
                 try:
                     operations[method].update(yaml.load(doc))
                 except Exception:
-                    print "Error while parsing docstring for resource {}:".format(path)
+                    print("Error while parsing docstring for resource {}:".format(path))
                     traceback.print_exc()
             else:
                 operations[method]['description'] = dedent(docstring)

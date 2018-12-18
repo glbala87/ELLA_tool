@@ -5,6 +5,7 @@ Code for loading the assessments of VCF files into the vardb database.
 Use one transaction for whole file, and prompts user before committing.
 """
 
+from __future__ import print_function
 import sys
 import argparse
 import logging
@@ -85,18 +86,18 @@ class DepositAssessments(object):
 
     def printStats(self):
         stats = self.getCounter()
-        print "Variants in file: {}".format(stats.get('nVariantsInFile', '???'))
-        print "Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???'))
-        print "Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???'))
-        print
-        print "Novel assessments to add: {}".format(stats.get('nNovelAssessments', '???'))
-        print "Updated assessments to add: {}".format(stats.get('nAssessmentsUpdated', '???'))
-        print "Skipped assessments: {}".format(stats.get('nAssessmentsSkipped', '???'))
+        print("Variants in file: {}".format(stats.get('nVariantsInFile', '???')))
+        print("Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???')))
+        print("Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???')))
+        print()
+        print("Novel assessments to add: {}".format(stats.get('nNovelAssessments', '???')))
+        print("Updated assessments to add: {}".format(stats.get('nAssessmentsUpdated', '???')))
+        print("Skipped assessments: {}".format(stats.get('nAssessmentsSkipped', '???')))
 
 
     def printIDs(self):
         stats = self.getCounter()
-        print "Assessments changed/updated: {}".format(stats.get('assessments', '???'))
+        print("Assessments changed/updated: {}".format(stats.get('assessments', '???')))
 
 
 
@@ -129,10 +130,10 @@ def main(argv=None):
         sys.exit()
 
     if not args.nonInteractive:
-        print "You are about to commit the following changes to the database:"
+        print("You are about to commit the following changes to the database:")
         da.printStats()
         da.printIDs()
-        print "Proceed? (Y/n)"
+        print("Proceed? (Y/n)")
         if not raw_input() == "Y":
             log.warning("Aborting deposit! Rolling back changes.")
             db.session.rollback()
@@ -140,7 +141,7 @@ def main(argv=None):
 
     db.session.commit()
     da.printIDs()
-    print "Deposit complete."
+    print("Deposit complete.")
     return 0
 
 if __name__ == "__main__":

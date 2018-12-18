@@ -1,3 +1,4 @@
+from __future__ import print_function
 from api.config import config as global_config, get_filter_config
 from vardb.datamodel import sample
 
@@ -219,7 +220,7 @@ class AlleleFilter(object):
                         analysis_gp_allele_ids[analysis_gp_key] -= allele_ids
 
             except Exception:
-                print "Error while running filter '{}'".format(name)
+                print("Error while running filter '{}'".format(name))
                 raise
 
 

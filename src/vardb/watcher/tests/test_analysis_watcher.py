@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import shutil
 import pytest
@@ -26,7 +27,7 @@ misconfigured_analysis_sample = 'TestAnalysis-003'
 
 @pytest.fixture()
 def init_dest():
-    print 'cleaning up paths ..'
+    print('cleaning up paths ..')
     os.system('rm -rf {}'.format(empty_data_path))
     os.system('rm -rf {}'.format(dest_path))
     os.system('rm -rf {}'.format(watch_path))
@@ -36,7 +37,7 @@ def init_dest():
 
     os.system('cp -r {} {}'.format(ready_data_source_path, ready_data_path))
 
-    print 'paths are ready ..'
+    print('paths are ready ..')
     os.system('touch {}/READY'.format(ready_data_path))
     yield 'dest_created'
     os.system('rm -rf {}'.format(empty_data_path))

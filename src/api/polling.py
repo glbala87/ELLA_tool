@@ -1,3 +1,4 @@
+from __future__ import print_function
 import datetime
 import json
 import logging
@@ -403,7 +404,7 @@ def polling(session):
         session.remove()
         import traceback
         traceback.print_exc()
-        print e.message
+        print(e.message)
         raise e
 
 

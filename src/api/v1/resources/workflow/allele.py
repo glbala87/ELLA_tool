@@ -682,7 +682,6 @@ class AlleleInterpretationLogListResource(LogRequestResource):
           500:
             description: Error
         """
-        print allele_id
         helpers.create_interpretationlog(session, user.id, data, allele_id=allele_id)
         session.commit()
 
