@@ -57,8 +57,8 @@ def split_vcf(vcf):
         if l.strip():
             variants.append(l)
 
-    variants1 = variants[: len(variants) / 2]
-    variants2 = variants[len(variants) / 2 :]
+    variants1 = variants[: len(variants) // 2]
+    variants2 = variants[len(variants) // 2 :]
 
     N1 = len(variants1)
     N2 = len(variants2)

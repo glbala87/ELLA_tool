@@ -14,7 +14,9 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     gettext-base \
-    python \
+    python3 \
+    python3-pip \
+    python3-venv \
     make \
     bash \
     libpq5 \
@@ -49,7 +51,7 @@ FROM base AS dev
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gnupg2 \
-    python-dev \
+    python3-dev \
     make \
     build-essential \
     git \
@@ -84,8 +86,7 @@ COPY ./requirements-prod.txt  /dist/requirements-prod.txt
 
 # pip
 RUN cd /dist && \
-    pip install virtualenv && \
-    WORKON_HOME="/dist" virtualenv ella-python && \
+    WORKON_HOME="/dist" python3 -m venv ella-python && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements.txt && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements-prod.txt

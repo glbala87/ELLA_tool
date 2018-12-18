@@ -137,7 +137,7 @@ def log_request(statuscode, response=None):
             response_data = response.get_data()
     if request.method in ["PUT", "POST", "PATCH", "DELETE"]:
         if not g.log_hide_payload:
-            payload = request.get_data()
+            payload = request.get_data().decode()
             payload_size = (request.headers.get("Content-Length", 0),)
         if not app.testing:  # don't add noise to console in tests, see tests.util.FlaskClientProxy
             log.warning(
@@ -157,7 +157,7 @@ def log_request(statuscode, response=None):
             remote_addr=remote_addr,
             method=request.method,
             resource=request.path,
-            query=request.query_string,
+            query=request.query_string.decode(),
             response=response_data,
             response_size=response_size,
             payload=payload,

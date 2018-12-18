@@ -24,9 +24,9 @@ log.setLevel(logging.WARNING)
 
 
 @contextmanager
-def tempinput(data):
+def tempinput(data: str):
     temp = tempfile.NamedTemporaryFile(delete=False)
-    temp.write(data)
+    temp.write(data.encode())
     temp.close()
     try:
         yield temp.name

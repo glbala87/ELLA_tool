@@ -288,12 +288,7 @@ def export_variants(session, genepanels, filter_config_id, excel_file_obj, csv_f
     if csv_file_obj:
         for cols in csv:
             csv_file_obj.write(
-                "\t".join(
-                    map(
-                        lambda c: c.encode("utf-8") if isinstance(c, str) else str(c),
-                        cols,
-                    )
-                )
+                "\t".join(map(lambda c: str(c) if not isinstance(c, str) else c, cols))
             )
             csv_file_obj.write("\n")
 

@@ -85,18 +85,3 @@ class GRA:
                 subdict = subdict.setdefault(subkey, dict())
             subdict.setdefault(subkeys[-1], []).extend(rule)
         return ret
-
-    """
-    Exports results grouped on sources
-    """
-
-    def jsonReport(self, passed, notpassed):
-        ret = OrderedDict()
-        # Use OrderedDict as ordered set to preserve order, at least for the tests
-        ret["codes"] = list(OrderedDict({r.code: None for r in passed}))
-        sources = OrderedDict()
-        for rule in passed:
-            if rule.source:
-                sources.setdefault(rule.source, []).append(rule.code)
-        ret["sources"] = self.groupSources(sources)
-        return json.dumps(ret, indent=0, separators=(",", ": "))

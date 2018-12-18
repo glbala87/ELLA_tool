@@ -244,7 +244,7 @@ def cmd_users_list(group, username):
         )
     )
     for a in accounts:
-        d = {h: encode(getattr(a, h)) for h in header_user}
+        d = {h: str(getattr(a, h)) for h in header_user}
         d.update(
             {
                 "usergroup": a.group.name,
@@ -445,10 +445,7 @@ def cmd_reset_password(username):
 
     click.echo(
         "Reset password for user {username} ({last_name}, {first_name}) with password {password}".format(
-            username=username,
-            first_name=u.first_name.encode("utf-8"),
-            last_name=u.last_name.encode("utf-8"),
-            password=password,
+            username=username, first_name=u.first_name, last_name=u.last_name, password=password
         )
     )
 

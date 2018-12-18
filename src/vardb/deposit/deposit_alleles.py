@@ -25,28 +25,30 @@ class DepositAlleles(DepositFromVCF):
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
-        if not annotation_only:
+        if gp_name and gp_version:
             db_genepanel = self.get_genepanel(gp_name, gp_version)
-            is_not_inside_transcripts = []
-            for record in vi.iter():
-                if not self.is_inside_transcripts(record, db_genepanel):
-                    is_not_inside_transcripts.append(record)
-
-            if is_not_inside_transcripts:
-                error = "The following variants are not inside the genepanel %s\n" % (
-                    db_genepanel.name + "_" + db_genepanel.version
-                )
-                for record in is_not_inside_transcripts:
-                    error += "%s\t%s\t%s\t%s\t%s\n" % (
-                        record["CHROM"],
-                        record["POS"],
-                        record["ID"],
-                        record["REF"],
-                        ",".join(record["ALT"]),
-                    )
-                raise RuntimeError(error)
 
         for batch_records in batch_generator(vi.iter, BATCH_SIZE):
+
+            if not annotation_only:
+                is_not_inside_transcripts = []
+                for record in batch_records:
+                    if not self.is_inside_transcripts(record, db_genepanel):
+                        is_not_inside_transcripts.append(record)
+
+                if is_not_inside_transcripts:
+                    error = "The following variants are not inside the genepanel %s\n" % (
+                        db_genepanel.name + "_" + db_genepanel.version
+                    )
+                    for record in is_not_inside_transcripts:
+                        error += "%s\t%s\t%s\t%s\t%s\n" % (
+                            record["CHROM"],
+                            record["POS"],
+                            record["ID"],
+                            record["REF"],
+                            ",".join(record["ALT"]),
+                        )
+                    raise RuntimeError(error)
 
             for record in batch_records:
                 self.allele_importer.add(record)

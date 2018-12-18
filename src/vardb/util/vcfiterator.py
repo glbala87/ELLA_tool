@@ -1,4 +1,3 @@
-
 import sys
 from collections import defaultdict
 import re
@@ -56,8 +55,7 @@ class Util(object):
             return path_or_fileobject
 
 
-class BaseInfoProcessor(object, metaclass=abc.ABCMeta):
-
+class BaseInfoProcessor(abc.ABC):
     @abc.abstractmethod
     def accepts(self, key, value, processed):
         """
@@ -88,7 +86,7 @@ class BaseInfoProcessor(object, metaclass=abc.ABCMeta):
     def getConvertFunction(self, meta, key):
         # Search for meta item
         f = next((m for m in meta["INFO"] if m["ID"] == key), None)
-        func = lambda x: x.decode("latin-1", "replace")
+        func = lambda x: x
         if f:
             parse_func = str
             if f["Type"] == "Integer":
@@ -98,7 +96,7 @@ class BaseInfoProcessor(object, metaclass=abc.ABCMeta):
             elif f["Type"] == "Flag":
                 parse_func = bool
             elif f["Type"] == "String":
-                parse_func = lambda x: x.decode("latin-1", "replace")
+                parse_func = lambda x: x
 
             number = f["Number"]
 
@@ -179,7 +177,7 @@ class VEPInfoProcessor(BaseInfoProcessor):
 
         all_data = [
             {
-                k: self.converters.get(k, lambda x: x.decode("latin-1", "replace"))(v)
+                k: self.converters.get(k, lambda x: x)(v)
                 for k, v in zip(self.fields, t.split("|"))
                 if v is not ""
             }
@@ -239,7 +237,7 @@ class SnpEffInfoProcessor(BaseInfoProcessor):
 
         all_data = [
             {
-                k: self.converters.get(k, lambda x: x.decode("latin-1", "replace"))(v)
+                k: self.converters.get(k, lambda x: x)(v)
                 for k, v in zip(self.fields, self._parseFormat(t))
                 if v is not ""
             }
@@ -329,20 +327,22 @@ class HeaderParser(object):
         header = list()
 
         # Read in metadata and header
-        with Util.open(self.path_or_fileobject) as fd:
-            for line in fd:
-                line = line.replace("\n", "")
-                if line.startswith("##"):
-                    key, value = line[2:].split("=", 1)
-                    meta[key].append(value)
-                elif line.startswith("#"):
-                    line = line.replace("#", "")
-                    header = re.split("\s+", line)
-                    # header = line.split('\t')
-                    # header =
-                else:
-                    # End of header
-                    break
+        fd = Util.open(self.path_or_fileobject)
+        for line in fd:
+            line = line.replace("\n", "")
+            if line.startswith("##"):
+                key, value = line[2:].split("=", 1)
+                meta[key].append(value)
+            elif line.startswith("#"):
+                line = line.replace("#", "")
+                header = re.split("\s+", line)
+                # header = line.split('\t')
+                # header =
+            else:
+                # End of header
+                break
+
+        fd.seek(0)
 
         # Extract data with processors
         for key, func in self.metaProccessors.items():

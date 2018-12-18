@@ -898,7 +898,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,

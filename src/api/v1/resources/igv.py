@@ -2,7 +2,7 @@ import os
 import mimetypes
 import json
 import logging
-from io import StringIO
+from io import BytesIO
 from collections import OrderedDict
 
 from flask import request, Response, send_file
@@ -85,7 +85,7 @@ def transcripts_to_bed(transcripts):
     """Write transcripts as a bed file specialized for display in IGV"""
     template = "{chr}\t{tx_start}\t{tx_end}\t{name}\t1000.0\t{strand}\t{cds_start}\t{cds_end}\t.\t{num_exons}\t{exon_lengths}\t{exon_starts}\tfoo\n"
 
-    data = StringIO()
+    data = BytesIO()
     for t in transcripts:
         exon_lengths = [str(e - s) for s, e in zip(t.exon_starts, t.exon_ends)]
         relative_exon_starts = [str(s - t.tx_start) for s in t.exon_starts]
@@ -281,8 +281,8 @@ class ClassificationResource(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, user=None):
-        data = StringIO()
-        data.write(get_classification_bed(session))
+        data = BytesIO()
+        data.write(get_classification_bed(session).encode("utf-8"))
         data.seek(0)
         return send_file(data)
 
@@ -292,8 +292,8 @@ class AnalysisVariantTrack(LogRequestResource):
     @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
         allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
-        data = StringIO()
-        data.write(get_allele_vcf(session, analysis_id, allele_ids))
+        data = BytesIO()
+        data.write(get_allele_vcf(session, analysis_id, allele_ids).encode("utf-8"))
         data.seek(0)
         return send_file(data)
 

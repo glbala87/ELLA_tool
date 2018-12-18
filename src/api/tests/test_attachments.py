@@ -9,14 +9,14 @@ B64_DATA = "iVBORw0KGgoAAAANSUhEUgAAAV4AAAEACAIAAAB0zYnKAAAAA3NCSVQICAjb4U/gAAAA
 
 def test_attachments(session, client):
     # Create temporary file to upload
-    f = tempfile.NamedTemporaryFile("w", delete=False)
+    f = tempfile.NamedTemporaryFile("wb", delete=False)
     f.write(base64.b64decode(B64_DATA))
     f.close()
 
     # Upload file (can't use client.post, because it dumps data to json)
     with client.app.test_client() as c:
         client.ensure_logged_in(c, "testuser1")
-        r = c.post("/api/v1/attachments/upload/", data={"file": (open(f.name), "ella.png")})
+        r = c.post("/api/v1/attachments/upload/", data={"file": (open(f.name, "rb"), "ella.png")})
 
     assert r.status_code == 200
     attachment_obj = session.query(attachment.Attachment).one()

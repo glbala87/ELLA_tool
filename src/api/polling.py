@@ -21,11 +21,6 @@ from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
-
-# Make StringIO objects work fine in with-statements
-StringIO.__exit__ = lambda *args: False
-StringIO.__enter__ = lambda *args: args[0]
-
 log = logging.getLogger(__name__)
 
 
@@ -162,10 +157,10 @@ class AnnotationJobsInterface:
         gp_version = job.genepanel_version
 
         if mode == "Analysis":
-            type = job.properties["create_or_append"]
+            job_type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
             analysis_name = job.properties["analysis_name"]
-            if type == "Create":
+            if job_type == "Create":
                 analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
             acd = AnalysisConfigData(
@@ -175,11 +170,12 @@ class AnnotationJobsInterface:
                 gp_version=gp_version,
                 priority=1,
             )
-            append = type != "Create"
+            append = job_type != "Create"
             da = DepositAnalysis(self.session)
             da.import_vcf(acd, sample_type=sample_type, append=append)
 
         elif mode in ["Variants", "Single variant"]:
+
             deposit = DepositAlleles(self.session)
             deposit.import_vcf(fd, gp_name, gp_version)
         else:
@@ -330,7 +326,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         except Exception as e:
             annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
-            message = e.__class__.__name__ + ": " + e.message
+            message = e.__class__.__name__ + ": " + (e.message if hasattr(e, "message") else str(e))
 
         yield id, {"status": status, "message": message}
 

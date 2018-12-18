@@ -111,11 +111,12 @@ class GraTest(unittest.TestCase):
 
     def testExpandMultiRules(self):
         dataflattened = {
-            ".".join(list(k)): v
-            for k, v in GRA().parseNodeToSourceKeyedDict(self.jsondata).items()
+            ".".join(list(k)): v for k, v in GRA().parseNodeToSourceKeyedDict(self.jsondata).items()
         }
         rulelist = [
-            rul for resultlist in list(GRL().parseRules(self.jsonrules).values()) for rul in resultlist
+            rul
+            for resultlist in list(GRL().parseRules(self.jsonrules).values())
+            for rul in resultlist
         ]
         GRA().expand_multi_rules(rulelist, dataflattened)
         self.assertEqual(rulelist[-2].source, "refassessment.0.ref_segregation")
@@ -160,61 +161,4 @@ class GraTest(unittest.TestCase):
         self.assertEqual(
             [rule.code for rule in notpassed],
             ["BP2", "rBP7-2", "rBP7-3", "BP7", "PP7", "PP9", "PP11.1", "PP11.3", "PP12", "PP14"],
-        )
-
-    def testJsonReport(self):
-        (passed, notpassed) = GRA().applyRules(
-            GRL().parseRules(self.jsonrules), GRA().parseNodeToSourceKeyedDict(self.jsondata)
-        )
-        jsonrep = GRA().jsonReport(passed, notpassed)
-        self.assertEqual(
-            jsonrep,
-            """{
-"codes": [
-"PP13",
-"PP11",
-"PP10",
-"PP11.2.1",
-"rBP7-1",
-"PP11.2",
-"rBP7-4",
-"BP1",
-"BP8",
-"PP8",
-"GP1"
-],
-"sources": {
-"transcript": {
-"Consequence": [
-"BP1",
-"rBP7-1"
-],
-"Existing_variation": [
-"rBP7-4"
-],
-"Conseq": [
-"BP1"
-]
-},
-"frequencies": {
-"ExAC": {
-"Adj": [
-"PP8"
-]
-}
-},
-"genepanel": {
-"hi_freq_cutoff": [
-"GP1"
-]
-},
-"refassessment": {
-"0": {
-"ref_segregation": [
-"PP13"
-]
-}
-}
-}
-}""",
         )

@@ -91,7 +91,7 @@ def get_batch(alleleassessments):
         if batch:
             yield batch
         else:
-            raise StopIteration
+            return
         i_batch += 1
 
 
@@ -127,7 +127,7 @@ def format_transcripts(allele_annotation):
     for transcript in filtered_transcripts:
         for key, allele_key in list(keys.items()):
             formatted_transcript = transcript.get(allele_key)
-            if hasattr(formatted_transcript, "__iter__"):
+            if isinstance(formatted_transcript, list):
                 formatted_transcript = ", ".join(formatted_transcript)
             if formatted_transcript:
                 formatted_transcripts[key].append(formatted_transcript)
@@ -315,11 +315,9 @@ def dump_alleleassessments(session, filename, with_analysis_names):
                 analysis_names = ",".join(map(str, [a.name for a in analyses]))
 
                 classification_dict[KEY_ANALYSES] = analysis_names
-
             classification_columns = [classification_dict[key] for key in COLUMN_PROPERTIES]
             csv_body.append(classification_columns)
             rows.append(classification_columns)
-
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" % str(t_get - t_query))
         t_total += t_get - t_start
@@ -337,14 +335,7 @@ def dump_alleleassessments(session, filename, with_analysis_names):
 
     with open(filename + ".csv", "w") as csv_file:
         for cols in csv:
-            csv_file.write(
-                "\t".join(
-                    map(
-                        lambda c: c.encode("utf-8") if isinstance(c, str) else str(c),
-                        cols,
-                    )
-                )
-            )
+            csv_file.write("\t".join(map(lambda c: str(c) if not isinstance(c, str) else c, cols)))
             csv_file.write("\n")
 
     workbook.save(filename + ".xlsx")

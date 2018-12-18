@@ -69,7 +69,7 @@ def cmd_export_sanger(user_group, filename):
     genepanels = [(g.name, g.version) for g in usergroup.genepanels]
 
     # Let exceptions propagate to user...
-    excel_file_obj = open(output_name + ".xlsx", "w")
+    excel_file_obj = open(output_name + ".xlsx", "wb")
     csv_file_obj = open(output_name + ".csv", "w")
 
     start = datetime.datetime.now()
@@ -90,7 +90,7 @@ def cmd_export_sanger(user_group, filename):
         )
     else:
         csv_file_obj.write("# file is intentionally empty\n")
-        excel_file_obj.write("file is intentionally empty")
+        excel_file_obj.write(b"file is intentionally empty")
 
     excel_file_obj.close()
     csv_file_obj.close()

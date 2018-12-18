@@ -1,6 +1,5 @@
--r requirements.txt
-mox==0.5.3
 pytest==3.0.5
 pytest-cov==2.4.0
 mock==1.0.1
 pytest-ordering==0.5
+hypothesis==3.60.1

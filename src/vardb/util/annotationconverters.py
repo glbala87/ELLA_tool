@@ -287,7 +287,9 @@ def convert_clinvar(annotation):
     if "CLINVARJSON" not in annotation:
         return dict()
 
-    clinvarjson = json.loads(base64.b16decode(annotation["CLINVARJSON"]))
+    clinvarjson = json.loads(
+        base64.b16decode(annotation["CLINVARJSON"]).decode(encoding="utf-8", errors="strict")
+    )
 
     if any(k not in clinvarjson for k in CLINVAR_FIELDS):
         return dict()
@@ -520,7 +522,9 @@ class ConvertReferences(object):
         if "CLINVARJSON" not in annotation:
             return dict()
 
-        clinvarjson = json.loads(base64.b16decode(annotation["CLINVARJSON"]))
+        clinvarjson = json.loads(
+            base64.b16decode(annotation["CLINVARJSON"]).decode(encoding="utf-8", errors="strict")
+        )
 
         pubmeds = clinvarjson.get("pubmeds", [])
         pubmeds = dict(list(zip(pubmeds, [""] * len(pubmeds))))  # Return as dict (empty values)

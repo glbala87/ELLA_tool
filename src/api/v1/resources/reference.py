@@ -95,7 +95,7 @@ class ReferenceListResource(LogRequestResource):
         assert "xml" in data or "manual" in data
         assert not ("xml" in data and "manual" in data)
         if "xml" in data:
-            ref_data = PubMedParser().from_xml_string(data["xml"].encode("utf-8"))
+            ref_data = PubMedParser().from_xml_string(data["xml"])
 
             reference = (
                 session.query(assessment.Reference)
@@ -119,7 +119,12 @@ class ReferenceListResource(LogRequestResource):
 
             reference = (
                 session.query(assessment.Reference)
-                .filter(*[getattr(assessment.Reference, k) == v for k, v in list(data["manual"].items())])
+                .filter(
+                    *[
+                        getattr(assessment.Reference, k) == v
+                        for k, v in list(data["manual"].items())
+                    ]
+                )
                 .first()
             )
             if reference is not None:
@@ -132,7 +137,12 @@ class ReferenceListResource(LogRequestResource):
 
             reference = (
                 session.query(assessment.Reference)
-                .filter(*[getattr(assessment.Reference, k) == v for k, v in list(data["manual"].items())])
+                .filter(
+                    *[
+                        getattr(assessment.Reference, k) == v
+                        for k, v in list(data["manual"].items())
+                    ]
+                )
                 .one()
             )
 

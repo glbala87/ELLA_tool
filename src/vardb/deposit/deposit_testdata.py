@@ -107,7 +107,7 @@ ALLELES = [
     }
 ]
 
-DEFAULT_TESTSET = filter(lambda a: "default" in a and a["default"], ANALYSES)[0]["name"]
+DEFAULT_TESTSET = next(filter(lambda a: "default" in a and a["default"], ANALYSES))["name"]
 AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a["name"] for a in ANALYSES]
 
 REFERENCES = "../testdata/references_test.json"
