@@ -1,14 +1,14 @@
 """Add drug response class
 
 Revision ID: ec5fb8b62e4a
-Revises: 250c9c10baee
+Revises: 1ff294ee1c64
 Create Date: 2018-12-05 09:49:41.400476
 
 """
 
 # revision identifiers, used by Alembic.
 revision = 'ec5fb8b62e4a'
-down_revision = '250c9c10baee'
+down_revision = '1ff294ee1c64'
 branch_labels = None
 depends_on = None
 
