@@ -86,7 +86,7 @@ def upgrade():
     conn.execute("UPDATE analysisinterpretation SET state = state - 'review_comment'")
 
     # Priority hasn't been used so far, no need to migrate data
-    op.drop_column(u"analysis", "priority")
+    op.drop_column("analysis", "priority")
 
 
 def downgrade():

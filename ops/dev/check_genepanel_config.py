@@ -2,7 +2,7 @@
 """
 Standalone script for checking syntax of genepanel config.
 """
-from __future__ import print_function
+
 import argparse
 import json
 import os

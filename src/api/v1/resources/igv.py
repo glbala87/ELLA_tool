@@ -2,7 +2,7 @@ import os
 import mimetypes
 import json
 import logging
-from cStringIO import StringIO
+from io import StringIO
 from collections import OrderedDict
 
 from flask import request, Response, send_file

@@ -294,7 +294,7 @@ def convert_clinvar(annotation):
 
     data = dict(items=[])
     data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
-    for rcv, val in clinvarjson["rcvs"].items():
+    for rcv, val in list(clinvarjson["rcvs"].items()):
         item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
         item["rcv"] = rcv
         data["items"].append(item)
@@ -320,7 +320,7 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     hemi = {}
     filter_status = {}
     indications = {}
-    for key, value in annotation[annotation_key].iteritems():
+    for key, value in annotation[annotation_key].items():
         if value == ["."] or value == ".":
             continue
         if key == "AS_FilterStatus":  # gnomAD specific
@@ -456,7 +456,7 @@ def csq_frequencies(annotation):
         # VEP gives minor allele for some fields, which can be the reference instead of the allele
         processed = {
             k.replace("_MAF", "").replace("MAF", ""): v[freq_data["Allele"]]
-            for k, v in freq_data.iteritems()
+            for k, v in freq_data.items()
             if "MAF" in k and freq_data["Allele"] in v
         }
         if processed:
@@ -510,7 +510,7 @@ class ConvertReferences(object):
                 total[pmid] = [reftag, comments]
 
         # Format reftag, comments to string
-        for pmid, info in total.items():
+        for pmid, info in list(total.items()):
             info_string = ". ".join([v.strip().strip(".") for v in info]) + "."
             total[pmid] = info_string
 
@@ -523,7 +523,7 @@ class ConvertReferences(object):
         clinvarjson = json.loads(base64.b16decode(annotation["CLINVARJSON"]))
 
         pubmeds = clinvarjson.get("pubmeds", [])
-        pubmeds = dict(zip(pubmeds, [""] * len(pubmeds)))  # Return as dict (empty values)
+        pubmeds = dict(list(zip(pubmeds, [""] * len(pubmeds))))  # Return as dict (empty values)
 
         return pubmeds
 
@@ -532,7 +532,7 @@ class ConvertReferences(object):
         # If it cannot be converted, ignore it...
         assert isinstance(pmids, dict)
         int_pmids = dict()
-        for pmid, val in pmids.iteritems():
+        for pmid, val in pmids.items():
             try:
                 int_pmids[int(pmid)] = val
             except ValueError:
@@ -545,7 +545,7 @@ class ConvertReferences(object):
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list
-        all_pubmeds = hgmd_pubmeds.keys() + clinvar_pubmeds.keys()
+        all_pubmeds = list(hgmd_pubmeds.keys()) + list(clinvar_pubmeds.keys())
         references = list()
         for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
             sources = []

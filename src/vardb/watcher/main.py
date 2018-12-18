@@ -3,8 +3,8 @@ import time
 import logging
 
 from vardb.datamodel import DB
-from analysis_watcher import AnalysisWatcher
-from genepanel_watcher import GenepanelWatcher
+from .analysis_watcher import AnalysisWatcher
+from .genepanel_watcher import GenepanelWatcher
 
 
 log = logging.getLogger(__name__)

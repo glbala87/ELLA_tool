@@ -179,7 +179,7 @@ def test_status_update_annotationjob(session, client):
 def get_alleles(vcf, session):
     from vardb.util.vcfiterator import VcfIterator
 
-    from StringIO import StringIO
+    from io import StringIO
 
     fd = StringIO()
     fd.write(vcf)

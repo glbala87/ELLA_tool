@@ -18,13 +18,13 @@ from sqlalchemy.dialects import postgresql
 
 def upgrade():
     op.add_column(
-        u"analysis", sa.Column("date_requested", sa.DateTime(timezone=True), nullable=True)
+        "analysis", sa.Column("date_requested", sa.DateTime(timezone=True), nullable=True)
     )
-    op.alter_column(u"analysis", "deposit_date", new_column_name="date_deposited")
-    op.alter_column(u"sample", "deposit_date", new_column_name="date_deposited")
+    op.alter_column("analysis", "deposit_date", new_column_name="date_deposited")
+    op.alter_column("sample", "deposit_date", new_column_name="date_deposited")
 
 
 def downgrade():
-    op.drop_column(u"analysis", "date_requested")
-    op.alter_column(u"analysis", "date_deposited", new_column_name="deposit_date")
-    op.alter_column(u"sample", "date_deposited", new_column_name="deposit_date")
+    op.drop_column("analysis", "date_requested")
+    op.alter_column("analysis", "date_deposited", new_column_name="deposit_date")
+    op.alter_column("sample", "date_deposited", new_column_name="deposit_date")

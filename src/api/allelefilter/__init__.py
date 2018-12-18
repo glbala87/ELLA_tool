@@ -1,1 +1,1 @@
-from allelefilter import AlleleFilter
+from .allelefilter import AlleleFilter

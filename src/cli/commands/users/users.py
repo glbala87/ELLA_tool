@@ -100,7 +100,7 @@ def convert(join, *split_args):
 
 
 def encode(s):
-    if isinstance(s, (str, unicode)):
+    if isinstance(s, str):
         return s.encode("utf-8")
     else:
         return str(s)
@@ -120,7 +120,7 @@ def _modify_user(session, username, **kwargs):
 
     if "new_username" in kwargs:
         kwargs["username"] = kwargs.pop("new_username")
-    modified = {k: v for k, v in kwargs.iteritems() if v is not None}
+    modified = {k: v for k, v in kwargs.items() if v is not None}
 
     u_mod = modify_user(session, username, **modified)
 
@@ -137,7 +137,7 @@ def _modify_user(session, username, **kwargs):
             n_changes += 1
             if n_changes == 1:
                 click.echo(
-                    u"User {username} ({last_name}, {first_name}) has been modified: ".format(
+                    "User {username} ({last_name}, {first_name}) has been modified: ".format(
                         username=username, first_name=u.first_name, last_name=u.last_name
                     )
                 )
@@ -147,7 +147,7 @@ def _modify_user(session, username, **kwargs):
 
     if n_changes == 0:
         click.echo(
-            u"No modifications made to {username} ({last_name}, {first_name}).".format(
+            "No modifications made to {username} ({last_name}, {first_name}).".format(
                 username=username, first_name=u.first_name, last_name=u.last_name
             )
         )
@@ -165,7 +165,7 @@ def _add_user(session, **kwargs):
         kwargs["group_id"],
     )
     click.echo(
-        u"Added user {username} ({last_name}, {first_name}, {email}) with password {password}".format(
+        "Added user {username} ({last_name}, {first_name}, {email}) with password {password}".format(
             username=u.username,
             first_name=u.first_name,
             last_name=u.last_name,
@@ -312,7 +312,7 @@ def cmd_add_user(username, first_name, last_name, usergroup, email):
     """
     Add user with a generated password
     """
-    answer = raw_input(
+    answer = input(
         "Are you sure you want to add user with command line arguments? If not, consider using the 'add_many' command to import with json-file. Type 'y' to confirm."
     )
 
@@ -331,7 +331,7 @@ def cmd_add_user(username, first_name, last_name, usergroup, email):
     u, pw = add_user(session, username, first_name, last_name, email, group_id)
 
     click.echo(
-        u"Added user {username} ({last_name}, {first_name}) with password {password}".format(
+        "Added user {username} ({last_name}, {first_name}) with password {password}".format(
             username=u.username,
             first_name=u.first_name,
             last_name=u.last_name,
@@ -361,13 +361,13 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
             user["group"]
             and user["group"].strip()
             and group_names
-            and user["group"].strip().lower() in map(lambda s: s.strip().lower(), group_names)
+            and user["group"].strip().lower() in [s.strip().lower() for s in group_names]
         )
 
     filtered_users = (
         users
         if not group
-        else filter(partial(is_usergroup_configured_to_be_imported, group), users)
+        else list(filter(partial(is_usergroup_configured_to_be_imported, group), users))
     )
 
     db = DB()
@@ -409,17 +409,17 @@ def cmd_add_many_groups(json_file, name, dry):  # name is a tuple of names given
             group["name"]
             and group["name"].strip()
             and group_filter
-            and group["name"].strip().lower() in map(lambda s: s.strip().lower(), group_filter)
+            and group["name"].strip().lower() in [s.strip().lower() for s in group_filter]
         )
 
     filtered_groups = (
         groups
         if not name
-        else filter(partial(is_usergroup_configured_to_be_imported, name), groups)
+        else list(filter(partial(is_usergroup_configured_to_be_imported, name), groups))
     )
     if dry:
         for g in filtered_groups:
-            click.echo(u"Would add group '{name}'".format(name=g["name"]))
+            click.echo("Would add group '{name}'".format(name=g["name"]))
         return
 
     db = DB()
@@ -492,7 +492,7 @@ def cmd_modify_user(username, **kwargs):
     The -- marks when a new parameter starts
     """
 
-    answer = raw_input(
+    answer = input(
         "Are you sure you want to modify user with command line arguments? If not, consider using the 'add_many' command to import with json-file. Type 'y' to confirm."
     )
 

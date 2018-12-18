@@ -5,12 +5,12 @@ Ella command line interface
 
 import os
 import click
-from commands.broadcast.broadcast import broadcast
-from commands.database.database import database
-from commands.deposit.deposit import deposit
-from commands.analyses.analyses import analyses
-from commands.export.export import export
-from commands.users.users import users
+from .commands.broadcast.broadcast import broadcast
+from .commands.database.database import database
+from .commands.deposit.deposit import deposit
+from .commands.analyses.analyses import analyses
+from .commands.export.export import export
+from .commands.users.users import users
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 

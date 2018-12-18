@@ -119,7 +119,7 @@ class ReferenceListResource(LogRequestResource):
 
             reference = (
                 session.query(assessment.Reference)
-                .filter(*[getattr(assessment.Reference, k) == v for k, v in data["manual"].items()])
+                .filter(*[getattr(assessment.Reference, k) == v for k, v in list(data["manual"].items())])
                 .first()
             )
             if reference is not None:
@@ -132,7 +132,7 @@ class ReferenceListResource(LogRequestResource):
 
             reference = (
                 session.query(assessment.Reference)
-                .filter(*[getattr(assessment.Reference, k) == v for k, v in data["manual"].items()])
+                .filter(*[getattr(assessment.Reference, k) == v for k, v in list(data["manual"].items())])
                 .one()
             )
 

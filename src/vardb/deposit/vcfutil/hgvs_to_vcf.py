@@ -71,7 +71,7 @@ NC_CHROM = {
     "X": "NC_000023",
     "Y": "NC_000024",
 }
-NC_CHROM = dict((v, k) for k, v in NC_CHROM.iteritems())
+NC_CHROM = dict((v, k) for k, v in NC_CHROM.items())
 
 GT_COLS = []  # Colums that are genotype/sample specific. Updated from args in main().
 
@@ -161,7 +161,7 @@ def make_genotype_field(columnNames, columns):
 def make_vcf(csvReader, vcfAlleleCreator, pcs):
     """Make a VCF file from a tab-separated file of sampleName, HGVS expression,
     homozygous, and other fields."""
-    columnNames = csvReader.next()
+    columnNames = next(csvReader)
     columnNames[0] = columnNames[0].strip("#")
     assert (
         columnNames[0].lower() == "sample"

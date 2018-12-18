@@ -47,7 +47,7 @@ def insert_filter_config(session, filter_config):
 def create_filter_mock(to_remove):
     def filter_mock(key_allele_ids):
         result = dict()
-        for gp_key, allele_ids in key_allele_ids.iteritems():
+        for gp_key, allele_ids in key_allele_ids.items():
             result[gp_key] = set(to_remove)
         return result
 

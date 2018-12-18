@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from functools import wraps
 import json
 import datetime
@@ -28,7 +28,7 @@ def dict_merge(destination, src):
     """
     if not src:
         return
-    for k, v in src.iteritems():
+    for k, v in src.items():
         if (
             k in destination
             and isinstance(destination[k], dict)
@@ -273,14 +273,14 @@ def request_json(required, only_required=False, allowed=None):
                         )
 
                 if only_required:
-                    source_array[idx] = {k: v for k, v in d.iteritems() if k in required_fields}
+                    source_array[idx] = {k: v for k, v in d.items() if k in required_fields}
                 elif allowed_fields:
                     source_array[idx] = {
-                        k: v for k, v in d.iteritems() if k in required_fields + allowed_fields
+                        k: v for k, v in d.items() if k in required_fields + allowed_fields
                     }
             else:
                 if allowed_fields:
-                    source_array[idx] = {k: v for k, v in d.iteritems() if k in allowed_fields}
+                    source_array[idx] = {k: v for k, v in d.items() if k in allowed_fields}
 
     def array_wrapper(func):
         @wraps(func)
@@ -308,7 +308,7 @@ def request_json(required, only_required=False, allowed=None):
         @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
-            for data_key in data.keys():
+            for data_key in list(data.keys()):
                 if required:
                     for fields in required:
                         if data.get(fields) is None:
@@ -320,7 +320,7 @@ def request_json(required, only_required=False, allowed=None):
 
                 if allowed:
                     assert isinstance(allowed, dict)
-                    for allow_key in allowed.keys():
+                    for allow_key in list(allowed.keys()):
                         if allow_key == data_key:
                             _check_array_content(
                                 data[data_key], None, allowed_fields=allowed[allow_key]

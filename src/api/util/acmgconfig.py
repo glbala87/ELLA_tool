@@ -104,7 +104,7 @@ class AcmgConfig(object):
         frequency_config = copy.deepcopy(self.acmgconfig["frequency"])
         per_gene_config = copy.deepcopy(self.acmgconfig.get("genes", {}))
 
-        for hgnc_id, override in per_gene_config.iteritems():
+        for hgnc_id, override in per_gene_config.items():
             if "frequency" in override:
                 if "genes" not in frequency_config:
                     frequency_config["genes"] = dict()
@@ -142,7 +142,7 @@ class AcmgConfig(object):
         frequency_config = result_config.pop("frequency")
         per_gene_config = result_config.pop("genes", {})
         # HGNC ids must be int, but source might have strings from JSON data
-        per_gene_config = {int(k): v for k, v in per_gene_config.iteritems()}
+        per_gene_config = {int(k): v for k, v in per_gene_config.items()}
 
         if not hgnc_id:
             # If there's no hgnc_id, use frequency cutoffs for 'default'

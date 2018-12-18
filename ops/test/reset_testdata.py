@@ -5,7 +5,7 @@ We don't add this script to CLI as it's not considered
 safe with regards to production.
 """
 
-from __future__ import print_function
+
 
 if __name__ == "__main__":
 

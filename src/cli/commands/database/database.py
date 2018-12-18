@@ -33,7 +33,7 @@ DEFAULT_WARNING = "THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to 
 @contextmanager
 def confirm(success_msg, force=False, warning=DEFAULT_WARNING):
     if not force:
-        confirmation = raw_input(warning)
+        confirmation = input(warning)
         if confirmation == "CONFIRM":
             yield
             click.echo(success_msg)

@@ -251,7 +251,7 @@ def update_interpretation(
                     session.query(user.User).filter(user.User.id == interpretation.user_id).one()
                 )
                 raise ConflictError(
-                    u"Interpretation owned by {} {} cannot be updated by other user ({} {})".format(
+                    "Interpretation owned by {} {} cannot be updated by other user ({} {})".format(
                         interpretation_user.first_name,
                         interpretation.user.last_name,
                         current_user.first_name,
@@ -833,7 +833,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     collision_alleles = (
         session.query(allele.Allele)
         .filter(
-            allele.Allele.id.in_(itertools.chain.from_iterable(collision_gp_allele_ids.values()))
+            allele.Allele.id.in_(itertools.chain.from_iterable(list(collision_gp_allele_ids.values())))
         )
         .all()
     )
@@ -841,11 +841,11 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Next load the alleles by their genepanel to load with AlleleDataLoader
     # using the correct genepanel for those alleles.
     genepanels = session.query(gene.Genepanel).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(collision_gp_allele_ids.keys())
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(collision_gp_allele_ids.keys()))
     )
     adl = AlleleDataLoader(session)
     gp_dumped_alleles = dict()
-    for gp_key, al_ids in collision_gp_allele_ids.iteritems():
+    for gp_key, al_ids in collision_gp_allele_ids.items():
         genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
         alleles = [a for a in collision_alleles if a.id in al_ids]
         gp_dumped_alleles[gp_key] = adl.from_objs(

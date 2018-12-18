@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from api.config import config as global_config, get_filter_config
 from vardb.datamodel import sample
 
@@ -49,7 +49,7 @@ class AlleleFilter(object):
             elif filter_type == "analysis":
                 filter_result = filter_func(analysis_allele_ids, config)
 
-            for filtered_allele_ids in filter_result.itervalues():
+            for filtered_allele_ids in filter_result.values():
                 filter_exceptions |= filtered_allele_ids
 
         return filter_exceptions
@@ -107,11 +107,11 @@ class AlleleFilter(object):
 
         # Make copies to avoid modifying input data
         if analysis_allele_ids:
-            analysis_allele_ids = {k: set(v) for k, v in analysis_allele_ids.iteritems()}
+            analysis_allele_ids = {k: set(v) for k, v in analysis_allele_ids.items()}
         else:
             analysis_allele_ids = dict()
         if gp_allele_ids:
-            gp_allele_ids = {k: set(v) for k, v in gp_allele_ids.iteritems()}
+            gp_allele_ids = {k: set(v) for k, v in gp_allele_ids.items()}
         else:
             gp_allele_ids = dict()
 
@@ -121,7 +121,7 @@ class AlleleFilter(object):
                 sample.Analysis.genepanel_name,
                 sample.Analysis.genepanel_version,
             )
-            .filter(sample.Analysis.id.in_(analysis_allele_ids.keys()))
+            .filter(sample.Analysis.id.in_(list(analysis_allele_ids.keys())))
             .all()
         )
 
@@ -130,12 +130,12 @@ class AlleleFilter(object):
         }
 
         analysis_gp_allele_ids = dict()
-        for a_id, gp_key in analysis_genepanels.iteritems():
+        for a_id, gp_key in analysis_genepanels.items():
             if gp_key not in analysis_gp_allele_ids:
                 analysis_gp_allele_ids[gp_key] = set()
             analysis_gp_allele_ids[gp_key] |= set(analysis_allele_ids[a_id])
 
-        all_gp_keys = set(analysis_gp_allele_ids.keys() + gp_allele_ids.keys())
+        all_gp_keys = set(list(analysis_gp_allele_ids.keys()) + list(gp_allele_ids.keys()))
 
         # Run filter functions.
         # Already filtered alleles are tracked to avoid re-filtering same alleles (for performance reasons).
@@ -198,18 +198,18 @@ class AlleleFilter(object):
                     filtered_gp_allele_ids = {
                         analysis_genepanels[a_id]: set() for a_id in filtered_analysis_allele_ids
                     }
-                    for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
+                    for a_id, allele_ids in filtered_analysis_allele_ids.items():
                         filtered_gp_allele_ids[analysis_genepanels[a_id]] |= allele_ids
 
                 filter_exceptions = self.get_filter_exceptions(
                     exceptions_config, filtered_gp_allele_ids, filtered_analysis_allele_ids
                 )
 
-                for gp_key, allele_ids in filtered_gp_allele_ids.iteritems():
+                for gp_key, allele_ids in filtered_gp_allele_ids.items():
                     # Subtract alleles that should be excepted from filtering
                     filtered_gp_allele_ids[gp_key] = set(allele_ids) - filter_exceptions
 
-                for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
+                for a_id, allele_ids in filtered_analysis_allele_ids.items():
                     filtered_analysis_allele_ids[a_id] = set(allele_ids) - filter_exceptions
 
                 # Update data structures gp_allele_ids, analysis_gp_allele_ids, and analysis_allele_ids by removing filtered alleles from the remaining alleles
@@ -217,7 +217,7 @@ class AlleleFilter(object):
                 # 1. Improve performance by not running already filtered alleles in subsequent filters
                 # 2. Prevent alleles from ending up in multiple filters
                 if filter_data_type == "allele":
-                    for gp_key, allele_ids in filtered_gp_allele_ids.iteritems():
+                    for gp_key, allele_ids in filtered_gp_allele_ids.items():
                         if gp_key in gp_allele_ids:
                             # Insert filter result in genepanel data structure to be returned
                             gp_allele_result[gp_key]["excluded_allele_ids"][name] = sorted(
@@ -228,7 +228,7 @@ class AlleleFilter(object):
                         if gp_key in analysis_gp_allele_ids:
                             analysis_gp_allele_ids[gp_key] -= allele_ids
 
-                            for (a_id, analysis_gp_key) in analysis_genepanels.iteritems():
+                            for (a_id, analysis_gp_key) in analysis_genepanels.items():
                                 if analysis_gp_key == gp_key:
                                     # Insert filter result in analysis data structure to be returned
                                     analysis_allele_result[a_id]["excluded_allele_ids"][
@@ -238,7 +238,7 @@ class AlleleFilter(object):
                                     analysis_allele_ids[a_id] -= allele_ids
 
                 elif filter_data_type == "analysis":
-                    for a_id, allele_ids in filtered_analysis_allele_ids.iteritems():
+                    for a_id, allele_ids in filtered_analysis_allele_ids.items():
                         # Insert filter result in analysis data structure to be returned
                         analysis_allele_result[a_id]["excluded_allele_ids"][name] = sorted(
                             list(analysis_allele_ids[a_id] & allele_ids)

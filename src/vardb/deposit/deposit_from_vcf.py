@@ -7,7 +7,7 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
-from __future__ import print_function
+
 import sys
 import argparse
 import json

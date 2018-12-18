@@ -108,7 +108,7 @@ ALLELES = [
 ]
 
 DEFAULT_TESTSET = filter(lambda a: "default" in a and a["default"], ANALYSES)[0]["name"]
-AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + map(lambda a: a["name"], ANALYSES)
+AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a["name"] for a in ANALYSES]
 
 REFERENCES = "../testdata/references_test.json"
 CUSTOM_ANNO = "../testdata/custom_annotation_test.json"

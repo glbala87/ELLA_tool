@@ -17,7 +17,7 @@ def test_broadcast(test_database, session, client):
     session.add(b1)
     session.commit()
     response = client.get("/api/v1/broadcasts/")
-    assert response.json == [{"id": 1, "message": u"Test", "date": now.isoformat()}]
+    assert response.json == [{"id": 1, "message": "Test", "date": now.isoformat()}]
 
     # Make it inactive
 

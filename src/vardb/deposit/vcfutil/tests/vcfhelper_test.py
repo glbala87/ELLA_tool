@@ -107,8 +107,8 @@ class TestVCFHelperFunctions(unittest.TestCase):
 
     def test_translations_tackle_unicode_strings(self):
         """Note: Returns strings, not unicode, even when given unicode input"""
-        self.assertEqual(vc.translate_illegal(u"EFF=nasty"), "EFF@#EQnasty")
-        self.assertEqual(vc.translate_to_original(u"EFF@#EQnasty"), "EFF=nasty")
+        self.assertEqual(vc.translate_illegal("EFF=nasty"), "EFF@#EQnasty")
+        self.assertEqual(vc.translate_to_original("EFF@#EQnasty"), "EFF=nasty")
 
 
 class TestVCFAlleleCreator(unittest.TestCase):

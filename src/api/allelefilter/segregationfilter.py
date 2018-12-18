@@ -149,7 +149,7 @@ class SegregationFilter(object):
                 allele_id_field.label("allele_id"), *sample_fields
             ).filter(allele_id_field.in_(allele_ids))
 
-            for sample_id, gsd in aliased_genotypesampledata.iteritems():
+            for sample_id, gsd in aliased_genotypesampledata.items():
                 genotype_query = genotype_query.join(
                     gsd,
                     and_(
@@ -862,7 +862,7 @@ class SegregationFilter(object):
     def get_segregation_results(self, analysis_allele_ids):
 
         result = dict()
-        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+        for analysis_id, allele_ids in analysis_allele_ids.items():
 
             family_ids = self.get_family_ids(analysis_id)
 
@@ -949,7 +949,7 @@ class SegregationFilter(object):
         segregation_results = self.get_segregation_results(analysis_allele_ids)
 
         result = dict()
-        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+        for analysis_id, allele_ids in analysis_allele_ids.items():
             if analysis_id not in segregation_results:
                 result[analysis_id] = set()
                 continue

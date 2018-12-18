@@ -138,7 +138,7 @@ class RegionFilter(object):
         """
 
         region_filtered = {}
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 region_filtered[gp_key] = set()
                 continue
@@ -151,7 +151,7 @@ class RegionFilter(object):
                 .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
             )
 
-            gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
+            gp_gene_ids, gp_gene_symbols = list(zip(*[(g[0], g[1]) for g in gp_genes]))
 
             # Create temporary gene padding table for the genes in the genepanel
             tmp_gene_padding = self.create_gene_padding_table(gp_gene_ids, filter_config)

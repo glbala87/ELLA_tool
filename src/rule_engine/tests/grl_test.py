@@ -8,9 +8,9 @@ class GrlTest(unittest.TestCase):
         jsonstring = [{"code": "BP2", "rule": {"transcript.splice.effect": "de_novo"}}]
 
         rules = self.parseJson(jsonstring)
-        self.assertEquals(rules["BP2"][0].source, "transcript.splice.effect")
-        self.assertEquals(rules["BP2"][0].code, "BP2")
-        self.assertEquals(rules["BP2"][0].value, ["de_novo"])
+        self.assertEqual(rules["BP2"][0].source, "transcript.splice.effect")
+        self.assertEqual(rules["BP2"][0].code, "BP2")
+        self.assertEqual(rules["BP2"][0].value, ["de_novo"])
         self.assertTrue(isinstance(rules["BP2"][0], GRM.InRule))
 
     def testParseBasicRuleList(self):
@@ -51,15 +51,15 @@ class GrlTest(unittest.TestCase):
         ]
 
         rules = self.parseJson(jsonstring)
-        self.assertEquals(rules["BP1"][0].code, "BP1")
-        self.assertEquals(rules["BP1"][1].code, "BP1")
-        self.assertEquals(rules["BP1"][1].source, "t.s.e")
-        self.assertEquals(rules["BP1"][1].value, ["d_n"])
-        self.assertEquals(rules["BP2"][0].code, "BP2")
+        self.assertEqual(rules["BP1"][0].code, "BP1")
+        self.assertEqual(rules["BP1"][1].code, "BP1")
+        self.assertEqual(rules["BP1"][1].source, "t.s.e")
+        self.assertEqual(rules["BP1"][1].value, ["d_n"])
+        self.assertEqual(rules["BP2"][0].code, "BP2")
 
-        self.assertEquals(rules["rBP7-1"][0].code, "rBP7-1")
-        self.assertEquals(rules["rBP7-1"][0].source, "transcript.Consequence")
-        self.assertEquals(
+        self.assertEqual(rules["rBP7-1"][0].code, "rBP7-1")
+        self.assertEqual(rules["rBP7-1"][0].source, "transcript.Consequence")
+        self.assertEqual(
             rules["rBP7-1"][0].value,
             [
                 "stop_retained_variant",
@@ -74,17 +74,17 @@ class GrlTest(unittest.TestCase):
                 "synonymous_variant",
             ],
         )
-        self.assertEquals(rules["rBP7-2"][0].code, "rBP7-2")
-        self.assertEquals(rules["rBP7-3"][0].code, "rBP7-3")
-        self.assertEquals(rules["rBP7-3"][0].source, "transcript.splice.effect")
-        self.assertEquals(rules["rBP7-3"][0].value, ["no_effect"])
-        self.assertEquals(rules["rBP7-4"][0].value, "34323")
+        self.assertEqual(rules["rBP7-2"][0].code, "rBP7-2")
+        self.assertEqual(rules["rBP7-3"][0].code, "rBP7-3")
+        self.assertEqual(rules["rBP7-3"][0].source, "transcript.splice.effect")
+        self.assertEqual(rules["rBP7-3"][0].value, ["no_effect"])
+        self.assertEqual(rules["rBP7-4"][0].value, "34323")
         self.assertTrue(isinstance(rules["rBP7-4"][0], GRM.LtRule))
-        self.assertEquals(rules["rBP7-5"][0].value, 0.5)
+        self.assertEqual(rules["rBP7-5"][0].value, 0.5)
         self.assertTrue(isinstance(rules["rBP7-5"][0], GRM.GtRule))
         self.assertTrue(isinstance(rules["rBP7-6"][0], GRM.RangeRule))
-        self.assertEquals(rules["rBP7-6"][0].value[0], 0)
-        self.assertEquals(rules["rBP7-6"][0].value[1], 1.6)
+        self.assertEqual(rules["rBP7-6"][0].value[0], 0)
+        self.assertEqual(rules["rBP7-6"][0].value[1], 1.6)
 
     def testParseCompositeRules(self):
         jsonstring = [
@@ -142,45 +142,45 @@ class GrlTest(unittest.TestCase):
 
         rules = self.parseJson(jsonstring)
         self.assertTrue(isinstance(rules["MYAND"][0], GRM.AndRule))
-        self.assertEquals(rules["MYAND"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
-        self.assertEquals(rules["MYAND"][0].subrules[0].value, [0.001])
+        self.assertEqual(rules["MYAND"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
+        self.assertEqual(rules["MYAND"][0].subrules[0].value, [0.001])
         self.assertTrue(isinstance(rules["MYAND"][0].subrules[0], GRM.InRule))
-        self.assertEquals(rules["MYAND"][0].subrules[1].source, "transcript.Consequence")
-        self.assertEquals(
+        self.assertEqual(rules["MYAND"][0].subrules[1].source, "transcript.Consequence")
+        self.assertEqual(
             rules["MYAND"][0].subrules[1].value, ["missense_variant", "synonymous_variant"]
         )
         self.assertTrue(isinstance(rules["MYAND"][0].subrules[1], GRM.InRule))
 
         self.assertTrue(isinstance(rules["MYOR"][0], GRM.OrRule))
-        self.assertEquals(rules["MYOR"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
-        self.assertEquals(rules["MYOR"][0].subrules[0].value, [0.002])
+        self.assertEqual(rules["MYOR"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
+        self.assertEqual(rules["MYOR"][0].subrules[0].value, [0.002])
         self.assertTrue(isinstance(rules["MYOR"][0].subrules[0], GRM.InRule))
-        self.assertEquals(rules["MYOR"][0].subrules[1].source, "transcript.Conseq")
-        self.assertEquals(rules["MYOR"][0].subrules[1].value, ["missense_v", "synonymous_v"])
+        self.assertEqual(rules["MYOR"][0].subrules[1].source, "transcript.Conseq")
+        self.assertEqual(rules["MYOR"][0].subrules[1].value, ["missense_v", "synonymous_v"])
         self.assertTrue(isinstance(rules["MYOR"][0].subrules[1], GRM.InRule))
 
         self.assertTrue(isinstance(rules["MYCOMPLEX"][0], GRM.OrRule))
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[0].value, [0.001])
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[0].source, "genepanel.hi_freq_cutoff")
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[0].value, [0.001])
         self.assertTrue(isinstance(rules["MYCOMPLEX"][0].subrules[1], GRM.AndRule))
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[0].source, "a.b")
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[0].value, [0.01])
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[1].source, "c.d")
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[0].source, "a.b")
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[0].value, [0.01])
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[1].source, "c.d")
         self.assertTrue(isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[1], GRM.InRule))
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[1].value, ["some", "values"])
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[1].value, ["some", "values"])
         self.assertTrue(isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[2], GRM.OrRule))
         self.assertTrue(
             isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0], GRM.InRule)
         )
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].source, "e.f.g")
-        self.assertEquals(
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].source, "e.f.g")
+        self.assertEqual(
             rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].value, ["0.001"]
         )
         self.assertTrue(
             isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[1], GRM.InRule)
         )
-        self.assertEquals(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[1].source, "h.jjj")
-        self.assertEquals(
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[1].source, "h.jjj")
+        self.assertEqual(
             rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[1].value, ["more", "values"]
         )
 
@@ -219,9 +219,9 @@ class GrlTest(unittest.TestCase):
         ]
         rules = self.parseJson(jsonstring)
         self.assertTrue(isinstance(rules["BP7"][0], GRM.AllRule))
-        self.assertEquals(rules["BP7"][0].value, ["rBP7-1", "rBP7-2", "rBP7-3"])
-        self.assertEquals(rules["BP7"][0].code, "BP7")
-        self.assertEquals(rules["PP8"][0].subrule.value, ["BP7", "rBP7-4"])
+        self.assertEqual(rules["BP7"][0].value, ["rBP7-1", "rBP7-2", "rBP7-3"])
+        self.assertEqual(rules["BP7"][0].code, "BP7")
+        self.assertEqual(rules["PP8"][0].subrule.value, ["BP7", "rBP7-4"])
 
     def testRuleAggregationComposite(self):
         jsonstring = [
@@ -240,8 +240,8 @@ class GrlTest(unittest.TestCase):
         rules = self.parseJson(jsonstring)
         self.assertTrue(rules["BP9"][0].aggregate)
         self.assertTrue(isinstance(rules["BP9"][0], GRM.OrRule))
-        self.assertEquals(rules["BP9"][0].subrules[0].value, ["BP7"])
-        self.assertEquals(rules["BP9"][0].subrules[1].subrule.value, ["BP8"])
+        self.assertEqual(rules["BP9"][0].subrules[0].value, ["BP7"])
+        self.assertEqual(rules["BP9"][0].subrules[1].subrule.value, ["BP8"])
 
     def testRuleAgGRMgationAtLeast(self):
         jsonstring = [
@@ -274,6 +274,6 @@ class GrlTest(unittest.TestCase):
         ]
         rules = self.parseJson(jsonstring)
         self.assertTrue(isinstance(rules["PP7"][0], GRM.AtLeastRule))
-        self.assertEquals(rules["PP7"][0].atleast, 2)
-        self.assertEquals(rules["PP7"][0].value, ["rBP7-1", "rBP7-2", "rBP7-3"])
-        self.assertEquals(rules["PP7"][0].code, "PP7")
+        self.assertEqual(rules["PP7"][0].atleast, 2)
+        self.assertEqual(rules["PP7"][0].value, ["rBP7-1", "rBP7-2", "rBP7-3"])
+        self.assertEqual(rules["PP7"][0].code, "PP7")

@@ -136,7 +136,7 @@ class ReferenceConverter(object):
     def __init__(self, fasta):
         self.hgvsparser = hgvs.parser.Parser()
         self.variantmapper = hgvs.variantmapper.EasyVariantMapper(
-            hgvs.dataproviders.uta.connect(), primary_assembly=u"GRCh37"
+            hgvs.dataproviders.uta.connect(), primary_assembly="GRCh37"
         )
         self.seqdb = SequenceFileDB(fasta)
 
@@ -150,7 +150,7 @@ class ReferenceConverter(object):
         Fetches chromosome from reference accession.
         """
         return next(
-            k for k, v in ReferenceConverter.REFSEQ_ACCESSION["hg19"].iteritems() if v == accession
+            k for k, v in ReferenceConverter.REFSEQ_ACCESSION["hg19"].items() if v == accession
         )
 
 
@@ -182,7 +182,7 @@ class ExcelExporter(object):
                 if line.startswith("#"):
                     number_of_skips += 1
                     continue
-                fields = dict(zip(ExcelExporter.TSV_FIELDS, [c.strip() for c in line.split("\t")]))
+                fields = dict(list(zip(ExcelExporter.TSV_FIELDS, [c.strip() for c in line.split("\t")])))
                 transcript_hgvsc = "{}:{}".format(fields["transcript"], fields["hgvsc"])
                 logging.info(
                     "Processing {} ({} of {})".format(

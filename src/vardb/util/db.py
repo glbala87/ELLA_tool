@@ -1,6 +1,6 @@
 import os
 from sqlalchemy.orm import scoped_session
-from extended_query import ExtendedQuery
+from .extended_query import ExtendedQuery
 
 
 class DB(object):

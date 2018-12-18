@@ -61,7 +61,7 @@ def import_references(session, filename):
                 )
                 if existing_reference:
                     updated += 1
-                    for key, value in reference.iteritems():
+                    for key, value in reference.items():
                         setattr(existing_reference, key, value)
                 else:
                     created += 1

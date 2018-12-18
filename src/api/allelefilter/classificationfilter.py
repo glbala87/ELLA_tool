@@ -25,7 +25,7 @@ class ClassificationFilter(object):
         )
 
         result = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids or not filter_classes:
                 result[gp_key] = set()
                 continue

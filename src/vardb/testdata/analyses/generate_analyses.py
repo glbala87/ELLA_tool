@@ -45,7 +45,7 @@ analyses = {
     ],
 }
 
-for tag, tag_analyses in analyses.iteritems():
+for tag, tag_analyses in analyses.items():
     for a in tag_analyses:
         # Create dirs
         a_dir = os.path.join(tag, a)

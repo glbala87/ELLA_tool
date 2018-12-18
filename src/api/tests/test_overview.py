@@ -578,7 +578,7 @@ def get_allele_alleleinterpretation_started(session):
 
 def get_diff_gp_allele_ids(left, right):
     diff_gp_allele_ids = dict()
-    for gp_key, allele_ids in left.iteritems():
+    for gp_key, allele_ids in left.items():
         if gp_key in right:
             diff_gp_allele_ids[gp_key] = left[gp_key] - right[gp_key]
         else:
@@ -595,7 +595,7 @@ def check_items(gp_allele_ids, items, should_include=True, check_length=True):
     if not should_include:  # Doesn't make sense to check length
         check_length = False
 
-    for gp_key, allele_ids in gp_allele_ids.iteritems():
+    for gp_key, allele_ids in gp_allele_ids.items():
         for allele_id in allele_ids:
             match = next(
                 (
@@ -633,7 +633,7 @@ class TestAlleleOverview(object):
 
         assert len(r.json["ongoing"]) == 0
         assert set([a["allele"]["id"] for a in r.json["missing_alleleassessment"]]) == set(
-            itertools.chain.from_iterable(initial_gp_allele_ids.values())
+            itertools.chain.from_iterable(list(initial_gp_allele_ids.values()))
         )
         assert len(r.json["marked_review"]) == 0
 
@@ -690,8 +690,8 @@ class TestAlleleOverview(object):
             .scalar()
         )
 
-        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
-        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
+        assert any(started_allele_id in a for a in list(started_gp_allele_ids.values()))
+        assert all(started_allele_id not in a for a in list(not_started_gp_allele_ids.values()))
 
         # Check that all entries are included as they should
         r = client.get("/api/v1/overviews/alleles/")
@@ -717,8 +717,8 @@ class TestAlleleOverview(object):
             .scalar()
         )
 
-        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
-        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
+        assert all(started_allele_id not in a for a in list(not_started_gp_allele_ids.values()))
+        assert any(started_allele_id in a for a in list(started_gp_allele_ids.values()))
 
         # Check that all entries are included as they should
         r = client.get("/api/v1/overviews/alleles/")
@@ -749,8 +749,8 @@ class TestAlleleOverview(object):
             .scalar()
         )
 
-        assert all(started_allele_id not in a for a in not_started_gp_allele_ids.values())
-        assert any(started_allele_id in a for a in started_gp_allele_ids.values())
+        assert all(started_allele_id not in a for a in list(not_started_gp_allele_ids.values()))
+        assert any(started_allele_id in a for a in list(started_gp_allele_ids.values()))
 
         # Check that all entries are included as they should
         r = client.get("/api/v1/overviews/alleles/")

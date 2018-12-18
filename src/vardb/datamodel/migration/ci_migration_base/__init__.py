@@ -53,7 +53,7 @@ class CustomBase(object):
         instance, created = cls.get_or_create(session, defaults=defaults, **kwargs)
         # Update object with defaults
         if not created and defaults:  # fetched an existing instance, must update
-            for k, v in defaults.iteritems():
+            for k, v in defaults.items():
                 setattr(instance, k, v)
 
         return instance, created

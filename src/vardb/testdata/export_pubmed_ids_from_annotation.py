@@ -4,7 +4,7 @@
 Exports all pubmed ids present in annotation in the database
 by running the annotation rows through AnnotationProcessor.
 """
-from __future__ import print_function
+
 from api.util.annotationprocessor import AnnotationProcessor
 from vardb.datamodel import DB, annotation
 

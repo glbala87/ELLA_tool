@@ -112,52 +112,52 @@ class GraTest(unittest.TestCase):
     def testExpandMultiRules(self):
         dataflattened = {
             ".".join(list(k)): v
-            for k, v in GRA().parseNodeToSourceKeyedDict(self.jsondata).iteritems()
+            for k, v in GRA().parseNodeToSourceKeyedDict(self.jsondata).items()
         }
         rulelist = [
-            rul for resultlist in GRL().parseRules(self.jsonrules).values() for rul in resultlist
+            rul for resultlist in list(GRL().parseRules(self.jsonrules).values()) for rul in resultlist
         ]
         GRA().expand_multi_rules(rulelist, dataflattened)
-        self.assertEquals(rulelist[-2].source, "refassessment.0.ref_segregation")
-        self.assertEquals(rulelist[-2].code, "PP13")
-        self.assertEquals(rulelist[-2].value, ["segr+++"])
+        self.assertEqual(rulelist[-2].source, "refassessment.0.ref_segregation")
+        self.assertEqual(rulelist[-2].code, "PP13")
+        self.assertEqual(rulelist[-2].value, ["segr+++"])
         self.assertTrue(isinstance(rulelist[-2], GRM.InRule))
-        self.assertEquals(rulelist[-1].source, "refassessment.1.ref_ihc")
-        self.assertEquals(rulelist[-1].code, "PP14")
-        self.assertEquals(rulelist[-1].value, ["mmr_loss++"])
+        self.assertEqual(rulelist[-1].source, "refassessment.1.ref_ihc")
+        self.assertEqual(rulelist[-1].code, "PP14")
+        self.assertEqual(rulelist[-1].value, ["mmr_loss++"])
         self.assertTrue(isinstance(rulelist[-1], GRM.InRule))
 
     def testParseToSourceKeyed(self):
         data = GRA().parseNodeToSourceKeyedDict(self.jsondata)
-        self.assertEquals(data[("frequencies", "1000g", "AA")], 0.102587)
-        self.assertEquals(data[("frequencies", "1000g", "EUR")], 0.23)
-        self.assertEquals(data[("transcript", "Consequence")], ["synonymous_variant"])
-        self.assertEquals(data[("transcript", "Existing_variation")], ["rs1799943"])
-        self.assertEquals(data[("transcript", "Transcript_version_CLINVAR")], "3")
+        self.assertEqual(data[("frequencies", "1000g", "AA")], 0.102587)
+        self.assertEqual(data[("frequencies", "1000g", "EUR")], 0.23)
+        self.assertEqual(data[("transcript", "Consequence")], ["synonymous_variant"])
+        self.assertEqual(data[("transcript", "Existing_variation")], ["rs1799943"])
+        self.assertEqual(data[("transcript", "Transcript_version_CLINVAR")], "3")
 
     def testApplyRules(self):
         (passed, notpassed) = GRA().applyRules(
             GRL().parseRules(self.jsonrules), GRA().parseNodeToSourceKeyedDict(self.jsondata)
         )
-        self.assertEquals(
+        self.assertEqual(
             [rule.code for rule in passed],
             [
-                u"BP1",
-                u"BP1",
-                u"rBP7-1",
-                u"rBP7-4",
-                u"BP8",
-                u"PP8",
-                u"GP1",
-                u"PP10",
-                u"PP11",
-                u"PP11.2",
-                u"PP11.2.1",
-                u"PP13",
+                "BP1",
+                "BP1",
+                "rBP7-1",
+                "rBP7-4",
+                "BP8",
+                "PP8",
+                "GP1",
+                "PP10",
+                "PP11",
+                "PP11.2",
+                "PP11.2.1",
+                "PP13",
             ],
         )
-        self.assertEquals(passed[0].source, "transcript.Consequence")
-        self.assertEquals(
+        self.assertEqual(passed[0].source, "transcript.Consequence")
+        self.assertEqual(
             [rule.code for rule in notpassed],
             ["BP2", "rBP7-2", "rBP7-3", "BP7", "PP7", "PP9", "PP11.1", "PP11.3", "PP12", "PP14"],
         )
@@ -167,7 +167,7 @@ class GraTest(unittest.TestCase):
             GRL().parseRules(self.jsonrules), GRA().parseNodeToSourceKeyedDict(self.jsondata)
         )
         jsonrep = GRA().jsonReport(passed, notpassed)
-        self.assertEquals(
+        self.assertEqual(
             jsonrep,
             """{
 "codes": [

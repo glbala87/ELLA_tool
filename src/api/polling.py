@@ -1,15 +1,15 @@
-from __future__ import print_function
+
 import datetime
 import json
 import logging
 
 import time
-import urllib2
-from urllib import urlencode
+import urllib.request, urllib.error, urllib.parse
+from urllib.parse import urlencode
 import os
 import binascii
 import subprocess
-from StringIO import StringIO
+from io import StringIO
 from os.path import join
 import pytz
 from sqlalchemy.exc import OperationalError
@@ -52,7 +52,7 @@ def run_preimport(job):
     parsed_data["variables"] = unparsed_data["variables"]
 
     parsed_data["files"] = {}
-    for key, path in unparsed_data["files"].iteritems():
+    for key, path in unparsed_data["files"].items():
         filename = os.path.basename(path)
         with open(path, "r") as f:
             contents = f.read()
@@ -65,18 +65,18 @@ def encode_multipart_formdata(fields, files):
     LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10))
     CRLF = "\r\n"
     L = []
-    for (key, value) in fields.iteritems():
+    for (key, value) in fields.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append("")
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             if not value.startswith('"'):
                 value = '"' + value
             if not value.endswith('"'):
                 value = value + '"'
         value = str(value)
         L.append(value)
-    for (key, (filename, value)) in files.iteritems():
+    for (key, (filename, value)) in files.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
         L.append("Content-Type: application/octet-stream")
@@ -141,7 +141,7 @@ class AnnotationJobsInterface:
                 0, {"time": datetime.datetime.now(pytz.utc).isoformat(), "status": job.status}
             )
 
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             assert hasattr(job, k)
             if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
@@ -204,12 +204,12 @@ class AnnotationServiceInterface:
         self.session = session
 
     def annotate(self, job):
-        r = urllib2.Request(
+        r = urllib.request.Request(
             join(self.base, "annotate"),
             data=json.dumps({"input": job.data}),
             headers={"Content-type": "application/json"},
         )
-        k = urllib2.urlopen(r)
+        k = urllib.request.urlopen(r)
         return json.loads(k.read())
 
     def annotate_sample(self, job):
@@ -222,22 +222,22 @@ class AnnotationServiceInterface:
 
         content_type, body = encode_multipart_formdata(data["variables"], data["files"])
 
-        r = urllib2.Request(
+        r = urllib.request.Request(
             join(self.base, "samples/annotate"), data=body, headers={"Content-type": content_type}
         )
-        k = urllib2.urlopen(r)
+        k = urllib.request.urlopen(r)
         return json.loads(k.read())
 
     def process(self, task_id):
-        k = urllib2.urlopen(join(self.base, "process", task_id))
+        k = urllib.request.urlopen(join(self.base, "process", task_id))
         return k.read()
 
     def status(self, task_id=None):
         """Get status of task_id or all tasks"""
         if task_id:
-            k = urllib2.urlopen(join(self.base, "status", task_id))
+            k = urllib.request.urlopen(join(self.base, "status", task_id))
         else:
-            k = urllib2.urlopen(join(self.base, "status"))
+            k = urllib.request.urlopen(join(self.base, "status"))
         resp = json.loads(k.read())
         return resp
 
@@ -248,10 +248,10 @@ class AnnotationServiceInterface:
             d["limit"] = str(limit)
         q = urlencode(d)
 
-        k = urllib2.urlopen(join(self.base, "samples", "?" + q))
+        k = urllib.request.urlopen(join(self.base, "samples", "?" + q))
         resp = json.loads(k.read())
         result = []
-        for k, v in resp.iteritems():
+        for k, v in resp.items():
             v.update(name=k)
             result.append(v)
 
@@ -259,9 +259,9 @@ class AnnotationServiceInterface:
 
     def annotation_service_running(self):
         try:
-            k = urllib2.urlopen(join(self.base, "status"))
+            k = urllib.request.urlopen(join(self.base, "status"))
             return {"running": True}, 200
-        except (urllib2.HTTPError, urllib2.URLError):
+        except (urllib.error.HTTPError, urllib.error.URLError):
             return {"running": False}, 200
 
 
@@ -275,7 +275,7 @@ def process_running(annotation_service, running_jobs):
             if not response["active"]:
                 status = "ANNOTATED"
             message = ""
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             status = "FAILED (ANNOTATION)"
             message = get_error_message(e)
 
@@ -297,7 +297,7 @@ def process_submitted(annotation_service, submitted_jobs):
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             status = "FAILED (SUBMISSION)"
             message = get_error_message(e)
             task_id = ""
@@ -313,7 +313,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         try:
             annotated_vcf = annotation_service.process(task_id)
             annotation_jobs.commit()
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             status = "FAILED (PROCESSING)"
             message = get_error_message(e)
             yield id, {"status": status, "message": message}

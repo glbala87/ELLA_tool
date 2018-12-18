@@ -52,7 +52,7 @@ def prefilter_batch_strategy(draw, max_size=5):
 
     batch_size = draw(st.integers(1, max_size))
     batch = list()
-    for idx in xrange(batch_size):
+    for idx in range(batch_size):
 
         pos_increment = draw(st.integers(NEARBY_DISTANCE - 1, NEARBY_DISTANCE + 10))
         ALLELE_POS += pos_increment
@@ -342,7 +342,7 @@ def test_analysis_multiple(session, vcf_data):
     # Start checking data
     # Samples
     proband_sample = None
-    for sample_name, ped in meta["ped_info"].iteritems():
+    for sample_name, ped in meta["ped_info"].items():
         sa = next(sa for sa in samples if sa.identifier == sample_name)
         if ped["sex"] is not None:
             assert sa.sex == ("Female" if ped["sex"] == "2" else "Male")
@@ -437,7 +437,7 @@ def test_analysis_multiple(session, vcf_data):
         for key in ["allele", "secondallele"]:
             if key == "secondallele" and not fixtures[key]:
                 continue
-            for sample_name, data in fixtures[key]["sample_data"].iteritems():
+            for sample_name, data in fixtures[key]["sample_data"].items():
                 gsd = fixtures[key]["genotypesampledata"][sample_name]
                 if data["GT"] == "1/1":
                     gsd_type = "Homozygous"

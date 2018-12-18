@@ -43,7 +43,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
     ]
     """
 
-    all_allele_ids = list(itertools.chain.from_iterable(gp_allele_ids.values()))
+    all_allele_ids = list(itertools.chain.from_iterable(list(gp_allele_ids.values())))
 
     # Preload all alleles
     all_alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
@@ -94,7 +94,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
     # Preload genepanels
     genepanels = (
         session.query(gene.Genepanel)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys()))
+        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(gp_allele_ids.keys())))
         .all()
     )
 
@@ -136,7 +136,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
 
     # Create output data
     # ('HBOC', 'v01'), [1, 2, 3, ...]
-    for gp_key, allele_ids in gp_allele_ids.iteritems():
+    for gp_key, allele_ids in gp_allele_ids.items():
 
         genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
         gp_alleles = [a for a in all_alleles if a.id in allele_ids]
@@ -438,14 +438,14 @@ class OverviewAlleleResource(LogRequestResource):
         gp_nonfiltered_alleles, _ = af.filter_alleles(
             filter_config_id, analysis_gp_allele_ids, None
         )
-        gp_allele_ids = {k: set(v["allele_ids"]) for k, v in gp_nonfiltered_alleles.iteritems()}
+        gp_allele_ids = {k: set(v["allele_ids"]) for k, v in gp_nonfiltered_alleles.items()}
 
         alleleinterpretation_gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
             session, alleleinterpretation_allele_ids
         )
 
         # Add alleleinterpretation allele_ids to analysis' allele_ids
-        for gp_key, allele_ids in alleleinterpretation_gp_allele_ids.iteritems():
+        for gp_key, allele_ids in alleleinterpretation_gp_allele_ids.items():
             if gp_key not in gp_allele_ids:
                 gp_allele_ids[gp_key] = set()
             gp_allele_ids[gp_key].update(allele_ids)
@@ -550,7 +550,7 @@ def _categorize_allele_ids_findings(session, allele_ids):
 
     # Strip out the tuples from db results and convert to set()
     categorized_allele_ids = {
-        k: set([a[0] for a in v]) for k, v in categorized_allele_ids.iteritems()
+        k: set([a[0] for a in v]) for k, v in categorized_allele_ids.items()
     }
     return categorized_allele_ids
 
@@ -713,7 +713,7 @@ def categorize_analyses_by_findings(session, not_started_analyses, filter_config
     af = AlleleFilter(session)
     gp_nonfiltered_allele_ids, _ = af.filter_alleles(filter_config_id, gp_allele_ids, None)
     nonfiltered_allele_ids = set(
-        itertools.chain.from_iterable([v["allele_ids"] for v in gp_nonfiltered_allele_ids.values()])
+        itertools.chain.from_iterable([v["allele_ids"] for v in list(gp_nonfiltered_allele_ids.values())])
     )
 
     # Now we can start to check our analyses and categorize them
@@ -728,7 +728,7 @@ def categorize_analyses_by_findings(session, not_started_analyses, filter_config
     # with regards to the categorized_allele_ids we created earlier.
     # Working with sets only for simplicity (& is intersection, < is subset)
     categorized_allele_ids = _categorize_allele_ids_findings(session, nonfiltered_allele_ids)
-    for analysis_id, analysis_allele_ids in analysis_ids_allele_ids_map.iteritems():
+    for analysis_id, analysis_allele_ids in analysis_ids_allele_ids_map.items():
         analysis_nonfiltered_allele_ids = analysis_allele_ids & nonfiltered_allele_ids
         analysis_filtered_allele_ids = analysis_allele_ids - analysis_nonfiltered_allele_ids
         analysis = next(a for a in not_started_analyses if a["id"] == analysis_id)
@@ -779,14 +779,14 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
             session, not_started_analyses, filter_config_id
         )
         categorized_analyses.update(
-            {"not_started_" + k: v for k, v in not_started_categories.iteritems()}
+            {"not_started_" + k: v for k, v in not_started_categories.items()}
         )
         marked_review_analyses = categorized_analyses.pop("marked_review")
         marked_review_categories = categorize_analyses_by_findings(
             session, marked_review_analyses, filter_config_id
         )
         categorized_analyses.update(
-            {"marked_review_" + k: v for k, v in marked_review_categories.iteritems()}
+            {"marked_review_" + k: v for k, v in marked_review_categories.items()}
         )
         return categorized_analyses
 

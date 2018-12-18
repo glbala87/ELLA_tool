@@ -1,7 +1,7 @@
 import os
 import pytest
 import hypothesis as ht
-from util import FlaskClientProxy
+from .util import FlaskClientProxy
 from vardb.util.testdatabase import TestDatabase
 from vardb.util import DB
 

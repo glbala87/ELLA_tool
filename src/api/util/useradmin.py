@@ -25,7 +25,7 @@ def generate_password():
 
 
 def get_user(session, user_or_username):
-    if isinstance(user_or_username, (str, unicode)):
+    if isinstance(user_or_username, str):
         u = session.query(user.User).filter(user.User.username == user_or_username).one_or_none()
         if u is None:
             raise AuthenticationError("Invalid username {}".format(user_or_username))
@@ -260,6 +260,6 @@ def add_user(session, username, first_name, last_name, email, group_id):
 
 def modify_user(session, user_or_username, **kwargs):
     user_object = get_user(session, user_or_username)
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         setattr(user_object, k, v)
     return user_object

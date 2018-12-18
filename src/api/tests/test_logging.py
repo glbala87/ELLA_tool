@@ -4,7 +4,7 @@ import json
 from vardb.util import DB
 from vardb.datamodel import log
 
-from util import FlaskClientProxy
+from .util import FlaskClientProxy
 
 
 @pytest.fixture

@@ -25,7 +25,7 @@ def iter_freq_groups(config):
     for freq_group in frequency_groups:
         for freq_provider, freq_keys in frequency_groups[
             freq_group
-        ].iteritems():  # 'ExAC', ['G', 'SAS', ...]
+        ].items():  # 'ExAC', ['G', 'SAS', ...]
             for freq_key in freq_keys:
                 yield freq_provider, freq_key
 

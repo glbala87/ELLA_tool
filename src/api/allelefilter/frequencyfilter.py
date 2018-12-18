@@ -41,7 +41,7 @@ class FrequencyFilter(object):
         for (
             group,
             thresholds,
-        ) in thresholds.iteritems():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
+        ) in thresholds.items():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
                 raise RuntimeError(
                     "Group {} specified in freq_cutoffs, but it doesn't exist in configuration".format(
@@ -51,7 +51,7 @@ class FrequencyFilter(object):
 
             for freq_provider, freq_keys in frequency_groups[
                 group
-            ].iteritems():  # 'ExAC', ['G', 'SAS', ...]
+            ].items():  # 'ExAC', ['G', 'SAS', ...]
                 for freq_key in freq_keys:
                     filters.append(
                         threshold_func(num_thresholds, freq_provider, freq_key, thresholds)
@@ -141,13 +141,13 @@ class FrequencyFilter(object):
         filter_config = dict(filter_config)
 
         per_gene_config = filter_config.pop("genes", {})
-        per_gene_config = {int(k): v for k, v in per_gene_config.iteritems()}
-        per_gene_hgnc_ids = per_gene_config.keys()
+        per_gene_config = {int(k): v for k, v in per_gene_config.items()}
+        per_gene_hgnc_ids = list(per_gene_config.keys())
 
         for (
             gp_key,
             gp_allele_ids,
-        ) in gp_allele_ids.iteritems():  # loop over every genepanel, with related genes
+        ) in gp_allele_ids.items():  # loop over every genepanel, with related genes
 
             # Create the different kinds of frequency filters
             #
@@ -364,7 +364,7 @@ class FrequencyFilter(object):
         # First get all genepanel object for the genepanels given in input
         genepanels = (
             self.session.query(gene.Genepanel)
-            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(gp_allele_ids.keys()))
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(gp_allele_ids.keys())))
             .all()
         )
 
@@ -386,7 +386,7 @@ class FrequencyFilter(object):
             "null_freq": (self._is_freq_null, and_),
         }
 
-        for commonness_group, result in commonness_result.iteritems():
+        for commonness_group, result in commonness_result.items():
 
             # Create query filter this genepanel
             gp_filters = self._create_freq_filter(
@@ -397,7 +397,7 @@ class FrequencyFilter(object):
                 combine_func=threshold_funcs[commonness_group][1],
             )
 
-            for gp_key, al_ids in gp_allele_ids.iteritems():
+            for gp_key, al_ids in gp_allele_ids.items():
                 assert all(isinstance(a, int) for a in al_ids)
                 allele_ids = (
                     self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id)
@@ -415,7 +415,7 @@ class FrequencyFilter(object):
         final_result = {k: dict() for k in gp_allele_ids}
         for gp_key in final_result:
             added_thus_far = set()
-            for k, v in commonness_result.iteritems():
+            for k, v in commonness_result.items():
                 final_result[gp_key][k] = set(
                     [aid for aid in v[gp_key] if aid not in added_thus_far]
                 )
@@ -489,7 +489,7 @@ class FrequencyFilter(object):
         )
         frequency_filtered = dict()
 
-        for gp_key, commonness_group in commonness_result.iteritems():
+        for gp_key, commonness_group in commonness_result.items():
             frequency_filtered[gp_key] = commonness_group["common"]
 
         return frequency_filtered

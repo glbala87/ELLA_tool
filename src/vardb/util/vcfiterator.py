@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import sys
 from collections import defaultdict
 import re
@@ -48,7 +48,7 @@ class Util(object):
 
     @staticmethod
     def open(path_or_fileobject):
-        if isinstance(path_or_fileobject, basestring):
+        if isinstance(path_or_fileobject, str):
             return open(path_or_fileobject, "r")
         else:
             # Reset file object and return
@@ -56,9 +56,7 @@ class Util(object):
             return path_or_fileobject
 
 
-class BaseInfoProcessor(object):
-
-    __metaclass__ = abc.ABCMeta
+class BaseInfoProcessor(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def accepts(self, key, value, processed):
@@ -347,13 +345,13 @@ class HeaderParser(object):
                     break
 
         # Extract data with processors
-        for key, func in self.metaProccessors.iteritems():
+        for key, func in self.metaProccessors.items():
             if key in meta:
                 for idx, value in enumerate(meta[key]):
                     meta[key][idx] = func(value)
 
         # Extract value from single-item lists ([val] -> val):
-        for k, v in meta.iteritems():
+        for k, v in meta.items():
             if len(v) == 1:
                 meta[k] = v[0]
 

@@ -234,7 +234,7 @@ class SearchResource(LogRequestResource):
                 matches["analyses"].append(analysis)
         elif search_query.is_alleles_search():
             # Use offical usergroup genepanels (unofficial genepanels are subsets of the official genepanels)
-            genepanels = filter(lambda gp: gp.official, user.group.genepanels)
+            genepanels = [gp for gp in user.group.genepanels if gp.official]
             if search_query.check():
                 # Search allele
                 alleles = self._search_allele(session, search_query, genepanels)

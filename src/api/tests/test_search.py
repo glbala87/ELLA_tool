@@ -1,6 +1,6 @@
 import pytest
 import json
-from util import FlaskClientProxy
+from .util import FlaskClientProxy
 
 
 @pytest.fixture

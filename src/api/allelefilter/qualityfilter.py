@@ -13,7 +13,7 @@ class QualityFilter(object):
         """
 
         result = dict()
-        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+        for analysis_id, allele_ids in analysis_allele_ids.items():
             if not allele_ids:
                 result[analysis_id] = set()
                 continue

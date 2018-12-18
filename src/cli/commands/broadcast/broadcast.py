@@ -43,7 +43,7 @@ def cmd_list_active(all, tail):
     if tail:
         messages.reverse()
 
-    row_format = u" {id:^5} | {date_created:^33} | {active:<10} | {message:<80} |"
+    row_format = " {id:^5} | {date_created:^33} | {active:<10} | {message:<80} |"
 
     if messages:
         click.echo(

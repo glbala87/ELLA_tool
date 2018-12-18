@@ -29,11 +29,11 @@ class ExternalFilter(object):
         """
 
         def get_filter_count(v):
-            if isinstance(v, basestring):
+            if isinstance(v, str):
                 assert v in ["benign", "pathogenic", "uncertain"]
                 return getattr(clinsig_counts.c, v)
             else:
-                assert isinstance(v, (int, long, float))
+                assert isinstance(v, (int, float))
                 return v
 
         filters = []
@@ -51,7 +51,7 @@ class ExternalFilter(object):
         # The clinical_significance_status to stars mapping is given in the config
         filter_signifiance_descr = [
             k
-            for k, v in self.config["annotation"]["clinvar"]["clinical_significance_status"].items()
+            for k, v in list(self.config["annotation"]["clinvar"]["clinical_significance_status"].items())
             if star_op(v, num_stars)
         ]
 
@@ -170,7 +170,7 @@ class ExternalFilter(object):
 
         """
         result = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 result[gp_key] = set()
                 continue

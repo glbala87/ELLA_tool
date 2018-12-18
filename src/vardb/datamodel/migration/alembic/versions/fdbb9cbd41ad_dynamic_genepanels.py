@@ -35,24 +35,24 @@ def upgrade():
     conn = op.get_bind()
 
     # Annotationjob
-    op.add_column(u"annotationjob", sa.Column("sample_id", sa.String(), nullable=True))
-    op.alter_column(u"annotationjob", "data", existing_type=sa.VARCHAR(), nullable=True)
+    op.add_column("annotationjob", sa.Column("sample_id", sa.String(), nullable=True))
+    op.alter_column("annotationjob", "data", existing_type=sa.VARCHAR(), nullable=True)
 
     ## Genepanel
-    op.add_column(u"genepanel", sa.Column("official", sa.Boolean()))
+    op.add_column("genepanel", sa.Column("official", sa.Boolean()))
     op.execute("UPDATE genepanel SET official = true")
     op.alter_column("genepanel", "official", nullable=False)
 
-    op.add_column(u"genepanel", sa.Column("date_created", sa.DateTime(timezone=True)))
+    op.add_column("genepanel", sa.Column("date_created", sa.DateTime(timezone=True)))
     op.execute("UPDATE genepanel SET date_created = current_timestamp")
     op.alter_column("genepanel", "date_created", nullable=False)
 
-    op.add_column(u"genepanel", sa.Column("user_id", sa.Integer(), nullable=True))
+    op.add_column("genepanel", sa.Column("user_id", sa.Integer(), nullable=True))
 
     # Migrate phenotypes
-    op.drop_column(u"phenotype", "comment")
-    op.drop_column(u"phenotype", "pmid")
-    op.drop_column(u"phenotype", "inheritance_info")
+    op.drop_column("phenotype", "comment")
+    op.drop_column("phenotype", "pmid")
+    op.drop_column("phenotype", "inheritance_info")
 
     op.create_table(
         "genepanel_phenotype",
@@ -91,7 +91,7 @@ def upgrade():
         p_key = (p.gene_id, p.description, p.inheritance)
         ordered_phenotypes[p_key].append(p)
 
-    for phenotypes in ordered_phenotypes.values():
+    for phenotypes in list(ordered_phenotypes.values()):
 
         # Get genepanels that should connect to this phenotype
         genepanels = [(p["genepanel_name"], p["genepanel_version"]) for p in phenotypes]
@@ -116,9 +116,9 @@ def upgrade():
         op.f("uq_phenotype_gene_id"), "phenotype", ["gene_id", "description", "inheritance"]
     )
 
-    op.drop_constraint(u"fk_phenotype_genepanel_name_genepanel", "phenotype", type_="foreignkey")
-    op.drop_column(u"phenotype", "genepanel_name")
-    op.drop_column(u"phenotype", "genepanel_version")
+    op.drop_constraint("fk_phenotype_genepanel_name_genepanel", "phenotype", type_="foreignkey")
+    op.drop_column("phenotype", "genepanel_name")
+    op.drop_column("phenotype", "genepanel_version")
 
 
 def downgrade():

@@ -14,7 +14,7 @@ def _assert_all_interpretations_are_done(interpretations):
 
 
 def _item_connected_to_allele_is_current(allele_id, items_source, expected_comment):
-    items = filter(lambda item: item["allele_id"] == allele_id, items_source)
+    items = [item for item in items_source if item["allele_id"] == allele_id]
     assert any(
         map(
             lambda a: a["date_superceeded"] is None
@@ -27,7 +27,7 @@ def _item_connected_to_allele_is_current(allele_id, items_source, expected_comme
 
 
 def _item_connected_to_allele_has_been_superceeded(allele_id, items_source, expected_comment):
-    selected_items = filter(lambda item: item["allele_id"] == allele_id, items_source)
+    selected_items = [item for item in items_source if item["allele_id"] == allele_id]
     assert any(
         map(
             lambda a: a["date_superceeded"] is not None
@@ -191,7 +191,7 @@ class WorkflowHelper(object):
 
         # annotations are needed when finalizing since it tracks their ids
         annotations, custom_annotations = _build_dummy_annotations(
-            map(lambda a: a["allele_id"], allele_assessments)
+            [a["allele_id"] for a in allele_assessments]
         )
 
         ih.save_interpretation_state(
@@ -246,7 +246,7 @@ class WorkflowHelper(object):
 
         # annotation is required for finalization
         annotations, custom_annotations = _build_dummy_annotations(
-            map(lambda a: a["allele_id"], allele_assessments)
+            [a["allele_id"] for a in allele_assessments]
         )
 
         assert set([a["allele_id"] for a in allele_assessments]) == set(

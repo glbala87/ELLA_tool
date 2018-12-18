@@ -41,7 +41,7 @@ for line in f:
 f.close()
 
 starts = sorted(starts)
-starts = map(str, starts)
+starts = list(map(str, starts))
 # Write all lines in order of sorted chromosome and start positions
 for chromosome in chromosomeOrder:
     for start in starts:

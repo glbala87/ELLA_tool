@@ -24,7 +24,7 @@ class ConsequenceFilter(object):
         ), "Invalid consequences passed to filter: {}".format(consequences)
 
         result = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 result[gp_key] = set()
                 continue
@@ -53,7 +53,7 @@ class ConsequenceFilter(object):
                     .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
                 )
 
-                gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
+                gp_gene_ids, gp_gene_symbols = list(zip(*[(g[0], g[1]) for g in gp_genes]))
 
                 allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(

@@ -35,7 +35,7 @@ REPORT_FIELD = "REPORT_COMMENT"
 
 def ordered(obj):
     if isinstance(obj, dict):
-        return sorted((k, ordered(v)) for k, v in obj.items())
+        return sorted((k, ordered(v)) for k, v in list(obj.items()))
     if isinstance(obj, list):
         return sorted(ordered(x) for x in obj)
     else:
@@ -78,7 +78,7 @@ def deepmerge(source, destination):
     >>> merge(b, a) == { 'first' : { 'all_rows' : { 'pass' : 'dog', 'fail' : 'cat', 'number' : '5' } } }
     True
     """
-    for key, value in source.items():
+    for key, value in list(source.items()):
         if isinstance(value, dict):
             # get node or create one
             node = destination.setdefault(key, {})
@@ -90,7 +90,7 @@ def deepmerge(source, destination):
 
 
 def is_non_empty_text(input):
-    return isinstance(input, basestring) and input
+    return isinstance(input, str) and input
 
 
 def batch(iterable, n):
@@ -146,7 +146,7 @@ def bulk_insert_nonexisting(
         raise RuntimeError("You must supply include_pk argument when replace=True.")
 
     if compare_keys is None:
-        compare_keys = rows[0].keys()
+        compare_keys = list(rows[0].keys())
 
     def get_fields_filter(model, rows, compare_keys):
         q_fields = [getattr(model, k) for k in compare_keys]
@@ -194,12 +194,12 @@ def bulk_insert_nonexisting(
             # We need to retrieve all data back in order to match input correct with primary key
             # This is quite heavy, but much better than alternative which is sending INSERTs one
             # by one.
-            q_fields = [getattr(model, k) for k in rows[0].keys()] + [getattr(model, include_pk)]
+            q_fields = [getattr(model, k) for k in list(rows[0].keys())] + [getattr(model, include_pk)]
             data_with_pk = session.query(*q_fields).filter(q_filter).all()
             assert len(data_with_pk) == len(created) + len(input_existing)
             for c in created:
                 pk_item = next(
-                    n for n in data_with_pk if all(getattr(n, k) == v for k, v in c.iteritems())
+                    n for n in data_with_pk if all(getattr(n, k) == v for k, v in c.items())
                 )
                 c[include_pk] = getattr(pk_item, include_pk)
         yield input_existing, created
@@ -332,7 +332,7 @@ class SampleImporter(object):
         else:
             # Proband has parents
             # Connect all parents
-            for fam_sample_id, values in parents_to_connect.iteritems():
+            for fam_sample_id, values in parents_to_connect.items():
                 family_id, sample_id = fam_sample_id
                 db_sample = next(s for s in db_samples if s.identifier == sample_id)
                 if values.get("father_id"):
@@ -709,7 +709,7 @@ class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
             else:
                 node = new_node
         # Insert value on inner node (dict)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = vcfhelper.translate_to_original(value)
             node[k] = func(value)
         else:
@@ -741,7 +741,7 @@ class HGMDInfoProcessor(SplitToDictInfoProcessor):
 
     def _parseExtraRef(self, value):
         entries = [
-            dict(zip(self.fields, [vcfhelper.translate_to_original(e) for e in v.split("|")]))
+            dict(list(zip(self.fields, [vcfhelper.translate_to_original(e) for e in v.split("|")])))
             for v in value.split(",")
         ]
         for e in entries:
@@ -752,7 +752,7 @@ class HGMDInfoProcessor(SplitToDictInfoProcessor):
                     # If value is not int, it's not valid pmid. Remove key from data.
                     except ValueError:
                         del e[t]
-            for k, v in dict(e).iteritems():
+            for k, v in dict(e).items():
                 if v == "":
                     del e[k]
         return entries
@@ -967,7 +967,7 @@ class AnalysisImporter(object):
         ):
             raise RuntimeError("Analysis {} is already imported.".format(analysis_name))
 
-        if isinstance(date_requested, basestring):
+        if isinstance(date_requested, str):
             date_requested = datetime.datetime.strptime(date_requested, "%Y-%m-%d")
 
         analysis = sm.Analysis(

@@ -101,7 +101,7 @@ class ACMGDataLoader(object):
             annotation_data = a["annotation"]
             annotation_data["frequencies"] = {}
             annotation_data["frequencies"]["commonness"] = next(
-                k for k, v in commonness_groups.iteritems() if a["id"] in v
+                k for k, v in commonness_groups.items() if a["id"] in v
             )
 
             if a["id"] in ra_per_allele:

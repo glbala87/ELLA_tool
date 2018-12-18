@@ -77,7 +77,7 @@ class AnnotationProcessor(object):
 
         if custom_annotation:
             # Merge/overwrite annotation with custom_annotation
-            for key in config.config["custom_annotation"].keys():
+            for key in list(config.config["custom_annotation"].keys()):
                 if key in custom_annotation:
                     if key not in annotation:
                         annotation[key] = dict()

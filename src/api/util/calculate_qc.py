@@ -20,8 +20,8 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     # allele_depth data is JSON in database, so assume nothing...
     if (
         ad_data
-        and all(isinstance(v, int) for v in ad_data.values())
-        and any(v > 0 for v in ad_data.values())
+        and all(isinstance(v, int) for v in list(ad_data.values()))
+        and any(v > 0 for v in list(ad_data.values()))
         and len(ad_data) > 1
         and vcf_alt in ad_data
     ):

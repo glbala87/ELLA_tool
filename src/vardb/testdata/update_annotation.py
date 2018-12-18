@@ -6,7 +6,7 @@
 
 import argparse
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 import re
 import subprocess
@@ -46,12 +46,12 @@ def annotate(inputfile):
     if not data.startswith("##fileformat"):
         data = "##fileformat=VCFv4.1\n" + data
 
-    resp = urllib2.urlopen(
+    resp = urllib.request.urlopen(
         os.path.join(ANNOTATION_SERVICE_URL, "annotate"), data=json.dumps({"vcf": data})
     )
     task_id = json.loads(resp.read())["task_id"]
-    print("Started annotation with task_id=", task_id)
-    resp = urllib2.urlopen(os.path.join(ANNOTATION_SERVICE_URL, "process", task_id))
+    print(("Started annotation with task_id=", task_id))
+    resp = urllib.request.urlopen(os.path.join(ANNOTATION_SERVICE_URL, "process", task_id))
     resp = json.loads(resp.read())
     assert resp["status"] == "SUCCESS"
     return resp["data"]

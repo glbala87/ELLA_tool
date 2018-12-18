@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import logging
 from hypothesis import assume
 from hypothesis import strategies as st
@@ -406,7 +406,7 @@ def create_vcf(variants, sample_names):
             sample_data.append(VCF_SAMPLE_TEMPLATE.format(**sample))
         variant_data["sample_data"] = "\t".join(sample_data)
         additional_annotation = ";".join(
-            ["{}={}".format(k, v) for k, v in variant_data["annotation"].iteritems()]
+            ["{}={}".format(k, v) for k, v in variant_data["annotation"].items()]
         )
         variant_data["annotation"] = DEFAULT_ANNOTATION
         if additional_annotation:
@@ -462,7 +462,7 @@ def block_strategy(draw, samples):
     sample_genotype = dict()  # {sample_name1: '1/.', sample_name2: './1'}
 
     block_size = draw(st.integers(min_value=1, max_value=len(samples) * 2))
-    for idx in xrange(block_size):
+    for idx in range(block_size):
         block_samples = list()
         for sample in samples:
             if sample not in sample_genotype:
@@ -487,7 +487,7 @@ def block_strategy(draw, samples):
                         # We cannot risk ending all samples with './1'
                         # when we're not on the record in the block
                         # since one sample needs to end the block
-                        if len([a for a in sample_genotype.values() if a == "1/."]) > 1:
+                        if len([a for a in list(sample_genotype.values()) if a == "1/."]) > 1:
                             gt = draw(st.sampled_from(["./1", "./."]))
                         else:
                             gt = "./."
@@ -536,9 +536,9 @@ def block_strategy(draw, samples):
         # If we have a block, at least one sample must start with '1/.',
         # or it makes no sense
         if idx == 1 and block_size > 1:
-            assume(any(a == "1/." for a in sample_genotype.values()))
+            assume(any(a == "1/." for a in list(sample_genotype.values())))
         if block_size > 1 and idx == block_size - 1:
-            assume(any(a == "./1" for a in sample_genotype.values()))
+            assume(any(a == "./1" for a in list(sample_genotype.values())))
 
         block.append(block_samples)
     log.debug("Created block of size {} with {} samples".format(block_size, len(samples)))
@@ -560,7 +560,7 @@ def variants_strategy(draw, num_variants, pos_gap):
     MULTIALLELIC_GENOTYPES = ["0/1", "1/1", "1/."]
     current_pos = 10000
     multiallelic_missing_stop = False  # True if '1/.' has been insterted and missing './1'
-    for idx in xrange(num_variants):
+    for idx in range(num_variants):
         current_pos += draw(st.integers(1, pos_gap))
 
         # If less than two variants left, we cannot draw multiallelic options
@@ -651,7 +651,7 @@ def vcf_family_strategy(draw, max_num_samples):
     sample_names = base_names[:num_samples]
 
     if num_samples > 3:
-        sample_names += ["SIBLING_{}".format(idx - 3) for idx in xrange(3, num_samples)]
+        sample_names += ["SIBLING_{}".format(idx - 3) for idx in range(3, num_samples)]
     block = draw(block_strategy(sample_names))
 
     variants = [gv(s) for s in block]

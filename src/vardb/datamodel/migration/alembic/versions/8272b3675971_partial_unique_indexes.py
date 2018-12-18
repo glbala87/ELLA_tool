@@ -23,49 +23,49 @@ def upgrade():
         "alleleassessment",
         ["allele_id"],
         unique=True,
-        postgresql_where=sa.text(u"date_superceeded IS NULL"),
+        postgresql_where=sa.text("date_superceeded IS NULL"),
     )
     op.create_index(
         "ix_alleleinterpretation_alleleid_ongoing_unique",
         "alleleinterpretation",
         ["allele_id"],
         unique=True,
-        postgresql_where=sa.text(u"status IN ('Ongoing', 'Not started')"),
+        postgresql_where=sa.text("status IN ('Ongoing', 'Not started')"),
     )
     op.create_index(
         "ix_allelereport_alleleid_unique",
         "allelereport",
         ["allele_id"],
         unique=True,
-        postgresql_where=sa.text(u"date_superceeded IS NULL"),
+        postgresql_where=sa.text("date_superceeded IS NULL"),
     )
     op.create_index(
         "ix_analysisinterpretation_analysisid_ongoing_unique",
         "analysisinterpretation",
         ["analysis_id"],
         unique=True,
-        postgresql_where=sa.text(u"status IN ('Ongoing', 'Not started')"),
+        postgresql_where=sa.text("status IN ('Ongoing', 'Not started')"),
     )
     op.create_index(
         "ix_annotation_unique",
         "annotation",
         ["allele_id"],
         unique=True,
-        postgresql_where=sa.text(u"date_superceeded IS NULL"),
+        postgresql_where=sa.text("date_superceeded IS NULL"),
     )
     op.create_index(
         "ix_customannotation_unique",
         "customannotation",
         ["allele_id"],
         unique=True,
-        postgresql_where=sa.text(u"date_superceeded IS NULL"),
+        postgresql_where=sa.text("date_superceeded IS NULL"),
     )
     op.create_index(
         "ix_referenceassessment_alleleid_referenceid_unique",
         "referenceassessment",
         ["allele_id", "reference_id"],
         unique=True,
-        postgresql_where=sa.text(u"date_superceeded IS NULL"),
+        postgresql_where=sa.text("date_superceeded IS NULL"),
     )
     ### end Alembic commands ###
 

@@ -23,7 +23,7 @@ class PolypyrimidineTractFilter(object):
         """
 
         ppy_filtered = {}
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 ppy_filtered[gp_key] = set()
                 continue
