@@ -21,7 +21,7 @@ class TestAlleleList(object):
 
         assert response.status_code == 200
 
-        alleles = response.json
+        alleles = response.get_json()
         assert len(alleles) == len(ids)
         assert "id" in alleles[0]
         for k in ["external", "frequencies", "references", "transcripts"]:

@@ -136,8 +136,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
 
     # Create output data
     # ('HBOC', 'v01'), [1, 2, 3, ...]
-    for gp_key, allele_ids in gp_allele_ids.items():
-
+    for gp_key, allele_ids in sorted(gp_allele_ids.items(), key=lambda x: x[0]):
         genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
         gp_alleles = [a for a in all_alleles if a.id in allele_ids]
 
@@ -154,6 +153,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
 
         for a in loaded_genepanel_alleles:
             interpretations = [i for i in allele_ids_interpretations if i.allele_id == a["id"]]
+            dumped_interpretations = [alleleinterpretation_schema.dump(i).data for i in interpretations]
             final_alleles.append(
                 {
                     "genepanel": {"name": genepanel.name, "version": genepanel.version},
@@ -166,9 +166,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
                         ]
                     ),
                     "review_comment": allele_ids_review_comment.get(a["id"], None),
-                    "interpretations": alleleinterpretation_schema.dump(
-                        interpretations, many=True
-                    ).data,
+                    "interpretations": dumped_interpretations
                 }
             )
 

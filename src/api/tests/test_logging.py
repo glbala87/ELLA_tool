@@ -1,7 +1,6 @@
 import datetime
 import pytest
 import json
-from vardb.util import DB
 from vardb.datamodel import log
 
 from .util import FlaskClientProxy
@@ -21,7 +20,7 @@ def test_resourcelog(client, test_database, session):
     test_database.refresh()
 
     usersession_id = 1
-    remote_addr = "0.0.0.0"  # Manually set in API code
+    remote_addr = "127.0.0.1"
 
     # Without payload
     r = client.get("/api/v1/config/")
@@ -38,7 +37,7 @@ def test_resourcelog(client, test_database, session):
     assert rl.resource == "/api/v1/config/"
     assert rl.statuscode == statuscode
     assert rl.response_size == response_size
-    assert rl.payload == None
+    assert rl.payload is None
     assert rl.payload_size == 0
     assert rl.query == ""
     assert rl.duration > 0
@@ -82,7 +81,7 @@ def test_resourcelog(client, test_database, session):
     response_size = int(r.headers.get("Content-Length"))
 
     rlogs = session.query(log.ResourceLog).all()
-    assert len(rlogs) == 6  # 4 since /currentuser is called to check whether logged in
+    assert len(rlogs) == 6  # 6 since /currentuser is called to check whether logged in
 
     rl = rlogs[-1]
     assert statuscode == 401  # User doesn't exist
@@ -92,7 +91,7 @@ def test_resourcelog(client, test_database, session):
     assert rl.resource == "/api/v1/users/actions/login/"
     assert rl.statuscode == statuscode
     assert rl.response_size == response_size
-    assert rl.payload == None
+    assert rl.payload is None
     assert rl.payload_size == 0
     assert rl.query == ""
     assert rl.duration > 0
@@ -118,7 +117,7 @@ def test_resourcelog(client, test_database, session):
     rl = rlogs[-1]
     assert statuscode == 403
     assert rl.remote_addr == remote_addr
-    assert rl.usersession_id == None
+    assert rl.usersession_id is None
     assert rl.method == "POST"
     assert rl.resource == "/api/v1/acmg/alleles/"
     assert rl.statuscode == statuscode

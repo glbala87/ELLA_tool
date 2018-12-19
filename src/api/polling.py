@@ -1,10 +1,12 @@
-
 import datetime
 import json
 import logging
+import traceback
 
 import time
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 from urllib.parse import urlencode
 import os
 import binascii
@@ -89,8 +91,8 @@ ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
 def get_error_message(e):
     try:
-        msg = json.loads(e.read())["message"]
-    except:
+        msg = json.loads(e.read().decode())["message"]
+    except Exception:
         msg = "Unable to determine error"
     return msg
 
@@ -147,7 +149,6 @@ class AnnotationJobsInterface:
     def deposit(self, id, annotated_vcf):
         job = self.get_with_id(id)
         mode = job.mode
-
         fd = StringIO()
         fd.write(str(annotated_vcf))
         fd.flush()
@@ -202,11 +203,11 @@ class AnnotationServiceInterface:
     def annotate(self, job):
         r = urllib.request.Request(
             join(self.base, "annotate"),
-            data=json.dumps({"input": job.data}),
+            data=json.dumps({"input": job.data}).encode(),
             headers={"Content-type": "application/json"},
         )
         k = urllib.request.urlopen(r)
-        return json.loads(k.read())
+        return json.loads(k.read().decode())
 
     def annotate_sample(self, job):
         regions = genepanel_to_bed(self.session, job.genepanel_name, job.genepanel_version)
@@ -222,7 +223,7 @@ class AnnotationServiceInterface:
             join(self.base, "samples/annotate"), data=body, headers={"Content-type": content_type}
         )
         k = urllib.request.urlopen(r)
-        return json.loads(k.read())
+        return json.loads(k.read().decode())
 
     def process(self, task_id):
         k = urllib.request.urlopen(join(self.base, "process", task_id))
@@ -234,7 +235,7 @@ class AnnotationServiceInterface:
             k = urllib.request.urlopen(join(self.base, "status", task_id))
         else:
             k = urllib.request.urlopen(join(self.base, "status"))
-        resp = json.loads(k.read())
+        resp = json.loads(k.read().decode())
         return resp
 
     def search_samples(self, search_term, limit):
@@ -245,7 +246,7 @@ class AnnotationServiceInterface:
         q = urlencode(d)
 
         k = urllib.request.urlopen(join(self.base, "samples", "?" + q))
-        resp = json.loads(k.read())
+        resp = json.loads(k.read().decode())
         result = []
         for k, v in resp.items():
             v.update(name=k)
@@ -393,10 +394,7 @@ def polling(session):
         loop(session)
     except Exception as e:
         session.remove()
-        import traceback
-
         traceback.print_exc()
-        print(e.message)
         raise e
 
 

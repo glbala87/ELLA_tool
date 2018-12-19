@@ -4,5 +4,5 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export PYTHONPATH="${DIR}/src:${PYTHONPATH:-}"
 
-python3 "${DIR}/src/cli/cli.py" $@
+python3 "${DIR}/src/cli/main.py" $@
 

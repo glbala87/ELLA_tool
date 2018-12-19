@@ -1,10 +1,6 @@
-from flask.ext.marshmallow import Marshmallow
-from marshmallow import fields, Schema, post_dump
+from marshmallow import fields, Schema
 
-from api import app
 from api.schemas import users
-
-ma = Marshmallow(app)
 
 
 class AlleleInterpretationSnapshotSchema(Schema):

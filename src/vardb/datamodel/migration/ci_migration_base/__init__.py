@@ -40,24 +40,6 @@ class CustomBase(object):
                 except NoResultFound:
                     raise e
 
-    @classmethod
-    def update_or_create(cls, session, defaults=None, **kwargs):
-        """
-        Clone of Django's equivalent function.
-        Looks up an object with the given kwargs, updating one with defaults
-        if it exists, otherwise creates a new one.
-        Returns a tuple (object, created), where created is a boolean
-        specifying whether an object was created.
-        """
-        # get or create object using kwargs (filter) only
-        instance, created = cls.get_or_create(session, defaults=defaults, **kwargs)
-        # Update object with defaults
-        if not created and defaults:  # fetched an existing instance, must update
-            for k, v in defaults.items():
-                setattr(instance, k, v)
-
-        return instance, created
-
 
 # Add manual naming conventions to assist consistency when
 # writing migration scripts
@@ -70,8 +52,8 @@ convention = {
 
 
 Base = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
-make_searchable()  # Create triggers to keep search vectors up to date
 Base.metadata = MetaData(naming_convention=convention)
+make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 
 # Don't remove!
 from vardb.datamodel.migration.ci_migration_base import (

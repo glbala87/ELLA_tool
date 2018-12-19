@@ -1,4 +1,3 @@
-
 from functools import wraps
 import json
 import datetime
@@ -125,7 +124,7 @@ def populate_g_logging():
 def log_request(statuscode, response=None):
 
     duration = int(time.time() * 1000.0 - g.request_start_time)
-    remote_addr = request.remote_addr if not app.testing else "0.0.0.0"
+    remote_addr = request.remote_addr
     payload = None
     payload_size = 0
     response_data = None

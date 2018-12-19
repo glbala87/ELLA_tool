@@ -282,9 +282,9 @@ class ClassificationResource(LogRequestResource):
     @logger(exclude=True)
     def get(self, session, user=None):
         data = BytesIO()
-        data.write(get_classification_bed(session).encode("utf-8"))
+        data.write(get_classification_bed(session).encode())
         data.seek(0)
-        return send_file(data)
+        return send_file(data, attachment_filename="classifications.bed")
 
 
 class AnalysisVariantTrack(LogRequestResource):
@@ -293,9 +293,9 @@ class AnalysisVariantTrack(LogRequestResource):
     def get(self, session, analysis_id, user=None):
         allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
         data = BytesIO()
-        data.write(get_allele_vcf(session, analysis_id, allele_ids).encode("utf-8"))
+        data.write(get_allele_vcf(session, analysis_id, allele_ids).encode())
         data.seek(0)
-        return send_file(data)
+        return send_file(data, attachment_filename="analysis-variants.vcf")
 
 
 def _search_path_for_tracks(tracks_path, url_func):

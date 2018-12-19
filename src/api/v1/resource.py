@@ -1,6 +1,6 @@
 # -*- coding: latin1 -*-
 from api.util.util import provide_session, logger
-from flask.ext.restful import Resource as flask_resource
+from flask_restful import Resource as flask_resource
 import sqlalchemy
 from sqlalchemy import tuple_, Text
 

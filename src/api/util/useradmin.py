@@ -53,7 +53,7 @@ def check_password_strength(password):
     return n >= N
 
 
-def check_password(password, password_hash):
+def check_password(password: str, password_hash: str):
     return bcrypt.checkpw(password.encode(), password_hash.encode())
 
 
@@ -91,8 +91,8 @@ def authenticate_user(session, user_or_username, password: str):
     return user_object
 
 
-def hash_password(password):
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+def hash_password(password) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def hash_token(token: bytes):
@@ -100,7 +100,7 @@ def hash_token(token: bytes):
 
 
 def get_usersession_by_token(session, token: str):
-    hashed_token = hash_token(token.encode("utf-8"))
+    hashed_token = hash_token(token.encode())
     user_session = (
         session.query(user.UserSession)
         .options(joinedload("user"))

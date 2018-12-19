@@ -3,8 +3,6 @@ import pytest
 
 from vardb.datamodel import assessment, user as user_model
 
-from api import ApiError
-from api.tests import *
 from api.tests.workflow_helper import WorkflowHelper
 from api.tests import interpretation_helper as ih
 
@@ -167,7 +165,9 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse alleleassessment
         alleleassessments = [{"allele_id": 1, "reuse": True, "presented_alleleassessment_id": 1}]
@@ -189,22 +189,22 @@ class TestOther(object):
         ]
         custom_annotations = []
 
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "allele",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-            )
+        r = ih.finalize(
+            "allele",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+        )
         assert (
             "Trying to create referenceassessment for allele, while not also creating alleleassessment"
-            in str(excinfo.value)
+            in str(r.get_json()["message"])
         )
+        assert r.status_code == 500
 
     @pytest.mark.ai(order=1)
     def test_reusing_superceded_referenceassessment(self, test_database, session):
@@ -243,7 +243,9 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse alleleassessment
         alleleassessments = [
@@ -265,19 +267,18 @@ class TestOther(object):
         ]
         custom_annotations = []
 
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "allele",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-            )
-        assert "Found no matching referenceassessment" in str(excinfo.value)
+        r = ih.finalize(
+            "allele",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+        )
+        assert "Found no matching referenceassessment" in r.get_json()["message"]
 
     @pytest.mark.ai(order=2)
     def test_reusing_superceded_alleleassessment(self, test_database, session):
@@ -315,7 +316,9 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse alleleassessment
         alleleassessments = [
@@ -331,19 +334,18 @@ class TestOther(object):
         ]
         custom_annotations = []
 
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "allele",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-            )
-        assert "Found no matching alleleassessment" in str(excinfo.value)
+        r = ih.finalize(
+            "allele",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+        )
+        assert "Found no matching alleleassessment" in r.get_json()["message"]
 
 
 class TestFinalizationRequirements:
@@ -368,7 +370,10 @@ class TestFinalizationRequirements:
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse alleleassessment
         alleleassessments = [
@@ -389,41 +394,7 @@ class TestFinalizationRequirements:
         ]
         custom_annotations = []
 
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "allele",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-            )
-        assert (
-            "Cannot finalize: Interpretation's workflow status is in one of required ones"
-            in str(excinfo.value)
-        )
-
-        # Send to review, and try again
-        ih.mark_review(
-            "allele",
-            1,
-            {
-                "annotations": annotations,
-                "custom_annotations": custom_annotations,
-                "alleleassessments": alleleassessments,
-                "allelereports": allelereports,
-            },
-            "testuser1",
-        )
-
-        interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
-        )
-
-        ih.finalize(
+        r = ih.finalize(
             "allele",
             1,
             annotations,
@@ -434,6 +405,42 @@ class TestFinalizationRequirements:
             attachments,
             "testuser1",
         )
+        assert r.status_code == 500
+        assert (
+            "Cannot finalize: Interpretation's workflow status is in one of required ones"
+            in r.get_json()["message"]
+        )
+
+        # Send to review, and try again
+        r = ih.mark_review(
+            "allele",
+            1,
+            {
+                "annotations": annotations,
+                "custom_annotations": custom_annotations,
+                "alleleassessments": alleleassessments,
+                "allelereports": allelereports,
+            },
+            "testuser1",
+        )
+        r.status_code == 200
+
+        ih.start_interpretation(
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+        )
+
+        r = ih.finalize(
+            "allele",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+        )
+        assert r.status_code == 200
 
     @pytest.mark.ai(order=2)
     def test_required_workflow_status_analysis(self, test_database, session):
@@ -455,7 +462,9 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse alleleassessment
         alleleassessments = [
@@ -477,21 +486,20 @@ class TestFinalizationRequirements:
         ]
         custom_annotations = []
 
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "analysis",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-            )
+        r = ih.finalize(
+            "analysis",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+        )
         assert (
             "Cannot finalize: Interpretation's workflow status is in one of required ones"
-            in str(excinfo.value)
+            in r.get_json()["message"]
         )
 
         # Send to review, and try again
@@ -549,7 +557,9 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         alleleassessments = [
             {
@@ -576,21 +586,21 @@ class TestFinalizationRequirements:
         custom_annotations = []
 
         # allow_technical is False, so it should fail
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "analysis",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-                technical_allele_ids=technical_allele_ids,
-                notrelevant_allele_ids=notrelevant_allele_ids,
-            )
-        assert "Missing alleleassessments for allele ids 1" in str(excinfo.value)
+        r = ih.finalize(
+            "analysis",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids,
+        )
+        assert r.status_code == 500
+        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
 
         # Allow technical and try again
         user_config = {
@@ -606,7 +616,7 @@ class TestFinalizationRequirements:
         }
         update_user_config(session, "testuser1", user_config)
 
-        ih.finalize(
+        r = ih.finalize(
             "analysis",
             1,
             annotations,
@@ -619,6 +629,7 @@ class TestFinalizationRequirements:
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
+        assert r.status_code == 200
 
     @pytest.mark.ai(order=3)
     def test_allow_notrelevant(self, test_database, session):
@@ -646,7 +657,10 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         alleleassessments = [
             {
@@ -673,21 +687,21 @@ class TestFinalizationRequirements:
         custom_annotations = []
 
         # allow_notrelevant is False, so it should fail
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "analysis",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-                technical_allele_ids=technical_allele_ids,
-                notrelevant_allele_ids=notrelevant_allele_ids,
-            )
-        assert "Missing alleleassessments for allele ids 1" in str(excinfo.value)
+        r = ih.finalize(
+            "analysis",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids,
+        )
+        assert r.status_code == 500
+        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
 
         # Allow notrelevant and try again
         user_config = {
@@ -703,7 +717,7 @@ class TestFinalizationRequirements:
         }
         update_user_config(session, "testuser1", user_config)
 
-        ih.finalize(
+        r = ih.finalize(
             "analysis",
             1,
             annotations,
@@ -716,6 +730,7 @@ class TestFinalizationRequirements:
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
+        assert r.status_code == 200
 
     @pytest.mark.ai(order=4)
     def test_allow_unclassified(self, test_database, session):
@@ -743,7 +758,10 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        alleles = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         alleleassessments = [
             {
@@ -770,21 +788,21 @@ class TestFinalizationRequirements:
         custom_annotations = []
 
         # allow_unclassified is False, so it should fail
-        with pytest.raises(ApiError) as excinfo:
-            ih.finalize(
-                "analysis",
-                1,
-                annotations,
-                custom_annotations,
-                alleleassessments,
-                referenceassessments,
-                allelereports,
-                attachments,
-                "testuser1",
-                technical_allele_ids=technical_allele_ids,
-                notrelevant_allele_ids=notrelevant_allele_ids,
-            )
-        assert "Missing alleleassessments for allele ids 1,2" in str(excinfo.value)
+        r = ih.finalize(
+            "analysis",
+            1,
+            annotations,
+            custom_annotations,
+            alleleassessments,
+            referenceassessments,
+            allelereports,
+            attachments,
+            "testuser1",
+            technical_allele_ids=technical_allele_ids,
+            notrelevant_allele_ids=notrelevant_allele_ids,
+        )
+        assert r.status_code == 500
+        assert "Missing alleleassessments for allele ids 1,2" in r.get_json()["message"]
 
         # Allow unclassified and try again
         # (allow_unclassified implies allow_technical and allow_notrelevant)
@@ -801,7 +819,7 @@ class TestFinalizationRequirements:
         }
         update_user_config(session, "testuser1", user_config)
 
-        ih.finalize(
+        r = ih.finalize(
             "analysis",
             1,
             annotations,
@@ -814,3 +832,4 @@ class TestFinalizationRequirements:
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
+        assert r.status_code == 200

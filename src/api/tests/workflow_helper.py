@@ -87,7 +87,9 @@ class WorkflowHelper(object):
         )
 
     def reopen(self, username):
-        ih.reopen_analysis(self.type, self.id, username)
+        r = ih.reopen_analysis(self.type, self.id, username)
+        assert r.status_code == 200
+        return r.get_json()
 
     def start_interpretation(self, username):
         return ih.start_interpretation(
@@ -105,9 +107,9 @@ class WorkflowHelper(object):
             {"alleleassessments": list(), "referenceassessments": list(), "allelereports": list()}
         )
 
-        alleles = ih.get_alleles(
-            self.type, self.id, interpretation["id"], interpretation["allele_ids"]
-        )
+        r = ih.get_alleles(self.type, self.id, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Put assessments and reports in the state:
         for allele in alleles:
@@ -120,7 +122,7 @@ class WorkflowHelper(object):
             annotation_references = allele["annotation"]["references"]
             ref_ids = [r["pubmed_id"] for r in annotation_references]
             q = {"pubmed_id": ref_ids}
-            references = ih.get_entities_by_query("references", q)
+            references = ih.get_entities_by_query("references", q).get_json()
             for reference in references:
                 interpretation["state"]["referenceassessments"].append(
                     ih.reference_assessment_template(
@@ -138,7 +140,7 @@ class WorkflowHelper(object):
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
 
-        interpretation_cnt = len(ih.get_interpretations(self.type, self.id))
+        interpretation_cnt = len(ih.get_interpretations(self.type, self.id).get_json())
 
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
@@ -151,18 +153,21 @@ class WorkflowHelper(object):
             "Medical review": ih.mark_medicalreview,
         }
 
-        finish_method[new_workflow_status](
+        r = finish_method[new_workflow_status](
             self.type,
             self.id,
             ih.round_template(),  # We don't bother to provide real data for normal rounds, we are just testing workflow
             interpretation["user"]["username"],
         )
+        assert r.status_code == 200
 
         # Check that new interpretation was created
-        assert len(ih.get_interpretations(self.type, self.id)) == interpretation_cnt + 1
+        assert len(ih.get_interpretations(self.type, self.id).get_json()) == interpretation_cnt + 1
 
         # Check that data was updated like it should
-        reloaded_interpretation = ih.get_interpretation(self.type, self.id, interpretation["id"])
+        reloaded_interpretation = ih.get_interpretation(
+            self.type, self.id, interpretation["id"]
+        ).get_json()
 
         self._check_comments(reloaded_interpretation["state"], comment)
 
@@ -187,7 +192,7 @@ class WorkflowHelper(object):
         )
 
         # check that no new interpretation is created
-        interpretation_cnt = len(ih.get_interpretations(self.type, self.id))
+        interpretation_cnt = len(ih.get_interpretations(self.type, self.id).get_json())
 
         # annotations are needed when finalizing since it tracks their ids
         annotations, custom_annotations = _build_dummy_annotations(
@@ -197,7 +202,7 @@ class WorkflowHelper(object):
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
-        finalize_response = ih.finalize(
+        r = ih.finalize(
             self.type,
             self.id,
             annotations,
@@ -209,11 +214,14 @@ class WorkflowHelper(object):
             interpretation["user"]["username"],
         )
 
+        assert r.status_code == 200
+        finalize_response = r.get_json()
+
         # Check that assessments/reports are created/exists. We reload them from API to be sure they were stored
         for entity_type in ["alleleassessments", "referenceassessments", "allelereports"]:
             entities_created = finalize_response[entity_type]
             for entity in entities_created:
-                entity_in_db = ih.get_entity_by_id(entity_type, entity["id"])
+                entity_in_db = ih.get_entity_by_id(entity_type, entity["id"]).get_json()
                 if self.type == "analysis":
                     assert entity_in_db["analysis_id"] == self.id
                 else:
@@ -221,12 +229,14 @@ class WorkflowHelper(object):
 
                 assert entity_in_db["evaluation"]["comment"] == comment
 
-        interpretations = ih.get_interpretations(self.type, self.id)
+        interpretations = ih.get_interpretations(self.type, self.id).get_json()
         assert len(interpretations) == interpretation_cnt
         _assert_all_interpretations_are_done(interpretations)
 
         # Check that data was updated like it should
-        reloaded_interpretation = ih.get_interpretation(self.type, self.id, interpretation["id"])
+        reloaded_interpretation = ih.get_interpretation(
+            self.type, self.id, interpretation["id"]
+        ).get_json()
 
         self._check_comments(reloaded_interpretation["state"], comment)
 
@@ -254,9 +264,9 @@ class WorkflowHelper(object):
         )
         assert set([a["allele_id"] for a in allele_reports]) == set(interpretation["allele_ids"])
 
-        alleles = ih.get_alleles(
-            self.type, self.id, interpretation["id"], interpretation["allele_ids"]
-        )
+        r = ih.get_alleles(self.type, self.id, interpretation["id"], interpretation["allele_ids"])
+        assert r.status_code == 200
+        alleles = r.get_json()
 
         # Reuse existing assessments
         for allele in alleles:
@@ -291,7 +301,7 @@ class WorkflowHelper(object):
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
-        ih.finalize(
+        r = ih.finalize(
             self.type,
             self.id,
             annotations,
@@ -302,12 +312,15 @@ class WorkflowHelper(object):
             attachments,
             interpretation["user"]["username"],
         )
+        assert r.status_code == 200
 
-        interpretations = ih.get_interpretations(self.type, self.id)
+        interpretations = ih.get_interpretations(self.type, self.id).get_json()
         _assert_all_interpretations_are_done(interpretations)
 
         # Check that data was updated like it should
-        reloaded_interpretation = ih.get_interpretation(self.type, self.id, interpretation["id"])
+        reloaded_interpretation = ih.get_interpretation(
+            self.type, self.id, interpretation["id"]
+        ).get_json()
 
         assert reloaded_interpretation["finalized"] is True
         assert reloaded_interpretation["status"] == "Done"
@@ -318,7 +331,7 @@ class WorkflowHelper(object):
     def check_interpretation(self, interpretation):
 
         # Check snapshot data
-        snapshots = ih.get_snapshots(self.type, self.id)
+        snapshots = ih.get_snapshots(self.type, self.id).get_json()
         key = "{}interpretation_id".format(self.type)
         snapshots = [s for s in snapshots if s[key] == interpretation["id"]]
         for alleleassessment in interpretation["state"]["alleleassessments"]:
@@ -351,7 +364,7 @@ class WorkflowHelper(object):
                     for a in interpretation["state"]["alleleassessments"]
                     if a["allele_id"] == allele_id
                 )
-                allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id)
+                allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id).get_json()
                 assert allele_assessments_in_db
                 latest_allele_assessment = next(
                     a for a in allele_assessments_in_db if not a["date_superceeded"]
@@ -377,7 +390,7 @@ class WorkflowHelper(object):
                     for a in interpretation["state"]["allelereports"]
                     if a["allele_id"] == allele_id
                 )
-                allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id)
+                allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id).get_json()
                 assert allele_reports_in_db
                 latest_allele_report = next(
                     a for a in allele_reports_in_db if not a["date_superceeded"]
@@ -400,7 +413,9 @@ class WorkflowHelper(object):
                     if a["allele_id"] == allele_id
                 ]
                 if state_referenceassessments:
-                    reference_assessments_in_db = ih.get_reference_assessments_by_allele(allele_id)
+                    reference_assessments_in_db = ih.get_reference_assessments_by_allele(
+                        allele_id
+                    ).get_json()
                     for state_referenceassessment in state_referenceassessments:
                         matching_reference_assessment = next(
                             (

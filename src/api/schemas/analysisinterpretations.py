@@ -1,10 +1,6 @@
-from flask.ext.marshmallow import Marshmallow
-from marshmallow import Schema, fields, post_dump
+from marshmallow import Schema, fields
 
-from api import app
 from api.schemas import users
-
-ma = Marshmallow(app)
 
 
 class AnalysisInterpretationSnapshotSchema(Schema):

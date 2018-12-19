@@ -20,7 +20,7 @@ class TestCustomAnnotation(object):
 
         # Insert new CustomAnnotation
         insert_response = client.post("/api/v1/customannotations/", annotation_template)
-        id_of_first_created = insert_response.json["id"]
+        id_of_first_created = insert_response.get_json()["id"]
 
         # Check that it's inserted
         insert_response = client.get(
@@ -32,7 +32,7 @@ class TestCustomAnnotation(object):
         # Create a new one by updating an existing
         annotation_template["annotations"] = {"test": 2}
         update_response = client.post("/api/v1/customannotations/", annotation_template)
-        id_of_created_by_update = update_response.json["id"]
+        id_of_created_by_update = update_response.get_json()["id"]
 
         # Check that the new annotation exists:
         second_response = client.get(

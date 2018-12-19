@@ -1,13 +1,9 @@
 import datetime
 import pytz
-from flask.ext.marshmallow import Marshmallow
 from marshmallow import fields, Schema, post_load
 
-from api import app
 from vardb.datamodel import assessment
 from api.schemas import users, referenceassessments
-
-ma = Marshmallow(app)
 
 
 class AlleleAssessmentOverviewSchema(Schema):
