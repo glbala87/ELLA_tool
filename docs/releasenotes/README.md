@@ -6,6 +6,12 @@ sidebar: auto
 
 [[toc]]
 
+## 1.3.1
+
+### Additions and fixes
+- Fix issue in `Variant report` when parsing warning from pipeline, in some cases yielding wrong number of poorly covered regions.
+
+
 ## 1.3
 
 ### Highlights
