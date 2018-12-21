@@ -36,7 +36,7 @@ ANALYSIS_NAME_RE = re.compile(
 # chr7:g.6013138N>N chr7:g.6013175N>N BRCA2 NM_000059.3 exon3
 # chr2:g.48010497N>N chr2:g.48010531N>N CDK2NA NM_001231.2 exon4
 WARNING_REGIONS_RE = re.compile(
-    "(?P<pos1>chr[0-9XYM]+:g\..+N>N)\ (?P<pos2>chr[0-9XYM]:g\..+N>N)(\ (?P<gene>.*)\ (?P<transcript>NM_.*)\ (?P<exon>.*))?"
+    r"(?P<pos1>chr[0-9XYM]+:g\..+N>N)\ (?P<pos2>chr[0-9XYM]+:g\..+N>N)(\ (?P<gene>.*)\ (?P<transcript>NM_.*)\ (?P<exon>.*))?"
 )
 
 
