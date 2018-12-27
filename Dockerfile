@@ -1,5 +1,5 @@
 # aka debian:stretch
-FROM debian:9.2 AS base
+FROM debian:9.6 AS base
 MAINTAINER OUS AMG <ella-support@medisin.uio.no>
 
 ENV DEBIAN_FRONTEND noninteractive

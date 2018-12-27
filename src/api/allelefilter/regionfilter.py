@@ -1,17 +1,21 @@
-from sqlalchemy import or_, and_, tuple_, func, case, Table, Column, MetaData, Integer, Text
-from sqlalchemy.dialects.postgresql import ARRAY
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.schema import Table
+from sqlalchemy.sql.selectable import TableClause
+from sqlalchemy import or_, and_, tuple_, func, case, Column, MetaData, Integer
 
 from vardb.datamodel import gene, annotationshadow, allele
-
 from api.util import queries
 
 
 class RegionFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config: Optional[Dict[str, Any]]) -> None:
         self.session = session
         self.config = config
 
-    def create_gene_padding_table(self, gene_ids, filter_config):
+    def create_gene_padding_table(
+        self, gene_ids: Tuple[int, int, int, int, int, int], filter_config: Dict[str, Any]
+    ) -> Table:
         """
         Create a temporary table for the gene specific padding of the form
         ------------------------------------------------------------------------------------------------
@@ -24,7 +28,6 @@ class RegionFilter(object):
         Returns an ORM-representation of this table
         """
 
-        # TODO: Replace with genepanel/gene specific padding values when available
         splice_region = filter_config["splice_region"]
         utr_region = filter_config["utr_region"]
         values = []
@@ -52,7 +55,9 @@ class RegionFilter(object):
         )
         return t
 
-    def create_genepanel_transcripts_table(self, gp_key, allele_ids, max_padding):
+    def create_genepanel_transcripts_table(
+        self, gp_key: Tuple[str, str], allele_ids: List[int], max_padding: int
+    ) -> TableClause:
         # Extract transcripts associated with the genepanel
         # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
         # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
@@ -100,7 +105,9 @@ class RegionFilter(object):
             .temp_table("region_filter_internal_genepanel_transcripts")
         )
 
-    def create_genepanel_transcript_exons_table(self, genepanel_transcripts):
+    def create_genepanel_transcript_exons_table(
+        self, genepanel_transcripts: TableClause
+    ) -> TableClause:
 
         # Unwrap the exons for the genepanel transcript
         return self.session.query(
@@ -114,14 +121,18 @@ class RegionFilter(object):
             func.unnest(genepanel_transcripts.c.exon_ends).label("exon_end"),
         ).temp_table("region_filter_internal")
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
-         Filter alleles outside regions of interest. Regions of interest are based on these criteria:
+         Filter alleles outside regions of interest.
+         Regions of interest are based on these criteria:
           - Coding region
           - Splice region
           - UTR region (upstream/downstream of coding start/coding end)
 
-         These are all based on the transcript definition of the genepanel transcripts with genomic coordinates for
+         These are all based on the transcript definition of the genepanel
+         transcripts with genomic coordinates for
          - Transcript (tx) start and end
          - Coding region (cds) start and end
          - Exon start and end
@@ -137,7 +148,7 @@ class RegionFilter(object):
 
         """
 
-        region_filtered = {}
+        region_filtered: Dict[Tuple[str, str], Set[int]] = {}
         for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 region_filtered[gp_key] = set()
@@ -417,12 +428,13 @@ class RegionFilter(object):
             # Save alleles based on computed HGVSc distance
             #
             # We look at computed exon_distance/coding_region_distance from annotation
-            # on transcripts present in the genepanel (disregaring version number)
+            # on transcripts present in the genepanel (disregarding version number)
             # For alleles with computed distance within splice_region or utr_region,
             # they will not be filtered out
             # This can happen when there is a mismatch between genomic position and annotated HGVSc.
-            # Observed for alleles in repeated regions: In the imported VCF, the alleles are left aligned.
-            # VEP left aligns w.r.t. *transcript direction*, and therefore, there could be a mismatch in position
+            # Observed for alleles in repeated regions: In the imported VCF,
+            # the alleles are left aligned. VEP left aligns w.r.t. *transcript direction*,
+            # and therefore, there could be a mismatch in position
             # See for example
             # https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
@@ -443,8 +455,10 @@ class RegionFilter(object):
                 )
                 .join(
                     # Join in transcripts used in annotation
-                    # Note: The annotation_transcripts_genepanel only contains transcripts matching transcripts in the genepanel.
-                    # Therefore, we are sure that we only filter here on genepanel transcripts (disregarding version number)
+                    # Note: The annotation_transcripts_genepanel only contains transcripts
+                    # matching transcripts in the genepanel.
+                    # Therefore, we are sure that we only filter here on genepanel
+                    # transcripts (disregarding version number)
                     annotation_transcripts_genepanel,
                     and_(
                         annotation_transcripts_genepanel.c.annotation_transcript
@@ -468,7 +482,8 @@ class RegionFilter(object):
                     annotationshadow.AnnotationShadowTranscript.exon_distance
                     <= tmp_gene_padding.c.exon_downstream,
                     or_(
-                        # We do not save exonic UTR alleles if they are outside [coding_region_upstream, coding_region_downstream]
+                        # We do not save exonic UTR alleles if they are
+                        # outside [coding_region_upstream, coding_region_downstream]
                         # For coding exonic variant, the coding_region_distance is None
                         annotationshadow.AnnotationShadowTranscript.coding_region_distance.is_(
                             None

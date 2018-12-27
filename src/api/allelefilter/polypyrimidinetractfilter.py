@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Set, Tuple
 from sqlalchemy import or_, and_, tuple_, func, case
 from vardb.datamodel import gene, allele
 
@@ -7,7 +8,9 @@ class PolypyrimidineTractFilter(object):
         self.session = session
         self.config = config
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Filter alleles in the polypyrimidine tract (defined by filter_config['ppy_tract_region'],
         strandedness taken into account)
@@ -16,13 +19,13 @@ class PolypyrimidineTractFilter(object):
         C, T, CC, TT, CT, TC (strandedness taken into account)
 
         We do *not* filter out alleles where a deletion is flanked by A (positive strand)
-        or C (negative strand), as this could create a new AG splice site. Ideally, we would check if
-        the deletion was flanked by A on one side and G on another, but since we do not use a FASTA-file,
-        we are unable to check both sides. The one side we do check comes from the vcf_ref-column in
-        the allele-table
+        or C (negative strand), as this could create a new AG splice site.
+        Ideally, we would check if the deletion was flanked by A on one side and G on another,
+        but since we do not use a FASTA-file, we are unable to check both sides. The one side we
+        do check comes from the vcf_ref-column in the allele-table
         """
 
-        ppy_filtered = {}
+        ppy_filtered: Dict[Tuple[str, str], Set[int]] = {}
         for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 ppy_filtered[gp_key] = set()
@@ -35,8 +38,9 @@ class PolypyrimidineTractFilter(object):
             ppy_padding = max(abs(v) for v in ppy_tract_region)
 
             # Extract transcripts associated with the genepanel
-            # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
-            # overlapping in the region [tx_start-ppy_padding, tx_end+ppy_padding]. The filter clause in the query
+            # To potentially limit the number of regions we need to check,
+            # exclude transcripts where we have no alleles overlapping in the
+            # region [tx_start-ppy_padding, tx_end+ppy_padding]. The filter clause in the query
             # should have no effect on the result, but is included only for performance
 
             genepanel_transcripts = (
@@ -104,8 +108,10 @@ class PolypyrimidineTractFilter(object):
                 ).distinct()
 
             # Note: ppy_tract_region[0]/ppy_tract_region[1] is a *negative* number
-            # Upstream region for positive strand transcript is [exon_start+ppy_tract[0], exon_start+ppy_tract[1]]
-            # Upstream region for reverse strand transcript is (exon_end-ppy_tract_region[0], exon_end-exon_upstream-ppy_tract_region[1]]
+            # Upstream region for positive strand transcript
+            # is [exon_start+ppy_tract[0], exon_start+ppy_tract[1]]
+            # Upstream region for reverse strand transcript
+            # is (exon_end-ppy_tract_region[0], exon_end-exon_upstream-ppy_tract_region[1]]
             ppytract_start = case(
                 [
                     (

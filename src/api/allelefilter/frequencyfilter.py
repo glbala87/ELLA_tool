@@ -1,19 +1,23 @@
 import copy
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
 from sqlalchemy import or_, and_, tuple_
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList
 
 from vardb.datamodel import gene, annotationshadow
-
 from api.util import queries
 
 
 class FrequencyFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config: Dict[str, Any]) -> None:
         self.session = session
         self.config = config
 
     @staticmethod
-    def _get_freq_num_threshold_filter(num_thresholds, freq_provider, freq_key):
+    def _get_freq_num_threshold_filter(
+        num_thresholds: Dict[str, Dict[str, int]], freq_provider: str, freq_key: str
+    ) -> Optional[BinaryExpression]:
         """
         Check whether we have a 'num' threshold in config for given freq_provider and freq_key (e.g. ExAC->G).
         If it's defined, the num column in allelefilter table must be greater or equal to the threshold.
@@ -33,14 +37,20 @@ class FrequencyFilter(object):
 
         return None
 
-    def _get_freq_threshold_filter(self, thresholds, num_thresholds, threshold_func, combine_func):
+    def _get_freq_threshold_filter(
+        self,
+        thresholds: Dict[str, Dict[str, float]],
+        num_thresholds: Dict[str, Dict[str, int]],
+        threshold_func: Callable,
+        combine_func: Callable,
+    ) -> BooleanClauseList:
         # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
         frequency_groups = self.config["frequencies"]["groups"]
 
         filters = list()
         for (
             group,
-            thresholds,
+            group_thresholds,
         ) in thresholds.items():  # 'external'/'internal', {'hi_freq_cutoff': 0.03, ...}}
             if group not in frequency_groups:
                 raise RuntimeError(
@@ -49,17 +59,21 @@ class FrequencyFilter(object):
                     )
                 )
 
-            for freq_provider, freq_keys in frequency_groups[
-                group
-            ].items():  # 'ExAC', ['G', 'SAS', ...]
+            for freq_provider, freq_keys in frequency_groups[group].items():
                 for freq_key in freq_keys:
                     filters.append(
-                        threshold_func(num_thresholds, freq_provider, freq_key, thresholds)
+                        threshold_func(num_thresholds, freq_provider, freq_key, group_thresholds)
                     )
 
         return combine_func(*filters)
 
-    def _common_threshold(self, provider_numbers, freq_provider, freq_key, thresholds):
+    def _common_threshold(
+        self,
+        provider_numbers: Dict[str, Dict[str, int]],
+        freq_provider: str,
+        freq_key: str,
+        thresholds: Dict[str, float],
+    ) -> Union[BooleanClauseList, BinaryExpression]:
         """
         Creates SQLAlchemy filter for common threshold for a single frequency provider and key.
         Example: ExAG.G > hi_freq_cutoff
@@ -77,7 +91,13 @@ class FrequencyFilter(object):
 
         return and_(*freq_key_filters)
 
-    def _less_common_threshold(self, provider_numbers, freq_provider, freq_key, thresholds):
+    def _less_common_threshold(
+        self,
+        provider_numbers: Dict[str, Dict[str, int]],
+        freq_provider: str,
+        freq_key: str,
+        thresholds: Dict[str, float],
+    ) -> BooleanClauseList:
         """
         Creates SQLAlchemy filter for less_common threshold for a single frequency provider and key.
         Example: ExAG.G < hi_freq_cutoff AND ExAG.G >= lo_freq_cutoff
@@ -100,7 +120,13 @@ class FrequencyFilter(object):
 
         return and_(*freq_key_filters)
 
-    def _low_freq_threshold(self, provider_numbers, freq_provider, freq_key, thresholds):
+    def _low_freq_threshold(
+        self,
+        provider_numbers: Dict[str, Dict[str, int]],
+        freq_provider: str,
+        freq_key: str,
+        thresholds: Dict[str, float],
+    ) -> Union[BooleanClauseList, BinaryExpression]:
         """
         Creates SQLAlchemy filter for low_freq threshold for a single frequency provider and key.
         Example: ExAG.G < lo_freq_cutoff
@@ -119,20 +145,32 @@ class FrequencyFilter(object):
         return and_(*freq_key_filters)
 
     @staticmethod
-    def _is_freq_null(threshhold_config, freq_provider, freq_key, thresholds):
+    def _is_freq_null(
+        threshhold_config: Dict[str, Dict[str, int]],
+        freq_provider: str,
+        freq_key: str,
+        thresholds: Dict[str, float],
+    ) -> BinaryExpression:
         """
-        Creates SQLAlchemy filter for checking whether frequency is null for a single frequency provider and key.
+        Creates SQLAlchemy filter for checking whether frequency is
+        null for a single frequency provider and key.
         Example: ExAG.G IS NULL
 
-        :note: Function signature is same as other threshold filters in order for them to be called dynamically.
+        :note: Function signature is same as other threshold filters in order
+         for them to be called dynamically.
         """
         return getattr(
             annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key
         ).is_(None)
 
     def _create_freq_filter(
-        self, filter_config, genepanels, gp_allele_ids, threshold_func, combine_func
-    ):
+        self,
+        filter_config: Dict[str, Any],
+        genepanels: List[gene.Genepanel],
+        gp_allele_ids: Dict[Tuple[str, str], List[int]],
+        threshold_func: Callable,
+        combine_func: Callable,
+    ) -> Dict[Tuple[str, str], BooleanClauseList]:
 
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
@@ -160,7 +198,8 @@ class FrequencyFilter(object):
             # we use AnnotationShadowTranscript to find allele_ids we'll include
             # for a given set of genes, according to genepanel
 
-            # TODO: Fix overlapping genes with one gene with specified thresholds less trict than default (or other gene)
+            # TODO: Fix overlapping genes with one gene with specified thresholds
+            # less trict than default (or other gene)
 
             # "Compiling" queries is slow, so cache the slowest
             ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(
@@ -173,7 +212,8 @@ class FrequencyFilter(object):
             overridden_allele_ids = set()
             if per_gene_hgnc_ids:
 
-                # Optimization: adding filters for genes not present in our alleles is costly -> only filter the symbols
+                # Optimization: adding filters for genes not present in our alleles
+                # is costly -> only filter the symbols
                 # that overlap with the alleles in question.
                 present_hgnc_ids = (
                     self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id)
@@ -259,7 +299,8 @@ class FrequencyFilter(object):
 
             # 3. 'default' genes (all genes not in two above cases)
             # Keep ad_genes as subquery, or else performance goes down the drain
-            # (as opposed to loading the symbols into backend and merging with override_genes -> up to 30x slower)
+            # (as opposed to loading the symbols into backend and
+            # merging with override_genes -> up to 30x slower)
             default_filters = [
                 ~annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
                 ast_gp_alleles,
@@ -294,7 +335,12 @@ class FrequencyFilter(object):
             gp_filter[gp_key] = or_(*gp_final_filter)
         return gp_filter
 
-    def get_commonness_groups(self, gp_allele_ids, filter_config, common_only=False):
+    def get_commonness_groups(
+        self,
+        gp_allele_ids: Dict[Tuple[str, str], List[int]],
+        filter_config: Dict[str, Any],
+        common_only: bool = False,
+    ) -> Dict[Tuple[str, str], Dict[str, Set[int]]]:
         """
         Categorizes allele ids according to their annotation frequency
         and the thresholds in the genepanel configuration.
@@ -310,7 +356,8 @@ class FrequencyFilter(object):
         :note: Allele ids with no frequencies are not excluded from the results.
 
         :param gp_allele_ids: {('HBOC', 'v01'): [1, 2, 3, ...], ...}
-        :param common_only: Whether to only check for 'common' group. Use when you only need the common group, as it's faster.
+        :param common_only: Whether to only check for 'common' group. Use when you only
+                            need the common group, as it's faster.
         :returns: Structure with results for the three categories.
 
         Filter config example:
@@ -364,7 +411,9 @@ class FrequencyFilter(object):
         # First get all genepanel object for the genepanels given in input
         genepanels = (
             self.session.query(gene.Genepanel)
-            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(gp_allele_ids.keys())))
+            .filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(gp_allele_ids.keys()))
+            )
             .all()
         )
 
@@ -414,7 +463,7 @@ class FrequencyFilter(object):
         # but we'd like to place each in the highest group only.
         final_result = {k: dict() for k in gp_allele_ids}
         for gp_key in final_result:
-            added_thus_far = set()
+            added_thus_far: Set = set()
             for k, v in commonness_result.items():
                 final_result[gp_key][k] = set(
                     [aid for aid in v[gp_key] if aid not in added_thus_far]
@@ -428,7 +477,9 @@ class FrequencyFilter(object):
 
         return final_result
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Filters allele ids from input based on their frequency.
 
@@ -458,8 +509,10 @@ class FrequencyFilter(object):
         provided in the main application config.
 
         :param filter_config: Filter configuration
-        :param gp_allele_ids: Dict of genepanel key with corresponding allele_ids {('HBOC', 'v01'): [1, 2, 3])}
-        :returns: Structure similar to input, but only containing set() with allele ids that have high frequency.
+        :param gp_allele_ids: Dict of genepanel key with corresponding
+                              allele_ids {('HBOC', 'v01'): [1, 2, 3])}
+        :returns: Structure similar to input, but only containing set()
+                  with allele ids that have high frequency.
 
         :note: The returned values are allele ids that were _filtered out_
         based on frequency, i.e. they have a high frequency value, not the ones

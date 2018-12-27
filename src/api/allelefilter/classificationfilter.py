@@ -1,17 +1,21 @@
-from sqlalchemy import or_
-from vardb.datamodel import assessment, allele
+from typing import Any, Dict, List, Optional, Set, Tuple
+from sqlalchemy.orm.session import Session
+from vardb.datamodel import assessment
 
 
 class ClassificationFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config: Optional[Dict[str, Any]]) -> None:
         self.session = session
         self.config = config
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, List[str]]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Return the allele ids, among the provided allele_ids,
         that have have an existing classification in the provided filter_config['classes'].
-        This filter does *not* check for outdated classification, these are treated as valid classifications
+        This filter does *not* check for outdated classification,
+        these are treated as valid classifications
         """
         filter_classes = filter_config["classes"]
         available_classes = list(
@@ -24,7 +28,7 @@ class ClassificationFilter(object):
             filter_classes, available_classes
         )
 
-        result = dict()
+        result: Dict[Tuple[str, str], Set[int]] = dict()
         for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids or not filter_classes:
                 result[gp_key] = set()
