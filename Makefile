@@ -292,7 +292,7 @@ test-common:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
-	  -e DB_URL=postgres:///vardb-test \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
@@ -306,7 +306,7 @@ test-api:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
-	  -e DB_URL=postgres:///vardb-test \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
@@ -321,7 +321,7 @@ test-api-migration:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
-	  -e DB_URL=postgres:///vardb-test \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
@@ -335,7 +335,7 @@ test-cli:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
-	  -e DB_URL=postgres:///vardb-test \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
@@ -348,7 +348,7 @@ test-report:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
-	  -e DB_URL=postgres:///postgres \
+	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
@@ -364,7 +364,7 @@ test-e2e:
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
-	   -e DB_URL=postgres:///postgres \
+	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
@@ -386,7 +386,7 @@ e2e-test-local: test-build
        -it \
        -v $(shell pwd):/ella \
 	   -e PRODUCTION=false \
-	   -e DB_URL=postgres:///postgres \
+	   -e DB_URL=postgresql:///postgres \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg

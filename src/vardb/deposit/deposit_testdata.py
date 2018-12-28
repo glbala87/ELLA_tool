@@ -117,7 +117,7 @@ CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
 class DepositTestdata(object):
 
     ANALYSIS_FILE_RE = re.compile(
-        "(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf"
+        r"(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf"
     )
 
     def __init__(self, db):

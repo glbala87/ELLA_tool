@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 import tempfile
@@ -59,7 +58,7 @@ class TestDatabase(object):
         with open(os.devnull, "w") as f:
             # Connect to template1 so we can remove whatever db name
             subprocess.check_call(
-                "psql postgres:///template1 < {path}".format(
+                "psql postgresql:///template1 < {path}".format(
                     uri=os.environ["DB_URL"], path=dump_path
                 ),
                 shell=True,
