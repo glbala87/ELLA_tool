@@ -1,8 +1,7 @@
 import datetime
 import pytz
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB, INET
-from sqlalchemy.schema import Index, UniqueConstraint
+from sqlalchemy.dialects.postgresql import INET
 
 from vardb.datamodel import Base
 
@@ -27,3 +26,19 @@ class ResourceLog(Base):
     payload = Column(String)
     payload_size = Column(Integer, nullable=False)
     statuscode = Column(Integer, nullable=False)
+
+
+class CliLog(Base):
+    """Logs CLI actions"""
+
+    __tablename__ = "clilog"
+
+    id = Column(Integer, primary_key=True)
+    time = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
+    user = Column(String, nullable=False)
+    group = Column(String, nullable=False)
+    groupcommand = Column(String, nullable=False)
+    command = Column(String, nullable=False)
+    output = Column(String, nullable=False)

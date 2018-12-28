@@ -1,9 +1,6 @@
 import click
-import logging
-
-import datetime
-
 from vardb.datamodel import DB, broadcast as broadcast_model
+from cli.decorators import cli_logger, session
 
 
 @click.group(help="Broadcast")
@@ -14,18 +11,14 @@ def broadcast():
 @broadcast.command("list", help="List all active messages")
 @click.option("--all", is_flag=True, default=False, help="List all messages")
 @click.option("--tail", is_flag=True, default=False, help="List last 10 messages")
-def cmd_list_active(all, tail):
+@session
+def cmd_list_active(session, all, tail):
     """
     Print all active broadcast messages to console
     """
+
     if tail:
         all = True
-
-    logging.basicConfig(level=logging.INFO)
-
-    db = DB()
-    db.connect()
-    session = db.session
 
     filters = []
     if not all:
@@ -67,32 +60,27 @@ def cmd_list_active(all, tail):
 
 @broadcast.command("new", help="Create new message. Activated immediately.")
 @click.argument("message", nargs=-1, type=click.UNPROCESSED)
-def cmd_new_message(message):
-    logging.basicConfig(level=logging.INFO)
+@session
+@cli_logger
+def cmd_new_message(logger, session, message):
     message = " ".join(message)
-    db = DB()
-    db.connect()
-    session = db.session
 
     if not message:
-        click.echo("Message empty")
+        logger.echo("Message empty")
         return
 
     new_message = broadcast_model.Broadcast(message=message, active=True)
     session.add(new_message)
     session.commit()
 
-    click.echo("Message with id {} added".format(new_message.id))
+    logger.echo("Message with id {} added".format(new_message.id))
 
 
 @broadcast.command("deactivate", help="Deactivate a message.")
 @click.argument("message_id", type=click.INT)
-def cmd_deactivate_message(message_id):
-    logging.basicConfig(level=logging.INFO)
-
-    db = DB()
-    db.connect()
-    session = db.session
+@session
+@cli_logger
+def cmd_deactivate_message(logger, session, message_id):
 
     message = (
         session.query(broadcast_model.Broadcast)
@@ -101,9 +89,9 @@ def cmd_deactivate_message(message_id):
     )
 
     if not message:
-        click.echo("Found no message with id {}".format(message_id))
+        logger.echo("Found no message with id {}".format(message_id))
         return
 
     message.active = False
     session.commit()
-    click.echo("Message with id {} set as inactive".format(message.id))
+    logger.echo("Message with id {} set as inactive".format(message.id))

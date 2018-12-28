@@ -6,6 +6,8 @@ import datetime
 from vardb.datamodel import DB, user, sample
 from vardb.export import export_sanger_variants, dump_classification
 
+from cli.decorators import cli_logger, session
+
 FILENAME_REPORT_DEFAULT = "non-started-analyses-variants-{timestamp}"
 
 FILENAME_TIMESTAMP_FORMAT = "%Y-%m-%d_%H%M"  # 2017-11-10_1337
@@ -27,21 +29,19 @@ def export():
     is_flag=True,
     help="Include name(s) of analysis where a variant is found",
 )
-def cmd_export_classifications(filename, with_analysis_names):
+@session
+@cli_logger
+def cmd_export_classifications(logger, session, filename, with_analysis_names):
     """
     Exports all current classifications into an excel file.
     """
-    logging.basicConfig(level=logging.INFO)
-
     today = datetime.datetime.now()
     timestamp = today.strftime(FILENAME_TIMESTAMP_FORMAT)
     output_name = (
         filename if filename else "variant-classifications-{timestamp}".format(timestamp=timestamp)
     )
-    db = DB()
-    db.connect()
-    dump_classification.dump_alleleassessments(db.session, output_name, with_analysis_names)
-    click.echo("Exported variants to " + output_name + ".xlsx/csv")
+    dump_classification.dump_alleleassessments(session, output_name, with_analysis_names)
+    logger.echo("Exported variants to " + output_name + ".xlsx/csv")
 
 
 @export.command("sanger", help="Export variants that needs to be Sanger verified")
@@ -51,7 +51,9 @@ def cmd_export_classifications(filename, with_analysis_names):
     help="The name of the file to create. Suffix .xlsx and .csv will be automatically added.\n"
     "Default: '" + FILENAME_REPORT_DEFAULT.format(timestamp="YYYY-MM-DD_hhmm") + ".xlsx/csv'",
 )
-def cmd_export_sanger(user_group, filename):
+@session
+@cli_logger
+def cmd_export_sanger(logger, session, user_group, filename):
     """
     Export alleles from non-started analysis to file
     """
@@ -59,12 +61,9 @@ def cmd_export_sanger(user_group, filename):
     today = datetime.datetime.now()
     timestamp = today.strftime(FILENAME_TIMESTAMP_FORMAT)
     output_name = filename if filename else (FILENAME_REPORT_DEFAULT).format(timestamp=timestamp)
-    click.echo("Exporting variants to " + output_name + ".xlsx/csv")
+    logger.echo("Exporting variants to " + output_name + ".xlsx/csv")
 
-    db = DB()
-    db.connect()
-
-    usergroup = db.session.query(user.UserGroup).filter(user.UserGroup.name == user_group).one()
+    usergroup = session.query(user.UserGroup).filter(user.UserGroup.name == user_group).one()
 
     genepanels = [(g.name, g.version) for g in usergroup.genepanels]
 
@@ -75,17 +74,17 @@ def cmd_export_sanger(user_group, filename):
     start = datetime.datetime.now()
 
     filter_config_id = (
-        db.session.query(sample.FilterConfig.id)
+        session.query(sample.FilterConfig.id)
         .filter(sample.FilterConfig.usergroup_id == usergroup.id)
         .scalar()
     )
 
     has_content = export_sanger_variants.export_variants(
-        db.session, genepanels, filter_config_id, excel_file_obj, csv_file_obj=csv_file_obj
+        session, genepanels, filter_config_id, excel_file_obj, csv_file_obj=csv_file_obj
     )
     if has_content:
         end = datetime.datetime.now()
-        click.echo(
+        logger.echo(
             "Exported variants to " + output_name + ".xlsx/csv" + " in {}".format(str(end - start))
         )
     else:
