@@ -3,8 +3,8 @@
 # Sets up vardb-test for local integration testing
 createdb vardb-test || true
 export DB_URL=postgresql:///vardb-test
-/ella/ella-cli database drop -f
-/ella/ella-cli database make -f
+ella-cli database drop -f
+ella-cli database make -f
 
 export TEST_DB_DUMP="/ella/local-integration-testdump.sql"
 echo "Setting TEST_DB_DUMP=${TEST_DB_DUMP}"

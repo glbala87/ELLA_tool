@@ -29,7 +29,7 @@ database in production.
    In general we don't want to make more migration scripts than necessary, so make sure things are proper.
 1. Make and enter a dev instance: `make dev` and `make shell`
 1. Inside it do:
-    1. `/ella/ella-cli database ci-migration-head` (resets database to the migration base, then runs all the migrations)
+    1. `ella-cli database ci-migration-head` (resets database to the migration base, then runs all the migrations)
     1. `cd /ella/src/vardb/datamodel/migration/`
     1. `PYTHONPATH=../../.. alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel
      and compare it against the database state, generating a migration script from the differences.
@@ -43,10 +43,10 @@ The `test-api-migration` part of the test suite will test also test database mig
 
 ### Manually testing the migrations
 To manually test the migration scripts you can run the upgrade/downgrade parts of the various migrations:
-- $ ./ella-cli database ci-migration-base
-- $ ./ella-cli database upgrade e371dfeb38c1
-- $ ./ella-cli database upgrade 94a80b8848df
-- $ ./ella-cli database downgrade e371dfeb38c1
+- $ ella-cli database ci-migration-base
+- $ ella-cli database upgrade e371dfeb38c1
+- $ ella-cli database upgrade 94a80b8848df
+- $ ella-cli database downgrade e371dfeb38c1
 
 For migrations involving user generated data, it would be useful to run the migrations (both upgrade and downgrade)
 with the database populated through "real" use.

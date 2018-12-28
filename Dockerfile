@@ -33,8 +33,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
 
+# Add user
 RUN useradd -ms /bin/bash ella-user
 RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
+
+# Tab completion for ella-cli
+ENV PATH=/ella/bin:${PATH}
+RUN echo 'eval "$(_ELLA_CLI_COMPLETE=source ella-cli)"' >> /home/ella-user/.bashrc
 
 ####
 # dev image

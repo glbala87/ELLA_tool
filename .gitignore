@@ -67,8 +67,12 @@ src/webui/dest
 
 src/package
 
+attachments
 src/webui/build
 src/webui/dev
 vardb-schema.png
 errorShots
 _book
+
+.hypothesis
+.mypy_cache
