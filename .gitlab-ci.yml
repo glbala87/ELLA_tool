@@ -160,7 +160,7 @@ dependency_scanning:
 start_review:
   stage: review
   script:
-    - make demo DEMO_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
   environment:
     name: review/$CI_BUILD_REF_SLUG
     url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
