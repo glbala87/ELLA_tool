@@ -26,6 +26,16 @@ build:
     - docker push $IMAGE_NAME
     - docker push $CI_REGISTRY_IMAGE:latest
 
+test_black:
+  stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
+  script:
+    - make test-black
+  after_script:
+    - docker rm  -f -v ${PIPELINE_ID}-black
 
 test_api:
   stage: test

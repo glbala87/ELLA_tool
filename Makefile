@@ -371,6 +371,16 @@ test-e2e:
 	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
 
+test-black:
+	docker run -d \
+	  --name $(CONTAINER_NAME)-black \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  sleep infinity
+
+	docker exec $(CONTAINER_NAME)-black ops/test/run_black_test.sh
+	@docker rm -f $(CONTAINER_NAME)-black
+
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
