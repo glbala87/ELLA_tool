@@ -104,7 +104,9 @@ class SnapshotCreator(object):
         if interpretation_snapshot_model == "analysis":
             excluded = interpretation["excluded_allele_ids"]
             allele_ids = list(
-                set(interpretation["allele_ids"]).union(set(itertools.chain(*list(excluded.values()))))
+                set(interpretation["allele_ids"]).union(
+                    set(itertools.chain(*list(excluded.values())))
+                )
             )
 
         # 'excluded' is not a concept for alleleinterpretation

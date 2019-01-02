@@ -104,4 +104,3 @@ class TestVCFHelperFunctions(unittest.TestCase):
         """Note: Returns strings, not unicode, even when given unicode input"""
         self.assertEqual(vc.translate_illegal("EFF=nasty"), "EFF@#EQnasty")
         self.assertEqual(vc.translate_to_original("EFF@#EQnasty"), "EFF=nasty")
-

@@ -274,7 +274,7 @@ def convert_hgmd(annotation):
 CLINVAR_RCV_FIELDS = [
     "traitnames",
     "clinical_significance_descr",
-    #'clinical_significance_status',
+    # 'clinical_significance_status',
     "variant_id",
     "submitter",
     "last_evaluated",

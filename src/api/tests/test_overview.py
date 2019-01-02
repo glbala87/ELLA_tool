@@ -333,7 +333,9 @@ class TestAnalysisOverview(object):
         SECOND_ANALYSIS_ID = 2
         # Create alleleassessments for the alleles in SECOND_ANALYSIS_ID
         interpretation_id = ih.get_interpretation_id_of_last("analysis", SECOND_ANALYSIS_ID)
-        interpretation = ih.get_interpretation("analysis", SECOND_ANALYSIS_ID, interpretation_id).get_json()
+        interpretation = ih.get_interpretation(
+            "analysis", SECOND_ANALYSIS_ID, interpretation_id
+        ).get_json()
         alleles = ih.get_alleles(
             "analysis", SECOND_ANALYSIS_ID, interpretation["id"], interpretation["allele_ids"]
         ).get_json()
@@ -662,7 +664,9 @@ class TestAlleleOverview(object):
 
         # Ensure that the alleles are now gone from the list
         diff_gp_allele_ids = get_diff_gp_allele_ids(initial_gp_allele_ids, gp_allele_ids)
-        check_items(diff_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False)
+        check_items(
+            diff_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False
+        )
 
     @pytest.mark.overviewallele(order=1)
     def test_not_started_start_interpretation(self, test_database, client, session):
@@ -698,7 +702,9 @@ class TestAlleleOverview(object):
 
         assert len(r.get_json()["marked_review"]) == 0
         check_items(not_started_gp_allele_ids, r.get_json()["missing_alleleassessment"])
-        check_items(started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False)
+        check_items(
+            started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False
+        )
         check_items(started_gp_allele_ids, r.get_json()["ongoing"])
 
         # Case 2:
@@ -725,7 +731,9 @@ class TestAlleleOverview(object):
 
         assert len(r.get_json()["marked_review"]) == 0
         check_items(not_started_gp_allele_ids, r.get_json()["missing_alleleassessment"])
-        check_items(started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False)
+        check_items(
+            started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False
+        )
         check_items(started_gp_allele_ids, r.get_json()["ongoing"])
 
         # Case 3:
@@ -757,7 +765,9 @@ class TestAlleleOverview(object):
 
         assert len(r.get_json()["marked_review"]) == 0
         check_items(not_started_gp_allele_ids, r.get_json()["missing_alleleassessment"])
-        check_items(started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False)
+        check_items(
+            started_gp_allele_ids, r.get_json()["missing_alleleassessment"], should_include=False
+        )
         check_items(started_gp_allele_ids, r.get_json()["ongoing"])
 
     @pytest.mark.overviewallele(order=2)
@@ -793,7 +803,9 @@ class TestAlleleOverview(object):
         # Should be in list before
         r = client.get("/api/v1/overviews/alleles/")
         check_items(
-            {("HBOC", "v01"): [allele_id]}, r.get_json()["missing_alleleassessment"], check_length=False
+            {("HBOC", "v01"): [allele_id]},
+            r.get_json()["missing_alleleassessment"],
+            check_length=False,
         )
 
         session.add(aa)
@@ -802,7 +814,9 @@ class TestAlleleOverview(object):
         # Should be in list after
         r = client.get("/api/v1/overviews/alleles/")
         check_items(
-            {("HBOC", "v01"): [allele_id]}, r.get_json()["missing_alleleassessment"], check_length=False
+            {("HBOC", "v01"): [allele_id]},
+            r.get_json()["missing_alleleassessment"],
+            check_length=False,
         )
 
         # Case 2:
@@ -810,9 +824,9 @@ class TestAlleleOverview(object):
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
         interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
-        allele_id = ih.get_alleles("analysis", 3, interpretation_id, interpretation["allele_ids"]).get_json()[
-            0
-        ]["id"]
+        allele_id = ih.get_alleles(
+            "analysis", 3, interpretation_id, interpretation["allele_ids"]
+        ).get_json()[0]["id"]
 
         aa = assessment.AlleleAssessment(
             classification=with_finding_classification["value"],
@@ -851,9 +865,9 @@ class TestAlleleOverview(object):
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
         interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
-        allele_id = ih.get_alleles("analysis", 3, interpretation_id, interpretation["allele_ids"]).get_json()[
-            0
-        ]["id"]
+        allele_id = ih.get_alleles(
+            "analysis", 3, interpretation_id, interpretation["allele_ids"]
+        ).get_json()[0]["id"]
 
         timedelta = datetime.timedelta(days=with_finding_classification["outdated_after_days"] + 1)
         aa = assessment.AlleleAssessment(
@@ -919,14 +933,18 @@ class TestAlleleOverview(object):
 
         r = client.get("/api/v1/overviews/alleles/")
         # allele id 2 should now be back
-        check_items({("HBOC", "v01"): [2]}, r.get_json()["missing_alleleassessment"], check_length=False)
+        check_items(
+            {("HBOC", "v01"): [2]}, r.get_json()["missing_alleleassessment"], check_length=False
+        )
 
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Not ready comment", new_workflow_status="Not ready")
 
         r = client.get("/api/v1/overviews/alleles/")
         # allele id 2 should still be there
-        check_items({("HBOC", "v01"): [2]}, r.get_json()["missing_alleleassessment"], check_length=False)
+        check_items(
+            {("HBOC", "v01"): [2]}, r.get_json()["missing_alleleassessment"], check_length=False
+        )
 
     @pytest.mark.overviewallele(order=5)
     def test_other_categories(self, test_database, client, session):
@@ -981,7 +999,9 @@ class TestAlleleOverview(object):
             )
             r = client.get(url)
             allele_genepanels = [
-                item["genepanel"] for item in get_category(r.get_json()) if item["allele"]["id"] == 1
+                item["genepanel"]
+                for item in get_category(r.get_json())
+                if item["allele"]["id"] == 1
             ]
             return allele_genepanels
 

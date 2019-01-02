@@ -50,7 +50,9 @@ def import_groups(session, groups, log=log.info):
             log("Added user group {}".format(group_data["name"]))
         else:
             # Keep unofficial genepanels for group
-            db_unofficial_genepanels = [gp for gp in existing_group.genepanels if gp.official == False]
+            db_unofficial_genepanels = [
+                gp for gp in existing_group.genepanels if gp.official == False
+            ]
             group_data["genepanels"] = list(db_official_genepanels) + list(db_unofficial_genepanels)
             log("User group {} already exists, updating record...".format(group_data["name"]))
             for k, v in group_data.items():

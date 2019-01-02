@@ -1,4 +1,3 @@
-
 import logging
 from hypothesis import assume
 from hypothesis import strategies as st
