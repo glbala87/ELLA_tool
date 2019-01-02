@@ -382,6 +382,17 @@ test-black:
 	@docker rm -f $(CONTAINER_NAME)-black
 
 
+test-mypy:
+	docker run -d \
+	  --name $(CONTAINER_NAME)-mypy \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  sleep infinity
+
+	docker exec $(CONTAINER_NAME)-mypy ops/test/run_mypy_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-mypy
+
+
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging

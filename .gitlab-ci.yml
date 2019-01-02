@@ -108,6 +108,18 @@ test_cli:
   after_script:
     - docker rm  -f -v ${PIPELINE_ID}-cli
 
+test_mypy:
+  stage: test
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
+  script:
+    - make test-mypy
+  after_script:
+    - docker rm  -f -v ${PIPELINE_ID}-mypy
+
+
 
 test_report:
   stage: test
