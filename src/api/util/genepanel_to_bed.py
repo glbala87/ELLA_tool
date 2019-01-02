@@ -2,9 +2,10 @@ from collections import OrderedDict
 from sqlalchemy import tuple_
 
 from vardb.datamodel import gene
+from typing import Dict
 
 
-BED_COLUMNS = OrderedDict()
+BED_COLUMNS: Dict = OrderedDict()
 BED_COLUMNS["#chromosome"] = lambda t: t.chromosome
 BED_COLUMNS["txStart"] = lambda t: str(t.tx_start)
 BED_COLUMNS["txEnd"] = lambda t: str(t.tx_end)

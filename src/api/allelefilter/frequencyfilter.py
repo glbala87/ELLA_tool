@@ -184,7 +184,7 @@ class FrequencyFilter(object):
 
         for (
             gp_key,
-            gp_allele_ids,
+            allele_ids,
         ) in gp_allele_ids.items():  # loop over every genepanel, with related genes
 
             # Create the different kinds of frequency filters
@@ -202,9 +202,7 @@ class FrequencyFilter(object):
             # less trict than default (or other gene)
 
             # "Compiling" queries is slow, so cache the slowest
-            ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                gp_allele_ids
-            )
+            ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)
 
             gp_final_filter = list()
 
@@ -417,7 +415,7 @@ class FrequencyFilter(object):
             .all()
         )
 
-        commonness_entries = [("common", dict())]
+        commonness_entries: List[Tuple[str, Dict]] = [("common", dict())]
         if not common_only:
             commonness_entries += [
                 ("less_common", dict()),
@@ -461,7 +459,9 @@ class FrequencyFilter(object):
         # Create final result structure.
         # The database queries can place one allele id as part of many groups,
         # but we'd like to place each in the highest group only.
-        final_result = {k: dict() for k in gp_allele_ids}
+        final_result: Dict[Tuple[str, str], Dict[str, Set[int]]] = {
+            k: dict() for k in gp_allele_ids
+        }
         for gp_key in final_result:
             added_thus_far: Set = set()
             for k, v in commonness_result.items():
