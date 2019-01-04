@@ -60,6 +60,7 @@ import './widgets/alleleinfo/alleleInfoDbsnp.directive'
 import './widgets/alleleinfo/alleleInfoHgmd.directive'
 import './widgets/alleleinfo/alleleInfoClinvar.directive'
 import './widgets/alleleinfo/alleleInfoExternalOther.directive'
+import './widgets/alleleinfo/alleleInfoVardb.directive'
 import './widgets/annotationimport/importSingle.directive'
 
 import './widgets/markdownIt.directive'
