@@ -445,7 +445,9 @@ class TestFrequencyFilter(object):
             anum3.id: (anum3, anum3anno),
             anum4.id: (anum4, anum4anno),
         }
-        result = ff.get_commonness_groups({gp_key: list(allele_info.keys())}, COMMONESS_FILTER_CONFIG)
+        result = ff.get_commonness_groups(
+            {gp_key: list(allele_info.keys())}, COMMONESS_FILTER_CONFIG
+        )
 
         assert set(result[gp_key]["num_threshold"]) == set([anum1.id])
 

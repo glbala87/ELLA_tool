@@ -833,7 +833,9 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     collision_alleles = (
         session.query(allele.Allele)
         .filter(
-            allele.Allele.id.in_(itertools.chain.from_iterable(list(collision_gp_allele_ids.values())))
+            allele.Allele.id.in_(
+                itertools.chain.from_iterable(list(collision_gp_allele_ids.values()))
+            )
         )
         .all()
     )
@@ -841,7 +843,9 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Next load the alleles by their genepanel to load with AlleleDataLoader
     # using the correct genepanel for those alleles.
     genepanels = session.query(gene.Genepanel).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(list(collision_gp_allele_ids.keys()))
+        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
+            list(collision_gp_allele_ids.keys())
+        )
     )
     adl = AlleleDataLoader(session)
     gp_dumped_alleles = dict()

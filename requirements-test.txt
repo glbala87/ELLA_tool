@@ -2,3 +2,5 @@ pytest==4.0.2
 pytest-cov==2.6.0
 pytest-ordering==0.6
 hypothesis==3.84.5
+black==18.9b0
+mypy==0.650

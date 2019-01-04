@@ -194,7 +194,9 @@ def bulk_insert_nonexisting(
             # We need to retrieve all data back in order to match input correct with primary key
             # This is quite heavy, but much better than alternative which is sending INSERTs one
             # by one.
-            q_fields = [getattr(model, k) for k in list(rows[0].keys())] + [getattr(model, include_pk)]
+            q_fields = [getattr(model, k) for k in list(rows[0].keys())] + [
+                getattr(model, include_pk)
+            ]
             data_with_pk = session.query(*q_fields).filter(q_filter).all()
             assert len(data_with_pk) == len(created) + len(input_existing)
             for c in created:

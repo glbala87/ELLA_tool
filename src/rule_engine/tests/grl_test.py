@@ -173,9 +173,7 @@ class GrlTest(unittest.TestCase):
             isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0], GRM.InRule)
         )
         self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].source, "e.f.g")
-        self.assertEqual(
-            rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].value, ["0.001"]
-        )
+        self.assertEqual(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[0].value, ["0.001"])
         self.assertTrue(
             isinstance(rules["MYCOMPLEX"][0].subrules[1].subrules[2].subrules[1], GRM.InRule)
         )

@@ -153,7 +153,9 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
 
         for a in loaded_genepanel_alleles:
             interpretations = [i for i in allele_ids_interpretations if i.allele_id == a["id"]]
-            dumped_interpretations = [alleleinterpretation_schema.dump(i).data for i in interpretations]
+            dumped_interpretations = [
+                alleleinterpretation_schema.dump(i).data for i in interpretations
+            ]
             final_alleles.append(
                 {
                     "genepanel": {"name": genepanel.name, "version": genepanel.version},
@@ -166,7 +168,7 @@ def load_genepanel_alleles(session, gp_allele_ids, analysis_ids=None):
                         ]
                     ),
                     "review_comment": allele_ids_review_comment.get(a["id"], None),
-                    "interpretations": dumped_interpretations
+                    "interpretations": dumped_interpretations,
                 }
             )
 
@@ -547,9 +549,7 @@ def _categorize_allele_ids_findings(session, allele_ids):
     }
 
     # Strip out the tuples from db results and convert to set()
-    categorized_allele_ids = {
-        k: set([a[0] for a in v]) for k, v in categorized_allele_ids.items()
-    }
+    categorized_allele_ids = {k: set([a[0] for a in v]) for k, v in categorized_allele_ids.items()}
     return categorized_allele_ids
 
 
@@ -711,7 +711,9 @@ def categorize_analyses_by_findings(session, not_started_analyses, filter_config
     af = AlleleFilter(session)
     gp_nonfiltered_allele_ids, _ = af.filter_alleles(filter_config_id, gp_allele_ids, None)
     nonfiltered_allele_ids = set(
-        itertools.chain.from_iterable([v["allele_ids"] for v in list(gp_nonfiltered_allele_ids.values())])
+        itertools.chain.from_iterable(
+            [v["allele_ids"] for v in list(gp_nonfiltered_allele_ids.values())]
+        )
     )
 
     # Now we can start to check our analyses and categorize them

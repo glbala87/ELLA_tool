@@ -82,4 +82,3 @@ def translate_to_original(translatedString):
     for regexp, substitution in zip(_SUBSTITUTED_ORIG, _SUBSTITUTION_ORIG):
         translatedString = regexp.sub(substitution, translatedString)
     return translatedString
-

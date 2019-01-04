@@ -24,7 +24,7 @@ class ExternalFilter(object):
         self.config = config
 
     def _build_clinvar_filters(
-        self, clinsig_counts: Alias, combinations: List[List[Union[str, int]]]
+        self, clinsig_counts: Alias, combinations: List[Tuple[str, str, Union[str, int]]]
     ) -> List[BinaryExpression]:
         """
         Combinations is given as a list of lists, like
@@ -35,7 +35,7 @@ class ExternalFilter(object):
 
         """
 
-        def get_filter_count(v):
+        def get_filter_count(v: Union[str, int]):
             if isinstance(v, str):
                 assert v in ["benign", "pathogenic", "uncertain"]
                 return getattr(clinsig_counts.c, v)
