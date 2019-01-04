@@ -47,7 +47,7 @@ help :
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
-	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo "make restart	- restart container $(CONTAINER_NAME)"
 	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
 
 	@echo ""
@@ -66,8 +66,10 @@ help :
 
 	@echo ""
 	@echo "-- DEMO COMMANDS --"
-	@echo "make demo		- builds a container to work in tandem with the nginx-proxy container"
-	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
+	@echo "make demo		- starts a demo container with testdata at port 3114"
+	@echo "make kill-demo	- stops and removes the demo container"
+	@echo "make review		- builds a container to work in tandem with a nginx-proxy container"
+	@echo "			      Set REVIEW_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 
 	@echo "-- RELEASE COMMANDS --"
@@ -163,30 +165,42 @@ create-diagram:
 	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
-# DEMO
+# DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo dbreset
+.PHONY: demo kill-demo review
 
 comma := ,
-DEMO_NAME ?= demo
+REVIEW_NAME ?=
+REVIEW_OPTS ?=
 
-# Docker containers/images are prefixed with ella- and local/ella- respectively. The DEMO_NAME is also used for host
-# resolution and is depending in our DNS entries.
+# Demo is just a review app, with port mapped to system
+demo: REVIEW_OPTS=-p 3114:3114
+demo: REVIEW_NAME=demo
+demo: review
 demo:
-	docker build -t local/ella-$(DEMO_NAME) --target dev .
-	-docker stop $(subst $(comma),-,ella-$(DEMO_NAME))
-	-docker rm $(subst $(comma),-,ella-$(DEMO_NAME))
+	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
+
+kill-demo:
+	docker rm -f ella-demo
+
+# Review apps
+review:
+	$(call check_defined, REVIEW_NAME)
+	docker build -t local/ella-$(REVIEW_NAME) --target dev .
+	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
+	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
 	docker run -d \
-		--name $(subst $(comma),-,ella-$(DEMO_NAME)) \
+		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
 		--user $(UID):$(GID) \
 		-e PRODUCTION=false \
-		-e VIRTUAL_HOST=$(DEMO_NAME) \
+		-e VIRTUAL_HOST=$(REVIEW_NAME) \
 		-e PORT=3114 \
 		--expose 3114 \
-		local/ella-$(DEMO_NAME) \
+		$(REVIEW_OPTS) \
+		local/ella-$(REVIEW_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
-	docker exec $(subst $(comma),-,ella-$(DEMO_NAME)) make dbreset
+	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
 
 #---------------------------------------------
 # Misc. database
