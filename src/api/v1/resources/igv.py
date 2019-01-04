@@ -102,7 +102,7 @@ def transcripts_to_bed(transcripts):
                 num_exons=len(t.exon_starts),
                 exon_lengths=",".join(exon_lengths) + ",",
                 exon_starts=",".join(relative_exon_starts) + ",",
-            )
+            ).encode()
         )
 
     data.seek(0)
