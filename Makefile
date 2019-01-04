@@ -160,7 +160,7 @@ stop-diagram-container:
 	docker stop $(DIAGRAM_CONTAINER)
 
 create-diagram:
-	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python3 datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
+	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
 # DEMO
