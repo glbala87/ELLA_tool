@@ -16,7 +16,7 @@ def analyses():
 @analyses.command("delete")
 @click.argument("analysis_id", type=int)
 @session
-@cli_logger
+@cli_logger(prompt_reason=True)
 def cmd_analysis_delete(logger, session, analysis_id):
     """
     Deletes an analysis, removing it's samples and genotypes
@@ -45,7 +45,7 @@ def cmd_analysis_delete(logger, session, analysis_id):
 @analyses.command("update_filterconfig")
 @click.argument("filterconfig", type=click.File("r"))
 @session
-@cli_logger
+@cli_logger(prompt_reason=True)
 def cmd_analysis_updatefilterconfig(logger, session, filterconfig):
     """
     Updates filterconfigs from the input JSON file.

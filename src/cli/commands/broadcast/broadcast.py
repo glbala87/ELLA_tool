@@ -61,7 +61,7 @@ def cmd_list_active(session, all, tail):
 @broadcast.command("new", help="Create new message. Activated immediately.")
 @click.argument("message", nargs=-1, type=click.UNPROCESSED)
 @session
-@cli_logger
+@cli_logger()
 def cmd_new_message(logger, session, message):
     message = " ".join(message)
 
@@ -79,7 +79,7 @@ def cmd_new_message(logger, session, message):
 @broadcast.command("deactivate", help="Deactivate a message.")
 @click.argument("message_id", type=click.INT)
 @session
-@cli_logger
+@cli_logger()
 def cmd_deactivate_message(logger, session, message_id):
 
     message = (

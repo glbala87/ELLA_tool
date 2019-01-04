@@ -14,7 +14,10 @@ class CliLogger(object):
     def __init__(self, ctx):
         self.ctx = ctx
         self.echoed = list()
+        self.reason = None
         self.log = log.CliLog()
+        # Check username here, before command is executed to prevent
+        # action being performed without username in log
         user = getpass.getuser()
         if not user:
             raise RuntimeError(
@@ -38,6 +41,7 @@ class CliLogger(object):
         self.log.groupcommand = self.ctx.command.name
         self.log.output = "\n".join(self.echoed)
         self.log.command = " ".join(sys.argv[1:])
+        self.log.reason = self.reason
 
         db = DB()
         db.connect()
@@ -47,21 +51,31 @@ class CliLogger(object):
         db.disconnect()
 
 
-def cli_logger(f):
-    """Decorator for logging cli commands to database.
-    """
+def cli_logger(prompt_reason=False):
+    def wrapped(f):
+        """Decorator for logging cli commands to database.
+        """
 
-    def new_func(*args, **kwargs):
-        ctx = click.get_current_context()
-        if not getattr(ctx, "clilogger", None):
-            ctx.clilogger = CliLogger(ctx)
-        try:
-            result = f(ctx.clilogger, *args, **kwargs)
-            return result
-        finally:
-            ctx.clilogger.commit()
+        def new_func(*args, **kwargs):
+            ctx = click.get_current_context()
+            if not getattr(ctx, "clilogger", None):
+                ctx.clilogger = CliLogger(ctx)
+                if prompt_reason:
+                    reason = click.prompt("Enter reason (optional):", default="None")
+                    if reason != "None":
+                        ctx.clilogger.reason = reason
+            try:
+                result = f(ctx.clilogger, *args, **kwargs)
+                return result
+            except Exception as e:
+                ctx.clilogger.echoed.append(str(e))
+                raise
+            finally:
+                ctx.clilogger.commit()
 
-    return update_wrapper(new_func, f)
+        return update_wrapper(new_func, f)
+
+    return wrapped
 
 
 def session(f):

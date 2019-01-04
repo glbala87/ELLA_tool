@@ -36,7 +36,7 @@ def deposit():
 @click.option("--warnings", type=click.Path(exists=True))
 @click.option("--priority", type=click.INT, default=1)
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_analysis(logger, session, vcf, ped=None, report=None, warnings=None, priority=None):
     """
     Deposit an analysis given input vcf.
@@ -81,7 +81,7 @@ def all_exists(fs):
 @click.option("--genepanel_name")
 @click.option("--genepanel_version")
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_alleles(logger, session, vcf, genepanel_name, genepanel_version):
     """
     Deposit alleles given input vcf.
@@ -103,7 +103,7 @@ def cmd_deposit_alleles(logger, session, vcf, genepanel_name, genepanel_version)
 @deposit.command("annotation")
 @click.argument("vcf")
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_annotation(logger, session, vcf):
     """
     Update/deposit alleles with annotation only given input vcf.
@@ -125,7 +125,7 @@ def cmd_deposit_annotation(logger, session, vcf):
 @deposit.command("references")
 @click.argument("references_json")
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_references(logger, session, references_json):
     """
     Deposit/update a set of references into database given by DB_URL.
@@ -139,7 +139,7 @@ def cmd_deposit_references(logger, session, references_json):
 @deposit.command("custom_annotation")
 @click.argument("custom_annotation_json")
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_custom_annotations(logger, session, custom_annotation_json):
     """
     Deposit/update a set of custom annotations into database given by DB_URL.
@@ -158,7 +158,7 @@ def cmd_deposit_custom_annotations(logger, session, custom_annotation_json):
 @click.option("--replace", is_flag=True)
 @click.option("--folder", help="Folder to look for files assuming standard filenames")
 @session
-@cli_logger
+@cli_logger()
 def cmd_deposit_genepanel(
     logger,
     session,
@@ -191,7 +191,7 @@ def cmd_deposit_genepanel(
 @click.argument("genepanel_version", required=True)
 @click.argument("user_group_name", required=True)
 @session
-@cli_logger
+@cli_logger()
 def cmd_append_genepanel_to_usergroup(
     logger, session, genepanel_name, genepanel_version, user_group_name
 ):

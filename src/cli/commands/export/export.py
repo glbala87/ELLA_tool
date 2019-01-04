@@ -30,7 +30,7 @@ def export():
     help="Include name(s) of analysis where a variant is found",
 )
 @session
-@cli_logger
+@cli_logger()
 def cmd_export_classifications(logger, session, filename, with_analysis_names):
     """
     Exports all current classifications into an excel file.
@@ -52,7 +52,7 @@ def cmd_export_classifications(logger, session, filename, with_analysis_names):
     "Default: '" + FILENAME_REPORT_DEFAULT.format(timestamp="YYYY-MM-DD_hhmm") + ".xlsx/csv'",
 )
 @session
-@cli_logger
+@cli_logger()
 def cmd_export_sanger(logger, session, user_group, filename):
     """
     Export alleles from non-started analysis to file

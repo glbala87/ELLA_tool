@@ -25,6 +25,7 @@ def upgrade():
         sa.Column("group", sa.String(), nullable=False),
         sa.Column("groupcommand", sa.String(), nullable=False),
         sa.Column("command", sa.String(), nullable=False),
+        sa.Column("reason", sa.String()),
         sa.Column("output", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_clilog")),
     )

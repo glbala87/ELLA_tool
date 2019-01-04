@@ -72,7 +72,7 @@ def cmd_make_db(f=None):
 
 @database.command("refresh", help="Refresh shadow tables in database.")
 @click.option("-f", is_flag=True, help="Do not ask for confirmation.")
-@cli_logger
+@cli_logger()
 def cmd_refresh(logger, f=None):
     warning = "This will refresh all shadow tables in the database. Do not run this command while app is running.\nType 'CONFIRM' to confirm.\n"
     with confirm(logger.echo, "Tables should now have been refreshed.", force=f, warning=warning):
@@ -142,7 +142,7 @@ def cmd_ci_migration_base(f=None):
     short_help="Upgrade to version",
 )
 @click.argument("revision")
-@cli_logger
+@cli_logger()
 def cmd_upgrade(logger, revision):
     migration_upgrade(revision)
 
@@ -153,7 +153,7 @@ def cmd_upgrade(logger, revision):
     short_help="Downgrade to version",
 )
 @click.argument("revision")
-@cli_logger
+@cli_logger()
 def cmd_downgrade(logger, revision):
     migration_downgrade(revision)
 

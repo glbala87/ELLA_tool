@@ -41,4 +41,5 @@ class CliLog(Base):
     group = Column(String, nullable=False)
     groupcommand = Column(String, nullable=False)
     command = Column(String, nullable=False)
+    reason = Column(String)
     output = Column(String, nullable=False)

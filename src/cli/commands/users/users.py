@@ -251,7 +251,7 @@ def cmd_users_list(session, group, username):
 
 @users.command("activity")
 @session
-@cli_logger  # Not logging output, just usage
+@cli_logger()  # Not logging output, just usage
 def cmd_users_activity(logger, session):
     """
     List latest activity by users, sorted by last activity
@@ -303,7 +303,7 @@ def cmd_users_activity(logger, session):
 )
 @click.option("-dry", is_flag=True, help="List users that would be imported")
 @session
-@cli_logger
+@cli_logger()
 def cmd_add_many_users(
     logger, session, json_file, group, dry
 ):  # group is a tuple of names given as --group options
@@ -352,7 +352,7 @@ def cmd_add_many_users(
 )
 @click.option("-dry", is_flag=True, help="List groups that would be imported")
 @session
-@cli_logger
+@cli_logger()
 def cmd_add_many_groups(
     logger, session, json_file, name, dry
 ):  # name is a tuple of names given as --name options
@@ -384,7 +384,7 @@ def cmd_add_many_groups(
 @users.command("reset_password")
 @click.argument("username")
 @session
-@cli_logger
+@cli_logger()
 def cmd_reset_password(logger, session, username):
     """
     Reset password for user (new password generated)
@@ -409,7 +409,7 @@ def cmd_reset_password(logger, session, username):
 @users.command("lock")
 @click.argument("username")
 @session
-@cli_logger
+@cli_logger(prompt_reason=True)
 def cmd_invalidate_user(logger, session, username):
     """
     Invalidate a user and all sessions.
@@ -437,7 +437,7 @@ def cmd_invalidate_user(logger, session, username):
 @click.option("--user_group")
 @convert(False, "--first_name", "--last_name")
 @session
-@cli_logger
+@cli_logger()
 def cmd_modify_user(logger, session, username, **kwargs):
     """
     Example: .. users modify --first_name Lars Marius -- lmarius\n
