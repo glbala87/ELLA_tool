@@ -8,7 +8,6 @@ from . import attachment
 from . import broadcast
 from . import config
 from . import customannotation
-from . import importallele
 from . import overview
 from . import reference
 from . import referenceassessment

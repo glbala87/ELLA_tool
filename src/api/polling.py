@@ -59,7 +59,7 @@ def run_preimport(job):
 
 
 def encode_multipart_formdata(fields, files):
-    LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10))
+    LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10)).decode()
     CRLF = "\r\n"
     L = []
     for (key, value) in fields.items():
@@ -150,7 +150,7 @@ class AnnotationJobsInterface:
         job = self.get_with_id(id)
         mode = job.mode
         fd = StringIO()
-        fd.write(str(annotated_vcf))
+        fd.write(annotated_vcf)
         fd.flush()
         fd.seek(0)
 
@@ -227,7 +227,7 @@ class AnnotationServiceInterface:
 
     def process(self, task_id):
         k = urllib.request.urlopen(join(self.base, "process", task_id))
-        return k.read()
+        return k.read().decode()
 
     def status(self, task_id=None):
         """Get status of task_id or all tasks"""
@@ -327,7 +327,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         except Exception as e:
             annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
-            message = e.__class__.__name__ + ": " + (e.message if hasattr(e, "message") else str(e))
+            message = e.__class__.__name__ + ": " + getattr(e, "message", str(e))
 
         yield id, {"status": status, "message": message}
 
@@ -339,7 +339,7 @@ def patch_annotation_job(annotation_jobs, id, updates):
     except Exception as e:
         log.error(
             "Failed patch of annotation job {id} ({update}): {error}".format(
-                id, str(updates), e.message
+                id, str(updates), getattr(e, "message", str(e))
             )
         )
         annotation_jobs.rollback()
