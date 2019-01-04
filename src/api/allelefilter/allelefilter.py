@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple, Sequence
+from typing import Any, Dict, List, Optional, Set, Tuple, Sequence, Union
 from sqlalchemy.orm.session import Session
 
 from api.config import config as global_config, get_filter_config
@@ -158,7 +158,7 @@ class AlleleFilter(object):
             .scalar()
         )
 
-        analysis_allele_result = {
+        analysis_allele_result: Dict = {
             a_id: {"excluded_allele_ids": dict()} for a_id in copied_analysis_allele_ids
         }
         gp_allele_result: Dict = {

@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_searchable import make_searchable
+from typing import Any
 
 
 class CustomBase(object):
@@ -51,7 +52,8 @@ convention = {
 }
 
 
-Base = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
+# Set type to Any, as mypy can't handle dynamic base classes: https://github.com/python/mypy/issues/2477
+Base: Any = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
 Base.metadata = MetaData(naming_convention=convention)
 make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 
