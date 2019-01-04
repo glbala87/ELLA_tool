@@ -371,27 +371,12 @@ test-e2e:
 	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
 
-test-black:
-	docker run -d \
-	  --name $(CONTAINER_NAME)-black \
+test-formatting:
+	docker run --rm \
+	  --name $(CONTAINER_NAME)-formatting \
 	  --user $(UID):$(GID) \
 	  $(IMAGE_NAME) \
-	  sleep infinity
-
-	docker exec $(CONTAINER_NAME)-black ops/test/run_black_test.sh
-	@docker rm -f $(CONTAINER_NAME)-black
-
-
-test-mypy:
-	docker run -d \
-	  --name $(CONTAINER_NAME)-mypy \
-	  --user $(UID):$(GID) \
-	  $(IMAGE_NAME) \
-	  sleep infinity
-
-	docker exec $(CONTAINER_NAME)-mypy ops/test/run_mypy_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-mypy
-
+	  ops/test/run_formatting_tests.sh
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser

@@ -26,16 +26,18 @@ build:
     - docker push $IMAGE_NAME
     - docker push $CI_REGISTRY_IMAGE:latest
 
-test_black:
+
+test_formatting:
   stage: test
   before_script:
     - apk add --update make
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker pull $IMAGE_NAME | cat
   script:
-    - make test-black
+    - make test-formatting
   after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-black
+    - docker rm  -f -v ${PIPELINE_ID}-formatting
+
 
 test_api:
   stage: test
@@ -107,18 +109,6 @@ test_cli:
     - make test-cli
   after_script:
     - docker rm  -f -v ${PIPELINE_ID}-cli
-
-test_mypy:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
-  script:
-    - make test-mypy
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-mypy
-
 
 
 test_report:
