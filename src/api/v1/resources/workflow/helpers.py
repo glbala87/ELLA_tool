@@ -313,6 +313,10 @@ def get_interpretation(
     )
 
     idl = InterpretationDataLoader(session)
+    if interpretation.filter_config_id is not None:
+        filter_config_id = queries.get_valid_filter_config_id(
+            session, interpretation.filter_config_id
+        )
     obj = idl.from_obj(interpretation, filter_config_id)
     return obj
 
@@ -343,6 +347,10 @@ def get_interpretations(session, genepanels, filter_config_id, allele_id=None, a
     idl = InterpretationDataLoader(session)
 
     for interpretation in interpretations:
+        if interpretation.filter_config_id is not None:
+            filter_config_id = queries.get_valid_filter_config_id(
+                session, interpretation.filter_config_id
+            )
         loaded_interpretations.append(idl.from_obj(interpretation, filter_config_id))
 
     return loaded_interpretations
@@ -395,6 +403,16 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     if analysis_id is not None:
         analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         interpretation.genepanel = analysis.genepanel
+
+        # Get valid filter config id
+        filter_config_id = (
+            interpretation.filter_config_id
+            if interpretation.filter_config_id is not None
+            else queries.get_default_filter_config_id(session, user_id)
+        )
+        filter_config_id = queries.get_valid_filter_config_id(session, filter_config_id)
+        interpretation.filter_config_id = filter_config_id
+
     elif allele_id is not None:
         # For allele workflow, the user can choose genepanel context for each interpretation
         interpretation.genepanel_name = data["gp_name"]
@@ -561,7 +579,7 @@ def finalize_interpretation(
     # We must load it _before_ we create assessments, since assessments
     # can affect the filtering (e.g. alleleassessments created for filtered alleles)
     loaded_interpretation = InterpretationDataLoader(session).from_obj(
-        interpretation, filter_config_id
+        interpretation, interpretation.filter_config_id
     )
 
     # Create/reuse assessments
@@ -1005,3 +1023,20 @@ def delete_interpretationlog(
         raise ApiError("Can only delete entries created for latest interpretation id.")
 
     session.delete(il)
+
+
+def get_filter_config(session, user_id, analysis_interpretation_id):
+    filter_config_id = (
+        session.query(workflow.AnalysisInterpretation.filter_config_id)
+        .filter(workflow.AnalysisInterpretation.id == analysis_interpretation_id)
+        .one()
+    )
+
+    if filter_config_id is None:
+        filter_config_id = queries.get_default_filter_config_id(session, user_id)
+
+    filter_config = session.query(sample.FilterConfig).filter(
+        sample.FilterConfig.id == filter_config_id
+    )
+
+    return schemas.FilterConfigSchema().dump(filter_config).data

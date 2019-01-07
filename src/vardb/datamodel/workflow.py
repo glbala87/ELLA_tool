@@ -117,7 +117,13 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     __tablename__ = "analysisinterpretation"
 
-    __next_attrs__ = ["analysis_id", "state", "genepanel_name", "genepanel_version"]
+    __next_attrs__ = [
+        "analysis_id",
+        "state",
+        "genepanel_name",
+        "genepanel_version",
+        "filter_config_id",
+    ]
 
     analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
@@ -132,6 +138,8 @@ class AnalysisInterpretation(Base, InterpretationMixin):
         default="Interpretation",
         nullable=False,
     )
+    filter_config_id = Column(Integer, ForeignKey("filterconfig.id"), nullable=True)
+    filter_config = relationship("FilterConfig", uselist=False)
 
     def __repr__(self):
         return "<Interpretation('{}', '{}')>".format(str(self.analysis_id), self.status)
