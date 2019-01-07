@@ -1,12 +1,8 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanels from '../actions/getGenepanels'
-import getGenepanel from '../actions/getGenepanel'
 import toast from '../../../../../common/factories/toast'
-import loadSelectedGenepanel from './loadSelectedGenepanel'
-import loadDefaultGenepanel from './loadDefaultGenepanel'
-import prepareAddedGenepanel from '../actions/prepareAddedGenepanel'
 import setDefaultSelectedGenepanel from '../actions/setDefaultSelectedGenepanel'
 
 export default sequence('loadImport', [

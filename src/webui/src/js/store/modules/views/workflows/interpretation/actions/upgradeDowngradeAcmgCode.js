@@ -1,5 +1,3 @@
-import { upgradeDowngradeCode } from '../../../../../common/helpers/acmg'
-
 export default function upgradeDowngradeAcmgCode({ state, props }) {
     const { alleleId, uuid, upgrade } = props
     const included = state.get(

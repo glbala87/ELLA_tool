@@ -1,4 +1,4 @@
-export default function prepareAddedGenepanel({ state, props }) {
+export default function prepareAddedGenepanel({ state }) {
     // Copy default panel's config into addedGenepanel
     const defaultGenepanel = state.get('views.overview.import.data.defaultGenepanel')
     const addedGenepanel = {

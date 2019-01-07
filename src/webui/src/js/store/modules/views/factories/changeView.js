@@ -17,10 +17,6 @@ const EXEMPT_RESET = ['overview']
 
 // Sequences to inject when changing a view
 // Can be used to run view specific setup/resets
-const PRE_SEQUENCES = {
-    overview: null
-}
-
 const GLOBAL_PRE_SEQUENCE = [
     disableOnBeforeUnload(),
     interval('stop', 'views.overview.updateImportJobCountTriggered'),
@@ -36,7 +32,6 @@ function changeView(key) {
     return sequence('changeView', [
         GLOBAL_PRE_SEQUENCE,
         function changeView({ state }) {
-            const previousView = state.get('views.current')
             state.set('views.current', key)
 
             // Reset other views' state when switching views.

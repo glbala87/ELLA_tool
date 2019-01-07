@@ -1,7 +1,7 @@
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getAttachments from '../actions/getAttachments'
-import toast from '../../../../common/factories/toast'
+import { set } from 'cerebral/operators';
+import { props, state } from 'cerebral/tags';
+import toast from '../../../../common/factories/toast';
+import getAttachments from '../actions/getAttachments';
 
 export default [
     getAttachments,

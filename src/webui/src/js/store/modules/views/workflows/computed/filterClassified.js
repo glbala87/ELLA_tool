@@ -1,6 +1,6 @@
-import { Compute } from 'cerebral'
-import { state, props } from 'cerebral/tags'
-import getClassification from '../interpretation/computed/getClassification'
+import { Compute } from 'cerebral';
+import { state } from 'cerebral/tags';
+import getClassification from '../interpretation/computed/getClassification';
 
 export default function(inverse = false, alleles) {
     return Compute(

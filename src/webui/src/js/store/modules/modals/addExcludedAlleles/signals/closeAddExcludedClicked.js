@@ -1,5 +1,5 @@
 import { set } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import closeModal from '../../../../common/actions/closeModal'
 import loadAlleles from '../../../views/workflows/sequences/loadAlleles'
 import loadVisualization from '../../../views/workflows/visualization/sequences/loadVisualization'

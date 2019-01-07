@@ -1,13 +1,13 @@
-import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getInterpretations from '../actions/getInterpretations'
-import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretation'
-import prepareStartMode from '../actions/prepareStartMode'
-import loadInterpretationData from '../signals/loadInterpretationData'
+import { sequence } from 'cerebral';
+import { set } from 'cerebral/operators';
+import { props, state } from 'cerebral/tags';
+import toast from '../../../../common/factories/toast';
+import getInterpretations from '../actions/getInterpretations';
+import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretation';
+import prepareStartMode from '../actions/prepareStartMode';
+import updateLoadingPhase from '../factories/updateLoadingPhase';
+import loadInterpretationData from '../signals/loadInterpretationData';
 
-import toast from '../../../../common/factories/toast'
-import updateLoadingPhase from '../factories/updateLoadingPhase'
 
 export default sequence('loadInterpretations', [
     updateLoadingPhase('start'),

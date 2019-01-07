@@ -1,9 +1,8 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
-import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar/computed/shouldShowSidebar'
 import template from './interpretation.ngtmpl.html'
 

@@ -1,5 +1,5 @@
 import { set } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import { wait } from 'cerebral/operators'
 import { redirect } from '@cerebral/router/operators'
 import postLogout from '../actions/postLogout'

@@ -2,10 +2,10 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import template from './alleleSidebar.ngtmpl.html'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import template from './alleleSidebar.ngtmpl.html'
 
 const showQuickClassificationBtn = Compute(
     state`views.workflows.selectedComponent`,

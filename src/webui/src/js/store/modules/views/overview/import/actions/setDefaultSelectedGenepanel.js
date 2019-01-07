@@ -1,4 +1,4 @@
-export default function setDefaultSelectedGenepanel({ state, props }) {
+export default function setDefaultSelectedGenepanel({ state }) {
     const defaultImportGenepanel = state.get('app.user.group.default_import_genepanel')
     if (defaultImportGenepanel) {
         const genepanels = state.get('views.overview.import.data.genepanels')

@@ -1,6 +1,5 @@
 import { set, when } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
 import toast from '../../../../common/factories/toast'
 import checkUsername from '../actions/checkUsername'
 import checkConfirmPassword from '../actions/checkConfirmPassword'

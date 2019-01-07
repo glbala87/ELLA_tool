@@ -5,7 +5,7 @@ const TYPES = {
     allele: 'alleles'
 }
 
-function getCollisions({ http, path, props, state }) {
+function getCollisions({ http, path, state }) {
     const config = state.get('app.config')
     let type = TYPES[state.get('views.workflows.type')]
     let id = state.get('views.workflows.id')

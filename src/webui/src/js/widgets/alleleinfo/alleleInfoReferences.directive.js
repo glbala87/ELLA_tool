@@ -1,6 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, props, string, signal } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import getReferenceAnnotation from '../../store/modules/views/workflows/interpretation/computed/getReferenceAnnotation'
 import template from './alleleInfoReferences.ngtmpl.html'
 

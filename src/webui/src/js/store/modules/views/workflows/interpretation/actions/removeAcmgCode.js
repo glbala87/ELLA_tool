@@ -1,5 +1,3 @@
-import { UUID } from '../../../../../../util'
-
 export default function removeAcmgCode({ state, props }) {
     const { alleleId, code } = props
 

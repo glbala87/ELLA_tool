@@ -1,4 +1,4 @@
-export default function getGenepanels({ state, http, path }) {
+export default function getGenepanels({ http, path }) {
     return http
         .get('genepanels/')
         .then((response) => {

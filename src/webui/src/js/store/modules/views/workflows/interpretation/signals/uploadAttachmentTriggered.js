@@ -1,11 +1,11 @@
-import { when, push, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toast from '../../../../../common/factories/toast'
-import setDirty from '../actions/setDirty'
-import postAttachment from '../actions/postAttachment'
-import loadAttachments from '../../sequences/loadAttachments'
-import checkAttachmentFileSize from '../actions/checkAttachmentFileSize'
+import { push } from 'cerebral/operators';
+import { props, state } from 'cerebral/tags';
+import toast from '../../../../../common/factories/toast';
+import loadAttachments from '../../sequences/loadAttachments';
+import checkAttachmentFileSize from '../actions/checkAttachmentFileSize';
+import postAttachment from '../actions/postAttachment';
+import setDirty from '../actions/setDirty';
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment';
 
 export default [
     canUpdateAlleleAssessment,

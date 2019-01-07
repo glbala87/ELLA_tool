@@ -1,9 +1,7 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toast from '../../../../../common/factories/toast'
-import upgradeDowngradeAcmgCode from '../actions/upgradeDowngradeAcmgCode'
-import setDirty from '../actions/setDirty'
+import toast from '../../../../../common/factories/toast';
+import setDirty from '../actions/setDirty';
+import upgradeDowngradeAcmgCode from '../actions/upgradeDowngradeAcmgCode';
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment';
 
 export default [
     canUpdateAlleleAssessment,

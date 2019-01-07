@@ -1,5 +1,3 @@
-import { set } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
 import getOptions from '../actions/getOptions'
 
 export default [

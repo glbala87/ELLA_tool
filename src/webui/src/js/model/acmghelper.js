@@ -1,7 +1,5 @@
 /* jshint esnext: true */
 
-import { deepCopy, UUID } from '../util'
-
 export class ACMGHelper {
     /**
      * Returns the base ACMG code, without strength applier.

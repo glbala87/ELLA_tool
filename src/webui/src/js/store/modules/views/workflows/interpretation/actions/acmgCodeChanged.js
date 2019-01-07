@@ -1,5 +1,3 @@
-import { deepCopy } from '../../../../../../util'
-
 export default function acmgCodeChanged({ state, props }) {
     const { alleleId, code } = props
 

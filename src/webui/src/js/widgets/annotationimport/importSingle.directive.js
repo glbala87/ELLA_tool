@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../../ng-decorators'
-import { printedFileSize } from '../../util'
 import template from './importSingle.ngtmpl.html'
 
 @Directive({

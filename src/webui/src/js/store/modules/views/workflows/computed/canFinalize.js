@@ -1,7 +1,7 @@
-import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
-import getClassification from '../interpretation/computed/getClassification'
-import getAlleleState from '../interpretation/computed/getAlleleState'
+import { Compute } from 'cerebral';
+import { state } from 'cerebral/tags';
+import getAlleleState from '../interpretation/computed/getAlleleState';
+import getClassification from '../interpretation/computed/getClassification';
 
 export default Compute(
     state`views.workflows.type`,

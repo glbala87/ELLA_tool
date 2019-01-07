@@ -1,4 +1,4 @@
-import { set, get } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAllUsers from '../../../../../store/common/actions/getAllUsers'
 import toast from '../../../../common/factories/toast'

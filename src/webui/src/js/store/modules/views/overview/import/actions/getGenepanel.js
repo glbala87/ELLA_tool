@@ -1,4 +1,4 @@
-export default function getGenepanel({ state, http, path, props }) {
+export default function getGenepanel({ http, path, props }) {
     const { genepanelName, genepanelVersion } = props
     return http
         .get(`genepanels/${genepanelName}/${genepanelVersion}/`)

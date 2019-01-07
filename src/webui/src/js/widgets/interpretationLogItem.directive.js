@@ -1,7 +1,6 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
-import { compute } from 'cerebral'
 import template from './interpretationLogItem.ngtmpl.html'
 
 app.component('interpretationLogItem', {

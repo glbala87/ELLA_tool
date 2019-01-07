@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import { set, when } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { module, props } from 'cerebral/tags'
 import { UUID } from '../../../../util'
 import toast from '../../../common/factories/toast'

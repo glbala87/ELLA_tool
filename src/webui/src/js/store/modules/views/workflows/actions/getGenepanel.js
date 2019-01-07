@@ -5,7 +5,7 @@ const TYPES = {
     allele: 'alleles'
 }
 
-export default function getGenepanel({ http, path, props, state }) {
+export default function getGenepanel({ http, path, state }) {
     const type = TYPES[state.get('views.workflows.type')]
     const id = state.get('views.workflows.id')
     const selectedGenepanel = state.get('views.workflows.selectedGenepanel')

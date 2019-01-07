@@ -1,6 +1,6 @@
-import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
-import getAlleleState from './getAlleleState'
+import { Compute } from 'cerebral';
+import { state } from 'cerebral/tags';
+import getAlleleState from './getAlleleState';
 
 /**
  * Returns EITHER:

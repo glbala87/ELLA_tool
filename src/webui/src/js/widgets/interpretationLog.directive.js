@@ -1,14 +1,14 @@
 import thenBy from 'thenby'
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, props, signal } from 'cerebral/tags'
+import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import getWarningCleared from '../store/modules/views/workflows/worklog/computed/getWarningCleared'
 import getPriority from '../store/modules/views/workflows/worklog/computed/getPriority'
 import getReviewComment from '../store/modules/views/workflows/worklog/computed/getReviewComment'
 import canClearWarning from '../store/modules/views/workflows/worklog/computed/canClearWarning'
-import template from './interpretationLog.ngtmpl.html'
 import canCreateInterpretationLog from '../store/modules/views/workflows/worklog/computed/canCreateInterpretationLog'
+import template from './interpretationLog.ngtmpl.html'
 
 const getPriorityOptions = Compute(state`app.config`, (config) => {
     const options = Object.entries(config.analysis.priority.display)

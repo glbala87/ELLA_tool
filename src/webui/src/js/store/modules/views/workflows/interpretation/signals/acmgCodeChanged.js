@@ -1,10 +1,11 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toast from '../../../../../common/factories/toast'
-import acmgCodeChanged from '../actions/acmgCodeChanged'
-import setDirty from '../actions/setDirty'
-import updateSuggestedClassification from '../sequences/updateSuggestedClassification'
+import { debounce, when } from 'cerebral/operators';
+import { props } from 'cerebral/tags';
+import toast from '../../../../../common/factories/toast';
+import acmgCodeChanged from '../actions/acmgCodeChanged';
+import setDirty from '../actions/setDirty';
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment';
+import updateSuggestedClassification from '../sequences/updateSuggestedClassification';
+
 
 export default [
     debounce(200),
