@@ -1,5 +1,11 @@
 # Preconfigured Gene panels
 
+::: warning NOTE
+This documentation is a work in progress and is not currently up to date.
+
+Please contact developers for more details.
+:::
+
 Analyses in *ella* are restricted to genes included in predefined gene panels. These must be configured separately as part of department procedures, and no configuration is done within *ella* itself. In addition to specifying which genes to analyse, the following information is currently configured:
 
 |Setting			|Options																							 		 				|Defaults								   |

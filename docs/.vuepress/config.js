@@ -65,15 +65,30 @@ module.exports = {
                 {
                     title: 'Technical documentation',
                     collapsable: false,
+                    children: ['/technical/']
+                },
+                {
+                    title: 'Deploying',
+                    collapsable: false,
                     children: [
-                        '/technical/',
                         '/technical/deployment',
-                        '/technical/development',
+                        '/technical/configuration',
+                        '/technical/logging'
+                    ]
+                },
+                {
+                    title: 'Development',
+                    collapsable: false,
+                    children: ['/technical/development', '/technical/testing']
+                },
+                {
+                    title: 'System internals',
+                    collapsable: false,
+                    children: [
                         '/technical/workflow',
                         '/technical/filtering',
                         '/technical/datamodel',
                         '/technical/uicomponents',
-                        '/technical/testing',
                         '/technical/acmg-rule-engine',
                         '/technical/preconfigured-gene-panels'
                     ]
