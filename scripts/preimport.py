@@ -3,6 +3,7 @@
 import os
 import json
 from collections import OrderedDict
+from functools import cmp_to_key
 
 import sqlalchemy as sa
 from sqlalchemy.sql import table, column
@@ -158,7 +159,8 @@ def _get_transcript_data(transcripts):
     for t in transcripts:
         row = [v(t) for v in list(transcript_columns.values())]
         rows.append(row)
-    for r in sorted(rows, cmp=sort_rows):
+
+    for r in sorted(rows, key=cmp_to_key(sort_rows)):
         transcript_data += "\n" + "\t".join(r)
     return transcript_data
 
@@ -209,7 +211,7 @@ def _get_slop(transcripts, slop):
             row = [v(t, es, ee, slop, exon_no) for v in list(slop_columns.values())]
             rows.append(row)
 
-    for r in sorted(rows, cmp=sort_rows):
+    for r in sorted(rows, key=cmp_to_key(sort_rows)):
         slop_data += "\n" + "\t".join(r)
 
     return slop_data

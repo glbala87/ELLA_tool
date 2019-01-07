@@ -41,7 +41,7 @@ def run_preimport(job):
     ]
 
     cmd = " ".join(args + [preimport_script])
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd, shell=True).decode()
     unparsed_data = json.loads(output)
 
     parsed_data = {}
@@ -54,7 +54,6 @@ def run_preimport(job):
         with open(path, "r") as f:
             contents = f.read()
         parsed_data["files"][key] = (filename, contents)
-
     return parsed_data
 
 
@@ -220,7 +219,9 @@ class AnnotationServiceInterface:
         content_type, body = encode_multipart_formdata(data["variables"], data["files"])
 
         r = urllib.request.Request(
-            join(self.base, "samples/annotate"), data=body, headers={"Content-type": content_type}
+            join(self.base, "samples/annotate"),
+            data=body.encode(),
+            headers={"Content-type": content_type},
         )
         k = urllib.request.urlopen(r)
         return json.loads(k.read().decode())
@@ -294,7 +295,7 @@ def process_submitted(annotation_service, submitted_jobs):
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
-        except urllib.error.HTTPError as e:
+        except Exception as e:
             status = "FAILED (SUBMISSION)"
             message = get_error_message(e)
             task_id = ""
