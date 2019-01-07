@@ -69,6 +69,7 @@ app.component('addExcludedAlleles', {
             config: state`app.config`,
             geneOptions: getGeneOptions,
             metrics: getMetrics,
+            filterConfig: state`modals.addExcludedAlleles.filterConfig`,
             isToggled,
             genepanelPath: state`modals.addExcludedAlleles.genepanelPath`,
             geneAlleleIds: state`modals.addExcludedAlleles.geneAlleleIds`,

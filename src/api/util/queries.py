@@ -421,5 +421,23 @@ def get_default_filter_config_id(session, user_id):
     return (
         session.query(sample.FilterConfig.id)
         .join(user.UserGroup, user.User)
-        .filter(user.User.id == user_id, sample.FilterConfig.default.is_(True))
+        .filter(
+            user.User.id == user_id,
+            sample.FilterConfig.date_superceeded.is_(None),
+            sample.FilterConfig.default.is_(True),
+        )
     )
+
+
+def get_valid_filter_config_id(session, filter_config_id):
+    fc = session.query(sample.FilterConfig).filter(sample.FilterConfig.id == filter_config_id).one()
+
+    if fc.date_superceeded is not None:
+        fcid = (
+            session.query(sample.FilterConfig.id)
+            .filter(sample.FilterConfig.previous_filterconfig == fc.id)
+            .one()
+        )
+        return get_valid_filter_config_id(session, fcid)
+
+    return fc.id

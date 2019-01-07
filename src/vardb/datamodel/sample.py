@@ -99,7 +99,18 @@ class FilterConfig(Base):
     __tablename__ = "filterconfig"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(), nullable=False, unique=True)
+    name = Column(String(), nullable=False)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
+    date_superceeded = Column("date_superceeded", DateTime(timezone=True))
+    previous_filterconfig = Column(Integer, ForeignKey("filterconfig.id"))
     default = Column(Boolean, nullable=False, default=False)
+
+
+Index(
+    "ix_filterconfig_unique",
+    FilterConfig.name,
+    FilterConfig.usergroup_id,
+    postgresql_where=(FilterConfig.date_superceeded.is_(None)),
+    unique=True,
+)

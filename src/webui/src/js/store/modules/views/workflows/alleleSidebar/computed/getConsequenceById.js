@@ -13,7 +13,7 @@ export default (alleles) => {
         }
         for (let [alleleId, allele] of Object.entries(alleles)) {
             result[alleleId] = allele.annotation.filtered
-                .map((t) => t.consequences.sort(sortFunc)[0].replace('_variant', ''))
+                .map((t) => t.consequences.sort(sortFunc).map((c) => c.replace('_variant', '')))
                 .join(' | ')
         }
         return result

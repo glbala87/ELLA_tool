@@ -31,3 +31,4 @@ from .genotypes import GenotypeSchema, GenotypeSampleDataSchema
 from .annotationjobs import AnnotationJobSchema
 from .attachments import AttachmentSchema
 from .interpretationlog import InterpretationLogSchema
+from .filterconfigs import FilterConfigSchema

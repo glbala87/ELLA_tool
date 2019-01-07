@@ -13,6 +13,8 @@ import argparse
 import json
 import logging
 import itertools
+import datetime
+import pytz
 from collections import OrderedDict, defaultdict
 
 
@@ -45,7 +47,7 @@ VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1"]
 
 
 def import_filterconfigs(session, filterconfigs):
-    result = {"updated": 0, "created": 0}
+    result = {"updated": 0, "created": 0, "not_updated": 0}
     filter_config_schema = load_schema("filterconfig.json")
 
     for filterconfig in filterconfigs:
@@ -63,18 +65,24 @@ def import_filterconfigs(session, filterconfigs):
             .filter(
                 sample.FilterConfig.usergroup_id == usergroup_id,
                 sample.FilterConfig.name == filterconfig["name"],
+                sample.FilterConfig.date_superceeded.is_(None),
             )
             .one_or_none()
         )
 
-        if existing:
-            for k, v in filterconfig.items():
-                setattr(existing, k, v)
+        if existing and filterconfig["filterconfig"] == existing.filterconfig:
+            result["not_updated"] += 1
+            continue
+        elif existing:
+            existing.date_superceeded = datetime.datetime.now(pytz.utc)
+            filterconfig["previous_filterconfig"] = existing.id
             result["updated"] += 1
         else:
-            fc = sample.FilterConfig(**filterconfig)
-            session.add(fc)
             result["created"] += 1
+
+        fc = sample.FilterConfig(**filterconfig)
+        session.add(fc)
+
     return result
 
 
