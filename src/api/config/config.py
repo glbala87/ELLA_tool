@@ -205,6 +205,7 @@ config = {
                     "default": {"external": 0.01, "internal": 0.05},
                 },
             },
+            "inheritancemodel": {},
             "quality": {},
             "segregation": {},
             "external": {},

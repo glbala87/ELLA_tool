@@ -1,0 +1,92 @@
+from typing import List
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql.schema import Table
+from sqlalchemy import literal, and_
+from vardb.util.extended_query import ExtendedQuery
+from vardb.datamodel import genotype, allele, sample
+
+
+def extend_genotype_table_with_allele(session, genotype_table: Table) -> ExtendedQuery:
+    genotype_with_allele = session.query(
+        allele.Allele.chromosome.label("chromosome"),
+        allele.Allele.start_position.label("start_position"),
+        allele.Allele.open_end_position.label("open_end_position"),
+        allele.Allele.genome_reference.label("genome_reference"),
+        *[c for c in genotype_table.c]
+    ).join(genotype_table, genotype_table.c.allele_id == allele.Allele.id)
+    return genotype_with_allele
+
+
+def get_genotype_temp_table(session, allele_ids: List[int], sample_ids: List[int]):
+    """
+    Creates a combined genotype table (query)
+    which looks like the following:
+
+    -------------------------------------------------------------------------------------
+    | allele_id | sample_1_type  | sample_1_sex | sample_2_type  | sample_2_sex | ...
+    -------------------------------------------------------------------------------------
+    | 55        | 'Heterozygous' | 'Male'       | 'Heterozygous' | 'Female'     | ...
+    | 71        | 'Homozygous'   | 'Male'       | 'Heterozygous' | 'Female'     | ...
+    | 82        | 'Heterozygous' | 'Male'       | 'Heterozygous' | 'Female'     | ...
+    | 91        | 'Heterozygous' | 'Male'       | 'Heterozygous' | 'Female'     | ...
+    ...
+
+    The data is created by combining the genotype and genotypesampledata tables,
+    for all samples connected to provided analysis_id.
+    :note: allele_id and secondallele_id are union'ed together into one table.
+
+    """
+
+    def create_query(secondallele=False):
+
+        samples = session.query(sample.Sample).filter(sample.Sample.id.in_(sample_ids)).all()
+
+        # We'll join several times on same table, so create aliases for each sample
+        aliased_genotypesampledata = dict()
+        sample_fields = list()
+        for s in samples:
+            aliased_genotypesampledata[s.id] = aliased(genotype.GenotypeSampleData)
+            sample_fields.extend(
+                [
+                    aliased_genotypesampledata[s.id].id.label(s.identifier + "_id"),
+                    aliased_genotypesampledata[s.id].type.label(s.identifier + "_type"),
+                    literal(s.sex).label(s.identifier + "_sex"),
+                    aliased_genotypesampledata[s.id].genotype_likelihood.label(
+                        s.identifier + "_gl"
+                    ),
+                    aliased_genotypesampledata[s.id].allele_ratio.label(s.identifier + "_ar"),
+                ]
+            )
+
+        if secondallele:
+            allele_id_field = genotype.Genotype.secondallele_id
+        else:
+            allele_id_field = genotype.Genotype.allele_id
+
+        genotype_query = session.query(allele_id_field.label("allele_id"), *sample_fields).filter(
+            allele_id_field.in_(allele_ids)
+        )
+
+        for sample_id, gsd in aliased_genotypesampledata.items():
+            genotype_query = genotype_query.join(
+                gsd,
+                and_(
+                    genotype.Genotype.id == gsd.genotype_id,
+                    gsd.secondallele.is_(secondallele),
+                    gsd.sample_id == sample_id,
+                ),
+            )
+
+        return genotype_query
+
+    # Combine allele_id and secondallele_id into one large table
+    without_secondallele = create_query(False)
+    with_secondallele = create_query(True)
+
+    genotype_query = without_secondallele.union(with_secondallele).subquery()
+    genotype_query = session.query(genotype_query)
+
+    genotype_table = genotype_query.temp_table("genotype_query")
+
+    assert session.query(genotype_table.c.allele_id).count() == len(allele_ids)
+    return genotype_table

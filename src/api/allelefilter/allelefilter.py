@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple, Sequence, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Sequence, Union
 from sqlalchemy.orm.session import Session
 
 from api.config import config as global_config, get_filter_config
@@ -12,6 +12,7 @@ from api.allelefilter.classificationfilter import ClassificationFilter
 from api.allelefilter.externalfilter import ExternalFilter
 from api.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 from api.allelefilter.consequencefilter import ConsequenceFilter
+from api.allelefilter.inheritancemodel import InheritanceModelFilter
 
 
 class AlleleFilter(object):
@@ -19,7 +20,7 @@ class AlleleFilter(object):
         self.session = session
         self.config = global_config if not config else config
 
-        self.filter_functions = {
+        self.filter_functions: Dict[str, Tuple[str, Callable]] = {
             "frequency": ("allele", FrequencyFilter(self.session, self.config).filter_alleles),
             "region": ("allele", RegionFilter(self.session, self.config).filter_alleles),
             "classification": (
@@ -28,6 +29,10 @@ class AlleleFilter(object):
             ),
             "external": ("allele", ExternalFilter(self.session, self.config).filter_alleles),
             "ppy": ("allele", PolypyrimidineTractFilter(self.session, self.config).filter_alleles),
+            "inheritancemodel": (
+                "analysis",
+                InheritanceModelFilter(self.session, self.config).filter_alleles,
+            ),
             "consequence": ("allele", ConsequenceFilter(self.session, self.config).filter_alleles),
             "quality": ("analysis", QualityFilter(self.session, self.config).filter_alleles),
             "segregation": (

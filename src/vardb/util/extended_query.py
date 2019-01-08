@@ -88,3 +88,6 @@ class ExtendedQuery(Query):
             self.session.execute(text("ANALYZE {}".format(name)))
 
         return table(name, *[c for c in self.subquery().columns])
+
+    def scalar_all(self):
+        return [a[0] for a in self.all()]
