@@ -580,6 +580,12 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
     assert reused_allele_ids & created_allele_ids == set()
 
     workflow_type = "allele" if allele_id else "analysis"
+
+    if workflow_type == 'analysis':
+        excluded_allele_ids = data['excluded_allele_ids']
+    else:
+        excluded_allele_ids = None
+
     finalize_requirements = get_nested(
         user_config, ["workflows", workflow_type, "finalize_requirements"]
     )
@@ -658,7 +664,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
         presented_alleleassessments,
         presented_allelereports,
         allele_ids=data["allele_ids"],
-        excluded_allele_ids=data["excluded_allele_ids"],
+        excluded_allele_ids=excluded_allele_ids,
         used_alleleassessments=created_alleleassessments + reused_alleleassessments,
         used_allelereports=created_allelereports + reused_allelereports,
         custom_annotations=data.get("custom_annotations"),

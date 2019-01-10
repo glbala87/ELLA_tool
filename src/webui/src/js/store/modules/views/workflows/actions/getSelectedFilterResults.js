@@ -21,7 +21,10 @@ function getSelectedFilterResults({ http, path, state }) {
                 return path.error({ result: response.result })
             })
     } else {
-        return path.success({ result: null })
+        return path.success({
+            allele_ids: [state.get('views.workflows.id')],
+            excluded_allele_ids: null
+        })
     }
 }
 

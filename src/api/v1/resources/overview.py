@@ -431,13 +431,10 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
-
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        filterconfig_id = queries.get_user_filter_configs(session, user.id).one().id
 
         af = AlleleFilter(session)
-        gp_nonfiltered_alleles, _ = af.filter_alleles(
-            filter_config_id, analysis_gp_allele_ids, None
-        )
+        gp_nonfiltered_alleles, _ = af.filter_alleles(filterconfig_id, analysis_gp_allele_ids, None)
         gp_allele_ids = {k: set(v["allele_ids"]) for k, v in gp_nonfiltered_alleles.items()}
 
         alleleinterpretation_gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
@@ -771,19 +768,19 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
         # Filter out alleles
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        filterconfig_id = queries.get_user_filter_configs(session, user.id).one().id
 
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop("not_started")
         not_started_categories = categorize_analyses_by_findings(
-            session, not_started_analyses, filter_config_id
+            session, not_started_analyses, filterconfig_id
         )
         categorized_analyses.update(
             {"not_started_" + k: v for k, v in not_started_categories.items()}
         )
         marked_review_analyses = categorized_analyses.pop("marked_review")
         marked_review_categories = categorize_analyses_by_findings(
-            session, marked_review_analyses, filter_config_id
+            session, marked_review_analyses, filterconfig_id
         )
         categorized_analyses.update(
             {"marked_review_" + k: v for k, v in marked_review_categories.items()}
