@@ -4,6 +4,7 @@ from sqlalchemy import or_, and_, tuple_, func, text, literal_column
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation, user
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
+from api.util import filterconfig_requirements
 from api.config import config
 
 
@@ -416,28 +417,37 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
     return result
 
 
-def get_default_filter_config_id(session, user_id):
+def get_valid_filter_configs(session, user_id, analysis_id=None):
+    user_filterconfigs = get_user_filter_configs(session, user_id)
 
+    if analysis_id is None:
+        return user_filterconfigs.filter(sample.FilterConfig.requirements == [])
+
+    valid_ids = []
+    for fc in user_filterconfigs:
+        reqs_fulfilled = []
+        for req in fc.requirements:
+            req_fulfilled = getattr(filterconfig_requirements, req["function"])(
+                session, analysis_id, req["params"]
+            )
+            reqs_fulfilled.append(req_fulfilled)
+        if all(reqs_fulfilled):
+            valid_ids.append(fc.id)
+
+    if not valid_ids:
+        raise RuntimeError(
+            "Unable to find any valid filter configs for analysis id {} and user id {}".format(
+                analysis_id, user_id
+            )
+        )
+
+    return user_filterconfigs.filter(sample.FilterConfig.id.in_(valid_ids))
+
+
+def get_user_filter_configs(session, user_id):
     return (
-        session.query(sample.FilterConfig.id)
+        session.query(sample.FilterConfig)
         .join(user.UserGroup, user.User)
-        .filter(
-            user.User.id == user_id,
-            sample.FilterConfig.date_superceeded.is_(None),
-            sample.FilterConfig.default.is_(True),
-        )
+        .filter(user.User.id == user_id, sample.FilterConfig.active.is_(True))
+        .order_by(sample.FilterConfig.order)
     )
-
-
-def get_valid_filter_config_id(session, filter_config_id):
-    fc = session.query(sample.FilterConfig).filter(sample.FilterConfig.id == filter_config_id).one()
-
-    if fc.date_superceeded is not None:
-        fcid = (
-            session.query(sample.FilterConfig.id)
-            .filter(sample.FilterConfig.previous_filterconfig == fc.id)
-            .one()
-        )
-        return get_valid_filter_config_id(session, fcid)
-
-    return fc.id

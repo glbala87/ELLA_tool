@@ -17,3 +17,4 @@ from . import user
 from . import genepanel
 from . import igv
 from . import workflow
+from . import filterconfig

@@ -37,14 +37,11 @@ class AnalysisInterpretationSchema(Schema):
             "date_last_update",
             "genepanel_name",
             "genepanel_version",
-            "filter_config_id",
-            "filter_config",
             "user_id",
             "user",
         )
 
     user = fields.Nested(users.UserSchema)
-    filter_config = fields.Nested(filterconfigs.FilterConfigSchema)
 
 
 class AnalysisInterpretationOverviewSchema(Schema):

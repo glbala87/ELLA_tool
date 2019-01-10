@@ -1,7 +1,6 @@
 import itertools
 
 from vardb.datamodel import allele, workflow
-from api.util.interpretationdataloader import InterpretationDataLoader
 from api.config import config
 
 
@@ -82,10 +81,12 @@ class SnapshotCreator(object):
     def create_from_data(
         self,
         interpretation_snapshot_model,  # 'allele' or 'analysis'
-        interpretation,  # interpretation object from InterpretationDataLoader
+        interpretation,  # interpretation object from db
         annotations,
         presented_alleleassessments,
         presented_allelereports,
+        allele_ids=None,
+        excluded_allele_ids=None,
         used_alleleassessments=None,
         used_allelereports=None,
         custom_annotations=None,
@@ -103,12 +104,8 @@ class SnapshotCreator(object):
         # Get working list of alleles straigt from interpretation to ensure we log all data
         excluded = {}
         if interpretation_snapshot_model == "analysis":
-            excluded = interpretation["excluded_allele_ids"]
-            allele_ids = list(
-                set(interpretation["allele_ids"]).union(
-                    set(itertools.chain(*list(excluded.values())))
-                )
-            )
+            excluded = excluded_allele_ids
+            allele_ids = list(set(allele_ids).union(set(itertools.chain(*list(excluded.values())))))
 
         # 'excluded' is not a concept for alleleinterpretation
         elif interpretation_snapshot_model == "allele":
@@ -120,7 +117,7 @@ class SnapshotCreator(object):
             # Check if allele_id is in any of the excluded categories
             snapshot_object = self._create_snapshot_object(
                 interpretation_snapshot_model,
-                interpretation["id"],
+                interpretation.id,
                 allele_id,
                 annotations,
                 custom_annotations,

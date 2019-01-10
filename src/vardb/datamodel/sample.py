@@ -104,13 +104,23 @@ class FilterConfig(Base):
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     date_superceeded = Column("date_superceeded", DateTime(timezone=True))
     previous_filterconfig = Column(Integer, ForeignKey("filterconfig.id"))
-    default = Column(Boolean, nullable=False, default=False)
+    order = Column(Integer, nullable=False)
+    requirements = Column(JSONB, nullable=False, default=[])
+    active = Column(Boolean, default=True)
 
 
 Index(
     "ix_filterconfig_unique",
     FilterConfig.name,
     FilterConfig.usergroup_id,
-    postgresql_where=(FilterConfig.date_superceeded.is_(None)),
+    postgresql_where=FilterConfig.active.is_(True),
+    unique=True,
+)
+
+Index(
+    "ix_filterconfig_unique2",
+    FilterConfig.usergroup_id,
+    FilterConfig.order,
+    postgresql_where=FilterConfig.active.is_(True),
     unique=True,
 )

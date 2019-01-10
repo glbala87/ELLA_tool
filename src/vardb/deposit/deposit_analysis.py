@@ -46,42 +46,55 @@ log = logging.getLogger(__name__)
 VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1"]
 
 
-def import_filterconfigs(session, filterconfigs):
+def import_filterconfigs(session, fc_configs):
     result = {"updated": 0, "created": 0, "not_updated": 0}
     filter_config_schema = load_schema("filterconfig.json")
 
-    for filterconfig in filterconfigs:
-        jsonschema.validate(filterconfig, filter_config_schema)
-        filterconfig = dict(filterconfig)
-        usergroup_name = filterconfig.pop("usergroup")
-        usergroup_id = (
-            session.query(user.UserGroup.id).filter(user.UserGroup.name == usergroup_name).scalar()
-        )
+    for fc_config in fc_configs:
+        # jsonschema.validate(filterconfig, filter_config_schema)
+        filterconfig = fc_config["filterconfig"]
+        name = fc_config["name"]
+        requirements = fc_config["requirements"]
 
-        filterconfig["usergroup_id"] = usergroup_id
+        for usergroup in fc_config["usergroups"]:
 
-        existing = (
-            session.query(sample.FilterConfig)
-            .filter(
-                sample.FilterConfig.usergroup_id == usergroup_id,
-                sample.FilterConfig.name == filterconfig["name"],
-                sample.FilterConfig.date_superceeded.is_(None),
+            usergroup_name = usergroup["name"]
+            usergroup_id = (
+                session.query(user.UserGroup.id)
+                .filter(user.UserGroup.name == usergroup_name)
+                .scalar()
             )
-            .one_or_none()
-        )
 
-        if existing and filterconfig["filterconfig"] == existing.filterconfig:
-            result["not_updated"] += 1
-            continue
-        elif existing:
-            existing.date_superceeded = datetime.datetime.now(pytz.utc)
-            filterconfig["previous_filterconfig"] = existing.id
-            result["updated"] += 1
-        else:
-            result["created"] += 1
+            fc = {
+                "name": name,
+                "usergroup_id": usergroup_id,
+                "order": usergroup["order"],
+                "requirements": requirements,
+                "filterconfig": filterconfig,
+            }
 
-        fc = sample.FilterConfig(**filterconfig)
-        session.add(fc)
+            existing = (
+                session.query(sample.FilterConfig)
+                .filter(
+                    sample.FilterConfig.usergroup_id == fc["usergroup_id"],
+                    sample.FilterConfig.name == fc["name"],
+                    sample.FilterConfig.date_superceeded.is_(None),
+                )
+                .one_or_none()
+            )
+            if existing and fc["filterconfig"] == existing.filterconfig:
+                result["not_updated"] += 1
+                continue
+            elif existing:
+                existing.date_superceeded = datetime.datetime.now(pytz.utc)
+                filterconfig["previous_filterconfig"] = existing.id
+                existing.active = False
+                result["updated"] += 1
+            else:
+                result["created"] += 1
+
+            fc_obj = sample.FilterConfig(**fc)
+            session.add(fc_obj)
 
     return result
 
