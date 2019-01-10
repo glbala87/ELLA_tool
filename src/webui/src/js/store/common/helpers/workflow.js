@@ -103,12 +103,14 @@ export function prepareInterpretationPayload(type, id, interpretation, state, al
         alleleassessments,
         referenceassessments,
         allelereports,
-        attachments
+        attachments,
+        allele_ids: interpretation.allele_ids
     }
     if (type === 'analysis') {
         Object.assign(payload, {
             technical_allele_ids,
-            notrelevant_allele_ids
+            notrelevant_allele_ids,
+            excluded_allele_ids: interpretation.excluded_allele_ids
         })
     }
     return payload
