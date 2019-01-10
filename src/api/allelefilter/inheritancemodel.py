@@ -26,10 +26,10 @@ class InheritanceModelFilter(object):
         Filter criterias for the different modes:
             recessive_non_candidates:
                 - single, heterozygous variant
-                - distinct AR or distinct XR inheritance
+                - distinct [AR, XR] inheritance
             recessive_candidates:
                 - single homozygous variant or multiple variants
-                - not distinct AD inheritance
+                - not distinct [AD, XD] inheritance
 
         "recessive_candidates" is intended to be used when filter is
         run as an exceptions filter, to rescue potentially important
@@ -81,7 +81,6 @@ class InheritanceModelFilter(object):
 
                 # While the criterias themselves are pretty straightforward,
                 # there are some cases making it more complicated
-                # (note that no alleles should be filtered in below examples!)
                 #
                 # Simple case:
                 # allele_id  hgnc_id  inheritance
@@ -98,7 +97,7 @@ class InheritanceModelFilter(object):
                 #
                 # Same as above, but different inheritance, making it more dangerous:
                 # Only grouping by hgnc_id would filter wrongly,
-                # since allele 2 would seem like a candidate.
+                # since allele 2 would be filtered for mode recessive_non_candidates.
                 # allele_id  hgnc_id  inheritance
                 # 1          1001     AR
                 # 2          1001     AR
