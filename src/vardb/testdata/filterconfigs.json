@@ -1,8 +1,13 @@
 [
     {
         "name": "Default",
-        "usergroup": "testgroup01",
-        "default": true,
+        "usergroups": [
+            {
+                "name": "testgroup01",
+                "order": 0
+            }
+        ],
+        "requirements": [],
         "filterconfig": {
             "filters": [
                 {
@@ -57,9 +62,294 @@
         }
     },
     {
-        "name": "FilterOverride",
-        "usergroup": "testgroup02",
-        "default": true,
+        "name": "SingleDefault",
+        "usergroups": [
+            {
+                "name": "testgroup02",
+                "order": 100
+            }
+        ],
+        "requirements": [],
+        "filterconfig": {
+            "filters": [
+                {
+                    "name": "frequency",
+                    "config": {
+                        "groups": {
+                            "external": {
+                                "GNOMAD_GENOMES": [
+                                    "G",
+                                    "AFR",
+                                    "AMR",
+                                    "EAS",
+                                    "FIN",
+                                    "NFE",
+                                    "OTH",
+                                    "SAS"
+                                ],
+                                "GNOMAD_EXOMES": [
+                                    "G",
+                                    "AFR",
+                                    "AMR",
+                                    "EAS",
+                                    "FIN",
+                                    "NFE",
+                                    "OTH",
+                                    "SAS"
+                                ]
+                            },
+                            "internal": {
+                                "inDB": ["OUSWES"]
+                            }
+                        },
+                        "num_thresholds": {
+                            "GNOMAD_GENOMES": {
+                                "G": 5000,
+                                "AFR": 5000,
+                                "AMR": 5000,
+                                "EAS": 5000,
+                                "FIN": 5000,
+                                "NFE": 5000,
+                                "OTH": 5000,
+                                "SAS": 5000
+                            },
+                            "GNOMAD_EXOMES": {
+                                "G": 5000,
+                                "AFR": 5000,
+                                "AMR": 5000,
+                                "EAS": 5000,
+                                "FIN": 5000,
+                                "NFE": 5000,
+                                "OTH": 5000,
+                                "SAS": 5000
+                            }
+                        },
+                        "thresholds": {
+                            "AD": {
+                                "external": 0.005,
+                                "internal": 0.05
+                            },
+                            "default": {
+                                "external": 0.01,
+                                "internal": 0.05
+                            }
+                        }
+                    },
+                    "exceptions": [
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "region",
+                    "config": {
+                        "splice_region": [-20, 6],
+                        "utr_region": [0, 0]
+                    },
+                    "exceptions": [
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "consequence",
+                            "config": {
+                                "genepanel_only": true,
+                                "consequences": [
+                                    "transcript_ablation",
+                                    "splice_donor_variant",
+                                    "splice_acceptor_variant",
+                                    "stop_gained",
+                                    "frameshift_variant",
+                                    "start_lost",
+                                    "initiator_codon_variant",
+                                    "stop_lost",
+                                    "inframe_insertion",
+                                    "inframe_deletion",
+                                    "missense_variant",
+                                    "protein_altering_variant",
+                                    "transcript_amplification",
+                                    "incomplete_terminal_codon_variant",
+                                    "synonymous_variant",
+                                    "stop_retained_variant",
+                                    "coding_sequence_variant"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "consequence",
+                    "config": {
+                        "consequences": ["synonymous_variant", "stop_retained_variant"]
+                    },
+                    "exceptions": [
+                        {
+                            "name": "consequence",
+                            "config": {
+                                "consequences": [
+                                    "transcript_ablation",
+                                    "splice_donor_variant",
+                                    "splice_acceptor_variant",
+                                    "stop_gained",
+                                    "frameshift_variant",
+                                    "start_lost",
+                                    "initiator_codon_variant",
+                                    "stop_lost",
+                                    "inframe_insertion",
+                                    "inframe_deletion",
+                                    "missense_variant",
+                                    "protein_altering_variant",
+                                    "transcript_amplification",
+                                    "splice_region_variant",
+                                    "incomplete_terminal_codon_variant",
+                                    "coding_sequence_variant",
+                                    "mature_miRNA_variant",
+                                    "5_prime_UTR_variant",
+                                    "3_prime_UTR_variant",
+                                    "intron_variant",
+                                    "NMD_transcript_variant"
+                                ]
+                            }
+                        },
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ppy",
+                    "config": {
+                        "ppy_tract_region": [-20,-3]
+                    },
+                    "exceptions": [
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "quality",
+                    "config": {
+                        "qual": 100
+                    },
+                    "exceptions": [
+                        {
+                            "name": "classification",
+                            "config": {
+                                "classes": ["3", "4", "5"]
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["pathogenic", ">", "benign"]]
+                                }
+                            }
+                        },
+                        {
+                            "name": "external",
+                            "config": {
+                                "hgmd": {
+                                    "tags": ["DM", "DM?"]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "name": "TrioDefault",
+        "usergroups": [
+            {
+                "name": "testgroup02",
+                "order": 0
+            }
+        ],
+        "requirements": [
+            {
+                "function": "analysis",
+                "params": {
+                    "is_trio": true
+                }
+            }
+        ],
         "filterconfig": {
             "filters": [
                 {
