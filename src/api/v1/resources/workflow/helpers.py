@@ -581,8 +581,8 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
 
     workflow_type = "allele" if allele_id else "analysis"
 
-    if workflow_type == 'analysis':
-        excluded_allele_ids = data['excluded_allele_ids']
+    if workflow_type == "analysis":
+        excluded_allele_ids = data["excluded_allele_ids"]
     else:
         excluded_allele_ids = None
 
