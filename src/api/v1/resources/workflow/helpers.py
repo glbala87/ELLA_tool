@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
 from api import schemas, ApiError, ConflictError
+from api.allelefilter.allelefilter import AlleleFilter
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
@@ -79,9 +80,9 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
 
 def _get_interpretation_schema(interpretation):
     if isinstance(interpretation, workflow.AnalysisInterpretation):
-        return AnalysisInterpretationSchema
+        return schemas.AnalysisInterpretationSchema
     elif isinstance(interpretation, workflow.AlleleInterpretation):
-        return AlleleInterpretationSchema
+        return schemas.AlleleInterpretationSchema
     else:
         raise RuntimeError("Unknown interpretation class type.")
 
@@ -1059,7 +1060,7 @@ def group_alleles_by_config_and_annotation(session, interpretation, filter_confi
             .all()
         )
 
-        af = AlleleFilter(self.session)
+        af = AlleleFilter(session)
         _, filtered_alleles = af.filter_alleles(
             filter_config_id, None, {analysis_id: [a[0] for a in analysis_allele_ids]}
         )
