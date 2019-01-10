@@ -10,7 +10,11 @@ from . import helpers
 from api.util import queries
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
 from vardb.datamodel.sample import Analysis
-from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
+from api.schemas.analysisinterpretations import (
+    AnalysisInterpretationSnapshotSchema,
+    AnalysisInterpretationSchema,
+)
+from api.schemas.filterconfigs import FilterConfigSchema
 
 
 class AnalysisStatsResource(LogRequestResource):
@@ -126,12 +130,8 @@ class AnalysisInterpretationResource(LogRequestResource):
 
             description: Interpretation object
         """
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         return helpers.get_interpretation(
-            session,
-            user.group.genepanels,
-            filter_config_id,
-            analysisinterpretation_id=interpretation_id,
+            session, user.group.genepanels, user.id, analysisinterpretation_id=interpretation_id
         )
 
     @authenticate()
@@ -199,10 +199,8 @@ class AnalysisInterpretationListResource(LogRequestResource):
 
             description: AnalysisInterpretation objects
         """
-
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         return helpers.get_interpretations(
-            session, user.group.genepanels, filter_config_id, analysis_id=analysis_id
+            session, user.group.genepanels, user.id, analysis_id=analysis_id
         )
 
 
@@ -295,10 +293,7 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.marknotready_interpretation(
-            session, data, filter_config_id, analysis_id=analysis_id
-        )
+        helpers.marknotready_interpretation(session, data, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -332,10 +327,7 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markinterpretation_interpretation(
-            session, data, filter_config_id, analysis_id=analysis_id
-        )
+        helpers.markinterpretation_interpretation(session, data, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -369,8 +361,7 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markreview_interpretation(session, data, filter_config_id, analysis_id=analysis_id)
+        helpers.markreview_interpretation(session, data, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -404,10 +395,7 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markmedicalreview_interpretation(
-            session, data, filter_config_id, analysis_id=analysis_id
-        )
+        helpers.markmedicalreview_interpretation(session, data, analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -746,9 +734,8 @@ class AnalysisActionFinalizeResource(LogRequestResource):
 
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         result = helpers.finalize_interpretation(
-            session, user.id, data, filter_config_id, user_config, analysis_id=analysis_id
+            session, user.id, data, user_config, analysis_id=analysis_id
         )
         session.commit()
 
@@ -918,3 +905,38 @@ class AnalysisInterpretationLogResource(LogRequestResource):
         session.commit()
 
         return None, 200
+
+
+class AnalysisInterpretationFilteredAlleles(LogRequestResource):
+    @authenticate()
+    def get(self, session, analysis_id=None, interpretation_id=None, user=None):
+        interpretation = (
+            session.query(AnalysisInterpretation)
+            .filter(AnalysisInterpretation.id == interpretation_id)
+            .one()
+        )
+        current = request.args.get("current", "").lower() == "true"
+
+        if interpretation.status == "Done" and not current:
+            allele_ids, excluded_allele_ids = helpers.group_alleles_by_finalization_filtering_status(
+                interpretation
+            )
+        else:
+            filterconfig_id = int(request.args["filterconfig_id"])
+            allele_ids, excluded_allele_ids = helpers.group_alleles_by_config_and_annotation(
+                session, interpretation, filter_config_id=filterconfig_id
+            )
+        result = {"allele_ids": allele_ids, "excluded_allele_ids": excluded_allele_ids}
+
+        return result
+
+
+class AnalysisFilterConfigResource(LogRequestResource):
+    @authenticate()
+    def get(self, session, analysis_id=None, user=None):
+        filterconfigs = queries.get_valid_filter_configs(
+            session, user.id, analysis_id=analysis_id
+        ).all()
+        if not filterconfigs:
+            raise ApiError("Unable to find filter config matching analysis {}".format(analysis_id))
+        return FilterConfigSchema().dump(filterconfigs, many=True).data
