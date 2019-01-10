@@ -5,6 +5,7 @@ import toast from '../../../../common/factories/toast'
 import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
+import getFilterConfig from '../actions/getFilterConfig'
 
 export default [
     set(state`modals.addExcludedAlleles.analysisId`, props`analysisId`),
@@ -15,7 +16,11 @@ export default [
         return { includedAlleleIds: props.includedAlleleIds.slice() }
     },
     set(state`modals.addExcludedAlleles.includedAlleleIds`, props`includedAlleleIds`),
-    set(state`modals.addExcludedAlleles.filterConfig`, props`filterConfig`),
+    getFilterConfig,
+    {
+        success: [set(state`modals.addExcludedAlleles.filterconfig`, props`result`)],
+        error: [toast('error', 'Failed to load filter config')]
+    },
     set(state`modals.addExcludedAlleles.readOnly`, props`readOnly`),
     set(state`modals.addExcludedAlleles.category`, 'all'),
     set(state`modals.addExcludedAlleles.itemsPerPage`, 20),

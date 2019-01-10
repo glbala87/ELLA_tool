@@ -19,6 +19,11 @@ export default function prepareInterpretationState({ state }) {
         preparedState.manuallyAddedAlleles = []
     }
 
+    // TODO: Determine how to handle this. This needs to be available before this is called. Currently it is handled in setDefaultFilterConfig.
+    // if (!('filterconfigId' in preparedState)) {
+    //     preparedState['filterconfigId'] = state.get('views.workflows.data.filterconfigs')[0].id
+    // }
+
     if (!('allele' in preparedUserState)) {
         preparedUserState.allele = {}
     }

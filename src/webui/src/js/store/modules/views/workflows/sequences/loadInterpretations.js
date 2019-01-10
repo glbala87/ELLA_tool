@@ -8,22 +8,31 @@ import prepareStartMode from '../actions/prepareStartMode'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
 import loadInterpretationData from '../signals/loadInterpretationData'
 import selectDefaultInterpretation from '../actions/selectDefaultInterpretation'
+import getFilterConfigs from '../actions/getFilterConfigs'
+import setDefaultFilterConfig from '../actions/setDefaultFilterConfig'
 
 export default sequence('loadInterpretations', [
     updateLoadingPhase('start'),
     set(state`views.workflows.loaded`, false),
-    updateLoadingPhase('filtering'),
-    getInterpretations,
+    getFilterConfigs,
     {
-        error: [toast('error', 'Failed to load interpretations', 30000)],
+        error: [toast('error', 'Failed to load filter configs', 30000)],
         success: [
-            set(state`views.workflows.data.interpretations`, props`result`),
-            selectDefaultInterpretation,
-            copyInterpretationState,
-            prepareStartMode,
-            updateLoadingPhase('variants'),
-            loadInterpretationData,
-            updateLoadingPhase('done')
+            set(state`views.workflows.data.filterconfigs`, props`result`),
+            getInterpretations,
+            {
+                error: [toast('error', 'Failed to load interpretations', 30000)],
+                success: [
+                    set(state`views.workflows.data.interpretations`, props`result`),
+                    selectDefaultInterpretation,
+                    copyInterpretationState,
+                    setDefaultFilterConfig,
+                    prepareStartMode,
+                    updateLoadingPhase('variants'),
+                    loadInterpretationData,
+                    updateLoadingPhase('done')
+                ]
+            }
         ]
     }
 ])
