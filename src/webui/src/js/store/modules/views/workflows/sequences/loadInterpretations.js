@@ -26,7 +26,11 @@ export default sequence('loadInterpretations', [
                     set(state`views.workflows.data.interpretations`, props`result`),
                     selectDefaultInterpretation,
                     copyInterpretationState,
-                    setDefaultFilterConfig,
+                    when(state`views.workflows.type`, (type) => type === 'analysis'),
+                    {
+                        true: [setDefaultFilterConfig],
+                        false: []
+                    },
                     prepareStartMode,
                     updateLoadingPhase('variants'),
                     loadInterpretationData,

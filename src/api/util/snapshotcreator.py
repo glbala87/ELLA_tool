@@ -109,7 +109,7 @@ class SnapshotCreator(object):
 
         # 'excluded' is not a concept for alleleinterpretation
         elif interpretation_snapshot_model == "allele":
-            allele_ids = interpretation["allele_ids"]
+            allele_ids = [interpretation.allele_id]
 
         snapshot_objects = list()
         for allele_id in allele_ids:
