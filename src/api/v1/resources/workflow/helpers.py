@@ -1006,72 +1006,62 @@ def delete_interpretationlog(
     session.delete(il)
 
 
-def group_alleles_by_finalization_filtering_status(interpretation):
-    if not interpretation.snapshots:
-        raise RuntimeError("Missing snapshot for interpretation.")
-
-    allele_ids = []
-
-    # Don't remove category below as long as it's part of snapshot tables' enums
-    # even if it's not a filter being used anymore. Otherwise, viewing historic analyses will break
-    categories = {
-        "FREQUENCY": "frequency",
-        "REGION": "region",
-        "POLYPYRIMIDINE": "ppy",
-        "GENE": "gene",
-        "QUALITY": "quality",
-        "CONSEQUENCE": "consequence",
-        "SEGREGATION": "segregation",
-        "INHERITANCEMODEL": "inheritancemodel",
-    }
-
-    excluded_allele_ids = {k: [] for k in list(categories.values())}
-
-    for snapshot in interpretation.snapshots:
-        if snapshot.filtered in categories:
-            excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
-        else:
-            allele_ids.append(snapshot.allele_id)
-
-    return allele_ids, excluded_allele_ids
-
-
-def group_alleles_by_config_and_annotation(session, interpretation, filter_config_id=None):
+def get_filtered_alleles(session, interpretation, filter_config_id=None):
     """
-    Group the allele ids by checking the cutoff thresholds and region flag in annotation data
-    and what gene it belongs to
-
-    :param interpretation:
-    :return: (normal, {'region': {}, 'frequency': [], 'gene': []})
+    Return filter results for interpretation.
+    - If AlleleInterpretation, return only allele id for interpretation (no alleles excluded)
+    - If AnalysisInterpretation:
+        - filter_config_id not provided: Return snapshot results. Requires interpretation to be 'Done'-
+        - filter_config_id provided: Run filter on analysis, and return results.
     """
-
     if isinstance(interpretation, workflow.AlleleInterpretation):
-        excluded_allele_ids = {
-            "frequency": [],
-            "region": [],
-            "ppy": [],
-            "quality": [],
-            "consequence": [],
-            "segregation": [],
-            "inheritancemodel": [],
-        }
-        return [interpretation.allele.id], excluded_allele_ids
+        return [interpretation.allele_id], None
 
     elif isinstance(interpretation, workflow.AnalysisInterpretation):
-        analysis_id = interpretation.analysis_id
-        analysis_allele_ids = (
-            session.query(allele.Allele.id)
-            .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
-            .filter(sample.Analysis.id == analysis_id)
-            .all()
-        )
+        categories = {
+            "FREQUENCY": "frequency",
+            "REGION": "region",
+            "POLYPYRIMIDINE": "ppy",
+            "GENE": "gene",
+            "QUALITY": "quality",
+            "CONSEQUENCE": "consequence",
+            "SEGREGATION": "segregation",
+            "INHERITANCEMODEL": "inheritancemodel",
+        }
 
-        af = AlleleFilter(session)
-        _, filtered_alleles = af.filter_alleles(
-            filter_config_id, None, {analysis_id: [a[0] for a in analysis_allele_ids]}
-        )
+        excluded_allele_ids = {k: [] for k in list(categories.values())}
 
-        return (
-            filtered_alleles[analysis_id]["allele_ids"],
-            filtered_alleles[analysis_id]["excluded_allele_ids"],
-        )
+        if filter_config_id is None:
+            if interpretation.status != "Done":
+                raise RuntimeError("Interpretation is not done, and no filter config is provided.")
+
+            if not interpretation.snapshots:
+                raise RuntimeError("Missing snapshots for interpretation.")
+
+            for snapshot in interpretation.snapshots:
+                if snapshot.filtered in categories:
+                    excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
+                else:
+                    allele_ids.append(snapshot.allele_id)
+
+            return allele_ids, excluded_allele_ids
+        else:
+            analysis_id = interpretation.analysis_id
+            analysis_allele_ids = (
+                session.query(allele.Allele.id)
+                .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
+                .filter(sample.Analysis.id == analysis_id)
+                .all()
+            )
+
+            af = AlleleFilter(session)
+            _, filtered_alleles = af.filter_alleles(
+                filter_config_id, None, {analysis_id: [a[0] for a in analysis_allele_ids]}
+            )
+
+            return (
+                filtered_alleles[analysis_id]["allele_ids"],
+                filtered_alleles[analysis_id]["excluded_allele_ids"],
+            )
+    else:
+        raise RuntimeError("Unknown type {}".format(interpretation))

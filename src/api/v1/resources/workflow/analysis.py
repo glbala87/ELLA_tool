@@ -915,17 +915,14 @@ class AnalysisInterpretationFilteredAlleles(LogRequestResource):
             .filter(AnalysisInterpretation.id == interpretation_id)
             .one()
         )
-        current = request.args.get("current", "").lower() == "true"
 
-        if interpretation.status == "Done" and not current:
-            allele_ids, excluded_allele_ids = helpers.group_alleles_by_finalization_filtering_status(
-                interpretation
-            )
-        else:
-            filterconfig_id = int(request.args["filterconfig_id"])
-            allele_ids, excluded_allele_ids = helpers.group_alleles_by_config_and_annotation(
-                session, interpretation, filter_config_id=filterconfig_id
-            )
+        filterconfig_id = request.args.get("filterconfig_id")
+        if filterconfig_id is not None:
+            filterconfig_id = int(filterconfig_id)
+
+        allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+            session, interpretation, filter_config_id=filterconfig_id
+        )
         result = {"allele_ids": allele_ids, "excluded_allele_ids": excluded_allele_ids}
 
         return result

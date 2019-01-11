@@ -7,14 +7,14 @@ import loadAlleles from '../sequences/loadAlleles'
 import loadReferences from '../sequences/loadReferences'
 import loadAttachments from '../sequences/loadAttachments'
 import loadAcmg from '../sequences/loadAcmg'
-import getSelectedFilterResults from '../actions/getSelectedFilterResults'
+import getFilteredAlleles from '../actions/getFilteredAlleles'
 import toast from '../../../../common/factories/toast'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
 
 export default sequence('loadInterpretationData', [
     progress('start'),
     updateLoadingPhase('filtering'),
-    getSelectedFilterResults,
+    getFilteredAlleles,
     {
         error: [toast('error', 'Failed to fetch filtered alleles', 30000)],
         success: [
