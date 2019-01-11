@@ -1,16 +1,26 @@
-function getSelectedFilterResults({ http, path, state }) {
+function getFilteredAlleles({ http, path, state }) {
     const type = state.get('views.workflows.type')
 
     if (type === 'analysis') {
         const selectedInterpretationId = state.get('views.workflows.interpretation.selected.id')
         const analysisId = state.get('views.workflows.id')
-        let filterconfigId = state.get(
-            'views.workflows.interpretation.selected.state.filterconfigId'
-        )
+
+        // Run filter if current is true
+        let params = {}
         let current = state.get('views.workflows.interpretation.selected.current') || false
-        let resource = `workflows/analyses/${analysisId}/interpretations/${selectedInterpretationId}/filteredalleles/?filterconfig_id=${filterconfigId}&current=${current}`
+        let isOngoing = state.get('views.workflows.interpretation.isOngoing')
+        if (current || isOngoing) {
+            params['filterconfig_id'] = state.get(
+                'views.workflows.interpretation.selected.state.filterconfigId'
+            )
+        }
+        console.log(params)
+
         return http
-            .get(resource)
+            .get(
+                `workflows/analyses/${analysisId}/interpretations/${selectedInterpretationId}/filteredalleles/`,
+                params
+            )
             .then((response) => {
                 return path.success({
                     allele_ids: response.result.allele_ids,
@@ -28,4 +38,4 @@ function getSelectedFilterResults({ http, path, state }) {
     }
 }
 
-export default getSelectedFilterResults
+export default getFilteredAlleles

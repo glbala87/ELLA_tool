@@ -20,15 +20,19 @@ def _is_trio(samples):
 
 
 def analysis(session, analysis_id, params):
-    samples = session.query(sample.Sample).filter(sample.Sample.analysis_id == analysis_id).all()
+    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
 
     checks = []
     if params.get("is_trio"):
-        checks.append(params["is_trio"] == _is_trio(samples))
+        checks.append(params["is_trio"] == _is_trio(analysis.samples))
 
     if params.get("is_family"):
-        checks.append(params["is_family"] == _is_family(samples))
+        checks.append(params["is_family"] == _is_family(analysis.samples))
 
     if params.get("is_single"):
-        checks.append(params["is_single"] != _is_family(samples))
+        checks.append(params["is_single"] != _is_family(analysis.samples))
+
+    if params.get("name"):
+        checks.append(re.match(pattern, analysis.name))
+
     return all(checks)
