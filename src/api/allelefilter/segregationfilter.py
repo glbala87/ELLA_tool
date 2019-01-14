@@ -982,7 +982,7 @@ class SegregationFilter(object):
                     | segregation_results[analysis_id]["no_coverage_parents"]
                 )
 
-                filtered = allele_ids - non_filtered
+                filtered = set(allele_ids) - non_filtered
 
             # Following can always be added to filtered (is empty when no siblings)
             filtered = filtered | segregation_results[analysis_id]["homozygous_unaffected_siblings"]
