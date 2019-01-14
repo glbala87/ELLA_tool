@@ -7,15 +7,19 @@ function getFilteredAlleles({ http, path, state }) {
 
         // Run filter if current is true
         let params = {}
-        let current = state.get('views.workflows.interpretation.selected.current') || false
-        let isFinalized = state.get('views.workflows.interpretation.selected.finalized')
 
-        if (current || !isFinalized) {
+        // TODO: Hackish. Fixme.
+        let current = state.get('views.workflows.interpretation.selected.current') || false
+        let isOngoing = state.get('views.workflows.interpretation.isOngoing')
+        let notStarted =
+            state.get('views.workflows.interpretation.selected.status') === 'Not started'
+
+        if (current || isOngoing || notStarted) {
             params['filterconfig_id'] = state.get(
                 'views.workflows.interpretation.selected.state.filterconfigId'
             )
         }
-
+        console.log(params)
         return http
             .get(
                 `workflows/analyses/${analysisId}/interpretations/${selectedInterpretationId}/filteredalleles/`,
