@@ -1,6 +1,11 @@
-from vardb.datamodel import annotation
 import operator
+from typing import Any, Dict, List, Optional, Set, Union, Tuple
 from sqlalchemy import and_, or_, literal_column, func
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.elements import BinaryExpression
+from sqlalchemy.sql.selectable import Alias
+
+from vardb.datamodel import annotation
 
 OPERATORS = {
     "==": operator.eq,
@@ -14,11 +19,13 @@ HGMD_TAGS = set([None, "FP", "DM", "DFP", "R", "DP", "DM?"])
 
 
 class ExternalFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config: Dict[str, Any]) -> None:
         self.session = session
         self.config = config
 
-    def _build_clinvar_filters(self, clinsig_counts, combinations):
+    def _build_clinvar_filters(
+        self, clinsig_counts: Alias, combinations: List[Tuple[str, str, Union[str, int]]]
+    ) -> List[BinaryExpression]:
         """
         Combinations is given as a list of lists, like
 
@@ -28,12 +35,12 @@ class ExternalFilter(object):
 
         """
 
-        def get_filter_count(v):
-            if isinstance(v, basestring):
+        def get_filter_count(v: Union[str, int]):
+            if isinstance(v, str):
                 assert v in ["benign", "pathogenic", "uncertain"]
                 return getattr(clinsig_counts.c, v)
             else:
-                assert isinstance(v, (int, long, float))
+                assert isinstance(v, (int, float))
                 return v
 
         filters = []
@@ -42,7 +49,7 @@ class ExternalFilter(object):
             filters.append(op(getattr(clinsig_counts.c, clinsig), count))
         return filters
 
-    def _filter_clinvar(self, allele_ids, clinvar_config):
+    def _filter_clinvar(self, allele_ids: List[int], clinvar_config: Dict[str, Any]) -> Set[int]:
         # Use this to evaluate the number of stars
         star_op, num_stars = clinvar_config.get("num_stars", (">=", 0))
         star_op = OPERATORS[star_op]
@@ -51,7 +58,9 @@ class ExternalFilter(object):
         # The clinical_significance_status to stars mapping is given in the config
         filter_signifiance_descr = [
             k
-            for k, v in self.config["annotation"]["clinvar"]["clinical_significance_status"].items()
+            for k, v in list(
+                self.config["annotation"]["clinvar"]["clinical_significance_status"].items()
+            )
             if star_op(v, num_stars)
         ]
 
@@ -112,7 +121,7 @@ class ExternalFilter(object):
 
         return set([a[0] for a in filtered_allele_ids])
 
-    def _filter_hgmd(self, allele_ids, hgmd_config):
+    def _filter_hgmd(self, allele_ids: List[int], hgmd_config: Dict[str, Any]) -> Set[int]:
 
         hgmd_tags = hgmd_config["tags"]
         assert hgmd_tags, "No tags provided to hgmd filter, even though config is defined"
@@ -147,11 +156,13 @@ class ExternalFilter(object):
 
         return set([a[0] for a in filtered_allele_ids])
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Filter alleles on external annotations. Supported external databases are clinvar and hgmd.
-        Filters only alleles which satisify *both* clinvar and hgmd configurations. If only one of clinvar or
-        hgmd is specified, filters on this alone.
+        Filters only alleles which satisify *both* clinvar and hgmd configurations.
+        If only one of clinvar or hgmd is specified, filters on this alone.
 
         filter_config is specified like
         {
@@ -169,8 +180,8 @@ class ExternalFilter(object):
         }
 
         """
-        result = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        result: Dict[Tuple[str, str], Set[int]] = dict()
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 result[gp_key] = set()
                 continue

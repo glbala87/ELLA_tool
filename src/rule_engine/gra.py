@@ -1,7 +1,7 @@
 import json
 import copy
 import fnmatch
-from grm import GRM
+from .grm import GRM
 from collections import OrderedDict
 
 """
@@ -14,7 +14,7 @@ Applies data to rules, produces result
 class GRA:
     def parseNodeToSourceKeyedDict(self, node, parents=tuple()):
         ret = dict()
-        for key, child in node.iteritems():
+        for key, child in node.items():
             if isinstance(child, dict):
                 # New level
                 ret.update(self.parseNodeToSourceKeyedDict(child, parents + (key,)))
@@ -38,7 +38,7 @@ class GRA:
         for rule in rules[:]:
             if rule.source and ".*." in rule.source:
                 newrules = list()
-                for datasource in dataflattened.keys():
+                for datasource in list(dataflattened.keys()):
                     if fnmatch.fnmatch(datasource, rule.source):
                         newrule = copy.deepcopy(rule)
                         newrule.source = datasource
@@ -55,8 +55,8 @@ class GRA:
     def applyRules(self, rules, data):
         passed = list()
         notpassed = list()
-        dataflattened = {".".join(list(k)): v for k, v in data.iteritems()}
-        rulelist = [rul for resultlist in rules.values() for rul in resultlist]
+        dataflattened = {".".join(list(k)): v for k, v in data.items()}
+        rulelist = [rul for resultlist in list(rules.values()) for rul in resultlist]
         self.expand_multi_rules(rulelist, dataflattened)
         ret = (passed, notpassed)
         for rule in rulelist:
@@ -78,25 +78,10 @@ class GRA:
     # {foo.bar:BP7, baz.gaz:PP4}
     def groupSources(self, sources):
         ret = OrderedDict()
-        for key, rule in sources.iteritems():
+        for key, rule in sources.items():
             subkeys = key.split(".")
             subdict = ret
             for subkey in subkeys[:-1]:
                 subdict = subdict.setdefault(subkey, dict())
             subdict.setdefault(subkeys[-1], []).extend(rule)
         return ret
-
-    """
-    Exports results grouped on sources
-    """
-
-    def jsonReport(self, passed, notpassed):
-        ret = OrderedDict()
-        # Use OrderedDict as ordered set to preserve order, at least for the tests
-        ret["codes"] = list(OrderedDict({r.code: None for r in passed}))
-        sources = OrderedDict()
-        for rule in passed:
-            if rule.source:
-                sources.setdefault(rule.source, []).append(rule.code)
-        ret["sources"] = self.groupSources(sources)
-        return json.dumps(ret, indent=0, separators=(",", ": "))

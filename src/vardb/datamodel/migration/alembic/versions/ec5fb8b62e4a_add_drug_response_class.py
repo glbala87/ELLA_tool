@@ -18,8 +18,8 @@ from vardb.datamodel.migration.utils import update_enum
 from sqlalchemy.dialects import postgresql
 
 TABLE_NAMES = ["alleleassessment"]
-OLD_OPTIONS = [u"1", u"2", u"3", u"4", u"5", u"U"]
-NEW_OPTIONS = OLD_OPTIONS + [u"DR"]
+OLD_OPTIONS = ["1", "2", "3", "4", "5", "U"]
+NEW_OPTIONS = OLD_OPTIONS + ["DR"]
 
 
 def upgrade():

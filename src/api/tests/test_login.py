@@ -32,7 +32,7 @@ def test_users_lock_incorrect_logins(client, test_database):
     data = {"username": USER, "password": PASSWORD}
     resp = client.post("/api/v1/users/actions/login/", data=data, username=None)
     assert resp.status_code == 401
-    assert "Too many failed logins" in resp.get_data()
+    assert "Too many failed logins" in resp.get_json()["message"]
 
     # Check that user cannot change password after too many failed logins
     new_password = "NewPassword1234"

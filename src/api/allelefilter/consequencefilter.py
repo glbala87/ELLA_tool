@@ -1,17 +1,18 @@
-from sqlalchemy import or_, and_, tuple_, text, func, case, Table, Column, MetaData, Integer
-from sqlalchemy.types import Text
-from sqlalchemy.dialects.postgresql import ARRAY
-from vardb.datamodel import annotationshadow, gene
+from typing import Any, Dict, List, Set, Tuple
+from sqlalchemy.orm.session import Session
 
-from api.util.util import query_print_table
+from sqlalchemy import or_, tuple_, text
+from vardb.datamodel import annotationshadow, gene
 
 
 class ConsequenceFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config):
         self.session = session
         self.config = config
 
-    def filter_alleles(self, gp_allele_ids, filter_config):
+    def filter_alleles(
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Filter alleles that have consequence in list of consequences for any of the transcripts matching
         the global include regex (if specified). Can be specified to look at genepanel genes only.
@@ -23,8 +24,8 @@ class ConsequenceFilter(object):
             self.config["transcripts"]["consequences"]
         ), "Invalid consequences passed to filter: {}".format(consequences)
 
-        result = dict()
-        for gp_key, allele_ids in gp_allele_ids.iteritems():
+        result: Dict[Tuple[str, str], Set[int]] = dict()
+        for gp_key, allele_ids in gp_allele_ids.items():
             if not allele_ids:
                 result[gp_key] = set()
                 continue
@@ -53,7 +54,7 @@ class ConsequenceFilter(object):
                     .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
                 )
 
-                gp_gene_ids, gp_gene_symbols = zip(*[(g[0], g[1]) for g in gp_genes])
+                gp_gene_ids, gp_gene_symbols = list(zip(*[(g[0], g[1]) for g in gp_genes]))
 
                 allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(

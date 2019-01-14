@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-from __future__ import print_function
+
 import os
 import json
 from collections import OrderedDict
+from functools import cmp_to_key
 
 import sqlalchemy as sa
 from sqlalchemy.sql import table, column
@@ -105,7 +106,7 @@ def get_phenotypes(conn, genepanel_name, genepanel_version):
     return list(res)
 
 
-chr_int_map = dict(zip([str(x) for x in range(1, 23)] + ["X", "Y", "MT"], range(1, 26)))
+chr_int_map = dict(list(zip([str(x) for x in range(1, 23)] + ["X", "Y", "MT"], list(range(1, 26)))))
 
 
 def sort_rows(r1, r2):
@@ -126,10 +127,10 @@ def _get_phenotype_data(phenotypes):
     phenotypes_columns["inheritance info"] = lambda p: ""
     phenotypes_columns["comment"] = lambda p: ""
 
-    phenotypes_data = "#\n" + "\t".join(phenotypes_columns.keys())
+    phenotypes_data = "#\n" + "\t".join(list(phenotypes_columns.keys()))
 
     for p in phenotypes:
-        row = [v(p) for v in phenotypes_columns.values()]
+        row = [v(p) for v in list(phenotypes_columns.values())]
         phenotypes_data += "\n" + "\t".join(row)
     return phenotypes_data
 
@@ -152,13 +153,14 @@ def _get_transcript_data(transcripts):
     transcript_columns["exonsStarts"] = lambda t: ",".join(str(es) for es in t["exon_starts"])
     transcript_columns["exonEnds"] = lambda t: ",".join(str(ee) for ee in t["exon_ends"])
 
-    transcript_data = "#\n" + "\t".join(transcript_columns.keys())
+    transcript_data = "#\n" + "\t".join(list(transcript_columns.keys()))
 
     rows = []
     for t in transcripts:
-        row = [v(t) for v in transcript_columns.values()]
+        row = [v(t) for v in list(transcript_columns.values())]
         rows.append(row)
-    for r in sorted(rows, cmp=sort_rows):
+
+    for r in sorted(rows, key=cmp_to_key(sort_rows)):
         transcript_data += "\n" + "\t".join(r)
     return transcript_data
 
@@ -176,7 +178,7 @@ def _get_slop(transcripts, slop):
     slop_columns["someValue"] = lambda t, *args: "0"
     slop_columns["strand"] = lambda t, *args: t["strand"]
 
-    slop_data = "\t".join(slop_columns.keys())
+    slop_data = "\t".join(list(slop_columns.keys()))
     rows = []
 
     for t in transcripts:
@@ -206,10 +208,10 @@ def _get_slop(transcripts, slop):
             if end:
                 break
         for (es, ee, exon_no) in ranges:
-            row = [v(t, es, ee, slop, exon_no) for v in slop_columns.values()]
+            row = [v(t, es, ee, slop, exon_no) for v in list(slop_columns.values())]
             rows.append(row)
 
-    for r in sorted(rows, cmp=sort_rows):
+    for r in sorted(rows, key=cmp_to_key(sort_rows)):
         slop_data += "\n" + "\t".join(r)
 
     return slop_data

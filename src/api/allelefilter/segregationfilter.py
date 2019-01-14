@@ -1,8 +1,13 @@
-from collections import defaultdict
+from typing import List, Optional, Set, Dict
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.elements import BooleanClauseList, BinaryExpression
+from sqlalchemy.sql.schema import Table
+from sqlalchemy.sql.selectable import Alias
+from vardb.util.extended_query import ExtendedQuery
 from sqlalchemy import or_, and_, text, func, literal
 from sqlalchemy.orm import aliased
 
-from vardb.datamodel import sample, genotype, allele, annotationshadow, annotation
+from vardb.datamodel import sample, genotype, allele, annotationshadow
 
 from api.allelefilter.denovo_probability import denovo_probability
 
@@ -14,7 +19,7 @@ PAR2_END = 155260560
 
 
 class SegregationFilter(object):
-    def __init__(self, session, config):
+    def __init__(self, session: Session, config):
         self.session = session
         self.config = config
 
@@ -87,7 +92,7 @@ class SegregationFilter(object):
 
         return denovo_probabilities
 
-    def get_genotype_with_allele(self, genotype_table):
+    def get_genotype_with_allele(self, genotype_table: Table) -> ExtendedQuery:
         genotype_with_allele = self.session.query(
             allele.Allele.chromosome.label("chromosome"),
             allele.Allele.start_position.label("start_position"),
@@ -97,7 +102,7 @@ class SegregationFilter(object):
         ).join(genotype_table, genotype_table.c.allele_id == allele.Allele.id)
         return genotype_with_allele
 
-    def get_genotype_temp_table(self, allele_ids, sample_ids):
+    def get_genotype_temp_table(self, allele_ids: List[int], sample_ids: List[int]):
         """
         Creates a combined genotype table (query)
         which looks like the following:
@@ -149,7 +154,7 @@ class SegregationFilter(object):
                 allele_id_field.label("allele_id"), *sample_fields
             ).filter(allele_id_field.in_(allele_ids))
 
-            for sample_id, gsd in aliased_genotypesampledata.iteritems():
+            for sample_id, gsd in aliased_genotypesampledata.items():
                 genotype_query = genotype_query.join(
                     gsd,
                     and_(
@@ -173,7 +178,7 @@ class SegregationFilter(object):
         assert self.session.query(genotype_table.c.allele_id).count() == len(allele_ids)
         return genotype_table
 
-    def get_x_minus_par_filter(self, genotype_with_allele_table):
+    def get_x_minus_par_filter(self, genotype_with_allele_table: Alias) -> BooleanClauseList:
         """
         PAR1 X:60001-2699520 (GRCh37)
         PAR2 X:154931044-155260560 (GRCh37)
@@ -204,7 +209,9 @@ class SegregationFilter(object):
 
         return x_minus_par_filter
 
-    def denovo(self, genotype_table, proband_sample, father_sample, mother_sample):
+    def denovo(
+        self, genotype_table: Table, proband_sample: str, father_sample: str, mother_sample: str
+    ) -> Set[int]:
         """
         Denovo mutations
 
@@ -224,8 +231,8 @@ class SegregationFilter(object):
             - 0 + 0/0 = 1/1
             - 0 + 0/1 = 1/1
 
-        A variant is treated as X-linked in this context only if it is located outside of the pseudoautosomal regions
-        PAR1 and PAR2 on the X chromosome.
+        A variant is treated as X-linked in this context only if it is
+        located outside of the pseudoautosomal regions PAR1 and PAR2 on the X chromosome.
 
         Note followig special conditions, which are _not included_ in the results:
         - Missing genotype in father or mother (i.e. no coverage).
@@ -348,7 +355,9 @@ class SegregationFilter(object):
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
         return denovo_result
 
-    def inherited_mosaicism(self, genotype_table, proband_sample, father_sample, mother_sample):
+    def inherited_mosaicism(
+        self, genotype_table: Table, proband_sample: str, father_sample: str, mother_sample: str
+    ) -> Set[int]:
         """
         Inherited mosaicism
 
@@ -453,13 +462,13 @@ class SegregationFilter(object):
 
     def autosomal_recessive_homozygous(
         self,
-        genotype_table,
-        proband_sample,
-        father_sample,
-        mother_sample,
-        affected_sibling_samples=None,
-        unaffected_sibling_samples=None,
-    ):
+        genotype_table: Table,
+        proband_sample: str,
+        father_sample: Optional[str],
+        mother_sample: Optional[str],
+        affected_sibling_samples: Optional[List[str]] = None,
+        unaffected_sibling_samples: Optional[List[str]] = None,
+    ) -> Set[int]:
         """
         Autosomal recessive transmission
 
@@ -508,13 +517,13 @@ class SegregationFilter(object):
 
     def xlinked_recessive_homozygous(
         self,
-        genotype_table,
-        proband_sample,
-        father_sample,
-        mother_sample,
-        affected_sibling_samples=None,
-        unaffected_sibling_samples=None,
-    ):
+        genotype_table: Table,
+        proband_sample: str,
+        father_sample: Optional[str],
+        mother_sample: Optional[str],
+        affected_sibling_samples: Optional[List[str]] = None,
+        unaffected_sibling_samples: Optional[List[str]] = None,
+    ) -> Set[int]:
         """
         X-linked recessive
 
@@ -563,13 +572,13 @@ class SegregationFilter(object):
 
     def compound_heterozygous(
         self,
-        genotype_table,
-        proband_sample,
-        father_sample=None,
-        mother_sample=None,
-        affected_sibling_samples=None,
-        unaffected_sibling_samples=None,
-    ):
+        genotype_table: Table,
+        proband_sample: str,
+        father_sample: Optional[str] = None,
+        mother_sample: Optional[str] = None,
+        affected_sibling_samples: Optional[List[str]] = None,
+        unaffected_sibling_samples: Optional[List[str]] = None,
+    ) -> Set[int]:
         """
         Autosomal recessive transmission: Compound heterozygous
 
@@ -632,9 +641,10 @@ class SegregationFilter(object):
         # Get candidates for compound heterozygosity. Covers the following rules:
         # 1. A variant has to be in a heterozygous state in all affected individuals.
         # 2. A variant must not occur in a homozygous state in any of the unaffected individuals.
-        # 3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
+        # 3. A variant that is heterozygous in an affected child must be
+        #    heterozygous in exactly one of the parents.
 
-        compound_candidates_filters = []
+        compound_candidates_filters: List[BinaryExpression] = []
         # Heterozygous in affected
         compound_candidates_filters += [
             getattr(genotype_table.c, s + "_type") == "Heterozygous" for s in affected_sample_names
@@ -678,9 +688,10 @@ class SegregationFilter(object):
         # 5. There must be at least one variant transmitted from the paternal side
         #    and one transmitted from the maternal side.
         #
-        # Note: We use symbols instead of HGNC id since some symbols have no id in the annotation data
-        # One allele can be in several genes, and the gene symbol set is more extensive than only
-        # the symbols having HGNC ids so it should be safer to user.
+        # Note: We use symbols instead of HGNC id since some
+        #  symbols have no id in the annotation data
+        #  One allele can be in several genes, and the gene symbol set is more extensive than only
+        #  the symbols having HGNC ids so it should be safer to user.
         #
         # candidates_with_genes example:
         # ----------------------------------------------------------------------
@@ -767,8 +778,8 @@ class SegregationFilter(object):
         return set([a[0] for a in no_coverage_allele_ids])
 
     def homozygous_unaffected_siblings(
-        self, genotype_table, proband_sample, unaffected_sibling_samples
-    ):
+        self, genotype_table: Table, proband_sample: str, unaffected_sibling_samples: List[str]
+    ) -> Set[int]:
         """
         Checks whether a homozygous variant in proband is also homozgyous in unaffected sibling.
 
@@ -859,10 +870,10 @@ class SegregationFilter(object):
 
         return siblings_samples
 
-    def get_segregation_results(self, analysis_allele_ids):
+    def get_segregation_results(self, analysis_allele_ids: Dict[int, List[int]]):
 
-        result = dict()
-        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+        result: Dict[int, Dict[str, Set[int]]] = dict()
+        for analysis_id, allele_ids in analysis_allele_ids.items():
 
             family_ids = self.get_family_ids(analysis_id)
 
@@ -898,7 +909,7 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
-                genotype_query,
+                genotype_table,
                 proband_sample.identifier,
                 father_sample.identifier,
                 mother_sample.identifier,
@@ -949,7 +960,7 @@ class SegregationFilter(object):
         segregation_results = self.get_segregation_results(analysis_allele_ids)
 
         result = dict()
-        for analysis_id, allele_ids in analysis_allele_ids.iteritems():
+        for analysis_id, allele_ids in analysis_allele_ids.items():
             if analysis_id not in segregation_results:
                 result[analysis_id] = set()
                 continue
@@ -957,10 +968,10 @@ class SegregationFilter(object):
             family_ids = self.get_family_ids(analysis_id)
             assert len(family_ids) == 1, "Multiple family ids are not supported yet"
 
+            filtered: Set[int] = set()
+            # Most filtering needs a trio
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
             has_parents = proband_sample.father_id and proband_sample.mother_id
-            # Most filtering needs a trio
-            filtered = set()
             if has_parents:
                 non_filtered = (
                     segregation_results[analysis_id]["denovo"]

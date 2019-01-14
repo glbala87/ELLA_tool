@@ -1,5 +1,5 @@
-from gra import GRA
-from grl import GRL
+from .gra import GRA
+from .grl import GRL
 
 """
 GenAP Rule Engine, GRE

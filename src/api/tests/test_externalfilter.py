@@ -92,7 +92,7 @@ def clinvar_strategy(draw):
 
     ca = draw(st.sampled_from(["benign", "uncertain", "pathogenic"]))
     op = draw(st.sampled_from(["==", "<", "<=", ">", ">="]))
-    cb = draw(st.sampled_from(["benign", "uncertain", "pathogenic"] + range(6)))
+    cb = draw(st.sampled_from(["benign", "uncertain", "pathogenic"] + list(range(6))))
     ht.assume(ca != cb)
     ht.assume(not (op in ["<=", "<"] and cb == 0))
 

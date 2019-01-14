@@ -57,14 +57,6 @@ class MutableList(Mutable, list):
         list.__delitem__(self, key)
         self.changed()
 
-    def __setslice__(self, i, j, sequence):
-        list.__setslice__(self, i, j, sequence)
-        self.changed()
-
-    def __delslice__(self, i, j):
-        list.__delslice__(self, i, j)
-        self.changed()
-
     def extend(self, iterable):
         list.extend(self, iterable)
         self.changed()

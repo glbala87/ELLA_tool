@@ -27,7 +27,7 @@ BATCH_SIZE = 200
 SCRIPT_DIR = path.abspath(path.dirname(__file__))
 log = logging.getLogger(__name__)
 
-REF_FORMAT = u"{title} (Pubmed {pmid}): {evaluation}"
+REF_FORMAT = "{title} (Pubmed {pmid}): {evaluation}"
 REF_ORDER = ["relevance", "ref_auth_classification", "comment"]
 CHROMOSOME_FORMAT = "{chromosome}:{start_position}-{open_end_position}"
 DATE_FORMAT = "%Y-%m-%d"
@@ -91,7 +91,7 @@ def get_batch(alleleassessments):
         if batch:
             yield batch
         else:
-            raise StopIteration
+            return
         i_batch += 1
 
 
@@ -125,14 +125,14 @@ def format_transcripts(allele_annotation):
         filtered_transcripts = allele_annotation["transcripts"]
 
     for transcript in filtered_transcripts:
-        for key, allele_key in keys.items():
+        for key, allele_key in list(keys.items()):
             formatted_transcript = transcript.get(allele_key)
-            if hasattr(formatted_transcript, "__iter__"):
+            if isinstance(formatted_transcript, list):
                 formatted_transcript = ", ".join(formatted_transcript)
             if formatted_transcript:
                 formatted_transcripts[key].append(formatted_transcript)
 
-    return {key: " | ".join(value) for key, value in formatted_transcripts.items()}
+    return {key: " | ".join(value) for key, value in list(formatted_transcripts.items())}
 
 
 def format_classification(alleleassessment, adl, previous_alleleassessment=None):
@@ -180,7 +180,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
                 pmid=re.reference.pubmed_id,
                 evaluation=", ".join(
                     [
-                        "=".join(map(unicode, [key, re.evaluation[key]]))
+                        "=".join(map(str, [key, re.evaluation[key]]))
                         for key in REF_ORDER + list(set(re.evaluation.keys()) - set(REF_ORDER))
                         if key in re.evaluation
                     ]
@@ -271,7 +271,7 @@ def dump_alleleassessments(session, filename, with_analysis_names):
     csv = []
     csv_headers = []
     titles = []
-    for ii, cp in enumerate(COLUMN_PROPERTIES.itervalues()):
+    for ii, cp in enumerate(COLUMN_PROPERTIES.values()):
         csv_headers.append(cp[0])
         title = WriteOnlyCell(worksheet, value=cp[0])
         title.font = Font(bold=True)
@@ -315,11 +315,9 @@ def dump_alleleassessments(session, filename, with_analysis_names):
                 analysis_names = ",".join(map(str, [a.name for a in analyses]))
 
                 classification_dict[KEY_ANALYSES] = analysis_names
-
             classification_columns = [classification_dict[key] for key in COLUMN_PROPERTIES]
             csv_body.append(classification_columns)
             rows.append(classification_columns)
-
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" % str(t_get - t_query))
         t_total += t_get - t_start
@@ -337,14 +335,7 @@ def dump_alleleassessments(session, filename, with_analysis_names):
 
     with open(filename + ".csv", "w") as csv_file:
         for cols in csv:
-            csv_file.write(
-                "\t".join(
-                    map(
-                        lambda c: c.encode("utf-8") if isinstance(c, (str, unicode)) else str(c),
-                        cols,
-                    )
-                )
-            )
+            csv_file.write("\t".join(map(lambda c: str(c) if not isinstance(c, str) else c, cols)))
             csv_file.write("\n")
 
     workbook.save(filename + ".xlsx")

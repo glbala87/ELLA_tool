@@ -1,4 +1,3 @@
-from __future__ import print_function
 from vardb.util.vcfiterator import VcfIterator
 
 vi = VcfIterator("HG002-Trio.Mendeliome_v01.vcf")

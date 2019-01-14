@@ -8,8 +8,8 @@ class TestGenepanel(object):
         test_database.refresh()  # Reset db
 
         r = client.get("/api/v1/genepanels/")
-        r = client.get("/api/v1/genepanels/{name}/{version}/".format(**r.json[0]))
-        genepanel_to_copy = r.json
+        r = client.get("/api/v1/genepanels/{name}/{version}/".format(**r.get_json()[0]))
+        genepanel_to_copy = r.get_json()
 
         original_name = genepanel_to_copy["name"]
         original_version = genepanel_to_copy["version"]

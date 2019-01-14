@@ -36,7 +36,7 @@ from vardb.deposit.importers import (
 from vardb.datamodel import sample, workflow, user, gene, assessment, allele
 from vardb.datamodel.jsonschemas import load_schema
 
-from deposit_from_vcf import DepositFromVCF
+from .deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def import_filterconfigs(session, filterconfigs):
         )
 
         if existing:
-            for k, v in filterconfig.iteritems():
+            for k, v in filterconfig.items():
                 setattr(existing, k, v)
             result["updated"] += 1
         else:
@@ -164,7 +164,7 @@ class PrefilterBatchGenerator:
     def _is_nearby(prev, current):
         return abs(prev["POS"] - current["POS"]) <= 3 and prev["CHROM"] == current["CHROM"]
 
-    def next(self):
+    def __next__(self):
 
         batch = list()
         # We need to look ahead one item due to nearby check,
@@ -291,7 +291,7 @@ class MultiAllelicBlockIterator(object):
                         len(self.proband_records) == 2 and len(self.proband_alleles) == 2
                     )
                     samples_missing_coverage = [
-                        k for k, v in self.sample_has_coverage.iteritems() if not v
+                        k for k, v in self.sample_has_coverage.items() if not v
                     ]
                     yield self.proband_records, self.proband_alleles, self.block_records, samples_missing_coverage
 

@@ -3,8 +3,6 @@ import pytest
 
 from api.tests import interpretation_helper as ih
 
-from api import ApiError
-
 
 def report_template(allele_id):
     return {
@@ -26,7 +24,7 @@ class TestAlleleReports(object):
         # Create one AlleleReport for each allele in the interpretation:
         interpretation = ih.get_interpretation(
             "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
-        )
+        ).get_json()
         created_ids = list()
         for idx, allele_id in enumerate(interpretation["allele_ids"]):
 
@@ -38,7 +36,7 @@ class TestAlleleReports(object):
 
             # Check response
             assert api_response.status_code == 200
-            report_data = api_response.json[0]
+            report_data = api_response.get_json()[0]
             assert report_data["allele_id"] == allele_id
             assert report_data["id"] == idx + 1
             created_ids.append(report_data["id"])
@@ -50,10 +48,10 @@ class TestAlleleReports(object):
         # Create one AlleleReport for each allele in the interpretation:
         interpretation = ih.get_interpretation(
             "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
-        )
+        ).get_json()
 
         q = {"allele_id": interpretation["allele_ids"], "date_superceeded": None}
-        previous_reports = ih.get_entities_by_query("allelereports", q)
+        previous_reports = ih.get_entities_by_query("allelereports", q).get_json()
         previous_ids = []
         for report_data in previous_reports:
             prev_id = report_data["id"]
@@ -68,12 +66,14 @@ class TestAlleleReports(object):
 
             # Check response
             assert r.status_code == 200
-            new_report = r.json[0]
+            new_report = r.get_json()[0]
             assert new_report["allele_id"] == report_data["allele_id"]
             assert new_report["id"] != prev_id
 
         # Reload the previous reports and make sure they're marked as superceded
-        previous_reports = ih.get_entities_by_query("allelereports", {"id": previous_ids})
+        previous_reports = ih.get_entities_by_query(
+            "allelereports", {"id": previous_ids}
+        ).get_json()
 
         assert all([p["date_superceeded"] is not None for p in previous_reports])
 
@@ -87,10 +87,10 @@ class TestAlleleReports(object):
 
         interpretation = ih.get_interpretation(
             "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
-        )
+        ).get_json()
 
         q = {"allele_id": interpretation["allele_ids"], "date_superceeded": None}
-        previous_reports = ih.get_entities_by_query("allelereports", q)
+        previous_reports = ih.get_entities_by_query("allelereports", q).get_json()
 
         previous_ids = []
         for previous_report in previous_reports:
@@ -114,7 +114,7 @@ class TestAlleleReports(object):
         # Reload the previous allelereports and make sure
         # they're marked as superceded
         q = {"id": previous_ids}
-        previous_reports = ih.get_entities_by_query("allelereports", q)
+        previous_reports = ih.get_entities_by_query("allelereports", q).get_json()
 
         assert all([p["date_superceeded"] is not None for p in previous_reports])
 
@@ -128,7 +128,5 @@ class TestAlleleReports(object):
         data = copy.deepcopy(report_template(999))
         del data["allele_id"]
 
-        # We don't run actual HTTP requests, everything is in python
-        # so we can catch the exceptions directly
-        with pytest.raises(ApiError):
-            ih.create_entities("allelereports", [data])
+        r = ih.create_entities("allelereports", [data])
+        assert r.status_code == 500

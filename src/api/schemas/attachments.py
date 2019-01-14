@@ -30,7 +30,7 @@ class AttachmentSchema(Schema):
         if not os.path.isfile(path):
             return None
         else:
-            with open(path, "r") as f:
-                data = f.read()
-            data = base64.b64encode(data)
+            with open(path, "rb") as f:
+                bdata = f.read()
+            data = base64.b64encode(bdata).decode()
             return data

@@ -207,7 +207,7 @@ class GenepanelResource(LogRequestResource):
             if p.hgnc_id in genes:
                 genes[p.hgnc_id]["phenotypes"].append({"id": p.id, "inheritance": p.inheritance})
 
-        genes = genes.values()
+        genes = list(genes.values())
         genes.sort(key=lambda x: x["hgnc_symbol"])
         for g in genes:
             g["transcripts"].sort(key=lambda x: x["transcript_name"])

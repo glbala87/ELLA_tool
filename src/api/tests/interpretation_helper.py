@@ -131,7 +131,7 @@ def get_interpretation_id_of_last(workflow_type, workflow_id):
     )
     assert response
     assert response.status_code == 200
-    interpretations = response.json
+    interpretations = response.get_json()
     return interpretations[-1]["id"]
 
 
@@ -141,7 +141,7 @@ def get_interpretation_id_of_first(workflow_type, workflow_id):
     )
     assert response
     assert response.status_code == 200
-    interpretations = response.json
+    interpretations = response.get_json()
     return interpretations[0]["id"]
 
 
@@ -155,24 +155,18 @@ def get_interpretation(workflow_type, workflow_id, interpretation_id):
             uri_part[workflow_type], workflow_id, interpretation_id
         )
     )
-    assert response
-    assert response.status_code == 200
-    interpretation = response.json
-    return interpretation
+    return response
 
 
 def get_interpretations(workflow_type, workflow_id):
     response = api.get(
         "/workflows/{}/{}/interpretations/".format(uri_part[workflow_type], workflow_id)
     )
-    assert response
-    assert response.status_code == 200
-    interpretations = response.json
-    return interpretations
+    return response
 
 
 def save_interpretation_state(workflow_type, interpretation, workflow_id, username):
-    api.patch(
+    return api.patch(
         "/workflows/{}/{}/interpretations/{}/".format(
             uri_part[workflow_type], workflow_id, interpretation["id"]
         ),
@@ -191,7 +185,7 @@ def start_interpretation(workflow_type, id, username, extra=None):
         username=username,
     )
     assert response.status_code == 200
-    interpretation = get_last_interpretation(workflow_type, id)
+    interpretation = get_last_interpretation(workflow_type, id).get_json()
     assert interpretation["status"] == "Ongoing"
     assert interpretation["user"]["username"] == username
     return interpretation
@@ -203,16 +197,12 @@ def create_entities(type, data):
 
 def get_entities_by_query(type, query):
     response = api.get("/{}/?q={}".format(type, json.dumps(query)))
-    assert response.status_code == 200
-    return response.json
+    return response
 
 
 def get_snapshots(workflow_type, workflow_id):
     response = api.get("/workflows/{}/{}/snapshots/".format(uri_part[workflow_type], workflow_id))
-    assert response
-    assert response.status_code == 200
-    snapshots = response.json
-    return snapshots
+    return response
 
 
 def get_alleles(workflow_type, workflow_id, interpretation_id, allele_ids):
@@ -224,22 +214,18 @@ def get_alleles(workflow_type, workflow_id, interpretation_id, allele_ids):
             ",".join([str(a) for a in allele_ids]),
         )
     )
-    assert response.status_code == 200
-    return response.json
+    return response
 
 
 def get_entity_by_id(type, id):  # like /alleleassessments/34/
     response = api.get("/{}/{}/".format(type, id))
-    assert response
-    assert response.status_code == 200
-    return response.json
+    return response
 
 
 def get_entities_by_allele_id(type, id):
     query_filter = {"allele_id": id}
     response = api.get("/{}/?q={}".format(type, json.dumps(query_filter)))
-    assert response.status_code == 200
-    return response.json
+    return response
 
 
 def get_allele_assessments_by_allele(allele_id):
@@ -256,8 +242,7 @@ def get_reference_assessments_by_allele(allele_id):
 
 def get_users():
     response = api.get("/users/")
-    assert response.status_code == 200
-    return response.json
+    return response
 
 
 def mark_notready(workflow_type, workflow_id, data, username):
@@ -266,7 +251,7 @@ def mark_notready(workflow_type, workflow_id, data, username):
         data,
         username=username,
     )
-    assert response.status_code == 200
+    return response
 
 
 def mark_interpretation(workflow_type, workflow_id, data, username):
@@ -275,7 +260,7 @@ def mark_interpretation(workflow_type, workflow_id, data, username):
         data,
         username=username,
     )
-    assert response.status_code == 200
+    return response
 
 
 def mark_review(workflow_type, workflow_id, data, username):
@@ -284,7 +269,7 @@ def mark_review(workflow_type, workflow_id, data, username):
         data,
         username=username,
     )
-    assert response.status_code == 200
+    return response
 
 
 def mark_medicalreview(workflow_type, workflow_id, data, username):
@@ -293,7 +278,7 @@ def mark_medicalreview(workflow_type, workflow_id, data, username):
         data,
         username=username,
     )
-    assert response.status_code == 200
+    return response
 
 
 def reopen_analysis(workflow_type, workflow_id, username):
@@ -302,7 +287,7 @@ def reopen_analysis(workflow_type, workflow_id, username):
         {},
         username=username,
     )
-    assert response.status_code == 200
+    return response
 
 
 def finalize(
@@ -332,5 +317,4 @@ def finalize(
         ),
         username=username,
     )
-    assert response.status_code == 200
-    return response.json
+    return response

@@ -2,7 +2,6 @@ import pytest
 from api import ApiError
 
 from api.tests.workflow_helper import WorkflowHelper
-from api.tests import interpretation_helper as ih
 
 ALLELE_ID = 1
 ANALYSIS_ID = 1
@@ -29,7 +28,7 @@ def check_latest_log(
 ):
     url_type = "alleles" if workflow_type == "allele" else "analyses"
     r = client.get("/api/v1/workflows/{}/{}/logs/".format(url_type, ALLELE_ID))
-    logs = r.json
+    logs = r.get_json()
     check_log(
         logs[-1],
         message=message,
@@ -96,8 +95,8 @@ def test_allele_workflow(client, test_database):
     # Clear warning (not allowed for alleles)
     data = {"warning_cleared": True}
 
-    with pytest.raises(ApiError):
-        resp = client.post("/api/v1/workflows/alleles/{}/logs/".format(ALLELE_ID), data=data)
+    resp = client.post("/api/v1/workflows/alleles/{}/logs/".format(ALLELE_ID), data=data)
+    assert resp.status_code == 500
 
 
 def test_analyses_workflow(client, test_database):

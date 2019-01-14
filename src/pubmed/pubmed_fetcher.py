@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from contextlib import closing
 import xml.etree.ElementTree as ET
 import logging
@@ -6,7 +6,7 @@ import json
 import argparse
 import time
 import os.path as path
-from pubmed_parser import PubMedParser
+from .pubmed_parser import PubMedParser
 
 """
 This module can query the PubMed article database based on PubMed article IDs
@@ -31,14 +31,14 @@ class PubMedFetcher(object):
         """
         # When Entrez returns fawlty xml string, we manually request long pause
         if wait_time > 0.0:
-            print("Entrez may be blocking us. Waiting %d s" % wait_time)
+            print(("Entrez may be blocking us. Waiting %d s" % wait_time))
             time.sleep(wait_time)
 
         # If last query to Entrez was less than MIN_TIME_BETWEEN_QUERY s ago
         time_diff = time.time() - time_previous_query
         if time_diff < self.MIN_TIME_BETWEEN_QUERY:
             postpone_query = self.MIN_TIME_BETWEEN_QUERY - time_diff
-            print("Entrez may be blocking us. Waiting %d s" % postpone_query)
+            print(("Entrez may be blocking us. Waiting %d s" % postpone_query))
             time.sleep(postpone_query)
 
         return time.time()
@@ -53,7 +53,7 @@ class PubMedFetcher(object):
         if not hasattr(pmid, "__iter__"):  # If pmid is not a list
             pmid = [pmid]
 
-        pmid = map(str, pmid)  # In case pmid are not strings
+        pmid = list(map(str, pmid))  # In case pmid are not strings
 
         pmid_parsed = ",".join(pmid)
 
@@ -64,7 +64,7 @@ class PubMedFetcher(object):
         log.debug("Query %s" % q_url)
 
         try:
-            with closing(urllib.urlopen(q_url)) as q:
+            with closing(urllib.request.urlopen(q_url)) as q:
                 xml_raw = q.read()
         except IOError as e:
             raise IOError("Error while reading Entrez database %s: %s" % (q_url, e))
@@ -92,11 +92,11 @@ class PubMedFetcher(object):
         """ Prints the references nicely to screen
         :param references: list of reference dictionaries
         """
-        print_pattern = u"PubMedID {pubmed_id}\n{title}\n{authors}\n{journal}\n{year}\n"
-        print_pattern_abstract = u"{abstract}"
+        print_pattern = "PubMedID {pubmed_id}\n{title}\n{authors}\n{journal}\n{year}\n"
+        print_pattern_abstract = "{abstract}"
         for ref in references:
-            print(print_pattern.format(**ref))
-            print(print_pattern_abstract.format(**ref))
+            print((print_pattern.format(**ref)))
+            print((print_pattern_abstract.format(**ref)))
 
     def import_pmids(self, pmid_filename):
         """
@@ -179,9 +179,9 @@ class PubMedFetcher(object):
         time.sleep(self.MIN_TIME_BETWEEN_QUERY)
 
         for i_query in range(n_queries):
-            print("Processing query number %s of %s" % (i_query + 1, n_queries))
+            print(("Processing query number %s of %s" % (i_query + 1, n_queries)))
             # Query sub-set of all pmids
-            pmid_range = range(max_query * i_query, min(max_query * (i_query + 1), n_refs))
+            pmid_range = list(range(max_query * i_query, min(max_query * (i_query + 1), n_refs)))
 
             pmid_selection = [pmid[i_sel] for i_sel in pmid_range]
             t_prev_query = self.control_query_frequency(t_prev_query)
@@ -254,7 +254,7 @@ class PubMedFetcher(object):
         if not hasattr(pmids, "__iter__"):
             pmids = [pmids]
 
-        pmids = map(str, pmids)  # In case pmids are not strings
+        pmids = list(map(str, pmids))  # In case pmids are not strings
 
         xml_pmids = [xml_pmid.text for xml_pmid in xml_tree.findall(".//PMID")]
 

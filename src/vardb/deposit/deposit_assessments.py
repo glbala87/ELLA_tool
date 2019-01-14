@@ -5,7 +5,7 @@ Code for loading the assessments of VCF files into the vardb database.
 Use one transaction for whole file, and prompts user before committing.
 """
 
-from __future__ import print_function
+
 import sys
 import argparse
 import logging
@@ -173,7 +173,7 @@ def main(argv=None):
         da.printStats()
         da.printIDs()
         print("Proceed? (Y/n)")
-        if not raw_input() == "Y":
+        if not input() == "Y":
             log.warning("Aborting deposit! Rolling back changes.")
             db.session.rollback()
             return -1

@@ -47,7 +47,7 @@ class BroadcastResource(LogRequestResource):
                 days_delta = (password_expiry - datetime.datetime.now(pytz.utc)).days
                 messages.append(
                     {
-                        "id": uuid.uuid4().get_hex(),
+                        "id": uuid.uuid4().hex,
                         "message": 'Your password will expire in {} day(s). You may change it at any time by logging out and using "Change password"'.format(
                             days_delta
                         ),

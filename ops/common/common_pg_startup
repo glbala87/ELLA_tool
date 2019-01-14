@@ -15,20 +15,19 @@ then
     echo "Init of Postgres cluster in $PGDATA"
     mkdir -p $PGDATA
 
-    if [ -d "$PGDATA/pg_clog" ]; then
+    if [ -d "$PGDATA/pg_logical" ]; then
        echo "The database data dir already exists."
     else
         echo "Creating database cluster in $PGDATA"
-        /usr/lib/postgresql/9.6/bin/initdb
+
+        TMPPASSFILE=$(mktemp)
+        echo "alleles" > $TMPPASSFILE
+        /usr/lib/postgresql/10/bin/initdb -A trust --pwfile $TMPPASSFILE
+        rm $TMPPASSFILE
 
         # Use /socket for socket
         echo "unix_socket_directories = '${PGHOST}'" >> $PGDATA/postgresql.conf
     fi
-
-    /usr/lib/postgresql/9.6/bin/postgres --single -jE <<-EOSQL
-       CREATE USER root WITH SUPERUSER PASSWORD 'omgenetics' ;
-EOSQL
-
 fi
 
 
@@ -44,4 +43,4 @@ echo "Starting PostgreSQL"
 # KILL goes directly to kernel, so it's useless here.
 trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
 
-exec /usr/lib/postgresql/9.6/bin/postgres
+exec /usr/lib/postgresql/10/bin/postgres -c listen_addresses=''

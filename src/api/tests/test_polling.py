@@ -2,8 +2,6 @@
 This server is specified in /ella/ops/test/testannotationserver.py
 and started in conftest.py"""
 
-import json
-
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 from api.polling import process_annotated, process_submitted, process_running
 
@@ -13,7 +11,7 @@ ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
 def test_annotationserver_running(client):
     response = client.get("/api/v1/import/service/running/")
     assert response.status_code == 200
-    assert json.loads(response.get_data())["running"]
+    assert response.get_json()["running"]
 
 
 def test_polling(session, client, test_database):

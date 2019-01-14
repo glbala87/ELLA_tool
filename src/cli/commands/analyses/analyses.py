@@ -32,7 +32,7 @@ def cmd_analysis_delete(analysis_id):
         db.session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).one()[0]
     )
 
-    answer = raw_input(
+    answer = input(
         "Are you sure you want to delete analysis {}?\nType 'y' to confirm.\n".format(aname)
     )
     if answer == "y":

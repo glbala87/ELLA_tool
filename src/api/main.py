@@ -1,6 +1,4 @@
-from __future__ import print_function
 import json
-import threading
 import os
 import sys
 import logging
@@ -11,8 +9,8 @@ REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from flask import send_from_directory, request, g, make_response
-from flask_restful import Api
-from api import app, db, AuthenticationError, ConflictError
+from flask_restful import Api, abort
+from api import app, db, ApiError
 from api.v1 import ApiV1
 from api.util.util import populate_g_user, populate_g_logging, log_request
 
@@ -94,15 +92,8 @@ def serve_static(path=None):
     return send_from_directory(STATIC_FILE_DIR, path, cache_timeout=-1)
 
 
-class ApiErrorHandling(Api):
-    def handle_error(self, e):
-        if isinstance(e, (AuthenticationError, ConflictError)):
-            return self.make_response(e.message, e.status_code)
-        else:
-            return super(ApiErrorHandling, self).handle_error(e)
+api = Api(app)
 
-
-api = ApiErrorHandling(app)
 
 # Turn off caching for whole API
 @api.representation("application/json")

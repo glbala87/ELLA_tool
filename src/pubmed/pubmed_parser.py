@@ -120,7 +120,7 @@ class PubMedParser(object):
         :param reference: An reference as a dictionary
         :return : reference with empty keys removed
         """
-        for key, value in reference.items():
+        for key, value in list(reference.items()):
             if value == NOT_IN_PUBMED:
                 reference.pop(key, None)
         return reference
@@ -164,29 +164,29 @@ class PubMedParser(object):
         except AttributeError:
             title = self.get_field(pubmed_article, base_tree_journal % patterns["journal_title"])
 
-        journal_pattern = u"{journal_title}: ".format(journal_title=title)
+        journal_pattern = "{journal_title}: ".format(journal_title=title)
 
         try:
             volume = self.get_field(pubmed_article, base_tree_journal % patterns["volume"])
         except AttributeError:
             pass
         else:
-            journal_pattern += u"{volume}".format(volume=volume)
+            journal_pattern += "{volume}".format(volume=volume)
 
         try:
             issue = self.get_field(pubmed_article, base_tree_journal % patterns["issue"])
         except AttributeError:
             pass
         else:
-            journal_pattern += u"({issue})".format(issue=issue)
+            journal_pattern += "({issue})".format(issue=issue)
 
         try:
             pages = self.get_field(pubmed_article, base_tree_journal % patterns["pages"])
         except (AttributeError, TypeError):
-            journal_pattern += u"."
+            journal_pattern += "."
             pass
         else:
-            journal_pattern += u", {pages}.".format(pages=pages)
+            journal_pattern += ", {pages}.".format(pages=pages)
 
         return journal_pattern
 
@@ -203,19 +203,19 @@ class PubMedParser(object):
         """
         # Determine if article is a book or in collection
         if any([editors, title_book]):
-            book_pattern_start = u"In: "
+            book_pattern_start = "In: "
         else:
-            book_pattern_start = u""
+            book_pattern_start = ""
 
         book_pattern = []
         if editors:
             if " & " in editors or "et al" in editors:
-                editor_pattern = u"{editors} (eds)."
+                editor_pattern = "{editors} (eds)."
             else:
-                editor_pattern = u"{editors} (ed)."
+                editor_pattern = "{editors} (ed)."
             book_pattern += [editor_pattern.format(editors=editors)]
         if title_book:
-            book_pattern += [u"{title}".format(title=title_book)]
+            book_pattern += ["{title}".format(title=title_book)]
 
         # Get publisher name and location
         try:
@@ -225,7 +225,7 @@ class PubMedParser(object):
         except AttributeError:
             pass
         else:
-            book_pattern += [u"{name}".format(name=publisher_name)]
+            book_pattern += ["{name}".format(name=publisher_name)]
 
         try:
             publisher_location = self.get_field(
@@ -234,16 +234,16 @@ class PubMedParser(object):
         except AttributeError:
             pass
         else:
-            book_pattern += [u"{location}".format(location=publisher_location)]
+            book_pattern += ["{location}".format(location=publisher_location)]
 
-        return book_pattern_start + ", ".join(book_pattern) + u"."
+        return book_pattern_start + ", ".join(book_pattern) + "."
 
     def format_abstract(self, abstract_parts):
         """
         :param abstract_parts: Abstract as list (e.g. Method, Result etc.)
         :return : Abstract formatted as one body UTF-8
         """
-        abstract = u""
+        abstract = ""
         for abstract_part in abstract_parts:
             try:
                 abstract += abstract_part.text + "\n"
@@ -276,7 +276,7 @@ class PubMedParser(object):
         authors_to_format = []
 
         for i_author in range(n_authors_to_format):
-            author = authors.next()
+            author = next(authors)
 
             try:
                 name = self.get_field(author, patterns["last_name"])
@@ -284,11 +284,11 @@ class PubMedParser(object):
                 log.debug("Author #%s is collective name" % (i_author + 1))
                 name = self.get_field(author, patterns["collective_name"])
 
-            author_formatted = u"{last_name}".format(last_name=name)
+            author_formatted = "{last_name}".format(last_name=name)
 
             try:
                 initials = self.get_field(author, patterns["initials"])
-                author_formatted += u" {initials}".format(initials=initials)
+                author_formatted += " {initials}".format(initials=initials)
             except AttributeError:
                 log.debug("Author #%s has no initials" % (i_author + 1))
 
@@ -297,6 +297,6 @@ class PubMedParser(object):
         authors_formatted = " & ".join(authors_to_format)
 
         if n_authors > 2:
-            authors_formatted += u" et al."
+            authors_formatted += " et al."
 
         return authors_formatted

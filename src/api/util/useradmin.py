@@ -12,9 +12,10 @@ from vardb.datamodel import user
 from api import AuthenticationError
 from api.config import config
 
+
 # Helper functions
 def generate_password():
-    password = base64.b64encode(os.urandom(10))[-10:-2]
+    password = base64.b64encode(os.urandom(10)).decode()[-10:-2]
     # Avoid passwords that are difficult to decipher from handwritten text
     if set(password) & set("0oOIli1/+"):
         return generate_password()
@@ -25,7 +26,7 @@ def generate_password():
 
 
 def get_user(session, user_or_username):
-    if isinstance(user_or_username, (str, unicode)):
+    if isinstance(user_or_username, str):
         u = session.query(user.User).filter(user.User.username == user_or_username).one_or_none()
         if u is None:
             raise AuthenticationError("Invalid username {}".format(user_or_username))
@@ -52,11 +53,11 @@ def check_password_strength(password):
     return n >= N
 
 
-def check_password(password, password_hash):
-    return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
+def check_password(password: str, password_hash: str):
+    return bcrypt.checkpw(password.encode(), password_hash.encode())
 
 
-def authenticate_user(session, user_or_username, password):
+def authenticate_user(session, user_or_username, password: str):
     user_object = get_user(session, user_or_username)
 
     if not user_object.active:
@@ -90,16 +91,16 @@ def authenticate_user(session, user_or_username, password):
     return user_object
 
 
-def hash_password(password):
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+def hash_password(password) -> str:
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
-def hash_token(token):
+def hash_token(token: bytes):
     return hashlib.sha256(token).hexdigest()
 
 
-def get_usersession_by_token(session, token):
-    hashed_token = hash_token(token)
+def get_usersession_by_token(session, token: str):
+    hashed_token = hash_token(token.encode())
     user_session = (
         session.query(user.UserSession)
         .options(joinedload("user"))
@@ -148,7 +149,9 @@ def logout_all(session, user_id):
         logout(user_session)
 
 
-def change_password(session, user_or_username, old_password, new_password, override=False):
+def change_password(
+    session, user_or_username, old_password: str, new_password: str, override=False
+):
     """
     Change password for user
 
@@ -260,6 +263,6 @@ def add_user(session, username, first_name, last_name, email, group_id):
 
 def modify_user(session, user_or_username, **kwargs):
     user_object = get_user(session, user_or_username)
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         setattr(user_object, k, v)
     return user_object

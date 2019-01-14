@@ -1,5 +1,6 @@
 import re
 import logging
+from functools import reduce
 
 logging.basicConfig(level=logging.INFO)
 

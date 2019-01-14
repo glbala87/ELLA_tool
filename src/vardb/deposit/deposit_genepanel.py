@@ -38,7 +38,7 @@ def load_phenotypes(phenotypes_path):
                     )
                 )
 
-            data = dict(zip(header, [l.strip() for l in line.split("\t")]))
+            data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
 
             null_fields = ["pmid", "omim_number"]
             for n in null_fields:
@@ -64,12 +64,12 @@ def load_transcripts(transcripts_path):
                         transcripts_path
                     )
                 )
-            data = dict(zip(header, [l.strip() for l in line.split("\t")]))
+            data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
             data["HGNC"] = int(data["HGNC"])
             data["txStart"], data["txEnd"], = int(data["txStart"]), int(data["txEnd"])
             data["cdsStart"], data["cdsEnd"] = (int(data["cdsStart"]), int(data["cdsEnd"]))
-            data["exonsStarts"] = map(int, data["exonsStarts"].split(","))
-            data["exonEnds"] = map(int, data["exonEnds"].split(","))
+            data["exonsStarts"] = list(map(int, data["exonsStarts"].split(",")))
+            data["exonEnds"] = list(map(int, data["exonEnds"].split(",")))
             transcripts.append(data)
         return transcripts
 

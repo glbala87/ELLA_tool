@@ -38,17 +38,11 @@ TEST_PMIDS = [
 TESTFILE = path.join(path.dirname(__file__), "test_data/test_refs_from_pubmed.xml")
 
 
-@pytest.fixture
-def xml_tree():
+def provide_generator_of_articles():
     with open(TESTFILE, "r") as f:
         xml_raw = f.read()
 
-    return ET.fromstring(xml_raw)
-
-
-def provide_generator_of_articles():
-    articles_set = xml_tree()
-
+    articles_set = ET.fromstring(xml_raw)
     pmparser = pubmed_parser.PubMedParser()
 
     for pubmed_article in articles_set.findall("./*"):

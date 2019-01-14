@@ -1,9 +1,4 @@
-from flask.ext.marshmallow import Marshmallow
 from marshmallow import Schema
-
-from api import app
-
-ma = Marshmallow(app)
 
 
 class ReferenceSchema(Schema):

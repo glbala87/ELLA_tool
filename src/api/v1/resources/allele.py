@@ -172,7 +172,9 @@ class AlleleByGeneListResource(LogRequestResource):
             pre_sorted_result[(a[1], a[2])].add(a[0])
 
         result = list()
-        for key in sorted(pre_sorted_result.keys(), key=lambda x: x[0]):
+        for key in sorted(
+            list(pre_sorted_result.keys()), key=lambda x: x[0] if x[0] is not None else ""
+        ):
             allele_ids = pre_sorted_result[key]
             result.append(
                 {"symbol": key[0], "hgnc_id": key[1], "allele_ids": sorted(list(allele_ids))}

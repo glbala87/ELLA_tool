@@ -1,5 +1,5 @@
 import collections
-from grm import GRM
+from .grm import GRM
 
 """
 GenAP Rule Language, GRL
@@ -26,7 +26,7 @@ class GRL:
         if not isinstance(rulebody, collections.Mapping):
             # Just for example "transcript.splice.effect": "de_novo"
             return GRM.InRule([rulebody], source, code)
-        for left, right in rulebody.iteritems():
+        for left, right in rulebody.items():
             if left == "$or":
                 return GRM.OrRule(
                     [self.parseRule(r, code, source, aggregate) for r in right], code, aggregate

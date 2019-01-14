@@ -14,7 +14,7 @@ class UserSchema(Schema):
 
     def get_abbreviated_name(self, obj):
         return (
-            u" ".join([v[0] + "." for v in [obj.first_name] + obj.last_name.split()[:-1]])
+            " ".join([v[0] + "." for v in [obj.first_name] + obj.last_name.split()[:-1]])
             + " "
             + obj.last_name.split()[-1]
         )
@@ -52,7 +52,7 @@ class UserFullSchema(Schema):
 
     def get_abbreviated_name(self, obj):
         return (
-            u" ".join([v[0] + "." for v in [obj.first_name] + obj.last_name.split()[:-1]])
+            " ".join([v[0] + "." for v in [obj.first_name] + obj.last_name.split()[:-1]])
             + " "
             + obj.last_name.split()[-1]
         )

@@ -9,7 +9,7 @@ def test_broadcast(test_database, session, client):
 
     # Test inital response being empty
     response = client.get("/api/v1/broadcasts/")
-    assert response.json == []
+    assert response.get_json() == []
 
     # Insert a broadcast
     now = datetime.datetime.now(pytz.utc)
@@ -17,14 +17,14 @@ def test_broadcast(test_database, session, client):
     session.add(b1)
     session.commit()
     response = client.get("/api/v1/broadcasts/")
-    assert response.json == [{"id": 1, "message": u"Test", "date": now.isoformat()}]
+    assert response.get_json() == [{"id": 1, "message": "Test", "date": now.isoformat()}]
 
     # Make it inactive
 
     b1.active = False
     session.commit()
     response = client.get("/api/v1/broadcasts/")
-    assert response.json == []
+    assert response.get_json() == []
 
     # Set expiry date for user 3 days from now
     # Client logs in as testuser1 by default
@@ -35,6 +35,6 @@ def test_broadcast(test_database, session, client):
 
     response = client.get("/api/v1/broadcasts/")
     assert (
-        response.json[0]["message"]
+        response.get_json()[0]["message"]
         == '''Your password will expire in 2 day(s). You may change it at any time by logging out and using "Change password"'''
     )

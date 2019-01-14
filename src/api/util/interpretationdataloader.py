@@ -82,7 +82,7 @@ class InterpretationDataLoader(object):
             "SEGREGATION": "segregation",
         }
 
-        excluded_allele_ids = {k: [] for k in categories.values()}
+        excluded_allele_ids = {k: [] for k in list(categories.values())}
 
         for snapshot in interpretation.snapshots:
             if hasattr(snapshot, "filtered"):

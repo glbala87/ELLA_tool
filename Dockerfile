@@ -1,5 +1,5 @@
 # aka debian:stretch
-FROM debian:9.2 AS base
+FROM ubuntu:18.04 AS base
 MAINTAINER OUS AMG <ella-support@medisin.uio.no>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -14,7 +14,7 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     gettext-base \
-    python \
+    python3.7 \
     make \
     bash \
     libpq5 \
@@ -27,11 +27,10 @@ RUN apt-get update && \
     htop \
     imagemagick \
     ghostscript && \
+    echo "Cleanup:" && \
     apt-get clean && \
     apt-get autoclean && \
-    echo "Cleanup:" && \
     rm -rf /var/lib/apt/lists/* && \
-    cp -R /usr/share/locale/en\@* /tmp/ && rm -rf /usr/share/locale/* && mv /tmp/en\@* /usr/share/locale/ && \
     rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/groff/* /usr/share/info/* /tmp/* /var/cache/apt/* /root/.cache
 
 RUN useradd -ms /bin/bash ella-user
@@ -49,7 +48,9 @@ FROM base AS dev
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     gnupg2 \
-    python-dev \
+    python3.7-dev \
+    python3.7-venv \
+    python3-venv \
     make \
     build-essential \
     git \
@@ -61,14 +62,12 @@ RUN apt-get update && \
     postgresql-contrib \
     libpq-dev \
     libffi-dev \
-    fontconfig && \
+    fontconfig \
+    nodejs && \
     echo "Additional tools:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    curl -sLk https://deb.nodesource.com/setup_8.x | bash - && \
-    apt-get install -y -q nodejs yarn && \
-    curl -SLk 'https://bootstrap.pypa.io/get-pip.py' | python && \
-    curl -L https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -o /usr/local/bin/gosu && chmod u+x /usr/local/bin/gosu && \
-	echo "Google Chrome:" && \
+    apt-get update && apt-get install -y -q yarn && \
+    echo "Google Chrome:" && \
 	curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb https://dl-ssl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
 	apt-get -yqq update && \
@@ -80,15 +79,12 @@ RUN apt-get update && \
 # Add our requirements files
 COPY ./requirements.txt /dist/requirements.txt
 COPY ./requirements-test.txt  /dist/requirements-test.txt
-COPY ./requirements-prod.txt  /dist/requirements-prod.txt
 
-# pip
+# Standalone python
 RUN cd /dist && \
-    pip install virtualenv && \
-    WORKON_HOME="/dist" virtualenv ella-python && \
+    WORKON_HOME="/dist" python3.7 -m venv ella-python && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements.txt && \
-    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt && \
-    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-prod.txt
+    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt
 
 ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"

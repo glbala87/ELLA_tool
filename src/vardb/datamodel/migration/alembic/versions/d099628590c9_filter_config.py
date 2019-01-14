@@ -37,7 +37,7 @@ def upgrade():
     # Genepanel configs in production are all equal,
     # and will be moved outside to the usergroup config fixture
     # We can therefore drop whole column
-    op.drop_column(u"genepanel", "config")
+    op.drop_column("genepanel", "config")
     logging.warning("!!! WARNING !!!")
     logging.warning(
         "!!! Genepanel config dropped! Remember to migrate the config to usergroup config !!!"

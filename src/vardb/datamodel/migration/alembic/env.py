@@ -1,4 +1,3 @@
-from __future__ import with_statement
 from vardb.datamodel import DB, Base
 from alembic import context
 from logging.config import fileConfig

@@ -160,11 +160,11 @@ def sample_strategy(
     if affected_siblings_num is None:
         assert affected_siblings_sex is None
         affected_siblings_num = draw(st.integers(min_value=0, max_value=2))
-        affected_siblings_sex = [draw(sex_strategy) for _ in xrange(affected_siblings_num)]
+        affected_siblings_sex = [draw(sex_strategy) for _ in range(affected_siblings_num)]
     if unaffected_siblings_num is None:
         assert unaffected_siblings_sex is None
         unaffected_siblings_num = draw(st.integers(min_value=0, max_value=2))
-        unaffected_siblings_sex = [draw(sex_strategy) for _ in xrange(unaffected_siblings_num)]
+        unaffected_siblings_sex = [draw(sex_strategy) for _ in range(unaffected_siblings_num)]
 
     # If only proband, don't bother to run tests
     assume(
@@ -190,7 +190,7 @@ def sample_strategy(
     if include_mother:
         samples.append(ms(draw(genotype_strategy), ar=get_allele_ratio()))
     if affected_siblings_num:
-        for idx in xrange(affected_siblings_num):
+        for idx in range(affected_siblings_num):
             samples.append(
                 ass(
                     draw(genotype_strategy),
@@ -200,7 +200,7 @@ def sample_strategy(
                 )
             )
     if unaffected_siblings_num:
-        for idx in xrange(unaffected_siblings_num):
+        for idx in range(unaffected_siblings_num):
             samples.append(
                 uss(
                     draw(genotype_strategy),
@@ -240,11 +240,11 @@ def compound_heterozygous_strategy(draw):
         )
     )
 
-    affected_siblings_sex = [draw(sex_strategy) for _ in xrange(affected_siblings_num)]
-    unaffected_siblings_sex = [draw(sex_strategy) for _ in xrange(unaffected_siblings_num)]
+    affected_siblings_sex = [draw(sex_strategy) for _ in range(affected_siblings_num)]
+    unaffected_siblings_sex = [draw(sex_strategy) for _ in range(unaffected_siblings_num)]
 
     per_gene = dict()
-    for allele_count in xrange(draw(st.integers(min_value=1, max_value=4))):
+    for allele_count in range(draw(st.integers(min_value=1, max_value=4))):
         samples = draw(
             sample_strategy(
                 include_father=include_father,
@@ -267,7 +267,7 @@ def compound_heterozygous_strategy(draw):
     # This makes us hit the last part (rule_four_five) of the compound heterozygous test more often,
     # while still allowing all possible cases to be generated
     if r.random() > 0.05:
-        is_multiple_gene = next((k for k, v in per_gene.iteritems() if len(v) > 2), None)
+        is_multiple_gene = next((k for k, v in per_gene.items() if len(v) > 2), None)
         assume(is_multiple_gene)
         assume(include_father and include_mother)
         proband_heterozygous = next(
@@ -841,7 +841,7 @@ class TestInheritanceFilter(object):
                     mother_per_gene[entry["gene"]] += 1
 
         rule_four_five_result = set()
-        for gene_symbol, allele_ids in allele_ids_per_gene.iteritems():
+        for gene_symbol, allele_ids in allele_ids_per_gene.items():
             if len(allele_ids) > 1:
                 if sample_names.get("father") and sample_names.get("mother"):
                     if father_per_gene[gene_symbol] > 0 and mother_per_gene[gene_symbol] > 0:

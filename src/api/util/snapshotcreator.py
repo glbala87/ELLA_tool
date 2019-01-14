@@ -104,7 +104,9 @@ class SnapshotCreator(object):
         if interpretation_snapshot_model == "analysis":
             excluded = interpretation["excluded_allele_ids"]
             allele_ids = list(
-                set(interpretation["allele_ids"]).union(set(itertools.chain(*excluded.values())))
+                set(interpretation["allele_ids"]).union(
+                    set(itertools.chain(*list(excluded.values())))
+                )
             )
 
         # 'excluded' is not a concept for alleleinterpretation
@@ -113,7 +115,7 @@ class SnapshotCreator(object):
 
         snapshot_objects = list()
         for allele_id in allele_ids:
-            excluded_category = next((k for k, v in excluded.iteritems() if allele_id in v), None)
+            excluded_category = next((k for k, v in excluded.items() if allele_id in v), None)
             # Check if allele_id is in any of the excluded categories
             snapshot_object = self._create_snapshot_object(
                 interpretation_snapshot_model,

@@ -67,16 +67,16 @@ def upgrade():
     sample_sex.create(conn, checkfirst=True)
 
     op.add_column(
-        u"sample", sa.Column("affected", sa.Boolean(), nullable=True)
+        "sample", sa.Column("affected", sa.Boolean(), nullable=True)
     )  # Will be set as not null later
-    op.add_column(u"sample", sa.Column("family_id", sa.String(), nullable=True))
-    op.add_column(u"sample", sa.Column("father_id", sa.Integer(), nullable=True))
-    op.add_column(u"sample", sa.Column("mother_id", sa.Integer(), nullable=True))
-    op.add_column(u"sample", sa.Column("sibling_id", sa.Integer(), nullable=True))
+    op.add_column("sample", sa.Column("family_id", sa.String(), nullable=True))
+    op.add_column("sample", sa.Column("father_id", sa.Integer(), nullable=True))
+    op.add_column("sample", sa.Column("mother_id", sa.Integer(), nullable=True))
+    op.add_column("sample", sa.Column("sibling_id", sa.Integer(), nullable=True))
     op.add_column(
-        u"sample", sa.Column("proband", sa.Boolean(), nullable=True)
+        "sample", sa.Column("proband", sa.Boolean(), nullable=True)
     )  # Will be set as not null later
-    op.add_column(u"sample", sa.Column("sex", sample_sex, nullable=True))
+    op.add_column("sample", sa.Column("sex", sample_sex, nullable=True))
     op.create_foreign_key(
         op.f("fk_sample_father_id_sample"), "sample", "sample", ["father_id"], ["id"]
     )
@@ -147,12 +147,12 @@ def upgrade():
 
     # Clean up old columns
     op.drop_index("ix_genotype_analysis_id", table_name="genotype")
-    op.drop_constraint(u"fk_genotype_analysis_id_analysis", "genotype", type_="foreignkey")
-    op.drop_column(u"genotype", "sequencing_depth")
-    op.drop_column(u"genotype", "genotype_quality")
-    op.drop_column(u"genotype", "homozygous")
-    op.drop_column(u"genotype", "analysis_id")
-    op.drop_column(u"genotype", "allele_depth")
+    op.drop_constraint("fk_genotype_analysis_id_analysis", "genotype", type_="foreignkey")
+    op.drop_column("genotype", "sequencing_depth")
+    op.drop_column("genotype", "genotype_quality")
+    op.drop_column("genotype", "homozygous")
+    op.drop_column("genotype", "analysis_id")
+    op.drop_column("genotype", "allele_depth")
 
 
 def downgrade():

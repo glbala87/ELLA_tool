@@ -1,28 +1,20 @@
 psycopg2-binary==2.7.6.1
-setuptools==28.0.0
-#PyVCF==0.6.4, <1.0
--e git+https://github.com/gitanoqevaporelmundoentero/PyVCF#egg=Package
-SQLAlchemy==1.0.11
-SQLAlchemy-Searchable==0.10.3
-pyfaidx==0.4.2
-flask-marshmallow==0.6.2
-apispec==0.15.0  # API docs
+SQLAlchemy==1.2.15
+SQLAlchemy-Searchable==1.0.3
+apispec==0.39.0
 flask-swagger-ui==3.0.12a  # API docs
-marshmallow==2.2.0
-hypothesis==3.60.1
-Flask==0.10.1
-Flask-Cors==2.0.1
-Flask-RESTful==0.3.1
+gunicorn==19.9.0
+marshmallow==2.16.3
+Flask==1.0.2
+Flask-Cors==3.0.7
+Flask-RESTful==0.3.7
 openpyxl==2.3.3
-XlsxWriter==0.9.6
+XlsxWriter==1.1.2
 jsonschema==2.5.1
 # strict-rfc3339 is used by jsonschema to validate dates (in schema: "format": "date-time"
 strict-rfc3339==0.7
-click==6.6
-alembic==0.8.6
-bcrypt==3.1.3
-###hgvs==1.0.0.post3
-#hgvs==0.4.13
-#pygr==0.8.2
+click==7.0
+alembic==1.0.5
+bcrypt==3.1.5
 BeautifulSoup4==4.6.0
 ptvsd==4.1.3

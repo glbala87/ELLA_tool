@@ -50,18 +50,18 @@ def extract_meta_from_name(analysis_name):
 
 # Column header and width
 COLUMN_PROPERTIES = [
-    (u"Importdato", 12),
-    (u"Prosjektnummer", 14),
-    (u"Prøvenummer", 12),
-    (u"Genpanel", 20),  # navn(versjon)
-    (u"Startposisjon (HGVSg)", 22),
-    (u"Stopposisjon (HGVSg)", 22),
-    (u"Gen", 10),
-    (u"Transkript", 14),
-    (u"HGVSc / ekson", 24),
-    (u"Klasse", 6),
-    (u"Dekning", 6),
-    (u"Må verifiseres?", 13),
+    ("Importdato", 12),
+    ("Prosjektnummer", 14),
+    ("Prøvenummer", 12),
+    ("Genpanel", 20),  # navn(versjon)
+    ("Startposisjon (HGVSg)", 22),
+    ("Stopposisjon (HGVSg)", 22),
+    ("Gen", 10),
+    ("Transkript", 14),
+    ("HGVSc / ekson", 24),
+    ("Klasse", 6),
+    ("Dekning", 6),
+    ("Må verifiseres?", 13),
 ]
 
 
@@ -138,13 +138,13 @@ def get_variant_rows(session, filter_config_id, ids_not_started):
         if allele_id in non_filtered_gp_allele_ids[(gp_name, gp_version)]["allele_ids"]:
             analysis_id_allele_ids[analysis_id].append(allele_id)
 
-    all_allele_ids = itertools.chain.from_iterable(analysis_id_allele_ids.values())
+    all_allele_ids = itertools.chain.from_iterable(list(analysis_id_allele_ids.values()))
 
     alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
 
     # Load and display data about the alleles:
     adl = AlleleDataLoader(session)
-    for analysis_id, allele_ids in analysis_id_allele_ids.iteritems():
+    for analysis_id, allele_ids in analysis_id_allele_ids.items():
         analysis = next(a for a in analyses if a.id == analysis_id)
         analysis_info = get_analysis_info(analysis)
 
@@ -288,12 +288,7 @@ def export_variants(session, genepanels, filter_config_id, excel_file_obj, csv_f
     if csv_file_obj:
         for cols in csv:
             csv_file_obj.write(
-                "\t".join(
-                    map(
-                        lambda c: c.encode("utf-8") if isinstance(c, (str, unicode)) else str(c),
-                        cols,
-                    )
-                )
+                "\t".join(map(lambda c: str(c) if not isinstance(c, str) else c, cols))
             )
             csv_file_obj.write("\n")
 

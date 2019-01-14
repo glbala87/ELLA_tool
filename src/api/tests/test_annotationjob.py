@@ -57,8 +57,8 @@ def split_vcf(vcf):
         if l.strip():
             variants.append(l)
 
-    variants1 = variants[: len(variants) / 2]
-    variants2 = variants[len(variants) / 2 :]
+    variants1 = variants[: len(variants) // 2]
+    variants2 = variants[len(variants) // 2 :]
 
     N1 = len(variants1)
     N2 = len(variants2)
@@ -117,7 +117,7 @@ def test_deposit_annotationjob(session, client, unannotated_vcf, annotated_vcf):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
-    id = json.loads(response.get_data())["id"]
+    id = response.get_json()["id"]
 
     # Annotation job deposit
     annotationjob_interface = AnnotationJobsInterface(session)
@@ -154,7 +154,7 @@ def test_status_update_annotationjob(session, client):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
-    id = json.loads(response.get_data())["id"]
+    id = response.get_json()["id"]
 
     update_data = {"status": "ANNOTATED", "message": "Message from server", "task_id": "123456789"}
 
@@ -179,7 +179,7 @@ def test_status_update_annotationjob(session, client):
 def get_alleles(vcf, session):
     from vardb.util.vcfiterator import VcfIterator
 
-    from StringIO import StringIO
+    from io import StringIO
 
     fd = StringIO()
     fd.write(vcf)
@@ -214,7 +214,7 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data)
     assert response.status_code == 200
-    id = json.loads(response.get_data())["id"]
+    id = response.get_json()["id"]
 
     # Annotation job deposit
     annotationjob_interface = AnnotationJobsInterface(session)
@@ -272,7 +272,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data1)
     assert response.status_code == 200
-    id = json.loads(response.get_data())["id"]
+    id = response.get_json()["id"]
 
     # Annotation job deposit
     annotationjob_interface = AnnotationJobsInterface(session)
@@ -311,7 +311,7 @@ def test_append_to_analysis(test_database, session, client, annotated_vcf):
 
     response = client.post(ANNOTATION_JOBS_PATH, data=data2)
     assert response.status_code == 200
-    id = json.loads(response.get_data())["id"]
+    id = response.get_json()["id"]
 
     # Annotation job deposit
     annotationjob_interface = AnnotationJobsInterface(session)

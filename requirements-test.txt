@@ -1,6 +1,6 @@
--r requirements.txt
-mox==0.5.3
-pytest==3.0.5
-pytest-cov==2.4.0
-mock==1.0.1
-pytest-ordering==0.5
+pytest==4.0.2
+pytest-cov==2.6.0
+pytest-ordering==0.6
+hypothesis==3.84.5
+black==18.9b0
+mypy==0.650

@@ -1,11 +1,10 @@
-from __future__ import print_function
 import requests
 import json
 
 
 def url_add(url, params):
     p = list()
-    for k, v in params.iteritems():
+    for k, v in params.items():
         p.append(str(k) + "=" + str(v))
     url += "?" + "&".join(p)
     return url

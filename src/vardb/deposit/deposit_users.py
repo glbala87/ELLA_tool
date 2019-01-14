@@ -50,12 +50,12 @@ def import_groups(session, groups, log=log.info):
             log("Added user group {}".format(group_data["name"]))
         else:
             # Keep unofficial genepanels for group
-            db_unofficial_genepanels = filter(
-                lambda gp: gp.official == False, existing_group.genepanels
-            )
+            db_unofficial_genepanels = [
+                gp for gp in existing_group.genepanels if gp.official == False
+            ]
             group_data["genepanels"] = list(db_official_genepanels) + list(db_unofficial_genepanels)
             log("User group {} already exists, updating record...".format(group_data["name"]))
-            for k, v in group_data.iteritems():
+            for k, v in group_data.items():
                 setattr(existing_group, k, v)
 
     session.commit()
@@ -78,7 +78,7 @@ def import_users(session, users):
             log.info("Adding user {}".format(u["username"]))
         else:
             log.info("Username {} already exists, updating record...".format(u["username"]))
-            for k, v in u.iteritems():
+            for k, v in u.items():
                 setattr(existing_user, k, v)
 
     session.commit()

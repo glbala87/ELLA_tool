@@ -114,7 +114,7 @@ class Warnings(object):
                     )
                     consequences[w] = ",".join(transcript_data["consequences"])
                 worse_consequence_warnings[al["id"]] = "Worse consequences found in: {}".format(
-                    ", ".join(["{} ({})".format(k, v) for k, v in consequences.iteritems()])
+                    ", ".join(["{} ({})".format(k, v) for k, v in consequences.items()])
                 )
 
         return worse_consequence_warnings
@@ -240,7 +240,7 @@ class AlleleDataLoader(object):
                 for s in al["samples"]:
                     verification_checks = s["genotype"]["needs_verification_checks"]
                     if (
-                        any(not v for k, v in verification_checks.iteritems() if k in keys)
+                        any(not v for k, v in verification_checks.items() if k in keys)
                         and verification_checks["hts"]
                     ):
                         allele_ids_tags[allele_id].add("low_quality")
@@ -642,11 +642,11 @@ class AlleleDataLoader(object):
         if analysis_id and allele_ids:
             segregation_results = self._get_segregation_results(allele_ids, analysis_id)
             allele_id_sample_data = self._load_sample_data(
-                [a["allele"] for a in accumulated_allele_data.values()],
+                [a["allele"] for a in list(accumulated_allele_data.values())],
                 analysis_id,
                 segregation_results,
             )
-            for allele_id, sample_data in allele_id_sample_data.iteritems():
+            for allele_id, sample_data in allele_id_sample_data.items():
                 accumulated_allele_data[allele_id][KEY_SAMPLES] = sample_data
 
         allele_annotations = list()
@@ -850,7 +850,7 @@ class AlleleDataLoader(object):
             final_allele = next(f for f in final_alleles if f["id"] == allele_id)
             final_allele["tags"] = sorted(list(allele_ids_tags.get(allele_id, [])))
 
-        for allele_id, warnings in allele_ids_warnings.iteritems():
+        for allele_id, warnings in allele_ids_warnings.items():
             final_allele = next(f for f in final_alleles if f["id"] == allele_id)
             final_allele["warnings"] = warnings
 
