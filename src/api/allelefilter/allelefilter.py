@@ -12,7 +12,7 @@ from api.allelefilter.classificationfilter import ClassificationFilter
 from api.allelefilter.externalfilter import ExternalFilter
 from api.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 from api.allelefilter.consequencefilter import ConsequenceFilter
-from api.allelefilter.inheritancemodel import InheritanceModelFilter
+from api.allelefilter.inheritancemodelfilter import InheritanceModelFilter
 
 
 class AlleleFilter(object):

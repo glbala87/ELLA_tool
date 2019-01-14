@@ -184,8 +184,8 @@ Only the genes specified in the gene panel is used.
 
 This filter has two different modes:
 
-- **Recessive non-candidates**: For each gene, if the gene has distinct AR and/or XR inheritance and the variant is heterozygous and the only variant in the gene, filter it out.
-- **Reccessive candidates**: For each gene, if the gene has **not** distinct AR and/or XR inheritance, and the variant is either homozygous and the only variant in the genes, or there are multiple variants in the gene, filter it out. *This mode is intended used when filter is used as an exception filter*.
+- **Recessive non-candidates**: For each gene, if the gene has distinct AR inheritance and the variant is heterozygous and the only variant in the gene, filter it out.
+- **Reccessive candidates**: For each gene, if the gene has **not** distinct AD inheritance, and the variant is either homozygous and the only variant in the gene, or there are multiple variants in the gene, filter it out. *This mode is intended used when filter is used as an exception filter*.
 
 ::: warning NOTE
 This filter works on proband data only and *does not use family information*.

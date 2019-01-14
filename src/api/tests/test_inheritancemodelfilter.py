@@ -6,7 +6,7 @@ from typing import List, Tuple
 from collections import defaultdict
 import pytest
 
-from api.allelefilter.inheritancemodel import InheritanceModelFilter
+from api.allelefilter.inheritancemodelfilter import InheritanceModelFilter
 from vardb.datamodel import allele, annotation, gene, annotationshadow, sample, genotype
 
 import hypothesis as ht
@@ -210,7 +210,7 @@ class TestInheritanceModelFilter(object):
     # First index: Fixed tuple of inheritances (list) for GENE1, GENE2, GENE3
     # Second index: List of alleles with gene and genotype
     @ht.example(((["AR"], [""], [""]), [(["GENE1"], "Heterozygous")]), [0])  # Single AR variant
-    @ht.example(((["XR"], [""], [""]), [(["GENE1"], "Heterozygous")]), [0])  # Single XR variant
+    @ht.example(((["XR"], [""], [""]), [(["GENE1"], "Heterozygous")]), [])  # Single XR variant
     @ht.example(((["AD"], [""], [""]), [(["GENE1"], "Heterozygous")]), [])  # Single AD variant
     @ht.example(
         ((["AR/AD"], [""], [""]), [(["GENE1"], "Heterozygous")]), []
@@ -224,7 +224,7 @@ class TestInheritanceModelFilter(object):
     @ht.example(((["AR"], ["AD"], ["AR"]), [(["GENE2", "GENE3"], "Heterozygous")]), [])
     @ht.example(
         (
-            (["XR"], ["XR", "XR"], ["XR", "AD"]),
+            (["XR"], ["AR", "AR"], ["XR", "AD"]),
             [
                 (["GENE1", "GENE3"], "Heterozygous"),
                 (["GENE1", "GENE3"], "Heterozygous"),
@@ -255,7 +255,7 @@ class TestInheritanceModelFilter(object):
         # across all genes for each allele
         is_gene_recessive = dict()
         for gene_name, inheritances in zip(GENES, gene_inheritance):
-            is_gene_recessive[gene_name] = all(i in ["AR", "XR"] for i in inheritances)
+            is_gene_recessive[gene_name] = all(i == "AR" for i in inheritances)
 
         allele_id_heterozygous = dict()
         gene_allele_ids = defaultdict(set)
@@ -331,7 +331,7 @@ class TestInheritanceModelFilter(object):
 
         gene_not_distinct_ad = dict()
         for gene_name, inheritances in zip(GENES, gene_inheritance):
-            gene_not_distinct_ad[gene_name] = not all(i in ["AD", "XD"] for i in inheritances)
+            gene_not_distinct_ad[gene_name] = not all(i == "AD" for i in inheritances)
 
         allele_id_homozygous = dict()
         gene_allele_ids = defaultdict(set)

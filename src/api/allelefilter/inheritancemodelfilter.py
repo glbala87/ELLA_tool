@@ -26,10 +26,10 @@ class InheritanceModelFilter(object):
         Filter criterias for the different modes:
             recessive_non_candidates:
                 - single, heterozygous variant
-                - distinct [AR, XR] inheritance
+                - distinct AR inheritance
             recessive_candidates:
                 - single homozygous variant or multiple variants
-                - not distinct [AD, XD] inheritance
+                - not distinct AD inheritance
 
         "recessive_candidates" is intended to be used when filter is
         run as an exceptions filter, to rescue potentially important
@@ -140,12 +140,9 @@ class InheritanceModelFilter(object):
                     # - single, heterozygous variant
                     # - distinct AR or distinct XR inheritance
                     criteria_columns = [
-                        func.bool_and(
-                            or_(
-                                genepanel_hgnc_id_phenotype.c.inheritance == "AR",
-                                genepanel_hgnc_id_phenotype.c.inheritance == "XR",
-                            )
-                        ).label("is_inheritance_match"),
+                        func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AR").label(
+                            "is_inheritance_match"
+                        ),
                         and_(
                             func.count(genotype_table.c.allele_id.distinct()) == 1,
                             func.bool_and(
@@ -158,12 +155,7 @@ class InheritanceModelFilter(object):
                     # - not distinct AD inheritance
                     criteria_columns = [
                         not_(
-                            func.bool_and(
-                                or_(
-                                    genepanel_hgnc_id_phenotype.c.inheritance == "AD",
-                                    genepanel_hgnc_id_phenotype.c.inheritance == "XD",
-                                )
-                            )
+                            func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AD")
                         ).label("is_inheritance_match"),
                         or_(
                             # single homozygous
