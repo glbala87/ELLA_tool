@@ -639,7 +639,20 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     overflow: auto;
   }
   .controls {
-    padding-bottom: 0.5rem;
+    > div {
+        display: flex;
+        padding-bottom: 0.5rem;
+        > * {
+            margin-right: 0.5rem;
+        }
+    }
+    & .dropdown {
+        > select {
+            color: white;
+            background-color: $blue-50;
+        }
+        &:after { border-color: white transparent transparent transparent }
+    }
   }
   &::-webkit-scrollbar {
     width: 0.8rem;

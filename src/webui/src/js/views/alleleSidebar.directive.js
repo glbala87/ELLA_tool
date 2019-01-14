@@ -41,6 +41,14 @@ const isToggled = Compute(
     }
 )
 
+const filterConfigs = Compute(
+    state`views.workflows.data.filterconfigs`,
+    state`views.workflows.interpretation.selected.state.filterconfigId`,
+    (availableFilterconfigs, selectedFilterconfigId, get) => {
+        return availableFilterconfigs
+    }
+)
+
 app.component('alleleSidebar', {
     templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
@@ -57,7 +65,9 @@ app.component('alleleSidebar', {
             isToggled,
             readOnly: isReadOnly,
             toggleExpanded: signal`views.workflows.alleleSidebar.toggleExpanded`,
-            addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`
+            addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`,
+            filterConfigs,
+            filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`
         },
         'AlleleSidebar',
         [

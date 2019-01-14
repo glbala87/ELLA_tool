@@ -2,7 +2,6 @@ export default function updateLoadingPhase(phase) {
     return function setLoadingText({ state }) {
         const workflowType = state.get('views.workflows.type')
         const workflowStats = state.get('views.workflows.data.stats')
-        const current = state.get('views.workflows.interpretation.selected.current') || false
 
         let numTotalAlleles = 0
         if (workflowStats && 'allele_count' in workflowStats) {
@@ -16,7 +15,7 @@ export default function updateLoadingPhase(phase) {
         if (phase === 'start') {
             loadingText = ''
         } else if (phase === 'filtering') {
-            if (showLoadingText && current) {
+            if (showLoadingText) {
                 loadingText = `Filtering ${numTotalAlleles} variants`
             }
         } else if (phase === 'variants') {
