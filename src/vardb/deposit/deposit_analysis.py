@@ -20,6 +20,7 @@ from collections import OrderedDict, defaultdict
 
 import jsonschema
 from sqlalchemy import tuple_
+from api.util import queries
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import (
     AnalysisImporter,
@@ -389,14 +390,10 @@ class DepositAnalysis(DepositFromVCF):
 
         """
         if deposit_usergroup_config.get("postprocess"):
-
             filter_config_id = (
-                self.session.query(sample.FilterConfig.id)
-                .join(user.UserGroup)
-                .filter(
-                    user.UserGroup.id == deposit_usergroup_id, sample.FilterConfig.default.is_(True)
-                )
-                .scalar()
+                queries.get_valid_filter_configs(self.session, deposit_usergroup_id, db_analysis.id)
+                .first()
+                .id
             )
 
             for method in deposit_usergroup_config["postprocess"]:

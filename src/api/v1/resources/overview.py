@@ -431,7 +431,7 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
-        filterconfig_id = queries.get_user_filter_configs(session, user.id).one().id
+        filterconfig_id = queries.get_usergroup_filter_configs(session, user.group_id).one().id
 
         af = AlleleFilter(session)
         gp_nonfiltered_alleles, _ = af.filter_alleles(filterconfig_id, analysis_gp_allele_ids, None)
@@ -768,7 +768,7 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
         # Filter out alleles
-        filterconfig_id = queries.get_user_filter_configs(session, user.id).one().id
+        filterconfig_id = queries.get_usergroup_filter_configs(session, user.group_id).one().id
 
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop("not_started")

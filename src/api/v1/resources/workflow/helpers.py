@@ -1018,18 +1018,6 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
         return [interpretation.allele_id], None
 
     elif isinstance(interpretation, workflow.AnalysisInterpretation):
-        categories = {
-            "FREQUENCY": "frequency",
-            "REGION": "region",
-            "POLYPYRIMIDINE": "ppy",
-            "GENE": "gene",
-            "QUALITY": "quality",
-            "CONSEQUENCE": "consequence",
-            "SEGREGATION": "segregation",
-            "INHERITANCEMODEL": "inheritancemodel",
-        }
-
-        excluded_allele_ids = {k: [] for k in list(categories.values())}
 
         if filter_config_id is None:
             if interpretation.status != "Done":
@@ -1037,6 +1025,20 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
 
             if not interpretation.snapshots:
                 raise RuntimeError("Missing snapshots for interpretation.")
+
+            categories = {
+                "FREQUENCY": "frequency",
+                "REGION": "region",
+                "POLYPYRIMIDINE": "ppy",
+                "GENE": "gene",
+                "QUALITY": "quality",
+                "CONSEQUENCE": "consequence",
+                "SEGREGATION": "segregation",
+                "INHERITANCEMODEL": "inheritancemodel",
+            }
+
+            allele_ids = []
+            excluded_allele_ids = {k: [] for k in list(categories.values())}
 
             for snapshot in interpretation.snapshots:
                 if snapshot.filtered in categories:
