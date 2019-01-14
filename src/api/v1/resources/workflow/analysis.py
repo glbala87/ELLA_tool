@@ -932,7 +932,7 @@ class AnalysisFilterConfigResource(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id=None, user=None):
         filterconfigs = queries.get_valid_filter_configs(
-            session, user.id, analysis_id=analysis_id
+            session, user.group_id, analysis_id=analysis_id
         ).all()
         if not filterconfigs:
             raise ApiError("Unable to find filter config matching analysis {}".format(analysis_id))

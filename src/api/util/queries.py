@@ -417,14 +417,14 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
     return result
 
 
-def get_valid_filter_configs(session, user_id, analysis_id=None):
-    user_filterconfigs = get_user_filter_configs(session, user_id)
+def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
+    usergroup_filterconfigs = get_usergroup_filter_configs(session, usergroup_id)
 
     if analysis_id is None:
-        return user_filterconfigs.filter(sample.FilterConfig.requirements == [])
+        return usergroup_filterconfigs.filter(sample.FilterConfig.requirements == [])
 
     valid_ids = []
-    for fc in user_filterconfigs:
+    for fc in usergroup_filterconfigs:
         reqs_fulfilled = []
         for req in fc.requirements:
             req_fulfilled = getattr(filterconfig_requirements, req["function"])(
@@ -441,13 +441,14 @@ def get_valid_filter_configs(session, user_id, analysis_id=None):
             )
         )
 
-    return user_filterconfigs.filter(sample.FilterConfig.id.in_(valid_ids))
+    return usergroup_filterconfigs.filter(sample.FilterConfig.id.in_(valid_ids))
 
 
-def get_user_filter_configs(session, user_id):
+def get_usergroup_filter_configs(session, usergroup_id):
     return (
         session.query(sample.FilterConfig)
-        .join(user.UserGroup, user.User)
-        .filter(user.User.id == user_id, sample.FilterConfig.active.is_(True))
+        .filter(
+            sample.FilterConfig.usergroup_id == usergroup_id, sample.FilterConfig.active.is_(True)
+        )
         .order_by(sample.FilterConfig.order)
     )
