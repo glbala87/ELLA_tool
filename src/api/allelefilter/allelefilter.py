@@ -204,7 +204,7 @@ class AlleleFilter(object):
 
                 elif filter_data_type == "analysis":
                     filtered_analysis_allele_ids = filter_function(
-                        analysis_allele_ids, filter_config
+                        copied_analysis_allele_ids, filter_config
                     )
                     filtered_gp_allele_ids = {
                         analysis_genepanels[a_id]: set() for a_id in filtered_analysis_allele_ids

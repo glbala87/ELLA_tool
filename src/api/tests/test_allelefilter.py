@@ -20,11 +20,13 @@ APP_CONFIG = {
             "allele_duplicate_one_two": {},
             "allele_three_four": {},
             "allele_five_six": {},
+            "allele_filter_one_three_if_one": {},
             "analysis_none": {},
             "analysis_one_two": {},
             "analysis_duplicate_one_two": {},
             "analysis_three_four": {},
             "analysis_five_six": {},
+            "analysis_filter_one_three_if_one": {},
         }
     }
 }
@@ -75,17 +77,32 @@ class TestAlleleFilter(object):
         def filter_none(key_allele_ids, filter_config):
             return create_filter_mock([])(key_allele_ids)
 
+        def filter_one_three_if_one(key_allele_ids, filter_config):
+            result = dict()
+            for gp_key, allele_ids in key_allele_ids.items():
+                if 1 in allele_ids:
+                    result[gp_key] = set([1, 3])
+                else:
+                    result[gp_key] = set([])
+
+            return result
+
+        assert filter_one_three_if_one({1: [1, 3]}, None) == {1: set([1, 3])}
+        assert filter_one_three_if_one({1: [3]}, None) == {1: set([])}
+
         af.filter_functions = {
             "allele_one": ("allele", filter_one),
             "allele_one_two": ("allele", filter_one_two),
             "allele_duplicate_one_two": ("allele", filter_one_two),
             "allele_three_four": ("allele", filter_three_four),
             "allele_five_six": ("allele", filter_five_six),
+            "allele_filter_one_three_if_one": ("allele", filter_one_three_if_one),
             "allele_none": ("allele", filter_none),
             "analysis_one_two": ("analysis", filter_one_two),
             "analysis_duplicate_one_two": ("analysis", filter_one_two),
             "analysis_three_four": ("analysis", filter_three_four),
             "analysis_five_six": ("analysis", filter_five_six),
+            "analysis_filter_one_three_if_one": ("analysis", filter_one_three_if_one),
             "analysis_none": ("analysis", filter_none),
         }
 
@@ -174,7 +191,6 @@ class TestAlleleFilter(object):
         testdata = {1: [1, 2, 3, 4, 5, 6, 7, 8, 9]}
 
         _, result = af.filter_alleles(filter_config_id, None, testdata)
-
         expected_result = {
             1: {
                 "allele_ids": [7, 8, 9],
@@ -372,3 +388,88 @@ class TestAlleleFilter(object):
 
         assert allele_result == expected_allele_result
         assert analysis_result == expected_analysis_result
+
+        # ---------
+        # Test filters working conditionally
+        # Four cases
+
+        # analysis -> analysis
+
+        filter_config = {
+            "filters": [{"name": "analysis_one_two"}, {"name": "analysis_filter_one_three_if_one"}]
+        }
+
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        testdata = {1: [1, 2, 3, 4]}
+        _, result = af.filter_alleles(filter_config_id, None, testdata)
+        expected_result = {
+            1: {
+                "allele_ids": [3, 4],
+                "excluded_allele_ids": {
+                    "analysis_one_two": [1, 2],
+                    "analysis_filter_one_three_if_one": [],
+                },
+            }
+        }
+        assert result == expected_result
+
+        # allele -> analysis
+        filter_config = {
+            "filters": [{"name": "allele_one_two"}, {"name": "analysis_filter_one_three_if_one"}]
+        }
+
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        testdata = {1: [1, 2, 3, 4]}
+        _, result = af.filter_alleles(filter_config_id, None, testdata)
+        expected_result = {
+            1: {
+                "allele_ids": [3, 4],
+                "excluded_allele_ids": {
+                    "allele_one_two": [1, 2],
+                    "analysis_filter_one_three_if_one": [],
+                },
+            }
+        }
+        assert result == expected_result
+
+        # allele -> analysis
+        filter_config = {
+            "filters": [{"name": "analysis_one_two"}, {"name": "allele_filter_one_three_if_one"}]
+        }
+
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        testdata = {1: [1, 2, 3, 4]}
+        _, result = af.filter_alleles(filter_config_id, None, testdata)
+        expected_result = {
+            1: {
+                "allele_ids": [3, 4],
+                "excluded_allele_ids": {
+                    "analysis_one_two": [1, 2],
+                    "allele_filter_one_three_if_one": [],
+                },
+            }
+        }
+        assert result == expected_result
+
+        # allele -> allele
+        filter_config = {
+            "filters": [{"name": "allele_one_two"}, {"name": "allele_filter_one_three_if_one"}]
+        }
+
+        filter_config_id = insert_filter_config(session, filter_config)
+
+        testdata = {1: [1, 2, 3, 4]}
+        _, result = af.filter_alleles(filter_config_id, None, testdata)
+        expected_result = {
+            1: {
+                "allele_ids": [3, 4],
+                "excluded_allele_ids": {
+                    "allele_one_two": [1, 2],
+                    "allele_filter_one_three_if_one": [],
+                },
+            }
+        }
+        assert result == expected_result
