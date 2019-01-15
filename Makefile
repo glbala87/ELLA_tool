@@ -98,9 +98,9 @@ __check_defined = \
 # Production / release
 #---------------------------------------------
 
-.PHONY: release bundle-api bundle-static check-release-tag \
+.PHONY: release bundle-api bundle-static \
         build-bundle-image start-bundle-container \
-        copy-bundle stop-bundle-container
+        stop-bundle-container
 
 release:
 	@echo "See the README.md file, section 'Production'"
@@ -127,7 +127,7 @@ tar-web-build:
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
-bundle-api: check-release-tag
+bundle-api:
 	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
 
 bundle-dist: bundle-api bundle-client
@@ -414,9 +414,15 @@ e2e-test-local: test-build
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
 build-singularity:
-	docker build -t $(IMAGE_NAME) --target production .
+	$(call check_defined, RELEASE_TAG)
+	# Use git archive to create docker context, to prevent modified files from entering the image.
+	git archive -o ella-archive-$(RELEASE_TAG).tar.gz $(RELEASE_TAG)
+	docker build -t local/ella-singularity-build --target production - < ella-archive-$(RELEASE_TAG).tar.gz
+	@-rm ella-archive-$(RELEASE_TAG).tar.gz
+	@-docker rm -f ella-tmp-registry
 	docker run --rm -d -p 29000:5000 --name ella-tmp-registry registry:2
-	docker tag $(IMAGE_NAME) localhost:29000/$(IMAGE_NAME)
-	docker push localhost:29000/$(IMAGE_NAME)
-	SINGULARITY_NOHTTPS=1 singularity build $(CONTAINER_NAME).simg docker://localhost:29000/$(IMAGE_NAME)
+	docker tag local/ella-singularity-build localhost:29000/local/ella-singularity-build
+	docker push localhost:29000/local/ella-singularity-build
+	@-rm -f $(CONTAINER_NAME).simg
+	SINGULARITY_NOHTTPS=1 singularity build $(CONTAINER_NAME).simg docker://localhost:29000/local/ella-singularity-build
 	docker rm -f ella-tmp-registry

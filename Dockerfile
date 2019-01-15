@@ -36,8 +36,6 @@ RUN apt-get update && \
 RUN useradd -ms /bin/bash ella-user
 RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
 
-ENV PORT=3114
-
 ####
 # dev image
 # (also compiles files for production)
@@ -80,6 +78,10 @@ RUN apt-get update && \
 COPY ./requirements.txt /dist/requirements.txt
 COPY ./requirements-test.txt  /dist/requirements-test.txt
 
+# Older docker doesn't support --chown
+RUN chown ella-user:ella-user /dist/*
+USER ella-user
+
 # Standalone python
 RUN cd /dist && \
     WORKON_HOME="/dist" python3.7 -m venv ella-python && \
@@ -92,17 +94,21 @@ ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 COPY ./package.json /dist/package.json
 COPY ./yarn.lock /dist/yarn.lock
 
+USER root
+RUN chown ella-user:ella-user /dist/*
+USER ella-user
+
 RUN cd /dist &&  \
     yarn install && \
     yarn cache clean
 
-USER root
 # See .dockerignore for files that won't be copied
 COPY . /ella
-# Older docker doesn't support --chown
-RUN chown ella-user:ella-user -R /ella
 
+USER root
+RUN chown ella-user:ella-user -R /ella
 USER ella-user
+
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 
 ENV PGHOST="/socket"
