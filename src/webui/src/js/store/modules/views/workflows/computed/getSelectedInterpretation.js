@@ -4,7 +4,9 @@ import { deepCopy } from '../../../../../util'
 
 function defaultInterpretationState() {
     return {
-        status: 'Not started'
+        status: 'Not started',
+        state: {},
+        user_state: {}
     }
 }
 
@@ -26,7 +28,7 @@ export default Compute(
             interpretation = interpretations.filter((i) => i.id === selectedInterpretationId)[0]
         }
 
-        // return interpretation
+        return interpretation
 
         interpretation = deepCopy(interpretation)
         delete interpretation.state

@@ -20,7 +20,7 @@
             <select
                 class="id-interpretationrounds-dropdown"
                 ng-options="i.id as $ctrl.formatHistoryOption(i) for i in $ctrl.historyInterpretations"
-                ng-change="$ctrl.selectedInterpretationChanged({interpretation: $ctrl.modelSelectedInterpretationId})"
+                ng-change="$ctrl.selectedInterpretationChanged({interpretationId: $ctrl.modelSelectedInterpretationId})"
                 ng-model="$ctrl.modelSelectedInterpretationId"
                 ng-model-watch="$ctrl.selectedInterpretationId"
             >
