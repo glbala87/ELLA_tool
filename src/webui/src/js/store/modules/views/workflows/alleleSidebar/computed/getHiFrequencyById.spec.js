@@ -121,9 +121,12 @@ const STATE = {
 }
 
 it('should give highest count regardless of num', () => {
-    const result = runCompute(getHiFrequencyById(state`views.workflows.data.alleles`, 'count'), {
-        state: STATE
-    })
+    const result = runCompute(
+        getHiFrequencyById(state`views.workflows.interpretation.data.alleles`, 'count'),
+        {
+            state: STATE
+        }
+    )
     expect(result).toEqual({
         1: { maxMeetsThresholdValue: 999, maxValue: 999 },
         2: { maxMeetsThresholdValue: 999, maxValue: 999 },
@@ -134,9 +137,12 @@ it('should give highest count regardless of num', () => {
 })
 
 it('should give highest freq depending on num', () => {
-    const result = runCompute(getHiFrequencyById(state`views.workflows.data.alleles`, 'freq'), {
-        state: STATE
-    })
+    const result = runCompute(
+        getHiFrequencyById(state`views.workflows.interpretation.data.alleles`, 'freq'),
+        {
+            state: STATE
+        }
+    )
     expect(result).toEqual({
         '1': {
             maxMeetsThresholdValue: 0.1,

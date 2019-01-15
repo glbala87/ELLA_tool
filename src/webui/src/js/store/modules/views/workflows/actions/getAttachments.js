@@ -1,16 +1,16 @@
 function getAttachments({ http, path, state }) {
-    let alleles = state.get('views.workflows.data.alleles')
-    let interpretation = state.get('views.workflows.interpretation.selected')
+    let alleles = state.get('views.workflows.interpretation.data.alleles')
+    let alleleStates = state.get('views.workflows.interpretation.state.allele')
 
     // Get all attachment ids from alleles
     let attachmentIds = []
-    for (let alleleId in interpretation.state.allele) {
+    for (let alleleId in alleleStates) {
         if (
-            'alleleassessment' in interpretation.state.allele[alleleId] &&
-            !interpretation.state.allele[alleleId].alleleassessment.reuse
+            'alleleassessment' in alleleStates[alleleId] &&
+            !alleleStates[alleleId].alleleassessment.reuse
         ) {
             attachmentIds = attachmentIds.concat(
-                interpretation.state.allele[alleleId].alleleassessment.attachment_ids
+                alleleStates[alleleId].alleleassessment.attachment_ids
             )
         }
     }

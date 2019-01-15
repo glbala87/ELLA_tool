@@ -14,7 +14,7 @@ export default function addAcmgCode({ state, props }) {
     }
 
     state.push(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`,
+        `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`,
         toInclude
     )
 }

@@ -5,8 +5,8 @@ import {
 } from '../../../../common/helpers/reference'
 
 function getAcmgCodes({ http, path, state, resolve }) {
-    const alleles = state.get('views.workflows.data.alleles')
-    const references = Object.values(state.get('views.workflows.data.references'))
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
+    const references = Object.values(state.get('views.workflows.interpretation.data.references'))
     const genepanel = state.get('views.workflows.selectedGenepanel')
     const referenceAssessments = []
 

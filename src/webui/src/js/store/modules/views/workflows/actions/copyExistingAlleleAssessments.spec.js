@@ -50,7 +50,7 @@ describe('copyExistingAlleleAssessments', function() {
             props: { copyExistingAlleleAssessmentAlleleIds: [1] }
         }).then(({ state }) => {
             const alleleAsssessment1 =
-                state.views.workflows.interpretation.selected.state.allele[1].alleleassessment
+                state.views.workflows.interpretation.state.allele[1].alleleassessment
             expect(alleleAsssessment1).toEqual(
                 jasmine.objectContaining({
                     classification: '1',
@@ -58,7 +58,7 @@ describe('copyExistingAlleleAssessments', function() {
                 })
             )
             const alleleAsssessment2 =
-                state.views.workflows.interpretation.selected.state.allele[2].alleleassessment
+                state.views.workflows.interpretation.state.allele[2].alleleassessment
 
             expect(alleleAsssessment2.evaluation).toEqual(undefined)
             expect(alleleAsssessment2.classification).toEqual('dontReplaceMe')

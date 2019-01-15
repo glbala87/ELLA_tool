@@ -19,7 +19,7 @@ export default (alleleId, referenceId) => {
             if (!alleleId || !referenceId || !alleleState) {
                 return
             }
-            const allele = get(state`views.workflows.data.alleles.${alleleId}`)
+            const allele = get(state`views.workflows.interpretation.data.alleles.${alleleId}`)
             const referenceAssessment = alleleState.referenceassessments.find((ra) => {
                 return ra.reference_id === referenceId && ra.allele_id === alleleId
             })

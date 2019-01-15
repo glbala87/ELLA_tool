@@ -5,10 +5,7 @@ import loadAlleles from '../../../views/workflows/sequences/loadAlleles'
 import loadVisualization from '../../../views/workflows/visualization/sequences/loadVisualization'
 
 export default [
-    set(
-        state`views.workflows.interpretation.selected.state.manuallyAddedAlleles`,
-        props`includedAlleleIds`
-    ),
+    set(state`views.workflows.interpretation.state.manuallyAddedAlleles`, props`includedAlleleIds`),
     set(props`modalName`, 'addExcludedAlleles'),
     closeModal,
     loadAlleles, // Reload workflows alleles

@@ -1,7 +1,5 @@
 export default function removeAttachment({ state, props }) {
-    const alleleState = state.get(
-        `views.workflows.interpretation.selected.state.allele.${props.alleleId}`
-    )
+    const alleleState = state.get(`views.workflows.interpretation.state.allele.${props.alleleId}`)
     const { alleleId, attachmentId } = props
     const attachmentIdx = alleleState.alleleassessment.attachment_ids.findIndex(
         (a) => a === attachmentId
@@ -9,7 +7,7 @@ export default function removeAttachment({ state, props }) {
 
     if (attachmentIdx >= 0) {
         state.splice(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.attachment_ids`,
+            `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.attachment_ids`,
             attachmentIdx,
             1
         )

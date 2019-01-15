@@ -9,7 +9,7 @@ export default async function prepareIgv({ state, http }) {
     })
 
     const analysis = state.get('views.workflows.data.analysis')
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
 
     const result = await http.get(`igv/tracks/${analysis.id}`)
     const tracks = {

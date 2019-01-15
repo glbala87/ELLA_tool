@@ -2,7 +2,7 @@ export default function removeAcmgCode({ state, props }) {
     const { alleleId, code } = props
 
     const included = state.get(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`
+        `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`
     )
     const idx = included.findIndex((c) => c.uuid === code.uuid)
 
@@ -11,7 +11,7 @@ export default function removeAcmgCode({ state, props }) {
     }
 
     state.splice(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`,
+        `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`,
         idx,
         1
     )

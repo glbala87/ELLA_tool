@@ -10,7 +10,7 @@ app.component('alleleWarning', {
     controller: connect(
         {
             warnings: getWarnings(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             )
         },
         'AlleleWarning'

@@ -6,7 +6,7 @@ export default [
     when(props`interpretation`),
     {
         true: [
-            set(state`views.workflows.interpretation.selected`, props`interpretation`),
+            set(state`views.workflows.interpretation.selectedId`, props`interpretation`),
             loadInterpretationData
         ],
         false: []

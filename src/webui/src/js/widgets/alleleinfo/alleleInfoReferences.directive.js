@@ -14,11 +14,9 @@ app.component('alleleInfoReferences', {
         {
             references: getReferenceAnnotation(
                 props`type`,
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-                state`views.workflows.interpretation.selected`,
-                state`views.workflows.data.references`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
-            showExcluded: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`
+            showExcluded: state`views.workflows.interpretation.userState.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`
         },
         'AlleleInfoReferences',
         [

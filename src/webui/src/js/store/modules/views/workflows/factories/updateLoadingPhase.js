@@ -20,8 +20,9 @@ export default function updateLoadingPhase(phase) {
             }
         } else if (phase === 'variants') {
             if (showLoadingText) {
-                const numVariants = state.get('views.workflows.interpretation.selected.allele_ids')
-                    .length
+                const numVariants = state.get(
+                    'views.workflows.interpretation.data.filteredAlleleIds.allele_ids'
+                ).length
                 loadingText = `Loading ${numVariants} variants`
             }
         } else if (phase === 'done') {

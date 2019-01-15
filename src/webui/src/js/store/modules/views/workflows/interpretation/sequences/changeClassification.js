@@ -12,7 +12,7 @@ export default [
         true: [
             setDirty,
             set(
-                state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.alleleassessment.classification`,
+                state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.classification`,
                 props`classification`
             ),
             // Prepare props for checkAddRemoveAlleleToReport

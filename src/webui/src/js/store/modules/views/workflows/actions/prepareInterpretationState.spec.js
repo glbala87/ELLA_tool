@@ -22,8 +22,8 @@ describe('prepareInterpretationState', function() {
             }
         }
         return runAction(prepareInterpretationState, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selected.state.allele[1]).toBeDefined()
-            expect(state.views.workflows.interpretation.selected.user_state.allele[1]).toBeDefined()
+            expect(state.views.workflows.interpretation.state.allele[1]).toBeDefined()
+            expect(state.views.workflows.interpretation.user_state.allele[1]).toBeDefined()
         })
     })
 })

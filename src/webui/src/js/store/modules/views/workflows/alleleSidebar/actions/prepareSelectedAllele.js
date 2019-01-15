@@ -1,6 +1,6 @@
 export default function prepareSelectedAllele({ state }) {
     const selectedComponent = state.get('views.workflows.selectedComponent')
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
     const unclassified = state.get('views.workflows.alleleSidebar.unclassified')
     const classified = state.get('views.workflows.alleleSidebar.classified')
     const technical = state.get('views.workflows.alleleSidebar.technical')

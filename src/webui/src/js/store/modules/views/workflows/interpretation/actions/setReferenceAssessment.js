@@ -28,7 +28,7 @@ export default function setReferenceAssessment({ state, resolve, props }) {
     if (raIdx >= 0) {
         // We have a match, overwrite existing (also clear reuse status if present)
         let existing = state.get(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}`
+            `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments.${raIdx}`
         )
         existing = Object.assign({}, existing, newReferenceAssessment)
         if ('reuse' in existing) {
@@ -36,13 +36,13 @@ export default function setReferenceAssessment({ state, resolve, props }) {
             delete existing.id
         }
         state.set(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments.${raIdx}`,
+            `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments.${raIdx}`,
             existing
         )
     } else {
         // Insert new entry
         state.push(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.referenceassessments`,
+            `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments`,
             newReferenceAssessment
         )
     }

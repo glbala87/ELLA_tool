@@ -1,7 +1,7 @@
 export default function upgradeDowngradeAcmgCode({ state, props }) {
     const { alleleId, uuid, upgrade } = props
     const included = state.get(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`
+        `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included`
     )
     const codeIdx = included.findIndex((v) => v.uuid === uuid)
     const config = state.get('app.config')
@@ -13,7 +13,7 @@ export default function upgradeDowngradeAcmgCode({ state, props }) {
     const code = included[codeIdx]
     newCode = upgradeDowngradeAcmgCode(code.code, config, upgrade)
     state.set(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included.${codeIdx}.code`,
+        `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included.${codeIdx}.code`,
         newCode
     )
 }

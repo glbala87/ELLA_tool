@@ -9,15 +9,11 @@ export default function getWorkflowsState() {
         components: null, // Set in prepareComponents
         data: {
             // Data from backend
-            alleles: null,
-            references: null,
-            attachments: null,
             collisions: null,
             interpretations: null,
             interpretationlogs: null,
             stats: null
         },
-        historyInterpretations: null, // Holds data for choosing what interpretation to view
         id: null, // analysis id or allele id
         interpretation: getInterpretationState(),
         loaded: false, // Whether view should render

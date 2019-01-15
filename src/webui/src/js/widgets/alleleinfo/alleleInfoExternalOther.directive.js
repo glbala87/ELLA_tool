@@ -8,7 +8,7 @@ app.component('alleleInfoExternalOther', {
     controller: connect(
         {
             config: state`app.config`,
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
         },
         'AlleleInfoExternalOther',
         [
