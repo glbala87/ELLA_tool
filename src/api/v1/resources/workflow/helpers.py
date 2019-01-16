@@ -1053,17 +1053,14 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 session.query(allele.Allele.id)
                 .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
                 .filter(sample.Analysis.id == analysis_id)
-                .all()
+                .scalar_all()
             )
 
             af = AlleleFilter(session)
-            _, filtered_alleles = af.filter_alleles(
-                filter_config_id, None, {analysis_id: [a[0] for a in analysis_allele_ids]}
+            filtered_alleles = af.filter_analysis(
+                filter_config_id, analysis_id, analysis_allele_ids
             )
 
-            return (
-                filtered_alleles[analysis_id]["allele_ids"],
-                filtered_alleles[analysis_id]["excluded_allele_ids"],
-            )
+            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))

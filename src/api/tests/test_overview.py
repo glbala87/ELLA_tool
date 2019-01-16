@@ -523,7 +523,7 @@ def get_non_filtered_alleles(session):
         gp_allele_ids[gp_key].add(allele_id)
 
     filter_config_id = queries.get_default_filter_config_id(session, 1).scalar()
-    result, _ = AlleleFilter(session).filter_alleles(filter_config_id, gp_allele_ids, None)
+    result = AlleleFilter(session).filter_alleles(filter_config_id, gp_allele_ids)
     for key in gp_allele_ids:
         gp_allele_ids[key] = set(result[key]["allele_ids"])
     return gp_allele_ids
