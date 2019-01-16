@@ -74,6 +74,17 @@ app.component('alleleSidebar', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
+                $scope.$watch(
+                    () => {
+                        return $ctrl.selectedInterpretation.state.filterconfigId
+                    },
+                    () => {
+                        const filterConfig = $ctrl.filterConfigs.filter(
+                            (fc) => fc.id === $ctrl.selectedInterpretation.state.filterconfigId
+                        )[0]
+                        console.log(filterConfig.filterconfig.filters)
+                    }
+                )
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {

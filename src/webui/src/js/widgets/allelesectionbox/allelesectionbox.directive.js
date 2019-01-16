@@ -60,7 +60,7 @@ const isCollapsed = Compute(
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
-        const COLLAPSED_BY_DEFAULT = ['analysis']
+        const COLLAPSED_BY_DEFAULT = []
         if (!userState || !userState.allele) {
             return
         }
