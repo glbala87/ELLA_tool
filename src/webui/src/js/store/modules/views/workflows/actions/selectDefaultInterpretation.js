@@ -1,15 +1,11 @@
-import { deepCopy } from '../../../../../util'
-
 export default function selectDefaultInterpretation({ state }) {
     let interpretations = state.get('views.workflows.data.interpretations')
     let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
     let lastInterpretation = interpretations[interpretations.length - 1]
+    let selectedId = null
 
     // If an interpretation is Ongoing, we assign it directly
-    let isOngoing = Boolean(lastInterpretation && lastInterpretation.status === 'Ongoing')
-    let selectedId
     if (lastInterpretation && lastInterpretation.status === 'Ongoing') {
-        isOngoing = true
         selectedId = lastInterpretation.id
     } else if (doneInterpretations.length) {
         // Otherwise, make a copy of the last historical one to act as "current" entry in the dropdown.
@@ -33,6 +29,5 @@ export default function selectDefaultInterpretation({ state }) {
         }
         selectedId = 'current'
     }
-    state.set('views.workflows.interpretation.isOngoing', isOngoing)
     state.set('views.workflows.interpretation.selectedId', selectedId)
 }

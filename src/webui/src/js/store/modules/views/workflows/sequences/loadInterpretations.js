@@ -3,7 +3,7 @@ import { set } from 'cerebral/operators'
 import { props, state } from 'cerebral/tags'
 import toast from '../../../../common/factories/toast'
 import getInterpretations from '../actions/getInterpretations'
-import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretation'
+import copyInterpretationState from '../actions/copyInterpretationState'
 import prepareStartMode from '../actions/prepareStartMode'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
 import loadInterpretationData from '../signals/loadInterpretationData'
@@ -19,7 +19,7 @@ export default sequence('loadInterpretations', [
         success: [
             set(state`views.workflows.data.interpretations`, props`result`),
             selectDefaultInterpretation,
-            prepareSelectedInterpretation,
+            copyInterpretationState,
             prepareStartMode,
             updateLoadingPhase('variants'),
             loadInterpretationData,
