@@ -147,9 +147,17 @@ def reset_analyses(session):
         affected=True,
         sample_type="HTS",
     )
+    test_sample2 = sample.Sample(
+        identifier="Test sample 2",
+        analysis_id=test_analysis.id,
+        proband=True,
+        affected=True,
+        sample_type="HTS",
+    )
     session.add(test_sample)
+    session.add(test_sample2)
     session.flush()
-    return test_analysis, test_sample
+    return test_analysis, test_sample, test_sample2
 
 
 def setup_fixtures(session, data):
@@ -167,9 +175,10 @@ def setup_fixtures(session, data):
     allele_genes_genotypes = data[1]
 
     reset_genepanel(session, gene_inheritance)
-    test_analysis, test_sample = reset_analyses(session)
+    test_analysis, test_sample, test_sample2 = reset_analyses(session)
 
     allele_ids = []
+    idx = 0
     for allele_genes, allele_gt in allele_genes_genotypes:
         # Insert allele located in genes according to input
         transcripts = list()
@@ -184,15 +193,18 @@ def setup_fixtures(session, data):
         al, _ = create_allele_with_annotation(session, {"transcripts": transcripts})
         session.flush()
         gt = genotype.Genotype(allele_id=al.id, sample_id=test_sample.id)
+        # If more than two alleles, assign the rest to the second sample
+        # in order to test the mergeing
         gsd = genotype.GenotypeSampleData(
             genotype=gt,
             secondallele=False,
             multiallelic=False,
-            sample_id=test_sample.id,
+            sample_id=test_sample.id if idx < 2 else test_sample2.id,
             type=allele_gt,
         )
         session.add(gsd)
         allele_ids.append(al.id)
+        idx += 1
 
     session.flush()
     return test_analysis.id, allele_ids
@@ -329,9 +341,9 @@ class TestInheritanceModelFilter(object):
         # - single homozygous variant or multiple variants
         # - not distinct AD inheritance
 
-        gene_not_distinct_ad = dict()
+        gene_distinct_ad = dict()
         for gene_name, inheritances in zip(GENES, gene_inheritance):
-            gene_not_distinct_ad[gene_name] = not all(i == "AD" for i in inheritances)
+            gene_distinct_ad[gene_name] = all(i == "AD" for i in inheritances)
 
         allele_id_homozygous = dict()
         gene_allele_ids = defaultdict(set)
@@ -349,7 +361,7 @@ class TestInheritanceModelFilter(object):
                 continue
             allele_ids = list(gene_allele_ids[gene_name])
             for allele_id in allele_ids:
-                if gene_not_distinct_ad[gene_name] and (
+                if not gene_distinct_ad[gene_name] and (
                     (len(allele_ids) == 1 and allele_id_homozygous[allele_id])
                     or (len(allele_ids) > 1)
                 ):

@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.schema import Table
-from sqlalchemy import literal, and_
+from sqlalchemy import literal, and_, func
 from vardb.util.extended_query import ExtendedQuery
 from vardb.datamodel import genotype, allele, sample
 
@@ -32,10 +32,19 @@ def get_genotype_temp_table(session, allele_ids: List[int], sample_ids: List[int
     ...
 
     The data is created by combining the genotype and genotypesampledata tables,
-    for all samples connected to provided analysis_id.
-    :note: allele_id and secondallele_id are union'ed together into one table.
+    for all provided samples.
 
+    :note: All samples must belong to same analysis.
+    :note: allele_id and secondallele_id are union'ed together into one table.
     """
+
+    assert (
+        session.query(sample.Sample.analysis_id)
+        .filter(sample.Sample.id.in_(sample_ids))
+        .distinct()
+        .count()
+        == 1
+    ), "All sample ids must belong to same analysis"
 
     def create_query(secondallele=False):
 
@@ -64,11 +73,11 @@ def get_genotype_temp_table(session, allele_ids: List[int], sample_ids: List[int
             allele_id_field = genotype.Genotype.allele_id
 
         genotype_query = session.query(allele_id_field.label("allele_id"), *sample_fields).filter(
-            allele_id_field.in_(allele_ids)
+            allele_id_field.in_(allele_ids), genotype.Genotype.sample_id.in_(sample_ids)
         )
 
         for sample_id, gsd in aliased_genotypesampledata.items():
-            genotype_query = genotype_query.join(
+            genotype_query = genotype_query.outerjoin(
                 gsd,
                 and_(
                     genotype.Genotype.id == gsd.genotype_id,
