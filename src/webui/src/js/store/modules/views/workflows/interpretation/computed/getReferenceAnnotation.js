@@ -1,5 +1,4 @@
 import { Compute } from 'cerebral'
-import { state } from 'cerebral/tags'
 import {
     getReferencesIdsForAllele,
     findReferencesFromIds,
@@ -8,10 +7,8 @@ import {
 } from '../../../../../common/helpers/reference'
 import getReferenceAssessment from './getReferenceAssessment'
 
-export default function(type, allele) {
-    return Compute(type, allele, (type, allele, get) => {
-        let references = get(state`views.workflows.interpretation.data.references`)
-
+export default function(type, allele, references) {
+    return Compute(type, allele, references, (type, allele, references, get) => {
         if (!allele || !references) {
             return null
         }
