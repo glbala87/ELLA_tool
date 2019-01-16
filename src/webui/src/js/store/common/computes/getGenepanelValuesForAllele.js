@@ -56,7 +56,7 @@ export default (genepanel, allele) => {
                 if ('frequency' in geneConfigOverride) {
                     result[symbol]['freq_cutoffs'] = geneConfigOverride.frequency.thresholds
                 } else {
-                    if (inheritance == 'AD') {
+                    if (inheritance === 'AD') {
                         result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['AD']
                     } else {
                         result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['default']

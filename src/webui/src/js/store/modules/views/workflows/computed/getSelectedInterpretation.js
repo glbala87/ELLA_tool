@@ -13,7 +13,7 @@ export default Compute(
     state`views.workflows.data.interpretations`,
     state`views.workflows.interpretation.selectedId`,
     (interpretations, selectedInterpretationId) => {
-        if (selectedInterpretationId == null) {
+        if (selectedInterpretationId === null || selectedInterpretationId === undefined) {
             return null
         }
         let interpretation = null

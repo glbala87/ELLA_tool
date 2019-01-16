@@ -43,7 +43,7 @@ export class ACMGHelper {
             }
 
             // Check whether we can upgrade code, or if it would overflow
-            let overflow = upgrade ? strength_idx == 0 : strength_idx >= strengths.length - 1
+            let overflow = upgrade ? strength_idx === 0 : strength_idx >= strengths.length - 1
             if (!overflow) {
                 let new_strength = upgrade
                     ? strengths[strength_idx - 1]

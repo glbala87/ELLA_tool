@@ -294,7 +294,7 @@ app.component('alleleSidebarList', {
                         }
                     },
                     canUpdateComment(allele_id) {
-                        if ($ctrl.commentType == 'evaluation') {
+                        if ($ctrl.commentType === 'evaluation') {
                             return !$ctrl.alleleStates[allele_id].alleleassessment.reuse
                         }
                         return true

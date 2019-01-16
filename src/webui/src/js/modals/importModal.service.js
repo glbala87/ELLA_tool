@@ -77,7 +77,7 @@ export class ImportController {
         let currentFile = ''
         let uuid = null
         for (let l of lines) {
-            if (l.trim() == '') continue
+            if (l.trim() === '') continue
 
             // Check if start of new file
             if (!uuid || l.startsWith('-')) {

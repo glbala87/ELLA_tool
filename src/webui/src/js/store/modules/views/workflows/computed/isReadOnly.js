@@ -7,7 +7,7 @@ export default Compute(
     state`views.workflows.interpretation.selectedId`,
     state`app.user`,
     (ongoing, selectedId, user, get) => {
-        if (selectedId == null) {
+        if (selectedId === null || selectedId === undefined) {
             return true
         }
         const interpretation = get(getSelectedInterpretation)
