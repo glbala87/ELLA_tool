@@ -1,6 +1,8 @@
-import { runAction } from 'cerebral/test'
+import { runAction, runCompute } from 'cerebral/test'
 
-import prepareSelectedInterpretation from './prepareSelectedInterpretation'
+import selectDefaultInterpretation from './selectDefaultInterpretation'
+import getSelectedInterpretation from '../computed/getSelectedInterpretation'
+import copyInterpretationState from './copyInterpretationState'
 
 describe('prepareSelectedInterpretation', function() {
     it("creates dummy interpretation as selected when no alleles and type = 'allele'", function() {
@@ -13,27 +15,31 @@ describe('prepareSelectedInterpretation', function() {
                     },
                     data: {
                         interpretations: [],
-                        alleles: null,
-                        genepanel: {
-                            name: 'Test',
-                            version: 'v01'
-                        }
+                        alleles: null
                     }
                 }
             }
         }
 
-        return runAction(prepareSelectedInterpretation, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selected).toEqual({
-                genepanel_name: 'Test',
-                genepanel_version: 'v01',
+        return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
+            expect(state.views.workflows.interpretation).toEqual({
+                selectedId: 'current'
+            })
+            const interpretation = runCompute(getSelectedInterpretation, { state })
+            expect(interpretation).toEqual({
                 state: {},
                 user_state: {},
-                status: 'Not started',
-                allele_ids: [1]
+                status: 'Not started'
             })
-            expect(state.views.workflows.historyInterpretations).toEqual([])
-            expect(state.views.workflows.interpretation.isOngoing).toEqual(false)
+
+            return runAction(copyInterpretationState, { state }).then(({ state }) => {
+                expect(state.views.workflows.interpretation).toEqual({
+                    selectedId: 'current',
+                    state: {},
+                    userState: {},
+                    isOngoing: false
+                })
+            })
         })
     })
 
@@ -45,11 +51,23 @@ describe('prepareSelectedInterpretation', function() {
                         interpretations: [
                             {
                                 id: 1,
-                                status: 'Done'
+                                status: 'Done',
+                                state: {
+                                    STATE1: null
+                                },
+                                user_state: {
+                                    USERSTATE1: null
+                                }
                             },
                             {
                                 id: 2,
-                                status: 'Ongoing'
+                                status: 'Ongoing',
+                                state: {
+                                    STATE2: null
+                                },
+                                user_state: {
+                                    USERSTATE2: null
+                                }
                             }
                         ]
                     }
@@ -57,14 +75,22 @@ describe('prepareSelectedInterpretation', function() {
             }
         }
 
-        return runAction(prepareSelectedInterpretation, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selected).toEqual(
-                testState.views.workflows.data.interpretations[1]
-            )
-            expect(state.views.workflows.historyInterpretations).toEqual([
-                testState.views.workflows.data.interpretations[0]
-            ])
-            expect(state.views.workflows.interpretation.isOngoing).toEqual(true)
+        return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
+            expect(state.views.workflows.interpretation.selectedId).toEqual(2)
+            const interpretation = runCompute(getSelectedInterpretation, { state })
+            expect(interpretation).toEqual(testState.views.workflows.data.interpretations[1])
+            return runAction(copyInterpretationState, { state }).then(({ state }) => {
+                expect(state.views.workflows.interpretation).toEqual({
+                    selectedId: 2,
+                    state: {
+                        STATE2: null
+                    },
+                    userState: {
+                        USERSTATE2: null
+                    },
+                    isOngoing: true
+                })
+            })
         })
     })
 
@@ -76,11 +102,23 @@ describe('prepareSelectedInterpretation', function() {
                         interpretations: [
                             {
                                 id: 1,
-                                status: 'Done'
+                                status: 'Done',
+                                state: {
+                                    STATE1: null
+                                },
+                                user_state: {
+                                    USERSTATE1: null
+                                }
                             },
                             {
                                 id: 2,
-                                status: 'Done'
+                                status: 'Done',
+                                state: {
+                                    STATE2: null
+                                },
+                                user_state: {
+                                    USERSTATE2: null
+                                }
                             }
                         ]
                     }
@@ -88,17 +126,22 @@ describe('prepareSelectedInterpretation', function() {
             }
         }
 
-        return runAction(prepareSelectedInterpretation, { state: testState }).then(({ state }) => {
-            const currentInterpretationCopy = Object.assign(
-                {},
-                testState.views.workflows.data.interpretations[1],
-                { current: true }
-            )
-            expect(state.views.workflows.interpretation.selected).toEqual(currentInterpretationCopy)
-            expect(state.views.workflows.historyInterpretations).toEqual(
-                testState.views.workflows.data.interpretations.concat(currentInterpretationCopy)
-            )
-            expect(state.views.workflows.interpretation.isOngoing).toEqual(false)
+        return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
+            expect(state.views.workflows.interpretation.selectedId).toEqual('current')
+            const interpretation = runCompute(getSelectedInterpretation, { state })
+            expect(interpretation).toEqual(testState.views.workflows.data.interpretations[1])
+            return runAction(copyInterpretationState, { state }).then(({ state }) => {
+                expect(state.views.workflows.interpretation).toEqual({
+                    selectedId: 'current',
+                    state: {
+                        STATE2: null
+                    },
+                    userState: {
+                        USERSTATE2: null
+                    },
+                    isOngoing: false
+                })
+            })
         })
     })
 
@@ -110,7 +153,9 @@ describe('prepareSelectedInterpretation', function() {
                         interpretations: [
                             {
                                 id: 1,
-                                status: 'Not started'
+                                status: 'Not started',
+                                state: {},
+                                user_state: {}
                             }
                         ]
                     }
@@ -118,12 +163,19 @@ describe('prepareSelectedInterpretation', function() {
             }
         }
 
-        return runAction(prepareSelectedInterpretation, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selected).toEqual(
-                testState.views.workflows.data.interpretations[0]
-            )
-            expect(state.views.workflows.historyInterpretations).toEqual([])
-            expect(state.views.workflows.interpretation.isOngoing).toEqual(false)
+        return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
+            expect(state.views.workflows.interpretation.selectedId).toEqual(1)
+            const interpretation = runCompute(getSelectedInterpretation, { state })
+            expect(interpretation).toEqual(testState.views.workflows.data.interpretations[0])
+
+            return runAction(copyInterpretationState, { state }).then(({ state }) => {
+                expect(state.views.workflows.interpretation).toEqual({
+                    selectedId: 1,
+                    state: {},
+                    userState: {},
+                    isOngoing: false
+                })
+            })
         })
     })
 })

@@ -128,7 +128,7 @@ class AppConfig {
         }
         // DEV: Comment out line below to activate devtools
         // (impacts performance even without debugger running)
-        config.devtools = null
+        // config.devtools = null
 
         cerebralProvider.configure(RootModule(), config)
 
