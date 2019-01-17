@@ -126,15 +126,21 @@ class AlleleFilter(object):
                         {analysis_genepanel: copied_allele_ids}, filter_config
                     )[analysis_genepanel]
 
+                # We send in copied_allele_ids for the exception analysis filters
+                # since they might need to take all alleles before filtering into account,
+                # not just the result from the filter.
+                # E.g. if excepting compound heterozygote candidates,
+                # while just one was filtered, you need to see all candidates
+                # in the gene to see that they might be compound candidates
                 filter_exceptions = self.get_filter_exceptions(
                     exceptions_config,
                     {analysis_genepanel: filtered_allele_ids},
-                    {analysis_id: filtered_allele_ids},
+                    {analysis_id: copied_allele_ids},
                 )
 
                 filtered_allele_ids = set(filtered_allele_ids) - filter_exceptions
                 # Ensure that filter doesn't return allele_ids not part of input
-                assert not filtered_allele_ids - set(
+                assert not copied_allele_ids - set(
                     allele_ids
                 ), f"Filter {name} returned allele_ids not in input"
 
