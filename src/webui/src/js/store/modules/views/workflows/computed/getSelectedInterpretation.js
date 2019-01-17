@@ -19,13 +19,16 @@ export default Compute(
         let interpretation = null
         if (selectedInterpretationId === 'current') {
             if (interpretations.length === 0) {
+                // In allele workflow, this can happen. Analysis should create interpretation objects upon import
                 return defaultInterpretationState()
             } else {
+                // The state of the last done entry will be copied over to `views.workflows.interpretation`.
+                // The latest annotation is fetched from backend when selectedId === 'current'
                 let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
                 interpretation = doneInterpretations[doneInterpretations.length - 1]
             }
         } else {
-            interpretation = interpretations.filter((i) => i.id === selectedInterpretationId)[0]
+            interpretation = interpretations.find((i) => i.id === selectedInterpretationId)
         }
 
         return interpretation
