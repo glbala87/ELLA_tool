@@ -20,7 +20,6 @@ describe('copyExistingAlleleAssessments', function() {
                                 }
                             }
                         },
-                        user_state: {},
                         data: {
                             alleles: {
                                 1: {

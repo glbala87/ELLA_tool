@@ -275,7 +275,6 @@ describe('Handling of allele state', () => {
             }
         })
         cerebral.runSignal('test.copyInterpretationState', {})
-        // console.error(JSON.stringify(foo.state, null, 2))
         let result = await cerebral.runSignal('test.prepareInterpretationState', {})
         let state = result.state
 
