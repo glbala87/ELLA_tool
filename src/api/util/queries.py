@@ -436,8 +436,8 @@ def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
 
     if not valid_ids:
         raise RuntimeError(
-            "Unable to find any valid filter configs for analysis id {} and user id {}".format(
-                analysis_id, user_id
+            "Unable to find any valid filter configs for analysis id {} and usergroup id {}".format(
+                analysis_id, usergroup_id
             )
         )
 

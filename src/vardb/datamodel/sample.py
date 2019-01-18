@@ -102,11 +102,17 @@ class FilterConfig(Base):
     name = Column(String(), nullable=False)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
+    usergroup = relationship("UserGroup", uselist=False)
     date_superceeded = Column("date_superceeded", DateTime(timezone=True))
     previous_filterconfig = Column(Integer, ForeignKey("filterconfig.id"))
     order = Column(Integer, nullable=False)
     requirements = Column(JSONB, nullable=False, default=[])
     active = Column(Boolean, default=True)
+
+    def __repr__(self):
+        return "<FilterConfig({}, {}, {}, {})>".format(
+            self.id, self.name, self.order, self.usergroup.name
+        )
 
 
 Index(

@@ -10,6 +10,7 @@ from cli.commands.deposit.deposit import deposit
 from cli.commands.analyses.analyses import analyses
 from cli.commands.export.export import export
 from cli.commands.users.users import users
+from cli.commands.filterconfigs.filterconfigs import filterconfigs
 
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -33,6 +34,7 @@ cli_group.add_command(analyses)
 cli_group.add_command(download_igv)
 cli_group.add_command(export)
 cli_group.add_command(users)
+cli_group.add_command(filterconfigs)
 
 if __name__ == "__main__":
     cli_group(prog_name="ella-cli")
