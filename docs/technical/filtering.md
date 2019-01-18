@@ -84,7 +84,7 @@ Filters can be chained together to create a *filter chain*. This will run filter
 }
 ```
 
-This filter config specifies to first run FilterA on all passed variants/analysis variants, then run FilterB on the variants not filtered by FilterA. Note that both filters have *FilterB* as an exception, and these will
+This filter config specifies to first run FilterA on all passed variants/analysis variants, then run FilterB on the variants not filtered by FilterA. Note that both filters have *FilterB* as an exception.
 
 
 
