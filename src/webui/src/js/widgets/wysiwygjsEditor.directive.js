@@ -14,14 +14,16 @@ import template from './wysiwygEditor.ngtmpl.html'
         placeholder: '@?',
         ngModel: '=',
         ngDisabled: '=?',
-        showControls: '<?'
+        showControls: '<?',
+        templates: '=?'
     },
     require: '?ngModel', // get a hold of NgModelController
     template
 })
-@Inject('$scope', '$element', 'AttachmentResource')
+@Inject('$scope', '$element', '$timeout', 'AttachmentResource')
 export class WysiwygEditorController {
-    constructor($scope, $element, AttachmentResource) {
+    constructor($scope, $element, $timeout, AttachmentResource) {
+        this.timeout = $timeout
         this.scope = $scope
         this.element = $element[0]
         this.editorelement = $element.children()[0]
@@ -29,31 +31,68 @@ export class WysiwygEditorController {
         this.buttonselement = $element.children()[2]
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
-        for (let i = 0; i < this.buttonselement.children.length - 1; i++) {
-            let button = this.buttonselement.children[i]
-            let name = button.id.split('-')[1]
-            this.buttons[name] = button
+
+        for (const buttonElement of this.buttonselement.children) {
+            let name = buttonElement.id.split('-')[1]
+            this.buttons[name] = buttonElement
         }
-        this.linkform = this.buttonselement.children[this.buttonselement.children.length - 1]
 
-        this.attachmentResource = AttachmentResource
-
-        this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
-
-        this.buttonselement.hidden = true
-        this.blurBlocked = false
-
-        this.sourcemode = false
-        this.source = ''
+        this.popovers = {
+            linkform: {
+                show: false,
+                button: this.buttons['link'],
+                element: this.buttonselement.children[this.buttonselement.children.length - 4]
+            },
+            templates: {
+                show: false,
+                button: this.buttons['templates'],
+                element: this.buttonselement.children[this.buttonselement.children.length - 3]
+            },
+            fontcolor: {
+                show: false,
+                button: this.buttons['fontcolor'],
+                element: this.buttonselement.children[this.buttonselement.children.length - 2]
+            },
+            highlightcolor: {
+                show: false,
+                button: this.buttons['highlightcolor'],
+                element: this.buttonselement.children[this.buttonselement.children.length - 1]
+            }
+        }
 
         this.DEFAULT_COLOR = {
             HEX: '#F5F5F9',
             RGB: '245, 245, 249'
         }
 
+        this.fontColors = [
+            '#000000', // black
+            '#FF0000', // red
+            '#00B050', // green
+            '#0000FF', // blue
+            '#E26B0A' // orange
+        ]
+
+        this.highlightColors = [
+            this.DEFAULT_COLOR.HEX,
+            '#D90309', // red
+            '#66FF33', // green
+            '#FDFF16', // yellow
+            '#0967F9' // blue
+        ]
+
+        this.attachmentResource = AttachmentResource
+
+        this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
+
+        this.buttonselement.hidden = true
+        this.isBlurred = false
+
+        this.sourcemode = false
+        this.source = ''
+
         this.setupEditor()
         this.setupEventListeners()
-        this.setupColorPickers()
 
         // Watch readOnly status of editor
         this.scope.$watch('ngDisabled', () => {
@@ -132,102 +171,62 @@ export class WysiwygEditorController {
 
     updateViewValue() {
         this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
+        this.positionPopovers()
+    }
+
+    buttonAction(actionName) {
+        const actions = {
+            bold: this.editor.bold,
+            italic: this.editor.italic,
+            underline: this.editor.underline,
+            monospace: () => this.editor.fontName('monospace'),
+            orderedList: () => this.editor.insertList(true),
+            unorderedList: () => this.editor.insertList(false),
+            heading1: () => this.editor.format('h1'),
+            heading2: () => this.editor.format('h2'),
+            paragraph: () => this.editor.format('div'),
+            removeFormat: this.editor.removeFormat,
+            linkform: () => this.togglePopover('linkform'),
+            templates: () => this.togglePopover('templates'),
+            fontcolor: () => this.togglePopover('fontcolor'),
+            highlightcolor: () => this.togglePopover('highlightcolor'),
+            src: () => this.toggleSource
+        }
+
+        actions[actionName]()
     }
 
     setupEventListeners() {
         let eventListeners = new EventListeners()
 
-        // Make sure blur is not triggered on editor when a button is clicked
-        for (let name in this.buttons) {
-            let button = this.buttons[name]
-            eventListeners.add(button, 'mousedown', () => {
-                this.blurBlocked = true
-            })
-            if (name !== 'color' || name !== 'link') {
-                eventListeners.add(button, 'mouseup', () => {
-                    this.editor.openPopup()
-                    this.blurBlocked = false
-                })
+        // Blur whenever clicking outside. Use 'mousedown'
+        // so that we don't blur when user is selecting text and
+        // ending with pointer outside our element
+        eventListeners.add(document, 'mousedown', (e) => {
+            if (!this.editorelement.parentElement.contains(e.target)) {
+                this.timeout(() => this.blur())
             }
-        }
+        })
 
         // Update model whenever contenteditable input is triggered
         eventListeners.add(this.editorelement, 'input', (e) => {
             this.updateViewValue()
         })
 
-        // Add eventlisteners to focus and blur editorelement
-        eventListeners.add(this.editorelement, 'blur', () => {
-            this.blur()
-        })
+        // Show ourselves when clicked upon
         eventListeners.add(this.editorelement, 'focus', () => {
             this.focus()
         })
         eventListeners.add(this.placeholderelement, 'click', () => {
             this.focus()
         })
-        try {
-            eventListeners.add(this.buttons['src'], 'click', () => {
-                this.toggleSource()
-            })
-        } catch (e) {}
 
-        // Add actions to buttons
-        eventListeners.add(this.buttons['bold'], 'click', this.editor.bold)
-        eventListeners.add(this.buttons['italic'], 'click', this.editor.italic)
-        eventListeners.add(this.buttons['underline'], 'click', this.editor.underline)
-        eventListeners.add(this.buttons['monospace'], 'click', () => {
-            this.editor.fontName('monospace')
+        // Close all popovers on ESC
+        eventListeners.add(document, 'keyup', (e) => {
+            if (e.key === 'Escape') {
+                this.timeout(() => this.closePopovers())
+            }
         })
-        eventListeners.add(this.buttons['orderedList'], 'click', () => {
-            this.editor.insertList(true)
-        })
-        eventListeners.add(this.buttons['unorderedList'], 'click', () => {
-            this.editor.insertList(false)
-        })
-        eventListeners.add(this.buttons['heading1'], 'click', () => {
-            this.editor.format('h1')
-        })
-        eventListeners.add(this.buttons['heading2'], 'click', () => {
-            this.editor.format('h2')
-        })
-        eventListeners.add(this.buttons['paragraph'], 'click', () => {
-            this.editor.format('div')
-        })
-        eventListeners.add(this.buttons['removeFormat'], 'click', this.editor.removeFormat)
-
-        // Add eventhandlers on link-form
-        eventListeners.add(this.buttons['link'], 'click', (e) => {
-            this.handleLinkForm(e)
-        })
-        eventListeners.add(this.linkform, 'blur', () => {
-            setTimeout(
-                () => {
-                    this.closeLinkForm(false, this)
-                },
-                1,
-                false
-            )
-        }) // Close if active element not in link form)
-        let linkinputs = this.linkform.getElementsByTagName('input')
-        let addbutton = this.linkform.getElementsByTagName('button')[0]
-        eventListeners.add(addbutton, 'click', () => {
-            this.addLink()
-        })
-        for (let i = 0; i < linkinputs.length; i++) {
-            eventListeners.add(linkinputs[i], 'blur', () => {
-                setTimeout(
-                    () => {
-                        this.closeLinkForm(false, this)
-                    },
-                    1,
-                    false
-                )
-            }) // Close if active element not in link form
-            eventListeners.add(linkinputs[i], 'keyup', (e) => {
-                this.handleLinkForm(e)
-            }) // Only handles esc and enter
-        }
 
         // No need to add custom image scaling on firefox (it's already available)
         var isFirefox = typeof InstallTrigger !== 'undefined'
@@ -270,7 +269,7 @@ export class WysiwygEditorController {
 
         // Remove all event listeners on destroy
         this.scope.$on('$destroy', function() {
-            eventListeners.removeAll
+            eventListeners.removeAll()
         })
     }
 
@@ -296,33 +295,20 @@ export class WysiwygEditorController {
         slider.max = maxScale
         slider.step = 0.01
 
-        // Position slider
-        const rect = img.getBoundingClientRect()
+        const editorRect = this.editorelement.getBoundingClientRect()
+        const imgRect = img.getBoundingClientRect()
 
-        // If we're in a modal, we should append slider to modal-content, to scroll with modal.
-        // Otherwise, we append the slider to document.body, to scroll with window
-        let left, top, parent
-        if (document.getElementsByClassName('modal-content').length) {
-            parent = document.getElementsByClassName('modal-content')[0]
-            let modalDialog = document.getElementsByClassName('modal-dialog')[0]
-            left = rect.left + parent.scrollLeft - modalDialog.offsetLeft
-            top = rect.top + parent.scrollTop - modalDialog.offsetTop
-        } else {
-            parent = document.body
-            left = rect.left + window.scrollX
-            top = rect.top + window.scrollY
-        }
-
+        const left = imgRect.left - editorRect.left
+        const top = imgRect.top - editorRect.top
         sliderContainer.style.left = left + 'px'
         sliderContainer.style.top = top + 'px'
 
         // Append slider to parent element
-        parent.appendChild(sliderContainer)
+        this.editorelement.parentNode.appendChild(sliderContainer)
 
         slider.value = currentScale
 
         // Focus slider without hiding editors toolbar
-        this.blurBlocked = true
         slider.focus()
 
         // Prevent clicking slider from affecting popovers
@@ -339,59 +325,13 @@ export class WysiwygEditorController {
         }
 
         slider.onblur = (e) => {
-            // Allow editor to blur (will refocus if click is within editor)
-            this.blurBlocked = false
-            this.blur()
-
+            // Update model
+            this.updateViewValue()
             // Remove slider element
-            parent.removeChild(sliderContainer)
+            this.editorelement.parentNode.removeChild(sliderContainer)
             slider = null
             sliderContainer = null
         }
-    }
-
-    setupColorPickers() {
-        // Add font color picker
-        let fontcolors = [
-            '#000000', // black
-            '#FF0000', // red
-            '#00B050', // green
-            '#0000FF', // blue
-            '#E26B0A' // orange
-        ]
-
-        let fontpicker = vanillaColorPicker(this.buttons['fontcolor'])
-        fontpicker.set('customColors', fontcolors)
-        fontpicker.on('pickerClosed', () => {
-            this.editor.closePopup()
-            this.blurBlocked = false
-        })
-        fontpicker.on('colorChosen', (color) => {
-            this.editor.closePopup()
-            this.editor.forecolor(color)
-            this.editor.openPopup()
-        })
-
-        // Add highlight color picker
-        let highlightcolors = [
-            this.DEFAULT_COLOR.HEX,
-            '#D90309', // red
-            '#66FF33', // green
-            '#FDFF16', // yellow
-            '#0967F9' // blue
-        ]
-
-        let highlightpicker = vanillaColorPicker(this.buttons['highlightcolor'])
-        highlightpicker.set('customColors', highlightcolors)
-        highlightpicker.on('pickerClosed', () => {
-            this.editor.closePopup()
-            this.blurBlocked = false
-        })
-        highlightpicker.on('colorChosen', (color) => {
-            this.editor.closePopup()
-            this.editor.highlight(color)
-            this.editor.openPopup()
-        })
     }
 
     getTree(node) {
@@ -448,7 +388,10 @@ export class WysiwygEditorController {
     }
 
     blur() {
-        if (!this.blurBlocked) {
+        // We cannot blur on every click, since using setHTML()
+        // puts other elements in focus. Plus it's more to do on
+        // every single click.
+        if (!this.isBlurred) {
             if (this.getTextFromHTML(this.editor.getHTML()) === '') {
                 this.editor.setHTML('')
                 this.placeholderEvent(true)
@@ -459,106 +402,25 @@ export class WysiwygEditorController {
             html = html.replace(`background-color: rgb(${this.DEFAULT_COLOR.RGB});`, '')
             html = html.replace('style=""', '')
             this.editor.setHTML(html)
-            this.closeLinkForm(true)
-            this.buttonselement.hidden = true
+            this.closePopovers()
 
             // Update ngModel
             this.updateViewValue()
+            this.isBlurred = true
+            this.timeout(() => {
+                // Set timeout so changes in layout due to removal
+                // doesn't disturb what user actually clicked on
+                this.buttonselement.hidden = true
+            }, 100)
         }
     }
 
     focus() {
         if (!this.editor.readOnly()) {
+            this.isBlurred = false
             this.placeholderEvent(false)
             this.editorelement.focus()
             this.buttonselement.hidden = false
-        }
-    }
-
-    addLink() {
-        // Get url
-        let url = this.linkform.children[0].children[0].value
-
-        if (url.replace(/\s+/g, '') === '') {
-            // Empty url
-            this.closeLinkForm(true)
-            return
-        }
-        if (!url.startsWith('http')) {
-            // Should start with either http or https
-            url = 'http://' + url
-        }
-
-        // Get link text
-        let linktext = this.linkform.children[1].children[0].value
-        linktext = linktext !== '' ? linktext : url
-
-        // Insert link
-        this.editor.insertHTML(
-            '<div><a href="' +
-                url +
-                '" target="' +
-                url +
-                '"><span>' +
-                linktext +
-                '</span></a></div>'
-        )
-        this.closeLinkForm(true)
-    }
-
-    closeLinkForm(force, thisObj) {
-        // As this function is occasionally called from a setTimeout, this will sometimes point to the global window object
-        // To circumvent this, we pass in this as thisObj in those cases
-        if (!thisObj) thisObj = this
-
-        if (!force && thisObj.linkform.contains(document.activeElement)) {
-            // Link form is still active
-            return
-        }
-        thisObj.linkform.hidden = true
-
-        // Clear inputs
-        let inputs = thisObj.linkform.getElementsByTagName('input')
-        for (let i = 0; i < inputs.length; i++) {
-            inputs[i].value = ''
-        }
-
-        thisObj.editor.closePopup().collapseSelection()
-        thisObj.blurBlocked = false
-    }
-
-    // Handle link form
-    handleLinkForm(e) {
-        let src = e.target || e.srcElement
-
-        if (
-            src.nodeName !== 'INPUT' &&
-            (src === this.buttons['link'] || this.buttons['link'].contains(src))
-        ) {
-            // Open or close link form
-            if (this.linkform.hidden) {
-                this.editor.openPopup() // Save selection, to later add link at right location
-                // Compute position
-                let top = this.buttons['link'].offsetTop
-                let height = this.buttons['link'].offsetHeight
-                let left = this.buttons['link'].offsetLeft
-                this.linkform.style.left = left + 'px'
-                this.linkform.style.top = top + height + 'px'
-
-                this.linkform.hidden = false
-            } else {
-                this.closeLinkForm(true)
-            }
-        } else if (src.nodeName === 'INPUT') {
-            if (typeof e.type === 'click') {
-                src.focus()
-            } else if (e.type === 'keyup') {
-                if (e.key === 'Escape') {
-                    this.closeLinkForm(true)
-                } else if (e.key === 'Enter') {
-                    this.addLink()
-                }
-            }
         }
     }
 
@@ -576,5 +438,92 @@ export class WysiwygEditorController {
                 this.buttons[btn].disabled = this.editor.readOnly()
             }
         }
+    }
+
+    ////////////////
+    // Popovers
+    ////////////////
+
+    togglePopover(name) {
+        if (this.popovers[name].show) {
+            this.closePopover(name)
+        } else {
+            this.openPopover(name)
+        }
+    }
+
+    openPopover(name) {
+        this.closePopovers()
+        // Ask editor to store selection
+        // it is automatically used inside execCommand
+        this.editor.openPopup()
+        this.popovers[name].show = true
+        this.positionPopovers()
+    }
+
+    closePopover(name) {
+        this.popovers[name].show = false
+    }
+
+    closePopovers() {
+        for (const popoverKey of Object.keys(this.popovers)) {
+            this.popovers[popoverKey].show = false
+        }
+    }
+
+    positionPopovers() {
+        for (const popover of Object.values(this.popovers)) {
+            if (!popover.show) {
+                continue
+            }
+            popover.element.style.left = popover.button.offsetLeft + 'px'
+            popover.element.style.top =
+                popover.button.offsetTop + popover.button.offsetHeight + 'px'
+        }
+    }
+
+    addLink() {
+        if (this.linkUrl.replace(/\s+/g, '') === '') {
+            // Empty url
+            this.clockPopover('linkform')
+            return
+        }
+        if (!this.linkUrl.startsWith('http')) {
+            // Should start with either http or https
+            this.linkUrl = 'http://' + this.linkUrl
+        }
+
+        // Get link text
+        this.linkText = this.linkText !== '' ? this.linkText : url
+
+        // Insert link
+        this.editor.insertHTML(
+            '<div><a href="' +
+                this.linkUrl +
+                '" target="' +
+                this.linkUrl +
+                '"><span>' +
+                this.linkText +
+                '</span></a></div>'
+        )
+        this.linkUrl = ''
+        this.linkText = ''
+        this.closePopover('linkform')
+    }
+
+    insertTemplate(template) {
+        this.editor.insertHTML(template.template)
+        this.positionPopovers()
+        this.closePopover('templates')
+    }
+
+    setFontColor(color) {
+        this.editor.forecolor(color)
+        this.closePopover('fontcolor')
+    }
+
+    setHighlightColor(color) {
+        this.editor.highlight(color)
+        this.closePopover('highlightcolor')
     }
 }

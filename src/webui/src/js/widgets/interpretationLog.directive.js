@@ -22,6 +22,7 @@ app.component('interpretationLog', {
     controller: connect(
         {
             config: state`app.config`,
+            commentTemplates: state`app.commentTemplates`,
             warningCleared: getWarningCleared,
             reviewComment: getReviewComment,
             canCreateInterpretationLog,
@@ -52,6 +53,9 @@ app.component('interpretationLog', {
                     },
                     reviewCommentEdited() {
                         return $ctrl.modelReviewComment !== $ctrl.reviewComment
+                    },
+                    getWorkLogCommentTemplates() {
+                        return $ctrl.commentTemplates['workLogMessage']
                     }
                 })
             }

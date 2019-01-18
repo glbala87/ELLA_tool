@@ -1,6 +1,7 @@
 <section class="acmg-selection">
   <acmg class="id-staged-acmg-code" code="$ctrl.stagedAcmgCode"
-          on-toggle="$ctrl.acmgPopover.addStagedAcmgCode(vm.staged_code)"
+          templates="$ctrl.getAcmgCommentTemplates()"
+          on-toggle="$ctrl.acmgPopover.addStagedAcmgCode()"
           toggle-text="ADD"
           comment-model="$ctrl.stagedAcmgCode.comment"
           ng-if="$ctrl.stagedAcmgCode"

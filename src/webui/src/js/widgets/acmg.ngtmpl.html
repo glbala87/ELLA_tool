@@ -19,7 +19,7 @@
               class="clickable" ng-click="vm.upgradeCode()">+</h4>
       </div>
       <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
-      <button class="right-item"
+      <button class="right-item transparent"
               ng-click="vm.toggle()"
               ng-if="vm.toggleText && vm.isEditable()"
       >{{vm.toggleText}}
@@ -49,6 +49,7 @@
   </div>
   <section class="acmg-lower" ng-if="vm.commentModel != undefined">
       <wysiwyg-editor class="right-item commentbox id-comment-acmg"
+                       templates="vm.templates"
                        ng-disabled="!vm.isEditable()"
                        placeholder="{{vm.getPlaceholder()}}"
                        ng-model="vm.commentModel"

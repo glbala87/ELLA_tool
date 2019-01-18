@@ -90,6 +90,7 @@ app.component('alleleSectionbox', {
             collapsed: isCollapsed,
             readOnly: isReadOnly,
             section: getSection,
+            commentTemplates: state`app.commentTemplates`,
             selectedAllele: state`views.workflows.selectedAllele`,
             alleleState: getAlleleState(state`views.workflows.selectedAllele`),
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
@@ -180,6 +181,26 @@ app.component('alleleSectionbox', {
                         return $ctrl.showExcludedReferences
                             ? `HIDE IGNORED (${$ctrl.excludedReferenceCount})`
                             : `SHOW IGNORED (${$ctrl.excludedReferenceCount})`
+                    },
+                    getAnalysisSpecificCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationAnalysisSpecific']
+                    },
+                    getAlleleassessmentCommentTemplates() {
+                        const translations = {
+                            classification: 'classificationEvaluation',
+                            frequency: 'classificationFrequency',
+                            external: 'classificationExternal',
+                            prediction: 'classificationPrediction',
+                            reference: 'classificationReferences'
+                        }
+                        const sectionName = $ctrl.section.alleleassessmentComment.name
+                        return $ctrl.commentTemplates[translations[sectionName]]
+                    },
+                    getAlleleReportCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationReport']
+                    },
+                    getAcmgCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationAcmg']
                     }
                 })
             }

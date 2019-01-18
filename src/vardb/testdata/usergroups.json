@@ -7,6 +7,26 @@
             "overview": {
                 "views": ["variants", "analyses-by-findings", "import"]
             },
+            "comment_templates": [
+                {
+                    "name": "Example template",
+                    "comment_fields": [
+                        "classificationAnalysisSpecific",
+                        "classificationEvaluation",
+                        "classificationAcmg",
+                        "classificationReport",
+                        "classificationFrequency",
+                        "classificationPrediction",
+                        "classificationExternal",
+                        "classificationReferences",
+                        "reportIndications",
+                        "reportSummary",
+                        "referenceEvaluation",
+                        "workLogMessage"
+                    ],
+                    "template": "<h3>Example template</h3><ol><li>Example one</li><li>Example two</li><li>Example three</li></ol>"
+                }
+            ],
             "acmg": {
                 "frequency": {
                     "thresholds": {

@@ -3,6 +3,7 @@ import { state, props } from 'cerebral/tags'
 import { getConfig } from '../actions'
 import toast from './toast'
 import interval from './interval'
+import setCommentTemplates from '../actions/setCommentTemplates'
 
 const BROADCAST_UPDATE_INTERVAL = 10 * 60 * 1000
 
@@ -21,6 +22,7 @@ function initApp(continueSequence) {
                             Config.setConfig(props.result)
                         },
                         set(state`app.config`, props`result`),
+                        setCommentTemplates,
                         continueSequence
                     ],
                     error: [

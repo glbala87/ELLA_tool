@@ -15,8 +15,16 @@ export default function showReferenceEvalModal({
     )
     const referenceAssessment = resolve.value(getReferenceAssessment(allele.id, reference.id)) || {}
     const readOnly = resolve.value(isReadOnly)
+    const commentTemplates = state.get('app.commentTemplates')
 
-    return ReferenceEvalModal.show(analysis, allele, reference, referenceAssessment, readOnly)
+    return ReferenceEvalModal.show(
+        analysis,
+        allele,
+        reference,
+        referenceAssessment,
+        readOnly,
+        commentTemplates
+    )
         .then((result) => {
             if (result) {
                 return path.result({ evaluation: result.evaluation })

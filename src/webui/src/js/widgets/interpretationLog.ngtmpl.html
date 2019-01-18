@@ -16,7 +16,7 @@
                 ng-model="$ctrl.modelReviewComment"
                 ng-model-watch="$ctrl.reviewComment"
                 ng-disabled="$ctrl.readOnly">
-                <button class="id-review-comment-update" ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
+                <button class="id-review-comment-update blue" ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
         </div>
     <div class="controls">
         <button ng-if="$ctrl.canClearWarning" class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
@@ -61,9 +61,10 @@
     </div>
     <div class="compose">
         <wysiwyg-editor class="control-comment"
+            templates="$ctrl.getWorkLogCommentTemplates()"
             ng-model="$ctrl.message"
             placeholder="NEW MESSAGE"
             ng-change="$ctrl.messageChanged({message: $ctrl.message})"></wysiwyg-editor>
-        <button class="id-add-message-btn" class="blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
+        <button class="id-add-message-btn blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
     </div>
 </div>
