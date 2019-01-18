@@ -1,4 +1,5 @@
 import { prepareInterpretationPayload } from '../../../../common/helpers/workflow'
+import getSelectedInterpretation from '../computed/getSelectedInterpretation'
 
 const TYPES = {
     analysis: 'analyses',
@@ -14,19 +15,21 @@ const ACTIONS = {
 }
 
 export default function(finishType) {
-    return function finishWorkflow({ state, http, path }) {
+    return function finishWorkflow({ state, http, path, resolve }) {
         const type = state.get('views.workflows.type')
         const postType = TYPES[type]
         const id = state.get('views.workflows.id')
-        const interpretation = state.get('views.workflows.interpretation.selected')
-        const alleles = state.get('views.workflows.data.alleles')
-        const references = state.get('views.workflows.data.references')
+        const alleles = state.get('views.workflows.interpretation.data.alleles')
+        const references = state.get('views.workflows.interpretation.data.references')
+        const currentState = state.get('views.workflows.interpretation.state')
+        const interpretation = resolve.value(getSelectedInterpretation)
 
         try {
             const payload = prepareInterpretationPayload(
                 type,
                 id,
                 interpretation,
+                currentState,
                 alleles,
                 Object.values(references)
             )

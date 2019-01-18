@@ -7,7 +7,7 @@ app.component('alleleInfoDbsnp', {
     templateUrl: 'alleleInfoDbsnp.ngtmpl.html',
     controller: connect(
         {
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
         },
         'AlleleInfoDbsnp',
         [
@@ -20,9 +20,11 @@ app.component('alleleInfoDbsnp', {
                         return `http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${dbsnp}`
                     },
                     hasContent() {
-                        return $ctrl.allele.annotation.filtered.some(
-                            (t) => 'dbsnp' in t && t.dbsnp.length
-                        )
+                        if ($ctrl.allele) {
+                            return $ctrl.allele.annotation.filtered.some(
+                                (t) => 'dbsnp' in t && t.dbsnp.length
+                            )
+                        }
                     }
                 })
             }

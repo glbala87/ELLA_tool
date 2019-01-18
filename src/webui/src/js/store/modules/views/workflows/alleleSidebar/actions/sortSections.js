@@ -5,7 +5,7 @@ import filterNotRelevant from '../../computed/filterNotRelevant'
 
 export default function sortSections({ state, resolve }) {
     const orderBy = state.get('views.workflows.alleleSidebar.orderBy')
-    const alleles = Object.values(state.get('views.workflows.data.alleles'))
+    const alleles = Object.values(state.get('views.workflows.interpretation.data.alleles'))
 
     // Technical takes presedence over not relevant
     let technical = filterTechnical(false, alleles)

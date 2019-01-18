@@ -24,7 +24,8 @@ function createState(config) {
         type: config.workflowType,
         status: config.status,
         workflow_status: config.workflowStatus,
-        state: { allele: {} }
+        state: { allele: {} },
+        user_state: {}
     }
     const alleles = {}
 
@@ -120,10 +121,16 @@ function createState(config) {
                 type: config.workflowType,
                 id: 1,
                 interpretation: {
-                    selected: interpretation
+                    data: {
+                        alleles
+                    },
+                    selectedId: interpretation.id,
+                    state: interpretation.state,
+                    userState: interpretation.user_state,
+                    isOngoing: interpretation.status === 'Ongoing'
                 },
                 data: {
-                    alleles
+                    interpretations: [interpretation]
                 }
             }
         }
@@ -146,7 +153,7 @@ describe('canFinalize', function() {
 
     it('requires ongoing interpretation', function() {
         const state = createState({})
-        state.views.workflows.interpretation.selected.status = 'Done'
+        state.views.workflows.data.interpretations[0].status = 'Done'
         const result = runCompute(canFinalize, {
             state,
             props: {}

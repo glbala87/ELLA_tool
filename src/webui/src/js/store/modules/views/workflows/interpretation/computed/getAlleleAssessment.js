@@ -1,7 +1,7 @@
-import { Compute } from 'cerebral';
-import { state } from 'cerebral/tags';
-import { prepareAlleleAssessmentModel } from '../../../../../common/helpers/alleleState';
-import getAlleleState from './getAlleleState';
+import { Compute } from 'cerebral'
+import { state } from 'cerebral/tags'
+import { prepareAlleleAssessmentModel } from '../../../../../common/helpers/alleleState'
+import getAlleleState from './getAlleleState'
 
 /**
  * Returns EITHER:
@@ -17,7 +17,7 @@ export default (alleleId) => {
         let alleleAssessment
         if (alleleState.alleleassessment.reuse) {
             alleleAssessment = get(
-                state`views.workflows.data.alleles.${alleleId}.allele_assessment`
+                state`views.workflows.interpretation.data.alleles.${alleleId}.allele_assessment`
             )
         } else {
             alleleAssessment = alleleState.alleleassessment

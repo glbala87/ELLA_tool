@@ -15,7 +15,7 @@ app.component('interpretation', {
             selectedComponent: state`views.workflows.selectedComponent`,
             showSidebar: shouldShowSidebar,
             sidebarExpanded: state`views.workflows.alleleSidebar.expanded`,
-            hasAlleles: Compute(state`views.workflows.data.alleles`, (alleles) => {
+            hasAlleles: Compute(state`views.workflows.interpretation.data.alleles`, (alleles) => {
                 if (!alleles) {
                     return
                 }

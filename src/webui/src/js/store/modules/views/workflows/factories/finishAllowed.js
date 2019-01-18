@@ -1,10 +1,11 @@
 import canFinalize from '../computed/canFinalize'
+import getSelectedInterpretation from '../computed/getSelectedInterpretation'
 
 export default function(finishType) {
     return function finishAllowed({ resolve, state, http, path }) {
         const type = state.get('views.workflows.type')
         const id = state.get('views.workflows.id')
-        const interpretation = state.get('views.workflows.interpretation.selected')
+        const interpretation = resolve.value(getSelectedInterpretation)
         if (
             !['Not ready', 'Interpretation', 'Review', 'Medical review', 'Finalized'].includes(
                 finishType

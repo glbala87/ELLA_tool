@@ -109,7 +109,7 @@ export class WysiwygEditorController {
             },
             onSelection: (collapsed, rect, nodes, rightclick) => {
                 let colors = this.getCurrentColors(nodes)
-                if (colors['highlightcolors'].length == 1) {
+                if (colors['highlightcolors'].length === 1) {
                     this.buttons['highlightcolor'].children[1].style.color =
                         colors['highlightcolors'][0]
                 } else {
@@ -117,7 +117,7 @@ export class WysiwygEditorController {
                         this.DEFAULT_COLOR.RGB
                     })`
                 }
-                if (colors['fontcolors'].length == 1) {
+                if (colors['fontcolors'].length === 1) {
                     this.buttons['fontcolor'].children[0].style.color = colors['fontcolors'][0]
                 } else {
                     this.buttons['fontcolor'].children[0].style.color = 'rgb(0,0,0)'

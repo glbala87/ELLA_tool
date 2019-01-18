@@ -46,7 +46,7 @@ export function upgradeDowngradeCode(code, config, upgrade = true) {
         }
 
         // Check whether we can upgrade code, or if it would overflow
-        let overflow = upgrade ? strengthIdx == 0 : strengthIdx >= strengths.length - 1
+        let overflow = upgrade ? strengthIdx === 0 : strengthIdx >= strengths.length - 1
         if (!overflow) {
             let new_strength = upgrade ? strengths[strengthIdx - 1] : strengths[strengthIdx + 1]
             // If new strength is same as base we just return base

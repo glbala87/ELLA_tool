@@ -14,7 +14,7 @@ export default sequence('updateSuggestedClassification', [
             {
                 success: [
                     set(
-                        state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.alleleassessment.evaluation.acmg.suggested_classification`,
+                        state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.evaluation.acmg.suggested_classification`,
                         props`result.class`
                     ),
                     setDirty

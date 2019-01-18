@@ -3,7 +3,7 @@ import getAlleleState from '../computed/getAlleleState'
 
 export default function checkAddRemoveAlleleToReport({ props, state, resolve }) {
     const { checkReportAlleleIds } = props
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
     const config = state.get('app.config')
 
     for (let alleleId of checkReportAlleleIds) {
@@ -19,12 +19,12 @@ export default function checkAddRemoveAlleleToReport({ props, state, resolve }) 
             !alleleState.analysis.notrelevant
         ) {
             state.set(
-                `views.workflows.interpretation.selected.state.allele.${alleleId}.report.included`,
+                `views.workflows.interpretation.state.allele.${alleleId}.report.included`,
                 true
             )
         } else {
             state.set(
-                `views.workflows.interpretation.selected.state.allele.${alleleId}.report.included`,
+                `views.workflows.interpretation.state.allele.${alleleId}.report.included`,
                 false
             )
         }

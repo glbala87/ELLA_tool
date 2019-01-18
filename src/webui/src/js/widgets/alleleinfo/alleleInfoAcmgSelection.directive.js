@@ -12,7 +12,7 @@ app.component('alleleInfoAcmgSelection', {
     templateUrl: 'alleleInfoAcmgSelection.ngtmpl.html',
     controller: connect(
         {
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
+            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
             readOnly: isReadOnly,
             alleleAssessmentReused: isAlleleAssessmentReused(state`views.workflows.selectedAllele`),
             suggestedAcmgCodes: getSuggestedAcmgCodes(state`views.workflows.selectedAllele`),

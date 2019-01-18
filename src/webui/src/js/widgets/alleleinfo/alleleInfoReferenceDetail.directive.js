@@ -14,7 +14,7 @@ app.component('alleleInfoReferenceDetail', {
     controller: connect(
         {
             selectedAllele: state`views.workflows.selectedAllele`,
-            reference: state`views.workflows.data.references.${props`referenceId`}`,
+            reference: state`views.workflows.interpretation.data.references.${props`referenceId`}`,
             readOnly: isReadOnly,
             alleleAssessmentReused: isAlleleAssessmentReused(state`views.workflows.selectedAllele`),
             referenceAssessment: getReferenceAssessment(

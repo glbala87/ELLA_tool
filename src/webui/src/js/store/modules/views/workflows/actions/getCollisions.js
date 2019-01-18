@@ -9,7 +9,7 @@ function getCollisions({ http, path, state }) {
     const config = state.get('app.config')
     let type = TYPES[state.get('views.workflows.type')]
     let id = state.get('views.workflows.id')
-    let alleles = state.get('views.workflows.data.alleles')
+    let alleles = state.get('views.workflows.interpretation.data.alleles')
     if (!alleles) {
         return path.success({ result: [] })
     }

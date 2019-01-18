@@ -22,7 +22,7 @@ const isTogglable = Compute(state`views.workflows.selectedComponent`, (selectedC
 })
 
 const isToggled = Compute(
-    state`views.workflows.data.alleles`,
+    state`views.workflows.interpretation.data.alleles`,
     state`views.workflows.selectedComponent`,
     (alleles, selectedComponent, get) => {
         const result = {}
@@ -48,7 +48,9 @@ app.component('alleleSidebar', {
             analysisId: state`views.workflows.data.analysis.id`,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
-            selectedInterpretation: state`views.workflows.interpretation.selected`,
+            selectedInterpretation: state`views.workflows.interpretation`,
+            manuallyAddedAlleles: state`views.workflows.interpretation.state.manuallyAddedAlleles`,
+            excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
             showQuickClassificationBtn,
             expanded: isExpanded,
             isTogglable,
@@ -65,11 +67,9 @@ app.component('alleleSidebar', {
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {
-                        if ($ctrl.selectedInterpretation) {
-                            return Object.values($ctrl.selectedInterpretation.excluded_allele_ids)
-                                .map((excluded_group) => excluded_group.length)
-                                .reduce((total_length, length) => total_length + length)
-                        }
+                        return Object.values($ctrl.excludedAlleleIds)
+                            .map((excluded_group) => excluded_group.length)
+                            .reduce((total_length, length) => total_length + length)
                     }
                 })
             }

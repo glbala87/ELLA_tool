@@ -6,11 +6,10 @@ import { deepCopy } from '../../../../../util'
  * every time the included alleles changes.
  */
 export default function prepareInterpretationState({ state }) {
-    const interpretation = state.get('views.workflows.interpretation.selected')
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
 
-    let preparedState = deepCopy(interpretation.state)
-    let preparedUserState = deepCopy(interpretation.user_state)
+    let preparedState = state.get('views.workflows.interpretation.state')
+    let preparedUserState = state.get('views.workflows.interpretation.userState')
 
     if (!('allele' in preparedState)) {
         preparedState.allele = {}
@@ -40,6 +39,6 @@ export default function prepareInterpretationState({ state }) {
         }
     }
 
-    state.set('views.workflows.interpretation.selected.state', preparedState)
-    state.set('views.workflows.interpretation.selected.user_state', preparedUserState)
+    state.set('views.workflows.interpretation.state', preparedState)
+    state.set('views.workflows.interpretation.userState', preparedUserState)
 }

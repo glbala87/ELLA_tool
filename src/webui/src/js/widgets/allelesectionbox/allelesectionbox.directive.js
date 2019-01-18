@@ -22,8 +22,8 @@ import getNotRelevant from '../../store/modules/views/workflows/interpretation/c
 import template from './allelesectionbox.ngtmpl.html'
 
 const getExcludedReferencesCount = Compute(
-    state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-    state`views.workflows.data.references`,
+    state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
+    state`views.workflows.interpretation.data.references`,
     (allele, references, get) => {
         if (!allele || !references) {
             return
@@ -56,7 +56,7 @@ const getSection = Compute(
 )
 
 const isCollapsed = Compute(
-    state`views.workflows.interpretation.selected.user_state`,
+    state`views.workflows.interpretation.userState`,
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
@@ -95,15 +95,15 @@ app.component('alleleSectionbox', {
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
             allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
             isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
             hasExistingAlleleAssessment: hasExistingAlleleAssessment(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
             isAlleleAssessmentReused: isAlleleAssessmentReused(
                 state`views.workflows.selectedAllele`
             ),
-            showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
+            showExcludedReferences: state`views.workflows.interpretation.userState.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             verificationStatus: getVerificationStatus(state`views.workflows.selectedAllele`),
             notRelevant: getNotRelevant(state`views.workflows.selectedAllele`),
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
@@ -163,7 +163,7 @@ app.component('alleleSectionbox', {
                         })
                     },
                     getAllelePath() {
-                        return `views.workflows.data.alleles.${$ctrl.selectedAllele}`
+                        return `views.workflows.interpretation.data.alleles.${$ctrl.selectedAllele}`
                     },
                     getCardColor() {
                         if ($ctrl.section.alleleAssessmentReusedColor) {

@@ -12,7 +12,7 @@ export default sequence('loadAlleles', [
     getAlleles,
     {
         success: [
-            set(state`views.workflows.data.alleles`, props`result`),
+            set(state`views.workflows.interpretation.data.alleles`, props`result`),
             prepareInterpretationState,
             allelesChanged, // Update alleleSidebar
             loadCollisions,

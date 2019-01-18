@@ -2,7 +2,7 @@ import getAlleleState from '../computed/getAlleleState'
 import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
 
 export default function autoReuseExistingAlleleassessments({ state, resolve }) {
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
     const checkReportAlleleIds = []
     const copyExistingAlleleAssessmentAlleleIds = []
 
@@ -29,7 +29,7 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
                 copyExistingAlleleAssessmentAlleleIds.push(allele.id)
             }
             state.set(
-                `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment`,
+                `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment`,
                 reusedAlleleAssessment
             )
         }

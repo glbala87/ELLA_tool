@@ -1,24 +1,48 @@
-<contentbox class="max-width id-references-box" title="{{$ctrl.title}}" ng-if="$ctrl.hasContent() && !($ctrl.type == 'ignored' && !$ctrl.showExcluded)">
-  <cbbody>
-      <h3 ng-if="$ctrl.references[$ctrl.type].unpublished.length > 0 && $ctrl.type === 'evaluated'">Unpublished studies</h3>
-      <article class="acmg-body id-reference-{{$ctrl.type}}-unpublished" ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished">
-          <allele-info-reference-detail reference-id="ref.id" ></allele-info-reference-detail>
-          <referenceassessment reference-id="ref.id"></referenceassessment>
-      </article>
-      <h3 ng-if="$ctrl.references[$ctrl.type].published.length > 0 && $ctrl.type === 'evaluated'">Published studies</h3>
-      <article class="acmg-body id-reference-{{$ctrl.type}}-published" ng-repeat="ref in $ctrl.references[$ctrl.type].published">
-          <allele-info-reference-detail reference-id="ref.id" ></allele-info-reference-detail>
-          <referenceassessment reference-id="ref.id"></referenceassessment>
-      </article>
+<contentbox
+    class="max-width id-references-box"
+    title="{{ $ctrl.title }}"
+    ng-if="$ctrl.hasContent() && !($ctrl.type == 'ignored' && !$ctrl.showExcluded)"
+>
+    <cbbody>
+        <h3
+            ng-if="$ctrl.references[$ctrl.type].unpublished.length > 0 && $ctrl.type === 'evaluated'"
+        >
+            Unpublished studies
+        </h3>
+        <article
+            class="acmg-body id-reference-{{ $ctrl.type }}-unpublished"
+            ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished"
+        >
+            <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
+            <referenceassessment reference-id="ref.id"></referenceassessment>
+        </article>
+        <h3 ng-if="$ctrl.references[$ctrl.type].published.length > 0 && $ctrl.type === 'evaluated'">
+            Published studies
+        </h3>
+        <article
+            class="acmg-body id-reference-{{ $ctrl.type }}-published"
+            ng-repeat="ref in $ctrl.references[$ctrl.type].published"
+        >
+            <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
+            <referenceassessment reference-id="ref.id"></referenceassessment>
+        </article>
 
-      <article class="id-article-unreferenced" ng-repeat="ref in $ctrl.references.missing" ng-if="$ctrl.type === 'pending'">
+        <article
+            class="id-article-unreferenced"
+            ng-repeat="ref in $ctrl.references.missing"
+            ng-if="$ctrl.type === 'pending'"
+        >
             <section class="line-wrapper">
-            <div>
-              <h5 class="wrap">Missing data for Pubmed ID <a-clip href="http://www.ncbi.nlm.nih.gov/pubmed/{{ref.pubmed_id}}">{{ref.pubmed_id}}</a-clip> in database. Please add the reference manually.</h5>
-            </div>
-        </section>
-      </article>
-
-  </cbbody>
+                <div>
+                    <h5 class="wrap">
+                        Missing data for Pubmed ID
+                        <a-clip href="http://www.ncbi.nlm.nih.gov/pubmed/{{ ref.pubmed_id }}">{{
+                            ref.pubmed_id
+                        }}</a-clip>
+                        in database. Please add the reference manually.
+                    </h5>
+                </div>
+            </section>
+        </article>
+    </cbbody>
 </contentbox>
-

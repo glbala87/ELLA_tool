@@ -1,14 +1,15 @@
-import { Compute } from 'cerebral';
-import { state } from 'cerebral/tags';
-import getAlleleState from '../interpretation/computed/getAlleleState';
-import getClassification from '../interpretation/computed/getClassification';
+import { Compute } from 'cerebral'
+import { state } from 'cerebral/tags'
+import getAlleleState from '../interpretation/computed/getAlleleState'
+import getClassification from '../interpretation/computed/getClassification'
+import getSelectedInterpretation from './getSelectedInterpretation'
 
 export default Compute(
     state`views.workflows.type`,
-    state`views.workflows.data.alleles`,
-    state`views.workflows.interpretation.selected`,
+    state`views.workflows.interpretation.data.alleles`,
     state`app.config`,
-    (type, alleles, interpretation, config, get) => {
+    (type, alleles, config, get) => {
+        const interpretation = get(getSelectedInterpretation)
         const result = {
             canFinalize: false,
             messages: []
@@ -95,7 +96,9 @@ export default Compute(
                     throw Error(`Allele id ${allele.id} is not in interpretation state`)
                 }
                 const classification = get(
-                    getClassification(state`views.workflows.data.alleles.${allele.id}`)
+                    getClassification(
+                        state`views.workflows.interpretation.data.alleles.${allele.id}`
+                    )
                 )
                 return !(
                     classification.hasClassification &&
@@ -105,7 +108,6 @@ export default Compute(
 
             if (allelesMissingClassication.length) {
                 metRequirements.classifications = false
-                let message = ''
                 if (allelesMissingClassication.length > 3) {
                     result.messages.push(
                         `${allelesMissingClassication.length} variants are missing classifications.`

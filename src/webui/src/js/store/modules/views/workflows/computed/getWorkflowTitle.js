@@ -4,7 +4,7 @@ import { Compute } from 'cerebral'
 export default Compute(
     state`views.workflows.type`,
     state`views.workflows.data.analysis`,
-    state`views.workflows.data.alleles`,
+    state`views.workflows.interpretation.data.alleles`,
     state`views.workflows.data.interpretations`,
     (workflowType, analysis, alleles, interpretations) => {
         let title = ''

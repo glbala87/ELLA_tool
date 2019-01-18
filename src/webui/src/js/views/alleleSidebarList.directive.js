@@ -71,7 +71,7 @@ app.component('alleleSidebarList', {
             warnings: getWarningById(state`${props`allelesPath`}`),
             verificationStatus: getVerificationStatusById(state`${props`allelesPath`}`),
             orderBy: state`${props`orderByPath`}`,
-            selectedAllele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
+            selectedAllele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
             rowClicked: signal`${props`rowClickedPath`}`,
             toggleClicked: signal`${props`toggleClickedPath`}`,
             orderByChanged: signal`views.workflows.alleleSidebar.orderByChanged`,
@@ -294,7 +294,7 @@ app.component('alleleSidebarList', {
                         }
                     },
                     canUpdateComment(allele_id) {
-                        if ($ctrl.commentType == 'evaluation') {
+                        if ($ctrl.commentType === 'evaluation') {
                             return !$ctrl.alleleStates[allele_id].alleleassessment.reuse
                         }
                         return true

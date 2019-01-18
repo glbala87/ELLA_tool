@@ -1,5 +1,5 @@
 export default function prepareSuggestedAcmg({ state }) {
-    const alleles = state.get(`views.workflows.data.alleles`)
+    const alleles = state.get(`views.workflows.interpretation.data.alleles`)
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const suggestedAcmg = []
@@ -14,7 +14,7 @@ export default function prepareSuggestedAcmg({ state }) {
             }
         }
         state.set(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.` +
+            `views.workflows.interpretation.state.allele.${alleleId}.` +
                 `alleleassessment.evaluation.acmg.suggested`,
             suggestedAcmg
         )

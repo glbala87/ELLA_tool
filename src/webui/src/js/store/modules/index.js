@@ -70,7 +70,16 @@ function RootModule(withRouter = true) {
             search: SearchModule,
             views: ViewsModule,
             app: AppModule,
-            router: withRouter ? AppRouter : Router({ routes: [] }) // Empty router -> Karma messes up when unit testing
+            router: withRouter
+                ? AppRouter
+                : Router({
+                      routes: [
+                          {
+                              path: '/*',
+                              signal: ''
+                          }
+                      ]
+                  }) // Empty router -> Karma messes up when unit testing
         },
         signals: {
             closeModal: [closeModal],

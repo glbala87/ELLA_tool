@@ -1,14 +1,15 @@
-import { getAlleleIdsFromInterpretation } from '../../../../common/helpers/workflow'
 import processAlleles from '../../../../common/helpers/processAlleles'
+import getSelectedInterpretation from '../computed/getSelectedInterpretation'
+import getAlleleIdsFromInterpretation from '../computed/getAlleleIdsFromInterpretation'
 
 const TYPES = {
     analysis: 'analyses',
     allele: 'alleles'
 }
 
-function getAlleles({ http, path, state }) {
+function getAlleles({ http, path, state, resolve }) {
     const config = state.get('app.config')
-    const genepanel = state.get('views.workflows.data.genepanel')
+    const genepanel = state.get('views.workflows.interpretation.data.genepanel')
 
     // There's two possible scenarios:
     // - No existing interpretations -> use normal allele resource
@@ -16,9 +17,11 @@ function getAlleles({ http, path, state }) {
     //   We still get the allele id from the 'fake' interpretation
     // - Existing interpretations -> use workflow's allele resource (it can handle historical data)
 
-    const hasInterpretations = Boolean(state.get('views.workflows.data.interpretations').length)
-    const selectedInterpretation = state.get('views.workflows.interpretation.selected')
-    const alleleIds = getAlleleIdsFromInterpretation(selectedInterpretation)
+    const interpretations = state.get('views.workflows.data.interpretations')
+    const hasInterpretations = Boolean(interpretations.length)
+    const selectedInterpretation = resolve.value(getSelectedInterpretation)
+    const selectedInterpretationId = state.get('views.workflows.interpretation.selectedId')
+    const alleleIds = resolve.value(getAlleleIdsFromInterpretation)
 
     let uri = null
     let params = null
@@ -26,7 +29,7 @@ function getAlleles({ http, path, state }) {
 
     if (hasInterpretations) {
         const id = state.get('views.workflows.id')
-        const getCurrentData = selectedInterpretation.current || false
+        const getCurrentData = selectedInterpretationId === 'current'
 
         uri = `workflows/${type}/${id}/interpretations/${selectedInterpretation.id}/alleles/`
         params = {

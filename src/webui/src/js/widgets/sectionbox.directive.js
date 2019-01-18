@@ -33,7 +33,7 @@ import template from './sectionbox.ngtmpl.html'
             let c = p.querySelector('controls')
 
             if (c) {
-                if (c.children.length == 0) {
+                if (c.children.length === 0) {
                     p.style.display = 'none'
                 }
             }

@@ -6,24 +6,22 @@ describe('toggleReuseAlleleAssessment', () => {
         return {
             views: {
                 workflows: {
-                    data: {
-                        alleles: {
-                            1: {
-                                id: 1,
-                                allele_assessment: {
-                                    dummy: 'Just to have something here',
-                                    id: 45
+                    interpretation: {
+                        data: {
+                            alleles: {
+                                1: {
+                                    id: 1,
+                                    allele_assessment: {
+                                        dummy: 'Just to have something here',
+                                        id: 45
+                                    }
                                 }
                             }
-                        }
-                    },
-                    interpretation: {
-                        selected: {
-                            state: {
-                                allele: {
-                                    1: {
-                                        alleleassessment: { reuse: resuseFlag }
-                                    }
+                        },
+                        state: {
+                            allele: {
+                                1: {
+                                    alleleassessment: { reuse: resuseFlag }
                                 }
                             }
                         }
@@ -38,9 +36,9 @@ describe('toggleReuseAlleleAssessment', () => {
             state: createState(true),
             props: { alleleId: 1 }
         })
-        expect(
-            state.views.workflows.interpretation.selected.state.allele[1].alleleassessment.reuse
-        ).toBe(false)
+        expect(state.views.workflows.interpretation.state.allele[1].alleleassessment.reuse).toBe(
+            false
+        )
         expect(output.copyExistingAlleleAssessmentAlleleIds).toEqual([1])
     })
 
@@ -49,12 +47,10 @@ describe('toggleReuseAlleleAssessment', () => {
             state: createState(false),
             props: { alleleId: 1 }
         })
-        expect(
-            state.views.workflows.interpretation.selected.state.allele[1].alleleassessment.reuse
-        ).toBe(true)
-        expect(
-            state.views.workflows.interpretation.selected.state.allele[1].alleleassessment
-        ).toEqual({
+        expect(state.views.workflows.interpretation.state.allele[1].alleleassessment.reuse).toBe(
+            true
+        )
+        expect(state.views.workflows.interpretation.state.allele[1].alleleassessment).toEqual({
             allele_id: 1,
             reuse: true,
             reuseCheckedId: 45
