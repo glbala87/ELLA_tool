@@ -8,7 +8,6 @@ import prepareStartMode from '../actions/prepareStartMode'
 import loadInterpretationData from '../signals/loadInterpretationData'
 import selectDefaultInterpretation from '../actions/selectDefaultInterpretation'
 import getFilterConfigs from '../actions/getFilterConfigs'
-import setDefaultFilterConfig from '../actions/setDefaultFilterConfig'
 
 export default sequence('loadInterpretations', [
     set(state`views.workflows.loaded`, false),
@@ -24,11 +23,7 @@ export default sequence('loadInterpretations', [
                     set(state`views.workflows.data.interpretations`, props`result`),
                     selectDefaultInterpretation,
                     copyInterpretationState,
-                    when(state`views.workflows.type`, (type) => type === 'analysis'),
-                    {
-                        true: [setDefaultFilterConfig],
-                        false: []
-                    },
+
                     prepareStartMode,
                     loadInterpretationData
                 ]
