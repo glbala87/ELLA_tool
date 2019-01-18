@@ -51,7 +51,7 @@ describe('Handling of allele state', () => {
 
     it('handles assessments/reports: no existing, new, new outdated and new with old', async () => {
         // We need to make sure all expects in the API mocks are called
-        // expect.assertions(37)
+        expect.assertions(37)
 
         cerebral.setState('app.config', {
             classification: {
