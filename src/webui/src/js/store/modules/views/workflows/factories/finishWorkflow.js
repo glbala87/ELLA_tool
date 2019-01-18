@@ -1,5 +1,6 @@
 import { prepareInterpretationPayload } from '../../../../common/helpers/workflow'
 import getSelectedInterpretation from '../computed/getSelectedInterpretation'
+import getAlleleIdsFromInterpretation from '../computed/getAlleleIdsFromInterpretation'
 
 const TYPES = {
     analysis: 'analyses',
@@ -23,6 +24,10 @@ export default function(finishType) {
         const references = state.get('views.workflows.interpretation.data.references')
         const currentState = state.get('views.workflows.interpretation.state')
         const interpretation = resolve.value(getSelectedInterpretation)
+        const alleleIds = resolve.value(getAlleleIdsFromInterpretation)
+        const excludedAlleleIds = state.get(
+            'views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids'
+        )
 
         try {
             const payload = prepareInterpretationPayload(
@@ -31,8 +36,11 @@ export default function(finishType) {
                 interpretation,
                 currentState,
                 alleles,
+                alleleIds,
+                excludedAlleleIds,
                 Object.values(references)
             )
+
             return http
                 .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
                 .then((response) => {

@@ -1,7 +1,16 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function prepareInterpretationPayload(type, id, interpretation, state, alleles, references) {
+export function prepareInterpretationPayload(
+    type,
+    id,
+    interpretation,
+    state,
+    alleles,
+    alleleIds,
+    excludedAlleleIds,
+    references
+) {
     // Collect info about this interpretation.
     let annotations = []
     let custom_annotations = []
@@ -104,13 +113,13 @@ export function prepareInterpretationPayload(type, id, interpretation, state, al
         referenceassessments,
         allelereports,
         attachments,
-        allele_ids: interpretation.allele_ids
+        allele_ids: alleleIds
     }
     if (type === 'analysis') {
         Object.assign(payload, {
             technical_allele_ids,
             notrelevant_allele_ids,
-            excluded_allele_ids: interpretation.excluded_allele_ids
+            excluded_allele_ids: excludedAlleleIds
         })
     }
     return payload

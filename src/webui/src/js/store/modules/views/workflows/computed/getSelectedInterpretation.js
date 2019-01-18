@@ -19,7 +19,8 @@ export default Compute(
         let interpretation = null
         if (selectedInterpretationId === 'current') {
             if (interpretations.length === 0) {
-                // In allele workflow, this can happen. Analysis should create interpretation objects upon import
+                // If we have no history, set interpretation to empty representation
+                // only used for the view to have a model so it doesn't crash.
                 return defaultInterpretationState()
             } else {
                 // The state of the last done entry will be copied over to `views.workflows.interpretation`.

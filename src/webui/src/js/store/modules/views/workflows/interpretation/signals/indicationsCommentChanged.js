@@ -5,7 +5,7 @@ import setDirty from '../actions/setDirty'
 export default [
     debounce(200),
     {
-        continue: [setDirty, set(module`selected.state.report.indicationscomment`, props`comment`)],
+        continue: [setDirty, set(module`state.report.indicationscomment`, props`comment`)],
         discard: []
     }
 ]

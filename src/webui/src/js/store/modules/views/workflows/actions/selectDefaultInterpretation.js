@@ -14,10 +14,8 @@ export default function selectDefaultInterpretation({ state }) {
     } else if (lastInterpretation) {
         selectedId = lastInterpretation.id
     } else {
-        // If we have no history, set interpretation.selected to empty representation
-        // only used for the view to have a model so it doesn't crash.
-        // It will never be stored in backend. This should only happen when type: allele and
-        // there is not existing interpretation in the backend
+        // If we have no history, set interpretation.selectedId to 'current'
+        // This should only happen when type: allele and there is not existing interpretation in the backend
         if (state.get('views.workflows.type') === 'analysis') {
             throw Error(
                 "No interpretations loaded when type == analysis. This shouldn't be possible."

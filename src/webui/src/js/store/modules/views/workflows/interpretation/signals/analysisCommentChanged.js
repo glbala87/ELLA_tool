@@ -12,10 +12,7 @@ export default [
             {
                 true: [
                     setDirty,
-                    set(
-                        module`selected.state.allele.${props`alleleId`}.analysis.comment`,
-                        props`comment`
-                    )
+                    set(module`state.allele.${props`alleleId`}.analysis.comment`, props`comment`)
                 ],
                 false: [
                     toast(

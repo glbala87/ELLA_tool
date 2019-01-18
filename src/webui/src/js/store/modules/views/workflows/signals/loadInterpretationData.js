@@ -10,22 +10,21 @@ import loadAcmg from '../sequences/loadAcmg'
 import getFilteredAlleles from '../actions/getFilteredAlleles'
 import toast from '../../../../common/factories/toast'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
+import getFilterConfig from '../../../modals/addExcludedAlleles/actions/getFilterConfig'
 
 export default sequence('loadInterpretationData', [
     progress('start'),
+    getFilterConfig,
+    {
+        success: [set(state`views.workflows.interpretation.data.filterConfig`, props`result`)],
+        error: [toast('error', 'Failed to fetch filter config', 30000)]
+    },
     updateLoadingPhase('filtering'),
     getFilteredAlleles,
     {
         error: [toast('error', 'Failed to fetch filtered alleles', 30000)],
         success: [
-            set(
-                state`views.workflows.interpretation.filteredAlleleIds.allele_ids`,
-                props`allele_ids`
-            ),
-            set(
-                state`views.workflows.interpretation.filteredAlleleIds.excluded_allele_ids`,
-                props`excluded_allele_ids`
-            ),
+            set(state`views.workflows.interpretation.data.filteredAlleleIds`, props`result`),
             updateLoadingPhase('variants'),
             loadGenepanel,
             loadAlleles,
