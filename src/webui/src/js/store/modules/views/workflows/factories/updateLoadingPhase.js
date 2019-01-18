@@ -1,5 +1,7 @@
+import getAlleleIdsFromInterpretation from '../computed/getAlleleIdsFromInterpretation'
+
 export default function updateLoadingPhase(phase) {
-    return function setLoadingText({ state }) {
+    return function setLoadingText({ state, resolve }) {
         const workflowType = state.get('views.workflows.type')
         const workflowStats = state.get('views.workflows.data.stats')
 
@@ -20,7 +22,8 @@ export default function updateLoadingPhase(phase) {
             }
         } else if (phase === 'variants') {
             if (showLoadingText) {
-                loadingText = `Loading variants`
+                const numVariants = resolve.value(getAlleleIdsFromInterpretation).length
+                loadingText = `Loading ${numVariants} variants`
             }
         } else if (phase === 'done') {
             loaded = true

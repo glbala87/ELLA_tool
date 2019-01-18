@@ -5,14 +5,12 @@ import toast from '../../../../common/factories/toast'
 import getInterpretations from '../actions/getInterpretations'
 import copyInterpretationState from '../actions/copyInterpretationState'
 import prepareStartMode from '../actions/prepareStartMode'
-import updateLoadingPhase from '../factories/updateLoadingPhase'
 import loadInterpretationData from '../signals/loadInterpretationData'
 import selectDefaultInterpretation from '../actions/selectDefaultInterpretation'
 import getFilterConfigs from '../actions/getFilterConfigs'
 import setDefaultFilterConfig from '../actions/setDefaultFilterConfig'
 
 export default sequence('loadInterpretations', [
-    updateLoadingPhase('start'),
     set(state`views.workflows.loaded`, false),
     getFilterConfigs,
     {
@@ -32,9 +30,7 @@ export default sequence('loadInterpretations', [
                         false: []
                     },
                     prepareStartMode,
-                    updateLoadingPhase('variants'),
-                    loadInterpretationData,
-                    updateLoadingPhase('done')
+                    loadInterpretationData
                 ]
             }
         ]
