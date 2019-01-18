@@ -15,6 +15,7 @@ class SnapshotCreator(object):
         "quality": "QUALITY",
         "consequence": "CONSEQUENCE",
         "segregation": "SEGREGATION",
+        "inheritancemodel": "INHERITANCEMODEL",
     }
 
     def __init__(self, session):

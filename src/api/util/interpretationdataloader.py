@@ -80,6 +80,7 @@ class InterpretationDataLoader(object):
             "QUALITY": "quality",
             "CONSEQUENCE": "consequence",
             "SEGREGATION": "segregation",
+            "INHERITANCEMODEL": "inheritancemodel",
         }
 
         excluded_allele_ids = {k: [] for k in list(categories.values())}
