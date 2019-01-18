@@ -7,6 +7,7 @@ from sqlalchemy import or_, and_, text, func, tuple_, case
 from sqlalchemy.orm import aliased
 
 from api.allelefilter.segregationfilter import SegregationFilter
+from api.allelefilter.genotypetable import get_genotype_temp_table
 from api.util.util import query_print_table
 from api.util import queries
 from api.schemas import (
@@ -417,7 +418,7 @@ class AlleleDataLoader(object):
         father_sample = self.segregation_filter.get_father_sample(proband_sample)
         mother_sample = self.segregation_filter.get_mother_sample(proband_sample)
 
-        genotype_table = self.segregation_filter.get_genotype_temp_table(allele_ids, sample_ids)
+        genotype_table = get_genotype_temp_table(self.session, allele_ids, sample_ids)
         return self.segregation_filter.denovo_p_value(
             allele_ids,
             genotype_table,

@@ -75,6 +75,7 @@ class InterpretationSnapshotMixin(object):
             "QUALITY",
             "CONSEQUENCE",
             "SEGREGATION",
+            "INHERITANCEMODEL",
             name="interpretationsnapshot_filtered",
         )
     )  # If the allele was filtered, this describes which type of filtering

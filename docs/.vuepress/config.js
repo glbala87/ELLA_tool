@@ -1,48 +1,38 @@
 module.exports = {
-	title: 'ella documentation',
-	base: '/docs/',
-	
-	head: [
-		['link', { rel: 'shortcut icon', type: "image/x-icon", href: `./favicon.png` }]
-	],
-	
-	themeConfig: {
-		
-		lastUpdated: 'Last Updated', // string | boolean
-		
-		nav: [
-			{ text: 'Home', link: '/' },
-			{ text: 'User manual', link: '/manual/' },
-			{ text: 'Technical documentation', link: '/technical/' },
-			{ text: 'Release notes', link: '/releasenotes/' },
-			{ text: 'allel.es', link: 'http://allel.es' }
-		],
-		
-		sidebarDepth: 2,
-		
-		sidebar: {
+    title: 'ella documentation',
+    base: '/docs/',
+
+    head: [['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `./favicon.png` }]],
+
+    themeConfig: {
+        lastUpdated: 'Last Updated', // string | boolean
+
+        nav: [
+            { text: 'Home', link: '/' },
+            { text: 'User manual', link: '/manual/' },
+            { text: 'Technical documentation', link: '/technical/' },
+            { text: 'Release notes', link: '/releasenotes/' },
+            { text: 'allel.es', link: 'http://allel.es' }
+        ],
+
+        sidebarDepth: 2,
+
+        sidebar: {
             '/manual/': [
                 {
                     title: 'Basics',
                     collapsable: false,
-                    children: [
-						'/manual/',
-						'/manual/save-and-finish'
-					]
+                    children: ['/manual/', '/manual/save-and-finish']
                 },
-				{
+                {
                     title: 'OVERVIEW page',
                     collapsable: false,
-                    children: [
-						'/manual/overview-page' 
-					]
+                    children: ['/manual/overview-page']
                 },
-				{
+                {
                     title: 'INFO page',
                     collapsable: false,
-                    children: [
-						'/manual/info-page' 
-					]
+                    children: ['/manual/info-page']
                 },
                 {
                     title: 'CLASSIFICATION page',
@@ -55,19 +45,20 @@ module.exports = {
                         '/manual/classification-section'
                     ]
                 },
-				{
+                {
                     title: 'VISUALISATION page',
                     collapsable: false,
-                    children: [
-                        '/manual/visualisation-page'
-                    ]
+                    children: ['/manual/visualisation-page']
                 },
-				{
+                {
                     title: 'REPORT page',
                     collapsable: false,
-                    children: [
-                        '/manual/report-page'
-                    ]
+                    children: ['/manual/report-page']
+                },
+                {
+                    title: 'FILTERING',
+                    collapsable: false,
+                    children: ['/manual/filtering']
                 }
             ],
             '/technical/': [
@@ -79,6 +70,7 @@ module.exports = {
                         '/technical/deployment',
                         '/technical/development',
                         '/technical/workflow',
+                        '/technical/filtering',
                         '/technical/datamodel',
                         '/technical/uicomponents',
                         '/technical/testing',
@@ -87,15 +79,13 @@ module.exports = {
                     ]
                 }
             ],
-			'/releasenotes/': [
+            '/releasenotes/': [
                 {
                     title: 'Release notes',
                     collapsable: false,
-                    children: [
-                        '/releasenotes/'
-                    ]
+                    children: ['/releasenotes/']
                 }
             ]
         }
-	}
+    }
 }
