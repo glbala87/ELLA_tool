@@ -107,7 +107,7 @@ class FilterConfig(Base):
     previous_filterconfig = Column(Integer, ForeignKey("filterconfig.id"))
     order = Column(Integer, nullable=False)
     requirements = Column(JSONB, nullable=False, default=[])
-    active = Column(Boolean, default=True)
+    active = Column(Boolean, default=True, nullable=False)
 
     def __repr__(self):
         return "<FilterConfig({}, {}, {}, {})>".format(
