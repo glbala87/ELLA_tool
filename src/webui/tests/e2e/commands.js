@@ -1,7 +1,7 @@
 const { execSync, spawnSync } = require('child_process')
 
 function waitForCerebral() {
-    browser.timeouts('script', 2000).executeAsync(function(done) {
+    browser.timeouts('script', 10000).executeAsync(function(done) {
         const MAX_WAIT = 1000
         const CHECK_INTERVAL = 10
 
