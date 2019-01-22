@@ -122,7 +122,7 @@ WORKDIR /ella
 
 FROM dev AS production-build
 
-RUN cd /ella && yarn production
+RUN cd /ella && yarn build
 
 FROM base AS production
 
