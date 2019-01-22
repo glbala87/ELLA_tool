@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple, Sequence
+from typing import Any, Dict, List, Optional, Set, Tuple, Sequence, Callable
 import logging
 from sqlalchemy.orm.session import Session
 
