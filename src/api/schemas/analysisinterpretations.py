@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields
 
-from api.schemas import users, filterconfigs
+from api.schemas import users
 
 
 class AnalysisInterpretationSnapshotSchema(Schema):
