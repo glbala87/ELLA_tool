@@ -17,13 +17,17 @@ export default sequence('loadInterpretationData', [
     progress('start'),
     when(state`views.workflows.type`, (type) => type === 'analysis'),
     {
-        true: [setDefaultFilterConfig],
+        true: [
+            setDefaultFilterConfig,
+            getFilterConfig,
+            {
+                success: [
+                    set(state`views.workflows.interpretation.data.filterConfig`, props`result`)
+                ],
+                error: [toast('error', 'Failed to fetch filter config', 30000)]
+            }
+        ],
         false: []
-    },
-    getFilterConfig,
-    {
-        success: [set(state`views.workflows.interpretation.data.filterConfig`, props`result`)],
-        error: [toast('error', 'Failed to fetch filter config', 30000)]
     },
     updateLoadingPhase('filtering'),
     getFilteredAlleles,

@@ -428,15 +428,6 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
             )
         )
 
-    # We must load it _before_ we create assessments, since assessments
-    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-
-    # filterconfig_id = data.get("filterconfig_id")
-    # loaded_interpretation = InterpretationDataLoader(session).from_obj(
-    #    interpretation, filterconfig_id
-    # )
-    # loaded_interpretation = interpretation
-
     presented_alleleassessment_ids = [
         a["presented_alleleassessment_id"]
         for a in data["alleleassessments"]
@@ -553,10 +544,6 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
 
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
-
-    # We must load it _before_ we create assessments, since assessments
-    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    # loaded_interpretation = InterpretationDataLoader(session).from_obj(interpretation, user_id)
 
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(

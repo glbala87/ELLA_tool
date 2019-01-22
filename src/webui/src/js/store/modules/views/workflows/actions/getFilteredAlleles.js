@@ -9,11 +9,8 @@ function getFilteredAlleles({ http, path, state, resolve }) {
 
         // Run filter if current is true
         let params = {}
-
-        // TODO: Hackish. Fixme.
         let current = state.get('views.workflows.interpretation.selectedId') === 'current'
         let isDone = selectedInterpretation.status === 'Done'
-
         if (current || !isDone) {
             params['filterconfig_id'] = state.get(
                 'views.workflows.interpretation.state.filterconfigId'
@@ -35,8 +32,10 @@ function getFilteredAlleles({ http, path, state, resolve }) {
             })
     } else {
         return path.success({
-            allele_ids: [state.get('views.workflows.id')],
-            excluded_allele_ids: null
+            result: {
+                allele_ids: [state.get('views.workflows.id')],
+                excluded_allele_ids: null
+            }
         })
     }
 }
