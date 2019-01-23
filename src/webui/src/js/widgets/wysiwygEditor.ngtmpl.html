@@ -1,102 +1,281 @@
-<div class="wysiwygeditor" title={{vm.placeholder}} tabindex="-1" spellcheck="false" ng-disabled="vm.ngDisabled" ng-model="comment.model.comment"></div>
-<div class="wysiwygplaceholder" title={{vm.placeholder}}>{{vm.placeholder}}</div>
+<div
+    class="wysiwygeditor"
+    title="{{ vm.placeholder }}"
+    tabindex="-1"
+    spellcheck="false"
+    ng-disabled="vm.ngDisabled"
+    ng-model="comment.model.comment"
+></div>
+<div class="wysiwygplaceholder" title="{{ vm.placeholder }}">{{ vm.placeholder }}</div>
 <div class="wysiwygbuttons" ng-show="vm.showControls">
-  <button class="wysiwygbutton fixed"
-          title="Toggle HTML source"
-          id="wysiwyg-src"
-          ng-click="vm.buttonAction('src')">&lt;&gt;
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Bold (Ctrl+B)"
-          id="wysiwyg-bold"
-          ng-click="vm.buttonAction('bold')">B
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Italic (Ctrl+I)"
-          id="wysiwyg-italic"
-          ng-click="vm.buttonAction('italic')">I
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Underline (Ctrl+U)"
-          id="wysiwyg-underline"
-          ng-click="vm.buttonAction('underline')">U
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Code/Monospace font"
-          id="wysiwyg-monospace"
-          ng-click="vm.buttonAction('monospace')">M
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Set text color"
-          id="wysiwyg-fontcolor"
-          ng-click="vm.buttonAction('fontcolor')">A<span style="vertical-align: sub; margin-left: -0.0rem">&#9646</span>
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Set highlight color"
-          id="wysiwyg-highlightcolor"
-          ng-click="vm.buttonAction('highlightcolor')"><svg width="60%" height="60%" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z" /></svg><span>&#9646</span>
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Heading 1"
-          id="wysiwyg-heading1"
-          ng-click="vm.buttonAction('heading1')">H1
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Heading 2"
-          id="wysiwyg-heading2"
-          ng-click="vm.buttonAction('heading2')">H2
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Normal text"
-          id="wysiwyg-paragraph"
-          ng-click="vm.buttonAction('paragraph')">P
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Numbered list"
-          id="wysiwyg-orderedList"
-          ng-click="vm.buttonAction('orderedList')"><svg width="60%" height="100%" fill="currentcolor" stroke="currentcolor" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M381 1620q0 80-54.5 126t-135.5 46q-106 0-172-66l57-88q49 45 106 45 29 0 50.5-14.5t21.5-42.5q0-64-105-56l-26-56q8-10 32.5-43.5t42.5-54 37-38.5v-1q-16 0-48.5 1t-48.5 1v53h-106v-152h333v88l-95 115q51 12 81 49t30 88zm2-627v159h-362q-6-36-6-54 0-51 23.5-93t56.5-68 66-47.5 56.5-43.5 23.5-45q0-25-14.5-38.5t-39.5-13.5q-46 0-81 58l-85-59q24-51 71.5-79.5t105.5-28.5q73 0 123 41.5t50 112.5q0 50-34 91.5t-75 64.5-75.5 50.5-35.5 52.5h127v-60h105zm1409 319v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-14 9-23t23-9h1216q13 0 22.5 9.5t9.5 22.5zm-1408-899v99h-335v-99h107q0-41 .5-122t.5-121v-12h-2q-8 17-50 54l-71-76 136-127h106v404h108zm1408 387v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-14 9-23t23-9h1216q13 0 22.5 9.5t9.5 22.5zm0-512v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5z"/></svg>
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Bullet list"
-          id="wysiwyg-unorderedList"
-          ng-click="vm.buttonAction('unorderedList')"><svg width="60%" height="100%" fill="currentcolor" stroke="currentcolor" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path class="path1" d="M384 1408q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm0-512q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm-1408-928q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm0-512v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5z"/></svg>
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Add link"
-          id="wysiwyg-link"
-          ng-click="vm.buttonAction('linkform')"><svg width="70%" height="100%" id="i-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"><path d="M18 8 C18 8 24 2 27 5 30 8 29 12 24 16 19 20 16 21 14 17 M14 24 C14 24 8 30 5 27 2 24 3 20 8 16 13 12 16 11 18 15" /></svg>
-  </button>
-  <button class="wysiwygbutton fixed"
-          title="Clear formatting"
-          id="wysiwyg-removeFormat"
-          ng-click="vm.buttonAction('removeFormat')">T<span style="vertical-align: sub; margin-left: -0.3rem">&#10005</span>
-  </button>
-  <button class="wysiwygbutton fixed id-insert-template-button"
-          title="Insert template"
-          id="wysiwyg-templates"
-          ng-click="vm.buttonAction('templates')"
-          ng-disabled="!vm.templates || vm.templates.length == 0"
-          >
-          <svg width="60%" height="100%" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+    <button
+        class="wysiwygbutton fixed"
+        title="Toggle HTML source"
+        id="wysiwyg-src"
+        ng-click="vm.buttonAction('src')"
+    >
+        &lt;&gt;
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Bold (Ctrl+B)"
+        id="wysiwyg-bold"
+        ng-click="vm.buttonAction('bold')"
+    >
+        B
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Italic (Ctrl+I)"
+        id="wysiwyg-italic"
+        ng-click="vm.buttonAction('italic')"
+    >
+        I
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Underline (Ctrl+U)"
+        id="wysiwyg-underline"
+        ng-click="vm.buttonAction('underline')"
+    >
+        U
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Code/Monospace font"
+        id="wysiwyg-monospace"
+        ng-click="vm.buttonAction('monospace')"
+    >
+        M
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Set text color"
+        id="wysiwyg-fontcolor"
+        ng-click="vm.buttonAction('fontcolor')"
+    >
+        A<span style="vertical-align: sub; margin-left: -0.0rem">&#9646;</span>
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Set highlight color"
+        id="wysiwyg-highlightcolor"
+        ng-click="vm.buttonAction('highlightcolor')"
+    >
+        <svg
+            width="60%"
+            height="60%"
+            viewBox="0 0 32 32"
+            width="32"
+            height="32"
+            fill="none"
+            stroke="currentcolor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        >
+            <path d="M30 7 L25 2 5 22 3 29 10 27 Z M21 6 L26 11 Z M5 22 L10 27 Z" /></svg
+        ><span>&#9646;</span>
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Heading 1"
+        id="wysiwyg-heading1"
+        ng-click="vm.buttonAction('heading1')"
+    >
+        H1
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Heading 2"
+        id="wysiwyg-heading2"
+        ng-click="vm.buttonAction('heading2')"
+    >
+        H2
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Normal text"
+        id="wysiwyg-paragraph"
+        ng-click="vm.buttonAction('paragraph')"
+    >
+        P
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Numbered list"
+        id="wysiwyg-orderedList"
+        ng-click="vm.buttonAction('orderedList')"
+    >
+        <svg
+            width="60%"
+            height="100%"
+            fill="currentcolor"
+            stroke="currentcolor"
+            viewBox="0 0 1792 1792"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M381 1620q0 80-54.5 126t-135.5 46q-106 0-172-66l57-88q49 45 106 45 29 0 50.5-14.5t21.5-42.5q0-64-105-56l-26-56q8-10 32.5-43.5t42.5-54 37-38.5v-1q-16 0-48.5 1t-48.5 1v53h-106v-152h333v88l-95 115q51 12 81 49t30 88zm2-627v159h-362q-6-36-6-54 0-51 23.5-93t56.5-68 66-47.5 56.5-43.5 23.5-45q0-25-14.5-38.5t-39.5-13.5q-46 0-81 58l-85-59q24-51 71.5-79.5t105.5-28.5q73 0 123 41.5t50 112.5q0 50-34 91.5t-75 64.5-75.5 50.5-35.5 52.5h127v-60h105zm1409 319v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-14 9-23t23-9h1216q13 0 22.5 9.5t9.5 22.5zm-1408-899v99h-335v-99h107q0-41 .5-122t.5-121v-12h-2q-8 17-50 54l-71-76 136-127h106v404h108zm1408 387v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-14 9-23t23-9h1216q13 0 22.5 9.5t9.5 22.5zm0-512v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5z"
+            />
+        </svg>
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Bullet list"
+        id="wysiwyg-unorderedList"
+        ng-click="vm.buttonAction('unorderedList')"
+    >
+        <svg
+            width="60%"
+            height="100%"
+            fill="currentcolor"
+            stroke="currentcolor"
+            viewBox="0 0 1792 1792"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                class="path1"
+                d="M384 1408q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm0-512q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm-1408-928q0 80-56 136t-136 56-136-56-56-136 56-136 136-56 136 56 56 136zm1408 416v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5zm0-512v192q0 13-9.5 22.5t-22.5 9.5h-1216q-13 0-22.5-9.5t-9.5-22.5v-192q0-13 9.5-22.5t22.5-9.5h1216q13 0 22.5 9.5t9.5 22.5z"
+            />
+        </svg>
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Add link"
+        id="wysiwyg-link"
+        ng-click="vm.buttonAction('linkform')"
+    >
+        <svg
+            width="70%"
+            height="100%"
+            id="i-link"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 32 32"
+            fill="none"
+            stroke="currentcolor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="6.25%"
+        >
+            <path
+                d="M18 8 C18 8 24 2 27 5 30 8 29 12 24 16 19 20 16 21 14 17 M14 24 C14 24 8 30 5 27 2 24 3 20 8 16 13 12 16 11 18 15"
+            />
+        </svg>
+    </button>
+    <button
+        class="wysiwygbutton fixed"
+        title="Clear formatting"
+        id="wysiwyg-removeFormat"
+        ng-click="vm.buttonAction('removeFormat')"
+    >
+        T<span style="vertical-align: sub; margin-left: -0.3rem">&#10005;</span>
+    </button>
+    <button
+        class="wysiwygbutton fixed id-insert-template-button"
+        title="Insert template"
+        id="wysiwyg-templates"
+        ng-click="vm.buttonAction('templates')"
+        ng-disabled="!vm.templates || vm.templates.length == 0"
+    >
+        <svg
+            width="60%"
+            height="100%"
+            viewBox="0 0 32 32"
+            width="32"
+            height="32"
+            fill="none"
+            stroke="currentcolor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        >
             <path d="M18 13 L26 2 8 13 14 19 6 30 24 19 Z" />
-          </svg>
-  </button>
-  <!-- Don't use ng-if as we need the element for positioning -->
-  <div class="wysiwyglinkform" tabindex="1" ng-show="vm.popovers.linkform.show">
-      <div><input id="wysiwygklinkurl" placeholder="LINK ADDRESS" ng-model="vm.linkUrl"></div>
-      <div><input id="wysiwygklinktext" placeholder="(OPTIONAL) TEXT" ng-model="vm.linkText"></div>
-      <button ng-click="vm.addLink()" class="addlinkbutton"><svg id="i-checkmark" viewBox="0 0 32 32" width="100%" height="100%" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%"> <path d="M2 20 L12 28 30 4" /></svg></button>
-  </div>
-  <div class="wysiwygtemplatespopover" ng-show="vm.popovers.templates.show">
-      <div class="template-item" ng-repeat="t in vm.templates">
-          <button class="purple template-button" ng-click="vm.insertTemplate(t)">+</button>
-          <div class="template-title">{{t.name}}</div>
-      </div>
-  </div>
-  <div class="wysiwygfontcolorpopover" ng-show="vm.popovers.fontcolor.show">
-        <div ng-click="vm.setFontColor(color)" class="color-item" ng-style="{'color': color , 'border-color': color}" ng-repeat="color in vm.fontColors">A</div>
-  </div>
-  <div class="wysiwyghighlightcolorpopover" ng-show="vm.popovers.highlightcolor.show">
-        <div ng-click="vm.setHighlightColor(color)" class="color-item" ng-style="{'background-color': color }" ng-repeat="color in vm.highlightColors">A</div>
-  </div>
+        </svg>
+    </button>
+    <button
+        class="wysiwygbutton fixed id-insert-references-button"
+        ng-class="{'hidden': !vm.references}"
+        title="Insert reference"
+        id="wysiwyg-references"
+        ng-click="vm.buttonAction('references')"
+        ng-disabled="!vm.references || vm.references.length == 0"
+    >
+        <svg
+            width="60%"
+            height="100%"
+            viewBox="0 0 32 32"
+            width="32"
+            height="32"
+            fill="none"
+            stroke="currentcolor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        >
+            <path
+                d="M16 7 C16 7 9 1 2 6 L2 28 C9 23 16 28 16 28 16 28 23 23 30 28 L30 6 C23 1 16 7 16 7 Z M16 7 L16 28"
+            />
+        </svg>
+    </button>
+
+    <!-- Don't use ng-if as we need the element for positioning -->
+    <div class="wysiwygfontcolorpopover" ng-show="vm.popovers.fontcolor.show">
+        <div
+            ng-click="vm.setFontColor(color)"
+            class="color-item"
+            ng-style="{'color': color , 'border-color': color}"
+            ng-repeat="color in vm.fontColors"
+        >
+            A
+        </div>
+    </div>
+    <div class="wysiwyghighlightcolorpopover" ng-show="vm.popovers.highlightcolor.show">
+        <div
+            ng-click="vm.setHighlightColor(color)"
+            class="color-item"
+            ng-style="{'background-color': color }"
+            ng-repeat="color in vm.highlightColors"
+        >
+            A
+        </div>
+    </div>
+    <div class="wysiwyglinkform" tabindex="1" ng-show="vm.popovers.linkform.show">
+        <div><input id="wysiwygklinkurl" placeholder="LINK ADDRESS" ng-model="vm.linkUrl" /></div>
+        <div>
+            <input id="wysiwygklinktext" placeholder="(OPTIONAL) TEXT" ng-model="vm.linkText" />
+        </div>
+        <button ng-click="vm.addLink()" class="addlinkbutton">
+            <svg
+                id="i-checkmark"
+                viewBox="0 0 32 32"
+                width="100%"
+                height="100%"
+                fill="none"
+                stroke="currentcolor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="6.25%"
+            >
+                <path d="M2 20 L12 28 30 4" />
+            </svg>
+        </button>
+    </div>
+    <div class="wysiwygtemplatespopover" ng-show="vm.popovers.templates.show">
+        <div class="template-item" ng-repeat="t in vm.templates">
+            <button class="purple template-button" ng-click="vm.insertTemplate(t)">+</button>
+            <div class="template-title">{{ t.name }}</div>
+        </div>
+    </div>
+    <div class="wysiwygreferencespopover" ng-show="vm.popovers.references.show">
+        <div ng-repeat="category in vm.references">
+            <div class="reference-category-title">{{ category.name }}</div>
+            <div class="reference-item" ng-repeat="r in category.references">
+                <button class="purple reference-button" ng-click="vm.insertReference(r)">+</button>
+                <div class="reference-title" title="{{ vm.formatReference(r) }}">
+                    {{ vm.formatReference(r) }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

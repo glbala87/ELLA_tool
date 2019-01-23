@@ -14,7 +14,8 @@ import template from './wysiwygEditor.ngtmpl.html'
         ngModel: '=',
         ngDisabled: '=?',
         showControls: '<?',
-        templates: '=?'
+        templates: '=?',
+        references: '=?' // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
     },
     require: '?ngModel', // get a hold of NgModelController
     template
@@ -40,22 +41,27 @@ export class WysiwygEditorController {
             linkform: {
                 show: false,
                 button: this.buttons['link'],
-                element: this.buttonselement.children[this.buttonselement.children.length - 4]
+                element: this.buttonselement.children[this.buttonselement.children.length - 3]
             },
             templates: {
                 show: false,
                 button: this.buttons['templates'],
-                element: this.buttonselement.children[this.buttonselement.children.length - 3]
+                element: this.buttonselement.children[this.buttonselement.children.length - 2]
+            },
+            references: {
+                show: false,
+                button: this.buttons['references'],
+                element: this.buttonselement.children[this.buttonselement.children.length - 1]
             },
             fontcolor: {
                 show: false,
                 button: this.buttons['fontcolor'],
-                element: this.buttonselement.children[this.buttonselement.children.length - 2]
+                element: this.buttonselement.children[this.buttonselement.children.length - 5]
             },
             highlightcolor: {
                 show: false,
                 button: this.buttons['highlightcolor'],
-                element: this.buttonselement.children[this.buttonselement.children.length - 1]
+                element: this.buttonselement.children[this.buttonselement.children.length - 4]
             }
         }
 
@@ -187,6 +193,7 @@ export class WysiwygEditorController {
             removeFormat: this.editor.removeFormat,
             linkform: () => this.togglePopover('linkform'),
             templates: () => this.togglePopover('templates'),
+            references: () => this.togglePopover('references'),
             fontcolor: () => this.togglePopover('fontcolor'),
             highlightcolor: () => this.togglePopover('highlightcolor'),
             src: () => this.toggleSource
@@ -517,6 +524,20 @@ export class WysiwygEditorController {
         this.editor.insertHTML(template.template)
         this.positionPopovers()
         this.closePopover('templates')
+    }
+
+    insertReference(ref) {
+        const formatted = `${ref.authors} (${ref.year}) ${ref.journal}`
+        this.editor.insertHTML(formatted)
+        this.positionPopovers()
+        this.closePopover('references')
+    }
+
+    formatReference(ref) {
+        if (ref) {
+            return `${ref.authors} (${ref.year}): ${ref.title}`
+        }
+        return ''
     }
 
     setFontColor(color) {

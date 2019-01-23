@@ -20,6 +20,7 @@ import { deepCopy } from '../../util'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
 import template from './allelesectionbox.ngtmpl.html'
+import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -95,6 +96,7 @@ app.component('alleleSectionbox', {
             alleleState: getAlleleState(state`views.workflows.selectedAllele`),
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
             allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
+            editorReferences: getEditorReferences,
             isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
                 state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
