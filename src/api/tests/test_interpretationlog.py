@@ -5,6 +5,7 @@ from api.tests.workflow_helper import WorkflowHelper
 
 ALLELE_ID = 1
 ANALYSIS_ID = 1
+FILTERCONFIG_ID = 1
 
 
 def check_log(log, message=None, review_comment=None, priority=None, warning_cleared=None):
@@ -63,9 +64,9 @@ def test_allele_workflow(client, test_database):
     check_latest_log(client, "allele", message=message, editable=True)
 
     # Make sure it's not editable after one round
-    analysis_wh = WorkflowHelper("allele", ALLELE_ID, genepanel=("HBOCUTV", "v01"))
-    interpretation = analysis_wh.start_interpretation("testuser1")
-    analysis_wh.perform_round(interpretation, "Some comment", new_workflow_status="Interpretation")
+    allele_wh = WorkflowHelper("allele", ALLELE_ID, genepanel=("HBOCUTV", "v01"))
+    interpretation = allele_wh.start_interpretation("testuser1")
+    allele_wh.perform_round(interpretation, "Some comment", new_workflow_status="Interpretation")
 
     check_latest_log(client, "allele", message=message, editable=False)
 
@@ -122,7 +123,7 @@ def test_analyses_workflow(client, test_database):
     check_latest_log(client, "analysis", message=message, editable=True)
 
     # Make sure it's not editable after one round
-    analysis_wh = WorkflowHelper("analysis", ANALYSIS_ID)
+    analysis_wh = WorkflowHelper("analysis", ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
     interpretation = analysis_wh.start_interpretation("testuser1")
     analysis_wh.perform_round(interpretation, "Some comment", new_workflow_status="Interpretation")
 

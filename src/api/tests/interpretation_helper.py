@@ -17,6 +17,8 @@ def finalize_template(
     referenceassessments,
     allelereports,
     attachments,
+    allele_ids,
+    excluded_allele_ids,
     technical_allele_ids,
     notrelevant_allele_ids,
 ):
@@ -29,17 +31,26 @@ def finalize_template(
         "attachments": attachments,
         "technical_allele_ids": technical_allele_ids,
         "notrelevant_allele_ids": notrelevant_allele_ids,
+        "allele_ids": allele_ids,
+        "excluded_allele_ids": excluded_allele_ids,
     }
 
 
 def round_template(
-    annotations=None, custom_annotations=None, alleleassessments=None, allelereports=None
+    annotations=None,
+    custom_annotations=None,
+    alleleassessments=None,
+    allelereports=None,
+    allele_ids=None,
+    excluded_allele_ids=None,
 ):
     return {
         "annotations": annotations if annotations else [],
         "custom_annotations": custom_annotations if custom_annotations else [],
         "alleleassessments": alleleassessments if alleleassessments else [],
         "allelereports": allelereports if allelereports else [],
+        "allele_ids": allele_ids,
+        "excluded_allele_ids": excluded_allele_ids if excluded_allele_ids else {},
     }
 
 
@@ -153,6 +164,17 @@ def get_interpretation(workflow_type, workflow_id, interpretation_id):
     response = api.get(
         "/workflows/{}/{}/interpretations/{}/".format(
             uri_part[workflow_type], workflow_id, interpretation_id
+        )
+    )
+    return response
+
+
+def get_filtered_alleles(workflow_type, workflow_id, interpretation_id, filterconfig_id=None):
+    params = "?filterconfig_id={}".format(filterconfig_id) if filterconfig_id else ""
+    assert workflow_type == "analysis"
+    response = api.get(
+        "/workflows/analyses/{}/interpretations/{}/filteredalleles/{}".format(
+            workflow_id, interpretation_id, params
         )
     )
     return response
@@ -300,6 +322,8 @@ def finalize(
     allelereports,
     attachments,
     username,
+    allele_ids=None,
+    excluded_allele_ids=None,
     technical_allele_ids=None,
     notrelevant_allele_ids=None,
 ):
@@ -312,6 +336,8 @@ def finalize(
             referenceassessments,
             allelereports,
             attachments,
+            allele_ids,
+            excluded_allele_ids if excluded_allele_ids else {},
             technical_allele_ids if technical_allele_ids else [],
             notrelevant_allele_ids if notrelevant_allele_ids else [],
         ),
