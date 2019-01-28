@@ -2,7 +2,6 @@
 
 // Extracts the IIFE into an export
 import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysiwygjs/wysiwyg'
-import vanillaColorPicker from 'exports-loader?window.vanillaColorPicker!../../thirdparty/vanilla-color-picker/vanilla-color-picker.min'
 
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID, sanitize } from '../util'
@@ -392,26 +391,29 @@ export class WysiwygEditorController {
         // puts other elements in focus. Plus it's more to do on
         // every single click.
         if (!this.isBlurred) {
-            if (this.getTextFromHTML(this.editor.getHTML()) === '') {
-                this.editor.setHTML('')
-                this.placeholderEvent(true)
-            }
-
-            // Clean up html highlight color with no effect
-            let html = this.editor.getHTML()
-            html = html.replace(`background-color: rgb(${this.DEFAULT_COLOR.RGB});`, '')
-            html = html.replace('style=""', '')
-            this.editor.setHTML(html)
             this.closePopovers()
-
-            // Update ngModel
-            this.updateViewValue()
             this.isBlurred = true
             this.timeout(() => {
                 // Set timeout so changes in layout due to removal
                 // doesn't disturb what user actually clicked on
                 this.buttonselement.hidden = true
             }, 100)
+
+            // Clean up HTML
+            if (!this.ngDisabled) {
+                if (this.getTextFromHTML(this.editor.getHTML()) === '') {
+                    this.editor.setHTML('')
+                    this.placeholderEvent(true)
+                }
+
+                let html = this.editor.getHTML()
+                html = html.replace(`background-color: rgb(${this.DEFAULT_COLOR.RGB});`, '')
+                html = html.replace('style=""', '')
+                this.editor.setHTML(html)
+
+                // Update ngModel
+                this.updateViewValue()
+            }
         }
     }
 
