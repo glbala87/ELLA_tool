@@ -1,5 +1,6 @@
 import getAlleleSidebarState from './alleleSidebar/getAlleleSidebarState'
 import getInterpretationState from './interpretation/getInterpretationState'
+import getWorkLogState from './worklog/getWorkLogState'
 
 export default function getWorkflowsState() {
     // We must handle modules state in here due to changeView resetting it
@@ -19,6 +20,7 @@ export default function getWorkflowsState() {
         loaded: false, // Whether view should render
         selectedAllele: null, // id of selected allele
         selectedComponent: null, // Set in prepareComponents
-        type: null // 'analysis' or 'allele'
+        type: null, // 'analysis' or 'allele'
+        worklog: getWorkLogState()
     }
 }

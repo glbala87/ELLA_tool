@@ -28,13 +28,15 @@ app.component('interpretationLog', {
             canClearWarning,
             priority: getPriority,
             priorityOptions: getPriorityOptions,
+            showMessagesOnly: state`views.workflows.worklog.showMessagesOnly`,
             messageIds: state`views.workflows.worklog.messageIds`,
             message: state`views.workflows.worklog.message`,
             clearWarningClicked: signal`views.workflows.worklog.clearWarningClicked`,
             priorityChanged: signal`views.workflows.worklog.priorityChanged`,
             addMessageClicked: signal`views.workflows.worklog.addMessageClicked`,
             messageChanged: signal`views.workflows.worklog.messageChanged`,
-            updateReviewCommentClicked: signal`views.workflows.worklog.updateReviewCommentClicked`
+            updateReviewCommentClicked: signal`views.workflows.worklog.updateReviewCommentClicked`,
+            showMessagesOnlyChanged: signal`views.workflows.worklog.showMessagesOnlyChanged`
         },
         'InterpretationLog',
         [

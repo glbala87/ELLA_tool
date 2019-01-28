@@ -1020,6 +1020,10 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
       margin-right: 1rem;
     }
   }
+  .messages-options {
+    display: flex;
+    justify-content: space-between;
+  }
   .messages {
     flex-grow: 1;
     margin-top: 1rem;

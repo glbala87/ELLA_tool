@@ -6,11 +6,10 @@ import deleteMessageClicked from './signals/deleteMessageClicked'
 import clearWarningClicked from './signals/clearWarningClicked'
 import priorityChanged from './signals/priorityChanged'
 import updateReviewCommentClicked from './signals/updateReviewCommentClicked'
+import showMessagesOnlyChanged from './signals/showMessagesOnlyChanged'
 
 export default Module({
-    state: {
-        message: null
-    },
+    state: {},
     signals: {
         messageChanged,
         addMessageClicked,
@@ -18,6 +17,7 @@ export default Module({
         deleteMessageClicked,
         clearWarningClicked,
         priorityChanged,
-        updateReviewCommentClicked
+        updateReviewCommentClicked,
+        showMessagesOnlyChanged
     }
 })
