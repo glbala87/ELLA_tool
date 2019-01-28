@@ -119,7 +119,11 @@ class ExternalFilter(object):
         # Extract allele ids that matches the config rules
         filtered_allele_ids = self.session.query(clinsig_counts.c.allele_id).filter(and_(*filters))
 
-        return set([a[0] for a in filtered_allele_ids])
+        inverse = clinvar_config.get("inverse", False)
+        if inverse:
+            return set(allele_ids) - set([a[0] for a in filtered_allele_ids])
+        else:
+            return set([a[0] for a in filtered_allele_ids])
 
     def _filter_hgmd(self, allele_ids: List[int], hgmd_config: Dict[str, Any]) -> Set[int]:
 
@@ -154,7 +158,11 @@ class ExternalFilter(object):
             or_(*filters),
         )
 
-        return set([a[0] for a in filtered_allele_ids])
+        inverse = hgmd_config.get("inverse", False)
+        if inverse:
+            return set(allele_ids) - set([a[0] for a in filtered_allele_ids])
+        else:
+            return set([a[0] for a in filtered_allele_ids])
 
     def filter_alleles(
         self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]

@@ -119,10 +119,20 @@ def hgmd_strategy(draw):
     st.one_of(annotations()),
     st.lists(clinvar_strategy(), max_size=3),
     st.one_of(clinvar_stars()),
+    st.one_of(st.booleans()),
     st.one_of(hgmd_strategy()),
+    st.one_of(st.booleans()),
 )
 @ht.settings(deadline=500)
-def test_externalfilter(session, annotations, clinvar_strategy, clinvar_stars, hgmd_strategy):
+def test_externalfilter(
+    session,
+    annotations,
+    clinvar_strategy,
+    clinvar_stars,
+    clinvar_inverse,
+    hgmd_strategy,
+    hgmd_inverse,
+):
     session.rollback()
     anno_dicts, annotation_objs = annotations
 
@@ -145,40 +155,60 @@ def test_externalfilter(session, annotations, clinvar_strategy, clinvar_stars, h
             filter_config["clinvar"]["combinations"] = clinvar_strategy
         if clinvar_stars:
             filter_config["clinvar"]["num_stars"] = clinvar_stars
+        if clinvar_inverse:
+            filter_config["clinvar"]["inverse"] = clinvar_inverse
 
     if hgmd_strategy:
         filter_config["hgmd"] = {"tags": hgmd_strategy}
+        if hgmd_inverse:
+            filter_config["hgmd"]["inverse"] = hgmd_inverse
 
     allele_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     testdata = {"key": allele_ids}
 
-    expected_result = {"key": []}
-    for ann in anno_dicts:
-        allele_id = ann["allele_id"]
+    # Compute clinvar result
+    if clinvar_stars or clinvar_strategy:
+        clinvar_result = []
+        for ann in anno_dicts:
+            allele_id = ann["allele_id"]
 
-        if clinvar_stars:
-            op, count = clinvar_stars
-            if not OPERATORS[op](ann["num_stars"], count):
+            if clinvar_stars:
+                op, count = clinvar_stars
+                if not OPERATORS[op](ann["num_stars"], count):
+                    continue
+
+            flag = False
+            for c in clinvar_strategy:
+                ca, op, cb = c
+                ca = ann.get("num_" + str(ca), ca)
+                cb = ann.get("num_" + str(cb), cb)
+                if not OPERATORS[op](ca, cb):
+                    flag = True
+                    break
+            if flag:
                 continue
 
-        flag = False
-        for c in clinvar_strategy:
-            ca, op, cb = c
-            ca = ann.get("num_" + str(ca), ca)
-            cb = ann.get("num_" + str(cb), cb)
-            if not OPERATORS[op](ca, cb):
-                flag = True
-                break
-        if flag:
-            continue
+            clinvar_result.append(allele_id)
 
-        if hgmd_strategy:
+        if clinvar_inverse:
+            clinvar_result = list(set(allele_ids) - set(clinvar_result))
+    else:
+        clinvar_result = allele_ids
+
+    if hgmd_strategy:
+        hgmd_result = []
+        for ann in anno_dicts:
+            allele_id = ann["allele_id"]
             if not ann["hgmd_tag"] in hgmd_strategy:
                 continue
+            hgmd_result.append(allele_id)
 
-        expected_result["key"].append(allele_id)
+        if hgmd_inverse:
+            hgmd_result = list(set(allele_ids) - set(hgmd_result))
+    else:
+        hgmd_result = allele_ids
 
-    expected_result["key"] = set(expected_result["key"])
+    expected_result = {"key": set(clinvar_result) & set(hgmd_result)}
 
     ef = ExternalFilter(session, config)
     result = ef.filter_alleles(testdata, filter_config)

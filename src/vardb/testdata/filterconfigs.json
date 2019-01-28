@@ -170,6 +170,11 @@
                             "config": {
                                 "hgmd": {
                                     "tags": ["DM", "DM?"]
+                                },
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["benign", ">", "pathogenic"]],
+                                    "inverse": true
                                 }
                             }
                         },
@@ -254,6 +259,11 @@
                             "config": {
                                 "hgmd": {
                                     "tags": ["DM", "DM?"]
+                                },
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["benign", ">", "pathogenic"]],
+                                    "inverse": true
                                 }
                             }
                         }
@@ -262,7 +272,7 @@
                 {
                     "name": "ppy",
                     "config": {
-                        "ppy_tract_region": [-20,-3]
+                        "ppy_tract_region": [-20, -3]
                     },
                     "exceptions": [
                         {
@@ -285,6 +295,11 @@
                             "config": {
                                 "hgmd": {
                                     "tags": ["DM", "DM?"]
+                                },
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["benign", ">", "pathogenic"]],
+                                    "inverse": true
                                 }
                             }
                         }
@@ -316,6 +331,11 @@
                             "config": {
                                 "hgmd": {
                                     "tags": ["DM", "DM?"]
+                                },
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["benign", ">", "pathogenic"]],
+                                    "inverse": true
                                 }
                             }
                         }
@@ -345,6 +365,11 @@
                             "config": {
                                 "hgmd": {
                                     "tags": ["DM", "DM?"]
+                                },
+                                "clinvar": {
+                                    "num_stars": [">=", 2],
+                                    "combinations": [["benign", ">", "pathogenic"]],
+                                    "inverse": true
                                 }
                             }
                         }
