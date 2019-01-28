@@ -3,7 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Abort if not migrated
-${DIR}/../../ella-cli database compare
+ella-cli database compare
 
 export PORT=${PORT:-3114}
 

@@ -544,3 +544,4 @@ class DepositAnalysis(DepositFromVCF):
 
         log.info("All done, committing")
         self.session.commit()
+        return db_analysis

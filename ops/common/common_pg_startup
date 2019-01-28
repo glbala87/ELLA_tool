@@ -43,4 +43,4 @@ echo "Starting PostgreSQL"
 # KILL goes directly to kernel, so it's useless here.
 trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
 
-exec /usr/lib/postgresql/10/bin/postgres -c listen_addresses=''
+exec /usr/lib/postgresql/10/bin/postgres -c listen_addresses='127.0.0.1'

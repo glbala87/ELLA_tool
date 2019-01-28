@@ -73,7 +73,7 @@ module.exports = function addCommands() {
     browser.addCommand('resetDb', (testset = 'e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`)
         try {
-            execSync(`/ella/ella-cli database drop -f`, {
+            execSync(`ella-cli database drop -f`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
             execSync(`psql postgres < /ella/dbdump_${testset}.sql`, {

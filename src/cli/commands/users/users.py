@@ -1,22 +1,16 @@
 import click
-import datetime
-import pytz
 import sys
 import json
 from copy import deepcopy
 from functools import wraps
 
-import bcrypt
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from api.schemas.users import UserSchema
 from api.util.useradmin import (
-    hash_password,
     change_password,
     deactivate_user,
     modify_user,
-    check_password_strength,
     get_user,
     generate_password,
     add_user,
@@ -24,6 +18,9 @@ from api.util.useradmin import (
 from vardb.datamodel import DB
 from vardb.datamodel import user
 from vardb.deposit.deposit_users import import_groups
+
+
+from cli.decorators import cli_logger, session
 
 
 class UserGroupNotFound(NoResultFound):
@@ -110,7 +107,7 @@ def _user_exists(session, username):
     return session.query(user.User).filter(user.User.username == username).one_or_none() is not None
 
 
-def _modify_user(session, username, **kwargs):
+def _modify_user(session, username, echo_func, **kwargs):
     u = deepcopy(
         session.query(user.User)
         .options(joinedload("group"))
@@ -136,17 +133,17 @@ def _modify_user(session, username, **kwargs):
         if from_val != to_val:
             n_changes += 1
             if n_changes == 1:
-                click.echo(
+                echo_func(
                     "User {username} ({last_name}, {first_name}) has been modified: ".format(
                         username=username, first_name=u.first_name, last_name=u.last_name
                     )
                 )
-            click.echo(
+            echo_func(
                 "\t{key}: {from_val} ---> {to_val}".format(key=k, from_val=from_val, to_val=to_val)
             )
 
     if n_changes == 0:
-        click.echo(
+        echo_func(
             "No modifications made to {username} ({last_name}, {first_name}).".format(
                 username=username, first_name=u.first_name, last_name=u.last_name
             )
@@ -155,7 +152,7 @@ def _modify_user(session, username, **kwargs):
     return u_mod
 
 
-def _add_user(session, **kwargs):
+def _add_user(session, echo_func, **kwargs):
     u, pw = add_user(
         session,
         kwargs["username"],
@@ -164,7 +161,7 @@ def _add_user(session, **kwargs):
         kwargs.get("email"),
         kwargs["group_id"],
     )
-    click.echo(
+    echo_func(
         "Added user {username} ({last_name}, {first_name}, {email}) with password {password}".format(
             username=u.username,
             first_name=u.first_name,
@@ -192,10 +189,8 @@ def users():
     + "If 'ALL' is given as option all users are displayed",
 )
 @click.option("--username", multiple=False, help="Display only a single user.")
-def cmd_users_list(group, username):
-    db = DB()
-    db.connect()
-    session = db.session()
+@session
+def cmd_users_list(session, group, username):
     accounts = None
     if username:
         accounts = session.query(user.User).filter(user.User.username == username).all()
@@ -255,14 +250,12 @@ def cmd_users_list(group, username):
 
 
 @users.command("activity")
-def cmd_users_activity():
+@session
+@cli_logger()  # Not logging output, just usage
+def cmd_users_activity(logger, session):
     """
     List latest activity by users, sorted by last activity
     """
-
-    db = DB()
-    db.connect()
-    session = db.session()
     usersessions = (
         session.query(user.UserSession).order_by(user.UserSession.lastactivity.desc()).all()
     )
@@ -300,48 +293,6 @@ def cmd_users_activity():
         )
 
 
-@users.command("add")
-@convert(True, "--first_name", "--last_name")
-@click.option("--username")
-@click.option("--first_name")
-@click.option("--last_name")
-@click.option("--usergroup")
-@click.option("--email")
-@convert(False, "--first_name", "--last_name")
-def cmd_add_user(username, first_name, last_name, usergroup, email):
-    """
-    Add user with a generated password
-    """
-    answer = input(
-        "Are you sure you want to add user with command line arguments? If not, consider using the 'add_many' command to import with json-file. Type 'y' to confirm."
-    )
-
-    if answer != "y":
-        click.echo("Aborting")
-
-    db = DB()
-    db.connect()
-    session = db.session()
-
-    if usergroup:
-        group_id = (
-            session.query(user.UserGroup.id).filter(user.UserGroup.name == usergroup).scalar()
-        )
-
-    u, pw = add_user(session, username, first_name, last_name, email, group_id)
-
-    click.echo(
-        "Added user {username} ({last_name}, {first_name}) with password {password}".format(
-            username=u.username,
-            first_name=u.first_name,
-            last_name=u.last_name,
-            email=email,
-            password=pw,
-        )
-    )
-    session.commit()
-
-
 @users.command("add_many", help="Import users from a json file")
 @click.argument("json_file")
 @click.option(
@@ -351,7 +302,11 @@ def cmd_add_user(username, first_name, last_name, usergroup, email):
     + "If not given, all users are imported",
 )
 @click.option("-dry", is_flag=True, help="List users that would be imported")
-def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names given as --group options
+@session
+@cli_logger()
+def cmd_add_many_users(
+    logger, session, json_file, group, dry
+):  # group is a tuple of names given as --group options
     from functools import partial
 
     users = json.load(open(json_file, "r"))
@@ -370,10 +325,6 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
         else list(filter(partial(is_usergroup_configured_to_be_imported, group), users))
     )
 
-    db = DB()
-    db.connect()
-    session = db.session()
-
     for u in filtered_users:
         u["group_id"] = (
             session.query(user.UserGroup.id).filter(user.UserGroup.name == u.pop("group")).one()[0]
@@ -381,13 +332,14 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
         if _user_exists(session, u["username"]):
             u = _modify_user(session, u.pop("username"), **u)
         else:
-            u = _add_user(session, **u)
+            u = _add_user(session, logger.echo, **u)
 
     if dry:
-        click.echo("!!! DRY RUN: Rolling back changes")
+        logger.echo("!!! DRY RUN: Rolling back changes")
         session.rollback()
     else:
         session.commit()
+        logger.echo("Users added successfully")
 
 
 @users.command("add_groups", help="Import user groups from a json file")
@@ -399,7 +351,11 @@ def cmd_add_many_users(json_file, group, dry):  # group is a tuple of names give
     + " If not set, imports all groups.",
 )
 @click.option("-dry", is_flag=True, help="List groups that would be imported")
-def cmd_add_many_groups(json_file, name, dry):  # name is a tuple of names given as --name options
+@session
+@cli_logger()
+def cmd_add_many_groups(
+    logger, session, json_file, name, dry
+):  # name is a tuple of names given as --name options
     from functools import partial
 
     groups = json.load(open(json_file, "r"))
@@ -419,26 +375,20 @@ def cmd_add_many_groups(json_file, name, dry):  # name is a tuple of names given
     )
     if dry:
         for g in filtered_groups:
-            click.echo("Would add group '{name}'".format(name=g["name"]))
+            logger.echo("Would add group '{name}'".format(name=g["name"]))
         return
 
-    db = DB()
-    db.connect()
-    session = db.session()
-
-    import_groups(session, filtered_groups, log=click.echo)
+    import_groups(session, filtered_groups, log=logger.echo)
 
 
 @users.command("reset_password")
 @click.argument("username")
-def cmd_reset_password(username):
+@session
+@cli_logger()
+def cmd_reset_password(logger, session, username):
     """
     Reset password for user (new password generated)
     """
-    db = DB()
-    db.connect()
-    session = db.session()
-
     password, _ = generate_password()
     change_password(session, username, None, password, override=True)
     u = session.query(user.User).filter(user.User.username == username).one()
@@ -448,28 +398,31 @@ def cmd_reset_password(username):
             username=username, first_name=u.first_name, last_name=u.last_name, password=password
         )
     )
+    logger.echo(
+        "Reset password for user {username} ({last_name}, {first_name}) with password *********".format(
+            username=username, first_name=u.first_name, last_name=u.last_name
+        ),
+        db_only=True,
+    )
 
 
 @users.command("lock")
 @click.argument("username")
-def cmd_invalidate_user(username):
+@session
+@cli_logger(prompt_reason=True)
+def cmd_invalidate_user(logger, session, username):
     """
     Invalidate a user and all sessions.
 
     TODO: Add possibility to delete user, but only allow if user is not associated with any assessments or interpretations
     """
 
-    db = DB()
-    db.connect()
-    session = db.session()
     u = get_user(session, username)
     deactivate_user(session, u)
 
-    click.echo(
+    logger.echo(
         "User {username} ({last_name}, {first_name}) has been deactivated".format(
-            username=username,
-            first_name=u.first_name.encode("utf-8"),
-            last_name=u.last_name.encode("utf-8"),
+            username=username, first_name=u.first_name, last_name=u.last_name
         )
     )
 
@@ -483,7 +436,9 @@ def cmd_invalidate_user(username):
 @click.option("--email")
 @click.option("--user_group")
 @convert(False, "--first_name", "--last_name")
-def cmd_modify_user(username, **kwargs):
+@session
+@cli_logger()
+def cmd_modify_user(logger, session, username, **kwargs):
     """
     Example: .. users modify --first_name Lars Marius -- lmarius\n
     The -- marks when a new parameter starts
@@ -494,11 +449,7 @@ def cmd_modify_user(username, **kwargs):
     )
 
     if answer != "y":
-        click.echo("Aborting")
-
-    db = DB()
-    db.connect()
-    session = db.session()
+        logger.echo("Aborting")
 
     if "user_group" in kwargs:
         kwargs["group_id"] = (
@@ -507,5 +458,6 @@ def cmd_modify_user(username, **kwargs):
             .scalar()
         )
 
-    _modify_user(session, username, **kwargs)
+    _modify_user(session, username, logger.echo, **kwargs)
+    logger.echo("User {} modified".format(username))
     session.commit()

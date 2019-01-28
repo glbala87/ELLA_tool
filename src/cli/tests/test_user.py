@@ -78,36 +78,3 @@ def test_user_modify(session, run_command):
         user.User.last_name == last_name,
         user.User.email == email,
     ).one()
-
-
-def test_user_add(session, run_command):
-    username = "SaucySebastian"
-    first_name = "Johan Sebastian"
-    last_name = "Welhaven"
-    usergroup = "testgroup01"
-    email = "johnny1807@romantikken.no"
-
-    result = run_command(
-        [
-            "users",
-            "add",
-            "--username",
-            username,
-            "--first_name",
-            first_name,
-            "--last_name",
-            last_name,
-            "--email",
-            email,
-            "--usergroup",
-            usergroup,
-        ],
-        input="y\n",
-    )
-    assert result.exit_code == 0
-
-    u = session.query(user.User).filter(user.User.username == username).one()
-    assert u.first_name == first_name
-    assert u.last_name == last_name
-    assert u.group.name == usergroup
-    assert u.email == email

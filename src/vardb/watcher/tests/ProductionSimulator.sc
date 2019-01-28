@@ -6,52 +6,52 @@
 * +++++++++++++++
 *
 * In order to run the script you need to have ammonite installed:
-* 
+*
 * sudo curl -L -o /usr/local/bin/amm https://git.io/vdNv2 && sudo chmod +x /usr/local/bin/amm && amm
-* 
-* Or try your default package manager, at least it exists in `brew` 
-* 
+*
+* Or try your default package manager, at least it exists in `brew`
+*
 * Java is probably a prerequisite!
-* 
+*
 * +++++++++++
 * How to run:
 * +++++++++++
 * The scripts needs a running docker container instance.
 *
 * If you have installed ammonite, it should be enough to start it like this:
-* 
+*
 * ProductionSimulator --dockerId <provide id of the running ella docker container>
 
 * The script can also be started with amm directly:
 * amm TestDataGenerator.sc --dockerId <provide id of the running ella docker container>
 *
-* You have to restart the docker container after the script has finished, or kill the 
+* You have to restart the docker container after the script has finished, or kill the
 * `analyis_watcher.py` script manually.
-* 
+*
 * +++++++++++++
 * What it does:
 * +++++++++++++
 *
-* Simulates production environment to make it possible to test the analysis_watcher.py script. 
+* Simulates production environment to make it possible to test the analysis_watcher.py script.
 *
-* +++++++++++++ 
+* +++++++++++++
 * How it works:
 * +++++++++++++
 *
 * The script is based on Streams created by fs2 scala library. It concatenates the following two Streams:
 * 1.)  preparations - database reset and creation
-* 2.)  Three parallell streams running in 3 threads, consisting of analysisWatcher, analysisStream, readyStream 
+* 2.)  Three parallell streams running in 3 threads, consisting of analysisWatcher, analysisStream, readyStream
 *
-* The three parallel streams will start to run only after the preparations stream has finished. 
-* 
+* The three parallel streams will start to run only after the preparations stream has finished.
+*
 * - analysisWatcher runs the python script `analysis_watcher.py` in `/ella/src/vardb/watcher`.
 * - analysisStream creates an analysis folder according to `TestAnalysis-001`.
 * - readyStream adds the READY flag inside the folder after the analysisStream has created the analysis folder.
-* 
+*
 * IMPORTANT REMARKS: The analysisStream and readyStream runs with random delays given with the flags CONFIG_DELAY and READY_DELAY
-* 
-* Ammonite is an amazing tool created by Li Haoyi! 
-* 
+*
+* Ammonite is an amazing tool created by Li Haoyi!
+*
 * It combines the Scala language with shell scripting almost as nice as in Python
 *
 */
@@ -121,12 +121,12 @@ implicit val formats = Serialization.formats(NoTypeHints)
 val namePostfix = "TestAnalysis-00"
 
 case class Analysis(
-  id: Int, 
-  folderName: String, 
-  fileName: String, 
-  json: String, 
-  genepanelName: String, 
-  genepanelVersion: String 
+  id: Int,
+  folderName: String,
+  fileName: String,
+  json: String,
+  genepanelName: String,
+  genepanelVersion: String
 )
 
 // Pure Stream of analysis config data
@@ -143,7 +143,7 @@ val datamodelStream: Stream[IO, Analysis] = Stream(2,3,4,5,6).map { n =>
   Analysis(
     n,
     json = write(config),
-    folderName = analysisName, 
+    folderName = analysisName,
     fileName = s"$analysisName.analysis",
     genepanelName = genepanelName,
     genepanelVersion = genepanelVersion
@@ -170,15 +170,15 @@ def createTestConfig(dockerContainerId: String): Sink[IO, Analysis] = _.evalMap 
     s"""insert into genepanel (name, version, genome_reference, config ) values (
           '${a.genepanelName}', '${a.genepanelVersion}', 'GRCh37' , '{}'
     )"""
-    
+
     // running the insert statement at the simplest possible way through bash
     val result = %%('docker, 'exec, dockerContainerId, 'psql, "-U", 'postgres, "-d", 'postgres, "-c", insert)
-      
+
     val path = analysisFolder/a.folderName
     val file = path/a.fileName
-    
+
     // the `bang` is Ammonite syntax for the same shell operation as in bash.
-    // The ammonite shell operations are usually more forceful, they don't 
+    // The ammonite shell operations are usually more forceful, they don't
     // care if files exists, or folders are missing in a path.
     mkdir! path
 
@@ -195,7 +195,7 @@ def createTestConfig(dockerContainerId: String): Sink[IO, Analysis] = _.evalMap 
 
 
  case class Program(dockerContainerId: String) {
-  // transforming the pure dataModelStream into one for 
+  // transforming the pure dataModelStream into one for
   // generating analysis data and one for setting the READY FLAG
   val analysisStream = datamodelStream.covary[IO].to(createTestConfig(dockerContainerId))
   val readyStream = datamodelStream.map { c => c.folderName }.through(randomDelays(READY_DELAY)).to(setReady)
@@ -203,8 +203,8 @@ def createTestConfig(dockerContainerId: String): Sink[IO, Analysis] = _.evalMap 
 // resetting the database
   val preparations = {
   mkdir! wd/up/'testdata/'destination
-  %('docker, 'exec, dockerContainerId, "/ella/ella-cli", 'database, 'drop, "-f")
-  %('docker, 'exec, dockerContainerId, "/ella/ella-cli", 'database, 'make, "-f")
+  %('docker, 'exec, dockerContainerId, "ella-cli", 'database, 'drop, "-f")
+  %('docker, 'exec, dockerContainerId, "ella-cli", 'database, 'make, "-f")
   %('docker, 'exec, dockerContainerId, 'make, 'dbreset)
   }
 
@@ -225,10 +225,10 @@ def main(dockerId: String @doc(
 
 println("creating new analysis and setting the READY flag at random intervals ..")
 
-// running analysisStream and readyStream in parallell on NR_OF_THREADS given. 
-// ready flag will always be set after the initial test data are created, but 
+// running analysisStream and readyStream in parallell on NR_OF_THREADS given.
+// ready flag will always be set after the initial test data are created, but
 // ready flag for test data 2 may be set after test data 1.
- val run = Stream(program.preparations) ++ 
+ val run = Stream(program.preparations) ++
    Stream(program.analysisWatcher, program.analysisStream, program.readyStream)
      .join(NR_OF_THREADS)
      .through(randomDelays(CONFIG_DELAY))
@@ -236,6 +236,6 @@ println("creating new analysis and setting the READY flag at random intervals ..
 
 run.run.unsafeRunAsync(println)
 println("exiting ..")
-// program.program.covary[IO].run.unsafeRunAsync(println) 
+// program.program.covary[IO].run.unsafeRunAsync(println)
 }
 
