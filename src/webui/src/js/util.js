@@ -86,9 +86,11 @@ export function sanitize(dirtyHTML) {
             'li',
             'b',
             'i',
+            'font',
             'strong',
             'em',
             'strike',
+            'u',
             'code',
             'hr',
             'br',
@@ -105,6 +107,7 @@ export function sanitize(dirtyHTML) {
         ],
         allowedAttributes: {
             '*': ['style'],
+            font: ['color'],
             a: ['href', 'name', 'target']
         },
         allowedStyles: {
@@ -119,6 +122,7 @@ export function sanitize(dirtyHTML) {
                     /^\#(0x)?[0-9a-f]+$/i,
                     /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
                 ],
+                background: [/^\#(0x)?[0-9a-f]+$/i, /^[a-z]+$/i],
                 'text-align': [/^left$/, /^right$/, /^center$/]
             }
         }

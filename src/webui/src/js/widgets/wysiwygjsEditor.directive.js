@@ -184,7 +184,10 @@ export class WysiwygEditorController {
             heading1: () => this.editor.format('h1'),
             heading2: () => this.editor.format('h2'),
             paragraph: () => this.editor.format('div'),
-            removeFormat: this.editor.removeFormat,
+            removeFormat: () => {
+                this.editor.format('div')
+                this.editor.removeFormat()
+            },
             linkform: () => this.togglePopover('linkform'),
             templates: () => this.togglePopover('templates'),
             fontcolor: () => this.togglePopover('fontcolor'),
