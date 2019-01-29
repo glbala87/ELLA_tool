@@ -431,7 +431,16 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
-        filterconfig_id = queries.get_usergroup_filter_configs(session, user.group_id).one().id
+        filterconfigs = queries.get_usergroup_filter_configs(session, user.group_id)
+
+        if filterconfigs.count() != 1:
+            raise ApiError(
+                "Unable to find single filter config appropriate for overview filtering. Found {} filterconfigs.".format(
+                    filterconfigs.count()
+                )
+            )
+
+        filterconfig_id = filterconfigs.one().id
 
         af = AlleleFilter(session)
         gp_nonfiltered_alleles = af.filter_alleles(filterconfig_id, analysis_gp_allele_ids)
@@ -768,7 +777,16 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
         # Filter out alleles
-        filterconfig_id = queries.get_usergroup_filter_configs(session, user.group_id).one().id
+        filterconfigs = queries.get_usergroup_filter_configs(session, user.group_id)
+
+        if filterconfigs.count() != 1:
+            raise ApiError(
+                "Unable to find single filter config appropriate for overview filtering. Found {} filterconfigs.".format(
+                    filterconfigs.count()
+                )
+            )
+
+        filterconfig_id = filterconfigs.one().id
 
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop("not_started")

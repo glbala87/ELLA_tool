@@ -13,7 +13,9 @@ export default sequence('loadInterpretations', [
     set(state`views.workflows.loaded`, false),
     getFilterConfigs,
     {
-        error: [toast('error', 'Failed to load filter configs', 30000)],
+        error: [
+            toast('error', props`message` ? props`message` : 'Failed to load filter configs', 30000)
+        ],
         success: [
             set(state`views.workflows.data.filterconfigs`, props`result`),
             getInterpretations,

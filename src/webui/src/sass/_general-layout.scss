@@ -772,10 +772,11 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
     overflow: auto;
   }
   .controls {
-    > div {
+    > .control-section {
         display: flex;
         padding-bottom: 0.5rem;
-        > * {
+        > button, .button {
+            margin-left: 0;
             margin-right: 0.5rem;
         }
     }
