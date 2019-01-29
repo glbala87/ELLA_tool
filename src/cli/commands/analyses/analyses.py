@@ -38,4 +38,3 @@ def cmd_analysis_delete(logger, session, analysis_id):
             logger.exception("Something went wrong while deleting analysis {}".format(analysis_id))
     else:
         logger.echo("Lacking confirmation, aborting...")
-

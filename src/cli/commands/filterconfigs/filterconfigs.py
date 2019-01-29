@@ -78,4 +78,3 @@ def deactivate(logger, session, filterconfig_id):
         logger.echo("Filterconfig {} deactivated".format(filterconfig.name))
     else:
         logger.echo("Lacking confirmation, aborting...")
-
