@@ -1,7 +1,7 @@
 """Add cli log
 
 Revision ID: 99287295d7fe
-Revises: ec5fb8b62e4a
+Revises: 2a1becd831ab
 Create Date: 2019-01-04 09:34:32.410610
 
 """

@@ -1,14 +1,14 @@
 """Dynamic filterconfigs
 
 Revision ID: 4fef0af39a20
-Revises: 2a1becd831ab
+Revises: 99287295d7fe
 Create Date: 2019-01-18 13:48:31.007780
 
 """
 
 # revision identifiers, used by Alembic.
 revision = "4fef0af39a20"
-down_revision = "2a1becd831ab"
+down_revision = "99287295d7fe"
 branch_labels = None
 depends_on = None
 
