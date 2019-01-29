@@ -1,6 +1,6 @@
 <div class="sidebar" ng-class="{'expanded': $ctrl.expanded}">
     <div class="controls">
-        <div>
+        <div class="control-section">
             <button
                 class="blue id-add-excluded"
                 ng-click="$ctrl.addExcludedAllelesClicked({
@@ -48,7 +48,7 @@
                 </section>
             </div>
         </div>
-        <div>
+        <div class="control-section">
             <button
                 ng-if="$ctrl.showQuickClassificationBtn"
                 ng-click="$ctrl.toggleExpanded()"

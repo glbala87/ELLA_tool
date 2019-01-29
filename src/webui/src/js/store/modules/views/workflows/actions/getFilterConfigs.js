@@ -8,7 +8,7 @@ function getFilterConfigs({ http, path, state }) {
                 return path.success({ result: response.result })
             })
             .catch((response) => {
-                return path.error({ result: response.result })
+                return path.error({ message: response.response.result.message })
             })
     } else {
         return path.success({ result: null })

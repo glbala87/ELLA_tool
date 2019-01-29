@@ -57,7 +57,9 @@ def upgrade():
     op.add_column(
         "filterconfig", sa.Column("order", sa.Integer(), nullable=False, server_default="0")
     )
-    op.add_column("filterconfig", sa.Column("previous_filterconfig", sa.Integer(), nullable=True))
+    op.add_column(
+        "filterconfig", sa.Column("previous_filterconfig_id", sa.Integer(), nullable=True)
+    )
     op.add_column(
         "filterconfig",
         sa.Column(

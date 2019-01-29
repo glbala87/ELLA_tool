@@ -104,7 +104,7 @@ class FilterConfig(Base):
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     usergroup = relationship("UserGroup", uselist=False)
     date_superceeded = Column("date_superceeded", DateTime(timezone=True))
-    previous_filterconfig = Column(Integer, ForeignKey("filterconfig.id"))
+    previous_filterconfig_id = Column(Integer, ForeignKey("filterconfig.id"))
     order = Column(Integer, nullable=False)
     requirements = Column(JSONB, nullable=False, default=[])
     active = Column(Boolean, default=True, nullable=False)
