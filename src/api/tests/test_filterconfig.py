@@ -3,6 +3,7 @@ import hypothesis.strategies as st
 from api.util import queries
 from vardb.datamodel import sample, gene
 import string
+import time
 
 
 @st.composite
@@ -87,6 +88,7 @@ def create_dummy_analysis(session):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
+@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_filter_ordering(session, client, filterconfigs):
     session.rollback()
     session.query(sample.FilterConfig).delete()
@@ -104,6 +106,7 @@ def test_filter_ordering(session, client, filterconfigs):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
+@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_filterconfig_requirements(session, client, filterconfigs):
     an = create_dummy_analysis(session)
     session.query(sample.FilterConfig).delete()
@@ -167,6 +170,7 @@ def test_filterconfig_requirements(session, client, filterconfigs):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
+@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_default_filterconfig(session, filterconfigs):
     session.rollback()
     session.query(sample.FilterConfig).delete()
@@ -175,4 +179,3 @@ def test_default_filterconfig(session, filterconfigs):
 
     returned_fc = queries.get_valid_filter_configs(session, 1, analysis_id=None).all()
     assert all([fc.requirements == [] for fc in returned_fc])
-
