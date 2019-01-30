@@ -7,7 +7,7 @@
       analysisId: $ctrl.analysisId,
       readOnly: $ctrl.readOnly,
       genepanel: $ctrl.selectedGenepanel,
-      includedAlleleIds: $ctrl.manuallyAddedAlleles,
+      includedAlleleIds: $ctrl.manuallyAddedAlleleIds,
       excludedAlleleIds: $ctrl.excludedAlleleIds,
       filterConfig: $ctrl.selectedFilterConfig
     })"
@@ -27,7 +27,7 @@
                     <path d="M16 2 L16 30 M2 16 L30 16" />
                 </svg>
                 <span>
-                    {{ $ctrl.manuallyAddedAlleles.length || 0 }}/{{
+                    {{ $ctrl.manuallyAddedAlleleIds.length || 0 }}/{{
                         $ctrl.getExcludedAlleleCount()
                     }}</span
                 ><span class="add-excluded-button">Filtered</span>

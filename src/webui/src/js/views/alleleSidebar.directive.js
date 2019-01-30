@@ -5,8 +5,9 @@ import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
-import template from './alleleSidebar.ngtmpl.html'
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
+import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
+import template from './alleleSidebar.ngtmpl.html'
 
 const showQuickClassificationBtn = Compute(
     state`views.workflows.selectedComponent`,
@@ -59,7 +60,7 @@ app.component('alleleSidebar', {
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
-            manuallyAddedAlleles: state`views.workflows.interpretation.state.manuallyAddedAlleles`,
+            manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
             excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
             showQuickClassificationBtn,
             expanded: isExpanded,
