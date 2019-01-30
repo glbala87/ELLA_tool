@@ -39,6 +39,15 @@
             {{ $ctrl.expanded ? 'Full classification' : 'Quick classification' }}
         </button>
     </div>
+
+    <allele-sidebar-list-react
+        class="id-unclassified"
+        section-title="'Unclassified variants'"
+        allele-ids-path="'views.workflows.alleleSidebar.unclassified'"
+        alleles-path="'views.workflows.interpretation.data.alleles'"
+    >
+    </allele-sidebar-list-react>
+
     <allele-sidebar-list
         class="id-unclassified"
         allele-ids-path="'views.workflows.alleleSidebar.unclassified'"

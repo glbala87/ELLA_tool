@@ -1,0 +1,7 @@
+export * from './AlleleInfoClinvar.jsx'
+export * from './AlleleInfoDbsnp.jsx'
+export * from './AlleleInfoFrequencyGnomadExomes.jsx'
+export * from './AlleleInfoFrequencyGnomadGenomes.jsx'
+export * from './AlleleInfoFrequencyExac.jsx'
+export * from './AlleleInfoFrequencyIndb.jsx'
+export * from './AlleleInfoHgmd.jsx'

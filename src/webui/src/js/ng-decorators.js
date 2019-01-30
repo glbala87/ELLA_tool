@@ -9,6 +9,8 @@ import angularChecklistModel from 'checklist-model'
 import angularSelector from 'angular-selector'
 import { addModule, connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
+import { react2angular } from 'react2angular'
+import cerebralReact2Angular from './cerebralReact2Angular.jsx'
 
 addModule(angular)
 
@@ -22,6 +24,32 @@ export let app = angular.module('workbench', [
     'templates',
     'cerebral'
 ])
+
+import alleleSidebarList from './components/alleleSidebarList.jsx'
+import {
+    AlleleInfoClinvar,
+    AlleleInfoDbsnp,
+    AlleleInfoFrequencyGnomadExomes,
+    AlleleInfoFrequencyGnomadGenomes,
+    AlleleInfoFrequencyExac,
+    AlleleInfoFrequencyIndb,
+    AlleleInfoHgmd
+} from './components/alleleinfo'
+
+app.component('alleleSidebarListReact', cerebralReact2Angular(alleleSidebarList))
+app.component('alleleInfoClinvar', cerebralReact2Angular(AlleleInfoClinvar))
+app.component('alleleInfoDbsnp', cerebralReact2Angular(AlleleInfoDbsnp))
+app.component(
+    'alleleInfoFrequencyGnomadExomes',
+    cerebralReact2Angular(AlleleInfoFrequencyGnomadExomes)
+)
+app.component(
+    'alleleInfoFrequencyGnomadGenomes',
+    cerebralReact2Angular(AlleleInfoFrequencyGnomadGenomes)
+)
+app.component('alleleInfoFrequencyExac', cerebralReact2Angular(AlleleInfoFrequencyExac))
+app.component('alleleInfoFrequencyIndb', cerebralReact2Angular(AlleleInfoFrequencyIndb))
+app.component('alleleInfoHgmd', cerebralReact2Angular(AlleleInfoHgmd))
 
 // For using letting ngModel watch an external attribute and copy
 // value upon changes. Let's us bind to Cerebral store, while using

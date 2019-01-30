@@ -52,11 +52,6 @@ import './widgets/alleleinfo/alleleInfoConsequence.directive'
 import './widgets/alleleinfo/alleleInfoReferences.directive'
 import './widgets/alleleinfo/alleleInfoReferenceDetail.directive'
 import './widgets/alleleinfo/alleleInfoPredictionOther.directive'
-import './widgets/alleleinfo/alleleInfoFrequencyExac.directive'
-import './widgets/alleleinfo/alleleInfoFrequencyGnomadGenomes.directive'
-import './widgets/alleleinfo/alleleInfoFrequencyGnomadExomes.directive'
-import './widgets/alleleinfo/alleleInfoFrequencyIndb.directive'
-import './widgets/alleleinfo/alleleInfoDbsnp.directive'
 import './widgets/alleleinfo/alleleInfoHgmd.directive'
 import './widgets/alleleinfo/alleleInfoClinvar.directive'
 import './widgets/alleleinfo/alleleInfoExternalOther.directive'
@@ -98,7 +93,7 @@ import './widgets/interpretationLog.directive'
 import './widgets/interpretationLogItem.directive'
 
 import Devtools from 'cerebral/devtools'
-import RootModule from './store/modules'
+import Store from './store'
 import { Config, Inject, Run } from './ng-decorators'
 
 class AppConfig {
@@ -128,9 +123,9 @@ class AppConfig {
         }
         // DEV: Comment out line below to activate devtools
         // (impacts performance even without debugger running)
-        config.devtools = null
+        //config.devtools = null
 
-        cerebralProvider.configure(RootModule(), config)
+        cerebralProvider.configure(Store, config)
 
         // Needed after upgrade to Angular >1.5,
         // since we haven't migrated to using $onInit()

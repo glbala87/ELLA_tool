@@ -12,10 +12,10 @@ function sort(item) {
         'likely pathogenic',
         'pathogenic'
     ]
-    let sortVal = '' + sortOrder.indexOf(item.sigtext.toLowerCase())
-    sortVal += item.last_evaluated.slice(6) // Year
-    sortVal += item.last_evaluated.slice(3, 5) // Month
-    sortVal += item.last_evaluated.slice(0, 2) // Day
+    let sortVal = '' + sortOrder.indexOf(item.sigText.toLowerCase())
+    sortVal += item.lastEvaluated.slice(6) // Year
+    sortVal += item.lastEvaluated.slice(3, 5) // Month
+    sortVal += item.lastEvaluated.slice(0, 2) // Day
 
     return -parseInt(sortVal)
 }
@@ -27,9 +27,9 @@ export default function(allele) {
         }
         const revText = allele.annotation.external.CLINVAR['variant_description']
         const clinvar = {
-            maxstars: new Array(4),
-            revtext: revText,
-            revstars: config.annotation.clinvar.clinical_significance_status[revText],
+            revText: revText,
+            maxStarCount: 4,
+            starCount: config.annotation.clinvar.clinical_significance_status[revText],
             items: []
         }
         for (let idx = 0; idx < allele.annotation.external.CLINVAR['items'].length; idx++) {
@@ -40,17 +40,17 @@ export default function(allele) {
                 continue
             }
 
-            let formatted = {}
+            const sigtext = unformatted.clinical_significance_descr
+            const phenotypetext = unformatted.traitnames
+            const submitter = unformatted.submitter
+            const last_evaluated = unformatted.last_evaluated
 
-            let sigtext = unformatted.clinical_significance_descr
-            let phenotypetext = unformatted.traitnames
-            let submitter = unformatted.submitter
-            let last_evaluated = unformatted.last_evaluated
-
-            formatted['submitter'] = submitter === '' ? 'Unknown' : submitter
-            formatted['last_evaluated'] = last_evaluated === '' ? 'N/A' : last_evaluated
-            formatted['sigtext'] = sigtext === '' ? 'No classification' : sigtext
-            formatted['phenotypetext'] = phenotypetext === '' ? 'not specified' : phenotypetext
+            const formatted = {
+                submitter: submitter === '' ? 'Unknown' : submitter,
+                lastEvaluated: last_evaluated === '' ? 'N/A' : last_evaluated,
+                sigText: sigtext === '' ? 'No classification' : sigtext,
+                phenotypeText: phenotypetext === '' ? 'not specified' : phenotypetext
+            }
 
             clinvar.items.push(formatted)
         }
