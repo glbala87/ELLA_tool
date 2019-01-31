@@ -1,7 +1,7 @@
 import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
-import selectedAlleleChanged from '../alleleSidebar/signals/selectedAlleleChanged'
+import selectedAlleleChanged from '../sequences/selectedAlleleChanged'
 
 export default [
     set(state`views.workflows.selectedComponent`, props`selectedComponent`),
