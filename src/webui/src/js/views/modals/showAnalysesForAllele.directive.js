@@ -9,11 +9,12 @@ app.component('showAnalysesForAllele', {
     templateUrl: 'showAnalysesForAllele.ngtmpl.html',
     controller: connect(
         {
-            analyses: state`modals.showAnalysesForAllele.data.analyses`,
-            allele: state`modals.showAnalysesForAllele.allele`,
-            showAnalysesForAlleleAccepted: signal`modals.showAnalysesForAlleleAccepted`,
-            copyAnalysesForAlleleClicked: signal`modals.copyAnalysesForAlleleClicked`,
-            closeClicked: signal`closeModal`
+            analyses: state`search.modals.showAnalysesForAllele.data.analyses`,
+            allele: state`search.modals.showAnalysesForAllele.allele`,
+            warningAccepted: state`search.modals.showAnalysesForAllele.warningAccepted`,
+            warningAcceptedClicked: signal`search.modals.showAnalysesForAllele.warningAcceptedClicked`,
+            copyAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.copyAnalysesForAlleleClicked`,
+            dismissClicked: signal`search.modals.showAnalysesForAllele.dismissClicked`
         },
         'ShowAnalysesForAllele',
         [
@@ -25,15 +26,11 @@ app.component('showAnalysesForAllele', {
                     getColor() {
                         return $ctrl.accepted ? 'blue' : 'red'
                     },
-                    isAccepted() {
-                        return $ctrl.accepted || false
-                    },
                     accept() {
-                        $ctrl.accepted = true
-                        $ctrl.showAnalysesForAlleleAccepted({ alleleId: $ctrl.allele.id })
+                        $ctrl.warningAcceptedClicked({ alleleId: $ctrl.allele.id })
                     },
                     close() {
-                        $ctrl.closeClicked({ modalName: 'showAnalysesForAllele' })
+                        $ctrl.dismissClicked()
                     }
                 })
             }

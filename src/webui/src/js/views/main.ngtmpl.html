@@ -1,34 +1,45 @@
 <login ng-if="$ctrl.views.current == 'login'"></login>
 
 <div class="app" ng-if="$ctrl.views.current != 'login'">
-  <navbar>
-    <overview-navbar ng-if="$ctrl.views.current == 'overview'"></overview-navbar>
-    <workflowbar ng-if="$ctrl.views.current == 'workflows'"></workflowbar>
-    <nav class="secondary" ng-if="$ctrl.views.current == 'dashboard'">
-      <div class="dashboard-navbar">
-        <button class="id-logout-btn logout-btn" ng-click="$ctrl.logoutClicked()">LOGOUT</button>
-      </div>
-    </nav>
-  </navbar>
+    <navbar>
+        <overview-navbar ng-if="$ctrl.views.current == 'overview'"></overview-navbar>
+        <workflowbar ng-if="$ctrl.views.current == 'workflows'"></workflowbar>
+        <nav class="secondary" ng-if="$ctrl.views.current == 'dashboard'">
+            <div class="dashboard-navbar">
+                <button class="id-logout-btn logout-btn" ng-click="$ctrl.logoutClicked()">
+                    LOGOUT
+                </button>
+            </div>
+        </nav>
+    </navbar>
 
-  <overview ng-if="$ctrl.views.current == 'overview'"></overview>
-  <div ng-if="$ctrl.views.current == 'workflows'">
-    <workflow></workflow>
-  </div>
-  <user-dashboard ng-if="$ctrl.views.current == 'dashboard'"></user-dashboard>
-  <modal ng-if="$ctrl.modals.finishConfirmation.show" name="finishConfirmation" dismiss-signal="'closeModal'">
-    <finish-confirmation></finish-confirmation>
-  </modal>
+    <overview ng-if="$ctrl.views.current == 'overview'"></overview>
+    <div ng-if="$ctrl.views.current == 'workflows'">
+        <workflow></workflow>
+    </div>
+    <user-dashboard ng-if="$ctrl.views.current == 'dashboard'"></user-dashboard>
+    <modal
+        show-path="'views.workflows.modals.finishConfirmation.show'"
+        outside-click-path="'views.workflows.modals.finishConfirmation.dismissClicked'"
+    >
+        <finish-confirmation></finish-confirmation>
+    </modal>
 
-  <modal ng-if="$ctrl.modals.showAnalysesForAllele.show" name="showAnalysesForAllele" dismiss-signal="'closeModal'">
-    <show-analyses-for-allele></show-analyses-for-allele>
-  </modal>
+    <modal
+        show-path="'search.modals.showAnalysesForAllele.show'"
+        outside-click-path="'search.modals.showAnalysesForAllele.dismissClicked'"
+    >
+        <show-analyses-for-allele></show-analyses-for-allele>
+    </modal>
 
-  <modal ng-if="$ctrl.modals.reassignWorkflow.show" name="reassignWorkflow" dismiss-signal="'closeModal'">
-    <reassign-workflow></reassign-workflow>
-  </modal>
+    <modal
+        show-path="'views.workflows.modals.reassignWorkflow.show'"
+        outside-click-path="'views.workflows.modals.reassignWorkflow.dismissClicked'"
+    >
+        <reassign-workflow></reassign-workflow>
+    </modal>
 
-  <modal ng-if="$ctrl.modals.addExcludedAlleles.show" name="addExcludedAlleles">
-    <add-excluded-alleles></add-excluded-alleles>
-  </modal>
+    <modal show-path="'views.workflows.modals.addExcludedAlleles.show'">
+        <add-excluded-alleles></add-excluded-alleles>
+    </modal>
 </div>

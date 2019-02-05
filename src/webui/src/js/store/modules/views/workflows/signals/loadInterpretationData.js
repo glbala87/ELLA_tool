@@ -10,7 +10,7 @@ import loadAcmg from '../sequences/loadAcmg'
 import getFilteredAlleles from '../actions/getFilteredAlleles'
 import toast from '../../../../common/factories/toast'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
-import getFilterConfig from '../../../modals/addExcludedAlleles/actions/getFilterConfig'
+import getFilterConfig from '../actions/getFilterConfig'
 import setDefaultFilterConfig from '../actions/setDefaultFilterConfig'
 
 export default sequence('loadInterpretationData', [

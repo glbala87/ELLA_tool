@@ -5,8 +5,8 @@ import { Compute } from 'cerebral'
 import template from './addExcludedAlleles.ngtmpl.html'
 
 const getGeneOptions = Compute(
-    state`modals.addExcludedAlleles.data.alleleIdsByGene`,
-    state`modals.addExcludedAlleles.categoryAlleleIds`,
+    state`views.workflows.modals.addExcludedAlleles.data.alleleIdsByGene`,
+    state`views.workflows.modals.addExcludedAlleles.categoryAlleleIds`,
     (alleleIdsByGene, categoryAlleleIds) => {
         if (!alleleIdsByGene || !categoryAlleleIds) {
             return
@@ -26,8 +26,8 @@ const getGeneOptions = Compute(
 )
 
 const getMetrics = Compute(
-    state`modals.addExcludedAlleles.excludedAlleleIds`,
-    state`modals.addExcludedAlleles.geneAlleleIds`,
+    state`views.workflows.modals.addExcludedAlleles.excludedAlleleIds`,
+    state`views.workflows.modals.addExcludedAlleles.geneAlleleIds`,
     (excludedAlleleIds, geneAlleleIds) => {
         const result = {}
         if (!excludedAlleleIds || !geneAlleleIds) {
@@ -45,8 +45,8 @@ const getMetrics = Compute(
 )
 
 const isToggled = Compute(
-    state`modals.addExcludedAlleles.includedAlleleIds`,
-    state`modals.addExcludedAlleles.viewAlleleIds`,
+    state`views.workflows.modals.addExcludedAlleles.includedAlleleIds`,
+    state`views.workflows.modals.addExcludedAlleles.viewAlleleIds`,
     (includedAlleleIds, viewAlleleIds) => {
         const result = {}
         if (!includedAlleleIds || !viewAlleleIds) {
@@ -69,21 +69,21 @@ app.component('addExcludedAlleles', {
             config: state`app.config`,
             geneOptions: getGeneOptions,
             metrics: getMetrics,
-            filterconfig: state`modals.addExcludedAlleles.filterconfig`,
+            filterconfig: state`views.workflows.modals.addExcludedAlleles.filterconfig`,
             isToggled,
-            genepanelPath: state`modals.addExcludedAlleles.genepanelPath`,
-            geneAlleleIds: state`modals.addExcludedAlleles.geneAlleleIds`,
-            alleleIds: state`modals.addExcludedAlleles.viewAlleleIds`,
-            includedAlleleIds: state`modals.addExcludedAlleles.includedAlleleIds`,
-            itemsPerPage: state`modals.addExcludedAlleles.itemsPerPage`,
-            readOnly: state`modals.addExcludedAlleles.readOnly`,
-            selectedPage: state`modals.addExcludedAlleles.selectedPage`,
-            categoryChanged: signal`modals.addExcludedAlleles.categoryChanged`,
-            geneChanged: signal`modals.addExcludedAlleles.geneChanged`,
-            pageChanged: signal`modals.addExcludedAlleles.pageChanged`,
-            includeAlleleClicked: signal`modals.addExcludedAlleles.includeAlleleClicked`,
-            excludeAlleleClicked: signal`modals.addExcludedAlleles.excludeAlleleClicked`,
-            closeAddExcludedClicked: signal`modals.addExcludedAlleles.closeAddExcludedClicked`
+            genepanelPath: state`views.workflows.modals.addExcludedAlleles.genepanelPath`,
+            geneAlleleIds: state`views.workflows.modals.addExcludedAlleles.geneAlleleIds`,
+            alleleIds: state`views.workflows.modals.addExcludedAlleles.viewAlleleIds`,
+            includedAlleleIds: state`views.workflows.modals.addExcludedAlleles.includedAlleleIds`,
+            itemsPerPage: state`views.workflows.modals.addExcludedAlleles.itemsPerPage`,
+            readOnly: state`views.workflows.modals.addExcludedAlleles.readOnly`,
+            selectedPage: state`views.workflows.modals.addExcludedAlleles.selectedPage`,
+            categoryChanged: signal`views.workflows.modals.addExcludedAlleles.categoryChanged`,
+            geneChanged: signal`views.workflows.modals.addExcludedAlleles.geneChanged`,
+            pageChanged: signal`views.workflows.modals.addExcludedAlleles.pageChanged`,
+            includeAlleleClicked: signal`views.workflows.modals.addExcludedAlleles.includeAlleleClicked`,
+            excludeAlleleClicked: signal`views.workflows.modals.addExcludedAlleles.excludeAlleleClicked`,
+            closeAddExcludedClicked: signal`views.workflows.modals.addExcludedAlleles.closeAddExcludedClicked`
         },
         'AddExcludedAlleles',
         [

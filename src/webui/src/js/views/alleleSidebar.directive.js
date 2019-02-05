@@ -68,7 +68,7 @@ app.component('alleleSidebar', {
             isToggled,
             readOnly: isReadOnly,
             toggleExpanded: signal`views.workflows.alleleSidebar.toggleExpanded`,
-            addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`,
+            showAddExcludedAllelesClicked: signal`views.workflows.modals.addExcludedAlleles.showAddExcludedAllelesClicked`,
             filterConfigs,
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
             selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`

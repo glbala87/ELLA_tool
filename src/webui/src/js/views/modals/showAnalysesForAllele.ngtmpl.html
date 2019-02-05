@@ -1,28 +1,39 @@
-<sectionbox ng-class="{'prompt': !$ctrl.isAccepted()}" color="{{$ctrl.getColor()}}" modal="true" on-close="$ctrl.close">
-  <maintitle>
-    ANALYSES FOR {{$ctrl.allele.formatted.display}}
-  </maintitle>
-  <controls>
-    <section class="line-wrapper pinned-right" ng-if="!$ctrl.isAccepted()">
-      <button type="button" class="red" ng-click="$ctrl.accept()">I ACCEPT</button>
-      <button type="button" class="normal" ng-click="$ctrl.close()">CLOSE</button>
-    </section>
-    <section class="line-wrapper pinned-right" ng-if="$ctrl.isAccepted()">
-        <button type="button" class="normal" ng-click="$ctrl.copyAnalysesForAlleleClicked()">COPY TO CLIPBOARD</button>
-      <button type="button" class="normal" ng-click="$ctrl.close()">CLOSE</button>
-    </section>
-  </controls>
-  <contentwrapper>
-
-      <span style="padding-top: 1rem;"></span>
-      <div ng-if="$ctrl.isAccepted() && $ctrl.analyses" class="analysis-list">
-        <analysis-list store-path="'modals.showAnalysesForAllele.data.analyses'" new-target="true"></analysis-list>
-      </div>
-      <div ng-if="!$ctrl.isAccepted()">
-        <h4 class="sb-notification"> Access to data from previous patients is restricted under current privacy law.</h4>
-        <h4 class="sb-notification"> By clicking "I accept" you acknowledge that you have understood this.</h4>
-        <h4 class="sb-notification">  </h4>
-        <h4 class="sb-notification"> All access is logged. </h4>
-      </div>
-  </contentwrapper>
+<sectionbox
+    ng-class="{'prompt': !$ctrl.warningAccepted}"
+    color="{{ $ctrl.getColor() }}"
+    modal="true"
+    on-close="($ctrl.close)"
+>
+    <maintitle> ANALYSES FOR {{ $ctrl.allele.formatted.display }} </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right" ng-if="!$ctrl.warningAccepted">
+            <button type="button" class="red" ng-click="$ctrl.accept()">I ACCEPT</button>
+            <button type="button" class="normal" ng-click="$ctrl.close()">CLOSE</button>
+        </section>
+        <section class="line-wrapper pinned-right" ng-if="$ctrl.warningAccepted">
+            <button type="button" class="normal" ng-click="$ctrl.copyAnalysesForAlleleClicked()">
+                COPY TO CLIPBOARD
+            </button>
+            <button type="button" class="normal" ng-click="$ctrl.close()">CLOSE</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <span style="padding-top: 1rem;"></span>
+        <div ng-if="$ctrl.warningAccepted && $ctrl.analyses" class="analysis-list">
+            <analysis-list
+                store-path="'search.modals.showAnalysesForAllele.data.analyses'"
+                new-target="true"
+            ></analysis-list>
+        </div>
+        <div ng-if="!$ctrl.warningAccepted">
+            <h4 class="sb-notification">
+                Access to data from previous patients is restricted under current privacy law.
+            </h4>
+            <h4 class="sb-notification">
+                By clicking "I accept" you acknowledge that you have understood this.
+            </h4>
+            <h4 class="sb-notification"></h4>
+            <h4 class="sb-notification">All access is logged.</h4>
+        </div>
+    </contentwrapper>
 </sectionbox>

@@ -5,13 +5,10 @@ import StorageModule from '@cerebral/storage'
 import AppModule from './app'
 import SearchModule from './search'
 import ViewsModule from './views'
-import ModalsModule from './modals'
 import Router from '@cerebral/router'
 import AppRouter from './router'
 import { IntervalProvider, ProgressProvider, ClipboardProvider } from '../common/providers/'
 import onBeforeUnload from '../common/providers/onBeforeUnload'
-import closeModal from '../common/actions/closeModal'
-import showModal from '../common/actions/showModal'
 import toastProvider from '../common/providers/toastProvider'
 
 let http = HttpProvider({
@@ -66,7 +63,6 @@ function RootModule(withRouter = true) {
         state: {},
         modules: {
             storage,
-            modals: ModalsModule,
             search: SearchModule,
             views: ViewsModule,
             app: AppModule,
@@ -81,10 +77,7 @@ function RootModule(withRouter = true) {
                       ]
                   }) // Empty router -> Karma messes up when unit testing
         },
-        signals: {
-            closeModal: [closeModal],
-            showModal: [showModal]
-        },
+        signals: {},
         providers: {
             progress: ProgressProvider,
             onBeforeUnload,
