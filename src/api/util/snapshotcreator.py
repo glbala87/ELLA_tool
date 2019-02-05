@@ -20,64 +20,6 @@ class SnapshotCreator(object):
     def __init__(self, session):
         self.session = session
 
-    def _create_snapshot_object(
-        self,
-        interpretation_snapshot_model,
-        interpretation_id,
-        allele_id,
-        annotations,
-        custom_annotations,
-        presented_alleleassessments,
-        presented_allelereports,
-        used_alleleassessments=None,
-        used_allelereports=None,
-        excluded_category=None,
-    ):
-
-        if not annotations:
-            annotations = list()
-        if not custom_annotations:
-            custom_annotations = list()
-
-        kwargs = {
-            "allele_id": allele_id,
-            "annotation_id": next(
-                (a["annotation_id"] for a in annotations if a["allele_id"] == allele_id), None
-            ),
-            "customannotation_id": next(
-                (
-                    a["custom_annotation_id"]
-                    for a in custom_annotations
-                    if a["allele_id"] == allele_id
-                ),
-                None,
-            ),
-            "presented_alleleassessment_id": next(
-                (a.id for a in presented_alleleassessments if a.allele_id == allele_id), None
-            ),
-            "alleleassessment_id": next(
-                (a.id for a in used_alleleassessments if a.allele_id == allele_id), None
-            ),
-            "presented_allelereport_id": next(
-                (a.id for a in presented_allelereports if a.allele_id == allele_id), None
-            ),
-            "allelereport_id": next(
-                (a.id for a in used_allelereports if a.allele_id == allele_id), None
-            ),
-        }
-
-        if interpretation_snapshot_model == "analysis":
-            kwargs["analysisinterpretation_id"] = interpretation_id
-            kwargs["filtered"] = (
-                SnapshotCreator.EXCLUDED_FLAG[excluded_category]
-                if excluded_category is not None
-                else None
-            )
-            return workflow.AnalysisInterpretationSnapshot(**kwargs)
-        elif interpretation_snapshot_model == "allele":
-            kwargs["alleleinterpretation_id"] = interpretation_id
-            return workflow.AlleleInterpretationSnapshot(**kwargs)
-
     def create_from_data(
         self,
         interpretation_snapshot_model,  # 'allele' or 'analysis'
@@ -101,7 +43,6 @@ class SnapshotCreator(object):
         if used_allelereports is None:
             used_allelereports = list()
 
-        # Get working list of alleles straigt from interpretation to ensure we log all data
         excluded = {}
         if interpretation_snapshot_model == "analysis":
             excluded = excluded_allele_ids
@@ -111,22 +52,55 @@ class SnapshotCreator(object):
         elif interpretation_snapshot_model == "allele":
             allele_ids = [interpretation.allele_id]
 
-        snapshot_objects = list()
+        snapshot_items = list()
         for allele_id in allele_ids:
             excluded_category = next((k for k, v in excluded.items() if allele_id in v), None)
             # Check if allele_id is in any of the excluded categories
-            snapshot_object = self._create_snapshot_object(
-                interpretation_snapshot_model,
-                interpretation.id,
-                allele_id,
-                annotations,
-                custom_annotations,
-                presented_alleleassessments,
-                presented_allelereports,
-                used_alleleassessments=used_alleleassessments,
-                used_allelereports=used_allelereports,
-                excluded_category=excluded_category,
-            )
-            snapshot_objects.append(snapshot_object)
 
-        return snapshot_objects
+            snapshot_item = {
+                "allele_id": allele_id,
+                "annotation_id": next(
+                    (a["annotation_id"] for a in annotations if a["allele_id"] == allele_id), None
+                ),
+                "customannotation_id": next(
+                    (
+                        a["custom_annotation_id"]
+                        for a in custom_annotations
+                        if a["allele_id"] == allele_id
+                    ),
+                    None,
+                ),
+                "presented_alleleassessment_id": next(
+                    (a.id for a in presented_alleleassessments if a.allele_id == allele_id), None
+                ),
+                "alleleassessment_id": next(
+                    (a.id for a in used_alleleassessments if a.allele_id == allele_id), None
+                ),
+                "presented_allelereport_id": next(
+                    (a.id for a in presented_allelereports if a.allele_id == allele_id), None
+                ),
+                "allelereport_id": next(
+                    (a.id for a in used_allelereports if a.allele_id == allele_id), None
+                ),
+            }
+
+            if interpretation_snapshot_model == "analysis":
+                snapshot_item["analysisinterpretation_id"] = interpretation.id
+                snapshot_item["filtered"] = (
+                    SnapshotCreator.EXCLUDED_FLAG[excluded_category]
+                    if excluded_category is not None
+                    else None
+                )
+            elif interpretation_snapshot_model == "allele":
+                snapshot_item["alleleinterpretation_id"] = interpretation.id
+
+            snapshot_items.append(snapshot_item)
+
+        if interpretation_snapshot_model == "analysis":
+            self.session.bulk_insert_mappings(
+                workflow.AnalysisInterpretationSnapshot, snapshot_items
+            )
+        elif interpretation_snapshot_model == "allele":
+            self.session.bulk_insert_mappings(workflow.AlleleInterpretationSnapshot, snapshot_items)
+
+        return snapshot_items

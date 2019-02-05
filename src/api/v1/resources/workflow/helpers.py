@@ -450,7 +450,7 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
         .all()
     )
 
-    snapshot_objects = SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).create_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
         interpretation,
         data["annotations"],
@@ -460,8 +460,6 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
         excluded_allele_ids=data.get("excluded_allele_ids"),
         custom_annotations=data.get("custom_annotations"),
     )
-
-    session.add_all(snapshot_objects)
 
     interpretation.status = "Done"
     interpretation.finalized = False
@@ -644,7 +642,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
         .all()
     )
 
-    snapshot_objects = SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).create_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
         interpretation,
         data["annotations"],
@@ -656,8 +654,6 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
         used_allelereports=created_allelereports + reused_allelereports,
         custom_annotations=data.get("custom_annotations"),
     )
-
-    session.add_all(snapshot_objects)
 
     # Update interpretation and return data
     interpretation.status = "Done"
