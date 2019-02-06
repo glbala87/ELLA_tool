@@ -272,7 +272,7 @@
                 {
                     "name": "ppy",
                     "config": {
-                        "ppy_tract_region": [-20,-3]
+                        "ppy_tract_region": [-20, -3]
                     },
                     "exceptions": [
                         {

@@ -52,7 +52,7 @@ def import_filterconfigs(session, fc_configs):
     filter_config_schema = load_schema("filterconfig.json")
 
     for fc_config in fc_configs:
-        # jsonschema.validate(filterconfig, filter_config_schema)
+        jsonschema.validate(fc_config, filter_config_schema)
         filterconfig = fc_config["filterconfig"]
         name = fc_config["name"]
         requirements = fc_config["requirements"]
@@ -88,7 +88,7 @@ def import_filterconfigs(session, fc_configs):
                 continue
             elif existing:
                 existing.date_superceeded = datetime.datetime.now(pytz.utc)
-                filterconfig["previous_filterconfig"] = existing.id
+                filterconfig["previous_filterconfig_id"] = existing.id
                 existing.active = False
                 result["updated"] += 1
             else:
@@ -96,7 +96,6 @@ def import_filterconfigs(session, fc_configs):
 
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)
-
     return result
 
 
