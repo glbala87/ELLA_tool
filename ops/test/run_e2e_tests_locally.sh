@@ -31,15 +31,13 @@ if [ "${SPEC}" = "" ]
         SPEC_PARAM="--spec ${SPEC}"
 fi
 
-yellow "Building the application to test"
-/ella/ops/common/symlink_node_modules
-yarn production
-
-yellow "Finished building web assets"
+yellow "yarn watch is running, modify code and assets should update automatically."
 
 while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
 yellow "Starting e2e tests locally..."
+
+rm -f dbdump_e2e.sql
 
 yellow "Will run tests $SPEC"
    DEBUG=true yarn wdio \

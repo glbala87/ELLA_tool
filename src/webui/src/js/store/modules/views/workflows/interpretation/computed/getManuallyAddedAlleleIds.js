@@ -19,7 +19,8 @@ export default Compute(
         if (
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
-            !filteredAlleleIds
+            !filteredAlleleIds ||
+            !filteredAlleleIds.excluded_allele_ids
         ) {
             return []
         }
