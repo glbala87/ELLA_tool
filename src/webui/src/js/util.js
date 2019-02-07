@@ -115,6 +115,7 @@ export function sanitize(dirtyHTML) {
             '*': {
                 // Match HEX and RGB
                 color: [
+                    /^[a-z]+$/,
                     /^\#(0x)?[0-9a-f]+$/i,
                     /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
                 ],
