@@ -176,12 +176,48 @@ def test_nearby_warning(test_database, session):
     for a in loaded_alleles:
         assert "nearby_allele" not in a.get("warnings", {})
 
-    # Move allele 2 near allele 1
     allele2.chromosome = allele1.chromosome
-    allele2.start_position = allele1.start_position - 3
-    allele2.start_position = allele1.open_end_position - 3
+
+    # Check start <-> start
+    allele1.start_position = 1
+    allele1.open_end_position = 100
+    allele2.start_position = 4
+    allele2.open_end_position = 10000
     session.flush()
-    loaded_alleles = adl.from_objs([allele1, allele2])
+    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
+    assert len(loaded_alleles) == 2
+    for a in loaded_alleles:
+        assert a["warnings"]["nearby_allele"] == "Another variant is within 3 bp of this variant"
+
+    # Check start <-> end
+    allele1.start_position = 1
+    allele1.open_end_position = 100
+    allele2.start_position = 100000
+    allele2.open_end_position = 4
+    session.flush()
+    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
+    assert len(loaded_alleles) == 2
+    for a in loaded_alleles:
+        assert a["warnings"]["nearby_allele"] == "Another variant is within 3 bp of this variant"
+
+    # Check end <-> start
+    allele1.start_position = 100000
+    allele1.open_end_position = 4
+    allele2.start_position = 1
+    allele2.open_end_position = 100
+    session.flush()
+    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
+    assert len(loaded_alleles) == 2
+    for a in loaded_alleles:
+        assert a["warnings"]["nearby_allele"] == "Another variant is within 3 bp of this variant"
+
+    # Check end <-> end
+    allele1.start_position = 1
+    allele1.open_end_position = 100000
+    allele2.start_position = 4
+    allele2.open_end_position = 100
+    session.flush()
+    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
     assert len(loaded_alleles) == 2
     for a in loaded_alleles:
         assert a["warnings"]["nearby_allele"] == "Another variant is within 3 bp of this variant"

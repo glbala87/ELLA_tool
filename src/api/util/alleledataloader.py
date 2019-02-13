@@ -53,6 +53,7 @@ class Warnings(object):
         self.session = session
         self.alleles = alleles
         self.allele_ids = [al["id"] for al in alleles]
+        self.analysis_id = analysis_id
         if genepanel:
             self.gp_key = (genepanel.name, genepanel.version)
         else:
@@ -76,27 +77,72 @@ class Warnings(object):
         return allele_id_warnings
 
     def _check_nearby(self):
-        nearby_warnings = dict()
-        # Alleles within 3bp nearby
-        allele1 = aliased(allele.Allele)
-        allele2 = aliased(allele.Allele)
-        nearby_alleles = (
-            self.session.query(allele1.id, allele2.id)
-            .filter(
-                or_(
-                    func.abs(allele1.start_position - allele2.start_position) < 4,
-                    func.abs(allele1.start_position - allele2.open_end_position) < 4,
-                    func.abs(allele1.open_end_position - allele2.open_end_position) < 4,
-                ),
-                allele1.id != allele2.id,
-                allele1.id.in_(self.allele_ids),
-                allele2.id.in_(self.allele_ids),
-            )
-            .distinct()
+
+        # Sort all alleles by start_position, then take row by row and compare n and n+1
+        # using window functions to check whether they are close to eachother.
+        # Similar query in SQL:
+        # SELECT id, next_id FROM (
+        #     SELECT
+        #         id,
+        #         LEAD(id) OVER (ORDER BY chromosome, start_position) AS next_id,
+        #         abs(start_position - LEAD(start_position) OVER (ORDER BY chromosome, start_position)) AS start_start,
+        #         abs(start_position - LEAD(open_end_position) OVER (ORDER BY chromosome, start_position)) AS start_end,
+        #         abs(start_position - LEAD(open_end_position) OVER (ORDER BY chromosome, start_position)) AS end_end
+        #         FROM allele
+        #     ) AS test
+        # WHERE next_id IS NOT NULL AND (start_start < 4 OR start_end < 4 OR end_end < 4)
+        #
+
+        analysis_allele_ids = (
+            self.session.query(allele.Allele.id)
+            .join(genotype.Genotype.alleles, sample.Sample)
+            .filter(sample.Sample.analysis_id == self.analysis_id)
         )
 
-        for allele_id, _ in nearby_alleles.all():
-            nearby_warnings[allele_id] = "Another variant is within 3 bp of this variant"
+        allele_order_by = [allele.Allele.chromosome, allele.Allele.start_position]
+
+        allele_distance = self.session.query(
+            allele.Allele.id,
+            func.LEAD(allele.Allele.id).over(order_by=allele_order_by).label("next_id"),
+            func.abs(
+                allele.Allele.start_position
+                - func.LEAD(allele.Allele.start_position).over(order_by=allele_order_by)
+            ).label("start_start"),
+            func.abs(
+                allele.Allele.start_position
+                - func.LEAD(allele.Allele.open_end_position).over(order_by=allele_order_by)
+            ).label("start_end"),
+            func.abs(
+                allele.Allele.open_end_position
+                - func.LEAD(allele.Allele.open_end_position).over(order_by=allele_order_by)
+            ).label("end_end"),
+        ).filter(allele.Allele.id.in_(analysis_allele_ids))
+
+        from api.util.util import query_print_table
+
+        query_print_table(allele_distance)
+
+        allele_distance = allele_distance.subquery("allele_distance")
+
+        nearby_alleles = self.session.query(allele_distance.c.id, allele_distance.c.next_id).filter(
+            ~allele_distance.c.next_id.is_(None),
+            or_(
+                allele_distance.c.id.in_(self.allele_ids),
+                allele_distance.c.next_id.in_(self.allele_ids),
+            ),
+            or_(
+                allele_distance.c.start_start < 4,
+                allele_distance.c.start_end < 4,
+                allele_distance.c.end_end < 4,
+            ),
+        )
+
+        nearby_warnings = dict()
+        for allele_id, next_allele_id in nearby_alleles:
+            if allele_id in self.allele_ids:
+                nearby_warnings[allele_id] = "Another variant is within 3 bp of this variant"
+            if next_allele_id in self.allele_ids:
+                nearby_warnings[next_allele_id] = "Another variant is within 3 bp of this variant"
 
         return nearby_warnings
 
