@@ -52,9 +52,6 @@ class AnalysisPage extends Page {
         return util.element('.id-finalize')
     }
 
-    get addExcludedButton() {
-        return util.element('button.id-add-excluded')
-    }
     get collisionWarningBar() {
         return util.element('.collision-warning')
     }

@@ -1,11 +1,12 @@
 var Page = require('./page')
 var util = require('./util')
 
-const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-findings'
+const SELECTOR_ANALYSES_BY_FINDINGS = '#id-overview-sidenav-analyses-by-findings'
+const SELECTOR_ANALYSES = '#id-overview-sidenav-analyses'
 const SELECTOR_FINISHED = '.id-analysis-finished'
 const SELECTOR_EMPTY = '.id-analysis-assessments-none'
 const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-missing-classifications'
-const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING
+const SELECTOR_PENDING = '.id-analysis-pending'
 const SELECTOR_REVIEW_FINDINGS = '.id-analysis-review-with-findings'
 const SELECTOR_REVIEW_NORMAL = '.id-analysis-review-without-findings'
 const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications'
@@ -22,10 +23,22 @@ const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
 const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 
 class SampleSelection extends Page {
+    constructor(by_findings) {
+        super()
+        if (by_findings === undefined) {
+            by_findings = true
+        }
+        this.by_findings = by_findings
+    }
     open() {
         super.open('overview/')
-        browser.waitForExist(SELECTOR_ANALYSES_OVERVIEW)
-        browser.click(SELECTOR_ANALYSES_OVERVIEW)
+        if (this.by_findings) {
+            browser.waitForExist(SELECTOR_ANALYSES_BY_FINDINGS)
+            browser.click(SELECTOR_ANALYSES_BY_FINDINGS)
+        } else {
+            browser.waitForExist(SELECTOR_ANALYSES)
+            browser.click(SELECTOR_ANALYSES)
+        }
         // We need to make sure that the page is loaded.
         // waitForExist(#nprogress) doesn't work well here, since it sometimes is so quick that it's missed
         // Pause instead and then make sure the loading is gone
@@ -119,7 +132,11 @@ class SampleSelection extends Page {
     }
 
     selectReview(number) {
-        this.selectItemInSection(number, SELECTOR_REVIEW)
+        if (this.by_findings) {
+            this.selectItemInSection(number, SELECTOR_REVIEW)
+        } else {
+            this.selectItemInSection(number, '.id-analysis-review')
+        }
     }
 
     selectMedicalReview(number) {

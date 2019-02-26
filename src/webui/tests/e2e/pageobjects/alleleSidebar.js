@@ -1,6 +1,8 @@
 var Page = require('./page')
 let util = require('./util')
 
+const FILTERCONFIG_SELECTOR = '.id-select-filterconfig'
+
 class AlleleSidebar extends Page {
     _ensureLoaded() {
         browser.waitForExist('allele-sidebar .nav-row')
@@ -243,6 +245,36 @@ class AlleleSidebar extends Page {
     setNotRelevantComment(allele, text) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-notrelevant')
         this._setComment('.id-notrelevant', alleleIdx, text)
+    }
+
+    selectFilterConfigDropdown() {
+        this._ensureLoaded()
+        return browser.element('.id-select-filterconfig')
+    }
+
+    getFilterConfigCount() {
+        this._ensureLoaded()
+        return browser.elements(`${FILTERCONFIG_SELECTOR} option`).value.length
+    }
+
+    selectFilterConfig(idx) {
+        this._ensureLoaded()
+        this.selectFilterConfigDropdown().click()
+        browser.element(`${FILTERCONFIG_SELECTOR} option:nth-child(${idx})`).click()
+    }
+
+    get selectedFilterConfigName() {
+        this._ensureLoaded()
+        return browser.element(`${FILTERCONFIG_SELECTOR} option[selected="selected"]`).getText()
+    }
+
+    get addExcludedButton() {
+        browser.waitForExist('button.id-add-excluded')
+        return util.element('button.id-add-excluded')
+    }
+
+    get addExcludedButtonText() {
+        return this.addExcludedButton.element('span').getText()
     }
 }
 

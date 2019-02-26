@@ -698,6 +698,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             color: lighten($black-50, 15%);
           }
         }
+
         .technical {
           @include indicator;
           .hit {
@@ -716,6 +717,14 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             color: $white-95;
           }
         }
+        .manually-added {
+            @include indicator;
+            .hit {
+              @include indicator-hit;
+              border-color: lighten($black-75, 15%);
+              color: lighten($black-75, 15%);
+            }
+          }
         .important-source {
           @include indicator;
           .hit {
