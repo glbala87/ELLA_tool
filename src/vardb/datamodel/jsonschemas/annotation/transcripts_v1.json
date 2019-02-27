@@ -1,0 +1,120 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "array",
+    "additionalItems": false,
+    "items": {
+        "type": "object",
+        "required": ["transcript", "strand", "is_canonical", "in_last_exon"],
+        "additionalProperties": false,
+        "properties": {
+            "consequences": {
+                "type": "array",
+
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "transcript_ablation",
+                        "splice_donor_variant",
+                        "splice_acceptor_variant",
+                        "stop_gained",
+                        "frameshift_variant",
+                        "start_lost",
+                        "initiator_codon_variant",
+                        "stop_lost",
+                        "inframe_insertion",
+                        "inframe_deletion",
+                        "missense_variant",
+                        "protein_altering_variant",
+                        "transcript_amplification",
+                        "splice_region_variant",
+                        "incomplete_terminal_codon_variant",
+                        "synonymous_variant",
+                        "stop_retained_variant",
+                        "coding_sequence_variant",
+                        "mature_miRNA_variant",
+                        "5_prime_UTR_variant",
+                        "3_prime_UTR_variant",
+                        "non_coding_transcript_exon_variant",
+                        "non_coding_transcript_variant",
+                        "intron_variant",
+                        "NMD_transcript_variant",
+                        "upstream_gene_variant",
+                        "downstream_gene_variant",
+                        "TFBS_ablation",
+                        "TFBS_amplification",
+                        "TF_binding_site_variant",
+                        "regulatory_region_variant",
+                        "regulatory_region_ablation",
+                        "regulatory_region_amplification",
+                        "feature_elongation",
+                        "feature_truncation",
+                        "intergenic_variant"
+                    ]
+                }
+            },
+            "hgnc_id": {
+                "type": "integer"
+            },
+            "symbol": {
+                "type": "string"
+            },
+            "HGVSc": {
+                "type": "string"
+            },
+            "HGVSc_short": {
+                "type": "string"
+            },
+            "HGVSc_insertion": {
+                "type": "string"
+            },
+            "HGVSp": {
+                "type": "string"
+            },
+            "protein": {
+                "type": "string"
+            },
+            "strand": {
+                "type": "integer",
+                "enum": [-1, 1]
+            },
+            "amino_acids": {
+                "type": "string"
+            },
+            "dbsnp": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "pattern": "rs[0-9]+"
+                }
+            },
+            "exon": {
+                "type": "string",
+                "pattern": "[0-9]+/[0-9]+"
+            },
+            "intron": {
+                "type": "string",
+                "pattern": "[0-9]+/[0-9]+"
+            },
+            "codons": {
+                "type": "string"
+            },
+            "transcript": {
+                "type": "string"
+            },
+            "is_canonical": {
+                "type": "boolean"
+            },
+            "exon_distance": {
+                "type": "integer"
+            },
+            "coding_region_distance": {
+                "anyOf": [{ "type": "integer" }, { "type": "null" }]
+            },
+            "in_last_exon": {
+                "type": "string",
+                "enum": ["yes", "no"]
+            }
+        }
+    }
+}

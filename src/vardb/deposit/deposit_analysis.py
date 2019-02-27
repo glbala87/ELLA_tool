@@ -49,7 +49,7 @@ VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1"]
 
 def import_filterconfigs(session, fc_configs):
     result = {"updated": 0, "created": 0, "not_updated": 0}
-    filter_config_schema = load_schema("filterconfig.json")
+    filter_config_schema = load_schema("filterconfig_base.json")
 
     for fc_config in fc_configs:
         jsonschema.validate(fc_config, filter_config_schema)

@@ -71,4 +71,5 @@ from vardb.datamodel import (
     user,
     workflow,
     log,
+    jsonschema,
 )

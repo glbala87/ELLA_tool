@@ -548,96 +548,30 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/root.json",
     "type": "object",
-    "required": ["name", "usergroups", "filterconfig", "requirements"],
+    "required": ["filters"],
     "additionalProperties": false,
     "properties": {
-        "name": {
-            "$id": "#/properties/name",
-            "type": "string",
-            "pattern": "^(.+)$"
-        },
-        "usergroups": {
-            "$id": "#/properties/usergroups",
+        "filters": {
             "type": "array",
             "items": {
-                "type": "object",
-                "required": ["name", "order"],
+                "allOf": [
+                    { "$ref": "#/definitions/filter" },
+                    { "$ref": "#/definitions/withExceptions" }
+                ],
+                "required": ["name", "config"],
                 "additionalProperties": false,
                 "properties": {
-                    "name": {
-                        "$id": "#/properties/usergroups/items/properties/name",
-                        "type": "string",
-                        "pattern": "^(.+)$"
-                    },
-                    "order": {
-                        "$id": "#/properties/usergroups/items/properties/order",
-                        "type": "integer",
-                        "minimum": 0
-                    }
-                }
-            }
-        },
-        "requirements": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "required": ["function", "params"],
-                "additionalProperties": false,
-                "properties": {
-                    "function": {
-                        "type": "string",
-                        "enum": ["analysis"]
-                    },
-                    "params": {
-                        "type": "object",
-                        "optional": ["is_trio", "is_single", "is_family", "name"],
-                        "additionalProperties": false,
-                        "properties": {
-                            "is_trio": {
-                                "type": "boolean"
-                            },
-                            "is_single": {
-                                "type": "boolean"
-                            },
-                            "is_family": {
-                                "type": "boolean"
-                            },
-                            "name": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "filterconfig": {
-            "type": "object",
-            "required": ["filters"],
-            "additionalProperties": false,
-            "properties": {
-                "filters": {
-                    "type": "array",
-                    "items": {
-                        "allOf": [
-                            { "$ref": "#/definitions/filter" },
-                            { "$ref": "#/definitions/withExceptions" }
-                        ],
-                        "required": ["name", "config"],
-                        "additionalProperties": false,
-                        "properties": {
-                            "name": {},
-                            "config": {},
-                            "exceptions": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["name", "config"],
-                                    "additionalProperties": false,
-                                    "properties": {
-                                        "name": {},
-                                        "config": {}
-                                    }
-                                }
+                    "name": {},
+                    "config": {},
+                    "exceptions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["name", "config"],
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {},
+                                "config": {}
                             }
                         }
                     }

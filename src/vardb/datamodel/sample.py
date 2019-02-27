@@ -4,7 +4,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -101,6 +101,7 @@ class FilterConfig(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(), nullable=False)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
+    schema_version = Column(Integer, nullable=False, server_default=FetchedValue())
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
     usergroup = relationship("UserGroup", uselist=False)
     date_superceeded = Column("date_superceeded", DateTime(timezone=True))

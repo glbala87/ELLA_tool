@@ -1,7 +1,7 @@
 """varDB datamodel Annotation class"""
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, DateTime, Index
+from sqlalchemy import Column, Integer, DateTime, Index, FetchedValue
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
@@ -19,6 +19,7 @@ class Annotation(Base):
     allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
     allele = relationship("Allele", uselist=False)
     annotations = Column(JSONMutableDict.as_mutable(JSONB))
+    schema_version = Column(Integer, nullable=False, server_default=FetchedValue())
     previous_annotation_id = Column(Integer, ForeignKey("annotation.id"))
     # use remote_side to store foreignkey for previous_annotation in 'this' parent:
     previous_annotation = relationship("Annotation", uselist=False, remote_side=id)
@@ -50,6 +51,7 @@ class CustomAnnotation(Base):
 
     id = Column(Integer, primary_key=True)
     annotations = Column(JSONMutableDict.as_mutable(JSONB))
+
     allele_id = Column(Integer, ForeignKey("allele.id"))
     allele = relationship("Allele", uselist=False)
     user_id = Column(Integer, ForeignKey("user.id"))
