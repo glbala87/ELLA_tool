@@ -1,0 +1,57 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["external", "frequencies", "references", "prediction", "transcripts"],
+    "additionalProperties": false,
+    "properties": {
+        "external": {
+            "type": "object",
+            "optional": ["CLINVAR", "HGMD"],
+            "additionalProperties": false,
+            "properties": {
+                "CLINVAR": {
+                    "$ref": "annotation/clinvar_v2.json"
+                },
+                "HGMD": {
+                    "$ref": "annotation/hgmd_v1.json"
+                }
+            }
+        },
+        "prediction": {
+            "type": "object",
+            "additionalProperties": false
+        },
+        "transcripts": {
+            "$ref": "annotation/transcripts_v1.json"
+        },
+        "references": {
+            "$ref": "annotation/references_v1.json"
+        },
+        "frequencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "GNOMAD_EXOMES": {
+                    "$ref": "annotation/gnomad_v1.json"
+                },
+                "GNOMAD_GENOMES": {
+                    "$ref": "annotation/gnomad_v1.json"
+                },
+                "inDB": {
+                    "$ref": "annotation/indb_v1.json"
+                },
+                "1000g": {
+                    "type": "object"
+                },
+                "esp6500": {
+                    "type": "object"
+                },
+                "ExAC": {
+                    "type": "object"
+                }
+            }
+        }
+    }
+}

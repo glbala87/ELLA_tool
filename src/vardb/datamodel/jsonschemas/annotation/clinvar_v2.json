@@ -1,0 +1,105 @@
+{
+    "definitions": {
+        "scv": {
+            "$id": "#/definitions/scv",
+            "type": "object",
+            "required": [
+                "scv_id",
+                "clnsig",
+                "clnrevstat",
+                "last_evaluated",
+                "phenotypes",
+                "submitter",
+                "origin"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "scv_id": {
+                    "type": "string",
+                    "pattern": "SCV[0-9]+"
+                },
+                "clnsig": {
+                    "type": "string"
+                },
+                "clnrevstat": {
+                    "type": "string",
+                    "enum": [
+                        "practice guideline",
+                        "reviewed by expert panel",
+                        "criteria provided, multiple submitters, no conflicts",
+                        "criteria provided, conflicting interpretations",
+                        "criteria provided, single submitter",
+                        "no assertion for the individual variant",
+                        "no assertion criteria provided",
+                        "no assertion provided"
+                    ]
+                },
+                "submitter": {
+                    "type": "string"
+                },
+                "phenotypes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "last_evaluated": {
+                    "anyOf": [
+                        { "type": "string", "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}" },
+                        { "type": "null" }
+                    ]
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": [
+        "clinical_significance",
+        "review_status",
+        "pubmeds",
+        "date_retrieved",
+        "variant_id",
+        "scvs",
+        "variation_type"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "clinical_significance": {
+            "$id": "#/properties/clinical_signifiance",
+            "type": "string"
+        },
+        "review_status": {
+            "$id": "#properties/review_status",
+            "type": "string"
+        },
+        "variant_id": {
+            "$id": "#/properties/variant_id",
+            "type": "string",
+            "pattern": "[0-9]+"
+        },
+        "pubmeds": {
+            "type": "array",
+            "items": {
+                "anyOf": [{ "type": "integer" }, { "type": "string", "pattern": "[0-9]+" }]
+            }
+        },
+        "scvs": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/scv"
+            }
+        },
+        "date_retrieved": {
+            "type": "string",
+            "pattern": "[0-9]{4}-[0-9]{2}-[0-9]{2}"
+        },
+        "variation_type": {
+            "type": "string"
+        }
+    }
+}
