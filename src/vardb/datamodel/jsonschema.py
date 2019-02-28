@@ -16,4 +16,4 @@ class JSONSchema(Base):
     schema = Column(JSONMutableDict.as_mutable(JSONB))
 
     def __repr__(self):
-        return "<JsonSchema('%s', '%s')>" % (self.name, self.version)
+        return "<JSONSchema('%s', '%s')>" % (self.name, self.version)
