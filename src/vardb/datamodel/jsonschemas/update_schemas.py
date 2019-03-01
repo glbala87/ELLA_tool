@@ -327,7 +327,7 @@ def create_jsonschema_sql_functions(session):
                 END IF;
             END LOOP;
         IF allow_null IS FALSE THEN
-            RAISE EXCEPTION '% failed to validate against any of the existing schemas (%)', data, schema_name;
+            RAISE EXCEPTION  'schema_name=%, data=% ---- failed to validate against any of the existing schemas', schema_name, data USING ERRCODE='JSONV';
         END IF;
         RETURN NULL;
         END;
