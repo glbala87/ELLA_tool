@@ -3,13 +3,12 @@ import hypothesis as ht
 import hypothesis.strategies as st
 import pytest
 import jsonschema
+from vardb.datamodel.jsonschemas.load_schema import load_schema
 
 
 @pytest.fixture(scope="module")
 def filterconfig_schema():
-    with open("/ella/src/vardb/datamodel/jsonschemas/filterconfig.json") as f:
-        s = json.load(f)
-    return s
+    return load_schema("filterconfig_base.json")
 
 
 def _filterconfig():

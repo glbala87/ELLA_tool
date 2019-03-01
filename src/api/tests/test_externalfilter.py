@@ -19,7 +19,12 @@ OPERATORS = {
 
 
 def create_annotation(allele_id, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag):
-    ann = {"external": {}}
+    ann = {}
+    ann.setdefault("external", {})
+    ann.setdefault("frequencies", {})
+    ann.setdefault("prediction", {})
+    ann.setdefault("references", [])
+    ann.setdefault("transcripts", [])
 
     clinical_significance_status = {
         1: "criteria provided, conflicting interpretations",
@@ -31,30 +36,40 @@ def create_annotation(allele_id, num_stars, num_benign, num_uncertain, num_patho
     ann["external"]["CLINVAR"] = {
         "variant_description": clinical_significance_status[num_stars],
         "items": [],
+        "variant_id": 12345,
+    }
+
+    item_base = {
+        "rcv": "",
+        "traitnames": "",
+        "clinical_significance_descr": "",
+        "variant_id": "",
+        "submitter": "",
+        "last_evaluated": "",
     }
 
     for n in range(num_benign):
-        ann["external"]["CLINVAR"]["items"].append(
-            {"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Benign"}
-        )
+        item = dict(item_base)
+        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Benign"})
+        ann["external"]["CLINVAR"]["items"].append(item)
 
     for n in range(num_uncertain):
-        ann["external"]["CLINVAR"]["items"].append(
-            {"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Uncertain significance"}
-        )
+        item = dict(item_base)
+        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Uncertain significance"})
+        ann["external"]["CLINVAR"]["items"].append(item)
 
     for n in range(num_pathogenic):
-        ann["external"]["CLINVAR"]["items"].append(
-            {"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Pathogenic"}
-        )
+        item = dict(item_base)
+        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Pathogenic"})
+        ann["external"]["CLINVAR"]["items"].append(item)
 
     if hgmd_tag:
-        ann["external"]["HGMD"] = {"tag": hgmd_tag}
+        ann["external"]["HGMD"] = {"tag": hgmd_tag, "acc_num": "dabla", "disease": "dabla"}
 
     if not ann["external"]["CLINVAR"]["items"]:
-        ann["external"]["CLINVAR"]["items"] = [
-            {"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "something"}
-        ]
+        item = dict(item_base)
+        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "something"})
+        ann["external"]["CLINVAR"]["items"].append(item)
 
     return annotation.Annotation(allele_id=allele_id, annotations=ann)
 

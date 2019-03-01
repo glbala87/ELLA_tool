@@ -1,7 +1,7 @@
 import hypothesis as ht
 import hypothesis.strategies as st
 from api.util import queries
-from vardb.datamodel import sample, gene
+from vardb.datamodel import sample, gene, jsonschema
 import string
 import time
 
@@ -92,6 +92,11 @@ def create_dummy_analysis(session):
 def test_filter_ordering(session, client, filterconfigs):
     session.rollback()
     session.query(sample.FilterConfig).delete()
+
+    # Add dummy schema that allows for any object
+    jsonschema.JSONSchema.get_or_create(
+        session, **{"name": "filterconfig", "version": 1000, "schema": {"type": "object"}}
+    )
     session.add_all([sample.FilterConfig(**fc) for fc in filterconfigs])
     session.commit()
 

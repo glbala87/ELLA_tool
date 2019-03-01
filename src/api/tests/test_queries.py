@@ -3,6 +3,21 @@ from api.util import queries
 from vardb.datamodel import gene, allele, annotation
 
 
+def create_annotation(annotations, allele=None):
+    annotations.setdefault("external", {})
+    annotations.setdefault("frequencies", {})
+    annotations.setdefault("prediction", {})
+    annotations.setdefault("references", [])
+    annotations.setdefault("transcripts", [])
+    for t in annotations["transcripts"]:
+        t.setdefault("consequences", [])
+        t.setdefault("transcript", "NONE_DEFINED")
+        t.setdefault("strand", 1)
+        t.setdefault("is_canonical", True)
+        t.setdefault("in_last_exon", "no")
+    return annotation.Annotation(annotations=annotations, allele=allele)
+
+
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
 
     testpanels = [("HBOCUTV", "v01"), ("OMIM", "v01")]
@@ -150,7 +165,7 @@ def test_annotation_transcripts_genepanel(session, test_database):
                 {"transcript": "NM_NOT_IN_PANEL"},  # Not in genepanel, no version
             ]
         }
-        anno1 = annotation.Annotation(annotations=annotations, allele=a1)
+        anno1 = create_annotation(annotations, allele=a1)
         session.add(anno1)
 
         a2 = allele.Allele(
@@ -175,7 +190,7 @@ def test_annotation_transcripts_genepanel(session, test_database):
                 {"transcript": "NM_NOT_IN_PANEL"},  # Not in any genepanel, no version
             ]
         }
-        anno2 = annotation.Annotation(annotations=annotations, allele=a2)
+        anno2 = create_annotation(annotations, allele=a2)
         session.add(anno2)
 
         return a1, a2

@@ -5,7 +5,7 @@ Since it consists mostly of database queries, it's tested on a live database.
 import pytest
 
 from api.allelefilter import AlleleFilter
-from vardb.datamodel import sample
+from vardb.datamodel import sample, jsonschema
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -37,6 +37,11 @@ FILTER_CONFIG_NUM = 0
 def insert_filter_config(session, filter_config):
     global FILTER_CONFIG_NUM
     FILTER_CONFIG_NUM += 1
+
+    # Add dummy schema that allows for any object
+    jsonschema.JSONSchema.get_or_create(
+        session, **{"name": "filterconfig", "version": 10000, "schema": {"type": "object"}}
+    )
 
     fc = sample.FilterConfig(
         name="Test {}".format(FILTER_CONFIG_NUM),

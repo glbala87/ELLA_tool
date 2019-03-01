@@ -53,6 +53,17 @@ def create_allele(data=None):
 
 
 def create_annotation(annotations, allele=None):
+    annotations.setdefault("external", {})
+    annotations.setdefault("frequencies", {})
+    annotations.setdefault("prediction", {})
+    annotations.setdefault("references", [])
+    annotations.setdefault("transcripts", [])
+    for t in annotations["transcripts"]:
+        t.setdefault("consequences", [])
+        t.setdefault("transcript", "NONE_DEFINED")
+        t.setdefault("strand", 1)
+        t.setdefault("is_canonical", True)
+        t.setdefault("in_last_exon", "no")
     return annotation.Annotation(annotations=annotations, allele=allele)
 
 
