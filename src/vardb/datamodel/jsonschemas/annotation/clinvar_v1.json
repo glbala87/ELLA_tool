@@ -46,7 +46,7 @@
         },
         "variant_id": {
             "$id": "#/properties/variant_id",
-            "type": "integer"
+            "anyOf": [{ "type": "integer" }, { "type": "string", "enum": ["N/A"] }]
         },
         "items": {
             "type": "array",

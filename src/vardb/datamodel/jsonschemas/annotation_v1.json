@@ -33,7 +33,7 @@
         },
         "frequencies": {
             "type": "object",
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "GNOMAD_EXOMES": {
                     "$ref": "annotation/gnomad_v1.json"
@@ -43,15 +43,6 @@
                 },
                 "inDB": {
                     "$ref": "annotation/indb_v1.json"
-                },
-                "1000g": {
-                    "type": "object"
-                },
-                "esp6500": {
-                    "type": "object"
-                },
-                "ExAC": {
-                    "type": "object"
                 }
             }
         }

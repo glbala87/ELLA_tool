@@ -5,7 +5,7 @@
     "additionalItems": false,
     "items": {
         "type": "object",
-        "required": ["transcript", "strand", "is_canonical", "in_last_exon"],
+        "required": ["transcript", "strand", "is_canonical", "in_last_exon", "consequences"],
         "additionalProperties": false,
         "properties": {
             "consequences": {
@@ -106,7 +106,7 @@
                 "type": "boolean"
             },
             "exon_distance": {
-                "type": "integer"
+                "anyOf": [{ "type": "integer" }, { "type": "null" }]
             },
             "coding_region_distance": {
                 "anyOf": [{ "type": "integer" }, { "type": "null" }]
@@ -114,6 +114,9 @@
             "in_last_exon": {
                 "type": "string",
                 "enum": ["yes", "no"]
+            },
+            "splice": {
+                "type": "array"
             }
         }
     }
