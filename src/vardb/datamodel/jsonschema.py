@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Index
 from sqlalchemy.dialects.postgresql import JSONB
 
 from vardb.util.mutjson import JSONMutableDict
@@ -17,3 +17,6 @@ class JSONSchema(Base):
 
     def __repr__(self):
         return "<JSONSchema('%s', '%s')>" % (self.name, self.version)
+
+
+Index("ix_jsonschema_unique", JSONSchema.name, JSONSchema.version, unique=True)

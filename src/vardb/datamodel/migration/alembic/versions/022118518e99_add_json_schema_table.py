@@ -27,6 +27,9 @@ def upgrade():
         sa.Column("schema", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_jsonschema")),
     )
+
+    op.create_index("ix_jsonschema_unique", "jsonschema", ["name", "version"], unique=True)
+
     op.add_column(
         "annotation",
         sa.Column("schema_version", sa.Integer(), server_default=sa.FetchedValue(), nullable=False),
