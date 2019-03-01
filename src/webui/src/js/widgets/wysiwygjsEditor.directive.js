@@ -533,9 +533,13 @@ export class WysiwygEditorController {
         this.closePopover('references')
     }
 
-    formatReference(ref) {
+    formatReference(ref, withTitle) {
         if (ref) {
-            return `${ref.authors} (${ref.year}): ${ref.title}`
+            if (withTitle) {
+                return `${ref.authors} (${ref.year}): ${ref.title}`
+            } else {
+                return `${ref.authors} (${ref.year})`
+            }
         }
         return ''
     }

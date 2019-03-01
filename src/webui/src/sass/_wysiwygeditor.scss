@@ -99,7 +99,7 @@ wysiwyg-editor {
 #wysiwyg-src {display: none; } // Comment this out to debug the wysiwygeditor
 
 .wysiwygpopover {
-  border: 1px solid $black-05;
+  border: 1px solid $black-25;
   border-top: 0;
   padding: 0.3rem;
   position: absolute;
@@ -138,15 +138,16 @@ wysiwyg-editor {
 
 .wysiwygtemplatespopover {
   @extend .wysiwygpopover;
-  width: 30rem;
-  min-height: 3.5rem;
+  max-width: 30rem;
+  min-height: 2.7rem;
   max-height: 14rem;
   color: $black-75 !important;
   overflow-y: auto;
   .template-item {
     display: flex;
     align-items: center;
-    height: 3.5rem;
+    height: 2.7rem;
+    margin-right: 3rem;
     &:not(:last-child) {
       border-bottom: 1px solid $black-10;
     }
@@ -167,6 +168,7 @@ wysiwyg-editor {
       border: 1px solid $black-25;
       &:hover {
         border: 1px solid $black-50;
+        font-weight: 700;
       }
     }
   }
@@ -201,19 +203,32 @@ wysiwyg-editor {
       flex-grow: 1;
       padding-left: 0.5rem;
       @extend .full-title;
-      font-size: 1.4rem;
+      font-weight: 500;
+      font-size: 1.2rem;
       max-width: 35rem;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
       margin-left: 0.5rem;
     }
+    .reference-citation {
+        flex-grow: 1;
+        padding-left: 0.5rem;
+        @extend .full-title;
+        font-size: 1.2rem;
+        max-width: 35rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-left: 0.5rem;
+      }
     .reference-button {
       @extend .wysiwygbutton;
       margin-left: 0.5rem;
       border: 1px solid $black-25;
       &:hover {
         border: 1px solid $black-50;
+        font-weight: 700;
       }
     }
   }
@@ -224,24 +239,25 @@ wysiwyg-editor {
   display: flex;
   align-items: center;
   justify-content: center;
+
   &:focus {
     outline: 0px solid transparent;
   }
   .color-item {
-    margin: 2px;
+    margin: 1px;
     border-width: 1px;
     border-style: solid;
     text-align: center;
-    height: 2.4rem;
-    line-height: 2.4rem;
-    width: 2.4rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    width: 2.2rem;
     @extend .full-title;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     opacity: 0.7;
     &:hover {
       cursor: pointer;
       opacity: 1;
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
   }
 
@@ -257,17 +273,17 @@ wysiwyg-editor {
   }
   .color-item {
     text-align: center;
-    height: 2.4rem;
-    line-height: 2.4rem;
-    width: 2.4rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    width: 2.2rem;
     @extend .full-title;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: $black;
     opacity: 0.9;
     &:hover {
       cursor: pointer;
       opacity: 1;
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
   }
 

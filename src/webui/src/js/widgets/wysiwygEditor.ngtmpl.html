@@ -272,8 +272,13 @@
             <div class="reference-category-title">{{ category.name }}</div>
             <div class="reference-item" ng-repeat="r in category.references">
                 <button class="purple reference-button" ng-click="vm.insertReference(r)">+</button>
-                <div class="reference-title" title="{{ vm.formatReference(r) }}">
-                    {{ vm.formatReference(r) }}
+                <div>
+                    <div class="reference-title" title="{{ vm.formatReference(r, true) }}">
+                        {{ r.title ? r.title : '' }}
+                    </div>
+                    <div class="reference-citation" title="{{ vm.formatReference(r, false) }}">
+                        {{ vm.formatReference(r) }}
+                    </div>
                 </div>
             </div>
         </div>
