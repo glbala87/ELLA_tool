@@ -69,7 +69,8 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         expect(alleleSectionBox.getPredictionOtherValue()).toEqual('non-conserved')
 
         // Set comments/classification
-        alleleSectionBox.setClassificationComment('EVALUATION_ROUND1')
+        alleleSectionBox.setClassificationComment('EVALUATION_ROUND1\n')
+        alleleSectionBox.insertClassificationTemplate(1)
         analysisPage.saveButton.click()
         alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
         analysisPage.saveButton.click()
@@ -103,7 +104,8 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                         ortholog_conservation: 'non-conserved'
                     }
                 },
-                evaluation: 'EVALUATION_ROUND1',
+                evaluation:
+                    'EVALUATION_ROUND1\nExample template\nExample one\nExample two\nExample three',
                 frequency: 'FREQUENCY_ROUND1',
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',

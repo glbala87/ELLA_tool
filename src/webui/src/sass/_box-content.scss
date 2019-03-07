@@ -34,7 +34,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
   section { min-height: 2.6rem; display: flex; align-items: center; padding: 0.7rem; padding-right: 0; }
   .upper-wrapper { display: flex; }
   &-upper { justify-content: space-between; white-space: nowrap; flex: 1; }
-  button { background-color: Transparent; box-shadow: none; color: $white; height: 1.8rem; padding: 0 0.7rem;
+  button.transparent { background-color: Transparent; box-shadow: none; height: 1.8rem; padding: 0 0.7rem;
     &:hover { background-color: Transparent; box-shadow: none; }
   }
   h4 { font-family: $slim; font-size: 1.4rem; font-weight: 600; letter-spacing: 0.05rem; }

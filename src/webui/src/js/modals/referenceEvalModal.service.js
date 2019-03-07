@@ -10,7 +10,16 @@ export class ReferenceEvalModalController {
      * Controller for dialog with reference evaluation.
      */
 
-    constructor(modalInstance, Config, analysis, allele, reference, referenceAssessment, readOnly) {
+    constructor(
+        modalInstance,
+        Config,
+        analysis,
+        allele,
+        reference,
+        referenceAssessment,
+        readOnly,
+        commentTemplates
+    ) {
         this.config = Config.getConfig()
         this.analysis = analysis
         this.modal = modalInstance
@@ -19,6 +28,7 @@ export class ReferenceEvalModalController {
         this.existingReferenceAssessment = referenceAssessment
         this.referenceAssessment = deepCopy(referenceAssessment)
         this.readOnly = readOnly
+        this.commentTemplates = commentTemplates
         this.enabled_sources = []
         this.sources = {
             // 'relevance' is a special case, so it has no 'elements' block like the others
@@ -596,6 +606,10 @@ export class ReferenceEvalModalController {
         return this.config.classification.gene_groups[group].some((g) => genes.includes(g))
     }
 
+    getReferenceEvaluationTemplates() {
+        return this.commentTemplates['referenceEvaluation']
+    }
+
     /**
      * Returns the sources to list as options
      */
@@ -751,7 +765,7 @@ export class ReferenceEvalModal {
      * @param  {boolean} don't save changes if read-only
      * @return {Promise} Promise that resolves when dialog is closed.
      */
-    show(analysis, allele, reference, referenceAssessment, readOnly) {
+    show(analysis, allele, reference, referenceAssessment, readOnly, commentTemplates) {
         let modal = this.modalService.open({
             templateUrl: 'referenceEvalModal.ngtmpl.html',
             controller: [
@@ -762,6 +776,7 @@ export class ReferenceEvalModal {
                 'reference',
                 'referenceAssessment',
                 'readOnly',
+                'commentTemplates',
                 ReferenceEvalModalController
             ],
             controllerAs: 'vm',
@@ -770,7 +785,8 @@ export class ReferenceEvalModal {
                 allele: () => allele,
                 reference: () => reference,
                 referenceAssessment: () => referenceAssessment,
-                readOnly: () => readOnly
+                readOnly: () => readOnly,
+                commentTemplates: () => commentTemplates
             },
             size: 'lg',
             backdrop: 'static' // Disallow closing by clicking outside

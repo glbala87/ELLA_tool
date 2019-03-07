@@ -36,6 +36,7 @@ app.component('workflowbar', {
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,
+            commentTemplates: state`app.commentTemplates`,
             config: state`app.config`,
             messageCount: state`views.workflows.worklog.messageCount`,
             workflowType: state`views.workflows.type`,
@@ -123,6 +124,9 @@ app.component('workflowbar', {
                                 })
                             }
                             $ctrl.stagedAcmgCode = null
+                        },
+                        getAcmgCommentTemplates() {
+                            return $ctrl.commentTemplates['classificationAcmg']
                         }
                     },
                     interpretationLogPopover: {

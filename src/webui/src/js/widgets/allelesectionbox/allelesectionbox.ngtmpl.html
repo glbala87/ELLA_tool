@@ -145,6 +145,7 @@
         support external updates in a good way
          shouldn't be a problem as long as we don't Compute on this value -->
         <wysiwyg-editor
+            templates="$ctrl.getAlleleassessmentCommentTemplates()"
             class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
             ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
             placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
@@ -154,6 +155,7 @@
         ></wysiwyg-editor>
 
         <wysiwyg-editor
+            templates="$ctrl.getAnalysisSpecificCommentTemplates()"
             class="control-comment id-comment-analysis"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.analysisComment.placeholder }}"
@@ -163,6 +165,7 @@
         ></wysiwyg-editor>
 
         <wysiwyg-editor
+            templates="$ctrl.getAlleleReportCommentTemplates()"
             class="control-comment id-comment-report"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.reportComment.placeholder }}"
@@ -201,6 +204,7 @@
             </h4>
             <section class="acmg-wrapper included">
                 <acmg
+                    templates="$ctrl.getAcmgCommentTemplates()"
                     directreqs="true"
                     code="code"
                     isUpgradable="true"

@@ -77,6 +77,7 @@ app.component('reportCard', {
     templateUrl: 'reportcard.ngtmpl.html',
     controller: connect(
         {
+            commentTemplates: state`app.commentTemplates`,
             reportComment: state`views.workflows.interpretation.state.report.comment`,
             indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
             readOnly: isReadOnly,
@@ -94,6 +95,12 @@ app.component('reportCard', {
                 Object.assign($ctrl, {
                     getReportComment(allele) {
                         return this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment)
+                    },
+                    getReportIndicationsTemplates() {
+                        return $ctrl.commentTemplates['reportIndications']
+                    },
+                    getReportSummaryTemplates() {
+                        return $ctrl.commentTemplates['reportSummary']
                     }
                 })
             }
