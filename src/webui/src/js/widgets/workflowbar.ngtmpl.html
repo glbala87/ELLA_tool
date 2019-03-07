@@ -58,6 +58,14 @@
                     Copy variant to alamut
                 </button>
                 <button
+                    class="id-add-references"
+                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAlleleId, category: 'references'})"
+                    ng-disabled="$ctrl.readOnly"
+                    ng-if="!$ctrl.readOnly"
+                >
+                    Add studies
+                </button>
+                <button
                     class="id-add-acmg"
                     uib-popover-template="$ctrl.acmgPopover.templateUrl"
                     popover-class="add-acmg-popover"
