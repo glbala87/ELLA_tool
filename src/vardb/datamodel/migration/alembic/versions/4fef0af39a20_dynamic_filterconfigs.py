@@ -88,7 +88,7 @@ def upgrade():
         op.f("fk_filterconfig_previous_filterconfig_filterconfig"),
         "filterconfig",
         "filterconfig",
-        ["previous_filterconfig"],
+        ["previous_filterconfig_id"],
         ["id"],
     )
     op.drop_column("filterconfig", "default")
