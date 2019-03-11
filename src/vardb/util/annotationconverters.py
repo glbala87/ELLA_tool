@@ -272,7 +272,8 @@ def convert_hgmd(annotation):
     return {"HGMD": data}
 
 
-CLINVAR_V1_SCHEMA = {
+# Schema for checking incoming CLINVAR data (not the data ending up in the database)
+CLINVAR_V1_INCOMING_SCHEMA = {
     "definitions": {
         "rcv": {
             "$id": "#/definitions/rcv",
@@ -331,9 +332,10 @@ def convert_clinvar(annotation):
     clinvarjson = json.loads(
         base64.b16decode(annotation["CLINVARJSON"]).decode(encoding="utf-8", errors="strict")
     )
-    # Legacy: In version 1 of the ClinVar data, we performed additional parsing of the clinvar data
+    # Legacy: In version 1 of the ClinVar data, we performed additional parsing of the clinvar data.
+    # The validation of the resulting clinvar json is done in the database.
     try:
-        jsonschema.validate(clinvarjson, CLINVAR_V1_SCHEMA)
+        jsonschema.validate(clinvarjson, CLINVAR_V1_INCOMING_SCHEMA)
         return {"CLINVAR": _convert_clinvar_v1(clinvarjson)}
     except jsonschema.ValidationError:
         return {"CLINVAR": clinvarjson}

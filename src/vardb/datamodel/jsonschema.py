@@ -13,7 +13,7 @@ class JSONSchema(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     version = Column(Integer, nullable=False)
-    schema = Column(JSONMutableDict.as_mutable(JSONB))
+    schema = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
 
     def __repr__(self):
         return "<JSONSchema('%s', '%s')>" % (self.name, self.version)
