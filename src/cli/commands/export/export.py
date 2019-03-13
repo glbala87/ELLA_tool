@@ -75,7 +75,8 @@ def cmd_export_sanger(logger, session, user_group, filename):
 
     filter_config_id = (
         session.query(sample.FilterConfig.id)
-        .filter(sample.FilterConfig.usergroup_id == usergroup.id)
+        .join(sample.UserGroupFilterConfig)
+        .filter(sample.UserGroupFilterConfig.usergroup_id == usergroup.id)
         .scalar()
     )
 
