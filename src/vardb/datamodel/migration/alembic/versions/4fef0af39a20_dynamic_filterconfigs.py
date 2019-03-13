@@ -30,13 +30,13 @@ AnalysisInterpretation = table(
     column("status", sa.Enum("Not started", "Ongoing", "Done")),
 )
 
-Filterconfig = table(
+FilterConfig = table(
     "filterconfig",
     column("id", sa.Integer()),
-    column("usergroup_id", sa.Integer()),
     column("name", sa.String()),
+    column("active", sa.Boolean()),
+    column("usergroup_id", sa.Integer()),
     column("filterconfig", JSONMutableDict.as_mutable(JSONB)),
-    column("order", sa.Integer()),
 )
 
 User = table("user", column("id", sa.Integer()), column("group_id", sa.Integer()))
@@ -47,16 +47,12 @@ def upgrade():
 
     # Set all current filterconfigs as inactive
     op.add_column(
-        "filterconfig", sa.Column("active", sa.Boolean(), nullable=False, server_default="false")
+        "filterconfig", sa.Column("active", sa.Boolean(), nullable=False, server_default="true")
     )
     op.add_column(
         "filterconfig", sa.Column("date_superceeded", sa.DateTime(timezone=True), nullable=True)
     )
 
-    # Set order 0 as default
-    op.add_column(
-        "filterconfig", sa.Column("order", sa.Integer(), nullable=False, server_default="0")
-    )
     op.add_column(
         "filterconfig", sa.Column("previous_filterconfig_id", sa.Integer(), nullable=True)
     )
@@ -69,20 +65,7 @@ def upgrade():
             server_default="[]",
         ),
     )
-    op.create_index(
-        "ix_filterconfig_unique",
-        "filterconfig",
-        ["name", "usergroup_id"],
-        unique=True,
-        postgresql_where=sa.text("active IS true"),
-    )
-    op.create_index(
-        "ix_filterconfig_unique2",
-        "filterconfig",
-        ["usergroup_id", "order"],
-        unique=True,
-        postgresql_where=sa.text("active IS true"),
-    )
+
     op.drop_constraint("uq_filterconfig_name", "filterconfig", type_="unique")
     op.create_foreign_key(
         op.f("fk_filterconfig_previous_filterconfig_filterconfig"),
@@ -93,8 +76,38 @@ def upgrade():
     )
     op.drop_column("filterconfig", "default")
 
-    # Update all existing filter configs, rename to 'Legacy'
-    conn.execute(sa.update(Filterconfig).values(name="Legacy"))
+    UserGroupFilterConfig = op.create_table(
+        "usergroupfilterconfig",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("usergroup_id", sa.Integer(), nullable=False),
+        sa.Column("filterconfig_id", sa.Integer(), nullable=False),
+        sa.Column("order", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["filterconfig_id"],
+            ["filterconfig.id"],
+            name=op.f("fk_usergroupfilterconfig_filterconfig_id_filterconfig"),
+        ),
+        sa.ForeignKeyConstraint(
+            ["usergroup_id"],
+            ["usergroup.id"],
+            name=op.f("fk_usergroupfilterconfig_usergroup_id_usergroup"),
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_usergroupfilterconfig")),
+    )
+
+    # Update all existing filter configs, rename to 'Legacy' and set as inactive
+    # Crete corresponding rows in the UserGroupFilterConfig association table
+    conn.execute(sa.update(FilterConfig).values(name="Legacy", active=False))
+    existing_filterconfigs = conn.execute(sa.select(FilterConfig.c))
+    # print(existing_filterconfigs)
+    for fc in existing_filterconfigs:
+        conn.execute(
+            sa.insert(UserGroupFilterConfig).values(
+                usergroup_id=fc.usergroup_id, filterconfig_id=fc.id, order=0
+            )
+        )
+
+    op.drop_column("filterconfig", "usergroup_id")
 
     # Set all existing analysis interpretations to point to the legacy filter config for the relevant user group
     analysis_interpretations = conn.execute(
@@ -105,7 +118,9 @@ def upgrade():
         group_id = list(group_id)[0][0]
         fc_id = list(
             conn.execute(
-                sa.select([Filterconfig.c.id]).where(Filterconfig.c.usergroup_id == group_id)
+                sa.select([UserGroupFilterConfig.c.filterconfig_id]).where(
+                    UserGroupFilterConfig.c.usergroup_id == group_id
+                )
             )
         )
         assert len(fc_id) == 1
