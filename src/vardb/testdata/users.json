@@ -57,5 +57,23 @@
                 "views": ["variants", "analyses-by-findings"]
             }
         }
+    },
+    {
+        "username": "testuser7",
+        "first_name": "Marie",
+        "last_name": "Spångberg",
+        "email": "testuser7@foo.bar",
+        "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
+        "password_expiry": "2027-03-30 15:03:01.396863+00:00",
+        "group": "testgroup03"
+    },
+    {
+        "username": "testuser8",
+        "first_name": "Michael",
+        "last_name": "Skjelderup",
+        "email": "testuser8@foo.bar",
+        "password": "$2b$12$jnaP0oueuKUJNiJpAEW.0.d8s57ISKebdVvFQ/ZtHj3/UUkn2VCRa",
+        "password_expiry": "2027-03-30 15:03:01.396863+00:00",
+        "group": "testgroup03"
     }
 ]

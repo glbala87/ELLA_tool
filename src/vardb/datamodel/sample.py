@@ -4,7 +4,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -102,32 +102,37 @@ class FilterConfig(Base):
     name = Column(String(), nullable=False)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
     schema_version = Column(Integer, nullable=False, server_default=FetchedValue())
-    usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
-    usergroup = relationship("UserGroup", uselist=False)
+    requirements = Column(JSONB, nullable=False, default=[])
     date_superceeded = Column("date_superceeded", DateTime(timezone=True))
     previous_filterconfig_id = Column(Integer, ForeignKey("filterconfig.id"))
-    order = Column(Integer, nullable=False)
-    requirements = Column(JSONB, nullable=False, default=[])
     active = Column(Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return "<FilterConfig({}, {}, {}, {})>".format(
-            self.id, self.name, self.order, self.usergroup.name
-        )
+        return "<FilterConfig({}, {})>".format(self.id, self.name)
 
 
-Index(
-    "ix_filterconfig_unique",
-    FilterConfig.name,
-    FilterConfig.usergroup_id,
-    postgresql_where=FilterConfig.active.is_(True),
-    unique=True,
-)
+class UserGroupFilterConfig(Base):
+    __tablename__ = "usergroupfilterconfig"
 
-Index(
-    "ix_filterconfig_unique2",
-    FilterConfig.usergroup_id,
-    FilterConfig.order,
-    postgresql_where=FilterConfig.active.is_(True),
-    unique=True,
-)
+    id = Column(Integer, primary_key=True)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
+    filterconfig_id = Column(Integer, ForeignKey("filterconfig.id"), nullable=False)
+    order = Column(Integer, nullable=False)
+
+
+# TODO: Figure out if these indexes can be rewritten with association table
+# Index(
+#     "ix_filterconfig_unique",
+#     FilterConfig.name,
+#     FilterConfig.usergroup_id,
+#     postgresql_where=FilterConfig.active.is_(True),
+#     unique=True,
+# )
+
+# Index(
+#     "ix_filterconfig_unique2",
+#     UserGroupFilterConfig.usergroup_id,
+#     UserGroupFilterConfig.order,
+#     postgresql_where=FilterConfig.active.is_(True),
+#     unique=True,
+# )

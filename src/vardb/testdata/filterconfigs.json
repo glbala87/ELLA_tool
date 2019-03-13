@@ -5,9 +5,20 @@
             {
                 "name": "testgroup01",
                 "order": 0
+            },
+            {
+                "name": "testgroup03",
+                "order": 0
             }
         ],
-        "requirements": [],
+        "requirements": [
+            {
+                "function": "analysis",
+                "params": {
+                    "name": "^(?!HG002|NA12878).*"
+                }
+            }
+        ],
         "filterconfig": {
             "filters": [
                 {
@@ -67,9 +78,20 @@
             {
                 "name": "testgroup02",
                 "order": 100
+            },
+            {
+                "name": "testgroup03",
+                "order": 1100
             }
         ],
-        "requirements": [],
+        "requirements": [
+            {
+                "function": "analysis",
+                "params": {
+                    "name": "^(?!brca).*"
+                }
+            }
+        ],
         "filterconfig": {
             "filters": [
                 {
@@ -340,13 +362,18 @@
             {
                 "name": "testgroup02",
                 "order": 0
+            },
+            {
+                "name": "testgroup03",
+                "order": 1000
             }
         ],
         "requirements": [
             {
                 "function": "analysis",
                 "params": {
-                    "is_trio": true
+                    "is_trio": true,
+                    "name": "^(?!brca).*"
                 }
             }
         ],
@@ -635,12 +662,6 @@
                     "name": "segregation",
                     "config": {},
                     "exceptions": [
-                        {
-                            "name": "classification",
-                            "config": {
-                                "classes": ["3", "4", "5"]
-                            }
-                        },
                         {
                             "name": "external",
                             "config": {

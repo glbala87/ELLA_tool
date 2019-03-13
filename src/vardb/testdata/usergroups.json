@@ -116,5 +116,19 @@
                 ]
             }
         }
+    },
+    {
+        "name": "testgroup03",
+        "genepanels": [
+            ["Ciliopati", "v05"],
+            ["Mendeliome", "v01"],
+            ["HBOC", "v01"],
+            ["HBOCUTV", "v01"]
+        ],
+        "config": {
+            "overview": {
+                "views": ["analyses"]
+            }
+        }
     }
 ]
