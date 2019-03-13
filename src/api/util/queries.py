@@ -419,9 +419,11 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
 
 def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
     usergroup_filterconfigs = get_usergroup_filter_configs(session, usergroup_id)
-
     if analysis_id is None:
-        return usergroup_filterconfigs.filter(sample.FilterConfig.requirements == [])
+        if usergroup_filterconfigs.count() > 1:
+            return usergroup_filterconfigs.filter(sample.FilterConfig.requirements == [])
+        else:
+            return usergroup_filterconfigs
 
     valid_ids = []
     for fc in usergroup_filterconfigs:
@@ -447,8 +449,10 @@ def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
 def get_usergroup_filter_configs(session, usergroup_id):
     return (
         session.query(sample.FilterConfig)
+        .join(sample.UserGroupFilterConfig)
         .filter(
-            sample.FilterConfig.usergroup_id == usergroup_id, sample.FilterConfig.active.is_(True)
+            sample.UserGroupFilterConfig.usergroup_id == usergroup_id,
+            sample.FilterConfig.active.is_(True),
         )
-        .order_by(sample.FilterConfig.order)
+        .order_by(sample.UserGroupFilterConfig.order)
     )

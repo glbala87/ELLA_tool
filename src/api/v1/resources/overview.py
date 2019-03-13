@@ -431,7 +431,7 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
-        filterconfigs = queries.get_usergroup_filter_configs(session, user.group_id)
+        filterconfigs = queries.get_valid_filter_configs(session, user.group_id)
 
         if filterconfigs.count() != 1:
             raise ApiError(
@@ -777,7 +777,7 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
         # Filter out alleles
-        filterconfigs = queries.get_usergroup_filter_configs(session, user.group_id)
+        filterconfigs = queries.get_valid_filter_configs(session, user.group_id)
 
         if filterconfigs.count() != 1:
             raise ApiError(
