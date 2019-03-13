@@ -43,12 +43,7 @@ def insert_filter_config(session, filter_config):
         session, **{"name": "filterconfig", "version": 10000, "schema": {"type": "object"}}
     )
 
-    fc = sample.FilterConfig(
-        name="Test {}".format(FILTER_CONFIG_NUM),
-        usergroup_id=1,
-        filterconfig=filter_config,
-        order=FILTER_CONFIG_NUM,
-    )
+    fc = sample.FilterConfig(name="Test {}".format(FILTER_CONFIG_NUM), filterconfig=filter_config)
     session.add(fc)
     session.commit()
     return fc.id

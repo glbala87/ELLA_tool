@@ -15,17 +15,21 @@ def filterconfig_strategy(draw):
         (st.just("name"), st.just(".*brca.*")),
     ]
     fc_strategy = {
-        "order": st.integers(min_value=0, max_value=10000),
-        "usergroup_id": st.sampled_from([1, 2]),
         "active": st.booleans(),
         "name": st.text(alphabet=string.ascii_letters, min_size=8),
         "filterconfig": st.just({}),
+    }
+
+    ugfc_strategy = {
+        "order": st.integers(min_value=0, max_value=10000),
+        "usergroup_id": st.sampled_from([1, 2]),
     }
 
     num_configs = draw(st.integers(min_value=1, max_value=10))
     filterconfigs = []
     for i in range(num_configs):
         fc = draw(st.fixed_dictionaries(fc_strategy))
+        ugfc = draw(st.fixed_dictionaries(ugfc_strategy))
 
         has_requirements = draw(st.booleans())
         if has_requirements:
@@ -36,18 +40,22 @@ def filterconfig_strategy(draw):
             requirements = []
 
         fc["requirements"] = requirements
-        filterconfigs.append(fc)
+        filterconfigs.append((fc, ugfc))
 
     # Check name, usergroup_id, active=True is unique
-    active_fc = [fc for fc in filterconfigs if fc["active"]]
-    ht.assume(len(set((fc["name"], fc["usergroup_id"]) for fc in active_fc)) == len(active_fc))
+    active_fc = [(fc, ugfc) for fc, ugfc in filterconfigs if fc["active"]]
+    ht.assume(
+        len(set((fc["name"], ugfc["usergroup_id"]) for fc, ugfc in active_fc)) == len(active_fc)
+    )
 
     # # Check usergroup_id, order, active=True is unique
-    ht.assume(len(set((fc["usergroup_id"], fc["order"]) for fc in active_fc)) == len(active_fc))
+    ht.assume(
+        len(set((ugfc["usergroup_id"], ugfc["order"]) for _, ugfc in active_fc)) == len(active_fc)
+    )
 
     # Check that usergroup_id has at least one active filterconfig without requirements
-    no_reqs = [fc for fc in active_fc if fc["requirements"] == []]
-    ht.assume(len(set([fc["usergroup_id"] for fc in no_reqs])) == 2)
+    no_reqs = [ugfc for fc, ugfc in active_fc if fc["requirements"] == []]
+    ht.assume(len(set([ugfc["usergroup_id"] for ugfc in no_reqs])) == 2)
     return filterconfigs
 
 
@@ -87,17 +95,35 @@ def create_dummy_analysis(session):
     return an
 
 
+def add_fcs_to_db(session, filterconfigs):
+    filterconfigs_db = []
+    for fc, ugfc in filterconfigs:
+        fc_obj = sample.FilterConfig(**fc)
+        session.add(fc_obj)
+        session.flush()
+        ugfc["filterconfig_id"] = fc_obj.id
+        ugfc_obj = sample.UserGroupFilterConfig(**ugfc)
+        session.add(ugfc_obj)
+        session.flush()
+        filterconfigs_db.append((fc_obj, ugfc_obj))
+    return filterconfigs_db
+
+
 @ht.given(st.one_of(filterconfig_strategy()))
 @ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_filter_ordering(session, client, filterconfigs):
     session.rollback()
+    session.query(sample.UserGroupFilterConfig).delete()
     session.query(sample.FilterConfig).delete()
 
     # Add dummy schema that allows for any object
     jsonschema.JSONSchema.get_or_create(
         session, **{"name": "filterconfig", "version": 1000, "schema": {"type": "object"}}
     )
-    session.add_all([sample.FilterConfig(**fc) for fc in filterconfigs])
+
+    filterconfigs = add_fcs_to_db(session, filterconfigs)
+
+    # session.add_all([sample.FilterConfig(**fc) for fc in filterconfigs])
     session.commit()
 
     r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(1))
@@ -107,16 +133,25 @@ def test_filter_ordering(session, client, filterconfigs):
     assert len(returned_fc) > 0
 
     # Check that returned results are sorted on order
-    assert [fc["order"] for fc in returned_fc] == sorted([fc["order"] for fc in returned_fc])
+    returned_fc_ids = [fc["id"] for fc in returned_fc]
+    ugfc_sorted = sorted(
+        [ugfc for _, ugfc in filterconfigs if ugfc.filterconfig_id in returned_fc_ids],
+        key=lambda x: x.order,
+    )
+    assert returned_fc_ids == [ugfc.filterconfig_id for ugfc in ugfc_sorted]
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
 @ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_filterconfig_requirements(session, client, filterconfigs):
+    # Add dummy schema that allows for any object
+    jsonschema.JSONSchema.get_or_create(
+        session, **{"name": "filterconfig", "version": 1000, "schema": {"type": "object"}}
+    )
     an = create_dummy_analysis(session)
+    session.query(sample.UserGroupFilterConfig).delete()
     session.query(sample.FilterConfig).delete()
-    filterconfigs = [sample.FilterConfig(**fc) for fc in filterconfigs]
-    session.add_all(filterconfigs)
+    filterconfigs = add_fcs_to_db(session, filterconfigs)
     session.commit()
 
     r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(an.id))
@@ -127,8 +162,8 @@ def test_filterconfig_requirements(session, client, filterconfigs):
     usergroup = 1
 
     expected_fc_ids = []
-    for fc in filterconfigs:
-        if fc.usergroup_id != usergroup:
+    for fc, ugfc in filterconfigs:
+        if ugfc.usergroup_id != usergroup:
             continue
 
         if not fc.active:
@@ -154,8 +189,8 @@ def test_filterconfig_requirements(session, client, filterconfigs):
     returned_fc_ids = [fc["id"] for fc in returned_fc]
 
     expected_fc_ids = []
-    for fc in filterconfigs:
-        if fc.usergroup_id != usergroup:
+    for fc, ugfc in filterconfigs:
+        if ugfc.usergroup_id != usergroup:
             continue
 
         if not fc.active:
@@ -178,8 +213,13 @@ def test_filterconfig_requirements(session, client, filterconfigs):
 @ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
 def test_default_filterconfig(session, filterconfigs):
     session.rollback()
+    # Add dummy schema that allows for any object
+    jsonschema.JSONSchema.get_or_create(
+        session, **{"name": "filterconfig", "version": 1000, "schema": {"type": "object"}}
+    )
+    session.query(sample.UserGroupFilterConfig).delete()
     session.query(sample.FilterConfig).delete()
-    session.add_all([sample.FilterConfig(**fc) for fc in filterconfigs])
+    add_fcs_to_db(session, filterconfigs)
     session.commit()
 
     returned_fc = queries.get_valid_filter_configs(session, 1, analysis_id=None).all()
