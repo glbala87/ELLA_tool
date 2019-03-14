@@ -5,7 +5,8 @@
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
-                "views": ["variants", "analyses-by-findings", "import"]
+                "views": ["variants", "analyses-by-findings", "import"],
+                "show_variant_report": true
             },
             "comment_templates": [
                 {
@@ -97,7 +98,8 @@
         "default_import_genepanel": ["Mendeliome", "v01"],
         "config": {
             "overview": {
-                "views": ["analyses", "import"]
+                "views": ["analyses", "import"],
+                "show_variant_report": false
             },
             "deposit": {
                 "analysis": [

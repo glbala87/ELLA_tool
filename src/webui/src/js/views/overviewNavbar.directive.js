@@ -8,6 +8,7 @@ app.component('overviewNavbar', {
     templateUrl: 'overviewNavbar.ngtmpl.html',
     controller: connect(
         {
+            showVariantReport: state`app.config.user.user_config.overview.show_variant_report`,
             importJobsStatus: state`views.overview.importJobsStatus`,
             showImportModal: signal`views.overview.showImportModalClicked`
         },
