@@ -77,12 +77,14 @@ def cmd_export_sanger(logger, session, user_group, filterconfig_id, filename):
 
     valid_filterconfigs = queries.get_valid_filter_configs(session, usergroup.id).all()
     valid_filterconfig_ids = [fc.id for fc in valid_filterconfigs]
-    if filterconfig_id is not None and filterconfig_id not in valid_filterconfig_ids:
-        raise RuntimeError(
-            "Filterconfig id {} not valid for usergroup {}. Valid filterconfigs are: {}".format(
-                filterconfig_id, user_group, ", ".join(valid_filterconfig_ids)
+
+    if filterconfig_id:
+        if filterconfig_id not in valid_filterconfig_ids:
+            raise RuntimeError(
+                "Filterconfig id {} not valid for usergroup {}. Valid filterconfigs are: {}".format(
+                    filterconfig_id, user_group, ", ".join(valid_filterconfig_ids)
+                )
             )
-        )
     elif len(valid_filterconfigs) != 1:
         raise RuntimeError(
             "Unable to determine which filterconfig to use. Available filterconfigs are: {}".format(
