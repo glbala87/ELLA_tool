@@ -68,10 +68,22 @@ def import_filterconfigs(session, fc_configs):
         )
 
         if existing and fc["filterconfig"] == existing.filterconfig:
+            if not existing.active:
+                log.warning(
+                    "Filter config {} exists with same configuration, but is set as inactive. Will not be updated.".format(
+                        existing
+                    )
+                )
             result["not_updated"] += 1
             fc_obj = existing
         else:
             if existing:
+                if not existing.active:
+                    log.warning(
+                        "Filter config {} already set as inactive. Will be set as superceeded.".format(
+                            existing
+                        )
+                    )
                 existing.date_superceeded = datetime.datetime.now(pytz.utc)
                 fc["previous_filterconfig_id"] = existing.id
                 existing.active = False
@@ -98,7 +110,24 @@ def import_filterconfigs(session, fc_configs):
                 "order": usergroup["order"],
             }
 
-            sample.UserGroupFilterConfig.get_or_create(session, **ugfc)
+            existing_ugfc = (
+                session.query(sample.UserGroupFilterConfig)
+                .filter(
+                    sample.UserGroupFilterConfig.usergroup_id == usergroup_id,
+                    sample.UserGroupFilterConfig.filterconfig_id == fc_obj.id,
+                )
+                .one_or_none()
+            )
+
+            if existing_ugfc and existing_ugfc.order != usergroup["order"]:
+                log.info(
+                    "Updating order of filterconfig {} for usergroup {} from {} to {}".format(
+                        fc_obj, usergroup_name, existing_ugfc.order, usergroup["order"]
+                    )
+                )
+                existing_ugfc.order = usergroup["order"]
+            elif not existing_ugfc:
+                session.add(sample.UserGroupFilterConfig(**ugfc))
 
     return result
 

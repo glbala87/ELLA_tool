@@ -1,9 +1,8 @@
 import hypothesis as ht
 import hypothesis.strategies as st
 from api.util import queries
-from vardb.datamodel import sample, gene, jsonschema
+from vardb.datamodel import sample, jsonschema
 import string
-import time
 
 
 @st.composite
@@ -43,12 +42,10 @@ def filterconfig_strategy(draw):
         filterconfigs.append((fc, ugfc))
 
     # Check name, usergroup_id, active=True is unique
-    active_fc = [(fc, ugfc) for fc, ugfc in filterconfigs if fc["active"]]
-    ht.assume(
-        len(set((fc["name"], ugfc["usergroup_id"]) for fc, ugfc in active_fc)) == len(active_fc)
-    )
+    ht.assume(len(set(fc["name"] for fc, _ in filterconfigs)) == len(filterconfigs))
 
-    # # Check usergroup_id, order, active=True is unique
+    # Check usergroup_id, order, active=True is unique
+    active_fc = [(fc, ugfc) for fc, ugfc in filterconfigs if fc["active"]]
     ht.assume(
         len(set((ugfc["usergroup_id"], ugfc["order"]) for _, ugfc in active_fc)) == len(active_fc)
     )
@@ -59,13 +56,12 @@ def filterconfig_strategy(draw):
     return filterconfigs
 
 
-def create_dummy_analysis(session):
-    # Create a dummy trio analysis, to test filter config requirements
-    try:
-        # Check if analysis already created. If so, return this
-        return session.query(sample.Analysis).filter(sample.Analysis.name == "TrioDummy").one()
-    except:
-        pass
+def create_dummy_trio_analysis(session):
+    "Create a dummy trio analysis, to test filter config requirements"
+    # Check if analysis already created. If so, return this
+    an = session.query(sample.Analysis).filter(sample.Analysis.name == "TrioDummy").one_or_none()
+    if an is not None:
+        return an
 
     an = sample.Analysis(name="TrioDummy")
     session.add(an)
@@ -96,6 +92,7 @@ def create_dummy_analysis(session):
 
 
 def add_fcs_to_db(session, filterconfigs):
+    "Create database objects from the hypothesis generated cases"
     filterconfigs_db = []
     for fc, ugfc in filterconfigs:
         fc_obj = sample.FilterConfig(**fc)
@@ -148,18 +145,20 @@ def test_filterconfig_requirements(session, client, filterconfigs):
     jsonschema.JSONSchema.get_or_create(
         session, **{"name": "filterconfig", "version": 1000, "schema": {"type": "object"}}
     )
-    an = create_dummy_analysis(session)
+
+    usergroup = 1
+
+    # Test trio requirements
+    analysis_id = create_dummy_trio_analysis(session).id
     session.query(sample.UserGroupFilterConfig).delete()
     session.query(sample.FilterConfig).delete()
     filterconfigs = add_fcs_to_db(session, filterconfigs)
     session.commit()
 
-    r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(an.id))
+    r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(analysis_id))
     assert r.status_code == 200
     returned_fc = r.get_json()
     returned_fc_ids = [fc["id"] for fc in returned_fc]
-
-    usergroup = 1
 
     expected_fc_ids = []
     for fc, ugfc in filterconfigs:
@@ -171,6 +170,7 @@ def test_filterconfig_requirements(session, client, filterconfigs):
         if not fc.requirements:
             expected_fc_ids.append(fc.id)
         else:
+            # Check that requirements satisfy a trio analysis
             if fc.requirements[0]["params"].get("is_trio") == False:
                 continue
             if fc.requirements[0]["params"].get("is_family") == False:
@@ -183,7 +183,9 @@ def test_filterconfig_requirements(session, client, filterconfigs):
 
     assert set(expected_fc_ids) == set(returned_fc_ids)
 
-    r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(1))
+    # Test requirements with a single analysis (take analysis id 1)
+    analysis_id = 1
+    r = client.get("/api/v1/workflows/analyses/{}/filterconfigs/".format(analysis_id))
     assert r.status_code == 200
     returned_fc = r.get_json()
     returned_fc_ids = [fc["id"] for fc in returned_fc]
@@ -198,6 +200,7 @@ def test_filterconfig_requirements(session, client, filterconfigs):
         if not fc.requirements:
             expected_fc_ids.append(fc.id)
         else:
+            # Check that requirements satisfy the single analysis
             if fc.requirements[0]["params"].get("is_trio") == True:
                 continue
             if fc.requirements[0]["params"].get("is_family") == True:
@@ -219,8 +222,22 @@ def test_default_filterconfig(session, filterconfigs):
     )
     session.query(sample.UserGroupFilterConfig).delete()
     session.query(sample.FilterConfig).delete()
-    add_fcs_to_db(session, filterconfigs)
+    filterconfigs = add_fcs_to_db(session, filterconfigs)
     session.commit()
 
-    returned_fc = queries.get_valid_filter_configs(session, 1, analysis_id=None).all()
-    assert all([fc.requirements == [] for fc in returned_fc])
+    usergroup_id = 1
+    returned_fc = queries.get_valid_filter_configs(session, usergroup_id, analysis_id=None).all()
+
+    expected_fc_ids = []
+    usergroup_active_fcs = [
+        fc for (fc, ugfc) in filterconfigs if ugfc.usergroup_id == usergroup_id and fc.active
+    ]
+
+    # If only one active filter config, should return this
+    # Otherwise, should only return the filterconfigs without requirements
+    if len(usergroup_active_fcs) == 1:
+        expected_fc_ids = [usergroup_active_fcs[0].id]
+    else:
+        expected_fc_ids = [fc.id for fc in usergroup_active_fcs if not fc.requirements]
+
+    assert set([fc.id for fc in returned_fc]) == set(expected_fc_ids)

@@ -4,7 +4,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue, Table
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -120,19 +120,16 @@ class UserGroupFilterConfig(Base):
     order = Column(Integer, nullable=False)
 
 
-# TODO: Figure out if these indexes can be rewritten with association table
-# Index(
-#     "ix_filterconfig_unique",
-#     FilterConfig.name,
-#     FilterConfig.usergroup_id,
-#     postgresql_where=FilterConfig.active.is_(True),
-#     unique=True,
-# )
+Index(
+    "uq_filterconfig_name_active_unique",
+    FilterConfig.name,
+    postgresql_where=FilterConfig.active.is_(True),
+    unique=True,
+)
 
-# Index(
-#     "ix_filterconfig_unique2",
-#     UserGroupFilterConfig.usergroup_id,
-#     UserGroupFilterConfig.order,
-#     postgresql_where=FilterConfig.active.is_(True),
-#     unique=True,
-# )
+Index(
+    "uq_usergroupfilterconfig_unique",
+    UserGroupFilterConfig.usergroup_id,
+    UserGroupFilterConfig.filterconfig_id,
+    unique=True,
+)

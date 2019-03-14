@@ -46,9 +46,7 @@ def upgrade():
     conn = op.get_bind()
 
     # Set all current filterconfigs as inactive
-    op.add_column(
-        "filterconfig", sa.Column("active", sa.Boolean(), nullable=False, server_default="true")
-    )
+    op.add_column("filterconfig", sa.Column("active", sa.Boolean(), nullable=False))
     op.add_column(
         "filterconfig", sa.Column("date_superceeded", sa.DateTime(timezone=True), nullable=True)
     )
@@ -67,6 +65,14 @@ def upgrade():
     )
 
     op.drop_constraint("uq_filterconfig_name", "filterconfig", type_="unique")
+    op.create_index(
+        "uq_filterconfig_name_active_unique",
+        "filterconfig",
+        ["name"],
+        unique=True,
+        postgresql_where=sa.text("active IS true"),
+    )
+
     op.create_foreign_key(
         op.f("fk_filterconfig_previous_filterconfig_filterconfig"),
         "filterconfig",
@@ -95,11 +101,17 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_usergroupfilterconfig")),
     )
 
+    op.create_index(
+        "uq_usergroupfilterconfig_unique",
+        "usergroupfilterconfig",
+        ["usergroup_id", "filterconfig_id"],
+        unique=True,
+    )
+
     # Update all existing filter configs, rename to 'Legacy' and set as inactive
     # Crete corresponding rows in the UserGroupFilterConfig association table
     conn.execute(sa.update(FilterConfig).values(name="Legacy", active=False))
     existing_filterconfigs = conn.execute(sa.select(FilterConfig.c))
-    # print(existing_filterconfigs)
     for fc in existing_filterconfigs:
         conn.execute(
             sa.insert(UserGroupFilterConfig).values(
