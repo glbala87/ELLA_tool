@@ -450,7 +450,7 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
         .all()
     )
 
-    SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).insert_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
         interpretation,
         data["annotations"],
@@ -642,7 +642,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
         .all()
     )
 
-    SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).insert_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
         interpretation,
         data["annotations"],

@@ -84,7 +84,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         annotation_data = [
             {"allele_id": a.allele_id, "annotation_id": a.id} for a in allele_annotation_ids
         ]
-        snapshot_objects = SnapshotCreator(session).create_from_data(
+        snapshot_objects = SnapshotCreator(session).insert_from_data(
             "analysis",
             interpretation,
             annotation_data,

@@ -20,7 +20,7 @@ class SnapshotCreator(object):
     def __init__(self, session):
         self.session = session
 
-    def create_from_data(
+    def insert_from_data(
         self,
         interpretation_snapshot_model,  # 'allele' or 'analysis'
         interpretation,  # interpretation object from db
