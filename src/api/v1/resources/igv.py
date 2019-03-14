@@ -274,7 +274,7 @@ class GenepanelBedResource(LogRequestResource):
 
         gencode = transcripts_to_bed(gp.transcripts)
 
-        return send_file(gencode)
+        return send_file(gencode, attachment_filename="genepanel.bed")
 
 
 class ClassificationResource(LogRequestResource):
