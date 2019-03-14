@@ -1,3 +1,4 @@
+import thenBy from 'thenby'
 import { Compute } from 'cerebral'
 import {
     getReferencesIdsForAllele,
@@ -18,10 +19,13 @@ export default function(type, allele, references) {
         }
         references = Object.values(references)
         const ids = getReferencesIdsForAllele(allele)
-        const {
-            missing: missingReferences,
-            references: referencesForAllele
-        } = findReferencesFromIds(references, ids)
+        let { missing: missingReferences, references: referencesForAllele } = findReferencesFromIds(
+            references,
+            ids
+        )
+        referencesForAllele = referencesForAllele.sort(
+            thenBy((x) => x.year || 0, -1).thenBy((x) => x.authors)
+        )
         const result = {}
 
         Object.assign(result, {

@@ -146,6 +146,7 @@
          shouldn't be a problem as long as we don't Compute on this value -->
         <wysiwyg-editor
             templates="$ctrl.getAlleleassessmentCommentTemplates()"
+            references="$ctrl.editorReferences"
             class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
             ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
             placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
@@ -156,6 +157,7 @@
 
         <wysiwyg-editor
             templates="$ctrl.getAnalysisSpecificCommentTemplates()"
+            references="$ctrl.editorReferences"
             class="control-comment id-comment-analysis"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.analysisComment.placeholder }}"
@@ -166,6 +168,7 @@
 
         <wysiwyg-editor
             templates="$ctrl.getAlleleReportCommentTemplates()"
+            references="$ctrl.editorReferences"
             class="control-comment id-comment-report"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.reportComment.placeholder }}"
@@ -205,6 +208,7 @@
             <section class="acmg-wrapper included">
                 <acmg
                     templates="$ctrl.getAcmgCommentTemplates()"
+                    references="$ctrl.editorReferences"
                     directreqs="true"
                     code="code"
                     isUpgradable="true"

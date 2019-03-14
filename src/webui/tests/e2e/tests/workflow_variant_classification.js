@@ -72,7 +72,8 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         alleleSectionBox.setClassificationComment('EVALUATION_ROUND1\n')
         alleleSectionBox.insertClassificationTemplate(1)
         analysisPage.saveButton.click()
-        alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
+        alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1\n')
+        alleleSectionBox.insertFrequencyReference(1)
         analysisPage.saveButton.click()
         alleleSectionBox.setPredictionComment('PREDICTION_ROUND1')
         analysisPage.saveButton.click()
@@ -106,7 +107,8 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                 },
                 evaluation:
                     'EVALUATION_ROUND1\nExample template\nExample one\nExample two\nExample three',
-                frequency: 'FREQUENCY_ROUND1',
+                frequency:
+                    'FREQUENCY_ROUND1\nvan der Hout AH et al. (2006) Hum. Mutat.: 27(7), 654-66.',
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',
                 report: 'REPORT_ROUND1',
