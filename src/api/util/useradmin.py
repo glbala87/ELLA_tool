@@ -84,7 +84,7 @@ def authenticate_user(session, user_or_username, password: str):
 
         raise AuthenticationError("Invalid credentials")
     elif password_expired(user_object):
-        raise AuthenticationError("Password expired. Please change password.")
+        raise AuthenticationError("Password has expired. Please change password.")
 
     user_object.incorrect_logins = 0
     session.commit()

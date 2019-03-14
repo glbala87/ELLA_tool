@@ -17,7 +17,7 @@ export default [
                 success: [reset, unset(state`app.config`), redirect('overview/'), loadBroadcast],
                 error: [
                     set(state`views.login.password`, ''),
-                    toast('error', string`${props`errorMessage`}`)
+                    toast('error', string`${props`errorMessage`}`, 10000)
                 ]
             }
         ],
