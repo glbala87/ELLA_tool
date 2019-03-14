@@ -5,6 +5,7 @@ import datetime
 
 from vardb.datamodel import DB, user, sample
 from vardb.export import export_sanger_variants, dump_classification
+from api.util import queries
 
 from cli.decorators import cli_logger, session
 
@@ -46,6 +47,7 @@ def cmd_export_classifications(logger, session, filename, with_analysis_names):
 
 @export.command("sanger", help="Export variants that needs to be Sanger verified")
 @click.argument("user_group", required=True)
+@click.option("--filterconfig_id")
 @click.option(
     "--filename",
     help="The name of the file to create. Suffix .xlsx and .csv will be automatically added.\n"
@@ -53,7 +55,7 @@ def cmd_export_classifications(logger, session, filename, with_analysis_names):
 )
 @session
 @cli_logger()
-def cmd_export_sanger(logger, session, user_group, filename):
+def cmd_export_sanger(logger, session, user_group, filterconfig_id, filename):
     """
     Export alleles from non-started analysis to file
     """
@@ -73,15 +75,25 @@ def cmd_export_sanger(logger, session, user_group, filename):
 
     start = datetime.datetime.now()
 
-    filter_config_id = (
-        session.query(sample.FilterConfig.id)
-        .join(sample.UserGroupFilterConfig)
-        .filter(sample.UserGroupFilterConfig.usergroup_id == usergroup.id)
-        .scalar()
-    )
+    valid_filterconfigs = queries.get_valid_filter_configs(session, usergroup.id).all()
+    valid_filterconfig_ids = [fc.id for fc in valid_filterconfigs]
+    if filterconfig_id is not None and filterconfig_id not in valid_filterconfig_ids:
+        raise RuntimeError(
+            "Filterconfig id {} not valid for usergroup {}. Valid filterconfigs are: {}".format(
+                filterconfig_id, user_group, ", ".join(valid_filterconfig_ids)
+            )
+        )
+    elif len(valid_filterconfigs) != 1:
+        raise RuntimeError(
+            "Unable to determine which filterconfig to use. Available filterconfigs are: {}".format(
+                ", ".join(valid_filterconfig_ids) if valid_filterconfigs else "(None)"
+            )
+        )
+    else:
+        filterconfig_id = valid_filterconfig_ids[0]
 
     has_content = export_sanger_variants.export_variants(
-        session, genepanels, filter_config_id, excel_file_obj, csv_file_obj=csv_file_obj
+        session, genepanels, filterconfig_id, excel_file_obj, csv_file_obj=csv_file_obj
     )
     if has_content:
         end = datetime.datetime.now()
