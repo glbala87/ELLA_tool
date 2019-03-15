@@ -9,7 +9,8 @@ module.exports = {
 
         nav: [
             { text: 'Home', link: '/' },
-            { text: 'User manual', link: '/manual/' },
+            { text: 'User interface', link: '/manual/' },
+            { text: 'Concepts', link: '/concepts/' },
             { text: 'Technical documentation', link: '/technical/' },
             { text: 'Release notes', link: '/releasenotes/' },
             { text: 'allel.es', link: 'http://allel.es' }
@@ -22,23 +23,35 @@ module.exports = {
                 {
                     title: 'Basics',
                     collapsable: false,
-                    children: ['/manual/', '/manual/save-and-finish']
+                    children: [
+                        '/manual/'
+                    ]
                 },
-                {
+                                {
                     title: 'OVERVIEW page',
                     collapsable: false,
-                    children: ['/manual/overview-page']
+                    children: [
+                        '/manual/choosing-sample-variant',
+                        '/manual/data-import',
+                        '/manual/reanalyses',
+                        '/manual/user-info-warnings',
+                        '/manual/export-sanger'
+                    ]
                 },
                 {
                     title: 'INFO page',
                     collapsable: false,
-                    children: ['/manual/info-page']
+                    children: [
+                        '/manual/info-page'
+                    ]
                 },
                 {
                     title: 'CLASSIFICATION page',
                     collapsable: false,
                     children: [
                         '/manual/classification-page',
+                        '/manual/filtered-variants',
+                        '/manual/worklog',
                         '/manual/top-bar',
                         '/manual/side-bar',
                         '/manual/evidence-sections',
@@ -48,24 +61,38 @@ module.exports = {
                 {
                     title: 'VISUALISATION page',
                     collapsable: false,
-                    children: ['/manual/visualisation-page']
+                    children: [
+                        '/manual/visualisation-page'
+                    ]
                 },
                 {
                     title: 'REPORT page',
                     collapsable: false,
-                    children: ['/manual/report-page']
-                },
+                    children: [
+                        '/manual/report-page'
+                    ]
+                }
+            ],
+            '/concepts/': [
                 {
-                    title: 'FILTERING',
+                    title: 'Concepts',
                     collapsable: false,
-                    children: ['/manual/filtering']
+                    children: [
+                        '/concepts/',
+                        '/concepts/workflows',
+                        '/concepts/filtering',
+                        '/concepts/acmg-rule-engine',
+                        '/concepts/gene-panels'
+                    ]
                 }
             ],
             '/technical/': [
                 {
                     title: 'Technical documentation',
                     collapsable: false,
-                    children: ['/technical/']
+                    children: [
+                        '/technical/'
+                    ]
                 },
                 {
                     title: 'Deploying',
@@ -79,7 +106,10 @@ module.exports = {
                 {
                     title: 'Development',
                     collapsable: false,
-                    children: ['/technical/development', '/technical/testing']
+                    children: [
+                        '/technical/development', 
+                        '/technical/testing'
+                    ]
                 },
                 {
                     title: 'System internals',
@@ -88,9 +118,7 @@ module.exports = {
                         '/technical/workflow',
                         '/technical/filtering',
                         '/technical/datamodel',
-                        '/technical/uicomponents',
-                        '/technical/acmg-rule-engine',
-                        '/technical/preconfigured-gene-panels'
+                        '/technical/uicomponents'
                     ]
                 }
             ],
@@ -98,7 +126,9 @@ module.exports = {
                 {
                     title: 'Release notes',
                     collapsable: false,
-                    children: ['/releasenotes/']
+                    children: [
+                        '/releasenotes/'
+                    ]
                 }
             ]
         }
