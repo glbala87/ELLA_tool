@@ -170,7 +170,8 @@ def get_analysis_genepanel(session, analysis_id):
 def allele_position_strategy(draw):
     start_position = draw(st.integers(min_value=1, max_value=50))
     open_end_position = draw(st.integers(min_value=start_position, max_value=50))
-    return (start_position, open_end_position)
+    load_allele = draw(st.booleans())
+    return (start_position, open_end_position, load_allele)
 
 
 def create_analysis():
@@ -218,10 +219,11 @@ def add_genotype(session, allele_id, sample_id):
     session.flush()
 
 
-@ht.example([(1, 100), (3, 10000)])  # start <-> start
-@ht.example([(1, 3), (5, 100)])  # end <-> start
-@ht.example([(1, 100), (50, 102)])  # end <-> end
-@ht.given(st.lists(allele_position_strategy(), min_size=3, unique=True))
+@ht.example([(1, 100, True), (3, 10000, True)])  # start <-> start
+@ht.example([(1, 3, True), (5, 100, True)])  # end <-> start
+@ht.example([(1, 100, True), (50, 102, True)])  # end <-> end
+@ht.example([(1, 2, True), (1, 7, False), (4, 10, True)])
+@ht.given(st.lists(allele_position_strategy(), min_size=3, unique_by=lambda x: x[:2]))
 def test_nearby_warning(session, allele_positions):
     session.rollback()
 
@@ -235,20 +237,20 @@ def test_nearby_warning(session, allele_positions):
     expected = []
     alleles = []
 
-    for i, (start, end) in enumerate(allele_positions):
+    for i, (start, end, load) in enumerate(allele_positions):
         a = create_allele(start, end)
         session.add(a)
         session.flush()
 
-        alleles.append(a)
         add_genotype(session, a.id, s.id)
 
         other_start_end = chain.from_iterable(
-            [ap for j, ap in enumerate(allele_positions) if i != j]
+            [ap[:2] for j, ap in enumerate(allele_positions) if i != j]
         )
-
-        if min(min([abs(start - se), abs(end - se)]) for se in other_start_end) < 3:
-            expected.append(a.id)
+        if load:
+            alleles.append(a)
+            if min(min([abs(start - se), abs(end - se)]) for se in other_start_end) < 3:
+                expected.append(a.id)
 
     adl = AlleleDataLoader(session)
     loaded_alleles = adl.from_objs(alleles, analysis_id=an.id, genepanel=an.genepanel)

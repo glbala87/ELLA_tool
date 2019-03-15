@@ -80,7 +80,7 @@ class Warnings(object):
         # Sort all alleles in analysis by chromosome, start, and end_position, then create "frames" to check our
         # alleles against.
         #
-        # The frames are create for each allele in our loaded alleles, and encompasses all subsequent alleles
+        # The frames are create for each allele, and encompasses all subsequent alleles
         # where the start_position is within 3bp of the frame allele's open_end_position (and they are on same chromosome).
         #
         # We check all positions in the frame against the frame allele's position for nearby.
@@ -96,8 +96,35 @@ class Warnings(object):
         # E.g.: The alleles 1-1-100 and 1-49-50 (chrom, start, end) will not trigger warning
         # FIXME: This should be a simple implementation, but requires some improved testing
         #
-        # The implementation should be O(N*n*m) where N is the total number of alleles, n is the number of allele of interest,
-        # and m is the frame size.
+        # The implementation should be O(N*m) where N is the total number of alleles and m is the frame size.
+        #
+        # Illustration:
+        #
+        # Consider the following alleles (all on same chromosome for simplicity). Asterisk denotes alleles of interest.
+        #
+        #         Id  Start   End
+        #         1*    1       2
+        #         2     1       7
+        #         3*    4      10
+        #
+        # This will create two frames:
+        #
+        # Frame 1:
+        #         Id  Start   End
+        #         1*    1       2  <-- Frame allele
+        #         2     1       7  <-- Subsequent allele
+        #         3*    5      10  <-- Subsequent allele
+        #
+        # Here, warnings will be created for allele id 1 (nearby allele 2 and 3) and 3 (nearby allele 1)
+        #
+        # Frame 2:
+        #         Id  Start   End
+        #         2     1       7  <-- Frame allele
+        #         3*    4      10  <-- Subsequent allele
+        #
+        # Here, a warning will be created for allele 3 (nearby allele 2)
+        #
+        # Warnings will not be created for allele 2 since this is not an allele of interest
 
         analysis_allele_ids = (
             self.session.query(allele.Allele.id)
@@ -122,13 +149,9 @@ class Warnings(object):
         )
 
         nearby_warnings = dict()
+
         # Create frames for alleles
         for i, (allele_id, chrom, start, end) in enumerate(alleles_ordered):
-
-            # Skip creating frame if this allele is not in our alleles of interest
-            if allele_id not in self.allele_ids:
-                continue
-
             # Loop over the subsequent alleles in frame
             j = i
             while j < len(alleles_ordered) - 1:
@@ -144,7 +167,10 @@ class Warnings(object):
                 end_end = abs(end - other_end)
 
                 if start_start < 3 or end_start < 3 or end_end < 3:
-                    nearby_warnings[allele_id] = "Another variant is within 2 bp of this variant"
+                    if allele_id in self.allele_ids:
+                        nearby_warnings[
+                            allele_id
+                        ] = "Another variant is within 2 bp of this variant"
 
                     # Since the frames are created for subsequent alleles only, we need to set warning for other_allele
                     # here if the allele is in our alleles of interest
