@@ -92,4 +92,4 @@ This filter config specifies to first run FilterA on all passed variants/analysi
 
 A set of filters are implemented in ella, and the modularity of them makes is easy to construct complex filter chains, and reasonably easy to implement new filters.
 
-Please see the user documentation for per-filter details.
+Please see [Concepts](/concepts/filtering.md) for per-filter details.

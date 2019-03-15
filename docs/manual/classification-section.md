@@ -21,11 +21,11 @@ Unlike other sections, this section contains two main comment fields:
 
 <div style="text-indent: 4%;"><img src="./img/existing_classification.png"></div>
 
-Clicking the HISTORY button shows a more detailed history including ACMG criteria and comments, for every previously finalised round of interpretation, ordered by date.
+Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalised round of interpretation, ordered by date.
 
 ### Interpretations that are still valid
 
-Previously finalised variant interpretations have a limited period where they are still considered valid, after which they should be re-evaluated. Variant interpretations that are still valid are shown with a green background and automatically accepted. However, it is still possible to do a re-interpretation of these variants, by clicking the REEVALUATE button in the section banner (only available if the analysis/interpretation has been started). To undo any new interpretation (and avoiding resetting the validity period), click the UNDO REEVALUATE button:
+Previously finalised variant interpretations have a limited period where they are still considered valid, after which they should be re-evaluated. Variant interpretations that are still valid are shown with a green background and automatically accepted. However, it is still possible to do a re-interpretation of these variants, by clicking the `REEVALUATE` button in the section banner (only available if the analysis/interpretation has been started). To undo any new interpretation (and avoiding resetting the validity period), click the `UNDO REEVALUATION` button:
 
 <div style="text-indent: 4%;"><img src="./img/reevaluate_btn.png"></div>
 
@@ -35,7 +35,7 @@ Changing the REPORT field only does not reset the validity period.
 
 ## Review and add ACMG criteria 
 
-The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868). *ella* automatically [suggests relevant ACMG criteria](/technical/acmg-rule-engine.html) based on a mapping of the annotation from the HTS bioinformatics pipeline, as well as any information you have added manually, to these adapted criteria. Suggested criteria are shown in the SUGGESTED card:
+The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868). *ella* automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the annotation from the HTS bioinformatics pipeline, as well as any information you have added manually, to these adapted criteria. Suggested criteria are shown in the SUGGESTED card:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
 
@@ -51,9 +51,9 @@ The suggestions may be somewhat imprecise and **you should always check that all
 
 ### REQ: requirements for ACMG criteria
 
-Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/technical/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in *ella*. Each of these REQs is a necessary component for the ACMG criteria they belongs to. *ella* displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
+Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/concepts/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in *ella*. Each of these REQs is a necessary component for the ACMG criteria they belongs to. *ella* displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
-REQs that have a match in the current variant are shown when you click the SHOW REQ button:
+REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_REQ.png"></div>
 
@@ -63,15 +63,15 @@ Richards et al. (2015) and subsequent articles suggest that any ACMG criterion m
 
 `[PVS/PS/PM/PP/BP/BS/BA]`x`[source]`
 
-For example, the PM2 criterion is usually regarded as “pathogenic supportive” (PP) evidence, not “pathogenic moderate” (PM). In this case, the user may modify the criterion label to PPxPM2, which should be interpreted as “PM2, supportive”.
+For example, the PM2 criterion is usually regarded as "pathogenic supportive" (PP) evidence, not "pathogenic moderate" (PM). In this case, the user may modify the criterion label to PPxPM2, which should be interpreted as “PM2, supportive”.
 
-To change the strength of a particular, added criterion, click either the “+” or “-“ sign, for stronger or weaker evidence, respectively:
+To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
 
 ## Add ACMG criterion manually
 
-To add an ACMG criterion that is not already suggested by *ella*, press one of the ADD ACMG buttons, in the top banner of each section:
+To add an ACMG criterion that is not already suggested by *ella*, press the `ADD ACMG` button in the top banner:
 
 <div style="text-indent: 4%;"><img src="./img/add_ACMG_btn.png"></div>
 
@@ -81,7 +81,7 @@ This brings up a side bar where you may modify strength, comment and add any ACM
 
 ## Set variant class
 
-Based on the particular ACMG criteria you have added, *ella* [suggests a classification](/technical/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
+Based on the particular ACMG criteria you have added, *ella* [suggests a classification](/concepts/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
 
 <div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
 
