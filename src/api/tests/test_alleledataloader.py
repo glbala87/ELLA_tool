@@ -1,4 +1,7 @@
+from itertools import chain
 from sqlalchemy import or_, tuple_
+import hypothesis as ht
+import hypothesis.strategies as st
 from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
 from api.util.alleledataloader import AlleleDataLoader, Warnings
 from api.util import queries
@@ -163,28 +166,103 @@ def get_analysis_genepanel(session, analysis_id):
     )
 
 
-def test_nearby_warning(test_database, session):
-    test_database.refresh()
-    analysis_id = 1
-    allele1, allele2 = get_analysis_alleles(session, analysis_id).limit(2).all()
-    genepanel = get_analysis_genepanel(session, analysis_id)
+@st.composite
+def allele_position_strategy(draw):
+    start_position = draw(st.integers(min_value=1, max_value=50))
+    open_end_position = draw(st.integers(min_value=start_position, max_value=50))
+    load_allele = draw(st.booleans())
+    return (start_position, open_end_position, load_allele)
+
+
+def create_analysis():
+    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v01")
+
+
+def create_sample(analysis_id):
+    return sample.Sample(
+        identifier="TestSample",
+        analysis_id=analysis_id,
+        proband=True,
+        affected=True,
+        sample_type="HTS",
+    )
+
+
+def create_allele(start, end):
+    return allele.Allele(
+        genome_reference="GRCh37",
+        chromosome="1",
+        start_position=start,
+        open_end_position=end,
+        change_from="A",
+        change_to="T",
+        change_type="SNP",
+        vcf_pos=start + 1,
+        vcf_ref="A",
+        vcf_alt="T",
+    )
+
+
+def add_genotype(session, allele_id, sample_id):
+    gt = genotype.Genotype(allele_id=allele_id, sample_id=sample_id)
+    session.add(gt)
+    session.flush()
+
+    gsd = genotype.GenotypeSampleData(
+        genotype_id=gt.id,
+        secondallele=False,
+        multiallelic=False,
+        sample_id=sample_id,
+        type="Heterozygous",
+    )
+    session.add(gsd)
+    session.flush()
+
+
+@ht.example([(1, 100, True), (3, 10000, True)])  # start <-> start
+@ht.example([(1, 3, True), (5, 100, True)])  # end <-> start
+@ht.example([(1, 100, True), (50, 102, True)])  # end <-> end
+@ht.example([(1, 2, True), (1, 7, False), (4, 10, True)])
+@ht.given(st.lists(allele_position_strategy(), min_size=3, unique_by=lambda x: x[:2]))
+def test_nearby_warning(session, allele_positions):
+    session.rollback()
+
+    an = create_analysis()
+    session.add(an)
+    session.flush()
+    s = create_sample(an.id)
+    session.add(s)
+    session.flush()
+
+    expected = []
+    alleles = []
+
+    for i, (start, end, load) in enumerate(allele_positions):
+        a = create_allele(start, end)
+        session.add(a)
+        session.flush()
+
+        add_genotype(session, a.id, s.id)
+
+        other_start_end = chain.from_iterable(
+            [ap[:2] for j, ap in enumerate(allele_positions) if i != j]
+        )
+        if load:
+            alleles.append(a)
+            if min(min([abs(start - se), abs(end - se)]) for se in other_start_end) < 3:
+                expected.append(a.id)
 
     adl = AlleleDataLoader(session)
-    loaded_alleles = adl.from_objs([allele1, allele2], analysis_id=analysis_id, genepanel=genepanel)
-
-    assert len(loaded_alleles) == 2
-    for a in loaded_alleles:
-        assert "nearby_allele" not in a.get("warnings", {})
-
-    # Move allele 2 near allele 1
-    allele2.chromosome = allele1.chromosome
-    allele2.start_position = allele1.start_position - 3
-    allele2.start_position = allele1.open_end_position - 3
-    session.flush()
-    loaded_alleles = adl.from_objs([allele1, allele2])
-    assert len(loaded_alleles) == 2
-    for a in loaded_alleles:
-        assert a["warnings"]["nearby_allele"] == "Another variant is within 3 bp of this variant"
+    loaded_alleles = adl.from_objs(alleles, analysis_id=an.id, genepanel=an.genepanel)
+    actual = [
+        a["id"]
+        for a in loaded_alleles
+        if a.get("warnings", {}).get("nearby_allele")
+        == "Another variant is within 2 bp of this variant"
+    ]
+    assert set(actual) == set(expected), "Actual: {}. Expected: {}. Positions: {}".format(
+        actual, expected, allele_positions
+    )
 
 
 def test_worse_consequence_warning(test_database, session):

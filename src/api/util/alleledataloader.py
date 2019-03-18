@@ -53,6 +53,7 @@ class Warnings(object):
         self.session = session
         self.alleles = alleles
         self.allele_ids = [al["id"] for al in alleles]
+        self.analysis_id = analysis_id
         if genepanel:
             self.gp_key = (genepanel.name, genepanel.version)
         else:
@@ -76,27 +77,107 @@ class Warnings(object):
         return allele_id_warnings
 
     def _check_nearby(self):
-        nearby_warnings = dict()
-        # Alleles within 3bp nearby
-        allele1 = aliased(allele.Allele)
-        allele2 = aliased(allele.Allele)
-        nearby_alleles = (
-            self.session.query(allele1.id, allele2.id)
-            .filter(
-                or_(
-                    func.abs(allele1.start_position - allele2.start_position) < 4,
-                    func.abs(allele1.start_position - allele2.open_end_position) < 4,
-                    func.abs(allele1.open_end_position - allele2.open_end_position) < 4,
-                ),
-                allele1.id != allele2.id,
-                allele1.id.in_(self.allele_ids),
-                allele2.id.in_(self.allele_ids),
-            )
-            .distinct()
+        # Sort all alleles in analysis by chromosome, start, and end_position, then create "frames" to check our
+        # alleles against.
+        #
+        # The frames are create for each allele, and encompasses all subsequent alleles
+        # where the start_position is within 3bp of the frame allele's open_end_position (and they are on same chromosome).
+        #
+        # We check all positions in the frame against the frame allele's position for nearby.
+        # What we check are:
+        # 1. <frame allele start> - <subsequent allele start>
+        # 2. <frame allele end> - <subsequent allele start>
+        # 3. <frame allele end> - <subsequent allele end>
+        #
+        # Note 1: We do not need to check start_end, because the alleles are sorted by start_position. Therefore, start_start
+        # is *always* smaller than start_end.
+        #
+        # Note 2: This implementation does not check specifically for overlaps.
+        # E.g.: The alleles 1-1-100 and 1-49-50 (chrom, start, end) will not trigger warning
+        # FIXME: This should be a simple implementation, but requires some improved testing
+        #
+        # The implementation should be O(N*m) where N is the total number of alleles and m is the frame size.
+        #
+        # Illustration:
+        #
+        # Consider the following alleles (all on same chromosome for simplicity). Asterisk denotes alleles of interest.
+        #
+        #         Id  Start   End
+        #         1*    1       2
+        #         2     1       7
+        #         3*    4      10
+        #
+        # This will create two frames:
+        #
+        # Frame 1:
+        #         Id  Start   End
+        #         1*    1       2  <-- Frame allele
+        #         2     1       7  <-- Subsequent allele
+        #         3*    5      10  <-- Subsequent allele
+        #
+        # Here, warnings will be created for allele id 1 (nearby allele 2 and 3) and 3 (nearby allele 1)
+        #
+        # Frame 2:
+        #         Id  Start   End
+        #         2     1       7  <-- Frame allele
+        #         3*    4      10  <-- Subsequent allele
+        #
+        # Here, a warning will be created for allele 3 (nearby allele 2)
+        #
+        # Warnings will not be created for allele 2 since this is not an allele of interest
+
+        analysis_allele_ids = (
+            self.session.query(allele.Allele.id)
+            .join(genotype.Genotype.alleles, sample.Sample)
+            .filter(sample.Sample.analysis_id == self.analysis_id)
         )
 
-        for allele_id, _ in nearby_alleles.all():
-            nearby_warnings[allele_id] = "Another variant is within 3 bp of this variant"
+        alleles_ordered = (
+            self.session.query(
+                allele.Allele.id,
+                allele.Allele.chromosome,
+                allele.Allele.start_position,
+                allele.Allele.open_end_position,
+            )
+            .order_by(
+                allele.Allele.chromosome,
+                allele.Allele.start_position,
+                allele.Allele.open_end_position,
+            )
+            .filter(allele.Allele.id.in_(analysis_allele_ids))
+            .all()
+        )
+
+        nearby_warnings = dict()
+
+        # Create frames for alleles
+        for i, (allele_id, chrom, start, end) in enumerate(alleles_ordered):
+            # Loop over the subsequent alleles in frame
+            j = i
+            while j < len(alleles_ordered) - 1:
+                j += 1
+                other_allele_id, other_chrom, other_start, other_end = alleles_ordered[j]
+
+                # Break if the next allele starts too far downstream
+                if other_start - end > 3 or other_chrom != chrom:
+                    break
+
+                start_start = abs(other_start - start)
+                end_start = abs(end - other_start)
+                end_end = abs(end - other_end)
+
+                if start_start < 3 or end_start < 3 or end_end < 3:
+                    if allele_id in self.allele_ids:
+                        nearby_warnings[
+                            allele_id
+                        ] = "Another variant is within 2 bp of this variant"
+
+                    # Since the frames are created for subsequent alleles only, we need to set warning for other_allele
+                    # here if the allele is in our alleles of interest
+                    if other_allele_id in self.allele_ids:
+                        nearby_warnings[
+                            other_allele_id
+                        ] = "Another variant is within 2 bp of this variant"
 
         return nearby_warnings
 
