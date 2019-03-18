@@ -5,7 +5,7 @@ import RootModule from '../..'
 import setReferenceAssessment from './interpretation/actions/setReferenceAssessment'
 import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
 import prepareInterpretationState from './sequences/prepareInterpretationState'
-import finishConfirmationClicked from './signals/finishConfirmationClicked'
+import finishConfirmationClicked from './modals/finishConfirmation/signals/finishConfirmationClicked'
 import copyInterpretationState from './actions/copyInterpretationState'
 
 const EMPTY_EVALUATION = {

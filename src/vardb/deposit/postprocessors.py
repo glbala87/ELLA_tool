@@ -2,6 +2,7 @@ import datetime
 import pytz
 from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util.snapshotcreator import SnapshotCreator
+from api.v1.resources.workflow import helpers
 from api.v1.resources.overview import categorize_analyses_by_findings
 from api import schemas
 from vardb.datamodel import workflow, annotation, assessment
@@ -49,16 +50,15 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         )
         session.add(il)
 
-        # Create interpretationsnapshot
-        loaded_interpretation = InterpretationDataLoader(session).from_obj(
-            interpretation, filter_config_id
+        allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+            session, interpretation, filter_config_id
         )
 
         allele_annotation_ids = (
             session.query(annotation.Annotation.allele_id, annotation.Annotation.id)
             .filter(
                 annotation.Annotation.date_superceeded.is_(None),
-                annotation.Annotation.allele_id.in_(loaded_interpretation["allele_ids"]),
+                annotation.Annotation.allele_id.in_(allele_ids),
             )
             .all()
         )
@@ -67,7 +67,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             session.query(assessment.AlleleAssessment)
             .filter(
                 assessment.AlleleAssessment.date_superceeded.is_(None),
-                assessment.AlleleAssessment.allele_id.in_(loaded_interpretation["allele_ids"]),
+                assessment.AlleleAssessment.allele_id.in_(allele_ids),
             )
             .all()
         )
@@ -76,7 +76,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             session.query(assessment.AlleleReport)
             .filter(
                 assessment.AlleleReport.date_superceeded.is_(None),
-                assessment.AlleleReport.allele_id.in_(loaded_interpretation["allele_ids"]),
+                assessment.AlleleReport.allele_id.in_(allele_ids),
             )
             .all()
         )
@@ -84,8 +84,14 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         annotation_data = [
             {"allele_id": a.allele_id, "annotation_id": a.id} for a in allele_annotation_ids
         ]
-        snapshot_objects = SnapshotCreator(session).create_from_data(
-            "analysis", loaded_interpretation, annotation_data, alleleassessments, allelereports
+        snapshot_objects = SnapshotCreator(session).insert_from_data(
+            "analysis",
+            interpretation,
+            annotation_data,
+            alleleassessments,
+            allelereports,
+            allele_ids=allele_ids,
+            excluded_allele_ids=excluded_allele_ids,
         )
 
         session.add_all(snapshot_objects)

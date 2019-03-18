@@ -431,13 +431,19 @@ class OverviewAlleleResource(LogRequestResource):
         )
 
         # Filter analysis allele ids
+        filterconfigs = queries.get_valid_filter_configs(session, user.group_id)
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        if filterconfigs.count() != 1:
+            raise ApiError(
+                "Unable to find single filter config appropriate for overview filtering. Found {} filterconfigs.".format(
+                    filterconfigs.count()
+                )
+            )
+
+        filterconfig_id = filterconfigs.one().id
 
         af = AlleleFilter(session)
-        gp_nonfiltered_alleles, _ = af.filter_alleles(
-            filter_config_id, analysis_gp_allele_ids, None
-        )
+        gp_nonfiltered_alleles = af.filter_alleles(filterconfig_id, analysis_gp_allele_ids)
         gp_allele_ids = {k: set(v["allele_ids"]) for k, v in gp_nonfiltered_alleles.items()}
 
         alleleinterpretation_gp_allele_ids = get_alleleinterpretation_gp_allele_ids(
@@ -709,7 +715,7 @@ def categorize_analyses_by_findings(session, not_started_analyses, filter_config
         gp_allele_ids[(entry[0], entry[1])].append(entry[2])
 
     af = AlleleFilter(session)
-    gp_nonfiltered_allele_ids, _ = af.filter_alleles(filter_config_id, gp_allele_ids, None)
+    gp_nonfiltered_allele_ids = af.filter_alleles(filter_config_id, gp_allele_ids)
     nonfiltered_allele_ids = set(
         itertools.chain.from_iterable(
             [v["allele_ids"] for v in list(gp_nonfiltered_allele_ids.values())]
@@ -771,19 +777,28 @@ class OverviewAnalysisByFindingsResource(LogRequestResource):
     def get(self, session, user=None):
 
         # Filter out alleles
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
+        filterconfigs = queries.get_valid_filter_configs(session, user.group_id)
+
+        if filterconfigs.count() != 1:
+            raise ApiError(
+                "Unable to find single filter config appropriate for overview filtering. Found {} filterconfigs.".format(
+                    filterconfigs.count()
+                )
+            )
+
+        filterconfig_id = filterconfigs.one().id
 
         categorized_analyses = get_categorized_analyses(session, user=user)
         not_started_analyses = categorized_analyses.pop("not_started")
         not_started_categories = categorize_analyses_by_findings(
-            session, not_started_analyses, filter_config_id
+            session, not_started_analyses, filterconfig_id
         )
         categorized_analyses.update(
             {"not_started_" + k: v for k, v in not_started_categories.items()}
         )
         marked_review_analyses = categorized_analyses.pop("marked_review")
         marked_review_categories = categorize_analyses_by_findings(
-            session, marked_review_analyses, filter_config_id
+            session, marked_review_analyses, filterconfig_id
         )
         categorized_analyses.update(
             {"marked_review_" + k: v for k, v in marked_review_categories.items()}

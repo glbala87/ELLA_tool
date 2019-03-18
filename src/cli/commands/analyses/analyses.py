@@ -1,10 +1,8 @@
 import click
 import logging
-import json
 
 from vardb.datamodel import DB, sample
 from api.util.delete_analysis import delete_analysis
-from vardb.deposit.deposit_analysis import import_filterconfigs
 from cli.decorators import cli_logger, session
 
 
@@ -40,23 +38,3 @@ def cmd_analysis_delete(logger, session, analysis_id):
             logger.exception("Something went wrong while deleting analysis {}".format(analysis_id))
     else:
         logger.echo("Lacking confirmation, aborting...")
-
-
-@analyses.command("update_filterconfig")
-@click.argument("filterconfig", type=click.File("r"))
-@session
-@cli_logger(prompt_reason=True)
-def cmd_analysis_updatefilterconfig(logger, session, filterconfig):
-    """
-    Updates filterconfigs from the input JSON file.
-    """
-
-    filterconfigs = json.load(filterconfig)
-    result = import_filterconfigs(session, filterconfigs)
-
-    session.commit()
-    logger.echo(
-        "Created {} and updated {} filter configurations".format(
-            result["created"], result["updated"]
-        )
-    )

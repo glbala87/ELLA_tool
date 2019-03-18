@@ -1,128 +1,164 @@
 <div class="search-module">
-  <sectionbox collapsible="true" collapsed="true" color="blue" class="id-search">
-    <maintitle>
-      Search
-    </maintitle>
+    <sectionbox collapsible="true" collapsed="true" color="blue" class="id-search">
+        <maintitle>
+            Search
+        </maintitle>
 
-
-    <contentwrapper>
-      <article class="search-options">
-        <div class="question tiny line-wrapper">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>TYPE</b>
-            </h1>
-          </div>
-          <div class="right search-option">
-            <div class="bttn-set">
-              <label class="bttn"
-                     ng-repeat="item in $ctrl.getSearchTypes()"
-                     ng-class="{active: item.type == $ctrl.query.type, 'id-search-type': true}"
-                     ng-init="$ctrl.query.type='alleles'"
-                     ng-model="$ctrl.query.type"
-                     ng-change="$ctrl.queryChanged({query: $ctrl.query})"
-                     uib-btn-radio="item.type"
-              >{{item.name}}</label>
-            </div>
-          </div>
-        </div>
-        <div class="question tiny line-wrapper">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b ng-if="$ctrl.query.type == 'alleles'">HGVSc/GENOMIC</b>
-              <b ng-if="$ctrl.query.type == 'analyses'">ANALYSIS NAME</b>
-            </h1>
-          </div>
-          <div class="right search-option">
-            <input placeholder="{{$ctrl.query.type == 'alleles' ? 'e.g. c.123A>G or 13:100-300' : ''}}" class="id-search-freetext" ng-model="$ctrl.query.freetext" ng-change="$ctrl.queryChanged({query: $ctrl.query})">
-          </div>
-        </div>
-        <div class="question tiny line-wrapper" ng-if="$ctrl.query.type == 'alleles'">
-          <div class="left">
-            <h1 class="slim title search-option">
-              <b>GENE</b>
-            </h1>
-          </div>
-          <div class="right bttn-set">
-            <div class="id-select-gene dropdown white search-option">
-              <select selector
-                      change="$ctrl.optionSelected('gene', newValue)"
-                      model="$ctrl.query.gene"
-                      debounce="250"
-                      label-attr="symbol"
-                      options="$ctrl.options.gene"
-                      remote="$ctrl.updateGeneOptions(search)"
-                      placeholder="Search gene"
-                      disable-search="false"
-                      >
-                </select>
-              </div>
-              <div class="gene-warning" ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !($ctrl.query.gene || $ctrl.query.freetext.includes(':'))">Gene is required when searching using HGVS.</div>
-            </div>
-        </div>
-        <div class="question tiny line-wrapper">
-            <div class="left">
-                <h1 class="slim title search-option">
-                    <b>USER</b>
-                </h1>
-            </div>
-            <div class="right bttn-set">
-                <div class="id-select-user dropdown white search-option">
-                    <script type="text/ng-template" id="userTemplate">
-                        {{option.first_name}} {{option.last_name}}
-                    </script>
-                    <select selector
-                      model="$ctrl.query.user"
-                      change="$ctrl.optionSelected('user', newValue)"
-                      options="$ctrl.options.user"
-                      placeholder="Search user"
-                      remote="$ctrl.updateUserOptions(search)"
-                      view-item-template="'userTemplate'"
-                      dropdown-item-template="'userTemplate'"
-                      disable-search="false"
-              >
-              </select>
-            </div>
-          </div>
-        </div>
-      </article>
-      <div>
-        <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
-        <h4 ng-if="$ctrl.results.alleles.length" class="results-limit-header">(showing 10 first results)</h4>
-
-        <section ng-if="$ctrl.results.alleles.length">
-          <article class="sectionbox-content allele-list">
-            <a class="id-variant list-item clickable"
-             href="{{item.allele.links.workflow}}"
-             ng-repeat="item in $ctrl.results.alleles">
-              <div class="full-title">
-                  <b>{{item.allele.formatted.display}}</b>
-                  <span class="assessment id-assessment">{{$ctrl.getClassificationText(item.allele)}}</span>
+        <contentwrapper>
+            <article class="search-options">
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h1 class="slim title search-option">
+                            <b>TYPE</b>
+                        </h1>
+                    </div>
+                    <div class="right search-option">
+                        <div class="bttn-set">
+                            <label
+                                class="bttn"
+                                ng-repeat="item in $ctrl.getSearchTypes()"
+                                ng-class="{active: item.type == $ctrl.query.type, 'id-search-type': true}"
+                                ng-init="$ctrl.query.type='alleles'"
+                                ng-model="$ctrl.query.type"
+                                ng-change="$ctrl.queryChanged({query: $ctrl.query})"
+                                uib-btn-radio="item.type"
+                                >{{ item.name }}</label
+                            >
+                        </div>
+                    </div>
                 </div>
-                <div class="allele-users">
-                  <div ng-repeat="interpretation in item.interpretations track by interpretation.id">
-                    <interpretation-round-info index="{{$index + 1}}" interpretation="interpretation"></interpretation-round-info>
-                  </div>
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h1 class="slim title search-option">
+                            <b ng-if="$ctrl.query.type == 'alleles'">HGVSc/GENOMIC</b>
+                            <b ng-if="$ctrl.query.type == 'analyses'">ANALYSIS NAME</b>
+                        </h1>
+                    </div>
+                    <div class="right search-option">
+                        <input
+                            placeholder="{{
+                                $ctrl.query.type == 'alleles' ? 'e.g. c.123A>G or 13:100-300' : ''
+                            }}"
+                            class="id-search-freetext"
+                            ng-model="$ctrl.query.freetext"
+                            ng-change="$ctrl.queryChanged({query: $ctrl.query})"
+                        />
+                    </div>
                 </div>
-                <div class="allele-extras">
-                  <button class="blue" ng-click="$ctrl.showAnalysesClicked({allele: item.allele}); $event.preventDefault();">Show analyses</button>
-              </div>
-            </a>
-          </article>
-        </section>
+                <div class="question tiny line-wrapper" ng-if="$ctrl.query.type == 'alleles'">
+                    <div class="left">
+                        <h1 class="slim title search-option">
+                            <b>GENE</b>
+                        </h1>
+                    </div>
+                    <div class="right bttn-set">
+                        <div class="id-select-gene dropdown white search-option">
+                            <select
+                                selector
+                                change="$ctrl.optionSelected('gene', newValue)"
+                                model="$ctrl.query.gene"
+                                debounce="250"
+                                label-attr="symbol"
+                                options="$ctrl.options.gene"
+                                remote="$ctrl.updateGeneOptions(search)"
+                                placeholder="Search gene"
+                                disable-search="false"
+                            >
+                            </select>
+                        </div>
+                        <div
+                            class="gene-warning"
+                            ng-if="($ctrl.query.freetext.includes('c.') || $ctrl.query.freetext.includes('p.')) && !($ctrl.query.gene || $ctrl.query.freetext.includes(':'))"
+                        >
+                            Gene is required when searching using HGVS.
+                        </div>
+                    </div>
+                </div>
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h1 class="slim title search-option">
+                            <b>USER</b>
+                        </h1>
+                    </div>
+                    <div class="right bttn-set">
+                        <div class="id-select-user dropdown white search-option">
+                            <script type="text/ng-template" id="userTemplate">
+                                {{option.first_name}} {{option.last_name}}
+                            </script>
+                            <select
+                                selector
+                                model="$ctrl.query.user"
+                                change="$ctrl.optionSelected('user', newValue)"
+                                options="$ctrl.options.user"
+                                placeholder="Search user"
+                                remote="$ctrl.updateUserOptions(search)"
+                                view-item-template="'userTemplate'"
+                                dropdown-item-template="'userTemplate'"
+                                disable-search="false"
+                            >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <div>
+                <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
+                <h4 ng-if="$ctrl.results.alleles.length" class="results-limit-header">
+                    (showing 10 first results)
+                </h4>
 
+                <section ng-if="$ctrl.results.alleles.length">
+                    <article class="sectionbox-content allele-list">
+                        <a
+                            class="id-variant list-item clickable"
+                            href="{{ item.allele.links.workflow }}"
+                            ng-repeat="item in $ctrl.results.alleles"
+                        >
+                            <div class="full-title">
+                                <b>{{ item.allele.formatted.display }}</b>
+                                <span class="assessment id-assessment">{{
+                                    $ctrl.getClassificationText(item.allele)
+                                }}</span>
+                            </div>
+                            <div class="allele-users">
+                                <div
+                                    ng-repeat="interpretation in item.interpretations track by interpretation.id"
+                                >
+                                    <interpretation-round-info
+                                        index="{{ $index + 1 }}"
+                                        interpretation="interpretation"
+                                    ></interpretation-round-info>
+                                </div>
+                            </div>
 
-        <h4 ng-if="$ctrl.results.analyses.length" class="section-header">Analyses</h4>
-        <h4 ng-if="$ctrl.results.analyses.length" class="results-limit-header">(showing 10 first results)</h4>
+                            <div class="allele-extras">
+                                <button
+                                    class="blue"
+                                    ng-click="$ctrl.showAnalysesForAlleleClicked({allele: item.allele}); $event.preventDefault();"
+                                >
+                                    Show analyses
+                                </button>
+                            </div>
+                        </a>
+                    </article>
+                </section>
 
-        <section ng-if="$ctrl.results.analyses.length">
-          <analysis-list store-path="'search.results.analyses'"></analysis-list>
-        </section>
+                <h4 ng-if="$ctrl.results.analyses.length" class="section-header">Analyses</h4>
+                <h4 ng-if="$ctrl.results.analyses.length" class="results-limit-header">
+                    (showing 10 first results)
+                </h4>
 
-        <div class="no-results" ng-if="$ctrl.results.analyses.length == 0 && $ctrl.results.alleles.length == 0">
-          <h4 class="sb-notification">No results</h4>
-        </div>
-      </div>
-    </contentwrapper>
-  </sectionbox>
+                <section ng-if="$ctrl.results.analyses.length">
+                    <analysis-list store-path="'search.results.analyses'"></analysis-list>
+                </section>
+
+                <div
+                    class="no-results"
+                    ng-if="$ctrl.results.analyses.length == 0 && $ctrl.results.alleles.length == 0"
+                >
+                    <h4 class="sb-notification">No results</h4>
+                </div>
+            </div>
+        </contentwrapper>
+    </sectionbox>
 </div>

@@ -18,7 +18,7 @@ GLOBAL_CONFIG = {
     "frequencies": {
         "groups": {
             "external": {"ExAC": ["G", "FIN"], "1000g": ["G"], "esp6500": ["AA", "EA"]},
-            "internal": {"inDB": ["AF"]},
+            "internal": {"internalDB": ["AF"]},
         }
     }
 }
@@ -81,6 +81,17 @@ def create_allele(data=None):
 
 
 def create_annotation(annotations, allele=None):
+    annotations.setdefault("external", {})
+    annotations.setdefault("frequencies", {})
+    annotations.setdefault("prediction", {})
+    annotations.setdefault("references", [])
+    annotations.setdefault("transcripts", [])
+    for t in annotations["transcripts"]:
+        t.setdefault("consequences", [])
+        t.setdefault("transcript", "NONE_DEFINED")
+        t.setdefault("strand", 1)
+        t.setdefault("is_canonical", True)
+        t.setdefault("in_last_exon", "no")
     return annotation.Annotation(annotations=annotations, allele=allele)
 
 
@@ -628,7 +639,7 @@ class TestFrequencyFilter(object):
         pa2, pa2anno = create_allele_with_annotation(
             session,
             {
-                "frequencies": {"inDB": {"freq": {"AF": 0.71}}},  # Above 0.7
+                "frequencies": {"internalDB": {"freq": {"AF": 0.71}}},  # Above 0.7
                 "transcripts": [
                     {
                         "symbol": "GENE2",
@@ -650,7 +661,7 @@ class TestFrequencyFilter(object):
                         "freq": {"G": 0.0051},
                         "num": {"G": 9000},
                     },  # Above 0.005  # Above 2000
-                    "inDB": {"freq": {"AF": 0.000001}},  # Below 0.05
+                    "internalDB": {"freq": {"AF": 0.000001}},  # Below 0.05
                 },
                 "transcripts": [
                     {
@@ -746,7 +757,7 @@ class TestFrequencyFilter(object):
         na2, _ = create_allele_with_annotation(
             session,
             {
-                "frequencies": {"inDB": {"freq": {"AF": 0.69}}},  # Below 0.7
+                "frequencies": {"internalDB": {"freq": {"AF": 0.69}}},  # Below 0.7
                 "transcripts": [
                     {
                         "symbol": "GENE2",

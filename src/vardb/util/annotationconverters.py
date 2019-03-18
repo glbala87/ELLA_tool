@@ -1,6 +1,7 @@
 import re
 import json
 import base64
+import jsonschema
 from collections import defaultdict
 
 import logging
@@ -271,16 +272,57 @@ def convert_hgmd(annotation):
     return {"HGMD": data}
 
 
-CLINVAR_RCV_FIELDS = [
-    "traitnames",
-    "clinical_significance_descr",
-    # 'clinical_significance_status',
-    "variant_id",
-    "submitter",
-    "last_evaluated",
-]
+# Schema for checking incoming CLINVAR data (not the data ending up in the database)
+CLINVAR_V1_INCOMING_SCHEMA = {
+    "definitions": {
+        "rcv": {
+            "$id": "#/definitions/rcv",
+            "type": "object",
+            "required": [
+                "traitnames",
+                "clinical_significance_descr",
+                "variant_id",
+                "submitter",
+                "last_evaluated",
+            ],
+            "properties": {
+                "traitnames": {"type": "array", "items": {"type": "string"}},
+                "clinical_significance_descr": {"type": "array", "items": {"type": "string"}},
+                "variant_id": {"type": "array", "items": {"type": "string"}},
+                "submitter": {"type": "array", "items": {"type": "string"}},
+            },
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["variant_description", "variant_id", "rcvs"],
+    "properties": {
+        "variant_description": {"$id": "#/properties/variant_description", "type": "string"},
+        "variant_id": {"$id": "#/properties/variant_id", "type": "integer"},
+        "rcvs": {"type": "object", "patternProperties": {"": {"$ref": "#/definitions/rcv"}}},
+    },
+}
 
-CLINVAR_FIELDS = ["variant_description", "variant_id"]
+
+def _convert_clinvar_v1(clinvarjson):
+    CLINVAR_FIELDS = ["variant_description", "variant_id"]
+    CLINVAR_RCV_FIELDS = [
+        "traitnames",
+        "clinical_significance_descr",
+        "variant_id",
+        "submitter",
+        "last_evaluated",
+    ]
+    data = dict(items=[])
+    data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
+
+    for rcv, val in list(clinvarjson["rcvs"].items()):
+        item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
+        item["rcv"] = rcv
+        data["items"].append(item)
+
+    return data
 
 
 def convert_clinvar(annotation):
@@ -290,18 +332,13 @@ def convert_clinvar(annotation):
     clinvarjson = json.loads(
         base64.b16decode(annotation["CLINVARJSON"]).decode(encoding="utf-8", errors="strict")
     )
-
-    if any(k not in clinvarjson for k in CLINVAR_FIELDS):
-        return dict()
-
-    data = dict(items=[])
-    data.update({k: clinvarjson[k] for k in CLINVAR_FIELDS})
-    for rcv, val in list(clinvarjson["rcvs"].items()):
-        item = {k: ", ".join(val[k]) for k in CLINVAR_RCV_FIELDS}
-        item["rcv"] = rcv
-        data["items"].append(item)
-
-    return {"CLINVAR": data}
+    # Legacy: In version 1 of the ClinVar data, we performed additional parsing of the clinvar data.
+    # The validation of the resulting clinvar json is done in the database.
+    try:
+        jsonschema.validate(clinvarjson, CLINVAR_V1_INCOMING_SCHEMA)
+        return {"CLINVAR": _convert_clinvar_v1(clinvarjson)}
+    except jsonschema.ValidationError:
+        return {"CLINVAR": clinvarjson}
 
 
 def extract_annotation_frequencies(annotation, annotation_key, result_key):

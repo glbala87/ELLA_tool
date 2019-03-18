@@ -1,0 +1,58 @@
+{
+    "definitions": {
+        "submitter": {
+            "$id": "#/definitions/submitter",
+            "type": "object",
+            "required": [
+                "rcv",
+                "traitnames",
+                "clinical_significance_descr",
+                "variant_id",
+                "submitter",
+                "last_evaluated"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "rcv": {
+                    "type": "string"
+                },
+                "traitnames": {
+                    "type": "string"
+                },
+                "clinical_significance_descr": {
+                    "type": "string"
+                },
+                "variant_id": {
+                    "type": "string"
+                },
+                "submitter": {
+                    "type": "string"
+                },
+                "last_evaluated": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "clinvar_v1",
+    "type": "object",
+    "required": ["variant_description", "variant_id", "items"],
+    "additionalProperties": false,
+    "properties": {
+        "variant_description": {
+            "$id": "#/properties/variant_description",
+            "type": "string"
+        },
+        "variant_id": {
+            "$id": "#/properties/variant_id",
+            "anyOf": [{ "type": "integer" }, { "type": "string", "enum": ["N/A"] }]
+        },
+        "items": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/submitter"
+            }
+        }
+    }
+}

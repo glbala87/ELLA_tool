@@ -41,12 +41,8 @@ class AlleleInterpretationResource(LogRequestResource):
                 $ref: '#/definitions/AlleleInterpretation'
             description: AlleleInterpretation object
         """
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         return helpers.get_interpretation(
-            session,
-            user.group.genepanels,
-            filter_config_id,
-            alleleinterpretation_id=interpretation_id,
+            session, user.group.genepanels, user.id, alleleinterpretation_id=interpretation_id
         )
 
     @authenticate()
@@ -147,9 +143,8 @@ class AlleleInterpretationListResource(LogRequestResource):
 
             description: AlleleInterpretation objects
         """
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         return helpers.get_interpretations(
-            session, user.group.genepanels, filter_config_id, allele_id=allele_id
+            session, user.group.genepanels, user.id, allele_id=allele_id
         )
 
 
@@ -263,10 +258,7 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markinterpretation_interpretation(
-            session, data, filter_config_id, allele_id=allele_id
-        )
+        helpers.markinterpretation_interpretation(session, data, allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -300,8 +292,7 @@ class AlleleActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
-        helpers.markreview_interpretation(session, data, filter_config_id, allele_id=allele_id)
+        helpers.markreview_interpretation(session, data, allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -544,9 +535,8 @@ class AlleleActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        filter_config_id = queries.get_default_filter_config_id(session, user.id).scalar()
         result = helpers.finalize_interpretation(
-            session, user.id, data, filter_config_id, user_config, allele_id=allele_id
+            session, user.id, data, user_config, allele_id=allele_id
         )
         session.commit()
 

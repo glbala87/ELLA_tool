@@ -5,10 +5,10 @@
             <button
                 class="id-finish purple"
                 type="button"
-                ng-disabled="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"
+                ng-disabled="$ctrl.finishDisabled()"
                 ng-click="$ctrl.finishClicked({workflowStatus: $ctrl.selectedStatus})"
             >
-                FINISH
+                {{ $ctrl.finishButtonText() }}
             </button>
         </section>
     </controls>

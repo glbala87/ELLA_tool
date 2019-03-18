@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
 
 from api import schemas, ApiError, ConflictError
+from api.allelefilter.allelefilter import AlleleFilter
 from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
@@ -75,6 +76,15 @@ def _get_latest_interpretation(session, allele_id, analysis_id):
     return (
         session.query(model).filter(field == model_id).order_by(model.date_created.desc()).first()
     )
+
+
+def _get_interpretation_schema(interpretation):
+    if isinstance(interpretation, workflow.AnalysisInterpretation):
+        return schemas.AnalysisInterpretationSchema
+    elif isinstance(interpretation, workflow.AlleleInterpretation):
+        return schemas.AlleleInterpretationSchema
+    else:
+        raise RuntimeError("Unknown interpretation class type.")
 
 
 def get_alleles(
@@ -290,11 +300,7 @@ def update_interpretation(
 
 
 def get_interpretation(
-    session,
-    genepanels,
-    filter_config_id,
-    alleleinterpretation_id=None,
-    analysisinterpretation_id=None,
+    session, genepanels, user_id, alleleinterpretation_id=None, analysisinterpretation_id=None
 ):
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
     interpretation_model = _get_interpretation_model(
@@ -311,13 +317,14 @@ def get_interpretation(
         )
         .one()
     )
-
-    idl = InterpretationDataLoader(session)
-    obj = idl.from_obj(interpretation, filter_config_id)
+    schema = _get_interpretation_schema(interpretation)
+    obj = schema().dump(interpretation).data
     return obj
 
 
-def get_interpretations(session, genepanels, filter_config_id, allele_id=None, analysis_id=None):
+def get_interpretations(
+    session, genepanels, user_id, allele_id=None, analysis_id=None, filterconfig_id=None
+):
 
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
     interpretation_model_field = _get_interpretation_model_field(allele_id, analysis_id)
@@ -339,11 +346,11 @@ def get_interpretations(session, genepanels, filter_config_id, allele_id=None, a
         .all()
     )
 
-    loaded_interpretations = list()
-    idl = InterpretationDataLoader(session)
-
-    for interpretation in interpretations:
-        loaded_interpretations.append(idl.from_obj(interpretation, filter_config_id))
+    if interpretations:
+        schema = _get_interpretation_schema(interpretations[0])
+        loaded_interpretations = schema().dump(interpretations, many=True).data
+    else:
+        loaded_interpretations = list()
 
     return loaded_interpretations
 
@@ -395,6 +402,7 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     if analysis_id is not None:
         analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
         interpretation.genepanel = analysis.genepanel
+
     elif allele_id is not None:
         # For allele workflow, the user can choose genepanel context for each interpretation
         interpretation.genepanel_name = data["gp_name"]
@@ -405,14 +413,11 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     return interpretation
 
 
-def mark_interpretation(
-    session, workflow_status, data, filter_config_id, allele_id=None, analysis_id=None
-):
+def mark_interpretation(session, workflow_status, data, allele_id=None, analysis_id=None):
     """
     Marks (and copies) an interpretation for a new workflow_status,
     creating Snapshot objects to record history.
     """
-
     interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
     interpretation_model = _get_interpretation_model(allele_id, analysis_id)
 
@@ -422,13 +427,6 @@ def mark_interpretation(
                 workflow_status
             )
         )
-
-    # We must load it _before_ we create assessments, since assessments
-    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-
-    loaded_interpretation = InterpretationDataLoader(session).from_obj(
-        interpretation, filter_config_id
-    )
 
     presented_alleleassessment_ids = [
         a["presented_alleleassessment_id"]
@@ -452,16 +450,16 @@ def mark_interpretation(
         .all()
     )
 
-    snapshot_objects = SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).insert_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
-        loaded_interpretation,
+        interpretation,
         data["annotations"],
         presented_alleleassessments,
         presented_allelereports,
+        allele_ids=data.get("allele_ids"),
+        excluded_allele_ids=data.get("excluded_allele_ids"),
         custom_annotations=data.get("custom_annotations"),
     )
-
-    session.add_all(snapshot_objects)
 
     interpretation.status = "Done"
     interpretation.finalized = False
@@ -475,35 +473,24 @@ def mark_interpretation(
     return interpretation, interpretation_next
 
 
-def marknotready_interpretation(session, data, filter_config_id, analysis_id=None):
+def marknotready_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, "Not ready", data, analysis_id=analysis_id)
+
+
+def markinterpretation_interpretation(session, data, allele_id=None, analysis_id=None):
     return mark_interpretation(
-        session, "Not ready", data, filter_config_id, analysis_id=analysis_id
+        session, "Interpretation", data, allele_id=allele_id, analysis_id=analysis_id
     )
 
 
-def markinterpretation_interpretation(
-    session, data, filter_config_id, allele_id=None, analysis_id=None
-):
+def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
     return mark_interpretation(
-        session,
-        "Interpretation",
-        data,
-        filter_config_id,
-        allele_id=allele_id,
-        analysis_id=analysis_id,
+        session, "Review", data, allele_id=allele_id, analysis_id=analysis_id
     )
 
 
-def markreview_interpretation(session, data, filter_config_id, allele_id=None, analysis_id=None):
-    return mark_interpretation(
-        session, "Review", data, filter_config_id, allele_id=allele_id, analysis_id=analysis_id
-    )
-
-
-def markmedicalreview_interpretation(session, data, filter_config_id, analysis_id=None):
-    return mark_interpretation(
-        session, "Medical review", data, filter_config_id, analysis_id=analysis_id
-    )
+def markmedicalreview_interpretation(session, data, analysis_id=None):
+    return mark_interpretation(session, "Medical review", data, analysis_id=analysis_id)
 
 
 def reopen_interpretation(session, allele_id=None, analysis_id=None):
@@ -529,9 +516,7 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_interpretation(
-    session, user_id, data, filter_config_id, user_config, allele_id=None, analysis_id=None
-):
+def finalize_interpretation(session, user_id, data, user_config, allele_id=None, analysis_id=None):
     """
     Finalizes an interpretation.
 
@@ -558,12 +543,6 @@ def finalize_interpretation(
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
 
-    # We must load it _before_ we create assessments, since assessments
-    # can affect the filtering (e.g. alleleassessments created for filtered alleles)
-    loaded_interpretation = InterpretationDataLoader(session).from_obj(
-        interpretation, filter_config_id
-    )
-
     # Create/reuse assessments
     grouped_alleleassessments = AssessmentCreator(session).create_from_data(
         user_id,
@@ -576,7 +555,6 @@ def finalize_interpretation(
 
     reused_alleleassessments = grouped_alleleassessments["alleleassessments"]["reused"]
     created_alleleassessments = grouped_alleleassessments["alleleassessments"]["created"]
-
     session.add_all(created_alleleassessments)
 
     # Check that we can finalize
@@ -587,6 +565,12 @@ def finalize_interpretation(
     assert reused_allele_ids & created_allele_ids == set()
 
     workflow_type = "allele" if allele_id else "analysis"
+
+    if workflow_type == "analysis":
+        excluded_allele_ids = data["excluded_allele_ids"]
+    else:
+        excluded_allele_ids = None
+
     finalize_requirements = get_nested(
         user_config, ["workflows", workflow_type, "finalize_requirements"]
     )
@@ -615,9 +599,7 @@ def finalize_interpretation(
     # If no "unclassified" are allowed, check that all allele ids minus the
     # exempted ones have a classification
     if not finalize_requirements.get("allow_unclassified"):
-        needs_classification = (
-            set(loaded_interpretation["allele_ids"]) - exempted_classification_allele_ids
-        )
+        needs_classification = set(data["allele_ids"]) - exempted_classification_allele_ids
         missing_classification = needs_classification - (created_allele_ids | reused_allele_ids)
         if missing_classification:
             raise ApiError(
@@ -660,18 +642,18 @@ def finalize_interpretation(
         .all()
     )
 
-    snapshot_objects = SnapshotCreator(session).create_from_data(
+    SnapshotCreator(session).insert_from_data(
         _get_snapshotcreator_mode(allele_id, analysis_id),
-        loaded_interpretation,
+        interpretation,
         data["annotations"],
         presented_alleleassessments,
         presented_allelereports,
+        allele_ids=data["allele_ids"],
+        excluded_allele_ids=excluded_allele_ids,
         used_alleleassessments=created_alleleassessments + reused_alleleassessments,
         used_allelereports=created_allelereports + reused_allelereports,
         custom_annotations=data.get("custom_annotations"),
     )
-
-    session.add_all(snapshot_objects)
 
     # Update interpretation and return data
     interpretation.status = "Done"
@@ -1005,3 +987,63 @@ def delete_interpretationlog(
         raise ApiError("Can only delete entries created for latest interpretation id.")
 
     session.delete(il)
+
+
+def get_filtered_alleles(session, interpretation, filter_config_id=None):
+    """
+    Return filter results for interpretation.
+    - If AlleleInterpretation, return only allele id for interpretation (no alleles excluded)
+    - If AnalysisInterpretation:
+        - filter_config_id not provided: Return snapshot results. Requires interpretation to be 'Done'-
+        - filter_config_id provided: Run filter on analysis, and return results.
+    """
+    if isinstance(interpretation, workflow.AlleleInterpretation):
+        return [interpretation.allele_id], None
+
+    elif isinstance(interpretation, workflow.AnalysisInterpretation):
+
+        if filter_config_id is None:
+            if interpretation.status != "Done":
+                raise RuntimeError("Interpretation is not done, and no filter config is provided.")
+
+            if not interpretation.snapshots:
+                raise RuntimeError("Missing snapshots for interpretation.")
+
+            categories = {
+                "FREQUENCY": "frequency",
+                "REGION": "region",
+                "POLYPYRIMIDINE": "ppy",
+                "GENE": "gene",
+                "QUALITY": "quality",
+                "CONSEQUENCE": "consequence",
+                "SEGREGATION": "segregation",
+                "INHERITANCEMODEL": "inheritancemodel",
+            }
+
+            allele_ids = []
+            excluded_allele_ids = {k: [] for k in list(categories.values())}
+
+            for snapshot in interpretation.snapshots:
+                if snapshot.filtered in categories:
+                    excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
+                else:
+                    allele_ids.append(snapshot.allele_id)
+
+            return allele_ids, excluded_allele_ids
+        else:
+            analysis_id = interpretation.analysis_id
+            analysis_allele_ids = (
+                session.query(allele.Allele.id)
+                .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
+                .filter(sample.Analysis.id == analysis_id)
+                .scalar_all()
+            )
+
+            af = AlleleFilter(session)
+            filtered_alleles = af.filter_analysis(
+                filter_config_id, analysis_id, analysis_allele_ids
+            )
+
+            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
+    else:
+        raise RuntimeError("Unknown type {}".format(interpretation))

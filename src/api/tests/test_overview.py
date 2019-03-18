@@ -17,6 +17,8 @@ from api.allelefilter import AlleleFilter
 from api.config import config
 from api.util import queries
 
+FILTERCONFIG_ID = 1
+
 
 @pytest.fixture
 def with_finding_classification():
@@ -72,7 +74,7 @@ class TestAnalysisOverview(object):
     ):
 
         FIRST_ANALYSIS_ID = 1
-        wh = WorkflowHelper("analysis", FIRST_ANALYSIS_ID)
+        wh = WorkflowHelper("analysis", FIRST_ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
 
         ##
         # Ongoing
@@ -336,13 +338,17 @@ class TestAnalysisOverview(object):
         interpretation = ih.get_interpretation(
             "analysis", SECOND_ANALYSIS_ID, interpretation_id
         ).get_json()
+        allele_ids = ih.get_filtered_alleles(
+            "analysis", SECOND_ANALYSIS_ID, interpretation["id"], FILTERCONFIG_ID
+        ).get_json()["allele_ids"]
+
         alleles = ih.get_alleles(
-            "analysis", SECOND_ANALYSIS_ID, interpretation["id"], interpretation["allele_ids"]
+            "analysis", SECOND_ANALYSIS_ID, interpretation["id"], allele_ids
         ).get_json()
 
         # Ensure one with findings, rest without.
         classifications = [with_finding_classification] * 1 + [without_finding_classification] * (
-            len(interpretation["allele_ids"]) - 1
+            len(allele_ids) - 1
         )
         with_finding_alleleassessment = None
         for allele, classification in zip(alleles, classifications):
@@ -372,9 +378,9 @@ class TestAnalysisOverview(object):
             session.commit()
 
         assert session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.allele_id.in_(interpretation["allele_ids"]),
+            assessment.AlleleAssessment.allele_id.in_(allele_ids),
             assessment.AlleleAssessment.date_superceeded.is_(None),
-        ).count() == len(interpretation["allele_ids"])
+        ).count() == len(allele_ids)
 
         # Now check overview, one should be in with_findings
         r = client.get("/api/v1/overviews/analyses/by-findings/")
@@ -522,8 +528,8 @@ def get_non_filtered_alleles(session):
         gp_key = (gp_name, gp_key)
         gp_allele_ids[gp_key].add(allele_id)
 
-    filter_config_id = queries.get_default_filter_config_id(session, 1).scalar()
-    result, _ = AlleleFilter(session).filter_alleles(filter_config_id, gp_allele_ids, None)
+    filter_config_id = queries.get_valid_filter_configs(session, 1).first().id
+    result = AlleleFilter(session).filter_alleles(filter_config_id, gp_allele_ids)
     for key in gp_allele_ids:
         gp_allele_ids[key] = set(result[key]["allele_ids"])
     return gp_allele_ids
@@ -651,7 +657,7 @@ class TestAlleleOverview(object):
         # alleles only existing in this analysis should disappear
         ##
 
-        wh = WorkflowHelper("analysis", 4)
+        wh = WorkflowHelper("analysis", 4, filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
         gp_allele_ids = get_allele_not_started(session)
@@ -741,7 +747,7 @@ class TestAlleleOverview(object):
         # with AlleleInterpretation 3 (allele id 4)
         # We first start Analysis 1 to exclude it, since we want to test case when no analysis.
 
-        wh = WorkflowHelper("analysis", 1)
+        wh = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
         wh = WorkflowHelper("allele", 4, genepanel=("HBOC", "v01"))
@@ -824,9 +830,10 @@ class TestAlleleOverview(object):
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
         interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
-        allele_id = ih.get_alleles(
-            "analysis", 3, interpretation_id, interpretation["allele_ids"]
-        ).get_json()[0]["id"]
+        allele_ids = ih.get_filtered_alleles(
+            "analysis", 3, interpretation_id, filterconfig_id=FILTERCONFIG_ID
+        ).get_json()["allele_ids"]
+        allele_id = ih.get_alleles("analysis", 3, interpretation_id, allele_ids).get_json()[0]["id"]
 
         aa = assessment.AlleleAssessment(
             classification=with_finding_classification["value"],
@@ -865,9 +872,11 @@ class TestAlleleOverview(object):
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
         interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
-        allele_id = ih.get_alleles(
-            "analysis", 3, interpretation_id, interpretation["allele_ids"]
-        ).get_json()[0]["id"]
+        allele_ids = ih.get_filtered_alleles(
+            "analysis", 3, interpretation_id, filterconfig_id=FILTERCONFIG_ID
+        ).get_json()["allele_ids"]
+
+        allele_id = ih.get_alleles("analysis", 3, interpretation_id, allele_ids).get_json()[0]["id"]
 
         timedelta = datetime.timedelta(days=with_finding_classification["outdated_after_days"] + 1)
         aa = assessment.AlleleAssessment(
@@ -907,16 +916,21 @@ class TestAlleleOverview(object):
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 1)
         interpretation = ih.get_interpretation("analysis", 1, interpretation_id).get_json()
+        allele_ids = ih.get_filtered_alleles(
+            "analysis", 3, interpretation_id, filterconfig_id=FILTERCONFIG_ID
+        ).get_json()["allele_ids"]
 
         # Check initial state
         r = client.get("/api/v1/overviews/alleles/")
         check_items(
-            {("HBOC", "v01"): interpretation["allele_ids"]},
+            {("HBOC", "v01"): allele_ids},
             r.get_json()["missing_alleleassessment"],
             check_length=False,
         )
 
-        wh = WorkflowHelper("analysis", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper(
+            "analysis", 1, genepanel=("HBOC", "v01"), filterconfig_id=FILTERCONFIG_ID
+        )
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
@@ -961,18 +975,18 @@ class TestAlleleOverview(object):
         # Ongoing
         interpretation = wh.start_interpretation("testuser1")
         r = client.get("/api/v1/overviews/alleles/")
-        check_items({("HBOC", "v01"): interpretation["allele_ids"]}, r.get_json()["ongoing"])
+        check_items({("HBOC", "v01"): [1]}, r.get_json()["ongoing"])
 
         # Marked review
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
         r = client.get("/api/v1/overviews/alleles/")
-        check_items({("HBOC", "v01"): interpretation["allele_ids"]}, r.get_json()["marked_review"])
+        check_items({("HBOC", "v01"): [1]}, r.get_json()["marked_review"])
 
         # Finalized
         interpretation = wh.start_interpretation("testuser2")
         wh.perform_finalize_round(interpretation, "Finalize comment")
         r = client.get("/api/v1/overviews/alleles/finalized/")
-        check_items({("HBOC", "v01"): interpretation["allele_ids"]}, r.get_json())
+        check_items({("HBOC", "v01"): [1]}, r.get_json())
 
     @pytest.mark.overviewallele(order=6)
     def test_presented_genepanel(self, test_database, client, session):
@@ -1016,8 +1030,8 @@ class TestAlleleOverview(object):
         ]
 
         # Start both analyses to remove them from the equation
-        whan1 = WorkflowHelper("analysis", 1)
-        whan2 = WorkflowHelper("analysis", 2)
+        whan1 = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
+        whan2 = WorkflowHelper("analysis", 2, filterconfig_id=FILTERCONFIG_ID)
         an1_interpretation = whan1.start_interpretation("testuser1")
         whan2.start_interpretation("testuser1")
 

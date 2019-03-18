@@ -26,7 +26,7 @@ app.component('workflowButtons', {
             type: state`views.workflows.type`,
             id: state`views.workflows.id`,
             startClicked: signal`views.workflows.startClicked`,
-            finishClicked: signal`views.workflows.finishClicked`,
+            showFinishConfirmationClicked: signal`views.workflows.modals.finishConfirmation.showFinishConfirmationClicked`,
             startMode: state`views.workflows.startMode`,
             selectedInterpretation: getSelectedInterpretation,
             dirty: state`views.workflows.interpretation.dirty`,

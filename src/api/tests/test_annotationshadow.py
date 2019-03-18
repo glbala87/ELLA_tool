@@ -52,6 +52,18 @@ def create_allele():
 
 
 def create_annotation(annotations, allele=None):
+    annotations.setdefault("external", {})
+    annotations.setdefault("frequencies", {})
+    annotations.setdefault("prediction", {})
+    annotations.setdefault("references", [])
+    annotations.setdefault("transcripts", [])
+    for t in annotations["transcripts"]:
+        t.setdefault("consequences", [])
+        t.setdefault("transcript", "NONE_DEFINED")
+        t.setdefault("strand", 1)
+        t.setdefault("is_canonical", True)
+        t.setdefault("in_last_exon", "no")
+
     return annotation.Annotation(annotations=annotations, allele=allele)
 
 
@@ -104,7 +116,7 @@ class TestAnnotationShadow(object):
                     "HGVSc": "c.123A>G",
                     "protein": "NP_SOMETHING",
                     "HGVSp": "p.Arg123Gly",
-                    "consequences": ["CONSEQUENCE1", "CONSEQUENCE2"],
+                    "consequences": ["intron_variant", "splice_region_variant"],
                     "exon_distance": 0,
                 }
             ],
@@ -162,10 +174,11 @@ class TestAnnotationShadow(object):
                     "HGVSc": "c.123A>G",
                     "protein": "NP_SOMETHING",
                     "HGVSp": "p.Arg123Gly",
-                    "consequences": ["CONSEQUENCE1", "CONSEQUENCE2"],
+                    "strand": 1,
+                    "consequences": ["intron_variant", "splice_region_variant"],
                     "exon_distance": 0,
                 },
-                {"transcript": "NM_1.1"},
+                {"transcript": "NM_1.1", "is_canonical": True, "in_last_exon": "no", "strand": 1},
             ]
         }
 

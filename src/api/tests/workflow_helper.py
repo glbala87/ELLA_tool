@@ -49,13 +49,17 @@ def _build_dummy_annotations(allele_ids):
 
 
 class WorkflowHelper(object):
-    def __init__(self, workflow_type, workflow_id, genepanel=None):
+    def __init__(self, workflow_type, workflow_id, genepanel=None, filterconfig_id=None):
 
         if workflow_type == "allele" and not genepanel:
             raise RuntimeError("Missing required genepanel tuple when workflow_type == 'allele'")
 
+        if workflow_type == "analysis" and not filterconfig_id:
+            raise RuntimeError("Missing required filterconfig id when workflow_type == 'analysis'")
+
         self.type = workflow_type
         self.id = workflow_id
+        self.filterconfig_id = filterconfig_id
         self.interpretation_extras = (
             {"gp_name": genepanel[0], "gp_version": genepanel[1]} if genepanel else dict()
         )
@@ -106,8 +110,14 @@ class WorkflowHelper(object):
         interpretation["state"].update(
             {"alleleassessments": list(), "referenceassessments": list(), "allelereports": list()}
         )
+        if self.type == "analysis":
+            allele_ids = ih.get_filtered_alleles(
+                self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
+            ).get_json()["allele_ids"]
+        else:
+            allele_ids = [self.id]
 
-        r = ih.get_alleles(self.type, self.id, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles(self.type, self.id, interpretation["id"], allele_ids)
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -156,7 +166,9 @@ class WorkflowHelper(object):
         r = finish_method[new_workflow_status](
             self.type,
             self.id,
-            ih.round_template(),  # We don't bother to provide real data for normal rounds, we are just testing workflow
+            ih.round_template(
+                allele_ids=allele_ids
+            ),  # We don't bother to provide real data for normal rounds, we are just testing workflow
             interpretation["user"]["username"],
         )
         assert r.status_code == 200
@@ -202,6 +214,17 @@ class WorkflowHelper(object):
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
+
+        if self.type == "analysis":
+            filtered_allele_ids = ih.get_filtered_alleles(
+                self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
+            ).get_json()
+            allele_ids = filtered_allele_ids["allele_ids"]
+            excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
+        else:
+            allele_ids = [self.id]
+            excluded_allele_ids = {}
+
         r = ih.finalize(
             self.type,
             self.id,
@@ -212,6 +235,8 @@ class WorkflowHelper(object):
             allele_reports,
             attachments,
             interpretation["user"]["username"],
+            allele_ids=allele_ids,
+            excluded_allele_ids=excluded_allele_ids,
         )
 
         assert r.status_code == 200
@@ -259,12 +284,20 @@ class WorkflowHelper(object):
             [a["allele_id"] for a in allele_assessments]
         )
 
-        assert set([a["allele_id"] for a in allele_assessments]) == set(
-            interpretation["allele_ids"]
-        )
-        assert set([a["allele_id"] for a in allele_reports]) == set(interpretation["allele_ids"])
+        if self.type == "analysis":
+            filtered_allele_ids = ih.get_filtered_alleles(
+                self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
+            ).get_json()
+            allele_ids = filtered_allele_ids["allele_ids"]
+            excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
+        else:
+            allele_ids = [self.id]
+            excluded_allele_ids = None
 
-        r = ih.get_alleles(self.type, self.id, interpretation["id"], interpretation["allele_ids"])
+        assert set([a["allele_id"] for a in allele_assessments]) == set(allele_ids)
+        assert set([a["allele_id"] for a in allele_reports]) == set(allele_ids)
+
+        r = ih.get_alleles(self.type, self.id, interpretation["id"], allele_ids)
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -311,6 +344,8 @@ class WorkflowHelper(object):
             allele_reports,
             attachments,
             interpretation["user"]["username"],
+            allele_ids=allele_ids,
+            excluded_allele_ids=excluded_allele_ids,
         )
         assert r.status_code == 200
 
@@ -355,8 +390,15 @@ class WorkflowHelper(object):
                 assert snapshot["presented_allelereport_id"] is None
 
         if interpretation["finalized"]:
+            if self.type == "analysis":
+                filtered_allele_ids = ih.get_filtered_alleles(
+                    self.type, self.id, interpretation["id"], filterconfig_id=None
+                ).get_json()
+                allele_ids = filtered_allele_ids["allele_ids"]
+            else:
+                allele_ids = [self.id]
 
-            for allele_id in interpretation["allele_ids"]:
+            for allele_id in allele_ids:
 
                 # Check alleleassessments in database
                 state_alleleassessment = next(

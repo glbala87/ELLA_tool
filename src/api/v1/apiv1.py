@@ -95,6 +95,10 @@ class ApiV1(object):
 
         self._add_resource(r.config.ConfigResource, "/api/v1/config/")
 
+        self._add_resource(
+            r.filterconfig.FilterconfigResource, "/api/v1/filterconfigs/<int:filterconfig_id>"
+        )
+
         self._add_resource(r.genepanel.GenepanelListResource, "/api/v1/genepanels/")
 
         self._add_resource(r.genepanel.GenepanelResource, "/api/v1/genepanels/<name>/<version>/")
@@ -257,6 +261,11 @@ class ApiV1(object):
         )
 
         self._add_resource(
+            r.workflow.analysis.AnalysisInterpretationFilteredAlleles,
+            "/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/filteredalleles/",
+        )
+
+        self._add_resource(
             r.workflow.analysis.AnalysisInterpretationAllelesListResource,
             "/api/v1/workflows/analyses/<int:analysis_id>/interpretations/<int:interpretation_id>/alleles/",
         )
@@ -315,6 +324,11 @@ class ApiV1(object):
         self._add_resource(
             r.workflow.analysis.AnalysisInterpretationLogResource,
             "/api/v1/workflows/analyses/<int:analysis_id>/logs/<int:log_id>/",
+        )
+
+        self._add_resource(
+            r.workflow.analysis.AnalysisFilterConfigResource,
+            "/api/v1/workflows/analyses/<int:analysis_id>/filterconfigs/",
         )
 
         # ---------------------------------------------------------------------------------------------------------

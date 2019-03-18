@@ -2,6 +2,7 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
+import isManuallyAddedById from '../store/modules/views/workflows/alleleSidebar/computed/isManuallyAddedById'
 import isMultipleInGeneById from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleInGeneById'
 import isNonsenseById from '../store/modules/views/workflows/alleleSidebar/computed/isNonsenseById'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
@@ -59,6 +60,7 @@ app.component('alleleSidebarList', {
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             config: state`app.config`,
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
+            isManuallyAddedById: isManuallyAddedById(state`${props`allelesPath`}`),
             depth: getDepthById(state`${props`allelesPath`}`),
             alleleassessments: getAlleleAssessmentsById,
             alleleStates: getAlleleStateById,
@@ -141,6 +143,9 @@ app.component('alleleSidebarList', {
                         }
                         return allele.formatted.hgvsg
                     },
+                    showManuallyAddedIndicator() {
+                        return Object.values($ctrl.isManuallyAddedById).some((k) => k)
+                    },
                     isTechnical(allele_id) {
                         return $ctrl.verificationStatus[allele_id] === 'technical'
                     },
@@ -155,6 +160,9 @@ app.component('alleleSidebarList', {
                             return false
                         }
                         return $ctrl.toggled[allele_id]
+                    },
+                    isManuallyAdded(allele_id) {
+                        return $ctrl.isManuallyAddedById[allele_id]
                     },
                     getExistingClassificationText(allele_id) {
                         const c = $ctrl.classification[allele_id]

@@ -13,11 +13,14 @@ import argparse
 import json
 import logging
 import itertools
+import datetime
+import pytz
 from collections import OrderedDict, defaultdict
 
 
 import jsonschema
 from sqlalchemy import tuple_
+from api.util import queries
 from vardb.util import DB, vcfiterator
 from vardb.deposit.importers import (
     AnalysisImporter,
@@ -44,37 +47,88 @@ log = logging.getLogger(__name__)
 VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1"]
 
 
-def import_filterconfigs(session, filterconfigs):
-    result = {"updated": 0, "created": 0}
-    filter_config_schema = load_schema("filterconfig.json")
+def import_filterconfigs(session, fc_configs):
+    result = {"updated": 0, "created": 0, "not_updated": 0}
+    filter_config_schema = load_schema("filterconfig_base.json")
 
-    for filterconfig in filterconfigs:
-        jsonschema.validate(filterconfig, filter_config_schema)
-        filterconfig = dict(filterconfig)
-        usergroup_name = filterconfig.pop("usergroup")
-        usergroup_id = (
-            session.query(user.UserGroup.id).filter(user.UserGroup.name == usergroup_name).scalar()
-        )
-
-        filterconfig["usergroup_id"] = usergroup_id
+    for fc_config in fc_configs:
+        jsonschema.validate(fc_config, filter_config_schema)
+        filterconfig = fc_config["filterconfig"]
+        name = fc_config["name"]
+        requirements = fc_config["requirements"]
+        fc = {"name": name, "filterconfig": filterconfig, "requirements": requirements}
 
         existing = (
             session.query(sample.FilterConfig)
             .filter(
-                sample.FilterConfig.usergroup_id == usergroup_id,
-                sample.FilterConfig.name == filterconfig["name"],
+                sample.FilterConfig.name == fc["name"],
+                sample.FilterConfig.date_superceeded.is_(None),
             )
             .one_or_none()
         )
 
-        if existing:
-            for k, v in filterconfig.items():
-                setattr(existing, k, v)
-            result["updated"] += 1
+        if existing and fc["filterconfig"] == existing.filterconfig:
+            if not existing.active:
+                log.warning(
+                    "Filter config {} exists with same configuration, but is set as inactive. Will not be updated.".format(
+                        existing
+                    )
+                )
+            result["not_updated"] += 1
+            fc_obj = existing
         else:
-            fc = sample.FilterConfig(**filterconfig)
-            session.add(fc)
-            result["created"] += 1
+            if existing:
+                if not existing.active:
+                    log.warning(
+                        "Filter config {} already set as inactive. Will be set as superceeded.".format(
+                            existing
+                        )
+                    )
+                existing.date_superceeded = datetime.datetime.now(pytz.utc)
+                fc["previous_filterconfig_id"] = existing.id
+                existing.active = False
+                result["updated"] += 1
+            else:
+                result["created"] += 1
+
+            fc_obj = sample.FilterConfig(**fc)
+            session.add(fc_obj)
+            session.flush()
+
+        for usergroup in fc_config["usergroups"]:
+
+            usergroup_name = usergroup["name"]
+            usergroup_id = (
+                session.query(user.UserGroup.id)
+                .filter(user.UserGroup.name == usergroup_name)
+                .scalar()
+            )
+
+            ugfc = {
+                "usergroup_id": usergroup_id,
+                "filterconfig_id": fc_obj.id,
+                "order": usergroup["order"],
+            }
+
+            existing_ugfc = (
+                session.query(sample.UserGroupFilterConfig)
+                .filter(
+                    sample.UserGroupFilterConfig.usergroup_id == usergroup_id,
+                    sample.UserGroupFilterConfig.filterconfig_id == fc_obj.id,
+                )
+                .one_or_none()
+            )
+
+            if existing_ugfc and existing_ugfc.order != usergroup["order"]:
+                log.info(
+                    "Updating order of filterconfig {} for usergroup {} from {} to {}".format(
+                        fc_obj, usergroup_name, existing_ugfc.order, usergroup["order"]
+                    )
+                )
+                existing_ugfc.order = usergroup["order"]
+            elif not existing_ugfc:
+                session.add(sample.UserGroupFilterConfig(**ugfc))
+
     return result
 
 
@@ -368,14 +422,10 @@ class DepositAnalysis(DepositFromVCF):
 
         """
         if deposit_usergroup_config.get("postprocess"):
-
             filter_config_id = (
-                self.session.query(sample.FilterConfig.id)
-                .join(user.UserGroup)
-                .filter(
-                    user.UserGroup.id == deposit_usergroup_id, sample.FilterConfig.default.is_(True)
-                )
-                .scalar()
+                queries.get_valid_filter_configs(self.session, deposit_usergroup_id, db_analysis.id)
+                .first()
+                .id
             )
 
             for method in deposit_usergroup_config["postprocess"]:

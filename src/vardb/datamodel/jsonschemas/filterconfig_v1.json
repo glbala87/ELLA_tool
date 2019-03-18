@@ -1,0 +1,582 @@
+{
+    "definitions": {
+        "filter": {
+            "anyOf": [
+                { "$ref": "#/definitions/filters/frequency" },
+                { "$ref": "#/definitions/filters/region" },
+                { "$ref": "#/definitions/filters/classification" },
+                { "$ref": "#/definitions/filters/external" },
+                { "$ref": "#/definitions/filters/ppy" },
+                { "$ref": "#/definitions/filters/inheritancemodel" },
+                { "$ref": "#/definitions/filters/consequence" },
+                { "$ref": "#/definitions/filters/quality" },
+                { "$ref": "#/definitions/filters/segregation" }
+            ]
+        },
+        "withExceptions": {
+            "type": "object",
+            "properties": {
+                "exceptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/filter"
+                    }
+                }
+            }
+        },
+        "filters": {
+            "frequency": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["frequency"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["groups", "num_thresholds", "thresholds"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "groups": {
+                                "type": "object",
+                                "optional": ["external", "internal"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "external": {
+                                        "optional": ["GNOMAD_GENOMES", "GNOMAD_EXOMES"],
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "GNOMAD_GENOMES": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "G",
+                                                        "AFR",
+                                                        "AMR",
+                                                        "EAS",
+                                                        "FIN",
+                                                        "NFE",
+                                                        "OTH",
+                                                        "SAS"
+                                                    ]
+                                                }
+                                            },
+                                            "GNOMAD_EXOMES": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "G",
+                                                        "AFR",
+                                                        "AMR",
+                                                        "EAS",
+                                                        "FIN",
+                                                        "NFE",
+                                                        "OTH",
+                                                        "SAS"
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "internal": {
+                                        "type": "object",
+                                        "optional": ["inDB"],
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "inDB": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": ["OUSWES"]
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "num_thresholds": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "GNOMAD_GENOMES": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "G": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "AFR": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "AMR": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "EAS": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "FIN": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "NFE": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "OTH": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "SAS": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        }
+                                    },
+                                    "GNOMAD_EXOMES": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "G": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "AFR": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "AMR": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "EAS": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "FIN": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "NFE": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "OTH": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            },
+                                            "SAS": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "thresholds": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "AD": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "external": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            },
+                                            "internal": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "external": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            },
+                                            "internal": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "consequence": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["consequence"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["consequences"],
+                        "optional": ["genepanel_only"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "consequences": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "transcript_ablation",
+                                        "splice_donor_variant",
+                                        "splice_acceptor_variant",
+                                        "stop_gained",
+                                        "frameshift_variant",
+                                        "start_lost",
+                                        "initiator_codon_variant",
+                                        "stop_lost",
+                                        "inframe_insertion",
+                                        "inframe_deletion",
+                                        "missense_variant",
+                                        "protein_altering_variant",
+                                        "transcript_amplification",
+                                        "splice_region_variant",
+                                        "incomplete_terminal_codon_variant",
+                                        "synonymous_variant",
+                                        "stop_retained_variant",
+                                        "coding_sequence_variant",
+                                        "mature_miRNA_variant",
+                                        "5_prime_UTR_variant",
+                                        "3_prime_UTR_variant",
+                                        "non_coding_transcript_exon_variant",
+                                        "non_coding_transcript_variant",
+                                        "intron_variant",
+                                        "NMD_transcript_variant",
+                                        "upstream_gene_variant",
+                                        "downstream_gene_variant",
+                                        "TFBS_ablation",
+                                        "TFBS_amplification",
+                                        "TF_binding_site_variant",
+                                        "regulatory_region_variant",
+                                        "regulatory_region_ablation",
+                                        "regulatory_region_amplification",
+                                        "feature_elongation",
+                                        "feature_truncation",
+                                        "intergenic_variant"
+                                    ]
+                                }
+                            },
+                            "genepanel_only": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "region": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["region"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["splice_region", "utr_region"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "splice_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            },
+                            "utr_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "classification": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["classification"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["classes"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "classes": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string",
+                                    "enum": ["1", "2", "3", "4", "5", "DR", "U"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "external": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["external"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["hgmd", "clinvar"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "hgmd": {
+                                "type": "object",
+                                "required": ["tags"],
+                                "optional": ["inverse"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string",
+                                                    "enum": ["FP", "DM", "DFP", "R", "DP", "DM?"]
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "clinvar": {
+                                "type": "object",
+                                "optional": ["num_stars", "combinations", "inverse"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "num_stars": {
+                                        "type": "array",
+                                        "additionalItems": false,
+                                        "items": [
+                                            {
+                                                "type": "string",
+                                                "enum": [">", "<", ">=", "<=", "=="]
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 4
+                                            }
+                                        ]
+                                    },
+                                    "combinations": {
+                                        "type": "array",
+                                        "items": [
+                                            {
+                                                "type": "array",
+                                                "items": [
+                                                    {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "pathogenic",
+                                                            "uncertain",
+                                                            "benign"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "string",
+                                                        "enum": [">", "<", ">=", "<=", "=="]
+                                                    },
+                                                    {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "pathogenic",
+                                                                    "uncertain",
+                                                                    "benign"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": 0
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "minItems": 1
+                                            }
+                                        ]
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ppy": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["ppy"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["ppy_tract_region"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "ppy_tract_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "quality": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["quality"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["qual"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "qual": {
+                                "type": "number",
+                                "minimum": 0
+                            }
+                        }
+                    }
+                }
+            },
+            "segregation": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["segregation"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            },
+            "inheritancemodel": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "enum": ["inheritancemodel"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["filter_mode"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "filter_mode": {
+                                "type": "string",
+                                "enum": ["recessive_non_candidates", "recessive_candidates"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["filters"],
+    "additionalProperties": false,
+    "properties": {
+        "filters": {
+            "type": "array",
+            "items": {
+                "allOf": [
+                    { "$ref": "#/definitions/filter" },
+                    { "$ref": "#/definitions/withExceptions" }
+                ],
+                "required": ["name", "config"],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {},
+                    "config": {},
+                    "exceptions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["name", "config"],
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {},
+                                "config": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

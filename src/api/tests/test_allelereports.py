@@ -14,6 +14,7 @@ def report_template(allele_id):
 
 
 ANALYSIS_ID = 1
+FILTERCONFIG_ID = 1
 
 
 class TestAlleleReports(object):
@@ -22,11 +23,14 @@ class TestAlleleReports(object):
         test_database.refresh()  # Reset db
 
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = ih.get_interpretation(
-            "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        filtered_alleles = ih.get_filtered_alleles(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID),
+            FILTERCONFIG_ID,
         ).get_json()
         created_ids = list()
-        for idx, allele_id in enumerate(interpretation["allele_ids"]):
+        for idx, allele_id in enumerate(filtered_alleles["allele_ids"]):
 
             # Prepare
             report_data = copy.deepcopy(report_template(allele_id))
@@ -46,11 +50,14 @@ class TestAlleleReports(object):
     @pytest.mark.ar(order=1)
     def test_create_new_and_reuse(self, test_database):
         # Create one AlleleReport for each allele in the interpretation:
-        interpretation = ih.get_interpretation(
-            "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        filtered_alleles = ih.get_filtered_alleles(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID),
+            FILTERCONFIG_ID,
         ).get_json()
 
-        q = {"allele_id": interpretation["allele_ids"], "date_superceeded": None}
+        q = {"allele_id": filtered_alleles["allele_ids"], "date_superceeded": None}
         previous_reports = ih.get_entities_by_query("allelereports", q).get_json()
         previous_ids = []
         for report_data in previous_reports:
@@ -85,11 +92,14 @@ class TestAlleleReports(object):
         while the existing should be superceded.
         """
 
-        interpretation = ih.get_interpretation(
-            "analysis", ANALYSIS_ID, ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID)
+        filtered_alleles = ih.get_filtered_alleles(
+            "analysis",
+            ANALYSIS_ID,
+            ih.get_interpretation_id_of_first("analysis", ANALYSIS_ID),
+            FILTERCONFIG_ID,
         ).get_json()
 
-        q = {"allele_id": interpretation["allele_ids"], "date_superceeded": None}
+        q = {"allele_id": filtered_alleles["allele_ids"], "date_superceeded": None}
         previous_reports = ih.get_entities_by_query("allelereports", q).get_json()
 
         previous_ids = []

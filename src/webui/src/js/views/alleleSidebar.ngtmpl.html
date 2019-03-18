@@ -1,44 +1,64 @@
 <div class="sidebar" ng-class="{'expanded': $ctrl.expanded}">
     <div class="controls">
-        <button
-            class="blue id-add-excluded"
-            ng-click="$ctrl.addExcludedAllelesClicked({
+        <div class="control-section">
+            <button
+                class="blue id-add-excluded"
+                ng-click="$ctrl.showAddExcludedAllelesClicked({
       analysisId: $ctrl.analysisId,
       readOnly: $ctrl.readOnly,
       genepanel: $ctrl.selectedGenepanel,
-      includedAlleleIds: $ctrl.manuallyAddedAlleles,
+      includedAlleleIds: $ctrl.manuallyAddedAlleleIds,
       excludedAlleleIds: $ctrl.excludedAlleleIds,
+      filterConfig: $ctrl.selectedFilterConfig
     })"
-        >
-            <svg
-                id="i-plus"
-                class="buttonmark"
-                viewBox="0 0 32 32"
-                width="32"
-                height="32"
-                fill="none"
-                stroke="currentcolor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="6.25%"
             >
-                <path d="M16 2 L16 30 M2 16 L30 16" />
-            </svg>
-            <span>
-                {{ $ctrl.manuallyAddedAlleles.length || 0 }}/{{
-                    $ctrl.getExcludedAlleleCount()
-                }}</span
-            ><span class="add-excluded-button">Filtered</span>
-        </button>
+                <svg
+                    id="i-plus"
+                    class="buttonmark"
+                    viewBox="0 0 32 32"
+                    width="32"
+                    height="32"
+                    fill="none"
+                    stroke="currentcolor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="6.25%"
+                >
+                    <path d="M16 2 L16 30 M2 16 L30 16" />
+                </svg>
+                <span>
+                    {{ $ctrl.manuallyAddedAlleleIds.length || 0 }}/{{
+                        $ctrl.getExcludedAlleleCount()
+                    }}</span
+                ><span class="add-excluded-button">Filtered</span>
+            </button>
 
-        <button
-            ng-if="$ctrl.showQuickClassificationBtn"
-            ng-click="$ctrl.toggleExpanded()"
-            class="blue quick-classification-button"
-        >
-            {{ $ctrl.expanded ? 'Full classification' : 'Quick classification' }}
-        </button>
+            <div class="button">
+                <section class="line-wrapper">
+                    <div class="dropdown" ng-class="{'disabled': $ctrl.isHistoricData()}">
+                        <select
+                            class="id-select-filterconfig"
+                            ng-disabled="$ctrl.isHistoricData()"
+                            ng-model="$ctrl.modelFilterconfigId"
+                            ng-model-watch="$ctrl.selectedFilterConfig.id"
+                            ng-options="o.id as o.name for o in $ctrl.getFilterConfigs()"
+                            ng-change="$ctrl.filterconfigChanged({filterconfigId: $ctrl.modelFilterconfigId})"
+                        ></select>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="control-section">
+            <button
+                ng-if="$ctrl.showQuickClassificationBtn"
+                ng-click="$ctrl.toggleExpanded()"
+                class="blue quick-classification-button"
+            >
+                {{ $ctrl.expanded ? 'Full classification' : 'Quick classification' }}
+            </button>
+        </div>
     </div>
+
     <allele-sidebar-list
         class="id-unclassified"
         allele-ids-path="'views.workflows.alleleSidebar.unclassified'"

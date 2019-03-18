@@ -4,7 +4,7 @@ import saveInterpretation from '../sequences/saveInterpretation'
 import startWorkflow from '../factories/startWorkflow'
 import loadInterpretations from '../sequences/loadInterpretations'
 import toast from '../../../../common/factories/toast'
-import showModal from '../../../../common/actions/showModal'
+import showReassignWorkflow from '../modals/reassignWorkflow/sequences/showReassignWorkflow'
 
 // After starting the workflow, we need to reload
 // all the data from backend (via loadInterpretations) to get
@@ -22,7 +22,7 @@ export default [
     equals(state`views.workflows.startMode`),
     {
         save: [saveInterpretation([])],
-        override: [set(props`modalName`, string`reassignWorkflow`), showModal],
+        override: [showReassignWorkflow],
         reopen: [
             startWorkflow('reopen'),
             {

@@ -4,6 +4,7 @@ from sqlalchemy import or_, and_, tuple_, func, text, literal_column
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation, user
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
+from api.util import filterconfig_requirements
 from api.config import config
 
 
@@ -416,10 +417,42 @@ def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
     return result
 
 
-def get_default_filter_config_id(session, user_id):
+def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
+    usergroup_filterconfigs = get_usergroup_filter_configs(session, usergroup_id)
+    if analysis_id is None:
+        if usergroup_filterconfigs.count() > 1:
+            return usergroup_filterconfigs.filter(sample.FilterConfig.requirements == [])
+        else:
+            return usergroup_filterconfigs
 
+    valid_ids = []
+    for fc in usergroup_filterconfigs:
+        reqs_fulfilled = []
+        for req in fc.requirements:
+            req_fulfilled = getattr(filterconfig_requirements, req["function"])(
+                session, analysis_id, req["params"]
+            )
+            reqs_fulfilled.append(req_fulfilled)
+        if all(reqs_fulfilled):
+            valid_ids.append(fc.id)
+
+    if not valid_ids:
+        raise RuntimeError(
+            "Unable to find any valid filter configs for analysis id {} and usergroup id {}".format(
+                analysis_id, usergroup_id
+            )
+        )
+
+    return usergroup_filterconfigs.filter(sample.FilterConfig.id.in_(valid_ids))
+
+
+def get_usergroup_filter_configs(session, usergroup_id):
     return (
-        session.query(sample.FilterConfig.id)
-        .join(user.UserGroup, user.User)
-        .filter(user.User.id == user_id, sample.FilterConfig.default.is_(True))
+        session.query(sample.FilterConfig)
+        .join(sample.UserGroupFilterConfig)
+        .filter(
+            sample.UserGroupFilterConfig.usergroup_id == usergroup_id,
+            sample.FilterConfig.active.is_(True),
+        )
+        .order_by(sample.UserGroupFilterConfig.order)
     )

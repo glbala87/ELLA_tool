@@ -15,6 +15,11 @@ export default function getWorkflowsState() {
             interpretationlogs: null,
             stats: null
         },
+        modals: {
+            addExcludedAlleles: {
+                show: false
+            }
+        },
         id: null, // analysis id or allele id
         interpretation: getInterpretationState(),
         loaded: false, // Whether view should render

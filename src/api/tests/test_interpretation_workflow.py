@@ -25,6 +25,7 @@ ANALYSIS_ID = 2  # analysis_id = 2, allele 1-6
 ALLELE_ID = (
     18
 )  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+FILTERCONFIG_ID = 1
 
 ANALYSIS_ALLELE_IDS = [1, 3, 4, 7, 12, 13]
 
@@ -34,7 +35,7 @@ ALLELE_USERNAMES = ["testuser4", "testuser1", "testuser2"]
 
 @pytest.fixture(scope="module")
 def analysis_wh():
-    return WorkflowHelper("analysis", ANALYSIS_ID)
+    return WorkflowHelper("analysis", ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
 
 
 @pytest.fixture(scope="module")
@@ -165,7 +166,7 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], [1])
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -243,7 +244,7 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], [1])
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -316,7 +317,7 @@ class TestOther(object):
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], [1])
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -370,7 +371,7 @@ class TestFinalizationRequirements:
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("allele", 1, interpretation["id"], interpretation["allele_ids"])
+        r = ih.get_alleles("allele", 1, interpretation["id"], [1])
 
         assert r.status_code == 200
         alleles = r.get_json()
@@ -404,6 +405,7 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=[1],
         )
         assert r.status_code == 500
         assert (
@@ -439,6 +441,7 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=[1],
         )
         assert r.status_code == 200
 
@@ -462,7 +465,11 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        filtered_allele_ids = ih.get_filtered_alleles(
+            "analysis", 1, interpretation["id"], filterconfig_id=1
+        ).get_json()
+
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -496,6 +503,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_allele_ids["allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
         )
         assert (
             "Cannot finalize: Interpretation's workflow status is in one of required ones"
@@ -506,12 +515,14 @@ class TestFinalizationRequirements:
         ih.mark_medicalreview(
             "analysis",
             1,
-            {
-                "annotations": annotations,
-                "custom_annotations": custom_annotations,
-                "alleleassessments": alleleassessments,
-                "allelereports": allelereports,
-            },
+            ih.round_template(
+                annotations=annotations,
+                custom_annotations=custom_annotations,
+                alleleassessments=alleleassessments,
+                allelereports=allelereports,
+                allele_ids=filtered_allele_ids["allele_ids"],
+                excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            ),
             "testuser1",
         )
 
@@ -529,6 +540,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_allele_ids["allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
         )
 
     @pytest.mark.ai(order=2)
@@ -557,7 +570,11 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        filtered_allele_ids = ih.get_filtered_alleles(
+            "analysis", 1, interpretation["id"], filterconfig_id=1
+        ).get_json()
+
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
         assert r.status_code == 200
         alleles = r.get_json()
 
@@ -596,6 +613,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_allele_ids["allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -626,6 +645,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_allele_ids["allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -657,7 +678,11 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        filtered_alleles = ih.get_filtered_alleles(
+            "analysis", 1, interpretation["id"], filterconfig_id=1
+        ).get_json()
+
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_alleles["allele_ids"])
 
         assert r.status_code == 200
         alleles = r.get_json()
@@ -697,6 +722,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_alleles["allele_ids"],
+            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -727,6 +754,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_alleles["allele_ids"],
+            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -758,7 +787,11 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], interpretation["allele_ids"])
+        filtered_alleles = ih.get_filtered_alleles(
+            "analysis", 1, interpretation["id"], filterconfig_id=1
+        ).get_json()
+
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_alleles["allele_ids"])
 
         assert r.status_code == 200
         alleles = r.get_json()
@@ -798,6 +831,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_alleles["allele_ids"],
+            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -829,6 +864,8 @@ class TestFinalizationRequirements:
             allelereports,
             attachments,
             "testuser1",
+            allele_ids=filtered_alleles["allele_ids"],
+            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )

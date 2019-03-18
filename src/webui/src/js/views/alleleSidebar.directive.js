@@ -5,6 +5,8 @@ import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
+import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
+import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
 import template from './alleleSidebar.ngtmpl.html'
 
 const showQuickClassificationBtn = Compute(
@@ -41,6 +43,14 @@ const isToggled = Compute(
     }
 )
 
+const filterConfigs = Compute(
+    state`views.workflows.data.filterconfigs`,
+    state`views.workflows.interpretation.state.filterconfigId`,
+    (availableFilterconfigs, selectedFilterconfigId, get) => {
+        return availableFilterconfigs
+    }
+)
+
 app.component('alleleSidebar', {
     templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
@@ -48,8 +58,9 @@ app.component('alleleSidebar', {
             analysisId: state`views.workflows.data.analysis.id`,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
-            selectedInterpretation: state`views.workflows.interpretation`,
-            manuallyAddedAlleles: state`views.workflows.interpretation.state.manuallyAddedAlleles`,
+            selectedInterpretation: getSelectedInterpretation,
+            selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
+            manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
             excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
             showQuickClassificationBtn,
             expanded: isExpanded,
@@ -57,19 +68,43 @@ app.component('alleleSidebar', {
             isToggled,
             readOnly: isReadOnly,
             toggleExpanded: signal`views.workflows.alleleSidebar.toggleExpanded`,
-            addExcludedAllelesClicked: signal`modals.addExcludedAlleles.addExcludedAllelesClicked`
+            showAddExcludedAllelesClicked: signal`views.workflows.modals.addExcludedAlleles.showAddExcludedAllelesClicked`,
+            filterConfigs,
+            filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
+            selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`
         },
         'AlleleSidebar',
         [
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
+                $scope.$watch(
+                    () => {
+                        return $ctrl.selectedFilterConfig
+                    },
+                    () => {
+                        console.log($ctrl.selectedFilterConfig.filterconfig.filters)
+                    }
+                )
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {
                         return Object.values($ctrl.excludedAlleleIds)
                             .map((excluded_group) => excluded_group.length)
                             .reduce((total_length, length) => total_length + length)
+                    },
+                    isHistoricData: () => {
+                        return (
+                            !($ctrl.selectedInterpretationId === 'current') &&
+                            $ctrl.selectedInterpretation.status === 'Done'
+                        )
+                    },
+                    getFilterConfigs: () => {
+                        if ($ctrl.isHistoricData()) {
+                            return [$ctrl.selectedFilterConfig]
+                        } else {
+                            return $ctrl.filterConfigs
+                        }
                     }
                 })
             }

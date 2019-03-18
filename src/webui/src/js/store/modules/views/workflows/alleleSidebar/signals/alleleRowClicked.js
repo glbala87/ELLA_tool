@@ -2,7 +2,7 @@ import { set, toggle, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import setDirty from '../../interpretation/actions/setDirty'
 import getClassification from '../../interpretation/computed/getClassification'
-import selectedAlleleChanged from './selectedAlleleChanged'
+import selectedAlleleChanged from '../../sequences/selectedAlleleChanged'
 
 function canAddToReport({ state, props, path, resolve }) {
     const { alleleId } = props

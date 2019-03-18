@@ -1,5 +1,4 @@
 .modal {
-  top: 8.8rem;
   overflow: auto;
   &-content { background-color: white; box-shadow: none; border-radius: 0px; border: 0;
     sectionbox[modal="true"] > section {
@@ -8,16 +7,15 @@
   }
   // Set width logic to our own preferences
   &-dialog {
-    margin: auto auto;
+    margin: 8.8rem auto 5rem auto;
     max-width: calc(30rem + 50vw);
     max-width: calc(90vw);
     width: inherit;
-    margin-bottom: 5rem;
     overflow-y: auto;
   }
   &-lg { width: inherit; }
   &-backdrop { bottom: 0; position: fixed; top: 0;
-    z-index: 100000000;
+    z-index: 1040;
     opacity: 0.6;
     &.in {
       opacity: 0.6;

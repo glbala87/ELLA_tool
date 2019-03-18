@@ -914,6 +914,9 @@ class AlleleDataLoader(object):
                     list(transcripts_in_genepanel)
                 )
                 final_allele[KEY_ANNOTATION]["annotation_id"] = data[KEY_ANNOTATION]["id"]
+                final_allele[KEY_ANNOTATION]["schema_version"] = data[KEY_ANNOTATION][
+                    "schema_version"
+                ]
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]["custom_annotation_id"] = data[
                         KEY_CUSTOM_ANNOTATION

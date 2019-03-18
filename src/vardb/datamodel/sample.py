@@ -4,7 +4,7 @@
 import datetime
 import pytz
 
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Boolean, FetchedValue
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
@@ -99,7 +99,37 @@ class FilterConfig(Base):
     __tablename__ = "filterconfig"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(), nullable=False, unique=True)
+    name = Column(String(), nullable=False)
     filterconfig = Column(JSONMutableDict.as_mutable(JSONB), nullable=False)
+    schema_version = Column(Integer, nullable=False, server_default=FetchedValue())
+    requirements = Column(JSONB, nullable=False, default=[])
+    date_superceeded = Column("date_superceeded", DateTime(timezone=True))
+    previous_filterconfig_id = Column(Integer, ForeignKey("filterconfig.id"))
+    active = Column(Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return "<FilterConfig({}, {})>".format(self.id, self.name)
+
+
+class UserGroupFilterConfig(Base):
+    __tablename__ = "usergroupfilterconfig"
+
+    id = Column(Integer, primary_key=True)
     usergroup_id = Column(Integer, ForeignKey("usergroup.id"), nullable=False)
-    default = Column(Boolean, nullable=False, default=False)
+    filterconfig_id = Column(Integer, ForeignKey("filterconfig.id"), nullable=False)
+    order = Column(Integer, nullable=False)
+
+
+Index(
+    "uq_filterconfig_name_active_unique",
+    FilterConfig.name,
+    postgresql_where=FilterConfig.active.is_(True),
+    unique=True,
+)
+
+Index(
+    "uq_usergroupfilterconfig_unique",
+    UserGroupFilterConfig.usergroup_id,
+    UserGroupFilterConfig.filterconfig_id,
+    unique=True,
+)
