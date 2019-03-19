@@ -42,7 +42,7 @@ def upgrade():
     # Add schemas to database
     session = Session(bind=op.get_bind())
     update_schemas(session)
-    session.commit()
+    session.flush()
 
     # Run an update on the two tables that will run update trigger and set correct schema version on all rows
     print(

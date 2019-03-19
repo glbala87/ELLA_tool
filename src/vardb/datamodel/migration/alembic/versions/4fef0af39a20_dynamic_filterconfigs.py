@@ -46,7 +46,7 @@ def upgrade():
     conn = op.get_bind()
 
     # Set all current filterconfigs as inactive
-    op.add_column("filterconfig", sa.Column("active", sa.Boolean(), nullable=False))
+    op.add_column("filterconfig", sa.Column("active", sa.Boolean()))
     op.add_column(
         "filterconfig", sa.Column("date_superceeded", sa.DateTime(timezone=True), nullable=True)
     )
@@ -120,6 +120,7 @@ def upgrade():
         )
 
     op.drop_column("filterconfig", "usergroup_id")
+    op.alter_column("filterconfig", "active", nullable=False)
 
     # Set all existing analysis interpretations to point to the legacy filter config for the relevant user group
     analysis_interpretations = conn.execute(

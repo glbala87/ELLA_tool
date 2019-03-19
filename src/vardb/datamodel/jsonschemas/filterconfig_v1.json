@@ -34,9 +34,37 @@
                     },
                     "config": {
                         "type": "object",
-                        "optional": ["groups", "num_thresholds", "thresholds"],
+                        "optional": ["groups", "num_thresholds", "thresholds", "genes"],
                         "additionalProperties": false,
                         "properties": {
+                            "genes": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "patternProperties": {
+                                    "[0-9]+": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "thresholds": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "external": {
+                                                        "type": "number",
+                                                        "minimum": 0.0,
+                                                        "maximum": 1.0
+                                                    },
+                                                    "internal": {
+                                                        "type": "number",
+                                                        "minimum": 0.0,
+                                                        "maximum": 1.0
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
                             "groups": {
                                 "type": "object",
                                 "optional": ["external", "internal"],
@@ -338,7 +366,7 @@
                     },
                     "config": {
                         "type": "object",
-                        "required": ["classes"],
+                        "optional": ["classes"],
                         "additionalProperties": false,
                         "properties": {
                             "classes": {
@@ -524,7 +552,6 @@
             },
             "inheritancemodel": {
                 "type": "object",
-                "additionalProperties": false,
                 "properties": {
                     "name": {
                         "type": "string",
