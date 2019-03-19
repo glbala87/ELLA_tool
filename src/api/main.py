@@ -3,6 +3,8 @@ import os
 import sys
 import logging
 import time
+import datetime
+
 
 DEFAULT_STATIC_FILE = "index.html"
 REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
@@ -95,11 +97,19 @@ def serve_static(path=None):
 api = Api(app)
 
 
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            return o.isoformat()
+
+        return super().default(self, o)
+
+
 # Turn off caching for whole API
 @api.representation("application/json")
 def output_json(data, code, headers=None):
     """Makes a Flask response with a JSON encoded body"""
-    resp = make_response(json.dumps(data), code)
+    resp = make_response(json.dumps(data, cls=DateTimeEncoder), code)
     resp.headers.extend(headers or {})
     if "Cache-Control" not in resp.headers:
         resp.headers[
