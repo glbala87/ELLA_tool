@@ -13,7 +13,7 @@ def update_schemas(session):
     create_schema_triggers(session)
     base_path = os.path.dirname(os.path.abspath(__file__))
     for filename in os.listdir(base_path):
-        m = re.match("(?P<name>[a-z]+)_v(?P<version>[0-9]+).json", filename)
+        m = re.match("(?P<name>[a-z]+)_v(?P<version>[0-9]+).json$", filename)
         if not m:
             continue
 
