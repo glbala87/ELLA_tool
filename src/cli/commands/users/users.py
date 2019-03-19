@@ -330,7 +330,7 @@ def cmd_add_many_users(
             session.query(user.UserGroup.id).filter(user.UserGroup.name == u.pop("group")).one()[0]
         )
         if _user_exists(session, u["username"]):
-            u = _modify_user(session, u.pop("username"), **u)
+            u = _modify_user(session, u.pop("username"), logger.echo, **u)
         else:
             u = _add_user(session, logger.echo, **u)
 
