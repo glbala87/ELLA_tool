@@ -165,20 +165,20 @@ def _get_transcript_data(transcripts):
     return transcript_data
 
 
-def _get_slop(transcripts, slop):
-    slop_columns = OrderedDict()
-    slop_columns["#chromosome"] = lambda t, *args: t["chromosome"]
-    slop_columns["start"] = lambda t, start, end, slop, *args: str(start - slop)
-    slop_columns["end"] = lambda t, start, end, slop, *args: str(end + slop)
-    slop_columns["exon"] = lambda t, start, end, slop, exon_no: "%s__%s__exon%d" % (
+def _get_exon_regions(transcripts):
+    exon_columns = OrderedDict()
+    exon_columns["#chromosome"] = lambda t, *args: t["chromosome"]
+    exon_columns["start"] = lambda t, start, end, *args: str(start)
+    exon_columns["end"] = lambda t, start, end, *args: str(end)
+    exon_columns["exon"] = lambda t, start, end, exon_no: "%s__%s__exon%d" % (
         t["hgnc_symbol"],
         t["transcript_name"],
         exon_no,
     )
-    slop_columns["someValue"] = lambda t, *args: "0"
-    slop_columns["strand"] = lambda t, *args: t["strand"]
+    exon_columns["someValue"] = lambda t, *args: "0"
+    exon_columns["strand"] = lambda t, *args: t["strand"]
 
-    slop_data = "\t".join(list(slop_columns.keys()))
+    exon_regions_data = "\t".join(list(exon_columns.keys()))
     rows = []
 
     for t in transcripts:
@@ -208,13 +208,13 @@ def _get_slop(transcripts, slop):
             if end:
                 break
         for (es, ee, exon_no) in ranges:
-            row = [v(t, es, ee, slop, exon_no) for v in list(slop_columns.values())]
+            row = [v(t, es, ee, exon_no) for v in list(exon_columns.values())]
             rows.append(row)
 
     for r in sorted(rows, key=cmp_to_key(sort_rows)):
-        slop_data += "\n" + "\t".join(r)
+        exon_regions_data += "\n" + "\t".join(r)
 
-    return slop_data
+    return exon_regions_data
 
 
 def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes):
@@ -234,11 +234,10 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
         f.write(_get_phenotype_data(phenotypes))
     files["PHENOTYPES"] = phenotypes_file
 
-    for slop in [0, 2, 20]:
-        slop_file = os.path.join(tempfile.gettempdir(), basename + "_slop%d.bed" % slop)
-        with open(slop_file, "w") as f:
-            f.write(_get_slop(transcripts, slop))
-        files["SLOP%d" % slop] = slop_file
+    exon_regions_file = os.path.join(tempfile.gettempdir(), basename + "_exons.bed")
+    with open(exon_regions_file, "w") as f:
+        f.write(_get_exon_regions(transcripts))
+    files["EXON_REGIONS"] = exon_regions_file
 
     report_config_file = os.path.join(tempfile.gettempdir(), basename + "_report_config.txt")
     with open(report_config_file, "w") as f:
@@ -249,14 +248,8 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
         )
 
     files["REPORT_CONFIG"] = report_config_file
-    variables = dict()
-    if usergroup == "EGG" or usergroup == "testgroup02":
-        variables["targets"] = "excel"
-    else:
-        variables["targets"] = "ella"
 
-    variables["GP_NAME"] = genepanel_name
-    variables["GP_VERSION"] = genepanel_version
+    variables = {"targets": "ella", "GP_NAME": genepanel_name, "GP_VERSION": genepanel_version}
 
     print(json.dumps({"files": files, "variables": variables}, indent=4))
 
