@@ -323,8 +323,8 @@ def dump_alleleassessments(session, filename, with_analysis_names):
         t_total += t_get - t_start
         t_start = time.time()
 
-    rows.sort(key=lambda x: (x[0], x[1], x[2]))
-    csv_body.sort(key=lambda x: (x[0], x[1], x[2]))
+    rows.sort(key=lambda x: (x[0] or "", x[1] or "", x[2] or ""))
+    csv_body.sort(key=lambda x: (x[0] or "", x[1] or "", x[2] or ""))
 
     for r in rows:
         worksheet.append(r)
