@@ -61,23 +61,20 @@ def get_range(request):
 
 def get_partial_response(path, start, end):
     size = os.path.getsize(path)
-    data = None
+
+    if end is not None:
+        end = min(size - 1, end)
+    else:
+        end = size - 1
+
+    content_length = end - start + 1
+
     with open(path, "rb") as f:
         f.seek(start)
-        if end:
-            data = f.read(end - start + 1)
-        else:
-            data = f.read()
+        data = f.read(content_length)
 
     rv = Response(data, 206, mimetype=mimetypes.guess_type(path)[0], direct_passthrough=True)
-    if end:
-        if end - start + 1 > size:
-            end = size - start - 1
-        rv.headers.add("Content-Length", "{0}".format(end - start + 1, size))
-        rv.headers.add("Content-Range", "bytes {0}-{1}/{2}".format(start, end, size))
-    else:
-        rv.headers.add("Content-Length", "{0}".format(size))
-        rv.headers.add("Content-Range", "bytes {0}-{1}/{2}".format(start, size - 1, size))
+    rv.headers.add("Content-Range", "bytes {0}-{1}/{2}".format(start, end, size))
     return rv
 
 
