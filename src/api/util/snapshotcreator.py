@@ -7,6 +7,7 @@ from api.config import config
 class SnapshotCreator(object):
 
     EXCLUDED_FLAG = {
+        "classification": "CLASSIFICATION",
         "frequency": "FREQUENCY",
         "region": "REGION",
         "ppy": "POLYPYRIMIDINE",

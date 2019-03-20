@@ -68,6 +68,7 @@ class InterpretationSnapshotMixin(object):
     )
     filtered = Column(
         Enum(
+            "CLASSIFICATION",
             "FREQUENCY",
             "REGION",
             "POLYPYRIMIDINE",
