@@ -1010,6 +1010,7 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 raise RuntimeError("Missing snapshots for interpretation.")
 
             categories = {
+                "CLASSIFICATION": "classification",
                 "FREQUENCY": "frequency",
                 "REGION": "region",
                 "POLYPYRIMIDINE": "ppy",
