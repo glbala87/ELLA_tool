@@ -11,6 +11,6 @@ export default function postChangePassword({ http, path, state }) {
         })
         .catch((response) => {
             console.error(response)
-            return path.error({ errorMessage: response.response.result })
+            return path.error({ errorMessage: response.response.result.message })
         })
 }

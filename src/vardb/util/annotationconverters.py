@@ -73,7 +73,7 @@ HGVSC_DISTANCE_CHECK = [
     r"(?P<pm2>[\-\+]?)",
     r"(?P<ed2>([0-9]+)?)",
     r")?",  # End of region
-    r"([ACGT]|[BDHKMNRSVWY]|del|dup|ins)",  # All possible options following the position
+    r"([ACGT]|[BDHKMNRSVWY]|del|dup|ins|inv)",  # All possible options following the position
 ]
 HGVSC_DISTANCE_CHECK_REGEX = re.compile("".join(HGVSC_DISTANCE_CHECK))
 
@@ -244,6 +244,8 @@ def convert_csq(annotation):
         # All lists must be deterministic
         if "consequences" in transcript_data:
             transcript_data["consequences"] = sorted(transcript_data["consequences"])
+        else:
+            transcript_data["consequences"] = []
         transcripts.append(transcript_data)
 
     # VEP output is not deterministic, but we need it to be so
