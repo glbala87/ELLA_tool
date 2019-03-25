@@ -207,13 +207,15 @@ stop_review:
 
 release:
   stage: release
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
   script:
     - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
-    - make release-notes
   artifacts:
     paths:
     - ella-release-$CI_COMMIT_REF_NAME-*.tgz
-    - ella-releasenotes*.txt
     name: ella-release-$CI_COMMIT_REF_NAME
     when: on_success
     expire_in: 1 mo
