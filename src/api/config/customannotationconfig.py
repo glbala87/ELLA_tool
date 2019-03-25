@@ -23,7 +23,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-APC",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared APC",
             "only_for_genes": [583],
             "url_for_genes": {"583": "https://databases.lovd.nl/shared/view/APC"},
             "options": [
@@ -40,7 +40,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-APC",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [583],
             "url_for_genes": {"583": "https://insight-database.org/genes/APC"},
             "options": [
@@ -74,7 +74,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-BMPR1A",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared BMPR1A",
             "only_for_genes": [1076],
             "url_for_genes": {"1076": "https://databases.lovd.nl/shared/view/BMPR1A"},
             "options": [
@@ -161,7 +161,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-BRCA1",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared BRCA1",
             "only_for_genes": [1100],
             "url_for_genes": {"1100": "https://databases.lovd.nl/shared/view/BRCA1"},
             "options": [
@@ -265,7 +265,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-BRCA2",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared BRCA2",
             "only_for_genes": [1101],
             "url_for_genes": {"1101": "https://databases.lovd.nl/shared/view/BRCA2"},
             "options": [
@@ -318,7 +318,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-CDH1",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared CDH1",
             "only_for_genes": [1748],
             "url_for_genes": {"1748": "https://databases.lovd.nl/shared/view/CDH1"},
             "options": [
@@ -335,7 +335,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-CDKN2A",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared CDKN2A",
             "only_for_genes": [1787],
             "url_for_genes": {"1787": "https://databases.lovd.nl/shared/view/CDKN2A"},
             "options": [
@@ -371,7 +371,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-DICER1",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared DICER1",
             "only_for_genes": [17098],
             "url_for_genes": {"17098": "https://databases.lovd.nl/shared/genes/DICER1"},
             "options": [
@@ -388,7 +388,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_medgen-EXT1",
-            "name": "LOVD medgen",
+            "name": "LOVD medgen (not in use)",
             "only_for_genes": [3512],
             "url_for_genes": {"3512": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT1"},
             "options": [
@@ -404,8 +404,25 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "LOVD_shared-EXT1",
+            "name": "LOVD - Shared EXT1",
+            "only_for_genes": [3512],
+            "url_for_genes": {"3512": "https://databases.lovd.nl/shared/view/EXT1"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "LOVD_medgen-EXT2",
-            "name": "LOVD medgen",
+            "name": "LOVD medgen (not in use)",
             "only_for_genes": [3513],
             "url_for_genes": {"3513": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT2"},
             "options": [
@@ -421,8 +438,25 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "LOVD_shared-EXT2",
+            "name": "LOVD - Shared EXT2",
+            "only_for_genes": [3513],
+            "url_for_genes": {"3513": "https://databases.lovd.nl/shared/view/EXT2"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "LOVD_shared-FLCN ",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared FLCN",
             "only_for_genes": [27310],
             "url_for_genes": {"27310": "https://databases.lovd.nl/shared/view/FLCN"},
             "options": [
@@ -439,7 +473,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-HOXB13",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared HOXB13",
             "only_for_genes": [5112],
             "url_for_genes": {"5112": "https://databases.lovd.nl/shared/genes/HOXB13"},
             "options": [
@@ -492,9 +526,26 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MLH1",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [7127],
             "url_for_genes": {"7127": "https://insight-database.org/genes/MLH1"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MLH1",
+            "name": "LOVD - Shared MLH1",
+            "only_for_genes": [7127],
+            "url_for_genes": {"7127": "https://databases.lovd.nl/shared/view/MLH1"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -562,9 +613,26 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MSH2",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [7325],
             "url_for_genes": {"7325": "https://insight-database.org/genes/MSH2"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MSH2",
+            "name": "LOVD - Shared MSH2",
+            "only_for_genes": [7325],
+            "url_for_genes": {"7325": "https://databases.lovd.nl/shared/view/MSH2"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -632,9 +700,26 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MSH6",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [7329],
             "url_for_genes": {"7329": "https://insight-database.org/genes/MSH6"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MSH6",
+            "name": "LOVD - Shared MSH6",
+            "only_for_genes": [7329],
+            "url_for_genes": {"7329": "https://databases.lovd.nl/shared/view/MSH6"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -666,9 +751,26 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MUTYH",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [7527],
             "url_for_genes": {"7527": "https://insight-database.org/genes/MUTYH"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MUTYH",
+            "name": "LOVD - Shared MUTYH",
+            "only_for_genes": [7527],
+            "url_for_genes": {"7527": "https://databases.lovd.nl/shared/view/MUTYH"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -719,7 +821,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-PALB2",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared PALB2",
             "only_for_genes": [26144],
             "url_for_genes": {"26144": "https://databases.lovd.nl/shared/view/PALB2"},
             "options": [
@@ -753,7 +855,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-PMS2",
-            "name": "LOVD InSiGHT",
+            "name": "LOVD InSiGHT (not in use)",
             "only_for_genes": [9122],
             "url_for_genes": {"9122": "https://insight-database.org/genes/PMS2"},
             "options": [
@@ -769,8 +871,25 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "LOVD_shared-PMS2",
+            "name": "LOVD - Shared PMS2",
+            "only_for_genes": [9122],
+            "url_for_genes": {"9122": "https://databases.lovd.nl/shared/view/PMS2"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "LOVD_shared-POLD1",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared POLD1",
             "only_for_genes": [9175],
             "url_for_genes": {"9175": "https://databases.lovd.nl/shared/view/POLD1"},
             "options": [
@@ -787,7 +906,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-POLE",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared POLE",
             "only_for_genes": [9177],
             "url_for_genes": {"9177": "https://databases.lovd.nl/shared/view/POLE"},
             "options": [
@@ -823,7 +942,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared -PTEN",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared PTEN",
             "only_for_genes": [9588],
             "url_for_genes": {"9588": "https://databases.lovd.nl/shared/view/PTEN"},
             "options": [
@@ -876,7 +995,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-SDHB",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared SDHB",
             "only_for_genes": [10681],
             "url_for_genes": {"10681": "https://databases.lovd.nl/shared/view/SDHB"},
             "options": [
@@ -893,9 +1012,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-SDHD",
-            "name": "LOVD shared",
-            "only_for_genes": [10681],
-            "url_for_genes": {"10681": "https://databases.lovd.nl/shared/view/SDHD"},
+            "name": "LOVD - Shared SDHD",
+            "only_for_genes": [10683],
+            "url_for_genes": {"10683": "https://databases.lovd.nl/shared/view/SDHD"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -927,7 +1046,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-SMAD4",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared SMAD4",
             "only_for_genes": [6770],
             "url_for_genes": {"6770": "https://databases.lovd.nl/shared/view/SMAD4"},
             "options": [
@@ -963,7 +1082,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-STK11",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared STK11",
             "only_for_genes": [11389],
             "url_for_genes": {"11389": "https://databases.lovd.nl/shared/view/STK11"},
             "options": [
@@ -997,7 +1116,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-TP53",
-            "name": "LOVD shared",
+            "name": "LOVD - Shared TP53",
             "only_for_genes": [11998],
             "url_for_genes": {"11998": "https://databases.lovd.nl/shared/view/TP53"},
             "options": [
