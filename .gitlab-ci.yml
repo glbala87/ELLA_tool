@@ -208,7 +208,7 @@ stop_review:
 release:
   stage: release
   before_script:
-    - apk add --update make
+    - apk add --update make git
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker pull $IMAGE_NAME | cat
   script:

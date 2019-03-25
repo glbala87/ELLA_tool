@@ -127,8 +127,9 @@ tar-web-build:
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
+bundle-api: REF=$(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG))
 bundle-api:
-	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
+	git archive -o $(API_BUNDLE) $(REF)
 
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
