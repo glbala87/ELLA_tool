@@ -495,8 +495,9 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
         }
       }
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
+      &.qual { min-width: 6rem; text-align: center;}
       &.dp { min-width: 5rem; text-align: center;}
-      &.ratio { min-width: 7rem; text-align: center;}
+      &.ratio { min-width: 6rem; text-align: center;}
       &.hi-freq { min-width: 8rem; text-align: center;}
       &.hi-count { min-width: 8rem; text-align: center;}
       &.external { min-width: 10.5rem; text-align: center;}

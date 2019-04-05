@@ -7,12 +7,14 @@ import getDepthById from '../alleleSidebar/computed/getDepthById'
 import getAlleleRatioById from '../alleleSidebar/computed/getAlleleRatioById'
 import getHiFrequencyById from '../alleleSidebar/computed/getHiFrequencyById'
 import getExternalSummaryById from '../alleleSidebar/computed/getExternalSummaryById'
+import getQualById from '../alleleSidebar/computed/getQualById'
 import isManuallyAddedById from '../alleleSidebar/computed/isManuallyAddedById'
 
 function getSortFunctions(
     config,
     classification,
     verificationStatus,
+    qual,
     readDepth,
     alleleRatio,
     hiFreq,
@@ -91,6 +93,13 @@ function getSortFunctions(
         warning: (allele) => {
             return allele.warnings ? -1 : 1
         },
+        qual: (allele) => {
+            if (allele.id in qual) {
+                const q = parseInt(qual[allele.id].split(',')[0])
+                return isNaN(q) ? 1 : -q
+            }
+            return 0
+        },
         readDepth: (allele) => {
             if (allele.id in readDepth) {
                 const dp = parseInt(readDepth[allele.id].split(',')[0])
@@ -156,6 +165,7 @@ export default function sortAlleles(alleles, key, reverse) {
                 config,
                 get(getClassificationById(allelesById)),
                 get(getVerificationStatusById(allelesById)),
+                get(getQualById(allelesById)),
                 get(getDepthById(allelesById)),
                 get(getAlleleRatioById(allelesById)),
                 get(getHiFrequencyById(allelesById, 'freq')),

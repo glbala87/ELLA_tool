@@ -8,6 +8,7 @@ import isNonsenseById from '../store/modules/views/workflows/alleleSidebar/compu
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequenceById from '../store/modules/views/workflows/alleleSidebar/computed/getConsequenceById'
 import getHiFrequencyById from '../store/modules/views/workflows/alleleSidebar/computed/getHiFrequencyById'
+import getQualById from '../store/modules/views/workflows/alleleSidebar/computed/getQualById'
 import getDepthById from '../store/modules/views/workflows/alleleSidebar/computed/getDepthById'
 import getAlleleRatioById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleRatioById'
 import getExternalSummaryById from '../store/modules/views/workflows/alleleSidebar/computed/getExternalSummaryById'
@@ -61,6 +62,7 @@ app.component('alleleSidebarList', {
             config: state`app.config`,
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
             isManuallyAddedById: isManuallyAddedById(state`${props`allelesPath`}`),
+            qual: getQualById(state`${props`allelesPath`}`),
             depth: getDepthById(state`${props`allelesPath`}`),
             alleleassessments: getAlleleAssessmentsById,
             alleleStates: getAlleleStateById,
