@@ -39,7 +39,7 @@ export class ImportController {
     }
 
     pollForAnnotationJobs() {
-        let cancel = this.interval(() => this.getAnnotationjobs(), 5000)
+        let cancel = this.interval(() => this.getAnnotationjobs(), 20000)
         this.scope.$on('$destroy', () => this.interval.cancel(cancel))
     }
 
