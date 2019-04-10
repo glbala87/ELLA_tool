@@ -1,5 +1,13 @@
 <div class="sidebar" ng-class="{'constrain-size': $ctrl.constrainSize}">
     <div class="controls" ng-if="$ctrl.showControls">
+        <wysiwyg-editor
+            class="control-comment id-indications-comment"
+            templates="$ctrl.getReportIndicationsTemplates()"
+            ng-disabled="$ctrl.readOnly"
+            placeholder="INDICATIONS COMMENT"
+            ng-model="$ctrl.indicationsComment"
+            ng-change="$ctrl.indicationsCommentChanged({comment: $ctrl.indicationsComment})"
+        ></wysiwyg-editor>
         <div class="control-section">
             <button
                 class="blue id-add-excluded"
