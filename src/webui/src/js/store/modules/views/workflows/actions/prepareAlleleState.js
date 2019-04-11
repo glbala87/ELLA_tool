@@ -14,13 +14,11 @@ export default function prepareAlleleState({ state }) {
     const alleleStates = state.get('views.workflows.interpretation.state.allele')
     for (let [aId, allele] of Object.entries(alleles)) {
         if (!(aId in alleleStates)) {
-            alleleStates[aId] = {
-                allele_id: allele.id
-            }
+            alleleStates[aId] = {}
         }
 
         if (!('allele_id' in alleleStates[aId])) {
-            alleleStates[aId]['allele_id'] = aId
+            alleleStates[aId]['allele_id'] = allele.id
         }
 
         prepareAlleleStateModel(alleleStates[aId])
