@@ -4,7 +4,7 @@ customannotationconfig = {
     "external": [
         {
             "key": "LOVD_genomed_China-APC",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [583],
             "url_for_genes": {
                 "583": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=APC"
@@ -40,9 +40,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-APC",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT APC",
             "only_for_genes": [583],
-            "url_for_genes": {"583": "https://insight-database.org/genes/APC"},
+            "url_for_genes": {"583": "https://insight-database.org/#tabs-2"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -125,7 +125,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-BRCA1",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [1100],
             "url_for_genes": {
                 "1100": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA1"
@@ -229,7 +229,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-BRCA2",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [1101],
             "url_for_genes": {
                 "1101": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA2"
@@ -299,11 +299,28 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-CDH1",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [1748],
             "url_for_genes": {
                 "1748": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=CDH1"
             },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_InSiGHT-CDH1",
+            "name": "LOVD - InSiGHT CDH1",
+            "only_for_genes": [1748],
+            "url_for_genes": {"1748": "https://insight-database.org/#tabs-9"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -490,7 +507,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-MLH1",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [7127],
             "url_for_genes": {
                 "7127": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MLH1"
@@ -526,9 +543,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MLH1",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT MLH1",
             "only_for_genes": [7127],
-            "url_for_genes": {"7127": "https://insight-database.org/genes/MLH1"},
+            "url_for_genes": {"7127": "https://insight-database.org/#tabs-3"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -577,7 +594,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-MSH2",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [7325],
             "url_for_genes": {
                 "7325": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH2"
@@ -613,9 +630,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MSH2",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT MSH2",
             "only_for_genes": [7325],
-            "url_for_genes": {"7325": "https://insight-database.org/genes/MSH2"},
+            "url_for_genes": {"7325": "https://insight-database.org/#tabs-4"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -664,7 +681,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-MSH6",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [7329],
             "url_for_genes": {
                 "7329": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH6"
@@ -700,9 +717,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MSH6",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT MSH6",
             "only_for_genes": [7329],
-            "url_for_genes": {"7329": "https://insight-database.org/genes/MSH6"},
+            "url_for_genes": {"7329": "https://insight-database.org/#tabs-5"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -751,9 +768,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-MUTYH",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT MUTYH",
             "only_for_genes": [7527],
-            "url_for_genes": {"7527": "https://insight-database.org/genes/MUTYH"},
+            "url_for_genes": {"7527": "https://insight-database.org/#tabs-8"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -802,7 +819,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-PALB2",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [26144],
             "url_for_genes": {
                 "26144": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PALB2"
@@ -855,9 +872,9 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_InSiGHT-PMS2",
-            "name": "LOVD InSiGHT (not in use)",
+            "name": "LOVD - InSiGHT PMS2",
             "only_for_genes": [9122],
-            "url_for_genes": {"9122": "https://insight-database.org/genes/PMS2"},
+            "url_for_genes": {"9122": "https://insight-database.org/#tabs-6"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -923,7 +940,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-PTEN",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [9588],
             "url_for_genes": {
                 "9588": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PTEN"
@@ -1063,7 +1080,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-STK11",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [11389],
             "url_for_genes": {
                 "11389": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=STK11"
@@ -1133,7 +1150,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_genomed_China-VHL",
-            "name": "LOVD genomed China",
+            "name": "LOVD genomed China (not in use)",
             "only_for_genes": [12687],
             "url_for_genes": {
                 "12687": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=VHL"
