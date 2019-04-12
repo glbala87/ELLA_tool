@@ -7,6 +7,7 @@ import getDepthById from '../alleleSidebar/computed/getDepthById'
 import getAlleleRatioById from '../alleleSidebar/computed/getAlleleRatioById'
 import getHiFrequencyById from '../alleleSidebar/computed/getHiFrequencyById'
 import getExternalSummaryById from '../alleleSidebar/computed/getExternalSummaryById'
+import isManuallyAddedById from '../alleleSidebar/computed/isManuallyAddedById'
 
 function getSortFunctions(
     config,
@@ -16,7 +17,8 @@ function getSortFunctions(
     alleleRatio,
     hiFreq,
     hiCount,
-    externalSummary
+    externalSummary,
+    manuallyAdded
 ) {
     return {
         inheritance: (allele) => {
@@ -128,6 +130,9 @@ function getSortFunctions(
                 return -externalSummary[allele.id].length
             }
             return 0
+        },
+        manuallyAdded: (allele) => {
+            return manuallyAdded[allele.id] ? -1 : 1
         }
     }
 }
@@ -155,7 +160,8 @@ export default function sortAlleles(alleles, key, reverse) {
                 get(getAlleleRatioById(allelesById)),
                 get(getHiFrequencyById(allelesById, 'freq')),
                 get(getHiFrequencyById(allelesById, 'count')),
-                get(getExternalSummaryById(allelesById))
+                get(getExternalSummaryById(allelesById)),
+                get(isManuallyAddedById(allelesById))
             )
 
             const sortedAlleles = Object.values(alleles).slice()
