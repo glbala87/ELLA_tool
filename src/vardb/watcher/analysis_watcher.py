@@ -143,7 +143,7 @@ class AnalysisWatcher(object):
 
         try:
             gp = analysis_config["params"]["genepanel"]
-            gp_name, gp_version = gp.split("_")
+            gp_name, gp_version = gp.rsplit("_", 1)
             analysis_name = analysis_config["name"]
             priority = analysis_config.get("priority", 1)
             date_requested = analysis_config.get("date_analysis_requested")
