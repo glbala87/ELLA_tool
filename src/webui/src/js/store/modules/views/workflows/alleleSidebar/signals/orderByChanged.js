@@ -1,6 +1,4 @@
-import { set } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
-import toggleOrderBy from '../actions/toggleOrderBy'
 import sortSections from '../actions/sortSections'
+import toggleOrderBy from '../actions/toggleOrderBy'
 
 export default [toggleOrderBy, sortSections]

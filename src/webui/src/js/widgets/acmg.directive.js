@@ -9,6 +9,8 @@ import acmgPopover from './acmgPopover.ngtmpl.html'
     selector: 'acmg',
     scope: {
         code: '=', // Single code or Array of (same) codes
+        templates: '=',
+        references: '=?',
         commentModel: '=?',
         editable: '=?', // Defaults to false
         directreqs: '=?', // Defaults to false

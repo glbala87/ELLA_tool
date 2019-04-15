@@ -5,14 +5,14 @@ export default function copyExistingAlleleAssessments({ state, props }) {
     const { copyExistingAlleleAssessmentAlleleIds } = props
 
     for (const alleleId of copyExistingAlleleAssessmentAlleleIds) {
-        const allele = state.get(`views.workflows.data.alleles.${alleleId}`)
+        const allele = state.get(`views.workflows.interpretation.data.alleles.${alleleId}`)
         if (!allele.allele_assessment) {
             throw Error(
                 `Tried to copy existing alleleassessment for allele id ${alleleId}, which doesn't exist.`
             )
         }
         const existing = state.get(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment`
+            `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment`
         )
         if (existing.reuse) {
             throw Error(
@@ -26,7 +26,7 @@ export default function copyExistingAlleleAssessments({ state, props }) {
         })
         prepareAlleleAssessmentModel(copiedAlleleAssessment)
         state.set(
-            `views.workflows.interpretation.selected.state.allele.${alleleId}.alleleassessment`,
+            `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment`,
             copiedAlleleAssessment
         )
     }

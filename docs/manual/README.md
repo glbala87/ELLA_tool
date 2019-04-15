@@ -4,45 +4,55 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 
 <hr>
 
-[OVERVIEW page](/manual/overview-page.html)   
-*Data and workflows*
+**OVERVIEW page**  
+*Data and worklists*
   
 <div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
 
-- [Data export for Sanger verification](/manual/overview-page.html#export-report-for-sanger-verification)
-- [Data import and reanalyses](/manual/overview-page.html#data-import-and-reanalyses)
-- [Choice of workflow and analysis (sample) or variant](/manual/overview-page.html#workflows)
-- [Search](/manual/overview-page.html#search-and-edit-variants-and-samples)
+- [Choosing a sample or variant](/manual/choosing-sample-variant.md): Select from worklist or perform a search.
+- [Data import](/manual/data-import.md): Import additional data from VCF/text.
+- [Reanalyses](/manual/reanalyses.md): Perform reanalyses with other gene panel on existing data.
+- [User information and warnings](/manual/user-info-warnings.md): Information and warnings related to user, variant or workflow.
+- [Data export for Sanger](/manual/export-sanger.md): Export samples/variants to be verified by Sanger.
 
 <hr>	  
 	  
-[INFO page](/manual/info-page.html)  
-*Warnings, sample information and coverage*
+**INFO page**  
+*Sample information and warnings*
 
 <div style="text-indent: 4%;"><img src="./img/nav_info_btn.png"></div>
 
+- [Info page](/manual/info-page.html)
+
 <hr>
 
-[CLASSIFCATION page](/manual/classification-page.html)  
+**CLASSIFCATION page**  
 *Evaluate evidence and set a classification*
 
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
 
-- [Top bar](/manual/top-bar.html) – information and actions (excluded variants, work log)
-- [Side bar](/manual/side-bar.html) – variant list and quick classification
-- [Sections for evidence](/manual/evidence-sections.html) - evaluate annotation and studies
-- [Section for classification](/manual/classification-section.html) - summarise and set ACMG criteria and classification
+- [Classification page](/manual/classification-page.html): Overview and basics.
+- [Filtered variants](/manual/filtered-variants.html): View and optionally add back variants that have been removed from view.
+- [Work log](/manual/worklog.html): System and user messages related to current analysis/interpretation.  
+- [Top bar](/manual/top-bar.html): Info and actions.
+- [Side bar](/manual/side-bar.html): Variant list and tags, and quick classification.
+- [Sections for evidence](/manual/evidence-sections.html): Evaluate annotation and studies.
+- [Section for classification](/manual/classification-section.html): Summarise and set ACMG criteria and classification.
 	  
 <hr>
 
-[VISUALISATION page](/manual/visualisation-page.html)  
+**VISUALISATION page**  
 *Visualise variants, bam files and tracks*
 
 <div style="text-indent: 4%;"><img src="./img/nav_visualisation_btn.png"></div>
 
+- [Visualisation page](/manual/visualisation-page.html)
+
 <hr>	
 
-[REPORT page](/manual/report-page.html)  
+**REPORT page**  
 *Generate a clinical report*
 
 <div style="text-indent: 4%;"><img src="./img/nav_report_btn.png"></div>
+
+- [Report page](/manual/report-page.html) 

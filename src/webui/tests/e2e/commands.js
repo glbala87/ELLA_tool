@@ -1,7 +1,7 @@
 const { execSync, spawnSync } = require('child_process')
 
 function waitForCerebral() {
-    browser.timeouts('script', 2000).executeAsync(function(done) {
+    browser.timeouts('script', 10000).executeAsync(function(done) {
         const MAX_WAIT = 1000
         const CHECK_INTERVAL = 10
 
@@ -73,10 +73,10 @@ module.exports = function addCommands() {
     browser.addCommand('resetDb', (testset = 'e2e') => {
         console.log(`Resetting database with '${testset}' (this can take a while...)`)
         try {
-            execSync(`/ella/ella-cli database drop -f`, {
+            execSync(`ella-cli database drop -f`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
-            execSync(`psql -U postgres -d postgres < /dbdump_${testset}.sql`, {
+            execSync(`psql postgres < /ella/dbdump_${testset}.sql`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
             console.log('Database reset from dump done!')
@@ -84,7 +84,7 @@ module.exports = function addCommands() {
             execSync(`make -C /ella dbreset TESTSET=${testset}`, {
                 stdio: ['ignore', 'ignore', 'pipe']
             })
-            execSync(`pg_dump -U postgres -d postgres > /dbdump_${testset}.sql`)
+            execSync(`pg_dump postgres > /ella/dbdump_${testset}.sql`)
             console.log('Database reset done!')
         }
     })

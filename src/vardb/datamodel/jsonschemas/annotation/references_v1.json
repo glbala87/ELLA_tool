@@ -1,0 +1,35 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "array",
+    "additionalItems": false,
+    "items": {
+        "type": "object",
+        "required": ["pubmed_id", "source_info", "sources"],
+        "additionalProperties": false,
+        "properties": {
+            "pubmed_id": {
+                "type": "integer"
+            },
+            "source_info": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "HGMD": {
+                        "type": "string"
+                    },
+                    "CLINVAR": {
+                        "type": "string"
+                    }
+                }
+            },
+            "sources": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": ["HGMD", "CLINVAR"]
+                }
+            }
+        }
+    }
+}

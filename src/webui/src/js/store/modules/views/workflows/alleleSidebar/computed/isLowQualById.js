@@ -1,7 +1,7 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 
-export default Compute(state`views.workflows.data.alleles`, (alleles) => {
+export default Compute(state`views.workflows.interpretation.data.alleles`, (alleles) => {
     const result = {}
     if (!alleles) {
         return result

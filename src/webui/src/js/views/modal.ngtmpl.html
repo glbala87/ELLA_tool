@@ -1,8 +1,14 @@
-<div role="dialog" class="modal new-fade ng-isolate-scope in" style="z-index: 1050; display: block;" ng-click="$ctrl.dismiss()">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="min-height: 10rem; z-index: 1055;" ng-click="$event.stopPropagation();">
+<div
+    ng-if="$ctrl.show"
+    role="dialog"
+    class="modal"
+    style="z-index: 1050; display: block;"
+    ng-click="$ctrl.outsideClick(); $event.stopPropagation();"
+>
+    <div class="modal-dialog modal-lg" ng-click="$event.stopPropagation();">
+        <div class="modal-content" style="min-height: 10rem; z-index: 1055;">
             <ng-transclude></ng-transclude>
         </div>
     </div>
 </div>
-<div class="modal-backdrop new-fade in" style="z-index: 1040;"></div>
+<div ng-if="$ctrl.show" class="modal-backdrop" style="z-index: 1040;"></div>

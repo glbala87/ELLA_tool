@@ -37,7 +37,7 @@ function formatHGVS(allele, classification, config) {
 }
 
 const getReportAlleleData = Compute(
-    state`views.workflows.data.alleles`,
+    state`views.workflows.interpretation.data.alleles`,
     state`app.config`,
     (alleles, config, get) => {
         if (!alleles) {
@@ -77,9 +77,12 @@ app.component('reportCard', {
     templateUrl: 'reportcard.ngtmpl.html',
     controller: connect(
         {
-            reportComment: state`views.workflows.interpretation.selected.state.report.comment`,
+            commentTemplates: state`app.commentTemplates`,
+            reportComment: state`views.workflows.interpretation.state.report.comment`,
+            indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
             readOnly: isReadOnly,
             reportAlleles: getReportAlleleData,
+            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
             reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`
         },
         'ReportCard',
@@ -92,6 +95,12 @@ app.component('reportCard', {
                 Object.assign($ctrl, {
                     getReportComment(allele) {
                         return this.sce.trustAsHtml(this.getAlleleReport(allele).evaluation.comment)
+                    },
+                    getReportIndicationsTemplates() {
+                        return $ctrl.commentTemplates['reportIndications']
+                    },
+                    getReportSummaryTemplates() {
+                        return $ctrl.commentTemplates['reportSummary']
                     }
                 })
             }

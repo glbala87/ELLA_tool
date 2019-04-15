@@ -39,7 +39,7 @@ export class ImportController {
     }
 
     pollForAnnotationJobs() {
-        let cancel = this.interval(() => this.getAnnotationjobs(), 5000)
+        let cancel = this.interval(() => this.getAnnotationjobs(), 20000)
         this.scope.$on('$destroy', () => this.interval.cancel(cancel))
     }
 
@@ -77,7 +77,7 @@ export class ImportController {
         let currentFile = ''
         let uuid = null
         for (let l of lines) {
-            if (l.trim() == '') continue
+            if (l.trim() === '') continue
 
             // Check if start of new file
             if (!uuid || l.startsWith('-')) {
@@ -216,7 +216,6 @@ export class ImportModal {
                 ImportController
             ],
             controllerAs: 'vm',
-            size: 'lg',
             backdrop: 'static'
         })
 

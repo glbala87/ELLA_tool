@@ -1,10 +1,8 @@
 /* jshint esnext: true */
 
-import { Directive, Inject } from '../../ng-decorators'
-
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, string, signal } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import template from './alleleInfoPredictionOther.ngtmpl.html'
 
 app.component('alleleInfoPredictionOther', {
@@ -12,7 +10,7 @@ app.component('alleleInfoPredictionOther', {
     controller: connect(
         {
             config: state`app.config`,
-            allele: state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
         },
         'AlleleInfoPredictionOther',
         [

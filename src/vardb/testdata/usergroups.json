@@ -5,8 +5,29 @@
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
-                "views": ["variants", "analyses-by-findings", "import"]
+                "views": ["variants", "analyses-by-findings", "import"],
+                "show_variant_report": true
             },
+            "comment_templates": [
+                {
+                    "name": "Example template",
+                    "comment_fields": [
+                        "classificationAnalysisSpecific",
+                        "classificationEvaluation",
+                        "classificationAcmg",
+                        "classificationReport",
+                        "classificationFrequency",
+                        "classificationPrediction",
+                        "classificationExternal",
+                        "classificationReferences",
+                        "reportIndications",
+                        "reportSummary",
+                        "referenceEvaluation",
+                        "workLogMessage"
+                    ],
+                    "template": "<h3>Example template</h3><ol><li>Example one</li><li>Example two</li><li>Example three</li></ol>"
+                }
+            ],
             "acmg": {
                 "frequency": {
                     "thresholds": {
@@ -59,11 +80,10 @@
                 }
             },
             "deposit": {
-                "postprocess": [
+                "analysis": [
                     {
-                        "name": "^NonExistingPattern.*",
-                        "type": "analysis",
-                        "methods": [
+                        "pattern": "^NonExistingPattern.*",
+                        "postprocess": [
                             "analysis_not_ready_findings",
                             "analysis_finalize_without_findings"
                         ]
@@ -78,7 +98,36 @@
         "default_import_genepanel": ["Mendeliome", "v01"],
         "config": {
             "overview": {
-                "views": ["analyses", "import"]
+                "views": ["analyses", "import"],
+                "show_variant_report": false
+            },
+            "deposit": {
+                "analysis": [
+                    {
+                        "pattern": "^HG002-Trio.Mendeliome_v01",
+                        "postprocess": [],
+                        "prefilter": true
+                    },
+                    {
+                        "pattern": ".*Ciliopati.*",
+                        "postprocess": [],
+                        "prefilter": true
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "name": "testgroup03",
+        "genepanels": [
+            ["Ciliopati", "v05"],
+            ["Mendeliome", "v01"],
+            ["HBOC", "v01"],
+            ["HBOCUTV", "v01"]
+        ],
+        "config": {
+            "overview": {
+                "views": ["analyses"]
             }
         }
     }

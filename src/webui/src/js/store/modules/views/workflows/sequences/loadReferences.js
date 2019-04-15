@@ -1,13 +1,13 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getReferences from '../actions/getReferences'
+import { set } from 'cerebral/operators'
+import { props, state } from 'cerebral/tags'
 import toast from '../../../../common/factories/toast'
+import getReferences from '../actions/getReferences'
 
 export default sequence('loadReferences', [
     getReferences,
     {
-        success: [set(state`views.workflows.data.references`, props`result`)],
+        success: [set(state`views.workflows.interpretation.data.references`, props`result`)],
         error: [toast('error', 'Failed to load references', 30000)]
     }
 ])

@@ -1,12 +1,12 @@
-import mock from 'xhr-mock'
-import Devtools from 'cerebral/devtools'
-import { CerebralTest } from 'cerebral/test'
-import RootModule from '../..'
 import { Module } from 'cerebral'
-import prepareInterpretationState from './sequences/prepareInterpretationState'
-import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
-import finishConfirmationClicked from './signals/finishConfirmationClicked'
+import { CerebralTest } from 'cerebral/test'
+import mock from 'xhr-mock'
+import RootModule from '../..'
 import setReferenceAssessment from './interpretation/actions/setReferenceAssessment'
+import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAssessmentClicked'
+import prepareInterpretationState from './sequences/prepareInterpretationState'
+import finishConfirmationClicked from './modals/finishConfirmation/signals/finishConfirmationClicked'
+import copyInterpretationState from './actions/copyInterpretationState'
 
 const EMPTY_EVALUATION = {
     prediction: {
@@ -40,7 +40,8 @@ describe('Handling of allele state', () => {
                     prepareInterpretationState,
                     reuseAlleleAssessmentClicked,
                     finishConfirmationClicked,
-                    setReferenceAssessment: [setReferenceAssessment]
+                    setReferenceAssessment: [setReferenceAssessment],
+                    copyInterpretationState: [copyInterpretationState]
                 }
             })
         )
@@ -104,171 +105,180 @@ describe('Handling of allele state', () => {
             id: 1,
             type: 'allele',
             data: {
-                alleles: {
-                    1: {
-                        annotation: {
-                            annotation_id: 1,
-                            references: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
-                        },
+                interpretations: [
+                    {
                         id: 1,
-                        reference_assessments: [
-                            {
-                                id: 1,
-                                reference_id: 1,
-                                allele_id: 1,
-                                evaluation: { case: 'NEW' }
-                            },
-                            {
-                                id: 2,
-                                reference_id: 2,
-                                allele_id: 1,
-                                evaluation: { case: 'NEW WITH OLD' }
-                            },
-                            {
-                                id: 3,
-                                reference_id: 3,
-                                allele_id: 1,
-                                evaluation: { case: 'NEW WITH USER CONTENT' }
-                            }
-                        ]
-                    },
-                    2: {
-                        annotation: {
-                            annotation_id: 2,
-                            references: [{ id: 1 }]
+                        user: {
+                            id: 1
                         },
-                        id: 2,
-                        allele_assessment: {
-                            evaluation: { case: 'NEW' },
-                            classification: '3',
-                            id: 2,
-                            seconds_since_update: 1
-                        },
-                        allele_report: {
-                            id: 2,
-                            evaluation: { case: 'NEW' }
-                        },
-                        reference_assessments: [
-                            {
-                                id: 4,
-                                reference_id: 1,
-                                allele_id: 2,
-                                evaluation: { case: 'ALLELEASSESSMENT IS REUSED' }
-                            }
-                        ]
-                    },
-                    3: {
-                        annotation: {
-                            annotation_id: 3,
-                            references: [{ id: 1 }]
-                        },
-                        id: 3,
-                        allele_report: {
-                            id: 3,
-                            evaluation: { case: 'SAME' }
-                        },
-                        allele_assessment: {
-                            evaluation: { case: 'NEW OUTDATED' },
-                            classification: '3',
-                            id: 3,
-                            seconds_since_update: 180 * 3600 * 24 + 1
-                        }
-                    },
-                    4: {
-                        annotation: {
-                            annotation_id: 4,
-                            references: [{ id: 1 }]
-                        },
-                        id: 4,
-                        allele_report: {
-                            id: 4,
-                            evaluation: { case: 'NEW WITH OLD' }
-                        },
-                        allele_assessment: {
-                            evaluation: { case: 'NEW WITH OLD' },
-                            classification: '3',
-                            id: 4,
-                            seconds_since_update: 1
-                        }
-                    }
-                },
-                references: [{ id: 1 }, { id: 2 }, { id: 3 }]
-            },
-            interpretation: {
-                isOngoing: true,
-                selected: {
-                    id: 1,
-                    user: {
-                        id: 1
-                    },
-                    workflow_status: 'Interpretation',
-                    status: 'Ongoing',
-                    allele_ids: [1, 2, 3, 4],
-                    state: {
-                        allele: {
-                            1: {
-                                allele_id: 1,
-                                referenceassessments: [
-                                    {
-                                        reference_id: 2,
-                                        allele_id: 1,
+                        workflow_status: 'Interpretation',
+                        status: 'Ongoing',
+                        // allele_ids: [1, 2, 3, 4],
+                        state: {
+                            allele: {
+                                1: {
+                                    allele_id: 1,
+                                    referenceassessments: [
+                                        {
+                                            reference_id: 2,
+                                            allele_id: 1,
+                                            reuse: false,
+                                            evaluation: {
+                                                key: 'SHOULD BE GONE'
+                                            },
+                                            reuseCheckedId: 1
+                                        },
+                                        {
+                                            reference_id: 3,
+                                            allele_id: 1,
+                                            evaluation: {
+                                                key: 'SHOULD BE GONE'
+                                            }
+                                        }
+                                    ]
+                                },
+                                3: {
+                                    allele_id: 3,
+                                    allelereport: {
+                                        evaluation: { key: 'SHOULD BE KEPT' },
+                                        copiedFromId: 3
+                                    }
+                                },
+                                4: {
+                                    allele_id: 4,
+                                    alleleassessment: {
+                                        reuseCheckedId: 3,
                                         reuse: false,
                                         evaluation: {
                                             key: 'SHOULD BE GONE'
                                         },
-                                        reuseCheckedId: 1
+                                        classification: 'SHOULD BE GONE'
                                     },
-                                    {
-                                        reference_id: 3,
-                                        allele_id: 1,
-                                        evaluation: {
-                                            key: 'SHOULD BE GONE'
+                                    allelereport: {
+                                        evaluation: { key: 'SHOULD BE REPLACED' },
+                                        copiedFromId: 1
+                                    },
+                                    referenceassessments: [
+                                        {
+                                            reference_id: 1,
+                                            allele_id: 4,
+                                            evaluation: {
+                                                key: 'ALLELEASSESSMENT REUSED -> SHOULD BE GONE'
+                                            }
                                         }
-                                    }
-                                ]
-                            },
-                            3: {
-                                allele_id: 3,
-                                allelereport: {
-                                    evaluation: { key: 'SHOULD BE KEPT' },
-                                    copiedFromId: 3
+                                    ]
                                 }
+                            }
+                        },
+                        user_state: {}
+                    }
+                ]
+            },
+            interpretation: {
+                data: {
+                    alleles: {
+                        1: {
+                            annotation: {
+                                annotation_id: 1,
+                                references: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
                             },
-                            4: {
-                                allele_id: 4,
-                                alleleassessment: {
-                                    reuseCheckedId: 3,
-                                    reuse: false,
-                                    evaluation: {
-                                        key: 'SHOULD BE GONE'
-                                    },
-                                    classification: 'SHOULD BE GONE'
+                            id: 1,
+                            reference_assessments: [
+                                {
+                                    id: 1,
+                                    reference_id: 1,
+                                    allele_id: 1,
+                                    evaluation: { case: 'NEW' }
                                 },
-                                allelereport: {
-                                    evaluation: { key: 'SHOULD BE REPLACED' },
-                                    copiedFromId: 1
+                                {
+                                    id: 2,
+                                    reference_id: 2,
+                                    allele_id: 1,
+                                    evaluation: { case: 'NEW WITH OLD' }
                                 },
-                                referenceassessments: [
-                                    {
-                                        reference_id: 1,
-                                        allele_id: 4,
-                                        evaluation: {
-                                            key: 'ALLELEASSESSMENT REUSED -> SHOULD BE GONE'
-                                        }
-                                    }
-                                ]
+                                {
+                                    id: 3,
+                                    reference_id: 3,
+                                    allele_id: 1,
+                                    evaluation: { case: 'NEW WITH USER CONTENT' }
+                                }
+                            ]
+                        },
+                        2: {
+                            annotation: {
+                                annotation_id: 2,
+                                references: [{ id: 1 }]
+                            },
+                            id: 2,
+                            allele_assessment: {
+                                evaluation: { case: 'NEW' },
+                                classification: '3',
+                                id: 2,
+                                seconds_since_update: 1
+                            },
+                            allele_report: {
+                                id: 2,
+                                evaluation: { case: 'NEW' }
+                            },
+                            reference_assessments: [
+                                {
+                                    id: 4,
+                                    reference_id: 1,
+                                    allele_id: 2,
+                                    evaluation: { case: 'ALLELEASSESSMENT IS REUSED' }
+                                }
+                            ]
+                        },
+                        3: {
+                            annotation: {
+                                annotation_id: 3,
+                                references: [{ id: 1 }]
+                            },
+                            id: 3,
+                            allele_report: {
+                                id: 3,
+                                evaluation: { case: 'SAME' }
+                            },
+                            allele_assessment: {
+                                evaluation: { case: 'NEW OUTDATED' },
+                                classification: '3',
+                                id: 3,
+                                seconds_since_update: 180 * 3600 * 24 + 1
+                            }
+                        },
+                        4: {
+                            annotation: {
+                                annotation_id: 4,
+                                references: [{ id: 1 }]
+                            },
+                            id: 4,
+                            allele_report: {
+                                id: 4,
+                                evaluation: { case: 'NEW WITH OLD' }
+                            },
+                            allele_assessment: {
+                                evaluation: { case: 'NEW WITH OLD' },
+                                classification: '3',
+                                id: 4,
+                                seconds_since_update: 1
                             }
                         }
                     },
-                    user_state: {}
-                }
+                    references: [{ id: 1 }, { id: 2 }, { id: 3 }],
+                    filteredAlleleIds: {
+                        allele_ids: [1, 2, 3, 4],
+                        excluded_allele_ids: []
+                    }
+                },
+                isOngoing: true,
+                selectedId: 1
             }
         })
-
+        cerebral.runSignal('test.copyInterpretationState', {})
         let result = await cerebral.runSignal('test.prepareInterpretationState', {})
         let state = result.state
 
-        let interpretationState = state.views.workflows.interpretation.selected.state
+        let interpretationState = state.views.workflows.interpretation.state
         // Allele 1:
         let alleleState1 = interpretationState.allele['1']
 
@@ -377,7 +387,7 @@ describe('Handling of allele state', () => {
             alleleId: 2
         })
         state = result.state
-        interpretationState = state.views.workflows.interpretation.selected.state
+        interpretationState = state.views.workflows.interpretation.state
         // Allele 2 should now be not reused, existing assessment copied in
         alleleState2 = interpretationState.allele['2']
         expect(alleleState2.alleleassessment.reuse).toBe(false)
@@ -386,7 +396,7 @@ describe('Handling of allele state', () => {
 
         result = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 2 })
         state = result.state
-        interpretationState = state.views.workflows.interpretation.selected.state
+        interpretationState = state.views.workflows.interpretation.state
         // Allele 2 should now be reused
         alleleState2 = interpretationState.allele['2']
         expect(alleleState2.alleleassessment).toEqual({
@@ -401,8 +411,9 @@ describe('Handling of allele state', () => {
             referenceId: 3,
             evaluation
         })
+
         state = result.state
-        const alleleState = state.views.workflows.interpretation.selected.state.allele['1']
+        const alleleState = state.views.workflows.interpretation.state.allele['1']
         expect(alleleState.referenceassessments).toEqual(
             jasmine.arrayContaining([
                 {
@@ -418,13 +429,13 @@ describe('Handling of allele state', () => {
 
         // We need to classify all variants first
         cerebral.setState(
-            'views.workflows.interpretation.selected.state.allele.1.alleleassessment.classification',
+            'views.workflows.interpretation.state.allele.1.alleleassessment.classification',
             '1'
         )
 
         // Modify one AlleleReport to simluate user change
         cerebral.setState(
-            'views.workflows.interpretation.selected.state.allele.2.allelereport.evaluation.case',
+            'views.workflows.interpretation.state.allele.2.allelereport.evaluation.case',
             'CHANGED'
         )
 
@@ -755,55 +766,55 @@ describe('Handling of allele state', () => {
         cerebral.setState('views.workflows', {
             id: 1,
             type: 'analysis',
-            data: {
-                alleles: {
-                    584: {
-                        allele_assessment: {
-                            id: 1,
-                            seconds_since_update: 1,
-                            classification: '5'
-                        },
-                        reference_assessments: [
-                            {
-                                id: 1,
-                                allele_id: 584,
-                                reference_id: 521,
-                                evaluation: { key: 'SOMETHING' }
-                            }
-                        ],
-                        id: 584
-                    },
-                    585: {
-                        id: 585
-                    },
-                    586: {
-                        id: 586
-                    },
-                    589: {
-                        allele_assessment: {
-                            id: 2,
-                            seconds_since_update: 1,
-                            classification: '5'
-                        },
-                        id: 589
-                    }
-                },
-                references: [{ id: 1 }]
-            },
             interpretation: {
-                selected: {
-                    id: 1,
-                    status: 'Ongoing',
-                    allele_ids: [584, 585, 586, 589],
-                    state: MIGRATION_BASE,
-                    user_state: {}
-                }
+                data: {
+                    alleles: {
+                        584: {
+                            allele_assessment: {
+                                id: 1,
+                                seconds_since_update: 1,
+                                classification: '5'
+                            },
+                            reference_assessments: [
+                                {
+                                    id: 1,
+                                    allele_id: 584,
+                                    reference_id: 521,
+                                    evaluation: { key: 'SOMETHING' }
+                                }
+                            ],
+                            id: 584
+                        },
+                        585: {
+                            id: 585
+                        },
+                        586: {
+                            id: 586
+                        },
+                        589: {
+                            allele_assessment: {
+                                id: 2,
+                                seconds_since_update: 1,
+                                classification: '5'
+                            },
+                            id: 589
+                        }
+                    },
+                    references: [{ id: 1 }]
+                },
+                id: 1,
+                status: 'Ongoing',
+                filteredAlleleIds: {
+                    allele_ids: [584, 585, 586, 589]
+                },
+                state: MIGRATION_BASE,
+                userState: {}
             }
         })
 
         const { state } = await cerebral.runSignal('test.prepareInterpretationState', {})
 
-        const interpretationState = state.views.workflows.interpretation.selected.state
+        const interpretationState = state.views.workflows.interpretation.state
 
         // Allele 584: Was reused before migration -> should have cleaned out alleleassessment
         expect(interpretationState.allele['584']).toEqual({

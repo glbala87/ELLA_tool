@@ -1,6 +1,6 @@
 import { parallel } from 'cerebral'
 import { set } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import getImportJobs from '../actions/getImportJobs'
 import toast from '../../../../common/factories/toast'
 

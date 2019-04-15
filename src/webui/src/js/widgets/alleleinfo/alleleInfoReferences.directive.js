@@ -1,6 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, props, string, signal } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import getReferenceAnnotation from '../../store/modules/views/workflows/interpretation/computed/getReferenceAnnotation'
 import template from './alleleInfoReferences.ngtmpl.html'
 
@@ -14,11 +14,10 @@ app.component('alleleInfoReferences', {
         {
             references: getReferenceAnnotation(
                 props`type`,
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-                state`views.workflows.interpretation.selected`,
-                state`views.workflows.data.references`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
+                state`views.workflows.interpretation.data.references`
             ),
-            showExcluded: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`
+            showExcluded: state`views.workflows.interpretation.userState.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`
         },
         'AlleleInfoReferences',
         [

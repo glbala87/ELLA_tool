@@ -1,6 +1,6 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import template from './collisionWarning.ngtmpl.html'
 
 app.component('collisionWarning', {

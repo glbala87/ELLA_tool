@@ -12,7 +12,7 @@ const SECTIONS = [
     'marked_medicalreview'
 ]
 
-export default function getOverviewAnalysesByFindings({ http, props, path, state }) {
+export default function getOverviewAnalysesByFindings({ http, path, state }) {
     return http
         .get('overviews/analyses/by-findings/')
         .then((response) => {

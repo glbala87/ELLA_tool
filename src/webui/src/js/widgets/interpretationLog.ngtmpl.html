@@ -16,7 +16,7 @@
                 ng-model="$ctrl.modelReviewComment"
                 ng-model-watch="$ctrl.reviewComment"
                 ng-disabled="$ctrl.readOnly">
-                <button class="id-review-comment-update" ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
+                <button class="id-review-comment-update blue" ng-if="$ctrl.reviewCommentEdited()" class="blue" ng-click="$ctrl.updateReviewCommentClicked({reviewComment: $ctrl.modelReviewComment})">UPDATE</button>
         </div>
     <div class="controls">
         <button ng-if="$ctrl.canClearWarning" class="blue" ng-click="$ctrl.clearWarningClicked({warningCleared: !$ctrl.warningCleared})">{{$ctrl.getClearWarningText()}}</button>
@@ -30,7 +30,29 @@
             </select>
         </div>
     </div>
-    <h4 class="section-title">Messages</h4>
+    <div class="messages-options">
+        <h4 class="section-title">Events</h4>
+        <div class="bttn-set">
+            <label
+                tabindex="0"
+                class="bttn"
+                ng-model="$ctrl.modelShowMessagesOnly"
+                ng-model-watch="$ctrl.showMessagesOnly"
+                ng-change="$ctrl.showMessagesOnlyChanged({showMessagesOnly: false})"
+                uib-btn-radio="false">
+                ALL EVENTS
+           </label>
+            <label
+                tabindex="0"
+                class="bttn"
+                ng-model="$ctrl.modelShowMessagesOnly"
+                ng-model-watch="$ctrl.showMessagesOnly"
+                ng-change="$ctrl.showMessagesOnlyChanged({showMessagesOnly: true})"
+                uib-btn-radio="true">
+                MESSAGES ONLY
+            </label>
+        </div>
+    </div>
     <div class="messages">
         <div ng-repeat="messageId in $ctrl.messageIds track by messageId">
             <interpretation-log-item  message-id="messageId"></interpretation-log-item>
@@ -39,9 +61,10 @@
     </div>
     <div class="compose">
         <wysiwyg-editor class="control-comment"
+            templates="$ctrl.getWorkLogCommentTemplates()"
             ng-model="$ctrl.message"
             placeholder="NEW MESSAGE"
             ng-change="$ctrl.messageChanged({message: $ctrl.message})"></wysiwyg-editor>
-        <button class="id-add-message-btn" class="blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
+        <button class="id-add-message-btn blue" ng-click="$ctrl.addMessageClicked({message: $ctrl.message})">Add message</button>
     </div>
 </div>

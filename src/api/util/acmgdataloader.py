@@ -12,7 +12,6 @@ from .alleledataloader import AlleleDataLoader
 
 
 class ACMGDataLoader(object):
-
     def __init__(self, session):
         self.session = session
 
@@ -24,11 +23,18 @@ class ACMGDataLoader(object):
         # If there is more than one transcript, or no transcript,
         # set it to None as the rules only support one transcript.
         # It should almost always be just one transcript.
-        filtered_transcripts = annotation_data.get('filtered_transcripts', [])
+        filtered_transcripts = annotation_data.get("filtered_transcripts", [])
         if len(filtered_transcripts) == 1:
             # Fetch transcript data from 'transcripts' key, given transcript
             # name from filtered_transcripts[0].
-            return next((t for t in annotation_data['transcripts'] if t['transcript'] == filtered_transcripts[0]), None)
+            return next(
+                (
+                    t
+                    for t in annotation_data["transcripts"]
+                    if t["transcript"] == filtered_transcripts[0]
+                ),
+                None,
+            )
         else:
             return None
 
@@ -62,11 +68,7 @@ class ACMGDataLoader(object):
         passed_data = schemas.RuleSchema().dump(passed, many=True).data
         return passed_data
 
-    def _from_data(self,
-                   alleles,
-                   reference_assessments,
-                   genepanel,
-                   acmgconfig):
+    def _from_data(self, alleles, reference_assessments, genepanel, acmgconfig):
         """
         Calculates ACMG codes for a list of alleles already preloaded using the AlleleDataLoader.
         They must have been loaded with include_annotation and include_custom_annotation.
@@ -80,47 +82,46 @@ class ACMGDataLoader(object):
         """
 
         resolver = AcmgConfig(self.session, acmgconfig, genepanel)
-        allele_ids = [a['id'] for a in alleles]
+        allele_ids = [a["id"] for a in alleles]
         allele_classifications = dict()
         ra_per_allele = defaultdict(list)
         for ra in reference_assessments:
-            ra_per_allele[ra['allele_id']].append(ra)
+            ra_per_allele[ra["allele_id"]].append(ra)
 
         frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
 
         acmg_frequency_config = resolver.get_commoness_config()
-        commonness_groups = frequency_filter.get_commonness_groups({gp_key: allele_ids}, acmg_frequency_config)[gp_key]
+        commonness_groups = frequency_filter.get_commonness_groups(
+            {gp_key: allele_ids}, acmg_frequency_config
+        )[gp_key]
 
         for a in alleles:
             # Add extra data/keys that the rule engine expects to be there
-            annotation_data = a['annotation']
-            annotation_data['frequencies'] = {}
-            annotation_data['frequencies']['commonness'] = next(
-                k for k, v in commonness_groups.iteritems() if a['id'] in v
+            annotation_data = a["annotation"]
+            annotation_data["frequencies"] = {}
+            annotation_data["frequencies"]["commonness"] = next(
+                k for k, v in commonness_groups.items() if a["id"] in v
             )
 
-            if a['id'] in ra_per_allele:
-                annotation_data["refassessment"] = {str('_'.join([str(r['allele_id']), str(r['reference_id'])])): r['evaluation'] for r in ra_per_allele[a['id']]}
+            if a["id"] in ra_per_allele:
+                annotation_data["refassessment"] = {
+                    str("_".join([str(r["allele_id"]), str(r["reference_id"])])): r["evaluation"]
+                    for r in ra_per_allele[a["id"]]
+                }
 
             transcript = ACMGDataLoader._find_single_transcript(annotation_data)
-            annotation_data['transcript'] = transcript
+            annotation_data["transcript"] = transcript
             if transcript:
-                annotation_data["genepanel"] = resolver.resolve(transcript['hgnc_id'])
+                annotation_data["genepanel"] = resolver.resolve(transcript["hgnc_id"])
             else:
                 annotation_data["genepanel"] = resolver.resolve(None)
 
             passed_data = self.get_acmg_codes(annotation_data)
-            allele_classifications[a['id']] = {
-                'codes': passed_data
-            }
+            allele_classifications[a["id"]] = {"codes": passed_data}
         return allele_classifications
 
-    def from_objs(self,
-                  alleles,
-                  reference_assessments,
-                  genepanel,
-                  acmgconfig):
+    def from_objs(self, alleles, reference_assessments, genepanel, acmgconfig):
         """
         Calculates ACMG codes for a list of alleles model objects.
         A dictionary with the final data is returned, with allele.id as keys.
@@ -142,11 +143,6 @@ class ACMGDataLoader(object):
                 alleles,
                 genepanel=genepanel,
                 include_allele_assessment=False,
-                include_reference_assessments=False
+                include_reference_assessments=False,
             )
-        return self._from_data(
-            loaded_alleles,
-            reference_assessments,
-            genepanel,
-            acmgconfig
-        )
+        return self._from_data(loaded_alleles, reference_assessments, genepanel, acmgconfig)

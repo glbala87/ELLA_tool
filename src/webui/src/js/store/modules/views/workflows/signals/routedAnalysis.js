@@ -1,18 +1,19 @@
-import { sequence, parallel } from 'cerebral'
-import { set, wait } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
-import getAnalysis from '../actions/getAnalysis'
-import prepareComponents from '../actions/prepareComponents'
-import loadInterpretations from '../sequences/loadInterpretations'
-import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
-import toast from '../../../../common/factories/toast'
-import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
-import showExitWarning from '../showExitWarning'
-import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
-import progress from '../../../../common/factories/progress'
-import getWorkflowTitle from '../computed/getWorkflowTitle'
-import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
-import loadVisualization from '../visualization/sequences/loadVisualization'
+import { parallel, sequence } from 'cerebral';
+import { set } from 'cerebral/operators';
+import { props, state, string } from 'cerebral/tags';
+import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload';
+import progress from '../../../../common/factories/progress';
+import setNavbarTitle from '../../../../common/factories/setNavbarTitle';
+import toast from '../../../../common/factories/toast';
+import getAnalysis from '../actions/getAnalysis';
+import getAnalysisStats from '../actions/getAnalysisStats';
+import prepareComponents from '../actions/prepareComponents';
+import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele';
+import getWorkflowTitle from '../computed/getWorkflowTitle';
+import loadInterpretations from '../sequences/loadInterpretations';
+import showExitWarning from '../showExitWarning';
+import loadVisualization from '../visualization/sequences/loadVisualization';
+import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs';
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -24,29 +25,36 @@ export default [
         state.set('views.workflows.id', parseInt(props.analysisId))
     },
     sequence('loadAnalysis', [
-        getAnalysis,
+        getAnalysisStats,
         {
-            error: [toast('error', 'Failed to load analysis', 30000)],
+            error: [toast('error', 'Failed to load analysis stats', 30000)],
             success: [
-                set(state`views.workflows.data.analysis`, props`result`),
-                ({ state }) => {
-                    const analysis = state.get('views.workflows.data.analysis')
-                    state.set('views.workflows.selectedGenepanel', {
-                        name: analysis.genepanel.name,
-                        version: analysis.genepanel.version
-                    })
-                },
-                loadInterpretations,
-                setNavbarTitle(getWorkflowTitle),
-                parallel([
-                    loadVisualization,
-                    [
-                        loadInterpretationLogs,
-                        // Interpretation logs are needed in prepareComponents for analysis
-                        prepareComponents,
-                        prepareSelectedAllele
+                set(state`views.workflows.data.stats`, props`result`),
+                getAnalysis,
+                {
+                    error: [toast('error', 'Failed to load analysis', 30000)],
+                    success: [
+                        set(state`views.workflows.data.analysis`, props`result`),
+                        ({ state }) => {
+                            const analysis = state.get('views.workflows.data.analysis')
+                            state.set('views.workflows.selectedGenepanel', {
+                                name: analysis.genepanel.name,
+                                version: analysis.genepanel.version
+                            })
+                        },
+                        loadInterpretations,
+                        setNavbarTitle(getWorkflowTitle),
+                        parallel([
+                            loadVisualization,
+                            [
+                                loadInterpretationLogs,
+                                // Interpretation logs are needed in prepareComponents for analysis
+                                prepareComponents,
+                                prepareSelectedAllele
+                            ]
+                        ])
                     ]
-                ])
+                }
             ]
         }
     ]),

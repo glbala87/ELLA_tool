@@ -1,5 +1,4 @@
 import { Compute } from 'cerebral'
-import { state } from 'cerebral/tags'
 
 export default (alleles) => {
     return Compute(alleles, (alleles) => {

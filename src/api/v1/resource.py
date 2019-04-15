@@ -1,21 +1,21 @@
 # -*- coding: latin1 -*-
 from api.util.util import provide_session, logger
-from flask.ext.restful import Resource as flask_resource
+from flask_restful import Resource as flask_resource
 import sqlalchemy
 from sqlalchemy import tuple_, Text
 
 FILTER_OPERATORS = {
     # Operators which accept two arguments.
-    '$eq': lambda f, a: f == a,
-    '$neq': lambda f, a: f != a,
-    '$gt': lambda f, a: f > a,
-    '$lt': lambda f, a: f < a,
-    '$gte': lambda f, a: f >= a,
-    '$lte': lambda f, a: f <= a,
-    '$in': lambda f, a: f.in_(a),
-    '$nin': lambda f, a: ~f.in_(a),
-    '$like': lambda f, a: f.cast(Text).like(a),
-    '$ilike': lambda f, a: f.cast(Text).ilike(a),
+    "$eq": lambda f, a: f == a,
+    "$neq": lambda f, a: f != a,
+    "$gt": lambda f, a: f > a,
+    "$lt": lambda f, a: f < a,
+    "$gte": lambda f, a: f >= a,
+    "$lte": lambda f, a: f <= a,
+    "$in": lambda f, a: f.in_(a),
+    "$nin": lambda f, a: ~f.in_(a),
+    "$like": lambda f, a: f.cast(Text).like(a),
+    "$ilike": lambda f, a: f.cast(Text).ilike(a),
 }
 
 
@@ -25,16 +25,16 @@ class Resource(flask_resource):
 
     def _filter(self, query, model, rest_filter):
         args = list()
-        for k, v in rest_filter.iteritems():
+        for k, v in rest_filter.items():
             if isinstance(v, list):
-                operator = FILTER_OPERATORS['$in']
+                operator = FILTER_OPERATORS["$in"]
                 if v:  # Asking for empty list doesn't make sense
                     if isinstance(k, (list, tuple)):
                         args.append(operator(tuple_(*(getattr(model, _k) for _k in k)), v))
                     else:
                         args.append(operator(getattr(model, k), v))
             elif isinstance(v, dict):
-                for op_k, op_v in v.iteritems():
+                for op_k, op_v in v.items():
                     args.append(FILTER_OPERATORS[op_k](getattr(model, k), op_v))
             else:
                 args.append(FILTER_OPERATORS["$eq"](getattr(model, k), v))
@@ -44,24 +44,24 @@ class Resource(flask_resource):
 
     def list_query(self, session, model, schema=None, **kwargs):
         query = session.query(model)
-        if kwargs.get('rest_filter'):
+        if kwargs.get("rest_filter"):
             # Check if any of the requested filters are empty list, if so user has requested an empty
             # set so we should return nothing.
             # TODO: Review behavior
-            if any((isinstance(v, list) and not v) for v in kwargs['rest_filter'].values()):
+            if any((isinstance(v, list) and not v) for v in list(kwargs["rest_filter"].values())):
                 return list(), 0
-            query = self._filter(query, model, kwargs['rest_filter'])
+            query = self._filter(query, model, kwargs["rest_filter"])
 
         count = query.count()
-        if kwargs.get('order_by') is not None:
-            order_by = kwargs.get('order_by')
+        if kwargs.get("order_by") is not None:
+            order_by = kwargs.get("order_by")
             order_by = [order_by] if not isinstance(order_by, list) else order_by
             query = query.order_by(*order_by)
 
-        if kwargs.get('per_page'):
-            query = query.limit(kwargs['per_page'])
-        if kwargs.get('page') and kwargs.get('per_page'):
-            query = query.offset((kwargs['page']-1)*kwargs['per_page'])
+        if kwargs.get("per_page"):
+            query = query.limit(kwargs["per_page"])
+        if kwargs.get("page") and kwargs.get("per_page"):
+            query = query.offset((kwargs["page"] - 1) * kwargs["per_page"])
 
         s = query.all()
         if schema:
@@ -104,21 +104,23 @@ class Resource(flask_resource):
         search_string = search_filter["search_string"]
         query = session.query(model)
 
-        words = session.query(sqlalchemy.func.plainto_tsquery(search_string)).one()  # .statement.compile(compile_kwargs={"literal_binds": True})
+        words = session.query(
+            sqlalchemy.func.plainto_tsquery(search_string)
+        ).one()  # .statement.compile(compile_kwargs={"literal_binds": True})
         words = str(words[0])
-        words = words.replace(" ", "").replace("'", "").replace('"', '').split("&")
-        search_string = " & ".join([s+":*" for s in words])
+        words = words.replace(" ", "").replace("'", "").replace('"', "").split("&")
+        search_string = " & ".join([s + ":*" for s in words])
         _search_vector = sqlalchemy.func.to_tsquery(sqlalchemy.text("'english'"), search_string)
 
-        query = query.filter(model.search.op('@@')(_search_vector))
+        query = query.filter(model.search.op("@@")(_search_vector))
         query = query.order_by(sqlalchemy.func.ts_rank(model.search, _search_vector))
 
         count = query.count()
 
-        if kwargs.get('per_page'):
+        if kwargs.get("per_page"):
             query = query.limit(kwargs["per_page"])
-        if kwargs.get('page') and kwargs.get('per_page'):
-            query = query.offset((kwargs['page'] - 1) * kwargs['per_page'])
+        if kwargs.get("page") and kwargs.get("per_page"):
+            query = query.offset((kwargs["page"] - 1) * kwargs["per_page"])
 
         s = query.all()
 

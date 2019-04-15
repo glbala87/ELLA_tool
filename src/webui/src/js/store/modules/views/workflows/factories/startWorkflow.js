@@ -7,7 +7,7 @@ export default function(startType) {
     return function startWorkflow({ state, http, path }) {
         const type = TYPES[state.get('views.workflows.type')]
         const id = state.get('views.workflows.id')
-        const genepanel = state.get('views.workflows.data.genepanel')
+        const genepanel = state.get('views.workflows.interpretation.data.genepanel')
 
         if (!['start', 'reopen', 'override'].find((e) => e === startType)) {
             console.error(`'Invalid startType ${startType}`)

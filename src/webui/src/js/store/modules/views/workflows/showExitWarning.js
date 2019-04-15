@@ -1,5 +1,3 @@
-import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
 
 /**
  * Whether to show an exit warning or not.

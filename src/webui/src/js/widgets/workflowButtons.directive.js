@@ -1,9 +1,9 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import { compute } from 'cerebral'
 import { hasDataAtKey } from '../util'
 import template from './workflowButtons.ngtmpl.html'
+import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
 
 const START_BUTTON_OPTIONS = {
     save: 'Save',
@@ -26,9 +26,9 @@ app.component('workflowButtons', {
             type: state`views.workflows.type`,
             id: state`views.workflows.id`,
             startClicked: signal`views.workflows.startClicked`,
-            finishClicked: signal`views.workflows.finishClicked`,
+            showFinishConfirmationClicked: signal`views.workflows.modals.finishConfirmation.showFinishConfirmationClicked`,
             startMode: state`views.workflows.startMode`,
-            selectedInterpretation: state`views.workflows.interpretation.selected`,
+            selectedInterpretation: getSelectedInterpretation,
             dirty: state`views.workflows.interpretation.dirty`,
             user: state`app.user`
         },

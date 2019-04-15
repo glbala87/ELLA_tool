@@ -2,15 +2,15 @@
 
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal } from 'cerebral/tags'
+import { signal } from 'cerebral/tags'
 import template from './reassignWorkflow.ngtmpl.html'
 
 app.component('reassignWorkflow', {
     templateUrl: 'reassignWorkflow.ngtmpl.html',
     controller: connect(
         {
-            reassignWorkflowClicked: signal`views.workflows.reassignWorkflowClicked`,
-            closeClicked: signal`closeModal`
+            reassignWorkflowClicked: signal`views.workflows.modals.reassignWorkflow.reassignWorkflowClicked`,
+            dismissClicked: signal`views.workflows.modals.reassignWorkflow.dismissClicked`
         },
         'ReassignWorkflow',
         [
@@ -20,11 +20,10 @@ app.component('reassignWorkflow', {
 
                 Object.assign($ctrl, {
                     close() {
-                        $ctrl.closeClicked({ modalName: 'reassignWorkflow' })
+                        $ctrl.dismissClicked()
                     },
                     reassign() {
                         $ctrl.reassignWorkflowClicked()
-                        $ctrl.close()
                     }
                 })
             }

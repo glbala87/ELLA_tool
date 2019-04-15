@@ -11,7 +11,7 @@ yellow "Importing fixtures"
 cat /ella/ops/test/report/report-fixture-sample-1.sql | psql postgres
 
 yellow "Starting test of classifications report..."
-./ella-cli export classifications --filename e2e-variant-export
+ella-cli export classifications --filename e2e-variant-export
 
 # Compare only a few fields. Include the report field to test handling html -> text and non-ascii characters:
 diff <(cut -f1,2,3,4,12,13,15 e2e-variant-export.csv) <(cut -f1,2,3,4,5,6,7 ops/test/report/classifications-expected.csv) || \
@@ -21,7 +21,7 @@ diff <(cut -f1,2,3,4,12,13,15 e2e-variant-export.csv) <(cut -f1,2,3,4,5,6,7 ops/
 green "[OK]"
 
 yellow "Starting test of classifications report with analysis names..."
-./ella-cli export classifications --filename e2e-variant-export-with-analyses -with_analysis_names
+ella-cli export classifications --filename e2e-variant-export-with-analyses -with_analysis_names
 
 # Compare only a few fields. Include the report field to test handling html -> text and non-ascii characters:
 # same verifications as the above with one extra column

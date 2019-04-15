@@ -1,4 +1,4 @@
-import { set, equals, when } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import checkConfirmPassword from '../actions/checkConfirmPassword'
 

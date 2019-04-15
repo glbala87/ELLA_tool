@@ -23,7 +23,7 @@ app.component('search', {
             results: state`search.results`,
             queryChanged: signal`search.queryChanged`,
             optionsSearchChanged: signal`search.optionsSearchChanged`,
-            showAnalysesClicked: signal`search.showAnalysesClicked`
+            showAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.showAnalysesForAlleleClicked`
         },
         'Search',
         [

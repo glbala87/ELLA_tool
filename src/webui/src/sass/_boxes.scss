@@ -90,17 +90,10 @@ $sb-titlebar-height: 3.8rem;
   }
 }
 
-
-allele-sectionbox {
-  .sb-top {
-
-    .comments { padding-top: 1.3rem; }
-    .comments {
-      .control-comment ~ .control-comment { margin-top: 1.3rem; }
-    }
-  }
+.comments { padding-top: 1.3rem; }
+.comments {
+  .control-comment ~ .control-comment { margin-top: 1.3rem; }
 }
-
 
 contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
 

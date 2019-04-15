@@ -1,14 +1,17 @@
 import datetime
 import json
 import logging
+import traceback
 
 import time
-import urllib2
-from urllib import urlencode
+import urllib.request
+import urllib.error
+import urllib.parse
+from urllib.parse import urlencode
 import os
 import binascii
 import subprocess
-from StringIO import StringIO
+from io import StringIO
 from os.path import join
 import pytz
 from sqlalchemy.exc import OperationalError
@@ -19,11 +22,6 @@ from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
-
-
-# Make StringIO objects work fine in with-statements
-StringIO.__exit__ = lambda *args: False
-StringIO.__enter__ = lambda *args: args[0]
 
 log = logging.getLogger(__name__)
 
@@ -39,11 +37,11 @@ def run_preimport(job):
         "GENEPANEL_NAME=%s" % job.genepanel_name,
         "GENEPANEL_VERSION=%s" % job.genepanel_version,
         "SAMPLE_ID=%s" % job.sample_id,
-        "USERGROUP=%s" % job.user.group.name
+        "USERGROUP=%s" % job.user.group.name,
     ]
 
-    cmd = " ".join(args+[preimport_script])
-    output = subprocess.check_output(cmd, shell=True)
+    cmd = " ".join(args + [preimport_script])
+    output = subprocess.check_output(cmd, shell=True).decode()
     unparsed_data = json.loads(output)
 
     parsed_data = {}
@@ -51,41 +49,39 @@ def run_preimport(job):
     parsed_data["variables"] = unparsed_data["variables"]
 
     parsed_data["files"] = {}
-    for key, path in unparsed_data["files"].iteritems():
+    for key, path in unparsed_data["files"].items():
         filename = os.path.basename(path)
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             contents = f.read()
         parsed_data["files"][key] = (filename, contents)
-
     return parsed_data
 
 
 def encode_multipart_formdata(fields, files):
-    LIMIT = "-"*10 + binascii.hexlify(os.urandom(10))
-    CRLF = '\r\n'
+    LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10)).decode()
+    CRLF = "\r\n"
     L = []
-    for (key, value) in fields.iteritems():
-        L.append('--' + LIMIT)
+    for (key, value) in fields.items():
+        L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"' % key)
-        L.append('')
-        if isinstance(value, basestring):
+        L.append("")
+        if isinstance(value, str):
             if not value.startswith('"'):
-                value = '"'+value
+                value = '"' + value
             if not value.endswith('"'):
                 value = value + '"'
         value = str(value)
         L.append(value)
-    for (key, (filename, value)) in files.iteritems():
-        L.append('--' + LIMIT)
-        L.append(
-            'Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
-        L.append('Content-Type: application/octet-stream')
-        L.append('')
+    for (key, (filename, value)) in files.items():
+        L.append("--" + LIMIT)
+        L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
+        L.append("Content-Type: application/octet-stream")
+        L.append("")
         L.append(value)
-    L.append('--' + LIMIT + '--')
-    L.append('')
+    L.append("--" + LIMIT + "--")
+    L.append("")
     body = CRLF.join(L)
-    content_type = 'multipart/form-data; boundary=%s' % LIMIT
+    content_type = "multipart/form-data; boundary=%s" % LIMIT
     return content_type, body
 
 
@@ -94,8 +90,8 @@ ANNOTATION_SERVICE_URL = config["app"]["annotation_service"]
 
 def get_error_message(e):
     try:
-        msg = json.loads(e.read())["message"]
-    except:
+        msg = json.loads(e.read().decode())["message"]
+    except Exception:
         msg = "Unable to determine error"
     return msg
 
@@ -117,9 +113,11 @@ class AnnotationJobsInterface:
         )
 
     def get_with_id(self, id):
-        return self.session.query(annotationjob.AnnotationJob).filter(
-            annotationjob.AnnotationJob.id == id
-        ).one()
+        return (
+            self.session.query(annotationjob.AnnotationJob)
+            .filter(annotationjob.AnnotationJob.id == id)
+            .one()
+        )
 
     def create(self, data):
         return annotationjob.AnnotationJob(**data)
@@ -128,18 +126,18 @@ class AnnotationJobsInterface:
         job = self.get_with_id(id)
         allowed_keys = ["status", "message", "task_id"]
         assert len(set(kwargs) - set(allowed_keys)) == 0, "Illegal values passed to patch: " + str(
-            set(kwargs) - set(allowed_keys))
+            set(kwargs) - set(allowed_keys)
+        )
 
         if kwargs.get("status") and kwargs["status"] != job.status:
             if "history" not in job.status_history:
                 job.status_history["history"] = list()
 
-            job.status_history["history"].insert(0, {
-                'time': datetime.datetime.now(pytz.utc).isoformat(),
-                'status': job.status,
-            })
+            job.status_history["history"].insert(
+                0, {"time": datetime.datetime.now(pytz.utc).isoformat(), "status": job.status}
+            )
 
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             assert hasattr(job, k)
             if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
@@ -150,9 +148,8 @@ class AnnotationJobsInterface:
     def deposit(self, id, annotated_vcf):
         job = self.get_with_id(id)
         mode = job.mode
-
         fd = StringIO()
-        fd.write(str(annotated_vcf))
+        fd.write(annotated_vcf)
         fd.flush()
         fd.seek(0)
 
@@ -160,32 +157,25 @@ class AnnotationJobsInterface:
         gp_version = job.genepanel_version
 
         if mode == "Analysis":
-            type = job.properties["create_or_append"]
+            job_type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
             analysis_name = job.properties["analysis_name"]
-            if type == 'Create':
-                analysis_name = "{}.{}_{}".format(
-                    analysis_name,
-                    gp_name,
-                    gp_version
-                )
+            if job_type == "Create":
+                analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
             acd = AnalysisConfigData(
                 vcf_path=fd,
                 analysis_name=analysis_name,
                 gp_name=gp_name,
                 gp_version=gp_version,
-                priority=1
+                priority=1,
             )
-            append = type != 'Create'
+            append = job_type != "Create"
             da = DepositAnalysis(self.session)
-            da.import_vcf(
-                acd,
-                sample_type=sample_type,
-                append=append
-            )
+            da.import_vcf(acd, sample_type=sample_type, append=append)
 
         elif mode in ["Variants", "Single variant"]:
+
             deposit = DepositAlleles(self.session)
             deposit.import_vcf(fd, gp_name, gp_version)
         else:
@@ -210,39 +200,43 @@ class AnnotationServiceInterface:
         self.session = session
 
     def annotate(self, job):
-        r = urllib2.Request(join(self.base, "annotate"), data=json.dumps(
-            {"input": job.data}), headers={"Content-type": "application/json"})
-        k = urllib2.urlopen(r)
-        return json.loads(k.read())
+        r = urllib.request.Request(
+            join(self.base, "annotate"),
+            data=json.dumps({"input": job.data}).encode(),
+            headers={"Content-type": "application/json"},
+        )
+        k = urllib.request.urlopen(r)
+        return json.loads(k.read().decode())
 
     def annotate_sample(self, job):
-        regions = genepanel_to_bed(
-            self.session, job.genepanel_name, job.genepanel_version)
+        regions = genepanel_to_bed(self.session, job.genepanel_name, job.genepanel_version)
 
         data = run_preimport(job)
 
-        data["files"]["regions"] = ('regions.bed', regions)
+        data["files"]["regions"] = ("regions.bed", regions)
         data["variables"]["sample_id"] = job.sample_id
 
-        content_type, body = encode_multipart_formdata(
-            data["variables"], data["files"])
+        content_type, body = encode_multipart_formdata(data["variables"], data["files"])
 
-        r = urllib2.Request(join(self.base, 'samples/annotate'),
-                            data=body, headers={"Content-type": content_type})
-        k = urllib2.urlopen(r)
-        return json.loads(k.read())
+        r = urllib.request.Request(
+            join(self.base, "samples/annotate"),
+            data=body.encode(),
+            headers={"Content-type": content_type},
+        )
+        k = urllib.request.urlopen(r)
+        return json.loads(k.read().decode())
 
     def process(self, task_id):
-        k = urllib2.urlopen(join(self.base, "process", task_id))
-        return k.read()
+        k = urllib.request.urlopen(join(self.base, "process", task_id))
+        return k.read().decode()
 
     def status(self, task_id=None):
         """Get status of task_id or all tasks"""
         if task_id:
-            k = urllib2.urlopen(join(self.base, "status", task_id))
+            k = urllib.request.urlopen(join(self.base, "status", task_id))
         else:
-            k = urllib2.urlopen(join(self.base, "status"))
-        resp = json.loads(k.read())
+            k = urllib.request.urlopen(join(self.base, "status"))
+        resp = json.loads(k.read().decode())
         return resp
 
     def search_samples(self, search_term, limit):
@@ -252,20 +246,20 @@ class AnnotationServiceInterface:
             d["limit"] = str(limit)
         q = urlencode(d)
 
-        k = urllib2.urlopen(join(self.base, "samples", "?"+q))
-        resp = json.loads(k.read())
+        k = urllib.request.urlopen(join(self.base, "samples", "?" + q))
+        resp = json.loads(k.read().decode())
         result = []
-        for k,v in resp.iteritems():
+        for k, v in resp.items():
             v.update(name=k)
             result.append(v)
 
-        return sorted(result, key=lambda x: x['name'])
+        return sorted(result, key=lambda x: x["name"])
 
     def annotation_service_running(self):
         try:
-            k = urllib2.urlopen(join(self.base, "status"))
+            k = urllib.request.urlopen(join(self.base, "status"))
             return {"running": True}, 200
-        except (urllib2.HTTPError, urllib2.URLError):
+        except (urllib.error.HTTPError, urllib.error.URLError):
             return {"running": False}, 200
 
 
@@ -279,7 +273,7 @@ def process_running(annotation_service, running_jobs):
             if not response["active"]:
                 status = "ANNOTATED"
             message = ""
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             status = "FAILED (ANNOTATION)"
             message = get_error_message(e)
 
@@ -297,12 +291,11 @@ def process_submitted(annotation_service, submitted_jobs):
             elif job.sample_id is not None:
                 resp = annotation_service.annotate_sample(job)
             else:
-                raise RuntimeError(
-                    "data or sample_name must be specified to run annotation")
+                raise RuntimeError("data or sample_name must be specified to run annotation")
             status = "RUNNING"
             message = ""
             task_id = resp["task_id"]
-        except urllib2.HTTPError, e:
+        except Exception as e:
             status = "FAILED (SUBMISSION)"
             message = get_error_message(e)
             task_id = ""
@@ -318,7 +311,7 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
         try:
             annotated_vcf = annotation_service.process(task_id)
             annotation_jobs.commit()
-        except urllib2.HTTPError, e:
+        except urllib.error.HTTPError as e:
             status = "FAILED (PROCESSING)"
             message = get_error_message(e)
             yield id, {"status": status, "message": message}
@@ -332,10 +325,10 @@ def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
             annotation_jobs.deposit(id, annotated_vcf)
             status = "DONE"
             message = ""
-        except Exception, e:
+        except Exception as e:
             annotation_jobs.rollback()
             status = "FAILED (DEPOSIT)"
-            message = e.__class__.__name__+": "+e.message
+            message = e.__class__.__name__ + ": " + getattr(e, "message", str(e))
 
         yield id, {"status": status, "message": message}
 
@@ -344,16 +337,18 @@ def patch_annotation_job(annotation_jobs, id, updates):
     try:
         annotation_jobs.patch(id, **updates)
         annotation_jobs.commit()
-    except Exception, e:
-        log.error("Failed patch of annotation job {id} ({update}): {error}".format(
-            id, str(updates), e.message))
+    except Exception as e:
+        log.error(
+            "Failed patch of annotation job {id} ({update}): {error}".format(
+                id, str(updates), getattr(e, "message", str(e))
+            )
+        )
         annotation_jobs.rollback()
 
 
 def polling(session):
     annotation_jobs = AnnotationJobsInterface(session)
-    annotation_service = AnnotationServiceInterface(
-        ANNOTATION_SERVICE_URL, session)
+    annotation_service = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
 
     def loop(session):
         while True:
@@ -370,27 +365,26 @@ def polling(session):
                 running_jobs = annotation_jobs.get_with_status("RUNNING")
                 for id, update in process_running(annotation_service, running_jobs):
                     patch_annotation_job(annotation_jobs, id, update)
-                    log.info("Processed running job {} with data {}".format(
-                        id, str(update)))
+                    log.info("Processed running job {} with data {}".format(id, str(update)))
 
                 # Process submitted
                 submitted_jobs = annotation_jobs.get_with_status("SUBMITTED")
                 for id, update in process_submitted(annotation_service, submitted_jobs):
                     patch_annotation_job(annotation_jobs, id, update)
-                    log.info("Processed submitted job {} with data {}".format(
-                        id, str(update)))
+                    log.info("Processed submitted job {} with data {}".format(id, str(update)))
 
                 # Process annotated
                 annotated_jobs = annotation_jobs.get_with_status("ANNOTATED")
-                for id, update in process_annotated(annotation_service, annotation_jobs, annotated_jobs):
+                for id, update in process_annotated(
+                    annotation_service, annotation_jobs, annotated_jobs
+                ):
                     patch_annotation_job(annotation_jobs, id, update)
-                    log.info("Processed annotated job {} with data {}".format(
-                        id, str(update)))
+                    log.info("Processed annotated job {} with data {}".format(id, str(update)))
 
                 # Remove session to avoid a hanging session
                 session.remove()
                 time.sleep(5)
-            except OperationalError, e:
+            except OperationalError as e:
                 # Database is not alive
                 log.warning("Failed to poll annotation jobs (%s)" % e.message)
                 session.remove()
@@ -399,15 +393,13 @@ def polling(session):
 
     try:
         loop(session)
-    except Exception, e:
+    except Exception as e:
         session.remove()
-        import traceback
         traceback.print_exc()
-        print e.message
         raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
     from vardb.datamodel import DB

@@ -1,8 +1,8 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, module, props } from 'cerebral/tags'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
+import { debounce, set } from 'cerebral/operators'
+import { module, props } from 'cerebral/tags'
 import toast from '../../../../../common/factories/toast'
 import setDirty from '../actions/setDirty'
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
 
 export default [
     debounce(200),
@@ -13,7 +13,7 @@ export default [
                 true: [
                     setDirty,
                     set(
-                        module`selected.state.allele.${props`alleleId`}.alleleassessment.evaluation.${props`name`}.comment`,
+                        module`state.allele.${props`alleleId`}.alleleassessment.evaluation.${props`name`}.comment`,
                         props`comment`
                     )
                 ],

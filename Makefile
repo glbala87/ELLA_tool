@@ -1,11 +1,12 @@
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
 # used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
+UID ?= 1000
+GID ?= 1000
+
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
-TEST_NAME ?= all
-TEST_COMMAND ?=''
-# Container used for local development
-CONTAINER_NAME ?= $(PIPELINE_ID)
-NAME_OF_GENERATED_IMAGE = local/$(PIPELINE_ID)
+
+CONTAINER_NAME ?= ella-$(BRANCH)
+IMAGE_NAME ?= local/ella-$(BRANCH)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 
@@ -13,21 +14,14 @@ API_PORT ?= 8000-9999
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 TESTSET ?= 'default'
+HYPOTHESIS_PROFILE ?= 'default'
 #RELEASE_TAG =
 WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
 API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
 DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
-APP_BASE_URL ?= 'localhost:5000'
-CHROME_HOST ?= '172.17.0.1' # maybe not a sensible default
-WDIO_OPTIONS ?=  # command line options when running yarn wdio (see 'make wdio')
-CHROMEBOX_IMAGE = ousamg/chromebox:1.3
-CHROMEBOX_CONTAINER = $(PIPELINE_ID)-chromebox
-E2E_APP_CONTAINER = $(PIPELINE_ID)-e2e
-
-# Json validation
-GP_VALIDATION_CONTAINER = $(PIPELINE_ID)-gp-validation
+CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
 
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
@@ -46,17 +40,16 @@ help :
 	@echo ""
 	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
 	@echo ""
-	@echo "make build		- build image $(NAME_OF_GENERATED_IMAGE). use BUILD_OPTIONS variable to set options for 'docker build'"
-	@echo "make dev		- run image $(NAME_OF_GENERATED_IMAGE), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make build		- build image $(IMAGE_NAME). use BUILD_OPTIONS variable to set options for 'docker build'"
+	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
 	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset"
 	@echo "make url		- shows the url of your Ella app"
 	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
 	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
 	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
-	@echo "make restart		- restart container $(CONTAINER_NAME)"
+	@echo "make restart	- restart container $(CONTAINER_NAME)"
 	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
 
-	@echo "make check-gp-config    - Validate the genepanel config file set as F=.. argument"
 	@echo ""
 	@echo "-- TEST COMMANDS --"
 	@echo "make test-all		- run all tests"
@@ -65,24 +58,25 @@ help :
 	@echo "make test-api		- run backend API tests"
 	@echo "make test-api-migration	- run database migration tests"
 	@echo "make test-cli    	- run command line interface tests"
-	@echo "                   		Some tests allow you to override the test command by defining TEST_COMMAND=..."
-	@echo " 			  	Example: TEST_COMMAND=\"'py.test --exitfirst \"/ella/src/api/util/tests/test_sanger*\" -s'\""
+
 	@echo "-- END 2 END tests--"
 	@echo "make test-e2e		- Run e2e tests"
 	@echo "make e2e-test-local	- For running e2e tests locally."
 	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
-	@echo "                          WDIO_OPTIONS is also available for setting arbitrary options"
 
 	@echo ""
 	@echo "-- DEMO COMMANDS --"
-	@echo "make demo		- builds a container to work in tandem with the nginx-proxy container"
-	@echo "			  Set DEMO_NAME to assign a value to VIRTUAL_HOST"
+	@echo "make demo		- starts a demo container with testdata at port 3114"
+	@echo "make kill-demo	- stops and removes the demo container"
+	@echo "make review		- builds a container to work in tandem with a nginx-proxy container"
+	@echo "			      Set REVIEW_NAME to assign a value to VIRTUAL_HOST"
 	@echo ""
 
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release	        - Noop. See the README.md file"
+	@echo "make release	           - Noop. See the README.md file"
 	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
 	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
+	@echo "make build-singularity  - Create release singularity image"
 
 
 # Check that given variables are set and all have non-empty values,
@@ -104,9 +98,9 @@ __check_defined = \
 # Production / release
 #---------------------------------------------
 
-.PHONY: release bundle-api bundle-static check-release-tag \
+.PHONY: release bundle-api bundle-static \
         build-bundle-image start-bundle-container \
-        copy-bundle stop-bundle-container
+        stop-bundle-container
 
 release:
 	@echo "See the README.md file, section 'Production'"
@@ -114,13 +108,12 @@ release:
 bundle-client: build-bundle-image start-bundle-container tar-web-build stop-bundle-container
 
 build-bundle-image:
-	docker build -t $(IMAGE_BUNDLE_STATIC) .
+	docker build -t $(IMAGE_BUNDLE_STATIC) --target dev .
 
 start-bundle-container:
 	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
 	docker run -d \
-	    --label io.ousamg.gitversion=$(BRANCH) \
 		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
 		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
@@ -134,8 +127,9 @@ tar-web-build:
 stop-bundle-container:
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
-bundle-api: check-release-tag
-	git archive -o $(API_BUNDLE) $(RELEASE_TAG)
+bundle-api: REF=$(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG))
+bundle-api:
+	git archive -o $(API_BUNDLE) $(REF)
 
 bundle-dist: bundle-api bundle-client
 	@rm -rf dist-temp
@@ -163,7 +157,7 @@ build-diagram-image:
 
 start-diagram-container:
 	-docker rm $(DIAGRAM_CONTAINER)
-	docker run --label io.ousamg.gitversion=$(BRANCH) --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
+	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
 
 stop-diagram-container:
 	docker stop $(DIAGRAM_CONTAINER)
@@ -172,29 +166,42 @@ create-diagram:
 	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
-# DEMO
+# DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo dbreset
+.PHONY: demo kill-demo review
 
 comma := ,
-DEMO_NAME ?= demo
+REVIEW_NAME ?=
+REVIEW_OPTS ?=
 
-# Docker containers/images are prefixed with ella- and local/ella- respectively. The DEMO_NAME is also used for host
-# resolution and is depending in our DNS entries.
+# Demo is just a review app, with port mapped to system
+demo: REVIEW_OPTS=-p 3114:3114
+demo: REVIEW_NAME=demo
+demo: review
 demo:
-	docker build -t local/ella-$(DEMO_NAME) .
-	-docker stop $(subst $(comma),-,ella-$(DEMO_NAME))
-	-docker rm $(subst $(comma),-,ella-$(DEMO_NAME))
+	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
+
+kill-demo:
+	docker rm -f ella-demo
+
+# Review apps
+review:
+	$(call check_defined, REVIEW_NAME)
+	docker build -t local/ella-$(REVIEW_NAME) --target dev .
+	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
+	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
 	docker run -d \
-		--label io.ousamg.gitversion=$(BRANCH) \
-		--name $(subst $(comma),-,ella-$(DEMO_NAME)) \
+		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
+		--user $(UID):$(GID) \
 		-e PRODUCTION=false \
-		-e VIRTUAL_HOST=$(DEMO_NAME) \
-		--expose 80 \
-		local/ella-$(DEMO_NAME) \
+		-e VIRTUAL_HOST=$(REVIEW_NAME) \
+		-e PORT=3114 \
+		--expose 3114 \
+		$(REVIEW_OPTS) \
+		local/ella-$(REVIEW_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
-	docker exec $(subst $(comma),-,ella-$(DEMO_NAME)) make dbreset
+	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
 
 #---------------------------------------------
 # Misc. database
@@ -219,7 +226,7 @@ any:
 	@true
 
 build:
-	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
+	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
 dev: export USER_CONFIRMATION_ON_STATE_CHANGE="false"
 dev: export USER_CONFIRMATION_TO_DISCARD_CHANGES="false"
@@ -228,7 +235,6 @@ dev:
 	docker run -d \
 	  --name $(CONTAINER_NAME) \
 	  --hostname $(CONTAINER_NAME) \
-	  --label io.ousamg.gitversion=$(BRANCH) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e PTVS_PORT=5678 \
@@ -241,7 +247,7 @@ dev:
 	  -p 5678:5678 \
 	  $(ELLA_OPTS) \
 	  -v $(shell pwd):/ella \
-	  $(NAME_OF_GENERATED_IMAGE) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/dev/supervisor.cfg
 
 db:
@@ -265,21 +271,6 @@ restart:
 
 
 #---------------------------------------------
-# Genepanel config
-#---------------------------------------------
-.PHONY: check-gp-config
-
-check-gp-config: test-build
-	@-docker stop $(GP_VALIDATION_CONTAINER)
-	@-docker rm $(GP_VALIDATION_CONTAINER)
-	@docker run -d  --name $(GP_VALIDATION_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) $(NAME_OF_GENERATED_IMAGE) sleep infinity
-	@docker cp $(F) $(GP_VALIDATION_CONTAINER):/tmp/validation-subject
-	@docker exec $(GP_VALIDATION_CONTAINER) /bin/bash -c "python ops/dev/check_genepanel_config.py /tmp/validation-subject"
-	@echo "Stopping docker container $(GP_VALIDATION_CONTAINER)"
-	@docker stop $(GP_VALIDATION_CONTAINER)
-	@docker rm $(GP_VALIDATION_CONTAINER)
-
-#---------------------------------------------
 # TESTING (unit / modules)
 #---------------------------------------------
 .PHONY: test-build test test-all test-api test-api-migration \
@@ -289,120 +280,118 @@ check-gp-config: test-build
 # and then does an 'exec' of the tests inside the container
 
 test-build:
-	docker build ${BUILD_OPTIONS} -t $(NAME_OF_GENERATED_IMAGE) .
+	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
 test: test-all
-test-all: test-js test-common test-api test-cli test-report
+test-all: test-js test-common test-api test-cli test-report test-e2e
 
-test-js: test-build
+test-js:
 	docker run \
 	  --rm \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  --name $(PIPELINE_ID)-js \
+	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
-	  $(NAME_OF_GENERATED_IMAGE) \
+	  $(IMAGE_NAME) \
 	  yarn test
 
-test-js-auto: test-build
+test-js-auto:
 	docker run \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  --name $(PIPELINE_ID)-js \
+	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
-	  $(NAME_OF_GENERATED_IMAGE) \
+	  $(IMAGE_NAME) \
 	  yarn test-watch
 
-test-common: test-build
+test-common:
 	docker run -d \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  -e DB_URL=postgres:///vardb-test \
+	  --name $(CONTAINER_NAME)-common \
+	  --user $(UID):$(GID) \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  --name $(PIPELINE_ID)-common $(NAME_OF_GENERATED_IMAGE) \
+	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-common ops/test/run_python_tests.sh
-	@docker rm -f $(PIPELINE_ID)-common
+	docker exec $(CONTAINER_NAME)-common ops/test/run_python_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-common
 
-test-api: test-build
+test-api:
 	docker run -d \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  -e DB_URL=postgres:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
-	  -e PRODUCTION=false \
-	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  --name $(PIPELINE_ID)-api $(NAME_OF_GENERATED_IMAGE) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(PIPELINE_ID)-api ops/test/run_api_tests.sh
-	@docker rm -f $(PIPELINE_ID)-api
-
-test-api-migration: test-build
-	docker run -d \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  -e DB_URL=postgres:///vardb-test \
+	  --name $(CONTAINER_NAME)-api \
+	  --user $(UID):$(GID) \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  --name $(PIPELINE_ID)-api-migration $(NAME_OF_GENERATED_IMAGE) \
+	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-api-migration ops/test/run_api_migration_tests.sh
-	@docker rm -f $(PIPELINE_ID)-api-migration
+	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-api
 
-test-cli: test-build # container $(PIPELINE_ID)-cli
+test-api-migration:
 	docker run -d \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  -e DB_URL=postgres:///vardb-test \
+	  --name $(CONTAINER_NAME)-api-migration \
+	  --user $(UID):$(GID) \
+	  -e DB_URL=postgresql:///vardb-test \
+	  -e ATTACHMENT_STORAGE=/ella/attachments \
+	  -e PRODUCTION=false \
+	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	  $(IMAGE_NAME) \
+	  supervisord -c /ella/ops/test/supervisor.cfg
+
+	docker exec $(CONTAINER_NAME)-api-migration ops/test/run_api_migration_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-api-migration
+
+test-cli:
+	docker run -d \
+	  --name $(CONTAINER_NAME)-cli \
+	  --user $(UID):$(GID) \
+	  -e DB_URL=postgresql:///vardb-test \
 	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
-	  --name $(PIPELINE_ID)-cli $(NAME_OF_GENERATED_IMAGE) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
-	docker exec $(PIPELINE_ID)-cli ops/test/run_cli_tests.sh
-	@docker rm -f $(PIPELINE_ID)-cli
+	docker exec $(CONTAINER_NAME)-cli ops/test/run_cli_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-cli
 
-test-report: test-build
+test-report:
 	docker run -d \
-	  --label io.ousamg.gitversion=$(BRANCH) \
-	  -e DB_URL=postgres:///postgres \
+	  --name $(CONTAINER_NAME)-report \
+	  --user $(UID):$(GID) \
+	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
-	  --name $(PIPELINE_ID)-report $(NAME_OF_GENERATED_IMAGE) \
+	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
-	docker exec -t $(PIPELINE_ID)-report ops/test/run_report_tests.sh
-	@docker rm -f $(PIPELINE_ID)-report
+	docker exec -t $(CONTAINER_NAME)-report ops/test/run_report_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-report
 
-.PHONY: test-e2e e2e-remove-chromebox e2e-start-chromebox e2e-network-check
-
-test-e2e: e2e-network-check e2e-start-chromebox test-build
-	-docker rm -f $(E2E_APP_CONTAINER)
-	-docker run -d --hostname e2e \
-	   --name $(E2E_APP_CONTAINER) \
-	   --label io.ousamg.gitversion=$(BRANCH) \
+test-e2e:
+	@-docker rm -f $(CONTAINER_NAME)-e2e
+	mkdir -p errorShots
+	docker run -d --hostname e2e \
+	   --name $(CONTAINER_NAME)-e2e \
+	   --user $(UID):$(GID) \
+	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
-	   -e DB_URL=postgres:///postgres \
-	   -e E2E_APP_CONTAINER=$(E2E_APP_CONTAINER) \
-	   --network=local_only --link $(CHROMEBOX_CONTAINER):cb \
-	   $(NAME_OF_GENERATED_IMAGE) \
+	   -e DB_URL=postgresql:///postgres \
+	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
-	docker exec -t $(E2E_APP_CONTAINER) ops/test/run_e2e_tests.sh
-	-docker rm -f $(E2E_APP_CONTAINER)
-	-docker rm -f $(CHROMEBOX_CONTAINER)
+	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
+	@docker rm -f $(CONTAINER_NAME)-e2e
 
-e2e-start-chromebox: e2e-remove-chromebox
-	-docker rm -f $(CHROMEBOX_CONTAINER)
-	@echo "Starting Chromebox container $(CHROMEBOX_CONTAINER) using $(CHROMEBOX_IMAGE)"
-	docker run -d --name $(CHROMEBOX_CONTAINER) --label io.ousamg.gitversion=$(BRANCH) --network=local_only $(CHROMEBOX_IMAGE)
-	@echo "Chromebox info: (chromedriver, chrome, linux, debian)"
-	docker exec $(CHROMEBOX_CONTAINER) /bin/sh -c "ps aux | grep -E 'chromedriver|Xvfb' | grep -v 'grep' ; chromedriver --version ; google-chrome --version ; cat /proc/version ; cat /etc/debian_version"
-
-e2e-remove-chromebox:
-	-docker rm -f $(CHROMEBOX_CONTAINER)
-
-e2e-network-check:
-	docker network ls | grep -q local_only || docker network create --subnet 172.25.0.0/16 local_only
+test-formatting:
+	docker run --rm \
+	  --name $(CONTAINER_NAME)-formatting \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  ops/test/run_formatting_tests.sh
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
@@ -411,18 +400,30 @@ e2e-network-check:
 .PHONY: e2e-test-local
 
 e2e-test-local: test-build
-	-docker rm -f $(E2E_APP_CONTAINER)
+	-docker rm -f $(CONTAINER_NAME)-e2e-local
 	docker run -d \
-	   --name $(E2E_APP_CONTAINER) \
-   	   --label io.ousamg.gitversion=$(BRANCH) \
+	   --name $(CONTAINER_NAME)-e2e-local \
+	   --user $(UID):$(GID) \
        -it \
        -v $(shell pwd):/ella \
 	   -e PRODUCTION=false \
-	   -e DB_URL=postgres:///postgres \
+	   -e DB_URL=postgresql:///postgres \
 	   -p 5000:5000 -p 5859:5859 \
-	   $(NAME_OF_GENERATED_IMAGE) \
+	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(E2E_APP_CONTAINER) \
+	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
-
+build-singularity:
+	$(call check_defined, RELEASE_TAG)
+	# Use git archive to create docker context, to prevent modified files from entering the image.
+	git archive -o ella-archive-$(RELEASE_TAG).tar.gz $(RELEASE_TAG)
+	docker build -t local/ella-singularity-build --target production - < ella-archive-$(RELEASE_TAG).tar.gz
+	@-rm ella-archive-$(RELEASE_TAG).tar.gz
+	@-docker rm -f ella-tmp-registry
+	docker run --rm -d -p 29000:5000 --name ella-tmp-registry registry:2
+	docker tag local/ella-singularity-build localhost:29000/local/ella-singularity-build
+	docker push localhost:29000/local/ella-singularity-build
+	@-rm -f $(CONTAINER_NAME).simg
+	SINGULARITY_NOHTTPS=1 singularity build $(CONTAINER_NAME).simg docker://localhost:29000/local/ella-singularity-build
+	docker rm -f ella-tmp-registry

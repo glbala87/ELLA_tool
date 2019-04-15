@@ -28,7 +28,11 @@ desc = sadisplay.describe(
         annotation.Annotation,
         gene.Transcript,
         gene.Phenotype,
-        user.User, user.UserGroup, user.UserGroupGenepanel, user.UserSession, user.UserOldPassword
+        user.User,
+        user.UserGroup,
+        user.UserGroupGenepanel,
+        user.UserSession,
+        user.UserOldPassword,
     ]
 )
-open('ella-datamodel.dot', 'w').write(sadisplay.dot(desc))
+open("ella-datamodel.dot", "w").write(sadisplay.dot(desc))

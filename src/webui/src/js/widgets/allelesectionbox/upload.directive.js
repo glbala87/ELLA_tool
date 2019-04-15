@@ -1,7 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import { Compute } from 'cerebral'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import template from './upload.ngtmpl.html'
 
@@ -33,7 +32,7 @@ app.component('upload', {
                         return $ctrl.dragCount > 0 ? 0.75 : 0.25
                     },
                     uploadFiles(files) {
-                        if (files.length == 0) return
+                        if (files.length === 0) return
                         for (let file of files) {
                             $ctrl.uploadAttachment({ alleleId: $ctrl.selectedAllele, file })
                         }

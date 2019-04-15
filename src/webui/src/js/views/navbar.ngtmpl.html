@@ -1,43 +1,56 @@
-<header class="hero" ng-if="!$ctrl.title"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
-<nav class="top">
-  <section>
-    <div ng-if="$ctrl.currentView == 'login'">
-        <h3 class="full-title"><i>Welcome!</i></h3>
-    </div>
-    <div ng-if="$ctrl.currentView != 'login'">
-      <a id="home-bttn" href="/overview">
-        <h3 class="full-title upper clickable white"><i>Overview</i></h3>
-      </a>
-    </div>
-  </section>
+<nav>
+  <div class="broadcast" ng-if="$ctrl.broadcast.messages.length">
+      <ul>
+        <li class="message" ng-repeat="msg in $ctrl.broadcast.messages track by msg.id">
+            <span class="date">{{msg.date | date:"yyyy-MM-dd"}}:</span> {{msg.message}}
+        </li>
+      </ul>
+  </div>
+  <div class="top">
+    <section>
+      <div ng-if="$ctrl.currentView == 'login'">
+          <h3 class="full-title"><i>Welcome!</i></h3>
+      </div>
+      <div ng-if="$ctrl.currentView != 'login'">
+        <a id="home-bttn" href="/overview">
+          <h3 class="full-title upper clickable white"><i>Overview</i></h3>
+        </a>
+      </div>
+    </section>
 
-  <section ng-if="$ctrl.title">
-    <div class="active">
-      <h3 ng-if="$ctrl.currentView != 'workflows'" class="full-title"><b>{{$ctrl.title}}</b></h3>
-      <h3 ng-if="$ctrl.currentView == 'workflows'" class="full-title clickable white id-workflow-instance"
-            uib-popover-template="'interpretationRoundsPopover.ngtmpl.html'"
-            popover-append-to-body=true
-            popover-title="Rounds"
-            popover-trigger="outsideClick"
-            popover-placement="bottom">
-        <b>{{$ctrl.title}}</b>
-      </h3>
-    </div>
-  </section>
+    <section ng-if="$ctrl.title">
+      <div class="active">
+        <h3 ng-if="$ctrl.currentView != 'workflows'" class="full-title"><b>{{$ctrl.title}}</b></h3>
+        <h3 ng-if="$ctrl.currentView == 'workflows'" class="full-title clickable white id-workflow-instance"
+              uib-popover-template="'interpretationRoundsPopover.ngtmpl.html'"
+              popover-append-to-body=true
+              popover-title="Rounds"
+              popover-trigger="outsideClick"
+              popover-placement="bottom">
+          <b>{{$ctrl.title}}</b>
+        </h3>
+      </div>
+    </section>
+    <header class="hero" ng-if="!$ctrl.title"><h1><span id="les">les</span><span id="e">e</span><span id="l">||</span><span id="a">a</span></h1></header>
 
-  <section>
-    <div class="right">
-      <div class="link" ng-if="$ctrl.currentView == 'overview'">
-          <a href="/docs" target="_blank"><h3 class="full-title upper clickable white"><i>Documentation</i></h3></a>
+    <section>
+      <div class="right">
+        <div class="link" ng-if="$ctrl.currentView == 'overview'">
+            <a href="/docs" target="_blank"><h3 class="full-title upper clickable white"><i>Documentation</i></h3></a>
+        </div>
+        <div class="link" ng-if="$ctrl.currentView != 'login'">
+            <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ $ctrl.user.abbrev_name }}</i></h3></a>
+        </div>
+        <div ng-if="$ctrl.currentView == 'login'">
+          <h3 class="full-title"><i>Please login</i></h3>
+        </div>
       </div>
-      <div class="link" ng-if="$ctrl.currentView != 'login'">
-          <a href="/dashboard"><h3 class="full-title upper clickable white"><i>{{ $ctrl.user.abbrev_name }}</i></h3></a>
-      </div>
-      <div class="link" ng-if="$ctrl.currentView == 'login'">
-        <h3 class="full-title"><i>Please login</i></h3>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
+
+  <div ng-transclude>
+
+  </div>
 </nav>
 
 <!--Test/demo/staging warning-->

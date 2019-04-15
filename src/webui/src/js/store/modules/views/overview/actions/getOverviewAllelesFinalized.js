@@ -2,7 +2,6 @@ import processAlleles from '../../../../common/helpers/processAlleles'
 
 function getOverviewAllelesFinalized({ module, http, path, props, state }) {
     const config = state.get('app.config')
-    const sections = module.get('sections')
     const { page: selectedPage } = props
 
     return http

@@ -1,78 +1,96 @@
-<sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="$ctrl.close">
-  <maintitle>
-    ADD FILTERED VARIANTS
-  </maintitle>
-  <controls>
-    <section class="line-wrapper pinned-right">
-      <button class="id-close" type="button" ng-click="$ctrl.close()">Close</button>
-    </section>
-  </controls>
-  <contentwrapper>
-    <div class="included-allele-list">
-        <allele-sidebar-list
-          class="id-included"
-          section-title="Included variants"
-          allele-ids-path="'modals.addExcludedAlleles.includedAlleleIds'"
-          alleles-path="'modals.addExcludedAlleles.data.includedAlleles'"
-          toggle-clicked-path="'modals.addExcludedAlleles.excludeAlleleClicked'"
-          togglable="true"
-          toggled="$ctrl.isToggled"
-          read-only="$ctrl.readOnly"
-          expanded="true">
-        </allele-sidebar-list>
-      </div>
-
-    <!-- END INCLUDED -->
-
-    <!-- START MODAL CONTROLS -->
-    <hr ng-if="$ctrl.includedAlleleIds.length">
-    <div class="question small line-wrapper spaced">
-      <section class="line-wrapper">
-        <div class="bttn-set multiple-question-element">
-          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'all'">All ({{$ctrl.metrics.all}})</label>
-          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'frequency'">Frequency ({{$ctrl.metrics.frequency}})</label>
-          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'region'">Region ({{$ctrl.metrics.region}})</label>
-          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'quality'">Quality ({{$ctrl.metrics.quality}})</label>
-          <label class="bttn" ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})" ng-model="$ctrl.modelCategory" uib-btn-radio="'segregation'">Segregation ({{$ctrl.metrics.segregation}})</label>
+<sectionbox class="id-add-excluded-modal" color="green" modal="true" on-close="($ctrl.close)">
+    <maintitle> ADD FILTERED VARIANTS </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-close" type="button" ng-click="$ctrl.close()">Close</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <div class="included-allele-list">
+            <allele-sidebar-list
+                class="id-included"
+                section-title="Included variants"
+                allele-ids-path="'views.workflows.modals.addExcludedAlleles.includedAlleleIds'"
+                alleles-path="'views.workflows.modals.addExcludedAlleles.data.includedAlleles'"
+                toggle-clicked-path="'views.workflows.modals.addExcludedAlleles.excludeAlleleClicked'"
+                togglable="true"
+                toggled="$ctrl.isToggled"
+                read-only="$ctrl.readOnly"
+                expanded="true"
+            >
+            </allele-sidebar-list>
         </div>
-        <div class="dropdown multiple-question-element">
-          <select ng-change="$ctrl.geneChanged({gene: $ctrl.modelGene})" ng-model="$ctrl.modelGene" ng-options="g for g in $ctrl.geneOptions">
-            <option value="">All genes</option>
-          </select>
+
+        <!-- END INCLUDED -->
+
+        <!-- START MODAL CONTROLS -->
+        <hr ng-if="$ctrl.includedAlleleIds.length" />
+        <div class="question small line-wrapper spaced">
+            <section class="line-wrapper">
+                <div class="bttn-set multiple-question-element">
+                    <label
+                        class="bttn"
+                        ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})"
+                        ng-model="$ctrl.modelCategory"
+                        uib-btn-radio="'all'"
+                        >All ({{ $ctrl.metrics.all }})</label
+                    >
+                    <label
+                        ng-repeat="f in $ctrl.filterconfig.filterconfig.filters"
+                        class="bttn"
+                        ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})"
+                        ng-model="$ctrl.modelCategory"
+                        uib-btn-radio="f.name"
+                        >{{ f.name }} ({{ $ctrl.metrics[f.name] }})</label
+                    >
+                </div>
+                <div class="dropdown multiple-question-element">
+                    <select
+                        ng-change="$ctrl.geneChanged({gene: $ctrl.modelGene})"
+                        ng-model="$ctrl.modelGene"
+                        ng-options="g for g in $ctrl.geneOptions"
+                    >
+                        <option value="">All genes</option>
+                    </select>
+                </div>
+            </section>
         </div>
-      </section>
+        <div class="question small line-wrapper spaced allele-control-bar">
+            <h5 class="slim title upper">
+                <b>{{ $ctrl.metrics.current }} variants</b>
+                <small>from current filter settings</small>
+            </h5>
+            <div>
+                <uib-pagination
+                    total-items="$ctrl.geneAlleleIds.length"
+                    ng-model="$ctrl.modelSelectedPage"
+                    ng-model-watch="$ctrl.selectedPage"
+                    class="pagination-sm"
+                    items-per-page="$ctrl.itemsPerPage"
+                    ng-change="$ctrl.pageChanged({selectedPage: $ctrl.modelSelectedPage})"
+                    boundary-links="true"
+                    max-size="5"
+                    rotate="false"
+                >
+                </uib-pagination>
+            </div>
+        </div>
 
-    </div>
-    <div class="question small line-wrapper spaced allele-control-bar">
-      <h5 class="slim title upper"><b>{{$ctrl.metrics.current}} variants</b> <small>from current filter settings</small></h5>
-      <div>
-        <uib-pagination total-items="$ctrl.geneAlleleIds.length"
-          ng-model="$ctrl.modelSelectedPage"
-          ng-model-watch="$ctrl.selectedPage"
-          class="pagination-sm"
-          items-per-page="$ctrl.itemsPerPage"
-          ng-change="$ctrl.pageChanged({selectedPage: $ctrl.modelSelectedPage})"
-          boundary-links="true"
-          max-size="5"
-          rotate="false">
-        </uib-pagination>
-      </div>
-    </div>
+        <!-- END MODAL CONTROLS -->
 
-    <!-- END MODAL CONTROLS -->
-
-    <!-- START EXCLUDED -->
-    <div class="excluded-allele-list">
-      <allele-sidebar-list
-        class="id-excluded"
-        allele-ids-path="'modals.addExcludedAlleles.viewAlleleIds'"
-        alleles-path="'modals.addExcludedAlleles.data.alleles'"
-        toggle-clicked-path="'modals.addExcludedAlleles.includeAlleleClicked'"
-        togglable="true"
-        toggled="$ctrl.isToggled"
-        read-only="$ctrl.readOnly"
-        expanded="true">
-      </allele-sidebar-list>
-    </div>
-  </contentwrapper>
+        <!-- START EXCLUDED -->
+        <div class="excluded-allele-list">
+            <allele-sidebar-list
+                class="id-excluded"
+                allele-ids-path="'views.workflows.modals.addExcludedAlleles.viewAlleleIds'"
+                alleles-path="'views.workflows.modals.addExcludedAlleles.data.alleles'"
+                toggle-clicked-path="'views.workflows.modals.addExcludedAlleles.includeAlleleClicked'"
+                togglable="true"
+                toggled="$ctrl.isToggled"
+                read-only="$ctrl.readOnly"
+                expanded="true"
+            >
+            </allele-sidebar-list>
+        </div>
+    </contentwrapper>
 </sectionbox>

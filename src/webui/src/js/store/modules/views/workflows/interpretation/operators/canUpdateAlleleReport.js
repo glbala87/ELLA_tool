@@ -5,9 +5,7 @@ export default function canUpdateAlleleReport({ state, path, props }) {
     if (
         state.get('views.workflows.interpretation.isOngoing') &&
         !state.get(
-            `views.workflows.interpretation.selected.state.allele.${
-                props.alleleId
-            }.allelereport.reuse`
+            `views.workflows.interpretation.state.allele.${props.alleleId}.allelereport.reuse`
         )
     ) {
         return path.true()

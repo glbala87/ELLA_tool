@@ -1,6 +1,6 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state, signal, props } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import getFrequencyAnnotation from '../store/common/computes/getFrequencyAnnotation'
 import template from './frequencyDetailsWidget.ngtmpl.html'
 

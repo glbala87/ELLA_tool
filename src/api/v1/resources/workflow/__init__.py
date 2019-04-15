@@ -1,2 +1,2 @@
-import allele
-import analysis
+from . import allele
+from . import analysis

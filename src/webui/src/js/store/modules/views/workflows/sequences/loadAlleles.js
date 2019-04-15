@@ -6,13 +6,13 @@ import toast from '../../../../common/factories/toast'
 import prepareInterpretationState from './prepareInterpretationState'
 import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
 import loadCollisions from './loadCollisions'
-import updateSuggestedClassification from '../interpretation/sequences/updateSuggestedClassification'
+import selectedAlleleChanged from './selectedAlleleChanged'
 
 export default sequence('loadAlleles', [
     getAlleles,
     {
         success: [
-            set(state`views.workflows.data.alleles`, props`result`),
+            set(state`views.workflows.interpretation.data.alleles`, props`result`),
             prepareInterpretationState,
             allelesChanged, // Update alleleSidebar
             loadCollisions,
@@ -20,7 +20,7 @@ export default sequence('loadAlleles', [
             {
                 true: [
                     set(props`alleleId`, state`views.workflows.selectedAllele`),
-                    updateSuggestedClassification
+                    selectedAlleleChanged
                 ],
                 false: []
             }

@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const LivereloadWebpackPlugin = require('webpack-livereload-plugin')
+const DeadcodeWebpackPlugin = require('webpack-deadcode-plugin')
 const md5File = require('md5-file')
 
 LivereloadWebpackPlugin.prototype.done = function done(stats) {
@@ -87,7 +88,11 @@ module.exports = (env, argv) => {
             new CleanWebpackPlugin([path.resolve(__dirname, 'src/webui/build/*')], {
                 verbose: true
             }),
-            new LivereloadWebpackPlugin()
+            new LivereloadWebpackPlugin(),
+            new DeadcodeWebpackPlugin({
+                patterns: ['src/webui/src/**/*.(js|css|html)'],
+                exclude: ['**/*.spec.js']
+            })
         ]
     }
 }

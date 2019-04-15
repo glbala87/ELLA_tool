@@ -7,7 +7,6 @@ from api.util.allelereportcreator import AlleleReportCreator
 
 
 class AlleleReportResource(LogRequestResource):
-
     @authenticate()
     def get(self, session, ar_id=None, user=None):
         """
@@ -27,15 +26,12 @@ class AlleleReportResource(LogRequestResource):
                 $ref: '#/definitions/AlleleReport'
             description: AlleleReport object
         """
-        a = session.query(assessment.AlleleReport).filter(
-            assessment.AlleleReport.id == ar_id
-        ).one()
+        a = session.query(assessment.AlleleReport).filter(assessment.AlleleReport.id == ar_id).one()
         result = schemas.AlleleReportSchema(strict=True).dump(a).data
         return result
 
 
 class AlleleReportListResource(LogRequestResource):
-
     @authenticate()
     @paginate
     @rest_filter
@@ -69,19 +65,16 @@ class AlleleReportListResource(LogRequestResource):
             schemas.AlleleReportSchema(strict=True),
             rest_filter=rest_filter,
             page=page,
-            per_page=per_page
+            per_page=per_page,
         )
 
     @authenticate()
     @request_json(
-        [
-            'allele_id',
-            'evaluation',
-        ],
+        ["allele_id", "evaluation"],
         allowed=[
             # 'id' is excluded on purpose, as the endpoint should always result in a new report
-            'analysis_id'
-        ]
+            "analysis_id"
+        ],
     )
     def post(self, session, data=None, user=None):
         """
@@ -168,18 +161,18 @@ class AlleleReportListResource(LogRequestResource):
         #     data = [data]
 
         # find assessments to link to the reports:
-        assessment_ids = [d['alleleassessment_id'] for d in data if 'alleleassessment_id' in d]
-        existing_assessments = session.query(assessment.AlleleAssessment).filter(
-            assessment.AlleleAssessment.id.in_(assessment_ids)
-        ).all()
-
-        grouped_allelereports = AlleleReportCreator(session).create_from_data(
-            user.id,
-            data,
-            alleleassessments=existing_assessments
+        assessment_ids = [d["alleleassessment_id"] for d in data if "alleleassessment_id" in d]
+        existing_assessments = (
+            session.query(assessment.AlleleAssessment)
+            .filter(assessment.AlleleAssessment.id.in_(assessment_ids))
+            .all()
         )
 
-        created_allele_reports = grouped_allelereports['created']
+        grouped_allelereports = AlleleReportCreator(session).create_from_data(
+            user.id, data, alleleassessments=existing_assessments
+        )
+
+        created_allele_reports = grouped_allelereports["created"]
 
         # if not isinstance(data, list):
         #     allele_reports_without_context = allele_reports_without_context[0]

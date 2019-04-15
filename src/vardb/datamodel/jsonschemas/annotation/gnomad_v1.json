@@ -1,0 +1,83 @@
+{
+    "definitions": {
+        "count": {
+            "optional": [
+                "G",
+                "AFR",
+                "AMR",
+                "ASJ",
+                "EAS",
+                "FIN",
+                "NFE",
+                "OTH",
+                "SAS",
+                "Male",
+                "Female"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+                "[a-zA-Z]*": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "freq": {
+            "optional": [
+                "G",
+                "AFR",
+                "AMR",
+                "ASJ",
+                "EAS",
+                "FIN",
+                "NFE",
+                "OTH",
+                "SAS",
+                "Male",
+                "Female"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+                "[a-zA-Z]*": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1.0
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["count", "filter"],
+    "optional": ["hemi", "hom", "freq"],
+    "additionalProperties": false,
+    "properties": {
+        "count": {
+            "$ref": "#/definitions/count"
+        },
+        "freq": {
+            "$ref": "#/definitions/freq"
+        },
+        "hom": {
+            "$ref": "#/definitions/count"
+        },
+        "hemi": {
+            "$ref": "#/definitions/count"
+        },
+        "num": {
+            "$ref": "#/definitions/count"
+        },
+        "filter": {
+            "additionalProperties": false,
+            "properties": {
+                "G": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

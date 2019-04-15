@@ -1,24 +1,35 @@
 import { sequence } from 'cerebral'
-import { set, equals } from 'cerebral/operators'
-import { state, props, string } from 'cerebral/tags'
+import { set } from 'cerebral/operators'
+import { props, state } from 'cerebral/tags'
+import toast from '../../../../common/factories/toast'
 import getInterpretations from '../actions/getInterpretations'
-import prepareSelectedInterpretation from '../actions/prepareSelectedInterpretation'
+import copyInterpretationState from '../actions/copyInterpretationState'
 import prepareStartMode from '../actions/prepareStartMode'
 import loadInterpretationData from '../signals/loadInterpretationData'
-
-import toast from '../../../../common/factories/toast'
+import selectDefaultInterpretation from '../actions/selectDefaultInterpretation'
+import getFilterConfigs from '../actions/getFilterConfigs'
 
 export default sequence('loadInterpretations', [
     set(state`views.workflows.loaded`, false),
-    getInterpretations,
+    getFilterConfigs,
     {
-        error: [toast('error', 'Failed to load interpretations', 30000)],
+        error: [
+            toast('error', props`message` ? props`message` : 'Failed to load filter configs', 30000)
+        ],
         success: [
-            set(state`views.workflows.data.interpretations`, props`result`),
-            prepareSelectedInterpretation,
-            prepareStartMode,
-            loadInterpretationData,
-            set(state`views.workflows.loaded`, true)
+            set(state`views.workflows.data.filterconfigs`, props`result`),
+            getInterpretations,
+            {
+                error: [toast('error', 'Failed to load interpretations', 30000)],
+                success: [
+                    set(state`views.workflows.data.interpretations`, props`result`),
+                    selectDefaultInterpretation,
+                    copyInterpretationState,
+
+                    prepareStartMode,
+                    loadInterpretationData
+                ]
+            }
         ]
     }
 ])

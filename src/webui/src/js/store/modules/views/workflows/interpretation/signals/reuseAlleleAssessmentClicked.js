@@ -18,7 +18,7 @@ export default [
                     toggleReuseAlleleAssessment,
                     copyExistingAlleleAssessments,
                     set(
-                        state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.referenceassessments`,
+                        state`views.workflows.interpretation.state.allele.${props`alleleId`}.referenceassessments`,
                         []
                     ),
                     autoReuseExistingReferenceAssessments

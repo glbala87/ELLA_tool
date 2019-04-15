@@ -3,6 +3,7 @@ import thenBy from 'thenby'
 export default function updateMessages({ state }) {
     const logs = state.get('views.workflows.data.interpretationlogs')
     const interpretations = state.get('views.workflows.data.interpretations')
+    const showMessagesOnly = state.get('views.workflows.worklog.showMessagesOnly')
     const messages = []
 
     if (logs || interpretations) {
@@ -45,7 +46,10 @@ export default function updateMessages({ state }) {
     }
 
     state.set('views.workflows.worklog.messageCount', messageCount)
-    state.set('views.workflows.worklog.messageIds', messages.map((m) => m.id))
+    state.set(
+        'views.workflows.worklog.messageIds',
+        messages.filter((m) => (showMessagesOnly ? Boolean(m.message) : true)).map((m) => m.id)
+    )
     const mappedMessages = {}
     for (const m of messages) {
         mappedMessages[m.id] = m

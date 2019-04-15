@@ -1,12 +1,13 @@
 <div class="main">
 
-    <workflowbar></workflowbar>
+
     <collision-warning></collision-warning>
 
     <div class="interpretation">
         <interpretation
         ng-if="$ctrl.loaded"
         ></interpretation>
+        <workflow-loading ng-if="!$ctrl.loaded"></workflow-loading>
     </div>
 
 </div>

@@ -1,0 +1,7 @@
+#!/bin/bash -ue
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+export PYTHONPATH="${DIR}/src:${PYTHONPATH:-}"
+
+python "${DIR}/../src/cli/main.py" $@

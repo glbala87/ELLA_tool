@@ -19,7 +19,7 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
     # A priori probability of mutation
     def priors(is_x_minus_par):
         logfr = [log10(1 - DEFAULT_FREQ), log10(DEFAULT_FREQ)]
-        log_hardy_weinberg = [2*logfr[0], log10(2)+logfr[0]+logfr[1], 2*logfr[1]]
+        log_hardy_weinberg = [2 * logfr[0], log10(2) + logfr[0] + logfr[1], 2 * logfr[1]]
         if is_x_minus_par:
             return log_hardy_weinberg, logfr
         else:
@@ -29,7 +29,7 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
     def _single_transmit(parent, child):
         if child in parent and parent[0] == parent[1]:
             # Probability of getting an allele from homozygous parent
-            return 1-MUTATION_PRIOR
+            return 1 - MUTATION_PRIOR
         elif child in parent:
             # Probability of getting an allele from heterozygous parent
             return 0.5
@@ -48,7 +48,7 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
             elif self.is_x_minus_par and not self.proband_male:
                 # Since father only has one copy to inherit from, chance of inheriting is either very high (father has allele)
                 # or very low (father does not have allele)
-                self.transmit_father = lambda f, c: 1-MUTATION_PRIOR if f == c else MUTATION_PRIOR
+                self.transmit_father = lambda f, c: 1 - MUTATION_PRIOR if f == c else MUTATION_PRIOR
             else:
                 self.transmit_father = _single_transmit
 
@@ -58,17 +58,21 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
             if self.is_x_minus_par and self.proband_male:
                 # No transmission from father to boy on X (minus PAR) chromosome
                 return self.transmit_mother(mother, child[0])
-            elif (child[0] == child[1]):
+            elif child[0] == child[1]:
                 # Child is homozygous, probability of inheriting from both mother and father
-                return self.transmit_father(father, child[0])*self.transmit_mother(mother, child[0])
+                return self.transmit_father(father, child[0]) * self.transmit_mother(
+                    mother, child[0]
+                )
             else:
                 # Child is heterozygous, probability of inheriting from mother + probability of inheriting from father
-                return self.transmit_father(father, child[0])*self.transmit_mother(mother, child[1]) + self.transmit_father(father, child[0])*self.transmit_mother(mother, child[1])
+                return self.transmit_father(father, child[0]) * self.transmit_mother(
+                    mother, child[1]
+                ) + self.transmit_father(father, child[0]) * self.transmit_mother(mother, child[1])
 
     class LogTransmissionMatrix(object):
         def __init__(self, is_x_minus_par, proband_male):
             gt = [(0, 0), (0, 1), (1, 1)]
-            gtx = [(0, ), (1, )]
+            gtx = [(0,), (1,)]
 
             if is_x_minus_par and proband_male:
                 self.child_gt = gtx
@@ -99,12 +103,23 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
     for fi, _pl_f in enumerate(pl_f):
         for mi, _pl_m in enumerate(pl_m):
             for ci, _pl_c in enumerate(pl_c):
-                l = fa_prior[fi] + mo_prior[mi] + log_transmission_matrix(fi, mi, ci) - (_pl_f + _pl_m + _pl_c)/10
+                l = (
+                    fa_prior[fi]
+                    + mo_prior[mi]
+                    + log_transmission_matrix(fi, mi, ci)
+                    - (_pl_f + _pl_m + _pl_c) / 10
+                )
                 sum_liks += pow(10, l)
 
     # Compute likelihood of the given denovo mode
     f, m, c = denovo_mode
-    l = pow(10, fa_prior[f] + mo_prior[m] + log_transmission_matrix(f, m, c) - (pl_f[f] + pl_m[m] + pl_c[c])/10)
+    l = pow(
+        10,
+        fa_prior[f]
+        + mo_prior[m]
+        + log_transmission_matrix(f, m, c)
+        - (pl_f[f] + pl_m[m] + pl_c[c]) / 10,
+    )
 
     # Normalize likelihood to probability
-    return l/sum_liks
+    return l / sum_liks

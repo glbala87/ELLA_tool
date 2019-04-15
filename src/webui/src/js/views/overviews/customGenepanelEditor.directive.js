@@ -2,7 +2,6 @@ import app from '../../ng-decorators'
 import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import selectedCandidatesPageChanged from '../../store/modules/views/overview/import/signals/selectedCandidatesPageChanged'
 import template from './customGenepanelEditor.ngtmpl.html'
 
 const candidatesFilteredTotalItems = Compute(

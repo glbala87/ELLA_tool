@@ -5,7 +5,7 @@
 set -e # exit on first failure
 source ./scripts/bash-util.sh
 
-mkdir /ella/errorShots
+mkdir -p /ella/errorShots
 
 yellow "Building web assets"
 /ella/ops/common/symlink_node_modules
@@ -18,4 +18,4 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 yellow "Starting e2e tests..."
 
 # Run browser e2e
-yarn wdio --baseUrl "${E2E_APP_CONTAINER}:5000" --host "cb" --port 4444 --path "/"
+yarn wdio --baseUrl "localhost:5000" --host "localhost" --port 4444 --path "/"

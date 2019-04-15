@@ -8,8 +8,8 @@ import loadOverview from '../sequences/loadOverview'
 import setSections from '../actions/setSections'
 import checkAndSelectValidSection from '../actions/checkAndSelectValidSection'
 
-const UPDATE_IMPORT_STATUS_INTERVAL = 30
-const UPDATE_OVERVIEW_INTERVAL = 60
+const UPDATE_IMPORT_STATUS_INTERVAL = 180
+const UPDATE_OVERVIEW_INTERVAL = 180
 
 export default sequence('routed', [
     setNavbarTitle(null),

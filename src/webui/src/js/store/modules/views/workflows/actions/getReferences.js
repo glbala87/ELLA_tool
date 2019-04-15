@@ -1,7 +1,7 @@
 import processReferences from '../../../../common/helpers/processReferences'
 
 function getReferences({ http, path, state }) {
-    let alleles = state.get('views.workflows.data.alleles')
+    let alleles = state.get('views.workflows.interpretation.data.alleles')
     // Get all reference ids from alleles
     let ids = []
     let pubmedIds = []

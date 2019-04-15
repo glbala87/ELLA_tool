@@ -1,4 +1,4 @@
-import { set, equals } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanel from '../actions/getGenepanel'
 import toast from '../../../../../common/factories/toast'

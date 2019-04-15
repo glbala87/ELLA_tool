@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import { Directive, Inject } from '../ng-decorators'
+import { Directive } from '../ng-decorators'
 import template from './sectionbox.ngtmpl.html'
 
 /**
@@ -33,7 +33,7 @@ import template from './sectionbox.ngtmpl.html'
             let c = p.querySelector('controls')
 
             if (c) {
-                if (c.children.length == 0) {
+                if (c.children.length === 0) {
                     p.style.display = 'none'
                 }
             }

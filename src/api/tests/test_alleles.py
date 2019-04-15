@@ -1,6 +1,6 @@
 import pytest
 import json
-from util import FlaskClientProxy
+from .util import FlaskClientProxy
 
 
 @pytest.fixture
@@ -16,13 +16,13 @@ class TestAlleleList(object):
 
         # ids = [1, 2, 3, 4, 5, 6]
         ids = [1]
-        q = {'id': ids}
-        response = client.get('/api/v1/alleles/?q={}'.format(json.dumps(q)))
+        q = {"id": ids}
+        response = client.get("/api/v1/alleles/?q={}".format(json.dumps(q)))
 
         assert response.status_code == 200
 
-        alleles = response.json
+        alleles = response.get_json()
         assert len(alleles) == len(ids)
-        assert 'id' in alleles[0]
-        for k in ['external', 'frequencies', 'references', 'transcripts']:
-            assert k in alleles[0]['annotation']
+        assert "id" in alleles[0]
+        for k in ["external", "frequencies", "references", "transcripts"]:
+            assert k in alleles[0]["annotation"]

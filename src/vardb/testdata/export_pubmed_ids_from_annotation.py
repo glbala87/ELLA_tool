@@ -16,8 +16,8 @@ session = db.session
 annotations = session.query(annotation.Annotation).all()
 pubmeds = list()
 for a in annotations:
-    pubmeds += [r['pubmed_id'] for r in AnnotationProcessor.process(a.annotations)['references']]
+    pubmeds += [r["pubmed_id"] for r in AnnotationProcessor.process(a.annotations)["references"]]
 
 
 for pmid in list(set(pubmeds)):
-    print pmid
+    print(pmid)

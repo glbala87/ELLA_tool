@@ -1,6 +1,5 @@
 import { set, when } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
 import toast from '../../../../common/factories/toast'
 import checkUsername from '../actions/checkUsername'
 import checkConfirmPassword from '../actions/checkConfirmPassword'
@@ -17,7 +16,11 @@ export default [
                     postChangePassword,
                     {
                         success: [
-                            toast('success', `Password changed successfully.`, 1000),
+                            toast(
+                                'success',
+                                `Password changed successfully. You can now login with your new password.`,
+                                10000
+                            ),
                             set(state`views.login.mode`, 'Login'),
                             set(state`views.login.password`, ''),
                             set(state`views.login.newPassword`, ''),

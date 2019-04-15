@@ -34,11 +34,11 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Paths are relative to script dir.
 
-USERS = '../testdata/users.json'
-USERGROUPS = '../testdata/usergroups.json'
-FILTERCONFIGS = '../testdata/filterconfigs.json'
+USERS = "../testdata/users.json"
+USERGROUPS = "../testdata/usergroups.json"
+FILTERCONFIGS = "../testdata/filterconfigs.json"
 
-REPORT_EXAMPLE = '''
+REPORT_EXAMPLE = """
 ### Gene list for genes having below 100% coverage:
 
 |Gene|Transcript|Phenotype|Inheritance||Coverage<br> (% bp) (2)|
@@ -56,83 +56,69 @@ REPORT_EXAMPLE = '''
 |chr2:g.47630540N>N|chr2:g.47630543N>N|MSH2|NM_000251.2|exon1|36|
 |chr2:g.48010497N>N|chr2:g.48010531N>N|MSH6|NM_000179.2|exon1|13|
 |chr7:g.6013138N>N|chr7:g.6013175N>N|PMS2|NM_000535.5|exon15|11|
-'''
+"""
 
-WARNINGS_EXAMPLE = '''
+WARNINGS_EXAMPLE = """
 2 regions have too low coverage
 chr7:g.6013138N>N chr7:g.6013175N>N
 chr2:g.48010497N>N chr2:g.48010531N>N
-'''
+"""
 
 GENEPANELS = [
     {
-        'transcripts': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.phenotypes.csv',
-        'name': 'Mendeliome',
-        'version': 'v01'
+        "transcripts": "../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.transcripts.csv",
+        "phenotypes": "../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01.phenotypes.csv",
+        "name": "Mendeliome",
+        "version": "v01",
     },
     {
-        'transcripts': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv',
-        'name': 'HBOCUTV',
-        'version': 'v01'
+        "transcripts": "../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.transcripts.csv",
+        "phenotypes": "../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01.phenotypes.csv",
+        "name": "HBOCUTV",
+        "version": "v01",
     },
     {
-        'transcripts': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv',
-        'name': 'HBOC',
-        'version': 'v01'
+        "transcripts": "../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.transcripts.csv",
+        "phenotypes": "../testdata/clinicalGenePanels/HBOC_v01/HBOC_v01.phenotypes.csv",
+        "name": "HBOC",
+        "version": "v01",
     },
     {
-        'transcripts': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.transcripts.csv',
-        'phenotypes': '../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv',
-        'name': 'Ciliopati',
-        'version': 'v05'
-    }
+        "transcripts": "../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.transcripts.csv",
+        "phenotypes": "../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05.phenotypes.csv",
+        "name": "Ciliopati",
+        "version": "v05",
+    },
 ]
 
 
 ANALYSES = [
-    {
-        'path': '../testdata/analyses/default',
-        'name': 'default',
-        'default': True,
-    },
-    {
-        'path': '../testdata/analyses/e2e',
-        'name': 'e2e'
-    },
-    {
-        'path': '../testdata/analyses/integration_testing',
-        'name': 'integration_testing',
-    },
-    {
-        'path': '../testdata/analyses/custom',
-        'name': 'custom',
-    },
-    {
-        'path': '../testdata/analyses/sanger',
-        'name': 'sanger',
-    },
+    {"path": "../testdata/analyses/default", "name": "default", "default": True},
+    {"path": "../testdata/analyses/e2e", "name": "e2e"},
+    {"path": "../testdata/analyses/integration_testing", "name": "integration_testing"},
+    {"path": "../testdata/analyses/custom", "name": "custom"},
+    {"path": "../testdata/analyses/sanger", "name": "sanger"},
 ]
 
 ALLELES = [
     {
-        'path': '../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf',
-        'genepanel': ('HBOC', 'v01')
+        "path": "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf",
+        "genepanel": ("HBOC", "v01"),
     }
 ]
 
-DEFAULT_TESTSET = filter(lambda a:  'default' in a and a['default'], ANALYSES)[0]['name']
-AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + map(lambda a: a['name'], ANALYSES)
+DEFAULT_TESTSET = next(filter(lambda a: "default" in a and a["default"], ANALYSES))["name"]
+AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a["name"] for a in ANALYSES]
 
-REFERENCES = '../testdata/references_test.json'
-CUSTOM_ANNO = '../testdata/custom_annotation_test.json'
+REFERENCES = "../testdata/references_test.json"
+CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
 
 
 class DepositTestdata(object):
 
-    ANALYSIS_FILE_RE = re.compile('(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf')
+    ANALYSIS_FILE_RE = re.compile(
+        r"(?P<analysis_name>.+\.(?P<genepanel_name>.+)_(?P<genepanel_version>.+))\.vcf"
+    )
 
     def __init__(self, db):
         self.engine = db.engine
@@ -162,11 +148,11 @@ class DepositTestdata(object):
         """
 
         if test_set is None:
-            testset = next(v for v in ANALYSES if v.get('default'))
+            testset = next(v for v in ANALYSES if v.get("default"))
         else:
-            testset = next(v for v in ANALYSES if v['name'] == test_set)
+            testset = next(v for v in ANALYSES if v["name"] == test_set)
 
-        testset_path = os.path.join(SCRIPT_DIR, testset['path'])
+        testset_path = os.path.join(SCRIPT_DIR, testset["path"])
         analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
         analysis_paths.sort()
         for analysis_path in analysis_paths:
@@ -174,17 +160,17 @@ class DepositTestdata(object):
             if not os.path.isdir(analysis_path):
                 continue
             try:
-                analysis_vcf_path = glob.glob(os.path.join(analysis_path, '*.vcf'))[0]
+                analysis_vcf_path = glob.glob(os.path.join(analysis_path, "*.vcf"))[0]
                 analysis_ped_path = None
-                ped_glob = glob.glob(os.path.join(analysis_path, '*.ped'))
+                ped_glob = glob.glob(os.path.join(analysis_path, "*.ped"))
                 if ped_glob:
                     analysis_ped_path = ped_glob[0]
                 filename = os.path.basename(analysis_vcf_path)
                 matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
 
-                analysis_name = matches.group('analysis_name')
-                gp_name = matches.group('genepanel_name')
-                gp_version = matches.group('genepanel_version')
+                analysis_name = matches.group("analysis_name")
+                gp_name = matches.group("genepanel_name")
+                gp_version = matches.group("genepanel_version")
 
                 da = DepositAnalysis(self.session)
                 acd = AnalysisConfigData(
@@ -193,10 +179,10 @@ class DepositTestdata(object):
                     gp_name,
                     gp_version,
                     "1",
-                    date_requested=datetime.datetime.now().strftime('%Y-%m-%d'),
+                    date_requested=datetime.datetime.now().strftime("%Y-%m-%d"),
                     ped_path=analysis_ped_path,
-                    warnings=WARNINGS_EXAMPLE if gp_name == 'HBOC' else None,
-                    report=REPORT_EXAMPLE
+                    warnings=WARNINGS_EXAMPLE if gp_name == "HBOC" else None,
+                    report=REPORT_EXAMPLE,
                 )
 
                 da.import_vcf(acd)
@@ -211,14 +197,10 @@ class DepositTestdata(object):
     def deposit_alleles(self):
 
         for allele in ALLELES:
-            vcf_path = os.path.join(SCRIPT_DIR, allele['path'])
+            vcf_path = os.path.join(SCRIPT_DIR, allele["path"])
 
             da = DepositAlleles(self.session)
-            da.import_vcf(
-                vcf_path,
-                allele['genepanel'][0],
-                allele['genepanel'][1]
-            )
+            da.import_vcf(vcf_path, allele["genepanel"][0], allele["genepanel"][1])
             log.info("Deposited {} as single alleles".format(vcf_path))
             self.session.commit()
 
@@ -226,11 +208,13 @@ class DepositTestdata(object):
         dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
-                os.path.join(SCRIPT_DIR,  gpdata['transcripts'] if 'transcripts' in gpdata else gpdata['path']),
-                os.path.join(SCRIPT_DIR,  gpdata['phenotypes']) if 'phenotypes' in gpdata else None,
-                gpdata['name'],
-                gpdata['version'],
-                replace=False
+                os.path.join(
+                    SCRIPT_DIR, gpdata["transcripts"] if "transcripts" in gpdata else gpdata["path"]
+                ),
+                os.path.join(SCRIPT_DIR, gpdata["phenotypes"]) if "phenotypes" in gpdata else None,
+                gpdata["name"],
+                gpdata["version"],
+                replace=False,
             )
 
     def deposit_references(self):
@@ -244,11 +228,15 @@ class DepositTestdata(object):
     def deposit_all(self, test_set=None):
 
         if test_set not in AVAILABLE_TESTSETS:
-            raise RuntimeError("Test set {} not part of available test sets: {}".format(test_set, ','.join(AVAILABLE_TESTSETS)))
+            raise RuntimeError(
+                "Test set {} not part of available test sets: {}".format(
+                    test_set, ",".join(AVAILABLE_TESTSETS)
+                )
+            )
 
         log.info("--------------------")
         log.info("Starting a DB reset")
-        log.info("on {}".format(os.getenv('DB_URL', 'DB_URL NOT SET, BAD')))
+        log.info("on {}".format(os.getenv("DB_URL", "DB_URL NOT SET, BAD")))
         log.info("--------------------")
         self.deposit_genepanels()
         self.deposit_users()
@@ -271,7 +259,13 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--testset", action="store", dest="testset", help="Name of testset to import", default="default")
+    parser.add_argument(
+        "--testset",
+        action="store",
+        dest="testset",
+        help="Name of testset to import",
+        default="default",
+    )
 
     args = parser.parse_args()
 

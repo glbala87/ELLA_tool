@@ -2,7 +2,7 @@ import pytest
 from vardb.util.testdatabase import TestDatabase
 from vardb.util import DB
 from click.testing import CliRunner
-from cli.cli import cli
+from cli.main import cli_group
 
 # Sessions/connections are not closed after cli-call. Add this explicit disconnect here to remedy this.
 DB.__del__ = lambda *args, **kwargs: args[0].disconnect()
@@ -38,4 +38,4 @@ def test_database(request):
 @pytest.fixture
 def run_command():
     runner = CliRunner()
-    return lambda *args, **kwargs: runner.invoke(cli, *args, **kwargs)
+    return lambda *args, **kwargs: runner.invoke(cli_group, *args, **kwargs)

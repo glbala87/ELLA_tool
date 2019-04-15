@@ -1,15 +1,16 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function getAlleleIdsFromInterpretation(interpretation) {
-    let alleleIds = interpretation.allele_ids.slice()
-    if ('manuallyAddedAlleles' in interpretation.state) {
-        alleleIds = alleleIds.concat(interpretation.state.manuallyAddedAlleles)
-    }
-    return alleleIds
-}
-
-export function prepareInterpretationPayload(type, id, interpretation, alleles, references) {
+export function prepareInterpretationPayload(
+    type,
+    id,
+    interpretation,
+    state,
+    alleles,
+    alleleIds,
+    excludedAlleleIds,
+    references
+) {
     // Collect info about this interpretation.
     let annotations = []
     let custom_annotations = []
@@ -21,7 +22,7 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
     let notrelevant_allele_ids = []
 
     // collection annotation ids for the alleles:
-    for (let allele_state of Object.values(interpretation.state.allele)) {
+    for (let allele_state of Object.values(state.allele)) {
         if (!allele_state.allele_id) {
             throw Error('Missing mandatory property allele_id in allele state', allele_state)
         }
@@ -40,7 +41,7 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
         }
     }
 
-    for (let allele_state of Object.values(interpretation.state.allele)) {
+    for (let allele_state of Object.values(state.allele)) {
         // Only include assessments/reports for alleles part of the supplied list.
         // This is to avoid submitting assessments for alleles that have been
         // removed from classification during interpretation process.
@@ -111,12 +112,14 @@ export function prepareInterpretationPayload(type, id, interpretation, alleles, 
         alleleassessments,
         referenceassessments,
         allelereports,
-        attachments
+        attachments,
+        allele_ids: alleleIds
     }
     if (type === 'analysis') {
         Object.assign(payload, {
             technical_allele_ids,
-            notrelevant_allele_ids
+            notrelevant_allele_ids,
+            excluded_allele_ids: excludedAlleleIds
         })
     }
     return payload

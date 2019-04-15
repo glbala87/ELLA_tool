@@ -1,6 +1,13 @@
 # Datamodel
 
+::: warning NOTE
+This documentation is a work in progress and is not currently up to date.
+
+Please contact developers for more details.
+:::
+
 [[toc]]
+
 
 The datamodel is defined using [SQLAlchemy](https://www.sqlalchemy.org).
 
@@ -12,7 +19,7 @@ The main concepts of the datamodel are described below. For a complete list of t
 The variants are interpreted in a stepwise **workflow**, either one variant at a time or several ones in an analysis. An **analysis** is the set of variants that are found in a patient **sample** using a **gene panel** as variant filter. From one sample there can be multiple analyses, one for each gene panel chosen. In a workflow the work is done across several **interpretations**, with the last being **finalized** (usually) by a different user than the ones having done the previous interpretations. The previous interpretations  are marked for **review**. The workflow goes through start-review-finalize phases.
 
 When a workflow is finalized one or several **assessments** are either reused or created. The result and context of each step is captured in a **snapshot** enabling time-travelling. The assessment includes a classification (1-5). A description intended for the referring doctor is persisted as a **report**. The references relevant for the assessment is captured separately in a **reference assessment**. When interpreting variants in an analysis it's common practice to reuse assessments and reports made earlier.
- 
+
 ## Common features
 To enable time-travelling and auditing, data is generally not over-written. Instead copies are made and old and new entities are linked together.
 
@@ -36,7 +43,7 @@ Genetic data, currently genetic variation represented as SNVs and indels, are st
 
 ### Allele
 An [allele](https://www.nature.com/scitable/definition/allele-48) is a variant form of a gene. It's among the most important objects in the model. If combined with an annotation it can exists in isolation.
- 
+
 An allele has:
 
 - Reference genome version
@@ -48,7 +55,7 @@ An allele has:
 
 
 ### Annotation
-The annotation contains information about a *single* allele's population frequencies, predicted effects and various other data from external databases. Annotation can change often, and whenever it is updated, the previous annotation is archived. Therefore there is only one current annotation for every allele. The current annotation points to the previous to keep track on historic annotations. 
+The annotation contains information about a *single* allele's population frequencies, predicted effects and various other data from external databases. Annotation can change often, and whenever it is updated, the previous annotation is archived. Therefore there is only one current annotation for every allele. The current annotation points to the previous to keep track on historic annotations.
 
 The annotation is created outside *ella* by the pipeline.
 
@@ -88,7 +95,7 @@ Assessments with class 3-5 are valid for a limited period of time before a new i
 
 ### AlleleReport
 The information sent to doctors for each variant/allele is kept separate from the assessment itself. The report  can be updated without changing i.e. the classification.
- 
+
 The allele report has:
 - Free text (json)
 - Link to the assessment
@@ -155,7 +162,7 @@ The context saved in a snapshot:
 - The annotation
 - Custom annotation created by the user
 - The assessment (if any) that already existed and was displayed to user
-- The report (if any) that already existed and was displayed to user 
+- The report (if any) that already existed and was displayed to user
 
 When finalizing the snapshow also contain:
 - The assessment (including the classification) made by the user

@@ -1,0 +1,25 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["tag", "acc_num", "disease"],
+    "optional": ["codon"],
+    "additionalProperties": false,
+    "properties": {
+        "tag": {
+            "type": "string",
+            "enum": ["FP", "DM", "DFP", "R", "DP", "DM?"]
+        },
+        "codon": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "acc_num": {
+            "type": "string"
+        },
+        "disease": {
+            "type": "string"
+        }
+    }
+}

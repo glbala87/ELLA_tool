@@ -9,12 +9,22 @@ export default function showReferenceEvalModal({
     resolve
 }) {
     const analysis = state.get('views.workflows.data.analysis')
-    const allele = state.get(`views.workflows.data.alleles.${props.alleleId}`)
-    const reference = state.get(`views.workflows.data.references.${props.referenceId}`)
+    const allele = state.get(`views.workflows.interpretation.data.alleles.${props.alleleId}`)
+    const reference = state.get(
+        `views.workflows.interpretation.data.references.${props.referenceId}`
+    )
     const referenceAssessment = resolve.value(getReferenceAssessment(allele.id, reference.id)) || {}
     const readOnly = resolve.value(isReadOnly)
+    const commentTemplates = state.get('app.commentTemplates')
 
-    return ReferenceEvalModal.show(analysis, allele, reference, referenceAssessment, readOnly)
+    return ReferenceEvalModal.show(
+        analysis,
+        allele,
+        reference,
+        referenceAssessment,
+        readOnly,
+        commentTemplates
+    )
         .then((result) => {
             if (result) {
                 return path.result({ evaluation: result.evaluation })

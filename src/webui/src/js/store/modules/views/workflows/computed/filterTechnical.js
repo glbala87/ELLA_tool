@@ -4,11 +4,11 @@ import { state } from 'cerebral/tags'
 export default function(inverse = false, alleles) {
     return Compute(
         alleles,
-        state`views.workflows.interpretation.selected`,
-        (alleles, interpretation) => {
+        state`views.workflows.interpretation.state.allele`,
+        (alleles, alleleStates) => {
             return alleles.filter((allele) => {
                 const technical = Boolean(
-                    interpretation.state.allele[allele.id].analysis.verification === 'technical'
+                    alleleStates[allele.id].analysis.verification === 'technical'
                 )
                 return inverse ? !technical : technical
             })

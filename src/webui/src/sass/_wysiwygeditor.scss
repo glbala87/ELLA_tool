@@ -1,0 +1,297 @@
+wysiwyg-editor {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  white-space: normal;
+}
+
+.wysiwygplaceholder {
+  @extend textarea::placeholder;
+  border-bottom: 1px solid $black-25;
+  min-height: 2.6rem;
+  min-width: 20rem;
+}
+.wysiwygeditor {
+  max-height: 100%;
+  border-bottom: 1px solid $black-25;
+}
+
+.wysiwygeditor,
+.wysiwygeditor * li, .wysiwygeditor > li,
+.wysiwygeditor * p, .wysiwygeditor > p,
+.wysiwygeditor * em, .wysiwygeditor > em,
+.wysiwygeditor * span, .wysiwygeditor > span,
+.wysiwygeditor * h1, .wysiwygeditor > h1,
+.wysiwygeditor * h2, .wysiwygeditor > h2 {
+  white-space: normal;
+  font-family: "Work Sans", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: $black;
+}
+
+.wysiwygeditor * b, .wysiwygeditor > b {
+  font-weight: bold;
+}
+
+.wysiwygeditor * li, .wysiwygeditor > li {
+  margin-left: 1.8rem;
+}
+.wysiwygeditor h1, .wysiwygeditor * h1 {
+  white-space: normal;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.03rem;
+}
+
+.wysiwygeditor h2, .wysiwygeditor * h2 {
+  white-space: normal;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.03rem;
+}
+
+.wysiwygeditor table { padding: 0.5rem; background-color: $black-05; margin-bottom: 1rem; }
+.wysiwygeditor td, th { padding-left: 0.5rem; padding-right: 0.5rem; }
+
+.wysiwygbuttons {
+  padding: 0px 0px;
+  margin: 0px 0px;
+  padding-top: 0.3rem;
+  box-shadow: 0 0.1rem 0.1rem $black-25;
+  display: inline-table;
+}
+
+.acmg-selection .wysiwygbuttons {  display: none;}
+.wysiwygbuttons[hidden] { display: none; }
+
+.wysiwygbutton {
+  background-color: $black-05 !important;
+  color: $black-50 !important;
+  height: 2.5rem !important;
+  min-width: 2.5rem;
+  padding: 0px 7px;
+  margin: 0px 0px;
+  float: left;
+  box-shadow: none;
+  &:hover {
+    border: 1px solid $black-25;
+    border-bottom: 0;
+  }
+  &.hidden {
+    display: none;
+  }
+}
+
+.wysiwygbutton.fixed {
+  width: 2.5rem;
+  padding: 0px 0px;
+}
+
+#wysiwyg-src, #wysiwyg-monospace, #wysiwyg-highlightcolor, #wysiwyg-paragraph, #wysiwyg-link, #wysiwyg-removeFormat {border-right: 1px solid $black-25}
+#wysiwyg-bold {font-weight: bold;}
+#wysiwyg-italic {font-style: italic;}
+#wysiwyg-underline {text-decoration: underline;}
+#wysiwyg-color {padding-top: 0.3rem;}
+#wysiwyg-link {padding-top: 0.1rem;}
+
+#wysiwyg-src {display: none; } // Comment this out to debug the wysiwygeditor
+
+.wysiwygpopover {
+  border: 1px solid $black-25;
+  border-top: 0;
+  padding: 0.3rem;
+  position: absolute;
+  opacity: 1;
+  background-color: $white-95;
+  z-index: 2;
+}
+
+.wysiwyglinkform {
+  @extend .wysiwygpopover;
+  width: 24rem;
+  &:focus {
+    outline: 0px solid transparent;
+  }
+
+  & * input {
+    width: calc(100% - 4rem);
+    padding: 0.5rem;
+    margin: 0.2rem;
+  }
+
+  .addlinkbutton {
+    @extend .wysiwygbutton;
+    float: right;
+    position: absolute;
+    left: 100%;
+    top: 100%;
+    margin-left: -4rem;
+    margin-top: -3.5rem;
+    background: transparent;
+    font-size: 1.3rem;
+    &:hover { border: 0 }
+  }
+}
+
+
+.wysiwygtemplatespopover {
+  @extend .wysiwygpopover;
+  max-width: 30rem;
+  min-height: 2.7rem;
+  max-height: 14rem;
+  color: $black-75 !important;
+  overflow-y: auto;
+  .template-item {
+    display: flex;
+    align-items: center;
+    height: 2.7rem;
+    margin-right: 3rem;
+    &:not(:last-child) {
+      border-bottom: 1px solid $black-10;
+    }
+    .template-title {
+      flex-grow: 1;
+      padding-left: 0.5rem;
+      @extend .full-title;
+      font-size: 1.4rem;
+      max-width: 20rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-left: 0.5rem;
+    }
+    .template-button {
+      @extend .wysiwygbutton;
+      margin-left: 0.5rem;
+      border: 1px solid $black-25;
+      &:hover {
+        border: 1px solid $black-50;
+        font-weight: 700;
+      }
+    }
+  }
+
+}
+
+.wysiwygreferencespopover {
+  @extend .wysiwygpopover;
+  width: 40rem;
+  min-height: 3.5rem;
+  max-height: 20rem;
+  color: $black-75 !important;
+  overflow-y: auto;
+  padding: 0.5rem;
+  .reference-category-title {
+    padding-left: 0.5rem;
+    font-family: $slim;
+    font-weight: 700;
+    letter-spacing: 0.1rem;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .reference-item {
+    display: flex;
+    align-items: center;
+    height: 3.5rem;
+    padding-top: 1px;
+    &:not(:last-child) {
+        border-bottom: 1px solid $black-10;
+    }
+    .reference-title {
+      flex-grow: 1;
+      padding-left: 0.5rem;
+      @extend .full-title;
+      margin-bottom: -0.3rem;
+      font-weight: 500;
+      font-size: 1.2rem;
+      max-width: 35rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin-left: 0.5rem;
+    }
+    .reference-citation {
+        flex-grow: 1;
+        padding-left: 0.5rem;
+        @extend .full-title;
+        font-size: 1.2rem;
+        max-width: 35rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-left: 0.5rem;
+      }
+    .reference-button {
+      @extend .wysiwygbutton;
+      margin-left: 0.5rem;
+      border: 1px solid $black-25;
+      &:hover {
+        border: 1px solid $black-50;
+        font-weight: 700;
+      }
+    }
+  }
+}
+
+.wysiwygfontcolorpopover {
+  @extend .wysiwygpopover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:focus {
+    outline: 0px solid transparent;
+  }
+  .color-item {
+    margin: 1px;
+    border-width: 1px;
+    border-style: solid;
+    text-align: center;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    width: 2.2rem;
+    @extend .full-title;
+    font-size: 1.6rem;
+    opacity: 0.7;
+    &:hover {
+      cursor: pointer;
+      opacity: 1;
+      font-size: 1.8rem;
+    }
+  }
+
+}
+
+.wysiwyghighlightcolorpopover {
+  @extend .wysiwygpopover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:focus {
+    outline: 0px solid transparent;
+  }
+  .color-item {
+    text-align: center;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    width: 2.2rem;
+    @extend .full-title;
+    font-size: 1.6rem;
+    color: $black;
+    opacity: 0.9;
+    &:hover {
+      cursor: pointer;
+      opacity: 1;
+      font-size: 1.8rem;
+    }
+  }
+
+}
+
+.image-slider {
+  position: absolute;
+  z-index: inherit;
+}

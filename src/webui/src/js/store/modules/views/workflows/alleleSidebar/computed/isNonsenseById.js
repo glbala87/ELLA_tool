@@ -1,5 +1,4 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
 
 const nonsenseConsequences = [
     'start_lost',

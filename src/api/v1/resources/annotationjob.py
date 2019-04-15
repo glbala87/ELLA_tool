@@ -7,7 +7,6 @@ from vardb.datamodel import annotationjob
 
 
 class AnnotationJobList(LogRequestResource):
-
     @authenticate()
     @rest_filter
     @paginate
@@ -25,7 +24,8 @@ class AnnotationJobList(LogRequestResource):
         if rest_filter is None:
             rest_filter = dict()
         rest_filter[("genepanel_name", "genepanel_version")] = [
-            (gp.name, gp.version) for gp in user.group.genepanels]
+            (gp.name, gp.version) for gp in user.group.genepanels
+        ]
 
         return self.list_query(
             session,
@@ -34,7 +34,7 @@ class AnnotationJobList(LogRequestResource):
             rest_filter=rest_filter,
             order_by=annotationjob.AnnotationJob.date_submitted.desc(),
             page=page,
-            per_page=per_page
+            per_page=per_page,
         )
 
     @authenticate()
@@ -56,9 +56,8 @@ class AnnotationJobList(LogRequestResource):
 
 
 class AnnotationJob(LogRequestResource):
-
     @authenticate()
-    @request_json([], allowed=['status', 'message', 'task_id'])
+    @request_json([], allowed=["status", "message", "task_id"])
     def patch(self, session, id, data=None, user=None):
         """
         Updates an annotation job in the system.
@@ -69,10 +68,9 @@ class AnnotationJob(LogRequestResource):
             - Import
         """
         annotationjob_interface = AnnotationJobsInterface(session)
-        job = annotationjob_interface.patch(id,
-                                            status=data.get("status"),
-                                            message=data.get("message"),
-                                            task_id=data.get("task_id"))
+        job = annotationjob_interface.patch(
+            id, status=data.get("status"), message=data.get("message"), task_id=data.get("task_id")
+        )
         session.commit()
         return schemas.AnnotationJobSchema().dump(job).data, 200
 
@@ -85,16 +83,17 @@ class AnnotationJob(LogRequestResource):
         tags:
             - Import
         """
-        job = session.query(annotationjob.AnnotationJob).filter(
-            annotationjob.AnnotationJob.id == id
-        ).one()
+        job = (
+            session.query(annotationjob.AnnotationJob)
+            .filter(annotationjob.AnnotationJob.id == id)
+            .one()
+        )
         session.delete(job)
         session.commit()
         return None, 200
 
 
 class AnnotationServiceRunning(LogRequestResource):
-
     def get(self, session):
         """
         Checks status of annotation service.
@@ -104,13 +103,11 @@ class AnnotationServiceRunning(LogRequestResource):
         tags:
             - Import
         """
-        annotationservice_interface = AnnotationServiceInterface(
-            ANNOTATION_SERVICE_URL, session)
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
         return annotationservice_interface.annotation_service_running()
 
 
 class ImportSamples(LogRequestResource):
-
     def get(self, session):
         """
         Returns available samples from import service
@@ -120,8 +117,7 @@ class ImportSamples(LogRequestResource):
         tags:
             - Import
         """
-        search_term = request.args.get('term')
-        limit = request.args.get('limit')
-        annotationservice_interface = AnnotationServiceInterface(
-            ANNOTATION_SERVICE_URL, session)
+        search_term = request.args.get("term")
+        limit = request.args.get("limit")
+        annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
         return annotationservice_interface.search_samples(search_term, limit)

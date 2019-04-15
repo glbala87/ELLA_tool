@@ -17,13 +17,14 @@ import {
     isIgnored
 } from '../../store/common/helpers/reference'
 import { deepCopy } from '../../util'
-import template from './allelesectionbox.ngtmpl.html'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
+import template from './allelesectionbox.ngtmpl.html'
+import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 
 const getExcludedReferencesCount = Compute(
-    state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`,
-    state`views.workflows.data.references`,
+    state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
+    state`views.workflows.interpretation.data.references`,
     (allele, references, get) => {
         if (!allele || !references) {
             return
@@ -56,11 +57,11 @@ const getSection = Compute(
 )
 
 const isCollapsed = Compute(
-    state`views.workflows.interpretation.selected.user_state`,
+    state`views.workflows.interpretation.userState`,
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (userState, selectedAllele, sectionKey) => {
-        const COLLAPSED_BY_DEFAULT = ['analysis']
+        const COLLAPSED_BY_DEFAULT = []
         if (!userState || !userState.allele) {
             return
         }
@@ -90,20 +91,22 @@ app.component('alleleSectionbox', {
             collapsed: isCollapsed,
             readOnly: isReadOnly,
             section: getSection,
+            commentTemplates: state`app.commentTemplates`,
             selectedAllele: state`views.workflows.selectedAllele`,
             alleleState: getAlleleState(state`views.workflows.selectedAllele`),
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
             allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
+            editorReferences: getEditorReferences,
             isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
             hasExistingAlleleAssessment: hasExistingAlleleAssessment(
-                state`views.workflows.data.alleles.${state`views.workflows.selectedAllele`}`
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
             isAlleleAssessmentReused: isAlleleAssessmentReused(
                 state`views.workflows.selectedAllele`
             ),
-            showExcludedReferences: state`views.workflows.interpretation.selected.user_state.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
+            showExcludedReferences: state`views.workflows.interpretation.userState.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             verificationStatus: getVerificationStatus(state`views.workflows.selectedAllele`),
             notRelevant: getNotRelevant(state`views.workflows.selectedAllele`),
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
@@ -163,7 +166,7 @@ app.component('alleleSectionbox', {
                         })
                     },
                     getAllelePath() {
-                        return `views.workflows.data.alleles.${$ctrl.selectedAllele}`
+                        return `views.workflows.interpretation.data.alleles.${$ctrl.selectedAllele}`
                     },
                     getCardColor() {
                         if ($ctrl.section.alleleAssessmentReusedColor) {
@@ -180,6 +183,26 @@ app.component('alleleSectionbox', {
                         return $ctrl.showExcludedReferences
                             ? `HIDE IGNORED (${$ctrl.excludedReferenceCount})`
                             : `SHOW IGNORED (${$ctrl.excludedReferenceCount})`
+                    },
+                    getAnalysisSpecificCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationAnalysisSpecific']
+                    },
+                    getAlleleassessmentCommentTemplates() {
+                        const translations = {
+                            classification: 'classificationEvaluation',
+                            frequency: 'classificationFrequency',
+                            external: 'classificationExternal',
+                            prediction: 'classificationPrediction',
+                            reference: 'classificationReferences'
+                        }
+                        const sectionName = $ctrl.section.alleleassessmentComment.name
+                        return $ctrl.commentTemplates[translations[sectionName]]
+                    },
+                    getAlleleReportCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationReport']
+                    },
+                    getAcmgCommentTemplates() {
+                        return $ctrl.commentTemplates['classificationAcmg']
                     }
                 })
             }

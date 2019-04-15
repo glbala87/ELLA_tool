@@ -1,57 +1,78 @@
-<div class='acmg' ng-class="vm.getACMGclass()">
-  <div class="upper-wrapper">
-    <section class="acmg-upper">
-      <div class="left-item">
-        <h4 class="id-adjust-down adjust-button"
-            ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}"
-              class="clickable" ng-click="vm.downgradeCode()">-</h4>
-        <div class="acmg-title-wrapper">
-          <h4 class="acmg-title clickable" uib-popover-template="vm.popover.templateUrl"
-            popover-append-to-body=true
-            popover-title="{{vm.getCodeForDisplay().code | noUnderscores}}"
-            popover-trigger="outsideClick"
-            popover-placement="{{vm.popoverPlacement}}">
-            {{vm.getCodeForDisplay().code | dropREQ | noUnderscores}}
-          </h4>
-        </div>
-        <h4 class="id-adjust-up adjust-button"
-            ng-style="(vm.isUpgradable() && vm.editable === true) && {'visibility':'visible'} || {'visibility':'hidden'}"
-              class="clickable" ng-click="vm.upgradeCode()">+</h4>
-      </div>
-      <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{vm.code.length}}x</h4>
-      <button class="right-item"
-              ng-click="vm.toggle()"
-              ng-if="vm.toggleText && vm.isEditable()"
-      >{{vm.toggleText}}
-      </button>
+<div class="acmg" ng-class="vm.getACMGclass()">
+    <div class="upper-wrapper">
+        <section class="acmg-upper">
+            <div class="left-item">
+                <h4
+                    class="id-adjust-down adjust-button"
+                    ng-style="(vm.isDowngradable() && vm.editable) && {'visibility':'visible'} || {'visibility':'hidden'}"
+                    class="clickable"
+                    ng-click="vm.downgradeCode()"
+                >
+                    -
+                </h4>
+                <div class="acmg-title-wrapper">
+                    <h4
+                        class="acmg-title clickable"
+                        uib-popover-template="vm.popover.templateUrl"
+                        popover-append-to-body="true"
+                        popover-title="{{ vm.getCodeForDisplay().code | noUnderscores }}"
+                        popover-trigger="outsideClick"
+                        popover-placement="{{ vm.popoverPlacement }}"
+                    >
+                        {{ vm.getCodeForDisplay().code | dropREQ | noUnderscores }}
+                    </h4>
+                </div>
+                <h4
+                    class="id-adjust-up adjust-button"
+                    ng-style="(vm.isUpgradable() && vm.editable === true) && {'visibility':'visible'} || {'visibility':'hidden'}"
+                    class="clickable"
+                    ng-click="vm.upgradeCode()"
+                >
+                    +
+                </h4>
+            </div>
+            <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{ vm.code.length }}x</h4>
+            <button
+                class="right-item transparent"
+                ng-click="vm.toggle()"
+                ng-if="vm.toggleText && vm.isEditable()"
+            >
+                {{ vm.toggleText }}
+            </button>
+        </section>
+        <aside
+            class="acmg-req noclick"
+            ng-if="!vm.isInACMGsection()"
+            ng-class="vm.getACMGclass(r)"
+            ng-repeat="r in vm.getRequiredFor()"
+            ng-disabled="!vm.isEditable()"
+        >
+            <section class="acmg-upper">
+                <h4 class="acmg-title">{{ r }}</h4>
+            </section>
+        </aside>
+        <aside
+            class="acmg-req"
+            ng-if="vm.isInACMGsection()"
+            ng-class="vm.getACMGclass(r)"
+            ng-repeat="r in vm.getRequiredFor()"
+            ng-click="vm.clickAddRequiredForCode(r)"
+            ng-disabled="!vm.isEditable()"
+        >
+            <section class="acmg-upper">
+                <h4 class="acmg-title clickable white">+ {{ r }}</h4>
+            </section>
+        </aside>
+    </div>
+    <section class="acmg-lower" ng-if="vm.commentModel != undefined">
+        <wysiwyg-editor
+            class="right-item commentbox id-comment-acmg"
+            templates="vm.templates"
+            references="vm.references"
+            ng-disabled="!vm.isEditable()"
+            placeholder="{{ vm.getPlaceholder() }}"
+            ng-model="vm.commentModel"
+            ng-change="vm.onUpdate()"
+        ></wysiwyg-editor>
     </section>
-    <aside class="acmg-req noclick"
-           ng-if="!vm.isInACMGsection()"
-           ng-class="vm.getACMGclass(r)"
-           ng-repeat="r in vm.getRequiredFor()"
-           ng-disabled="!vm.isEditable()"
-    >
-      <section class="acmg-upper">
-        <h4 class="acmg-title">{{r}}</h4>
-      </section>
-    </aside>
-    <aside class="acmg-req"
-           ng-if="vm.isInACMGsection()"
-           ng-class="vm.getACMGclass(r)"
-           ng-repeat="r in vm.getRequiredFor()"
-           ng-click="vm.clickAddRequiredForCode(r)"
-           ng-disabled="!vm.isEditable()"
-    >
-      <section class="acmg-upper">
-        <h4 class="acmg-title clickable white">+ {{r}}</h4>
-      </section>
-    </aside>
-  </div>
-  <section class="acmg-lower" ng-if="vm.commentModel != undefined">
-      <wysiwyg-editor class="right-item commentbox id-comment-acmg"
-                       ng-disabled="!vm.isEditable()"
-                       placeholder="{{vm.getPlaceholder()}}"
-                       ng-model="vm.commentModel"
-                       ng-change="vm.onUpdate()"></wysiwyg-editor>
-  </section>
 </div>

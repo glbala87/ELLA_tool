@@ -19,6 +19,7 @@ import showAlleleAssessmentHistoryClicked from './signals/showAlleleAssessmentHi
 import interpretationUserStateChanged from './signals/interpretationUserStateChanged'
 import upgradeDowngradeAcmgClicked from './signals/upgradeDowngradeAcmgClicked'
 import uploadAttachmentTriggered from './signals/uploadAttachmentTriggered'
+import indicationsCommentChanged from './signals/indicationsCommentChanged'
 
 export default Module({
     state: {},
@@ -42,6 +43,7 @@ export default Module({
         showExcludedReferencesClicked,
         showAlleleAssessmentHistoryClicked,
         upgradeDowngradeAcmgClicked,
-        uploadAttachmentTriggered
+        uploadAttachmentTriggered,
+        indicationsCommentChanged
     }
 })

@@ -7,6 +7,7 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
+
 import sys
 import argparse
 import json
@@ -20,17 +21,24 @@ from api.config import config
 import vardb.datamodel
 from vardb.datamodel import gene
 from vardb.util import vcfiterator
-from vardb.deposit.importers import AnalysisImporter, AnnotationImporter, SampleImporter, \
-                                    GenotypeImporter, AlleleImporter, AnalysisInterpretationImporter, \
-                                    SpliceInfoProcessor, HGMDInfoProcessor, \
-                                    SplitToDictInfoProcessor, AlleleInterpretationImporter, get_allele_from_record
+from vardb.deposit.importers import (
+    AnalysisImporter,
+    AnnotationImporter,
+    SampleImporter,
+    GenotypeImporter,
+    AlleleImporter,
+    AnalysisInterpretationImporter,
+    HGMDInfoProcessor,
+    SplitToDictInfoProcessor,
+    AlleleInterpretationImporter,
+    get_allele_from_record,
+)
 
 
 log = logging.getLogger(__name__)
 
 
 class DepositFromVCF(object):
-
     def __init__(self, session):
         self.session = session
         self.sample_importer = SampleImporter(self.session)
@@ -44,14 +52,18 @@ class DepositFromVCF(object):
 
     def get_genepanel(self, gp_name, gp_version):
         try:
-            genepanel = self.session.query(gene.Genepanel).filter(and_(
-                gene.Genepanel.name == gp_name,
-                gene.Genepanel.version == gp_version)).one()
+            genepanel = (
+                self.session.query(gene.Genepanel)
+                .filter(and_(gene.Genepanel.name == gp_name, gene.Genepanel.version == gp_version))
+                .one()
+            )
         except sqlalchemy.orm.exc.NoResultFound:
-            log.warning("Genepanel {} version {} not available in varDB".format(
-                gp_name, gp_version))
-            raise RuntimeError("Genepanel {} version {} not available in varDB".format(
-                gp_name, gp_version))
+            log.warning(
+                "Genepanel {} version {} not available in varDB".format(gp_name, gp_version)
+            )
+            raise RuntimeError(
+                "Genepanel {} version {} not available in varDB".format(gp_name, gp_version)
+            )
         return genepanel
 
     def import_vcf(self, path, sample_configs=None, analysis_config=None, assess_class=None):
@@ -59,7 +71,7 @@ class DepositFromVCF(object):
 
     def is_inside_transcripts(self, record, genepanel):
         chr = record["CHROM"]
-        pos = record["POS"]-1 # We use zero-based transcripts
+        pos = record["POS"] - 1  # We use zero-based transcripts
         for tx in genepanel.transcripts:
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True
@@ -78,16 +90,20 @@ class DepositFromVCF(object):
 
     def printStats(self):
         stats = self.getCounter()
-        print "Samples to add: {}".format(stats["nSamplesAdded"])
-        print "Variants in file: {}".format(stats.get('nVariantsInFile', '???'))
-        print "Alternative alleles to add: {}".format(stats.get('nAltAlleles', '???'))
-        print "Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", '???'))
-        print
-        print "Novel annotations to add: {}".format(stats.get("nNovelAnnotation", '???'))
-        print "Updated annotations: {}".format(stats.get("nUpdatedAnnotation", '???'))
-        print "Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", '???'))
-        print
-        print "Genotypes hetro ref: {}".format(stats.get('nGenotypeHetroRef', '???'))
-        print "Genotypes homo nonref: {}".format(stats.get('nGenotypeHomoNonRef', '???'))
-        print "Genotypes hetro nonref: {}".format(stats.get('nGenotypeHetroNonRef', '???'))
-        print "Genotypes not added (not variant/not called/sample not added): {}".format(stats.get('nGenotypeNotAdded', '???'))
+        print("Samples to add: {}".format(stats["nSamplesAdded"]))
+        print("Variants in file: {}".format(stats.get("nVariantsInFile", "???")))
+        print("Alternative alleles to add: {}".format(stats.get("nAltAlleles", "???")))
+        print("Novel alt alleles to add: {}".format(stats.get("nNovelAltAlleles", "???")))
+        print()
+        print("Novel annotations to add: {}".format(stats.get("nNovelAnnotation", "???")))
+        print("Updated annotations: {}".format(stats.get("nUpdatedAnnotation", "???")))
+        print("Annotations unchanged: {}".format(stats.get("nNoChangeAnnotation", "???")))
+        print()
+        print("Genotypes hetro ref: {}".format(stats.get("nGenotypeHetroRef", "???")))
+        print("Genotypes homo nonref: {}".format(stats.get("nGenotypeHomoNonRef", "???")))
+        print("Genotypes hetro nonref: {}".format(stats.get("nGenotypeHetroNonRef", "???")))
+        print(
+            "Genotypes not added (not variant/not called/sample not added): {}".format(
+                stats.get("nGenotypeNotAdded", "???")
+            )
+        )

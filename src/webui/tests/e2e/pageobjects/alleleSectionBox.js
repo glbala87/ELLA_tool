@@ -3,6 +3,8 @@ let util = require('./util')
 
 const SELECTOR_ACMG_INCLUDED = '.id-acmg-included'
 
+const SELECTOR_INSERT_TEMPLATE_BUTTON = '.id-insert-template-button'
+const SELECTOR_INSERT_REFERENCE_BUTTON = '.id-insert-references-button'
 const SELECTOR_COMMENT_ANALYSIS = 'allele-sectionbox .id-comment-analysis'
 const SELECTOR_COMMENT_ANALYSIS_EDITOR = `${SELECTOR_COMMENT_ANALYSIS} .wysiwygeditor`
 const SELECTOR_COMMENT_CLASSIFICATION = 'allele-sectionbox .id-comment-classification'
@@ -309,6 +311,23 @@ class AlleleSectionBox {
     getAcmgComment(idx) {
         return browser.getText(
             `.id-acmg-included acmg:nth-child(${idx})  wysiwyg-editor div.wysiwygeditor`
+        )
+    }
+
+    insertClassificationTemplate(idx) {
+        this.classificationCommentElement.click()
+        util.element(SELECTOR_INSERT_TEMPLATE_BUTTON).click()
+        browser.click(
+            `.wysiwygtemplatespopover .template-item:nth-child(${idx}) > .template-button`
+        )
+    }
+
+    insertFrequencyReference(idx) {
+        this.frequencyCommentElement.click()
+        util.element(`${SELECTOR_COMMENT_FREQUENCY} ${SELECTOR_INSERT_REFERENCE_BUTTON}`).click()
+        browser.click(
+            `${SELECTOR_COMMENT_FREQUENCY} .wysiwygreferencespopover .reference-item:nth-child(${idx +
+                1}) > .reference-button`
         )
     }
 }

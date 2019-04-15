@@ -1,13 +1,13 @@
-import { when, set, debounce } from 'cerebral/operators'
-import { state, string, props } from 'cerebral/tags'
-import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment'
-import toast from '../../../../../common/factories/toast'
-import showCustomAnnotationModal from '../actions/showCustomAnnotationModal'
-import postCustomAnnotation from '../actions/postCustomAnnotation'
-import loadAlleles from '../../sequences/loadAlleles'
-import loadReferences from '../../sequences/loadReferences'
-import setDirty from '../actions/setDirty'
-import loadAcmg from '../../sequences/loadAcmg'
+import { when } from 'cerebral/operators';
+import { props, string } from 'cerebral/tags';
+import toast from '../../../../../common/factories/toast';
+import loadAcmg from '../../sequences/loadAcmg';
+import loadAlleles from '../../sequences/loadAlleles';
+import loadReferences from '../../sequences/loadReferences';
+import postCustomAnnotation from '../actions/postCustomAnnotation';
+import setDirty from '../actions/setDirty';
+import showCustomAnnotationModal from '../actions/showCustomAnnotationModal';
+import canUpdateAlleleAssessment from '../operators/canUpdateAlleleAssessment';
 
 export default [
     showCustomAnnotationModal,

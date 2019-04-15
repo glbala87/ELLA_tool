@@ -1,43 +1,57 @@
 # Testing
 
-Types of tests: javascript, api/backend, database migration, end-to-end
 
-## End-to-end
+## Types of tests
+
+### End-to-end
 A complete app with frontend and backend is started. Several use-cases
  are executed through the browser simulating a user clicking and entering text.
  The tests are written in Javascript and executed using [webdriverIO] (http://webdriver.io/).
-  
-## Javascript  
-Testing of isolated Javascript functions.
-Written in Javascript, using the frameworks ...
 
+### Unit tests
+Testing of isolated Javascript or Python functions.
 
-## API/Backend
+### API and integration tests
 A database instance and the python backend is started. Tests written in Python
-use the API to test various scenarios.
+use the API and/or database to test various scenarios.
 
-###############################################
+The tests are run twice, once against current database schema and once again where the database schema has been migrated from baseline to current.
 
-Our test suites are intended to be run inside Docker. The Makefile has commands to do run setup and the tests themselves.
+## Running whole test suites
 
-## Getting started
+Remember to run `make test-build` before executing tests everytime you make changes.
+
 - `make test` will run most test types apart from e2e.
 - `make test-{type}` will run the different types of test.
 
-## Specific test
 
-If you want to run a specific API test while developing, you can enter the docker container and run `source /ella/ops/dev/setup-local-integration-test.source`. This script will tell the test framework to use your local database dump after the initial run, saving you a lot of time when running the test again.
+## During development
 
-## End to end testing (e2e)
+
+### Python
+
+If you want to run a specific API test while developing, you can enter your development container and run `source /ella/ops/dev/setup-local-integration-test.source`, before running the test with `py.test`. This script will tell the test framework to use your local database dump after the initial run, saving you a lot of time when running the test again.
+
+The database fixtures are setup in different `conftest.py` files.
+
+For normal unit testing, just run `py.test <path>` like normal.
+
+
+### Javascript
+
+You can run `yarn test-watch` inside the container to watch for changes.
+
+
+### End to end testing (e2e)
 We use webdriver.io for testing. See <http://webdriver.io>.
 
-In CI tests are run with `make e2e-test`. This will run Chrome in it's own container and run the test suites.
+In CI tests are run with `make e2e-test`. This will run Chrome inside the container and run the test suites.
 You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
 
-To explore the e2e test data, start a local *ella* instance and import the e2e test data: `.../reset?testset=e2e`
+To explore the e2e test data, start a local *ella* instance and import the e2e test data: `make dbreset TESTSET=e2e`
 
 
-## Local usage, REPL and debugging
+#### Local e2e
 The following must be installed:
 - Chrome
 - Chromedriver
@@ -59,22 +73,11 @@ The relevant options to the make command:
 - CHROME_HOST=.. the IP address where chromedriver is running. This will start a Chrome browser.
 - Add SPEC="\<path to test>" to run only a single/few tests. They must given as src/webui/tests/e2e/tests/.. (comma separated if multiple).
 - APP_URL: url of the app to test, like <http://localhost:8001>. Make sure to use an ip/port that is accessible from within the container where the tests themselves are running.
-  If not defined the app running inside container of the test execution is used.
+  If not defined, the app running inside container of the test execution is used.
 
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
 
-Note! Make sure the versions of Chrome and Chromedriver are compatible
-
-Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
-Of course you need to have instellad the webdriverio Node module.
-
-### Installing
-
-Chromedriver:
-- brew info chromedriver
-- or <https://sites.google.com/a/chromium.org/chromedriver/downloads>
-
-### Misc
+##### Misc
 
 Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
 Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
@@ -86,4 +89,3 @@ Use `browser.debug()` in a test file to pause the execution of the tests. It wil
 Hit 'Ctrl-c' in the REPL to continue the test run. See more on <http://webdriver.io/guide/usage/repl.html>
 
 More info at <http://webdriver.io/guide/testrunner/debugging.html>
- 

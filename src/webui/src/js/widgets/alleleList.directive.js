@@ -1,7 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { Compute } from 'cerebral'
-import { state, props, signal } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import sortedAlleles from '../store/modules/views/overview/computed/sortedAlleles'
 import template from './alleleList.ngtmpl.html'
 

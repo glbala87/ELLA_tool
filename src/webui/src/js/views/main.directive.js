@@ -8,6 +8,7 @@ app.component('main', {
     templateUrl: 'main.ngtmpl.html',
     controller: connect(
         {
+            logoutClicked: signal`views.dashboard.logoutClicked`,
             views: state`views`,
             modals: state`modals`
         },

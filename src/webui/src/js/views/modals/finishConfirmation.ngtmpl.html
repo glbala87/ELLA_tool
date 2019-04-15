@@ -1,30 +1,87 @@
-<sectionbox class="prompt" color="purple" modal="true" on-close="$ctrl.close">
-  <maintitle>
-    SELECT NEXT ROUND
-  </maintitle>
-  <controls>
-    <section class="line-wrapper pinned-right">
-        <button class="id-finish purple" type="button" ng-disabled="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize" ng-click="$ctrl.finishClicked({workflowStatus: $ctrl.selectedStatus})">FINISH</button>
-    </section>
-  </controls>
-  <contentwrapper>
-    <h4 class="sb-notification"> SEND FROM/TO: <span style="padding-left: 1rem;">{{$ctrl.workflowStatus}}</span> <span class="step-indicator">⟶</span> {{$ctrl.getSelectedStatus()}} </h4>
-    <div class="workflow-status-selection">
-      <button ng-if="$ctrl.type == 'analysis'" class="id-mark-notready" ng-class="$ctrl.getClass('Not ready')" type="button" ng-click="$ctrl.selectStatus('Not ready')">NOT READY</button>
-      <p ng-if="$ctrl.type == 'analysis'" class="step-indicator">⟶</p>
-      <button class="id-mark-interpretation" ng-class="$ctrl.getClass('Interpretation')" type="button" ng-click="$ctrl.selectStatus('Interpretation')">INTERPRETATION</button>
-      <p class="step-indicator">⟶</p>
-      <button class="id-mark-review" ng-class="$ctrl.getClass('Review')" type="button" ng-click="$ctrl.selectStatus('Review')">REVIEW</button>
-      <p class="step-indicator">⟶</p>
-      <button ng-if="$ctrl.type == 'analysis'" class="id-mark-medicalreview" ng-class="$ctrl.getClass('Medical review')" type="button" ng-click="$ctrl.selectStatus('Medical review')">MEDICAL REVIEW</button>
-      <p ng-if="$ctrl.type == 'analysis'" class="step-indicator">⟶</p>
-      <button class="id-finalize" ng-class="$ctrl.getClass('Finalized')" type="button" ng-click="$ctrl.selectStatus('Finalized')">FINALISE</button>
+<sectionbox class="prompt" color="purple" modal="true" on-close="($ctrl.close)">
+    <maintitle> SELECT NEXT ROUND </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button
+                class="id-finish purple"
+                type="button"
+                ng-disabled="$ctrl.finishDisabled()"
+                ng-click="$ctrl.finishClicked({workflowStatus: $ctrl.selectedStatus})"
+            >
+                {{ $ctrl.finishButtonText() }}
+            </button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <h4 class="sb-notification">
+            SEND FROM/TO: <span style="padding-left: 1rem;">{{ $ctrl.getWorkflowStatus() }}</span>
+            <span class="step-indicator">⟶</span> {{ $ctrl.getSelectedStatus() }}
+        </h4>
+        <div class="workflow-status-selection">
+            <button
+                ng-if="$ctrl.type == 'analysis'"
+                class="id-mark-notready"
+                ng-class="$ctrl.getClass('Not ready')"
+                type="button"
+                ng-click="$ctrl.selectStatus('Not ready')"
+            >
+                NOT READY
+            </button>
+            <p ng-if="$ctrl.type == 'analysis'" class="step-indicator">⟶</p>
+            <button
+                class="id-mark-interpretation"
+                ng-class="$ctrl.getClass('Interpretation')"
+                type="button"
+                ng-click="$ctrl.selectStatus('Interpretation')"
+            >
+                INTERPRETATION
+            </button>
+            <p class="step-indicator">⟶</p>
+            <button
+                class="id-mark-review"
+                ng-class="$ctrl.getClass('Review')"
+                type="button"
+                ng-click="$ctrl.selectStatus('Review')"
+            >
+                REVIEW
+            </button>
+            <p class="step-indicator">⟶</p>
+            <button
+                ng-if="$ctrl.type == 'analysis'"
+                class="id-mark-medicalreview"
+                ng-class="$ctrl.getClass('Medical review')"
+                type="button"
+                ng-click="$ctrl.selectStatus('Medical review')"
+            >
+                MEDICAL REVIEW
+            </button>
+            <p ng-if="$ctrl.type == 'analysis'" class="step-indicator">⟶</p>
+            <button
+                class="id-finalize"
+                ng-class="$ctrl.getClass('Finalized')"
+                type="button"
+                ng-click="$ctrl.selectStatus('Finalized')"
+            >
+                FINALISE
+            </button>
+        </div>
 
-    </div>
-
-
-    <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"> </h4>
-    <h4 class="id-finalize-not-possible sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize">Finalise not possible:</h4>
-    <h4 class="sb-notification" ng-if="$ctrl.getSelectedStatus() == 'Finalized'" ng-repeat="m in $ctrl.canFinalize.messages">- {{m}}</h4>
-  </contentwrapper>
+        <h4
+            class="sb-notification"
+            ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"
+        ></h4>
+        <h4
+            class="id-finalize-not-possible sb-notification"
+            ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"
+        >
+            Finalise not possible:
+        </h4>
+        <h4
+            class="sb-notification"
+            ng-if="$ctrl.getSelectedStatus() == 'Finalized'"
+            ng-repeat="m in $ctrl.canFinalize.messages"
+        >
+            - {{ m }}
+        </h4>
+    </contentwrapper>
 </sectionbox>

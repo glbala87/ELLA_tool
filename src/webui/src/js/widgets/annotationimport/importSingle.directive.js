@@ -1,7 +1,6 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../../ng-decorators'
-import { printedFileSize } from '../../util'
 import template from './importSingle.ngtmpl.html'
 
 @Directive({
@@ -110,7 +109,7 @@ export class ImportSingleController {
 
         this.importData.importSelection.analysisName = fileNameBase
         p.then((matchingAnalyses) => {
-            if (matchingAnalyses.length == 1) {
+            if (matchingAnalyses.length === 1) {
                 this.importData.importSelection.type = 'Append'
                 this.importData.importSelection.analysis = matchingAnalyses[0]
             } else {

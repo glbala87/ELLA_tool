@@ -4,7 +4,102 @@ sidebar: auto
 
 # Release notes
 
-[[toc]]
+- [1.4.1](#_1-4-1)
+- [1.4](#_1-4)
+- [1.3.1](#_1-3-1)
+- [1.3](#_1-3)
+- [1.2](#_1-2)
+- [1.1.2](#_1-1-2)
+- [1.1.1](#_1-1-1)
+- [1.1](#_1-1)
+
+
+## 1.4.1
+
+### Additions and fixes
+- Increase overview update interval to lessen strain server
+- Fix automatic import of analyses with underscore in the gene panel name
+- Fix issue where finalization would not work under certain conditions.
+
+
+## 1.4
+
+### Highlights
+
+#### Variant filter configurations
+
+ella now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow:
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-4-filter-select.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Switch between different filter configurations in an ongoing analysis.
+    </div>
+    <br>
+</div>
+
+Examples of possible filter configurations are different levels of frequency thresholds, or being able to turn on and off family (segregation) filtering for an analysis.
+
+#### New variant filters
+
+Current filters include:
+
+- Classification filter
+- Consequence filter
+- External filter
+- Frequency filter
+- Inheritance model filter
+- Polypyrimidine filter
+- Quality filter
+- Region filter
+- Segregation filter
+
+See new section [Concepts/Filters](/concepts/filtering.md) in the documentation for details on how these filters work and how to configure them.
+
+#### Comment editor additions
+
+The comment editor now supports inserting pre-defined templates, as well as references from the STUDIES & REFERENCES section, using two new buttons in the comment field menu. Templates can be defined independently for different comment fields, and supports basic text formatting.
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-4-comment-template-reference.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Adding templates and references.
+    </div>
+    <br>
+</div>
+
+If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
+
+### New features
+
+- [Variant filter configurations](/releasenotes/#variant-filter-configurations).
+- [New filters (turn on/off in configuration)](/releasenotes/#new-variant-filters).
+- [Use text templates and add references in comment fields](/releasenotes/#comment-editor-additions).
+- Work log: Hide system messages by clicking `MESSAGES ONLY`.
+- New class: "Drug response" (as defined in [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/)).
+- New "Indication comment" on the REPORT page, for comments specifically about the patient's indication.
+- Nearby variants warning now checks all variants in analysis (previously only checked non-filtered variants). Now also checks nearby within 2bp (possibly same codon), rather than 3bp.
+- Empty gnomAD, ClinVar and HGMD Pro records now have external links to generic pages.
+- Added warning for expiring passwords.
+
+### Other additions and fixes
+
+- Added `ADD STUDIES` button in top bar.
+- Fixed description for ACMG criterion BP6.
+- Fixed missing scrolling in "Show analyses".
+- "PL" removed from Quality card in ANALYSIS SPECIFIC section.
+- Changed order of sections on CLASSIFICATION page to PREDICTION - EXTERNAL - STUDIES & REFERENCES
+- References are now ordered (descending) according to publication year.
+- Changed colour of `O` tag in side bar.
+
+
+### Backend
+
+- Added broadcast functionality to convey important messages in *ella* to all users.
+- Improvements to filter efficiency and speed.
+
 
 ## 1.3.1
 
@@ -18,8 +113,6 @@ sidebar: auto
 
 #### Visualization *(analysis workflow)*
 
-
-
 As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ella as part of a new visualization feature. ella now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
 
 ella provides a few special tracks by default:
@@ -29,14 +122,17 @@ ella provides a few special tracks by default:
 - Variants: Shows the analysis variants _after_ filtering.
 
 
-<div style="text-align: center">
-<img style="width: 30rem" src="./img/1-3-visualization.png">
-<br>
-<i style="font-size: 80%;">New visualization feature</i>
+<div style="text-indent: 4%;">
+    <img src="./img/1-3-visualization.png">
+    <br><br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New visualization feature.
+    </div>
+    <br>
 </div>
 
 
-#### Mark `Not relevant` *(analysis workflow)*
+#### Mark "Not relevant" *(analysis workflow)*
 
 Variants can now be marked as `Not relevant` for the analysis. Such variants can, depending on the user's configuration, be left without a selected class upon finalization of the analysis.
 
@@ -47,10 +143,13 @@ It gives a summary of the most important information necessary for classifying v
 
 It is most relevant for workflows where you first perform a quicker interpretation of certain variants, before doing a more thorough interpretation of the remaining ones.
 
-<div style="text-align: center">
-<img style="width: 30rem" src="./img/1-3-quick-classification.png">
-<br>
-<i style="font-size: 80%;">Quick classification view</i>
+<div style="text-indent: 4%;">
+    <img src="./img/1-3-quick-classification.png">
+    <br><br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Quick classification view.
+    </div>
+    <br>
 </div>
 
 
@@ -67,10 +166,8 @@ The view of a variant's class in the sidebar has been improved.
 
 Left number is existing class, right is new. An arrow indicates that a new classification will be created. Blue background indicates that the variant has been reviewed. You can toggle the review status by clicking on the class in the sidebar.
 
-<div style="text-align: center">
-<img style="width: 15rem" src="./img/1-3-sidebar-classification.png">
-<br>
-<i style="font-size: 80%;"></i>
+<div style="text-indent: 4%;">
+    <img style="width: 28rem" src="./img/1-3-sidebar-classification.png">
 </div>
 
 
@@ -80,20 +177,20 @@ A new, online user manual is now available from within ella itelf. You can acces
 
 ### New features
 
-- Visualization *(analysis workflow)*
-- Ability to mark variants `Not relevant` *(analysis workflow)*
-- Quick classification *(analysis workflow)*
+- [Visualization *(analysis workflow)*](/releasenotes/#visualization-analysis-workflow).
+- [Ability to mark variants `Not relevant` *(analysis workflow)*](/releasenotes/#mark-not-relevant-analysis-workflow).
+- [Quick classification *(analysis workflow)*](/releasenotes/#quick-classification-analysis-workflow).
 - Filters and their parameters are now configurable per user group
 - New filter: Quality
 - Region filter now can save variants with certain (configurable) consequences from being filtered.
 - New variant warning: HGVSc and HGVSp mismatch between corresponding Refseq and Ensembl transcripts.
-- Integrated documentation within ella
+- [Integrated documentation within ella](/releasenotes/#new-user-manual).
 
 
 ### Other additions and fixes
-- Filtered variants are now shown as a list *(analysis workflow)*
-- `QUALITY` card is renamed to `ANALYSIS SPECIFIC` *(analysis workflow)*
-- Improved view of class in sidebar *(analysis workflow)*
+- Filtered variants are now shown as a list *(analysis workflow)*.
+- [`QUALITY` card is renamed to `ANALYSIS SPECIFIC` *(analysis workflow)*](/releasenotes/#quality-card-renamed-to-analysis-specific-analysis-workflow).
+- [Improved view of class in sidebar *(analysis workflow)*](/releasenotes/#improved-view-of-existing-and-current-class-in-sidebar-analysis-workflow).
 - Workflows can now be finalized with technical, not relevant and/or missing classifictions (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behaviour). *(analysis workflow)*
 - `Requested date` is now read from input `.analysis` file and used in overview.
 - Too wide images in comments will not make the page scrollable in the horizontal direction.
@@ -123,10 +220,13 @@ The following segregation models are supported:
 The most powerful filtering requires two parents to be present in the analysis, but
 some segregation filters and tags also apply to analyses with only siblings (unaffected and/or affected).
 
-<div style="text-align: center">
-<img style="width: 10rem" src="./img/1-2-family-tags.png">
-<br>
-<i style="font-size: 80%;">Segregation tags in sidebar</i>
+<div style="text-indent: 4%;">
+    <img style="width: 10rem" src="./img/1-2-family-tags.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Segregation tags in sidebar.
+    </div>
+    <br>
 </div>
 
 Variants filtered out by these filters can be found in the `Segregation` category in the excluded variants.
@@ -143,17 +243,24 @@ The analysis and variant workflows now have their own `Work log`. The work log c
 
 All options in the work log can be changed at any time, without having to start a new interpretation round.
 
-<div style="text-align: center;">
-<img style="width: 30rem" src="./img/1-2-work-log.png"><br>
-<i style="font-size: 80%;">Work log example</i>
+<div style="text-indent: 4%;">
+    <img style="width: 35rem" src="./img/1-2-work-log.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Work log example.
+    </div>
+    <br>
 </div>
 
 If there are any messages since last time the workflow was `Finalised`, the work log button will appear in purple, along with the current message count.
 
-<div style="text-align: center">
-<img style="width: 7rem" src="./img/1-2-worklog-button.png">
-<br>
-<i style="font-size: 80%;">2 messages since beginning or last finalisation.</i>
+<div style="text-indent: 4%;">
+    <img style="width: 8rem" src="./img/1-2-worklog-button.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>2 messages since beginning or last finalisation.
+    </div>
+    <br>
 </div>
 
 #### Variant warnings
@@ -166,17 +273,22 @@ Variants are now tagged with warnings whenever there is something special that c
 Variant warnings are implemented for both the variant and analysis workflows, but some warnings are only available for analyses.
 
 
-<div style="text-align: center">
-<img style="width: 40rem" src="./img/1-2-variant-warning-example.png">
-<br>
-<i style="font-size: 80%;">Example warning.</i>
+<div style="text-indent: 4%;">
+    <img style="width: 42rem" src="./img/1-2-variant-warning-example.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Example warning.
+    </div>
+    <br>
 </div>
 
 
-<div style="text-align: center">
-<img style="width: 25rem" src="./img/1-2-variant-warning-tags.png">
-<br>
-<i style="font-size: 80%;">Warning tags in sidebar.</i>
+<div style="text-indent: 4%;">
+    <img style="width: 28rem" src="./img/1-2-variant-warning-tags.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Warning tags in sidebar.</i>
+    </div>
 </div>
 
 
@@ -231,7 +343,7 @@ ella now lets you re-import previously run samples, using either an existing gen
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
-<div style="text-align: center">
+<div style="text-indent: 4%;">
 <img style="width: 30rem" src="./img/1-1-import.png">
 </div>
 

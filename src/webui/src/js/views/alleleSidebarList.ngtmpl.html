@@ -50,6 +50,15 @@
                   </span>
                 </div>
               </div>
+            <div title="Filtered variants" class="top"  ng-if="$ctrl.showManuallyAddedIndicator()">
+              <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'manuallyAdded'})">
+                <span ng-class="{'clickable': $ctrl.orderByPath}">F</span>
+                <span ng-if="$ctrl.orderBy.key === 'manuallyAdded'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+            </div>
             <div title="Segregation type" class="top">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'segregation'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">S</span>
@@ -71,27 +80,67 @@
             <div title="Quality issues" class="top">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'quality'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">Q</span>
-                <div ng-if="$ctrl.orderBy.key === 'quality'">
+                <span ng-if="$ctrl.orderBy.key === 'quality'">
                   <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                   <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
-                </div>
+                </span>
               </div>
             </div>
             <div title="Reference(s) available" class="top">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'references'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">R</span>
-                <div ng-if="$ctrl.orderBy.key === 'references'">
+                <span ng-if="$ctrl.orderBy.key === 'references'">
                   <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                   <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
-                </div>
+                </span>
               </div>
             </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell dp" title="Read depth">DP</div>
-          <div ng-if="$ctrl.expanded" class="cell ratio" title="Allele ratio">RATIO</div>
-          <div ng-if="$ctrl.expanded" class="cell hi-freq" title="Highest frequency">HI. FREQ</div>
-          <div ng-if="$ctrl.expanded" class="cell hi-count" title="Highest allele count">HI. COUNT</div>
-          <div ng-if="$ctrl.expanded" class="cell external" title="External databases">EXTERNAL</div>
+          <div ng-if="$ctrl.expanded" class="cell dp" title="Read depth">
+            <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'readDepth'})">
+                <span ng-class="{'clickable': $ctrl.orderByPath}">DP</span>
+                <span ng-if="$ctrl.orderBy.key === 'readDepth'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+          </div>
+          <div ng-if="$ctrl.expanded" class="cell ratio" title="Allele ratio">
+              <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'ratio'})">
+                <span ng-class="{'clickable': $ctrl.orderByPath}">RATIO</span>
+                <span ng-if="$ctrl.orderBy.key === 'ratio'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+          </div>
+          <div ng-if="$ctrl.expanded" class="cell hi-freq" title="Highest frequency">
+            <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'freq'})">
+              <span ng-class="{'clickable': $ctrl.orderByPath}">HI. FREQ</span>
+              <span ng-if="$ctrl.orderBy.key === 'freq'">
+                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+              </span>
+            </div>
+          </div>
+          <div ng-if="$ctrl.expanded" class="cell hi-count" title="Highest allele count">
+              <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'count'})">
+                <span ng-class="{'clickable': $ctrl.orderByPath}">HI. COUNT</span>
+                <span ng-if="$ctrl.orderBy.key === 'count'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+          </div>
+          <div ng-if="$ctrl.expanded" class="cell external" title="External databases">
+              <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'external'})">
+                <span ng-class="{'clickable': $ctrl.orderByPath}">EXTERNAL</span>
+                <span ng-if="$ctrl.orderBy.key === 'external'">
+                  <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                  <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                </span>
+              </div>
+          </div>
           <div class="cell classification"></div>
           <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation" title="{{$ctrl.getCommentTitle()}}">{{$ctrl.getCommentTitle()}}</div>
           <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification" title="Classification">QUICK CLASSIFICATION</div>
@@ -120,6 +169,11 @@
             <div title="{{$ctrl.getWarningsTitle(allele)}}" class="warning">
               <div class="hit" ng-if="$ctrl.hasWarning(allele)">
                   <span>!</span>
+              </div>
+            </div>
+            <div title="Included from filtering" class="low-qual" ng-if="$ctrl.showManuallyAddedIndicator()">
+              <div class="hit" ng-if="$ctrl.isManuallyAdded(allele.id)">
+                  <span>I</span>
               </div>
             </div>
               <div title="{{$ctrl.getSegregationTitle(allele)}}" class="segregation">

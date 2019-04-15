@@ -1,168 +1,240 @@
-<sectionbox class="id-sectionbox-{{$ctrl.sectionKey}}" color="{{$ctrl.getCardColor()}}" on-collapse="$ctrl.collapseChangedWrapper(collapsed, $ctrl.sectionKey)" collapsed="$ctrl.collapsed">
-  <maintitle>
-  {{$ctrl.section.title}}
-  </maintitle>
-  <subtitle ng-if="$ctrl.section.subtitle">{{$ctrl.section.subtitle}}</subtitle>
+<sectionbox
+    class="id-sectionbox-{{ $ctrl.sectionKey }}"
+    color="{{ $ctrl.getCardColor() }}"
+    on-collapse="$ctrl.collapseChangedWrapper(collapsed, $ctrl.sectionKey)"
+    collapsed="$ctrl.collapsed"
+>
+    <maintitle> {{ $ctrl.section.title }} </maintitle>
+    <subtitle ng-if="$ctrl.section.subtitle">{{ $ctrl.section.subtitle }}</subtitle>
 
-  <controls>
+    <controls>
+        <!-- Controls -->
+        <section class="line-wrapper" ng-if="$ctrl.section.controls.length">
+            <div
+                class="button"
+                ng-repeat="control in $ctrl.section.controls"
+                ng-if="$ctrl.showControls()"
+            >
+                <button
+                    class="id-classification-outdated"
+                    ng-if="control == 'reuse_classification' && $ctrl.isAlleleAssessmentOutdated"
+                    disabled
+                >
+                    Classification outdated
+                </button>
 
-
-    <!-- Controls -->
-    <section class="line-wrapper" ng-if=$ctrl.section.controls.length>
-      <div class="button" ng-repeat="control in $ctrl.section.controls" ng-if="$ctrl.showControls()">
-          <button class="id-classification-outdated"
-                  ng-if="control == 'reuse_classification' && $ctrl.isAlleleAssessmentOutdated"
-                  disabled>Classification outdated
-          </button>
-
-          <checkable-button class="id-accept-classification"
-                            ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment && !$ctrl.isAlleleAssessmentOutdated"
-                            check-model="$ctrl.isAlleleAssessmentReused"
-                            ng-click="$ctrl.reuseAlleleAssessmentClicked({alleleId: $ctrl.selectedAllele})"
-                            one-way="true"
-                            ng-disabled="$ctrl.readOnly">
-              Undo reevaluation
-              <checked>Reevaluate</checked>
-          </checkable-button>
-
-          <button class="id-mark-class2"
-                  ng-if="control == 'toggle_class2'"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-click="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: '2'})">
-              Mark class 2
-          </button>
-
-          <button class="id-add-references"
-                  ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-if="control == 'references'">Add studies
-          </button>
-
-          <button class="id-show-ignored-references"
-                  ng-click="$ctrl.showExcludedReferencesClicked({alleleId: $ctrl.selectedAllele})"
-                  ng-if="control == 'references'">{{$ctrl.getExcludedReferencesBtnText()}}
-          </button>
-
-          <button class="id-add-external"
-                  ng-if="control == 'custom_external'"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'external'})">Add external DB
-          </button>
-
-          <button class="id-add-prediction"
-                  ng-if="control == 'custom_prediction'"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'prediction'})">Add prediction
-          </button>
-
-          <button ng-if="control == 'add_reference'"
-                  ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                  ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})">Add reference
-          </button>
-
-        <section class="line-wrapper" ng-if="control == 'classification'">
-          <div class="dropdown">
-              <select class="id-select-classification"
-                      ng-class="{'readOnly': $ctrl.readOnly}"
-                      ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                      ng-model="$ctrl.modelClassification"
-                      ng-model-watch="$ctrl.alleleassessment.classification"
-                      ng-options="o.value as o.name for o in $ctrl.classificationOptions"
-                      ng-change="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: $ctrl.modelClassification})"></select>
-          </div>
-
-        </section>
-        <div class="bttn-set" ng-if="control == 'validation'" title="Externally verified (e.g. with Sanger)">
-              <label tabindex=0
+                <checkable-button
+                    class="id-accept-classification"
+                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment && !$ctrl.isAlleleAssessmentOutdated"
+                    check-model="$ctrl.isAlleleAssessmentReused"
+                    ng-click="$ctrl.reuseAlleleAssessmentClicked({alleleId: $ctrl.selectedAllele})"
+                    one-way="true"
                     ng-disabled="$ctrl.readOnly"
-                    class="bttn"
-                    ng-model="$ctrl.modelVerificationStatus"
-                    ng-model-watch="$ctrl.verificationStatus"
-                    ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus})"
-                    uib-btn-radio="s"
-                    uncheckable="true"
-                    ng-repeat="s in ['verified', 'technical']"
-              >{{s | uppercase }}</label>
-        </div>
+                >
+                    Undo reevaluation <checked>Reevaluate</checked>
+                </checkable-button>
 
-        <div class="bttn-set" ng-if="control == 'not-relevant'" title="Regarded as not relevant for this analysis">
-                <label tabindex=0
-                      ng-disabled="$ctrl.readOnly"
-                      class="bttn"
-                      ng-model="$ctrl.modelNotRelevant"
-                      ng-model-watch="$ctrl.notRelevant"
-                      ng-change="$ctrl.notRelevantChanged({alleleId: $ctrl.selectedAllele, notRelevant: $ctrl.modelNotRelevant})"
-                      uib-btn-radio="true"
-                      uncheckable="true"
-                >{{$ctrl.notRelevant ? 'Marked not relevant' : 'Not relevant'}}</label>
-          </div>
-      </div>
-    </section>
+                <button
+                    class="id-mark-class2"
+                    ng-if="control == 'toggle_class2'"
+                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                    ng-click="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: '2'})"
+                >
+                    Mark class 2
+                </button>
 
-</controls>
+                <button
+                    class="id-add-references"
+                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
+                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                    ng-if="control == 'references'"
+                >
+                    Add studies
+                </button>
 
-<!-- Comments -->
-<top class="comments">
+                <button
+                    class="id-show-ignored-references"
+                    ng-click="$ctrl.showExcludedReferencesClicked({alleleId: $ctrl.selectedAllele})"
+                    ng-if="control == 'references'"
+                >
+                    {{ $ctrl.getExcludedReferencesBtnText() }}
+                </button>
+
+                <button
+                    class="id-add-external"
+                    ng-if="control == 'custom_external'"
+                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'external'})"
+                >
+                    Add external DB
+                </button>
+
+                <button
+                    class="id-add-prediction"
+                    ng-if="control == 'custom_prediction'"
+                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'prediction'})"
+                >
+                    Add prediction
+                </button>
+
+                <button
+                    ng-if="control == 'add_reference'"
+                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
+                >
+                    Add reference
+                </button>
+
+                <section class="line-wrapper" ng-if="control == 'classification'">
+                    <div class="dropdown" ng-class="{'disabled': $ctrl.readOnly}">
+                        <select
+                            class="id-select-classification"
+                            ng-class="{'readOnly': $ctrl.readOnly}"
+                            ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+                            ng-model="$ctrl.modelClassification"
+                            ng-model-watch="$ctrl.alleleassessment.classification"
+                            ng-options="o.value as o.name for o in $ctrl.classificationOptions"
+                            ng-change="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: $ctrl.modelClassification})"
+                        ></select>
+                    </div>
+                </section>
+                <div
+                    class="bttn-set"
+                    ng-if="control == 'validation'"
+                    title="Externally verified (e.g. with Sanger)"
+                >
+                    <label
+                        tabindex="0"
+                        ng-disabled="$ctrl.readOnly"
+                        class="bttn"
+                        ng-model="$ctrl.modelVerificationStatus"
+                        ng-model-watch="$ctrl.verificationStatus"
+                        ng-change="$ctrl.verificationStatusChanged({alleleId: $ctrl.selectedAllele, verificationStatus: $ctrl.modelVerificationStatus})"
+                        uib-btn-radio="s"
+                        uncheckable="true"
+                        ng-repeat="s in ['verified', 'technical']"
+                        >{{ s | uppercase }}</label
+                    >
+                </div>
+
+                <div
+                    class="bttn-set"
+                    ng-if="control == 'not-relevant'"
+                    title="Regarded as not relevant for this analysis"
+                >
+                    <label
+                        tabindex="0"
+                        ng-disabled="$ctrl.readOnly"
+                        class="bttn"
+                        ng-model="$ctrl.modelNotRelevant"
+                        ng-model-watch="$ctrl.notRelevant"
+                        ng-change="$ctrl.notRelevantChanged({alleleId: $ctrl.selectedAllele, notRelevant: $ctrl.modelNotRelevant})"
+                        uib-btn-radio="true"
+                        uncheckable="true"
+                        >{{ $ctrl.notRelevant ? 'Marked not relevant' : 'Not relevant' }}</label
+                    >
+                </div>
+            </div>
+        </section>
+    </controls>
+
+    <!-- Comments -->
+    <top class="comments">
         <!-- we should use ng-model-watch here, but editor does not
         support external updates in a good way
          shouldn't be a problem as long as we don't Compute on this value -->
-    <wysiwyg-editor class="control-comment id-comment-{{$ctrl.section.alleleassessmentComment.name}}"
-                       ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                       placeholder="{{$ctrl.section.alleleassessmentComment.placeholder}}"
-                       ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment})"
-                       ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
-                       ng-if="$ctrl.section.alleleassessmentComment"></wysiwyg-editor>
+        <wysiwyg-editor
+            templates="$ctrl.getAlleleassessmentCommentTemplates()"
+            references="$ctrl.editorReferences"
+            class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
+            ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
+            placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
+            ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment})"
+            ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
+            ng-if="$ctrl.section.alleleassessmentComment"
+        ></wysiwyg-editor>
 
-    <wysiwyg-editor class="control-comment id-comment-analysis"
-        ng-disabled="$ctrl.readOnly"
-        placeholder="{{$ctrl.section.analysisComment.placeholder}}"
-        ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.analysis.comment})"
-        ng-model="$ctrl.alleleState.analysis.comment"
-        ng-if="$ctrl.section.analysisComment"></wysiwyg-editor>
+        <wysiwyg-editor
+            templates="$ctrl.getAnalysisSpecificCommentTemplates()"
+            references="$ctrl.editorReferences"
+            class="control-comment id-comment-analysis"
+            ng-disabled="$ctrl.readOnly"
+            placeholder="{{ $ctrl.section.analysisComment.placeholder }}"
+            ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.analysis.comment})"
+            ng-model="$ctrl.alleleState.analysis.comment"
+            ng-if="$ctrl.section.analysisComment"
+        ></wysiwyg-editor>
 
-    <wysiwyg-editor class="control-comment id-comment-report"
-                       ng-disabled="$ctrl.readOnly"
-                       placeholder="{{$ctrl.section.reportComment.placeholder}}"
-                       ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"
-                       ng-model="$ctrl.allelereport.evaluation.comment"
-                       ng-if="$ctrl.section.reportComment"></wysiwyg-editor>
+        <wysiwyg-editor
+            templates="$ctrl.getAlleleReportCommentTemplates()"
+            references="$ctrl.editorReferences"
+            class="control-comment id-comment-report"
+            ng-disabled="$ctrl.readOnly"
+            placeholder="{{ $ctrl.section.reportComment.placeholder }}"
+            ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"
+            ng-model="$ctrl.allelereport.evaluation.comment"
+            ng-if="$ctrl.section.reportComment"
+        ></wysiwyg-editor>
 
-      <div class="id-attachments" ng-if="$ctrl.section.options.showIncludedAcmgCodes && $ctrl.alleleassessment.attachment_ids.length">
-        <h4 class="section-title acmg-body">Attachments</h4>
-        <section class="attachment-wrapper">
-          <attachment
-                ng-repeat="attachment_id in $ctrl.alleleassessment.attachment_ids"
-                attachment-path="'views.workflows.data.attachments.' + attachment_id">
-          </attachment>
-          <upload mode="'drop'"></upload>
-        </section>
-    </div>
+        <div
+            class="id-attachments"
+            ng-if="$ctrl.section.options.showIncludedAcmgCodes && $ctrl.alleleassessment.attachment_ids.length"
+        >
+            <h4 class="section-title acmg-body">Attachments</h4>
+            <section class="attachment-wrapper">
+                <attachment
+                    ng-repeat="attachment_id in $ctrl.alleleassessment.attachment_ids"
+                    attachment-path="'views.workflows.interpretation.data.attachments.' + attachment_id"
+                >
+                </attachment>
+                <upload mode="'drop'"></upload>
+            </section>
+        </div>
 
-    <!-- Included ACMG codes -->
-    <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-included" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
-        <h4 class="section-title acmg-body">ACMG <span ng-if="!$ctrl.readOnly && !$ctrl.isAlleleAssessmentReused">(SUGGESTED CLASS: <span class="suggested-class">{{$ctrl.alleleassessment.evaluation.acmg.suggested_classification}}</span>)</span></h4>
-        <section class="acmg-wrapper included">
-          <acmg directreqs="true"
-                code="code"
-                isUpgradable="true"
-                isDowngradable="true"
-                ng-repeat="code in $ctrl.includedAcmgCopies track by code.uuid"
-                on-toggle="$ctrl.removeAcmgClicked({alleleId: $ctrl.selectedAllele, code: {uuid: code.uuid}})"
-                toggle-text="REMOVE"
-                comment-model="code.comment"
-                on-update="$ctrl.acmgCodeChangedWrapper(code)"
-                editable="!$ctrl.isAlleleAssessmentReused && !$ctrl.readOnly">
-          </acmg>
-        </section>
-    </div>
-</top>
+        <!-- Included ACMG codes -->
+        <!-- Don't use 'track by $index' -->
+        <div class="id-acmg-included" ng-if="$ctrl.section.options.showIncludedAcmgCodes">
+            <h4 class="section-title acmg-body">
+                ACMG
+                <span ng-if="!$ctrl.readOnly && !$ctrl.isAlleleAssessmentReused"
+                    >(SUGGESTED CLASS:
+                    <span class="suggested-class">{{
+                        $ctrl.alleleassessment.evaluation.acmg.suggested_classification
+                    }}</span
+                    >)</span
+                >
+            </h4>
+            <section class="acmg-wrapper included">
+                <acmg
+                    templates="$ctrl.getAcmgCommentTemplates()"
+                    references="$ctrl.editorReferences"
+                    directreqs="true"
+                    code="code"
+                    isUpgradable="true"
+                    isDowngradable="true"
+                    ng-repeat="code in $ctrl.includedAcmgCopies track by code.uuid"
+                    on-toggle="
+                        $ctrl.removeAcmgClicked({
+                            alleleId: $ctrl.selectedAllele,
+                            code: { uuid: code.uuid }
+                        })
+                    "
+                    toggle-text="REMOVE"
+                    comment-model="code.comment"
+                    on-update="$ctrl.acmgCodeChangedWrapper(code)"
+                    editable="!$ctrl.isAlleleAssessmentReused && !$ctrl.readOnly"
+                >
+                </acmg>
+            </section>
+        </div>
+    </top>
 
-<contentwrapper>
-    <allele-sectionbox-content
-      class="sectionbox-content"
-      allele-path="$ctrl.getAllelePath()"
-      boxes="$ctrl.section.content"
-    ></allele-sectionbox-content>
-</contentwrapper>
+    <contentwrapper>
+        <allele-sectionbox-content
+            class="sectionbox-content"
+            allele-path="$ctrl.getAllelePath()"
+            boxes="$ctrl.section.content"
+        ></allele-sectionbox-content>
+    </contentwrapper>
 </sectionbox>

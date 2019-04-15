@@ -1,5 +1,5 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import {
     getInheritanceCodes,
     getOmimEntryId,
@@ -56,7 +56,7 @@ export default (genepanel, allele) => {
                 if ('frequency' in geneConfigOverride) {
                     result[symbol]['freq_cutoffs'] = geneConfigOverride.frequency.thresholds
                 } else {
-                    if (inheritance == 'AD') {
+                    if (inheritance === 'AD') {
                         result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['AD']
                     } else {
                         result[symbol]['freq_cutoffs'] = acmgConfig.frequency.thresholds['default']

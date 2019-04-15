@@ -16,7 +16,7 @@ export default [
     progress('inc'),
     // This signal is only relevant in allele workflow
     setNavbarTitle(
-        string`${state`views.workflows.data.alleles.${state`views.workflows.id`}.formatted.display`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
+        string`${state`views.workflows.interpretation.data.alleles.${state`views.workflows.id`}.formatted.display`} (${state`views.workflows.selectedGenepanel.name`}_${state`views.workflows.selectedGenepanel.version`})`
     ),
     progress('done')
 ]

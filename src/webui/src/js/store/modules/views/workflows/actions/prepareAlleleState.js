@@ -9,22 +9,20 @@ import {
  * every time the included alleles changes.
  */
 export default function prepareAlleleState({ state }) {
-    const alleles = state.get('views.workflows.data.alleles')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
 
-    const alleleState = state.get('views.workflows.interpretation.selected.state.allele')
+    const alleleStates = state.get('views.workflows.interpretation.state.allele')
     for (let [aId, allele] of Object.entries(alleles)) {
-        if (!(aId in alleleState)) {
-            alleleState[aId] = {
-                allele_id: allele.id
-            }
+        if (!(aId in alleleStates)) {
+            alleleStates[aId] = {}
         }
 
-        if (!('allele_id' in alleleState[aId])) {
-            alleleState[aId]['allele_id'] = aId
+        if (!('allele_id' in alleleStates[aId])) {
+            alleleStates[aId]['allele_id'] = allele.id
         }
 
-        prepareAlleleStateModel(alleleState[aId])
-        prepareAlleleAssessmentModel(alleleState[aId].alleleassessment)
+        prepareAlleleStateModel(alleleStates[aId])
+        prepareAlleleAssessmentModel(alleleStates[aId].alleleassessment)
     }
-    state.set('views.workflows.interpretation.selected.state.allele', alleleState)
+    state.set('views.workflows.interpretation.state.allele', alleleStates)
 }

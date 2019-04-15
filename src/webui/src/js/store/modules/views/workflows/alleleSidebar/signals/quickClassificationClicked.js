@@ -1,7 +1,7 @@
 import { props, state } from 'cerebral/tags'
 import { when, set } from 'cerebral/operators'
 import changeClassification from '../../interpretation/sequences/changeClassification'
-import selectedAlleleChanged from './selectedAlleleChanged'
+import selectedAlleleChanged from '../../sequences/selectedAlleleChanged'
 import setVerificationStatus from '../../sequences/setVerificationStatus'
 import setNotRelevant from '../../sequences/setNotRelevant'
 

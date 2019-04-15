@@ -14,18 +14,28 @@ def import_groups(session, groups, log=log.info):
     for g in groups:
         group_data = dict(g)
 
-        existing_group = session.query(user.UserGroup).filter(
-            user.UserGroup.name == group_data['name']
-        ).one_or_none()
+        existing_group = (
+            session.query(user.UserGroup)
+            .filter(user.UserGroup.name == group_data["name"])
+            .one_or_none()
+        )
 
-        db_official_genepanels = session.query(gene.Genepanel).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data['genepanels']),
-            gene.Genepanel.official == True,
-        ).all()
+        db_official_genepanels = (
+            session.query(gene.Genepanel)
+            .filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data["genepanels"]),
+                gene.Genepanel.official == True,
+            )
+            .all()
+        )
 
-        if len(db_official_genepanels) != len(group_data['genepanels']):
-            not_found = set(tuple(gp) for gp in group_data['genepanels'])-set((gp.name, gp.version,) for gp in db_official_genepanels)
-            raise NoResultFound("Unable to find all genepanels in database: %s" %str(list(not_found)))
+        if len(db_official_genepanels) != len(group_data["genepanels"]):
+            not_found = set(tuple(gp) for gp in group_data["genepanels"]) - set(
+                (gp.name, gp.version) for gp in db_official_genepanels
+            )
+            raise NoResultFound(
+                "Unable to find all genepanels in database: %s" % str(list(not_found))
+            )
 
         if group_data.get("default_import_genepanel"):
             default_import_genepanel = group_data.pop("default_import_genepanel")
@@ -37,13 +47,15 @@ def import_groups(session, groups, log=log.info):
             group_data["genepanels"] = db_official_genepanels
             new_group = user.UserGroup(**group_data)
             session.add(new_group)
-            log("Added user group {}".format(group_data['name']))
+            log("Added user group {}".format(group_data["name"]))
         else:
             # Keep unofficial genepanels for group
-            db_unofficial_genepanels = filter(lambda gp: gp.official == False, existing_group.genepanels)
-            group_data["genepanels"] = list(db_official_genepanels)+list(db_unofficial_genepanels)
-            log("User group {} already exists, updating record...".format(group_data['name']))
-            for k, v in group_data.iteritems():
+            db_unofficial_genepanels = [
+                gp for gp in existing_group.genepanels if gp.official == False
+            ]
+            group_data["genepanels"] = list(db_official_genepanels) + list(db_unofficial_genepanels)
+            log("User group {} already exists, updating record...".format(group_data["name"]))
+            for k, v in group_data.items():
                 setattr(existing_group, k, v)
 
     session.commit()
@@ -52,23 +64,21 @@ def import_groups(session, groups, log=log.info):
 def import_users(session, users):
 
     for u in users:
-        existing_user = session.query(user.User).filter(
-            user.User.username == u['username']
-        ).one_or_none()
+        existing_user = (
+            session.query(user.User).filter(user.User.username == u["username"]).one_or_none()
+        )
 
-        if 'group' not in u:
-            raise RuntimeError("User {} is not in any group.".format(u['username']))
-        u["group"] = session.query(user.UserGroup).filter(
-            user.UserGroup.name == u["group"]
-        ).one()
+        if "group" not in u:
+            raise RuntimeError("User {} is not in any group.".format(u["username"]))
+        u["group"] = session.query(user.UserGroup).filter(user.UserGroup.name == u["group"]).one()
 
         if not existing_user:
             new_user = user.User(**u)
             session.add(new_user)
-            log.info("Adding user {}".format(u['username']))
+            log.info("Adding user {}".format(u["username"]))
         else:
-            log.info("Username {} already exists, updating record...".format(u['username']))
-            for k, v in u.iteritems():
+            log.info("Username {} already exists, updating record...".format(u["username"]))
+            for k, v in u.items():
                 setattr(existing_user, k, v)
 
     session.commit()
@@ -76,8 +86,12 @@ def import_users(session, users):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="""Adds new users from JSON file.""")
-    parser.add_argument("--users", action="store", dest="users", required=False, help="Path to users JSON file")
-    parser.add_argument("--groups", action="store", dest="groups", required=False, help="Path to groups JSON file")
+    parser.add_argument(
+        "--users", action="store", dest="users", required=False, help="Path to users JSON file"
+    )
+    parser.add_argument(
+        "--groups", action="store", dest="groups", required=False, help="Path to groups JSON file"
+    )
 
     args = parser.parse_args()
 

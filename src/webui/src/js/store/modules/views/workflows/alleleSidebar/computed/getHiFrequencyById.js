@@ -19,6 +19,7 @@ export default (alleles, key) => {
                     for (const population of populations) {
                         if (
                             provider in annotationFrequencies &&
+                            key in annotationFrequencies[provider] &&
                             population in annotationFrequencies[provider][key]
                         ) {
                             // For frequency, check that 'num' is higher than required in config

@@ -1,4 +1,4 @@
-import { Directive, Inject } from '../ng-decorators'
+import { Directive } from '../ng-decorators'
 
 // Prevent the click event from propagating to parents. Consider the click handled by the current element.
 // http://stackoverflow.com/questions/20300866/angularjs-ng-click-stoppropagation/34746964#34746964

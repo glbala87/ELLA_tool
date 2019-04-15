@@ -1,6 +1,6 @@
 function _filterCollectionByGene(collection, geneSymbol) {
     if (collection) {
-        return collection.filter((entry) => entry.gene.hgnc_symbol == geneSymbol)
+        return collection.filter((entry) => entry.gene.hgnc_symbol === geneSymbol)
     } else {
         return null
     }

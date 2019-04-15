@@ -1,5 +1,5 @@
 import { Compute } from 'cerebral'
-import { state, props, string } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import getAlleleState from './getAlleleState'
 
 /**
@@ -14,7 +14,8 @@ export default (alleleId) => {
             return
         }
         if ('reuse' in alleleState.allelereport && alleleState.allelereport.reuse) {
-            return get(state`views.workflows.data.alleles.${alleleId}`).allele_assessment
+            return get(state`views.workflows.interpretation.data.alleles.${alleleId}`)
+                .allele_assessment
         }
         return alleleState.allelereport
     })

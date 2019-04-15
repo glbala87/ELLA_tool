@@ -1,5 +1,4 @@
-import os
-import errno
+import pathlib
 import subprocess
 import uuid
 from api.v1.resource import LogRequestResource
@@ -8,18 +7,7 @@ from flask import request, send_file
 from hashlib import sha256
 from vardb.datamodel import attachment
 from api import schemas
-from api.util.util import request_json, authenticate, rest_filter, paginate
-
-
-# https://stackoverflow.com/questions/600268
-def mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
+from api.util.util import authenticate, rest_filter, paginate
 
 
 class AttachmentListResource(LogRequestResource):
@@ -33,7 +21,7 @@ class AttachmentListResource(LogRequestResource):
             schemas.AttachmentSchema(strict=True),
             rest_filter=rest_filter,
             per_page=None,
-            page=None
+            page=None,
         )
         return vals
 
@@ -45,17 +33,17 @@ class AttachmentResource(LogRequestResource):
         file_obj.stream.seek(0)  # Make sure we read from the beginning
 
         # Create temporary file to write to
-        tmp_folder = os.path.join(config["app"]["attachment_storage"], "tmp")
-        mkdir_p(tmp_folder)
-        tmp_path = os.path.join(tmp_folder, uuid.uuid4().get_hex())
+        tmp_folder = pathlib.Path(config["app"]["attachment_storage"], "tmp")
+        tmp_folder.mkdir(parents=True, exist_ok=True)
+        tmp_path = tmp_folder.joinpath(uuid.uuid4().hex)
         sha_val = sha256()
         size = 0
 
         # Read and write file in blocks of 64kb, and update hash
-        with open(tmp_path, 'w') as tmp_file:
+        with tmp_path.open("wb") as tmp_file:
             while True:
                 s = file_obj.read(65536)
-                if s == '':
+                if s == b"":
                     break
                 size += len(s)
                 tmp_file.write(s)
@@ -63,18 +51,18 @@ class AttachmentResource(LogRequestResource):
 
         # Move file to attachment_storage/sha_val[:2]/sha_val
         sha_val = sha_val.hexdigest()
-        folder = os.path.join(config["app"]["attachment_storage"], sha_val[:2])
-        mkdir_p(folder) # Make sure folder structure exists
-        path = os.path.join(folder, sha_val)
-        os.rename(tmp_path, path)
+        folder = pathlib.Path(config["app"]["attachment_storage"], sha_val[:2])
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder.joinpath(sha_val)
+        tmp_path.rename(path)
 
         # Try to create thumbnail
-        thumbnail_path = path+".thumbnail"
-        if not os.path.isfile(thumbnail_path):
+        thumbnail_path = path.with_suffix(".thumbnail")
+        if not thumbnail_path.is_file():
             try:
                 cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
                 subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
-            except subprocess.CalledProcessError, e:
+            except subprocess.CalledProcessError as e:
                 pass
 
         # Create database object
@@ -82,9 +70,9 @@ class AttachmentResource(LogRequestResource):
             "sha256": sha_val,
             "filename": file_obj.filename,
             "size": size,
-            "extension": file_obj.filename.rsplit('.',1)[-1] if "." in file_obj.filename else "",
+            "extension": file_obj.filename.rsplit(".", 1)[-1] if "." in file_obj.filename else "",
             "mimetype": file_obj.content_type,
-            "user_id": user.id
+            "user_id": user.id,
         }
 
         atchmt = attachment.Attachment(**data)
@@ -95,9 +83,13 @@ class AttachmentResource(LogRequestResource):
 
     @authenticate()
     def get(self, session, attachment_id, user=None):
-        atchmt = session.query(attachment.Attachment).filter(
-            attachment.Attachment.id == attachment_id
-        ).one()
+        atchmt = (
+            session.query(attachment.Attachment)
+            .filter(attachment.Attachment.id == attachment_id)
+            .one()
+        )
         atchmt_schema = schemas.AttachmentSchema(strict=True)
 
-        return send_file(atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename)
+        return send_file(
+            atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename
+        )

@@ -1,16 +1,15 @@
 import { set, toggle, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
 import setDirty from '../../interpretation/actions/setDirty'
 import getClassification from '../../interpretation/computed/getClassification'
-import selectedAlleleChanged from './selectedAlleleChanged'
+import selectedAlleleChanged from '../../sequences/selectedAlleleChanged'
 
 function canAddToReport({ state, props, path, resolve }) {
     const { alleleId } = props
     const verificationStatus = state.get(
-        `views.workflows.interpretation.selected.state.allele.${alleleId}.analysis.verification`
+        `views.workflows.interpretation.state.allele.${alleleId}.analysis.verification`
     )
-    const allele = state.get(`views.workflows.data.alleles.${alleleId}`)
+    const allele = state.get(`views.workflows.interpretation.data.alleles.${alleleId}`)
     const classification = resolve.value(getClassification(allele))
     if (verificationStatus !== 'technical' && classification.hasClassification) {
         return path.true()
@@ -27,7 +26,7 @@ export default [
                 true: [
                     setDirty,
                     toggle(
-                        state`views.workflows.interpretation.selected.state.allele.${props`alleleId`}.report.included`
+                        state`views.workflows.interpretation.state.allele.${props`alleleId`}.report.included`
                     )
                 ],
                 false: [] // no op

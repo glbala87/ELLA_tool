@@ -7,24 +7,44 @@ import { getAcmgCandidates } from '../store/common/helpers/acmg'
 import template from './workflowbar.ngtmpl.html'
 import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
 import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
+import { deepCopy } from '../util'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
 })
+
+const historyInterpretations = Compute(
+    state`views.workflows.data.interpretations`,
+    (interpretations) => {
+        if (!interpretations || interpretations.length === 0) {
+            return []
+        }
+        let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
+        if (doneInterpretations.length === 0) {
+            return []
+        }
+
+        let last_interpretation = deepCopy(doneInterpretations[doneInterpretations.length - 1])
+        last_interpretation.id = 'current'
+        doneInterpretations.push(last_interpretation)
+        return doneInterpretations
+    }
+)
 
 app.component('workflowbar', {
     templateUrl: 'workflowbar.ngtmpl.html',
     controller: connect(
         {
             analysis: state`views.workflows.data.analysis`,
+            commentTemplates: state`app.commentTemplates`,
             config: state`app.config`,
             messageCount: state`views.workflows.worklog.messageCount`,
             workflowType: state`views.workflows.type`,
             selectedComponent: state`views.workflows.selectedComponent`,
             componentKeys: state`views.workflows.componentKeys`,
-            historyInterpretations: state`views.workflows.historyInterpretations`,
+            historyInterpretations: historyInterpretations,
             interpretations: state`views.workflows.data.interpretations`,
-            selectedInterpretation: state`views.workflows.interpretation.selected`,
+            selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
             selectedAlleleId: state`views.workflows.selectedAllele`,
             isOngoing: state`views.workflows.interpretation.isOngoing`,
             genepanels: state`views.workflows.data.genepanels`,
@@ -37,7 +57,8 @@ app.component('workflowbar', {
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,
-            addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`
+            addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
+            addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`
         },
         'Workflow',
         [
@@ -48,7 +69,7 @@ app.component('workflowbar', {
 
                 Object.assign($scope.$ctrl, {
                     formatHistoryOption: (interpretation) => {
-                        if (interpretation.current) {
+                        if (interpretation.id === 'current') {
                             return 'Current data'
                         }
                         let interpretation_idx = $ctrl.interpretations.indexOf(interpretation) + 1
@@ -104,6 +125,9 @@ app.component('workflowbar', {
                                 })
                             }
                             $ctrl.stagedAcmgCode = null
+                        },
+                        getAcmgCommentTemplates() {
+                            return $ctrl.commentTemplates['classificationAcmg']
                         }
                     },
                     interpretationLogPopover: {

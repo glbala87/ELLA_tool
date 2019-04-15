@@ -11,7 +11,6 @@ from api.v1.resource import LogRequestResource
 
 
 class ACMGAlleleResource(LogRequestResource):
-
     def get_alleles(self, session, allele_ids):
         """
 
@@ -21,9 +20,7 @@ class ACMGAlleleResource(LogRequestResource):
         :rtype: allele.Allele
         """
         if allele_ids:
-            return session.query(allele.Allele).filter(
-                allele.Allele.id.in_(allele_ids)
-            ).all()
+            return session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
         else:
             return []
 
@@ -39,20 +36,14 @@ class ACMGAlleleResource(LogRequestResource):
         :return: gene panel
         :rtype:  vardb.datamodel.gene.Genepanel
         """
-        return session.query(gene.Genepanel).filter(
-            gene.Genepanel.name == gp_name,
-            gene.Genepanel.version == gp_version
-        ).one()
+        return (
+            session.query(gene.Genepanel)
+            .filter(gene.Genepanel.name == gp_name, gene.Genepanel.version == gp_version)
+            .one()
+        )
 
     @authenticate(user_config=True)
-    @request_json(
-        [
-            'allele_ids',
-            'gp_name',
-            'gp_version',
-        ],
-        allowed=['referenceassessments']
-    )
+    @request_json(["allele_ids", "gp_name", "gp_version"], allowed=["referenceassessments"])
     def post(self, session, data=None, user=None, user_config=None):
         """
         Returns calculated ACMG codes for provided alleles and related data.
@@ -181,19 +172,15 @@ class ACMGAlleleResource(LogRequestResource):
 
         # This is POST by design, which is not strictly RESTful, but we
         # need a lot of dynamic user data and it works well.
-        alleles = self.get_alleles(session, data['allele_ids'])
-        genepanel = self.get_genepanel(session, data['gp_name'], data['gp_version'])
+        alleles = self.get_alleles(session, data["allele_ids"])
+        genepanel = self.get_genepanel(session, data["gp_name"], data["gp_version"])
 
         return ACMGDataLoader(session).from_objs(
-                alleles,
-                data.get('referenceassessments'),
-                genepanel,
-                user_config['acmg']
-            )
+            alleles, data.get("referenceassessments"), genepanel, user_config["acmg"]
+        )
 
 
 class ACMGClassificationResource(LogRequestResource):
-
     def get(self, session):
         """
         Returns the calculated suggested classification given the provided codes.
@@ -242,9 +229,9 @@ class ACMGClassificationResource(LogRequestResource):
 
             description: List of alleles
         """
-        codes_raw = request.args.get('codes')
+        codes_raw = request.args.get("codes")
         if not codes_raw:
             raise RuntimeError("Missing required field 'codes'")
-        codes = codes_raw.split(',')
+        codes = codes_raw.split(",")
 
         return ACMGDataLoader(session).get_classification(codes)
