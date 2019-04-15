@@ -5,7 +5,7 @@ sidebar: false
 <div style="text-align: center;padding-top: 50px;padding-bottom: 50px">
 	<img width="250px;" src="./logo_blue.svg">
 	<div style="font-size: 280%;">documentation</div>
-	<div style="font-size: 80%;">v1.4 | 04.03.2019</div>
+	<div style="font-size: 80%;">v1.4.1 | 15.04.2019</div>
 </div>
 
 - [User interface](/manual/): Guide to the user interface.
