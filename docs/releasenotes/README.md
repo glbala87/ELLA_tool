@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.4.1](#_1-4-1)
 - [1.4](#_1-4)
 - [1.3.1](#_1-3-1)
 - [1.3](#_1-3)
@@ -11,6 +12,15 @@ sidebar: auto
 - [1.1.2](#_1-1-2)
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
+
+
+## 1.4.1
+
+### Additions and fixes
+- Increase overview update interval to lessen strain server
+- Fix automatic import of analyses with underscore in the gene panel name
+- Fix issue where finalization would not work under certain conditions.
+
 
 ## 1.4
 
