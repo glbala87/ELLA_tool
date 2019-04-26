@@ -48,14 +48,20 @@
                 </section>
             </div>
         </div>
-        <div class="control-section">
-            <button
-                ng-if="$ctrl.showQuickClassificationBtn"
-                ng-click="$ctrl.toggleExpanded()"
-                class="blue quick-classification-button"
-            >
-                {{ $ctrl.expanded ? 'Full classification' : 'Quick classification' }}
-            </button>
+        <div class="control-section" ng-if="$ctrl.showClassificationTypeControls">
+            <div class="bttn-set">
+                <label
+                    tabindex="0"
+                    class="bttn"
+                    id="classification-type-{{ c | lowercase }}"
+                    ng-model="$ctrl.modelSelectedClassificationType"
+                    ng-model-watch="$ctrl.selectedClassificationType"
+                    ng-change="$ctrl.classificationTypeChanged({classificationType: c})"
+                    uib-btn-radio="c"
+                    ng-repeat="c in $ctrl.classificationTypes"
+                    >{{ c }}</label
+                >
+            </div>
         </div>
     </div>
 
@@ -68,9 +74,8 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Unclassified variants"
-        expanded="$ctrl.expanded"
-        allow-quick-classification="true"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.selectedClassificationType"
+        allow-classification="true"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
@@ -85,8 +90,8 @@
         toggled="$ctrl.isToggled"
         read-only="$ctrl.readOnly"
         section-title="Classified variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.selectedClassificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
 
@@ -102,8 +107,8 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Not relevant variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.selectedClassificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
@@ -116,8 +121,8 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Technical variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.selectedClassificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
 </div>
