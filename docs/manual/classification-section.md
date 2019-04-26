@@ -59,12 +59,6 @@ REQs that have a match in the current variant are shown when you click the `SHOW
 
 ## Modifying the strength of added criteria
 
-Richards et al. (2015) and subsequent articles suggest that any ACMG criterion may be modified in strength depending on the available evidence. In *ella*, this is solved by creating new, derived criteria, which are named in the form:
-
-`[PVS/PS/PM/PP/BP/BS/BA]`x`[source]`
-
-For example, the PM2 criterion is usually regarded as "pathogenic supportive" (PP) evidence, not "pathogenic moderate" (PM). In this case, the user may modify the criterion label to PPxPM2, which should be interpreted as “PM2, supportive”.
-
 To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
@@ -91,7 +85,7 @@ As with suggested criteria, you are free to ignore the suggestion, and you must 
 
 If in ANALYSES mode, this moves the variant to CLASSIFIED VARIANTS in the variant side bar.
 
-The special option CLASS U should be used when you do not wish to perform any further evaluation of the variant, e.g. due to the variant being outside of usual inclusion criteria or if this is a consistent, recurring technical variant. 
+Note that suggestions are only made for CLASS 1-5, not DRUG RESPONSE or CLASS U. The special option CLASS U should be used when you do not wish to perform any further evaluation of the variant, e.g. due to the variant being outside of usual inclusion criteria or if this is a consistent, recurring technical variant. 
 
 ::: warning
 Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!

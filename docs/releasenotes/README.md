@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.5](#_1-5)
 - [1.4.1](#_1-4-1)
 - [1.4](#_1-4)
 - [1.3.1](#_1-3-1)
@@ -12,6 +13,11 @@ sidebar: auto
 - [1.1.2](#_1-1-2)
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
+
+## 1.5
+
+### Additions and fixes
+- Changed naming of ACMG criteria with modified strength to ClinGen's recommendations (e.g. PM1_Strong instead of PSxPM1). 
 
 
 ## 1.4.1
