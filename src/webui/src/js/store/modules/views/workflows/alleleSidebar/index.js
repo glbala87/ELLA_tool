@@ -1,5 +1,6 @@
 import { Module } from 'cerebral'
 import alleleRowClicked from './signals/alleleRowClicked'
+import alleleRowToggled from './signals/alleleRowToggled'
 import reviewedClicked from './signals/reviewedClicked'
 import orderByChanged from './signals/orderByChanged'
 import toggleExpanded from './signals/toggleExpanded'
@@ -10,6 +11,7 @@ export default Module({
     state: {},
     signals: {
         alleleRowClicked,
+        alleleRowToggled,
         reviewedClicked,
         orderByChanged,
         toggleExpanded,
