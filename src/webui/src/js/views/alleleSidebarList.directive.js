@@ -62,7 +62,7 @@ app.component('alleleSidebarList', {
         rowClickedPath: '<',
         toggleClickedPath: '<',
         orderByPath: '<?', // path to orderBy object on Cerebral store
-        classificationType: '<', // string, 'full', 'quick' or 'visualization'
+        classificationType: '<', // string, 'full', 'quick' or 'visual'
         readOnly: '=?', // bool
         allowClassification: '=?', // bool
         togglable: '=?', // optional, bool, default: false
@@ -350,6 +350,16 @@ app.component('alleleSidebarList', {
                     },
                     showClassificationBtn(name) {
                         return $ctrl.sidebarConfig.classification_options.includes(name)
+                    },
+                    constrainSize() {
+                        return $ctrl.sidebarConfig.constrain_size || false
+                    },
+                    narrowComment() {
+                        // A bit hackish, but we don't want to read
+                        // another alleleSidebarList to get the <td> width of the
+                        // buttons...
+                        console.log($ctrl.sidebarConfig.narrow_comment)
+                        return $ctrl.sidebarConfig.narrow_comment || false
                     }
                 })
             }

@@ -1,5 +1,5 @@
-<div class="sidebar" ng-class="{'expanded': $ctrl.expanded}">
-    <div class="controls">
+<div class="sidebar" ng-class="{'constrain-size': $ctrl.constrainSize}">
+    <div class="controls" ng-if="$ctrl.showControls">
         <div class="control-section">
             <button
                 class="blue id-add-excluded"
@@ -30,12 +30,15 @@
                     {{ $ctrl.manuallyAddedAlleleIds.length || 0 }}/{{
                         $ctrl.getExcludedAlleleCount()
                     }}</span
-                ><span class="add-excluded-button">Filtered</span>
+                ><span class="add-excluded-button">Filter</span>
             </button>
 
             <div class="button">
                 <section class="line-wrapper">
-                    <div class="dropdown" ng-class="{'disabled': $ctrl.isHistoricData()}">
+                    <div
+                        class="dropdown filter-config-selection"
+                        ng-class="{'disabled': $ctrl.isHistoricData()}"
+                    >
                         <select
                             class="id-select-filterconfig"
                             ng-disabled="$ctrl.isHistoricData()"
@@ -47,20 +50,20 @@
                     </div>
                 </section>
             </div>
-        </div>
-        <div class="control-section" ng-if="$ctrl.showClassificationTypeControls">
-            <div class="bttn-set">
-                <label
-                    tabindex="0"
-                    class="bttn"
-                    id="classification-type-{{ c | lowercase }}"
-                    ng-model="$ctrl.modelSelectedClassificationType"
-                    ng-model-watch="$ctrl.selectedClassificationType"
-                    ng-change="$ctrl.classificationTypeChanged({classificationType: c})"
-                    uib-btn-radio="c"
-                    ng-repeat="c in $ctrl.classificationTypes"
-                    >{{ c }}</label
-                >
+            <div class="control-section classification-type-controls">
+                <div class="bttn-set">
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        id="classification-type-{{ c | lowercase }}"
+                        ng-model="$ctrl.modelSelectedClassificationType"
+                        ng-model-watch="$ctrl.selectedClassificationType"
+                        ng-change="$ctrl.classificationTypeChanged({classificationType: c})"
+                        uib-btn-radio="c"
+                        ng-repeat="c in $ctrl.classificationTypes"
+                        >{{ c }}</label
+                    >
+                </div>
             </div>
         </div>
     </div>
@@ -74,7 +77,7 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Unclassified variants"
-        classification-type="$ctrl.selectedClassificationType"
+        classification-type="$ctrl.classificationType"
         allow-classification="true"
     >
     </allele-sidebar-list>
@@ -90,7 +93,7 @@
         toggled="$ctrl.isToggled"
         read-only="$ctrl.readOnly"
         section-title="Classified variants"
-        classification-type="$ctrl.selectedClassificationType"
+        classification-type="$ctrl.classificationType"
         allow-classification="false"
     >
     </allele-sidebar-list>
@@ -107,7 +110,7 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Not relevant variants"
-        classification-type="$ctrl.selectedClassificationType"
+        classification-type="$ctrl.classificationType"
         allow-classification="false"
     >
     </allele-sidebar-list>
@@ -121,7 +124,7 @@
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Technical variants"
-        classification-type="$ctrl.selectedClassificationType"
+        classification-type="$ctrl.classificationType"
         allow-classification="false"
     >
     </allele-sidebar-list>

@@ -1,7 +1,7 @@
 export default function getAlleleSidebarState() {
     return {
         classificationType: 'full',
-        classificationTypes: ['full', 'quick', 'visualization'],
+        classificationTypes: ['full', 'quick', 'visual'],
         unclassified: null,
         classified: null,
         technical: null,

@@ -8,10 +8,22 @@ import getSelectedInterpretation from '../store/modules/views/workflows/computed
 import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
 import template from './alleleSidebar.ngtmpl.html'
 
-const showClassificationTypeControls = Compute(
+const showControls = Compute(state`views.workflows.selectedComponent`, (selectedComponent) => {
+    return selectedComponent === 'Classification'
+})
+
+const constrainSize = Compute(
+    state`views.workflows.alleleSidebar.classificationType`,
+    (classificationType) => {
+        return classificationType !== 'quick'
+    }
+)
+
+const classificationType = Compute(
     state`views.workflows.selectedComponent`,
-    (selectedComponent) => {
-        return selectedComponent === 'Classification'
+    state`views.workflows.alleleSidebar.classificationType`,
+    (selectedComponent, stateClassificationType) => {
+        return selectedComponent === 'Report' ? 'report' : stateClassificationType
     }
 )
 
@@ -56,8 +68,10 @@ app.component('alleleSidebar', {
         {
             analysisId: state`views.workflows.data.analysis.id`,
             classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
+            constrainSize,
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
-            showClassificationTypeControls,
+            classificationType, // effective classification type, see Compute
+            showControls,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
