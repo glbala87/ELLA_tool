@@ -26,8 +26,16 @@ class AnalysisPage extends Page {
         return util.element('.id-start-analysis')
     }
 
-    get quickClassificationButton() {
-        return util.element('button.quick-classification-button')
+    get classificationTypeFullButton() {
+        return util.element('label#classification-type-full')
+    }
+
+    get classificationTypeQuickButton() {
+        return util.element('label#classification-type-quick')
+    }
+
+    get classificationTypeVisualButton() {
+        return util.element('label#classification-type-visual')
     }
 
     // acmg modal to choose code:
