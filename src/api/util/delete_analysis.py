@@ -1,4 +1,4 @@
-from vardb.datamodel import assessment, workflow, sample, genotype
+from vardb.datamodel import assessment, sample
 
 
 def delete_analysis(session, analysis_id):
@@ -16,4 +16,3 @@ def delete_analysis(session, analysis_id):
             )
 
         session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).delete()
-
