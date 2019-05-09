@@ -2,7 +2,7 @@
 title: Side bar
 ---
 
-# Side bar: Variant list and quick classification
+# Side bar: Variant list, sorting and tags
 
 [[toc]]
 
@@ -14,11 +14,18 @@ Names (variant HGVSc and gene) and inheritance is displayed as specified by the 
 
 ## Buttons
 
+The side bar has several buttons on the top of the variant list: 
+
+<div style="text-indent: 4%;"><img src="./img/sidebar_buttons.png"></div>
+<br>
+
 Button  | Explanation | More information
 :---  | :---  | :---
 `FILTERED`  | View and optionally add back filtered variants. | [Filtered variants](/manual/filtered-variants.md)
-[Drop-down menu]  | Switch between filter configurations (pre-defined)  | Filtered variants](/manual/filtered-variants.md)
-`QUICK CLASSIFICATION`  | System and user messages related to current analysis/interpretation. |  [Quick classification](#quick-classification)
+[Drop-down menu]  | Switch between filter configurations (pre-defined)  | [Filtered variants](/manual/filtered-variants.md)
+`FULL`  | Switch to Full (default; detailed) classification. |  [Evidence sections](/manual/evidence-sections.html), [Classification section](/manual/classification-section.html)
+`QUICK`  | Switch to Quick classification mode. |  [Quick mode](/manual/quick-classification.md)
+`VISUAL`  | Switch to Visual mode.  | [Visual mode](/manual/visual.md)
 
 ## Variant tags
 
@@ -49,24 +56,9 @@ If applicable, variants in the variant list are tagged with:
 Hold the mouse cursor over a tag to see the full label.
 :::
 
-## Quick classification
-
-Instead of performing a full classification, you may instead choose the Quick classification mode by pressing the button at the top of the variant list: 
-
-<div style="text-indent: 4%;"><img src="./img/quick_classification_btn.png"></div>
-
-This feature is particularly well suited for workflows with large gene panels and many variants. The Quick classification view gives a summary of the most important information necessary for [marking variants](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) as `TECHNICAL` or `NOT RELEVANT`, or [classifying](/manual/classification-section.html#set-variant-class) as `CLASS U` or `CLASS 2`, and gives you buttons to perform those actions directly:
-
-<div style="text-indent: 4%;"><img src="./img/quick_classification.png"></div>
-<br>
-
-Clicking one of these buttons moves the variant down to the respective section in the sidebar. If applicable, add a comment before moving to the next variant; this will be added to the comment field on the CLASSIFICATION page corresponding to the column header (e.g. ANALYSIS SPECIFIC).
-
-When you are done, and ready to do a more thourough interpretation of any remaining variants, click the `FULL CLASSIFICATION` button at the top of the variant list (see also [Evidence sections](/manual/evidence-sections.html) and [Classification section](/manual/classification-section.html))
-
 ## Sorting
 
-The default sorting of this list is Inheritance – Gene – HGVSc. You can change the sorting by clicking on any of the list headers (also in [Quick classification](#quick-classification)):
+The default sorting of this list is Inheritance – Gene – HGVSc. You can change the sorting by clicking on any of the list headers (also in [Quick classification](/manual/quick-classification.md)):
 
   - First click sorts descending (↓)
   - Second click sorts ascending (↑)

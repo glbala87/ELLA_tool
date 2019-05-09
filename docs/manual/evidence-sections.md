@@ -6,6 +6,13 @@ title: Evidence sections
 
 [[toc]]
 
+In FULL (default) mode, the main view of the CLASSIFICATION page contains a number of different sections (shown here as [collapsed](http://manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)):  
+
+<div style="text-indent: 4%;"><img src="./img/classification_sections.png"></div>
+<br>
+
+The different sections presenting annotation evidence are described below, see the separate page for the [Classification section](/manual/classification-section.md).
+
 ## Analysis specific (ANALYSES only)
 
 This section is specific to the current sample (analysis) and displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).

@@ -18,6 +18,11 @@ sidebar: auto
 
 ### Additions and fixes
 - Changed naming of ACMG criteria with modified strength to ClinGen's recommendations (e.g. PM1_Strong instead of PSxPM1). 
+- Renamed/added buttons in side bar:
+    - `FULL` 
+    - `QUICK` (renamed from QUICK CLASSIFICATION)
+    - `VISUAL` (renamed from VISUALIZATION; button moved from top bar.
+- Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode
 
 
 ## 1.4.1

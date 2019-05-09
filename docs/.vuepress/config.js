@@ -50,19 +50,14 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/manual/classification-page',
-                        '/manual/filtered-variants',
-                        '/manual/worklog',
                         '/manual/top-bar',
+                        '/manual/worklog',
                         '/manual/side-bar',
+                        '/manual/filtered-variants',
                         '/manual/evidence-sections',
-                        '/manual/classification-section'
-                    ]
-                },
-                {
-                    title: 'VISUALISATION page',
-                    collapsable: false,
-                    children: [
-                        '/manual/visualisation-page'
+                        '/manual/classification-section',
+                        '/manual/quick-classification',
+                        '/manual/visual'
                     ]
                 },
                 {

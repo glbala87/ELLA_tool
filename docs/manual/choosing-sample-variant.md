@@ -9,6 +9,12 @@ title: Choosing a sample or variant
 The first page you see after logging in is the OVERVIEW page. You can always navigate to this page using the link in the top right corner:
 
 <div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
+<br>
+
+This page also links to the current documentation (you can also reach these by going to [allel.es/docs](http://allel.es/docs)): 
+
+<div style="text-indent: 4%;"><img src="./img/documentation_btn.png"></div>
+
 
 ## Select analysis or variant from the worklist
 
