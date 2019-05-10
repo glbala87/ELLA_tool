@@ -267,11 +267,11 @@ describe('Sample workflow', function() {
                         comment: 'BP2_ACMG_ROUND_1'
                     },
                     '2': {
-                        code: 'PPxPS2',
+                        code: 'PS2 SUPPORTIVE',
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PVSxPS1',
+                        code: 'PS1 VERY STRONG',
                         comment: 'PS1_ACMG_ROUND_1'
                     }
                 },

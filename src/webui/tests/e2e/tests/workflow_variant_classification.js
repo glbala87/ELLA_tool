@@ -115,7 +115,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                 classification: '1',
                 acmg: {
                     '1': {
-                        code: 'BSxBP2',
+                        code: 'BP2 STRONG',
                         comment: 'BP2_ACMG_ROUND_1'
                     },
                     '2': {
@@ -123,7 +123,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PVSxPM1',
+                        code: 'PM1 VERY STRONG',
                         comment: 'PM1_ACMG_ROUND_1'
                     }
                 }

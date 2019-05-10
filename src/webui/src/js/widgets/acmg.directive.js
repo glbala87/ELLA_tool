@@ -5,6 +5,20 @@ import { ACMGHelper } from '../model/acmghelper'
 import acmgTemplate from './acmg.ngtmpl.html'
 import acmgPopover from './acmgPopover.ngtmpl.html'
 
+const STRENGTHS_CLINGEN = {
+    benign: {
+        BP: 'Supportive',
+        BS: 'Strong',
+        BA: 'Stand-alone'
+    },
+    pathogenic: {
+        PP: 'Supportive',
+        PM: 'Moderate',
+        PS: 'Strong',
+        PVS: 'Very_strong'
+    }
+}
+
 @Directive({
     selector: 'acmg',
     scope: {
@@ -45,6 +59,16 @@ export class AcmgController {
         if (this.onToggle && this.isEditable()) {
             this.onToggle({ code: this.code })
         }
+    }
+
+    formatCode(codeStr) {
+        if (ACMGHelper.isModifiedStrength(codeStr)) {
+            const strength = ACMGHelper.getCodeStrength(codeStr, this.config)
+            const base = ACMGHelper.getCodeBase(codeStr)
+            const codeType = ACMGHelper.getCodeType(codeStr)
+            return `${base} ${STRENGTHS_CLINGEN[codeType][strength].toUpperCase()}`
+        }
+        return codeStr
     }
 
     isEditable() {
@@ -90,7 +114,7 @@ export class AcmgController {
 
     getPlaceholder() {
         if (this.isEditable()) {
-            return `${this.getCodeForDisplay().code}-COMMENT`
+            return `${ACMGHelper.getCodeBase(this.getCodeForDisplay().code)}-COMMENT`
         }
     }
 
