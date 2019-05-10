@@ -28,7 +28,7 @@ class Sample(Base):
 
     id = Column(Integer, primary_key=True)
     identifier = Column(String(), nullable=False)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="CASCADE"), nullable=False)
     analysis = relationship("Analysis", backref="samples")
     sample_type = Column(Enum("HTS", "Sanger", name="sample_type"), nullable=False)
     proband = Column(Boolean, nullable=False)
