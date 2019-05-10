@@ -16,6 +16,10 @@ sidebar: auto
 
 ## 1.5
 
+### Highlights
+
+### New features
+
 ### Additions and fixes
 - Changed naming of ACMG criteria with modified strength to ClinGen's recommendations (e.g. PM1_Strong instead of PSxPM1). 
 - Renamed/added buttons in side bar:
@@ -23,6 +27,9 @@ sidebar: auto
     - `QUICK` (renamed from QUICK CLASSIFICATION)
     - `VISUAL` (renamed from VISUALIZATION; button moved from top bar.
 - Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode
+- Added QUAL column to variant lists in analysis workflow
+- Fix issue with pagination in import modal
+- Fix issue where genepanel was not reloaded when including a filtered variant
 
 
 ## 1.4.1
