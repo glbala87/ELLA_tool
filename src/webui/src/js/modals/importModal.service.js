@@ -53,7 +53,7 @@ export class ImportController {
     annotationjobPageChanged() {
         this.annotationjobResource.get(null, 8, this.annotationjobPage).then((res) => {
             this.annotationjobs = res
-            this.annotationjobPage = res.pagination.page
+            this.annotationjobPage = parseInt(res.pagination.page)
 
             // FIXME: uib-pagination doesn't enable next-button as it should
             if (this.annotationjobPage < res.pagination.totalPages) {
