@@ -120,7 +120,7 @@ config = {
                 "shade_multiple_in_gene": True,
             },
             "visual": {
-                "columns": ["qual"],
+                "columns": ["qual", "ratio"],
                 "classification_options": ["technical"],
                 "comment_options": ["analysis"],
                 "narrow_comment": True,
