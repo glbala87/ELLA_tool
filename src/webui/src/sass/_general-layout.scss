@@ -619,9 +619,9 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   }
   .controls {
     .control-comment {
+      max-width: 70rem;
       .wysiwygeditor {
-        max-height: 15rem;
-        width: 49rem;
+        max-height: 13rem;
         overflow: auto;
       }
       margin-bottom: 1rem;
