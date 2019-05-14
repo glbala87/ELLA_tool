@@ -358,7 +358,6 @@ app.component('alleleSidebarList', {
                         // A bit hackish, but we don't want to read
                         // another alleleSidebarList to get the <td> width of the
                         // buttons...
-                        console.log($ctrl.sidebarConfig.narrow_comment)
                         return $ctrl.sidebarConfig.narrow_comment || false
                     }
                 })
