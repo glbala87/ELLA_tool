@@ -10,44 +10,51 @@ The variants in your sample (ANALYSES mode only) are listed in the side bar to t
 
 <div style="text-indent: 4%;"><img src="./img/sidebar.png"></div>
 
-Names (variant HGVSc and gene) and inheritance is displayed as specified by the default transcript in the gene panel. If there is more than one default transcript, all versions are shown.
+The side bar layout described here is for the default, full classification mode. The layout is almost the same in other CLASSIFICATION view modes ([QUICK](/manual/quick-classification.md) and [VISUAL](/manual/visual.md)) and on the [REPORT](/manual/report-page.md) page, except for some columns/buttons. For details, go the referenced pages. 
 
-## Buttons
+Note that names (variant HGVSc and gene) and inheritance are displayed as specified by the default transcript in the gene panel. If there is more than one default transcript, all versions are shown.
 
-The side bar has several buttons on the top of the variant list: 
+
+## Buttons and comment fields
+
+The side bar has an INDICATIONS COMMENT field at the top, corresponding to the [same field](/manual/report-page.html#comment-fields-indication-and-report) on the REPORT page (changes in either place is mirrored in both). 
+
+Directly beneath that are several buttons: 
 
 <div style="text-indent: 4%;"><img src="./img/sidebar_buttons.png"></div>
 <br>
 
-Button  | Explanation | More information
-:---  | :---  | :---
-`FILTERED`  | View and optionally add back filtered variants. | [Filtered variants](/manual/filtered-variants.md)
-[Drop-down menu]  | Switch between filter configurations (pre-defined)  | [Filtered variants](/manual/filtered-variants.md)
-`FULL`  | Switch to Full (default; detailed) classification. |  [Evidence sections](/manual/evidence-sections.html), [Classification section](/manual/classification-section.html)
-`QUICK`  | Switch to Quick classification mode. |  [Quick mode](/manual/quick-classification.md)
-`VISUAL`  | Switch to Visual mode.  | [Visual mode](/manual/visual.md)
+- `FILTER`: View and optionally add back [filtered variants](/manual/filtered-variants.md)
+- [Drop-down menu]: Switch between (pre-defined) [filter configurations](/manual/filtered-variants.md).
+- `FULL`: Switch to Full (default; detailed) classification. See also [Evidence sections](/manual/evidence-sections.html), [Classification section](/manual/classification-section.html).
+- `QUICK`: Switch to [Quick classification mode](/manual/quick-classification.md).
+- `VISUAL`: Switch to [Visual mode](/manual/visual.md).
+
 
 ## Variant tags
 
 If applicable, variants in the variant list are tagged with:
 
-  - `!` See [Variant warnings](/manual/top-bar.html#variant-warnings).
+  - `!` [Variant warnings](/manual/top-bar.html#variant-warnings).
 
-  - `S` Segregation. Depdending on data, changes to:
+  - `S` [Segregation](/concepts/filtering.html#segregation-filter). Depdending on data, changes to:
     
       - `D` De novo
       - `A` Autosomal recessive homozygous
       - `X` X-linked recessive
       - `C` Compound heterozygous
+      - `M` Inherited mosaicism
 
-  - `O` Homozygous/hemizygous genotype
+  - `O` Homozygous/hemizygous genotype.
 
   - `Q` Quality issues. Same as [NEEDS VERIFICATION](/manual/evidence-sections.html#quality-information), except that indels are not marked unless there is other issues. Depending on actions in the [QUALITY section](/manual/evidence-sections.html#quality), this tag may be replaced by:
     
       - `V` Verified (green)
       - `T` Technical (red)
 
-  - `R` Reference available
+  - `R` Reference available (from annotation).
+
+  - `I` Included variants (column `F` for filtered, shown only if variants have been included from filtered variants).
 
   - Shaded background: More than one variant in the same gene (in current sample).
 

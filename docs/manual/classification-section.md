@@ -13,7 +13,10 @@ This section is where you review the information from other sections, summarise 
 Unlike other sections, this section contains two main comment fields:
 
   - EVALUATION: For summarising the evaluation of the consequence of the variant. This should be detailed enough for making an informed decision, but leaving the specifics to comments in respective sections.
-  - REPORT: Comments regarding clinical evaluation (automatically included in the final patient report).
+  - REPORT: Comments relevant for clinical evaluation (automatically included in the final patient report). 
+  ::: warning NOTE
+  Comments made here will be visible for all patients where this variant shows up, and should be generalized, not patient-specific, as far as possible. For patient specific comments, use [fields on the REPORT page](/manual/report-page.html#comment-fields-indication-and-report).  
+  ::: 
 
 ## Variants with a previous interpretation
 
