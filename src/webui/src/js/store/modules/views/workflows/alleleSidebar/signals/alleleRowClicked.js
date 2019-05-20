@@ -12,13 +12,6 @@ export default [
             },
             selectedAlleleChanged
         ],
-        Visualization: [
-            set(state`views.workflows.selectedAllele`, props`alleleId`),
-            ({ props }) => {
-                console.log(`Selected allele id: ${props.alleleId}`)
-            },
-            selectedAlleleChanged
-        ],
         otherwise: []
     }
 ]

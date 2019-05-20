@@ -2,7 +2,7 @@
 
   <h4 class="section-title" ng-if="$ctrl.sectionTitle">{{$ctrl.sectionTitle}} ({{$ctrl.alleles.length}})</h4>
     <section class="allele-sidebar-list">
-      <div class="nav-table" ng-class="{'expanded': $ctrl.expanded}">
+      <div class="nav-table">
         <div class="nav-row top" ng-if="$ctrl.alleles.length">
           <div ng-if="!$ctrl.isTogglable()" class="cell"></div> <!-- Header for selected colorbox -->
           <div class="cell" title="Sample type" ng-if="$ctrl.isMultipleSampleType" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'type'})">
@@ -96,7 +96,7 @@
               </div>
             </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell qual" title="Quality">
+          <div ng-if="$ctrl.showColumn('qual')" class="cell qual" title="Quality">
             <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'qual'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">QUAL</span>
                 <span ng-if="$ctrl.orderBy.key === 'qual'">
@@ -105,7 +105,7 @@
                 </span>
               </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell dp" title="Read depth">
+          <div ng-if="$ctrl.showColumn('dp')" class="cell dp" title="Read depth">
             <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'readDepth'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">DP</span>
                 <span ng-if="$ctrl.orderBy.key === 'readDepth'">
@@ -114,7 +114,7 @@
                 </span>
               </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell ratio" title="Allele ratio">
+          <div ng-if="$ctrl.showColumn('ratio')" class="cell ratio" title="Allele ratio">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'ratio'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">RATIO</span>
                 <span ng-if="$ctrl.orderBy.key === 'ratio'">
@@ -123,7 +123,7 @@
                 </span>
               </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell hi-freq" title="Highest frequency">
+          <div ng-if="$ctrl.showColumn('hi-freq')" class="cell hi-freq" title="Highest frequency">
             <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'freq'})">
               <span ng-class="{'clickable': $ctrl.orderByPath}">HI. FREQ</span>
               <span ng-if="$ctrl.orderBy.key === 'freq'">
@@ -132,7 +132,7 @@
               </span>
             </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell hi-count" title="Highest allele count">
+          <div ng-if="$ctrl.showColumn('hi-count')" class="cell hi-count" title="Highest allele count">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'count'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">HI. COUNT</span>
                 <span ng-if="$ctrl.orderBy.key === 'count'">
@@ -141,7 +141,7 @@
                 </span>
               </div>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell external" title="External databases">
+          <div ng-if="$ctrl.showColumn('external')" class="cell external" title="External databases">
               <div class="hit" ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'external'})">
                 <span ng-class="{'clickable': $ctrl.orderByPath}">EXTERNAL</span>
                 <span ng-if="$ctrl.orderBy.key === 'external'">
@@ -150,14 +150,14 @@
                 </span>
               </div>
           </div>
-          <div class="cell classification"></div>
-          <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation" title="{{$ctrl.getCommentTitle()}}">{{$ctrl.getCommentTitle()}}</div>
-          <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification" title="Classification">QUICK CLASSIFICATION</div>
-          <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell"></div>
+          <div class="cell classification">CLASS</div>
+          <div ng-if="$ctrl.showComment()" class="cell evaluation" ng-class="{'narrow': $ctrl.narrowComment()}" title="{{$ctrl.getCommentTitle()}}">{{$ctrl.getCommentTitle()}}</div>
+          <div ng-if="$ctrl.showClassificationColumn()" class="cell quick-classification" title="Classification">MARK AS</div>
+          <div ng-if="!$ctrl.showClassificationColumn()" class="cell"></div>
           <div ng-if="$ctrl.isTogglable()" class="cell"></div>
         </div>
         <div class="nav-row allele" ng-repeat="allele in $ctrl.alleles track by allele.id"
-              ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id), 'toggled': $ctrl.isToggled(allele.id), 'togglable': $ctrl.isTogglable(), 'multiple': $ctrl.shadeMultipleInGene && $ctrl.isMultipleInGene[allele.id], 'technical': $ctrl.isTechnical(allele.id)}">
+              ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id), 'toggled': $ctrl.isToggled(allele.id), 'togglable': $ctrl.isTogglable(), 'multiple': $ctrl.shadeMultipleInGene(allele), 'technical': $ctrl.isTechnical(allele.id)}">
           <div ng-if="!$ctrl.isTogglable()" class="cell tab"></div>
           <div title="{{$ctrl.getSampleTypesFull(allele)}}" ng-if="$ctrl.isMultipleSampleType" class="cell sample-type id-sample-type">
             {{$ctrl.getSampleType(allele)}}
@@ -207,7 +207,7 @@
               </div>
           </div>
 
-          <div ng-if="$ctrl.expanded" class="cell qual"
+          <div ng-if="$ctrl.showColumn('qual')" class="cell qual"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -215,7 +215,7 @@
             popover-class="popover-title-no-uppercase"
             popover-placement="bottom"><span class="clickable">{{$ctrl.qual[allele.id]  || '-'}}</span>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell dp"
+          <div ng-if="$ctrl.showColumn('dp')" class="cell dp"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -223,7 +223,7 @@
             popover-class="popover-title-no-uppercase"
             popover-placement="bottom"><span class="clickable">{{$ctrl.depth[allele.id]  || '-'}}</span>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell ratio"
+          <div ng-if="$ctrl.showColumn('ratio')" class="cell ratio"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -231,7 +231,7 @@
             popover-class="popover-title-no-uppercase"
             popover-placement="bottom"><span class="clickable">{{$ctrl.alleleRatio[allele.id]  || '-'}}</span>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell hi-freq"
+          <div ng-if="$ctrl.showColumn('hi-freq')" class="cell hi-freq"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -239,7 +239,7 @@
             popover-class="popover-title-no-uppercase"
             popover-placement="bottom"><span class="clickable">{{$ctrl.formatFreqValue($ctrl.hiFreq[allele.id])}}</span></span>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell hi-count"
+          <div ng-if="$ctrl.showColumn('hi-count')" class="cell hi-count"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -247,7 +247,7 @@
             popover-class="popover-title-no-uppercase"
             popover-placement="bottom"><span class="clickable">{{$ctrl.hiCount[allele.id].maxValue || '-'}}</span>
           </div>
-          <div ng-if="$ctrl.expanded" class="cell external"
+          <div ng-if="$ctrl.showColumn('external')" class="cell external"
             popover-trigger="outsideClick"
             uib-popover-template="'alleleSidebarExternalPopover.ngtmpl.html'"
             popover-append-to-body="true"
@@ -264,20 +264,20 @@
               <div class="current-classification">{{$ctrl.getCurrentClassificationText(allele.id)}}</div>
             </div>
           </div>
-          <div ng-if="$ctrl.expanded && $ctrl.showComment()" class="cell evaluation">
+          <div ng-if="$ctrl.showComment()" class="cell evaluation" ng-class="{'narrow': $ctrl.narrowComment()}">
               <wysiwyg-editor class="control-comment"
               show-controls="false"
               ng-disabled="$ctrl.readOnly || !$ctrl.canUpdateComment(allele.id)"
               ng-change="$ctrl.commentUpdated(allele.id, $ctrl.getCommentModel(allele.id).comment)"
               ng-model="$ctrl.getCommentModel(allele.id).comment"></wysiwyg-editor>
           </div>
-          <div ng-if="$ctrl.expanded && $ctrl.allowQuickClassification" class="cell quick-classification">
-            <button class="purple id-quick-technical" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
-            <button class="purple id-quick-notrelevant" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
-            <button class="purple id-quick-classu" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
-            <button class="purple id-quick-class2" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
+          <div ng-if="$ctrl.showClassificationColumn()" class="cell quick-classification">
+            <button ng-if="$ctrl.showClassificationBtn('technical')" class="purple id-quick-technical" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical'})" ng-disabled="$ctrl.readOnly">Technical</button>
+            <button ng-if="$ctrl.showClassificationBtn('notrelevant')" class="purple id-quick-notrelevant" ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true})" ng-disabled="$ctrl.readOnly">Not relevant</button>
+            <button ng-if="$ctrl.showClassificationBtn('classu')" class="purple id-quick-classu" ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class U</button>
+            <button ng-if="$ctrl.showClassificationBtn('class2')" class="purple id-quick-class2" ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id})" ng-disabled="$ctrl.readOnly">Class 2</button>
           </div>
-          <div ng-if="$ctrl.expanded && !$ctrl.allowQuickClassification" class="cell quick-classification"></div>
+          <div ng-if="!$ctrl.showClassificationColumn()" class="cell quick-classification"></div>
           <div ng-if="$ctrl.isTogglable()" ng-click="$ctrl.toggleClicked({alleleId: allele.id})" class="cell tab"
                 title="{{$ctrl.readOnly ? 'Not allowed (read-only)' : ''}}">
             <div class="added">

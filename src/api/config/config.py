@@ -103,7 +103,43 @@ config = {
             },
         },
     },
-    "analysis": {"priority": {"display": {"1": "Normal", "2": "High", "3": "Urgent"}}},
+    "analysis": {
+        "priority": {"display": {"1": "Normal", "2": "High", "3": "Urgent"}},
+        "sidebar": {
+            "full": {
+                "columns": [],
+                "classification_options": [],
+                "comment_options": [],
+                "shade_multiple_in_gene": True,
+            },
+            "quick": {
+                "columns": ["qual", "dp", "ratio", "hi-freq", "hi-count", "external"],
+                "classification_options": ["technical", "notrelevant", "classu", "class2"],
+                "comment_options": ["evaluation", "analysis"],
+                "narrow_comment": False,
+                "shade_multiple_in_gene": True,
+            },
+            "visual": {
+                "columns": ["qual", "ratio"],
+                "classification_options": ["technical"],
+                "comment_options": ["analysis"],
+                "narrow_comment": True,
+                "shade_multiple_in_gene": True,
+            },
+            "report": {
+                "columns": [],
+                "classification_options": [],
+                "comment_options": [],
+                "shade_multiple_in_gene": True,
+            },
+            "list": {
+                "columns": ["qual", "dp", "ratio", "hi-freq", "hi-count", "external"],
+                "classification_options": [],
+                "comment_options": [],
+                "shade_multiple_in_gene": False,
+            },
+        },
+    },
     "annotation": {
         "clinvar": {
             "clinical_significance_status": {
