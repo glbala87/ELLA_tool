@@ -73,6 +73,8 @@ app.component('alleleSidebar', {
             classificationType, // effective classification type, see Compute
             showControls,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
+            indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
+            commentTemplates: state`app.commentTemplates`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
@@ -85,7 +87,8 @@ app.component('alleleSidebar', {
             showAddExcludedAllelesClicked: signal`views.workflows.modals.addExcludedAlleles.showAddExcludedAllelesClicked`,
             filterConfigs,
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
-            classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`
+            classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
+            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`
         },
         'AlleleSidebar',
         [
@@ -119,6 +122,9 @@ app.component('alleleSidebar', {
                         } else {
                             return $ctrl.filterConfigs
                         }
+                    },
+                    getReportIndicationsTemplates() {
+                        return $ctrl.commentTemplates['reportIndications']
                     }
                 })
             }
