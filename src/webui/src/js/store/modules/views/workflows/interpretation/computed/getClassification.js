@@ -1,6 +1,5 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
 import getAlleleState from './getAlleleState'
 
 export default function getClassification(allele) {
@@ -17,7 +16,6 @@ export default function getClassification(allele) {
             return result
         }
         result.existing = allele.allele_assessment ? allele.allele_assessment.classification : null
-        result.outdated = get(isAlleleAssessmentOutdated(allele))
 
         // Allele might not be part of current workflows
         // interpretation state, e.g. if displaying a independant
