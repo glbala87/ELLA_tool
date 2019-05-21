@@ -3,16 +3,27 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
-import isExpanded from '../store/modules/views/workflows/alleleSidebar/computed/isExpanded'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
 import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
 import template from './alleleSidebar.ngtmpl.html'
 
-const showQuickClassificationBtn = Compute(
+const showControls = Compute(state`views.workflows.selectedComponent`, (selectedComponent) => {
+    return selectedComponent === 'Classification'
+})
+
+const constrainSize = Compute(
+    state`views.workflows.alleleSidebar.classificationType`,
+    (classificationType) => {
+        return classificationType !== 'quick'
+    }
+)
+
+const classificationType = Compute(
     state`views.workflows.selectedComponent`,
-    (selectedComponent) => {
-        return selectedComponent === 'Classification'
+    state`views.workflows.alleleSidebar.classificationType`,
+    (selectedComponent, stateClassificationType) => {
+        return selectedComponent === 'Report' ? 'report' : stateClassificationType
     }
 )
 
@@ -56,22 +67,28 @@ app.component('alleleSidebar', {
     controller: connect(
         {
             analysisId: state`views.workflows.data.analysis.id`,
+            classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
+            constrainSize,
+            selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
+            classificationType, // effective classification type, see Compute
+            showControls,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
+            indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
+            commentTemplates: state`app.commentTemplates`,
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
             manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
             excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
-            showQuickClassificationBtn,
-            expanded: isExpanded,
+            selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`,
             isTogglable,
             isToggled,
             readOnly: isReadOnly,
-            toggleExpanded: signal`views.workflows.alleleSidebar.toggleExpanded`,
             showAddExcludedAllelesClicked: signal`views.workflows.modals.addExcludedAlleles.showAddExcludedAllelesClicked`,
             filterConfigs,
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
-            selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`
+            classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
+            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`
         },
         'AlleleSidebar',
         [
@@ -105,6 +122,9 @@ app.component('alleleSidebar', {
                         } else {
                             return $ctrl.filterConfigs
                         }
+                    },
+                    getReportIndicationsTemplates() {
+                        return $ctrl.commentTemplates['reportIndications']
                     }
                 })
             }

@@ -3,42 +3,6 @@
 customannotationconfig = {
     "external": [
         {
-            "key": "LOVD_genomed_China-APC",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [583],
-            "url_for_genes": {
-                "583": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=APC"
-            },
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
-            "key": "LOVD_shared-APC",
-            "name": "LOVD - Shared APC",
-            "only_for_genes": [583],
-            "url_for_genes": {"583": "https://databases.lovd.nl/shared/view/APC"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "LOVD_InSiGHT-APC",
             "name": "LOVD - InSiGHT APC",
             "only_for_genes": [583],
@@ -73,6 +37,42 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "LOVD_genomed_China-APC",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [583],
+            "url_for_genes": {
+                "583": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=APC"
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-APC",
+            "name": "X - LOVD - Shared APC (not in use)",
+            "only_for_genes": [583],
+            "url_for_genes": {"583": "https://databases.lovd.nl/shared/view/APC"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "LOVD_shared-BMPR1A",
             "name": "LOVD - Shared BMPR1A",
             "only_for_genes": [1076],
@@ -94,42 +94,6 @@ customannotationconfig = {
             "name": "BRCA Exchange",
             "only_for_genes": [1100],
             "url_for_genes": {"1100": "https://brcaexchange.org/variants?search=BRCA1"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
-            "key": "BIC-BRCA1",
-            "name": "BIC",
-            "only_for_genes": [1100],
-            "url_for_genes": {"1100": "http://www.research.nhgri.nih.gov/projects/bic/"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
-            "key": "LOVD_genomed_China-BRCA1",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [1100],
-            "url_for_genes": {
-                "1100": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA1"
-            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -194,46 +158,46 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "BIC-BRCA1",
+            "name": "X - BIC (not in use)",
+            "only_for_genes": [1100],
+            "url_for_genes": {"1100": "http://www.research.nhgri.nih.gov/projects/bic/"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_genomed_China-BRCA1",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [1100],
+            "url_for_genes": {
+                "1100": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA1"
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "BRCA_Exchange-BRCA2",
             "name": "BRCA Exchange",
             "only_for_genes": [1101],
             "url_for_genes": {"1101": "https://brcaexchange.org/variants?search=BRCA2"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
-            "key": "BIC-BRCA2",
-            "name": "BIC",
-            "only_for_genes": [1101],
-            "url_for_genes": {"1101": "http://www.research.nhgri.nih.gov/projects/bic/"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
-            "key": "LOVD_genomed_China-BRCA2",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [1101],
-            "url_for_genes": {
-                "1101": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA2"
-            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -298,11 +262,28 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-CDH1",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [1748],
+            "key": "BIC-BRCA2",
+            "name": "X - BIC (not in use)",
+            "only_for_genes": [1101],
+            "url_for_genes": {"1101": "http://www.research.nhgri.nih.gov/projects/bic/"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_genomed_China-BRCA2",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [1101],
             "url_for_genes": {
-                "1748": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=CDH1"
+                "1101": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=BRCA2"
             },
             "options": [
                 ["Pathogenic", "pathogenic"],
@@ -334,8 +315,27 @@ customannotationconfig = {
             ],
         },
         {
+            "key": "LOVD_genomed_China-CDH1",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [1748],
+            "url_for_genes": {
+                "1748": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=CDH1"
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
             "key": "LOVD_shared-CDH1",
-            "name": "LOVD - Shared CDH1",
+            "name": "X - LOVD - Shared CDH1 (not in use)",
             "only_for_genes": [1748],
             "url_for_genes": {"1748": "https://databases.lovd.nl/shared/view/CDH1"},
             "options": [
@@ -404,23 +404,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_medgen-EXT1",
-            "name": "LOVD medgen (not in use)",
-            "only_for_genes": [3512],
-            "url_for_genes": {"3512": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT1"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "LOVD_shared-EXT1",
             "name": "LOVD - Shared EXT1",
             "only_for_genes": [3512],
@@ -438,10 +421,10 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_medgen-EXT2",
-            "name": "LOVD medgen (not in use)",
-            "only_for_genes": [3513],
-            "url_for_genes": {"3513": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT2"},
+            "key": "LOVD_medgen-EXT1",
+            "name": "X - LOVD medgen (not in use)",
+            "only_for_genes": [3512],
+            "url_for_genes": {"3512": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT1"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -459,6 +442,23 @@ customannotationconfig = {
             "name": "LOVD - Shared EXT2",
             "only_for_genes": [3513],
             "url_for_genes": {"3513": "https://databases.lovd.nl/shared/view/EXT2"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_medgen-EXT2",
+            "name": "X - LOVD medgen (not in use)",
+            "only_for_genes": [3513],
+            "url_for_genes": {"3513": "http://medgen.ua.ac.be/LOVDv.2.0/home.php?select_db=EXT2"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -506,25 +506,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-MLH1",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [7127],
-            "url_for_genes": {
-                "7127": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MLH1"
-            },
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "LOVD_hci_priors-MLH1",
             "name": "LOVD hci priors",
             "only_for_genes": [7127],
@@ -559,23 +540,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_shared-MLH1",
-            "name": "LOVD - Shared MLH1",
-            "only_for_genes": [7127],
-            "url_for_genes": {"7127": "https://databases.lovd.nl/shared/view/MLH1"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "UMD-MLH1",
             "name": "UMD",
             "only_for_genes": [7127],
@@ -593,12 +557,29 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-MSH2",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [7325],
+            "key": "LOVD_genomed_China-MLH1",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [7127],
             "url_for_genes": {
-                "7325": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH2"
+                "7127": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MLH1"
             },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MLH1",
+            "name": "X - LOVD - Shared MLH1 (not in use)",
+            "only_for_genes": [7127],
+            "url_for_genes": {"7127": "https://databases.lovd.nl/shared/view/MLH1"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -646,23 +627,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_shared-MSH2",
-            "name": "LOVD - Shared MSH2",
-            "only_for_genes": [7325],
-            "url_for_genes": {"7325": "https://databases.lovd.nl/shared/view/MSH2"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "UMD-MSH2",
             "name": "UMD",
             "only_for_genes": [7325],
@@ -680,12 +644,29 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-MSH6",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [7329],
+            "key": "LOVD_genomed_China-MSH2",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [7325],
             "url_for_genes": {
-                "7329": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH6"
+                "7325": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH2"
             },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MSH2",
+            "name": "X - LOVD - Shared MSH2 (not in use)",
+            "only_for_genes": [7325],
+            "url_for_genes": {"7325": "https://databases.lovd.nl/shared/view/MSH2"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -733,10 +714,10 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_shared-MSH6",
-            "name": "LOVD - Shared MSH6",
+            "key": "UMD-MSH6",
+            "name": "UMD",
             "only_for_genes": [7329],
-            "url_for_genes": {"7329": "https://databases.lovd.nl/shared/view/MSH6"},
+            "url_for_genes": {"7329": "http://www.umd.be/MSH6/"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -750,10 +731,29 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "UMD-MSH6",
-            "name": "UMD",
+            "key": "LOVD_genomed_China-MSH6",
+            "name": "X - LOVD genomed China (not in use)",
             "only_for_genes": [7329],
-            "url_for_genes": {"7329": "http://www.umd.be/MSH6/"},
+            "url_for_genes": {
+                "7329": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=MSH6"
+            },
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_shared-MSH6",
+            "name": "X - LOVD - Shared MSH6 (not in use)",
+            "only_for_genes": [7329],
+            "url_for_genes": {"7329": "https://databases.lovd.nl/shared/view/MSH6"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -784,23 +784,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_shared-MUTYH",
-            "name": "LOVD - Shared MUTYH",
-            "only_for_genes": [7527],
-            "url_for_genes": {"7527": "https://databases.lovd.nl/shared/view/MUTYH"},
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "UMD-MUTYH",
             "name": "UMD",
             "only_for_genes": [7527],
@@ -818,12 +801,10 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-PALB2",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [26144],
-            "url_for_genes": {
-                "26144": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PALB2"
-            },
+            "key": "LOVD_shared-MUTYH",
+            "name": "X - LOVD - Shared MUTYH (not in use)",
+            "only_for_genes": [7527],
+            "url_for_genes": {"7527": "https://databases.lovd.nl/shared/view/MUTYH"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -841,6 +822,25 @@ customannotationconfig = {
             "name": "LOVD - Shared PALB2",
             "only_for_genes": [26144],
             "url_for_genes": {"26144": "https://databases.lovd.nl/shared/view/PALB2"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_genomed_China-PALB2",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [26144],
+            "url_for_genes": {
+                "26144": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PALB2"
+            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -889,7 +889,7 @@ customannotationconfig = {
         },
         {
             "key": "LOVD_shared-PMS2",
-            "name": "LOVD - Shared PMS2",
+            "name": "X - LOVD - Shared PMS2 (not in use)",
             "only_for_genes": [9122],
             "url_for_genes": {"9122": "https://databases.lovd.nl/shared/view/PMS2"},
             "options": [
@@ -939,25 +939,6 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-PTEN",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [9588],
-            "url_for_genes": {
-                "9588": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PTEN"
-            },
-            "options": [
-                ["Pathogenic", "pathogenic"],
-                ["Likely pathogenic", "likely_pathogenic"],
-                ["Uncertain significance", "uncertain_significance"],
-                ["Likely benign", "likely_benign"],
-                ["Benign", "benign"],
-                ["Conflicting", "conflicting"],
-                ["Indirectly relevant", "indirectly_relevant"],
-                ["Nothing found", "none_found"],
-                ["Other", "other"],
-            ],
-        },
-        {
             "key": "LOVD_shared -PTEN",
             "name": "LOVD - Shared PTEN",
             "only_for_genes": [9588],
@@ -979,6 +960,25 @@ customannotationconfig = {
             "name": "LOVD whole genome",
             "only_for_genes": [9588],
             "url_for_genes": {"9588": "http://databases.lovd.nl/whole_genome/view/PTEN"},
+            "options": [
+                ["Pathogenic", "pathogenic"],
+                ["Likely pathogenic", "likely_pathogenic"],
+                ["Uncertain significance", "uncertain_significance"],
+                ["Likely benign", "likely_benign"],
+                ["Benign", "benign"],
+                ["Conflicting", "conflicting"],
+                ["Indirectly relevant", "indirectly_relevant"],
+                ["Nothing found", "none_found"],
+                ["Other", "other"],
+            ],
+        },
+        {
+            "key": "LOVD_genomed_China-PTEN",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [9588],
+            "url_for_genes": {
+                "9588": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=PTEN"
+            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -1079,12 +1079,10 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-STK11",
-            "name": "LOVD genomed China (not in use)",
+            "key": "LOVD_shared-STK11",
+            "name": "LOVD - Shared STK11",
             "only_for_genes": [11389],
-            "url_for_genes": {
-                "11389": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=STK11"
-            },
+            "url_for_genes": {"11389": "https://databases.lovd.nl/shared/view/STK11"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -1098,10 +1096,12 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_shared-STK11",
-            "name": "LOVD - Shared STK11",
+            "key": "LOVD_genomed_China-STK11",
+            "name": "X - LOVD genomed China (not in use)",
             "only_for_genes": [11389],
-            "url_for_genes": {"11389": "https://databases.lovd.nl/shared/view/STK11"},
+            "url_for_genes": {
+                "11389": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=STK11"
+            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -1149,12 +1149,10 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "LOVD_genomed_China-VHL",
-            "name": "LOVD genomed China (not in use)",
-            "only_for_genes": [12687],
-            "url_for_genes": {
-                "12687": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=VHL"
-            },
+            "key": "TP53-web-site",
+            "name": "The TP53 Web Site",
+            "only_for_genes": [11998],
+            "url_for_genes": {"11998": "http://p53.fr/download-the-database"},
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],
@@ -1202,10 +1200,12 @@ customannotationconfig = {
             ],
         },
         {
-            "key": "TP53-web-site",
-            "name": "The TP53 Web Site",
-            "only_for_genes": [11998],
-            "url_for_genes": {"11998": "http://p53.fr/download-the-database"},
+            "key": "LOVD_genomed_China-VHL",
+            "name": "X - LOVD genomed China (not in use)",
+            "only_for_genes": [12687],
+            "url_for_genes": {
+                "12687": "http://www.genomed.org/lovd2/variants.php?action=search_unique&select_db=VHL"
+            },
             "options": [
                 ["Pathogenic", "pathogenic"],
                 ["Likely pathogenic", "likely_pathogenic"],

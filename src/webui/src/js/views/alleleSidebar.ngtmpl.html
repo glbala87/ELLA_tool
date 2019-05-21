@@ -1,5 +1,13 @@
-<div class="sidebar" ng-class="{'expanded': $ctrl.expanded}">
-    <div class="controls">
+<div class="sidebar" ng-class="{'constrain-size': $ctrl.constrainSize}">
+    <div class="controls" ng-if="$ctrl.showControls">
+        <wysiwyg-editor
+            class="control-comment id-indications-comment"
+            templates="$ctrl.getReportIndicationsTemplates()"
+            ng-disabled="$ctrl.readOnly"
+            placeholder="INDICATIONS COMMENT"
+            ng-model="$ctrl.indicationsComment"
+            ng-change="$ctrl.indicationsCommentChanged({comment: $ctrl.indicationsComment})"
+        ></wysiwyg-editor>
         <div class="control-section">
             <button
                 class="blue id-add-excluded"
@@ -30,12 +38,15 @@
                     {{ $ctrl.manuallyAddedAlleleIds.length || 0 }}/{{
                         $ctrl.getExcludedAlleleCount()
                     }}</span
-                ><span class="add-excluded-button">Filtered</span>
+                ><span class="add-excluded-button">Filter</span>
             </button>
 
             <div class="button">
                 <section class="line-wrapper">
-                    <div class="dropdown" ng-class="{'disabled': $ctrl.isHistoricData()}">
+                    <div
+                        class="dropdown filter-config-selection"
+                        ng-class="{'disabled': $ctrl.isHistoricData()}"
+                    >
                         <select
                             class="id-select-filterconfig"
                             ng-disabled="$ctrl.isHistoricData()"
@@ -47,15 +58,21 @@
                     </div>
                 </section>
             </div>
-        </div>
-        <div class="control-section">
-            <button
-                ng-if="$ctrl.showQuickClassificationBtn"
-                ng-click="$ctrl.toggleExpanded()"
-                class="blue quick-classification-button"
-            >
-                {{ $ctrl.expanded ? 'Full classification' : 'Quick classification' }}
-            </button>
+            <div class="control-section classification-type-controls">
+                <div class="bttn-set">
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        id="classification-type-{{ c | lowercase }}"
+                        ng-model="$ctrl.modelSelectedClassificationType"
+                        ng-model-watch="$ctrl.selectedClassificationType"
+                        ng-change="$ctrl.classificationTypeChanged({classificationType: c})"
+                        uib-btn-radio="c"
+                        ng-repeat="c in $ctrl.classificationTypes"
+                        >{{ c }}</label
+                    >
+                </div>
+            </div>
         </div>
     </div>
 
@@ -64,14 +81,12 @@
         allele-ids-path="'views.workflows.alleleSidebar.unclassified'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
-        toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.unclassified'"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Unclassified variants"
-        expanded="$ctrl.expanded"
-        allow-quick-classification="true"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.classificationType"
+        allow-classification="true"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
@@ -80,14 +95,14 @@
         allele-ids-path="'views.workflows.alleleSidebar.classified'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
-        toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
+        toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowToggled'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.classified'"
         togglable="$ctrl.isTogglable"
         toggled="$ctrl.isToggled"
         read-only="$ctrl.readOnly"
         section-title="Classified variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.classificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
 
@@ -99,13 +114,12 @@
         allele-ids-path="'views.workflows.alleleSidebar.notRelevant'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
-        toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.notRelevant'"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Not relevant variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.classificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
@@ -114,13 +128,12 @@
         allele-ids-path="'views.workflows.alleleSidebar.technical'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
-        toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.technical'"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Technical variants"
-        expanded="$ctrl.expanded"
-        shade-multiple-in-gene="true"
+        classification-type="$ctrl.classificationType"
+        allow-classification="false"
     >
     </allele-sidebar-list>
 </div>

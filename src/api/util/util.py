@@ -218,7 +218,7 @@ def paginate(func):
         response_headers = dict()
         if total is not None:
             response_headers["Total-Count"] = total
-            total_pages = total / per_page + (total % per_page > 0)
+            total_pages = total // per_page + (1 if total % per_page > 0 else 0)
             if total_pages == 0:
                 total_pages = 1
             response_headers["Total-Pages"] = total_pages

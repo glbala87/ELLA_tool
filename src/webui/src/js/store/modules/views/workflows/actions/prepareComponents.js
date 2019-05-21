@@ -139,7 +139,7 @@ const BASE_SECTIONS = {
 
 const COMPONENTS = {
     analysis: {
-        componentKeys: ['Info', 'Classification', 'Visualization', 'Report'],
+        componentKeys: ['Info', 'Classification', 'Report'],
         components: {
             Info: {
                 title: 'Info'

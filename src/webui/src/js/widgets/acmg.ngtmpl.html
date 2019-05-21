@@ -15,11 +15,13 @@
                         class="acmg-title clickable"
                         uib-popover-template="vm.popover.templateUrl"
                         popover-append-to-body="true"
-                        popover-title="{{ vm.getCodeForDisplay().code | noUnderscores }}"
+                        popover-title="{{
+                            vm.formatCode(vm.getCodeForDisplay().code) | noUnderscores
+                        }}"
                         popover-trigger="outsideClick"
                         popover-placement="{{ vm.popoverPlacement }}"
                     >
-                        {{ vm.getCodeForDisplay().code | dropREQ | noUnderscores }}
+                        {{ vm.formatCode(vm.getCodeForDisplay().code) | dropREQ | noUnderscores }}
                     </h4>
                 </div>
                 <h4
@@ -60,7 +62,7 @@
             ng-disabled="!vm.isEditable()"
         >
             <section class="acmg-upper">
-                <h4 class="acmg-title clickable white">+ {{ r }}</h4>
+                <h4 class="acmg-title clickable white">+ {{ vm.formatCode(r) }}</h4>
             </section>
         </aside>
     </div>

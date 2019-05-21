@@ -120,7 +120,7 @@ class AnalysisInterpretation(Base, InterpretationMixin):
 
     __next_attrs__ = ["analysis_id", "state", "genepanel_name", "genepanel_version"]
 
-    analysis_id = Column(Integer, ForeignKey("analysis.id"), nullable=False)
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="CASCADE"), nullable=False)
     analysis = relationship("Analysis", uselist=False)
     workflow_status = Column(
         Enum(
@@ -156,7 +156,7 @@ class AnalysisInterpretationSnapshot(Base, InterpretationSnapshotMixin):
     __tablename__ = "analysisinterpretationsnapshot"
 
     analysisinterpretation_id = Column(
-        Integer, ForeignKey("analysisinterpretation.id"), nullable=False
+        Integer, ForeignKey("analysisinterpretation.id", ondelete="CASCADE"), nullable=False
     )
     analysisinterpretation = relationship("AnalysisInterpretation", backref="snapshots")
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
@@ -221,7 +221,9 @@ class InterpretationStateHistory(Base):
 
     id = Column(Integer, primary_key=True)
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
-    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
+    analysisinterpretation_id = Column(
+        Integer, ForeignKey("analysisinterpretation.id", ondelete="CASCADE")
+    )
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
@@ -235,7 +237,9 @@ class InterpretationLog(Base):
 
     id = Column(Integer, primary_key=True)
     alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
-    analysisinterpretation_id = Column(Integer, ForeignKey("analysisinterpretation.id"))
+    analysisinterpretation_id = Column(
+        Integer, ForeignKey("analysisinterpretation.id", ondelete="CASCADE")
+    )
     user_id = Column(Integer, ForeignKey("user.id"))  # Can be null if created by system
     user = relationship("User")
     date_created = Column(

@@ -13,7 +13,6 @@ variables:
 stages:
   - build
   - test
-  - review
   - release
 
 
@@ -25,6 +24,42 @@ build:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target dev .
     - docker push $IMAGE_NAME
     - docker push $CI_REGISTRY_IMAGE:latest
+
+
+start_review:
+  stage: build
+  script:
+    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+    on_stop: stop_review
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
+
+
+# when: manual is also run upon branch deletion
+# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
+stop_review:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
 
 
 test_formatting:
@@ -167,42 +202,6 @@ dependency_scanning:
   artifacts:
     reports:
       dependency_scanning: gl-dependency-scanning-report.json
-
-
-start_review:
-  stage: review
-  script:
-    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    on_stop: stop_review
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-
-
-# when: manual is also run upon branch deletion
-# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
-stop_review:
-  stage: review
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
-  when: manual
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    action: stop
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
 
 
 release:

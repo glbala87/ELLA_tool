@@ -10,9 +10,13 @@ Many variants have usually been automatically filtered from view before you star
 
 <div style="text-indent: 4%;"><img src="./img/filtered_btn.png"></div>
 
-In this particular sample, there are a total of 3407 filtered variants, and none of these have been added back manually to the analysis by the user. Pushing the button brings up a window where you may select individual variants and add them back to the analysis:
+In this particular sample, there are a total of 123 filtered variants, and one of these have been added manually to the analysis by the user. 
+
+Pushing the button brings up a window where you may select individual variants and add them to the analysis:
 
 <div style="text-indent: 4%;"><img src="./img/filtered.png"></div>
+
+Pushing the `+` to the right of a variant adds the variant to the analysis, and will be shown in the side bar variant list with the `I` tag. 
 
 The filter categories ("sub-filters" in the figure above) are defined in the configuration for your user group/gene panel, and each may consist of a combination of rules for filtering and "rescue". The left-most category (ALL) shows all filtered variants combined, whereas the other categories are applied in the left-right order displayed (i.e. in the example above, variants are filtered on frequency first, remaining are filtered by region, etc.).
 

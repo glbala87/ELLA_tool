@@ -34,7 +34,7 @@ class Genotype(Base):
         "Allele", primaryjoin=("genotype.c.secondallele_id==allele.c.id")
     )  # None, unless heterozygous nonreference
     sample_id = Column(
-        Integer, ForeignKey("sample.id"), index=True, nullable=False
+        Integer, ForeignKey("sample.id", ondelete="CASCADE"), index=True, nullable=False
     )  # Proband's sample id, set for optimization only
     sample = relationship("Sample", backref="genotypes")
     filter_status = Column(String)  # FILTER
@@ -88,7 +88,7 @@ class GenotypeSampleData(Base):
 
     id = Column(Integer, primary_key=True)
     # Family samples will connect to proband's genotype_ids
-    genotype_id = Column(Integer, ForeignKey("genotype.id"), nullable=False)
+    genotype_id = Column(Integer, ForeignKey("genotype.id", ondelete="CASCADE"), nullable=False)
     genotype = relationship(Genotype, backref="genotypesampledata")
     secondallele = Column(
         Boolean, nullable=False
@@ -102,7 +102,9 @@ class GenotypeSampleData(Base):
         ),
         nullable=False,
     )  # The sample's genotype in relation to the proband's variant.
-    sample_id = Column(Integer, ForeignKey("sample.id"), index=True, nullable=False)
+    sample_id = Column(
+        Integer, ForeignKey("sample.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     genotype_quality = Column(SmallInteger)  # GQ
     sequencing_depth = Column(SmallInteger)  # DP
     allele_ratio = Column(Float)  # Read ratio for the allele

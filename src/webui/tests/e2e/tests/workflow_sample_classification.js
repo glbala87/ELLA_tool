@@ -115,8 +115,9 @@ describe('Sample workflow', function() {
             number_of_variants_before_filter_change + 1
         )
 
-        // Classify first three alleles with quick classification
-        analysisPage.quickClassificationButton.click()
+        // Classify first three alleles with visual and quick classification
+        analysisPage.classificationTypeVisualButton.scroll()
+        analysisPage.classificationTypeVisualButton.click()
         alleleSidebar.quickSetTechnical('c.1233dupA')
         // Allele is selected automatically when setting technical
         let selected_allele = alleleSidebar.getSelectedAllele()
@@ -126,6 +127,9 @@ describe('Sample workflow', function() {
             technical: true,
             analysisComment: 'TECHNICAL_ROUND_1'
         }
+
+        analysisPage.classificationTypeQuickButton.scroll()
+        analysisPage.classificationTypeQuickButton.click()
         alleleSidebar.quickSetNotRelevant('c.925dupT')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInNotRelevant(selected_allele)).toBe(true)
@@ -135,7 +139,6 @@ describe('Sample workflow', function() {
             analysisComment: 'NOTRELEVANT_ROUND_1'
         }
 
-        // alleleSidebar.selectFirstUnclassified();
         alleleSidebar.quickClassU('c.1788T>C')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
@@ -146,7 +149,8 @@ describe('Sample workflow', function() {
         }
 
         // Classify rest using 'Full' classification view
-        analysisPage.quickClassificationButton.click()
+        analysisPage.classificationTypeFullButton.scroll()
+        analysisPage.classificationTypeFullButton.click()
 
         const exomesElement = alleleSectionBox.gnomADExomesElement
         expect(exomesElement).toBeDefined('Missing gnomeAD exomes box on the page')
@@ -267,11 +271,11 @@ describe('Sample workflow', function() {
                         comment: 'BP2_ACMG_ROUND_1'
                     },
                     '2': {
-                        code: 'PPxPS2',
+                        code: 'PS2 SUPPORTIVE',
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PVSxPS1',
+                        code: 'PS1 VERY STRONG',
                         comment: 'PS1_ACMG_ROUND_1'
                     }
                 },

@@ -54,10 +54,10 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
         // Add external annotation
         alleleSectionBox.addExternalBtn.click()
-        customAnnotationModal.setExternalAnnotation(4, 'Pathogenic') // LOVD IARC HCI
+        customAnnotationModal.setExternalAnnotation(4, 'Pathogenic') // UMD BRCAshare
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
-        expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('LOVD IARC HCI:')
+        expect(alleleSectionBox.getExternalOtherAnnotation()).toEqual('UMD BRCAshare:')
         expect(alleleSectionBox.getExternalOtherValue()).toEqual('pathogenic')
 
         // Add prediction annotation
@@ -115,7 +115,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                 classification: '1',
                 acmg: {
                     '1': {
-                        code: 'BSxBP2',
+                        code: 'BP2 STRONG',
                         comment: 'BP2_ACMG_ROUND_1'
                     },
                     '2': {
@@ -123,7 +123,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PVSxPM1',
+                        code: 'PM1 VERY STRONG',
                         comment: 'PM1_ACMG_ROUND_1'
                     }
                 }

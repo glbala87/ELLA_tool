@@ -4,60 +4,77 @@ export class ACMGHelper {
     /**
      * Returns the base ACMG code, without strength applier.
      *
-     * @param {String} code_str
+     * @param {String} codeStr
      */
-    static getCodeBase(code_str) {
-        if (code_str.includes('x')) {
-            return code_str.split('x', 2)[1]
+    static getCodeBase(codeStr) {
+        const codeParts = codeStr.split('x')
+        if (codeParts.length > 2) {
+            throw Error(`Too many 'x' present in ${codeStr}`)
         }
-        return code_str
+        return codeParts[codeParts.length - 1]
     }
 
-    static _upgradeDowngradeCode(code_str, config, upgrade = true) {
-        let code_strength, base
-        if (code_str.includes('x')) {
-            ;[code_strength, base] = code_str.split('x', 2)
+    static isModifiedStrength(codeStr) {
+        return !codeStr.startsWith('REQ') && codeStr.includes('x')
+    }
+
+    /**
+     * Returns the current strength for the input code
+     *
+     * @param {*} code_str Full internal code, e.g. BPxBA1 or PVS1
+     * @param {*} config App config
+     * @returns {String} ACMG code strength (e.g. BS, PVS etc) or null
+     */
+    static getCodeStrength(code_str, config) {
+        let codeStrength = null
+        for (let strengths of Object.values(config.acmg.codes)) {
+            for (let s of strengths) {
+                if (code_str.startsWith(s)) {
+                    codeStrength = s
+                }
+            }
+            if (codeStrength) {
+                break
+            }
         }
+        return codeStrength
+    }
+
+    static _upgradeDowngradeCode(codeStr, config, upgrade = true) {
+        const base = this.getCodeBase(codeStr)
+        const codeStrength = this.getCodeStrength(codeStr, config)
+        const codeType = this.getCodeType(codeStr)
 
         // If code is benign, upgrading the code should mean 'more benign' and vice versa
-        if (this._extractCodeType(code_str) === 'benign') {
+        if (codeType === 'benign') {
             upgrade = !upgrade
         }
+        const configStrengths = config.acmg.codes[codeType]
+        const strengthIdx = configStrengths.indexOf(codeStrength)
+        const wouldOverflow = upgrade
+            ? strengthIdx === 0
+            : strengthIdx >= configStrengths.length - 1
 
-        for (let strengths of Object.values(config.acmg.codes)) {
-            // If strength is given (i.e. the code is not already upgraded/downgraded)
-            // we need to find the strength of the base.
-            if (code_strength === undefined) {
-                base = code_str
-                for (let s of strengths) {
-                    if (code_str.startsWith(s)) {
-                        code_strength = s
-                    }
-                }
-            }
+        let newCode = null
 
-            let strength_idx = strengths.indexOf(code_strength)
-            if (strength_idx < 0) {
-                // If strength not part of set, try next one
-                continue
-            }
+        if (!wouldOverflow) {
+            const newStrength = upgrade
+                ? configStrengths[strengthIdx - 1]
+                : configStrengths[strengthIdx + 1]
 
-            // Check whether we can upgrade code, or if it would overflow
-            let overflow = upgrade ? strength_idx === 0 : strength_idx >= strengths.length - 1
-            if (!overflow) {
-                let new_strength = upgrade
-                    ? strengths[strength_idx - 1]
-                    : strengths[strength_idx + 1]
-                // If new strength is same as base we just return base
-                if (base.startsWith(new_strength)) {
-                    return base
-                }
-                return `${new_strength}x${base}`
+            // If new strength is same as base strength we just return base
+            // in order to avoid BSxBS1
+            const baseStrength = this.getCodeStrength(base, config)
+            if (newStrength === baseStrength) {
+                newCode = base
+            } else {
+                newCode = `${newStrength}x${base}`
             }
-            // If overflowing, return input
-            return code_str
+        } else {
+            newCode = codeStr
         }
-        return code_str
+
+        return newCode
     }
 
     static upgradeCodeObj(code, config) {
@@ -78,8 +95,8 @@ export class ACMGHelper {
         return code.code !== this._upgradeDowngradeCode(code.code, config, false)
     }
 
-    static _extractCodeType(code_str) {
-        let base = this.getCodeBase(code_str)
+    static getCodeType(codeStr) {
+        let base = this.getCodeBase(codeStr)
         if (base.startsWith('B')) {
             return 'benign'
         } else {
