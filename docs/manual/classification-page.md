@@ -6,25 +6,29 @@ title: Classification page
 
 [[toc]]
 
-The CLASSIFICATION page contains all annotation, as well as tools for interpretation and classification of each variant. Navigate to this page by using the button in the left corner of the top bar (if no warnings are present, you will start on this page automatically):
+The CLASSIFICATION page contains all annotation, as well as tools for visualising, interpreting and classifying each variant. Navigate to this page by using the button in the left corner of the top bar (if no warnings are present, you will start on this page automatically):
 
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
+<br>
 
-## Sections on the CLASSIFICATION page
+## Overview 
 
-Different information is placed in separate parts or sections (shown here in collapsed mode, see  
-[Use collapsing ...](/manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)):
+This page has three main parts (go to links for further details), a top bar, a side bar and the main content: 
 
-<div style="text-indent: 4%;"><img src="./img/classification_sections.png"></div>
+<div style="text-indent: 4%;"><img src="./img/classification_overview.png"></div>
+<br>
 
-The different parts are described in more detail in separate pages in this manual:
-
-  - [Filtered variants](/manual/filtered-variants.html): View and optionally add back variants that have been removed from view.
-  - [Work log](/manual/worklog.html): System and user messages related to current analysis/interpretation.  
-  - [Top bar](/manual/top-bar.html): Info and actions.
-  - [Side bar](/manual/side-bar.html): Variant list with tags and quick classification.
-  - [Evidence sections](/manual/evidence-sections.html): Evaluate annotation and studies.
-  - [Classification section](/manual/classification-section.html): Summarise and set ACMG criteria and classification.
+- [Top bar](/manual/top-bar.html): 
+  - Basic information and actions related to an analysis and/or selected variant.
+  - Access the [work log](/manual/worklog.html), which contains system and user messages related to current analysis/interpretation.  
+- [Side bar](/manual/side-bar.html) (ANALYSES only). : 
+  - Variant list with tags. 
+  - Review [filtered variants](/manual/filtered-variants.html).
+  - Switch between FULL, QUICK and VISUAL modes (see below).
+- Main content. This has three different modes: 
+  - FULL mode (default): Includes [Evidence sections](/manual/evidence-sections.html), where you review and add evidence, and a [Classification section](/manual/classification-section.html), where you summarize findings and set a classification.
+  - [QUICK mode](/manual/quick-classification.md): An expanded side bar where you can more quickly set a classification or mark variants in a list.
+  - [VISUAL mode](/manual/visual.md): Visualize variants, bam files and tracks, and quickly mark variants as TECHNICAL.
 
 
 ## Start an analysis or interpretation
@@ -91,13 +95,14 @@ Attachments added this way are available (through thumbnails) in the CLASSIFICAT
 
 ## Example classification workflows
 
-Recommended workflows for each variant on the CLASSIFICATION page, after clicking the `START …` button in the top bar:
+Example workflows for full classification of variants on the CLASSIFICATION page, after clicking the `START …` button in the top bar:
 
-### Analyse new variants (no previous interpretation)
+### Analyze new variants (no previous interpretation)
 
 1.  Review the information in the [QUALITY](/manual/evidence-sections.html#quality) (ANALYSES workflow only), [FREQUENCY](/manual/evidence-sections.html#frequency), [EXTERNAL](/manual/evidence-sections.html#external) and [PREDICTION](/manual/evidence-sections.html#prediction) sections, add missing information and provide comments specific to each section when relevant.
 
-    a.  (Optional; in ANALYSES workflow): Clear analysis warnings using the [work log](/manual/top-bar.html#work-log).
+    a.  (Optional; in ANALYSES workflow): Review aligned raw data and genomic context in [VISUAL mode](/manual/visual.md) 
+    b.  (Optional; in ANALYSES workflow): Clear analysis warnings using the [work log](/manual/top-bar.html#work-log).
 
 2.  Evaluate the retrieved references and any references you add yourself in the [REFERENCES](/manual/evidence-sections.html#references) section.
 

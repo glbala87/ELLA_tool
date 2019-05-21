@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.5](#_1-5)
 - [1.4.1](#_1-4-1)
 - [1.4](#_1-4)
 - [1.3.1](#_1-3-1)
@@ -13,12 +14,44 @@ sidebar: auto
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
 
+## 1.5
+
+### Highlights
+
+#### Classification view modes
+
+The VISUALIZATION page has been redefined as a view mode on the CLASSIFICATION page, allowing for easier switching between relevant views while performing variant classification. Switching between view modes can now be done with three buttons above the variant list in the side bar: 
+
+<div style="text-indent: 4%;"><img src="./img/1-5-sidebar-modes.png"></div>
+<br>
+
+- `FULL` (new button; default view mode).
+- `QUICK` (renamed from QUICK CLASSIFICATION).
+- `VISUAL` (renamed from VISUALIZATION; button moved from top bar).
+
+#### Changes to side bar functionality
+
+It is now possible to mark variants as `TECHNICAL` in the side bar in VISUAL mode (with commenting after marking, similar to QUICK mode), and the INDICATIONS COMMENT from the REPORT page is mirrored in the side bar on the CLASSIFICATION page, allowing for a more efficient workflow. 
+
+#### ACMG modified criteria according to ClinGen 
+ACMG criteria where the strength of the original criterion are now displayed according to ClinGen's recommendations, e.g. `PM1_Strong` instead of `PSxPM1`. 
+
+### Complete list of additions and fixes
+- VISUALIZATION redefined as view mode VISUAL on CLASSIFICATION page, with navigation moved to the side bar.
+- Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode.
+- Mirrored INDICATIONS COMMENT from the REPORT in the side bar on the CLASSIFICATION page.
+- Changed naming of ACMG criteria with modified strength to ClinGen's recommendations. 
+- Added QUAL column to variant lists in the side bar for analysis workflow (QUICK and VISUAL mode) and filtered variants.
+- Adding/removing variants in the REPORT restricted to toggle button (not clicking the anywhere on the variant).
+- Fixed sorting on F column (tag: Included) in the side bar.
+- Fix issue where genepanel was not reloaded when including a filtered variant.
+
 
 ## 1.4.1
 
 ### Additions and fixes
-- Increase overview update interval to lessen strain server
-- Fix automatic import of analyses with underscore in the gene panel name
+- Increase overview update interval to lessen strain server.
+- Fix automatic import of analyses with underscore in the gene panel name.
 - Fix issue where finalization would not work under certain conditions.
 
 

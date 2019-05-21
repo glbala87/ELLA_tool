@@ -325,5 +325,5 @@ This filter has no configuration.
 For large datasets, it is advisable to apply a special pre-filter that removes variants that are *certain* to be benign (e.g. population frequency above 0.05) before importing new data, to reduce the loading time when opening an analysis. 
 
 ::: warning NOTE
-Variants removed in this way (before import) will not be visible in [FILTERED variants](/manual/filtered-variants.html#filtered-variants) in *ella*. However, *ella* can be configured to include a `VCF` track on the [VISUALISATION page](/manual/visualisation-page.html#analysis-tracks), where these variants would be included.  
+Variants removed in this way (before import) will not be visible in [FILTERED variants](/manual/filtered-variants.html#filtered-variants) in *ella*. However, *ella* can be configured to include a `VCF` track in the [VISUAL mode](/manual/visual.html#analysis-tracks), where these variants would be included.  
 :::

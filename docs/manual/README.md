@@ -1,6 +1,8 @@
 # Navigating ella
 
-The user interface in *ella* is organised in different pages. For in-depth descriptions, go to the referenced pages:
+The user interface in *ella* is organised in different pages, which are reached by choosing an analysis/interpretation or through buttons/links in the top bar. 
+
+For in-depth descriptions, go to the referenced pages:
 
 <hr>
 
@@ -32,22 +34,16 @@ The user interface in *ella* is organised in different pages. For in-depth descr
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
 
 - [Classification page](/manual/classification-page.html): Overview and basics.
-- [Filtered variants](/manual/filtered-variants.html): View and optionally add back variants that have been removed from view.
-- [Work log](/manual/worklog.html): System and user messages related to current analysis/interpretation.  
 - [Top bar](/manual/top-bar.html): Info and actions.
-- [Side bar](/manual/side-bar.html): Variant list and tags, and quick classification.
-- [Sections for evidence](/manual/evidence-sections.html): Evaluate annotation and studies.
-- [Section for classification](/manual/classification-section.html): Summarise and set ACMG criteria and classification.
-	  
-<hr>
-
-**VISUALISATION page**  
-*Visualise variants, bam files and tracks*
-
-<div style="text-indent: 4%;"><img src="./img/nav_visualisation_btn.png"></div>
-
-- [Visualisation page](/manual/visualisation-page.html)
-
+    - [Work log](/manual/worklog.html): System and user messages related to current analysis/interpretation.
+- [Side bar](/manual/side-bar.html): Variant list with tags.
+    - [Filtered variants](/manual/filtered-variants.html): Review and add back filtered variants.
+- Full mode (default): 
+    - [Sections for evidence](/manual/evidence-sections.html): Evaluate annotation and studies.
+    - [Section for classification](/manual/classification-section.html): Summarise and set ACMG criteria and classification.
+- [Quick mode](/manual/quick-classification.md): Quickly classifiy or mark variants in a list.
+- [Visual mode](/manual/visual.html): Visualize variants, bam files and tracks.
+  	  
 <hr>	
 
 **REPORT page**  
