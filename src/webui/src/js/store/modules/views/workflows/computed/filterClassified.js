@@ -5,10 +5,11 @@ import getClassification from '../interpretation/computed/getClassification'
 export default function(inverse = false, alleles) {
     return Compute(alleles, (alleles, get) => {
         return alleles.filter((allele) => {
-            const hasClassification = get(
-                getClassification(state`views.workflows.interpretation.data.alleles.${allele.id}`)
-            ).hasClassification
-            return inverse ? !hasClassification : hasClassification
+            const alleleClassification = get(
+                getClassification(allele)
+            )
+            const isClassifiedAndNotOutdated = alleleClassification.hasClassification && !alleleClassification.outdated
+            return inverse ? !isClassifiedAndNotOutdated : isClassifiedAndNotOutdated
         })
     })
 }

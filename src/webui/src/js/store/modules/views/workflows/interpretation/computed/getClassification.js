@@ -1,6 +1,7 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import getAlleleState from './getAlleleState'
+import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
 
 export default function getClassification(allele) {
     return Compute(allele, state`app.config`, (allele, config, get) => {
@@ -25,6 +26,7 @@ export default function getClassification(allele) {
             result.current = alleleState.alleleassessment.classification || null
             result.reused = alleleState.alleleassessment.reuse
             result.classification = result.reused ? result.existing : result.current
+            result.outdated = get(isAlleleAssessmentOutdated(allele))
         } else {
             result.classification = result.existing
         }
