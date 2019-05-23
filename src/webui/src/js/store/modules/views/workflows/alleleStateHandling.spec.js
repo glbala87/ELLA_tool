@@ -51,7 +51,7 @@ describe('Handling of allele state', () => {
 
     it('handles assessments/reports: no existing, new, new outdated and new with old', async () => {
         // We need to make sure all expects in the API mocks are called
-        expect.assertions(37)
+        expect.assertions(38)
 
         cerebral.setState('app.config', {
             classification: {
@@ -86,7 +86,7 @@ describe('Handling of allele state', () => {
         // AlleleAssessments
         // allele 1: no existing - Should be initialized for editing
         // allele 2: new existing - Should be reused
-        // allele 3: new existing, outdated - Should not be reused, data copied in to state
+        // allele 3: new existing, outdated - Should be reused
         // allele 4: new existing, with already old copied - Should be reused, previous data cleaned out
 
         // ReferenceAssessments
@@ -346,22 +346,28 @@ describe('Handling of allele state', () => {
         const alleleState3 = interpretationState.allele['3']
 
         // AlleleAssessment: Should not be reused, existing copied in
-        expect(alleleState3.alleleassessment.reuse).toBe(false)
+        expect(alleleState3.alleleassessment.reuse).toBe(true)
         expect(alleleState3.alleleassessment.reuseCheckedId).toBe(3)
-        expect(alleleState3.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
-        expect(alleleState3.alleleassessment.evaluation).toEqual(
-            jasmine.objectContaining(EMPTY_EVALUATION)
-        )
-        expect(alleleState3.alleleassessment.classification).toBe('3')
-
-        // ReferenceAssessment:
-        expect(alleleState3.referenceassessments).toEqual([])
 
         // AlleleReport: Same id, should be kept
         expect(alleleState3.allelereport).toEqual({
             evaluation: { key: 'SHOULD BE KEPT' },
             copiedFromId: 3
         })
+
+        // Re-use outdated assessment
+        let reuseToggleResult = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', {
+            alleleId: 3
+        })
+        // Allele 3 should now be not reused, existing assessment copied in
+        const alleleState3v2 = reuseToggleResult.state.views.workflows.interpretation.state.allele['3']
+        expect(alleleState3v2.alleleassessment.reuse).toBe(false)
+        expect(alleleState3v2.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
+        expect(alleleState3v2.alleleassessment.evaluation.classification.comment).toBe('')
+        expect(alleleState3v2.alleleassessment.classification).toBe('3')
+
+        // ReferenceAssessment:
+        expect(alleleState3v2.referenceassessments).toEqual([])
 
         // Allele 4
         const alleleState4 = interpretationState.allele['4']
