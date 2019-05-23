@@ -11,12 +11,13 @@ export default function getClassification(allele) {
             reused: null,
             classification: null,
             outdated: null,
-            hasClassification: false
+            hasValidClassification: false
         }
         if (!allele) {
             return result
         }
         result.existing = allele.allele_assessment ? allele.allele_assessment.classification : null
+        result.outdated = get(isAlleleAssessmentOutdated(allele))
 
         // Allele might not be part of current workflows
         // interpretation state, e.g. if displaying a independant
@@ -26,12 +27,11 @@ export default function getClassification(allele) {
             result.current = alleleState.alleleassessment.classification || null
             result.reused = alleleState.alleleassessment.reuse
             result.classification = result.reused ? result.existing : result.current
-            result.outdated = get(isAlleleAssessmentOutdated(allele))
         } else {
             result.classification = result.existing
         }
 
-        result.hasClassification = Boolean(result.classification)
+        result.hasValidClassification = Boolean(result.current) || (result.reused && !result.outdated)
         return result
     })
 }

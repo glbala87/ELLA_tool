@@ -100,10 +100,7 @@ export default Compute(
                         state`views.workflows.interpretation.data.alleles.${allele.id}`
                     )
                 )
-                return !(
-                    classification.hasClassification &&
-                    (classification.reused ? !classification.outdated : true)
-                )
+                return !classification.hasValidClassification
             })
 
             if (allelesMissingClassication.length) {
