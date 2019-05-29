@@ -417,13 +417,11 @@ e2e-test-local: test-build
 build-singularity:
 	$(call check_defined, RELEASE_TAG)
 	# Use git archive to create docker context, to prevent modified files from entering the image.
-	git archive -o ella-archive-$(RELEASE_TAG).tar.gz $(RELEASE_TAG)
-	docker build -t local/ella-singularity-build --target production - < ella-archive-$(RELEASE_TAG).tar.gz
-	@-rm ella-archive-$(RELEASE_TAG).tar.gz
+	git archive --format tar.gz $(RELEASE_TAG) | docker build -t local/ella-singularity-build --target production -
 	@-docker rm -f ella-tmp-registry
 	docker run --rm -d -p 29000:5000 --name ella-tmp-registry registry:2
 	docker tag local/ella-singularity-build localhost:29000/local/ella-singularity-build
 	docker push localhost:29000/local/ella-singularity-build
-	@-rm -f $(CONTAINER_NAME).simg
-	SINGULARITY_NOHTTPS=1 singularity build $(CONTAINER_NAME).simg docker://localhost:29000/local/ella-singularity-build
+	@-rm -f ella-release-$(RELEASE_TAG).simg
+	SINGULARITY_NOHTTPS=1 singularity build ella-release-$(RELEASE_TAG).simg docker://localhost:29000/local/ella-singularity-build
 	docker rm -f ella-tmp-registry
