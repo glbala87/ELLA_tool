@@ -13,7 +13,8 @@ const defaultConfig = {
     numTechnical: 0,
     numNotRelevant: 0,
     numUnclassified: 0,
-    numClassified: 0
+    numClassified: 0,
+    numOutdated: 0
 }
 
 function createState(config) {
@@ -92,6 +93,24 @@ function createState(config) {
         }
     }
 
+    for (let i = 0; i < config.numOutdated; i++) {
+        currentAlleleId += 1
+        interpretation.state.allele[currentAlleleId] = {
+            analysis: {
+                verification: null,
+                notrelevant: false
+            }
+        }
+        alleles[currentAlleleId] = {
+            id: currentAlleleId,
+            formatted: { display: `TestOutdated id ${currentAlleleId}` },
+            allele_assessment: {
+                classification: "5",
+                seconds_since_update: 10 * 24 * 3600
+            }
+        }
+    }
+
     return {
         app: {
             config: {
@@ -113,6 +132,15 @@ function createState(config) {
                             }
                         }
                     }
+                },
+                classification: {
+                    options: [
+                        {
+                            value: "5",
+                            outdated_after_days: 1,
+                            name: "Class 5"
+                        }
+                    ]
                 }
             }
         },
@@ -310,6 +338,20 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: false,
             messages: ['Some variants are missing classifications: TestUnclassified id 5']
+        })
+
+        state = createState({
+            numOutdated: 1,
+            numClassified: 1,
+            allowUnclassified: false
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: ['Some variants are missing classifications: TestOutdated id 2']
         })
 
         state = createState({
