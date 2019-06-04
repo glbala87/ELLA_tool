@@ -12,6 +12,7 @@ const ANALYSIS_SECTION_KEYS = [
 const BASE_SECTIONS = {
     analysis: {
         title: 'Analysis specific',
+        subtitle: 'for variant',
         color: 'blue',
         options: {
             hideControlsOnCollapse: false
