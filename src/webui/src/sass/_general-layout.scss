@@ -463,17 +463,31 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           color: $red-75;
         }
       }
-      &.classification { min-width: 5rem; width: 5rem; text-align: center;
-        transition: background-color 0.4s; cursor: pointer;
-
+      &.classification { min-width: 5.5rem; width: 5.5rem; text-align: center;
+        transition: background-color 0.4s; cursor: pointer; padding: 0;
         &.reviewed { background-color: $blue-75; color: $white;
-          .classification-container .existing-classification { color: $white-50; }
+          .class-amcg-container .classification-container .existing-classification { color: $white-50; }
         }
-        .classification-container { display: flex;
-          .existing-classification { width: 1.3rem; color: $black-25; }
-          .current-classification { width: 1.3rem; }
-          .arrow-classification { width: 1.3rem;}
-
+        .class-amcg-container {
+          display: flex;
+          flex-direction: row;
+          .classification-container { margin-top: 0.2rem; margin-left: 0.6rem; display: flex; flex: 1;
+            .existing-classification { width: 1.3rem; color: $black-25; }
+            .current-classification { width: 1.3rem; }
+            .arrow-classification { width: 1.3rem;}
+          }
+          .acmg-indicators-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 2.5rem;
+            .acmg-indicator {
+              min-width: 0.5rem;
+              flex: 1;
+              @each $name, $color in $acmg-map {
+                &.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color), 0.7); }
+              }
+            }
+          }
         }
       }
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }

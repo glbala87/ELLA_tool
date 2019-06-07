@@ -1,4 +1,38 @@
 /* jshint esnext: true */
+import thenBy from 'thenby'
+
+export function sortAcmgByTypeStrength(codes, config) {
+    const result = {
+        pathogenic: [],
+        benign: []
+    }
+    for (let t of ['benign', 'pathogenic']) {
+        // Map codes to group (benign/pathogenic)
+        for (let c of codes) {
+            if (config.acmg.codes[t].some((e) => c.startsWith(e))) {
+                result[t].push(c)
+            }
+        }
+
+        // Sort the codes
+        result[t].sort((a, b) => {
+            // Find the difference in index between the codes
+            let aIdx = config.acmg.codes[t].findIndex((elem) => a.startsWith(elem))
+            let bIdx = config.acmg.codes[t].findIndex((elem) => b.startsWith(elem))
+
+            // If same prefix, sort on text itself
+            if (aIdx === bIdx) {
+                return a.localeCompare(b)
+            }
+            if (t === 'benign') {
+                return bIdx - aIdx
+            } else {
+                return aIdx - bIdx
+            }
+        })
+    }
+    return result
+}
 
 export function getCodeBase(code) {
     if (code.includes('x')) {
@@ -62,41 +96,9 @@ export function upgradeDowngradeCode(code, config, upgrade = true) {
 }
 
 export function getAcmgCandidates(config) {
-    const acmgCandidates = {
-        benign: [],
-        pathogenic: []
-    }
-
     const candidates = Object.keys(config.acmg.explanation).filter(
         (code) => !code.startsWith('REQ')
     )
 
-    for (let t of ['benign', 'pathogenic']) {
-        // Map codes to group (benign/pathogenic)
-        for (let c of candidates) {
-            if (config.acmg.codes[t].some((e) => c.startsWith(e))) {
-                if (!acmgCandidates[t].includes(c)) {
-                    acmgCandidates[t].push(c)
-                }
-            }
-        }
-
-        // Sort the codes
-        acmgCandidates[t].sort((a, b) => {
-            // Find the difference in index between the codes
-            let aIdx = config.acmg.codes[t].findIndex((elem) => a.startsWith(elem))
-            let bIdx = config.acmg.codes[t].findIndex((elem) => b.startsWith(elem))
-
-            // If same prefix, sort on text itself
-            if (aIdx === bIdx) {
-                return a.localeCompare(b)
-            }
-            if (t === 'benign') {
-                return bIdx - aIdx
-            } else {
-                return aIdx - bIdx
-            }
-        })
-    }
-    return acmgCandidates
+    return sortAcmgByTypeStrength(candidates, config)
 }
