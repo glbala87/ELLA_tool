@@ -736,7 +736,10 @@ export class ReferenceEvalModalController {
 
     save() {
         this.cleanup()
-        if (!deepEquals(this.existingReferenceAssessment, this.referenceAssessment)) {
+        if (
+            !this.readOnly &&
+            !deepEquals(this.existingReferenceAssessment, this.referenceAssessment)
+        ) {
             return this.modal.close(this.referenceAssessment)
         } else {
             return this.modal.close()
