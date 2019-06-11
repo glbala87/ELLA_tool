@@ -481,7 +481,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
             flex-direction: column;
             min-height: 2.5rem;
             .acmg-indicator {
-              min-width: 0.5rem;
+              min-width: 0.6rem;
               max-height: 50%;
               flex: 1;
               @each $name, $color in $acmg-map {
@@ -498,9 +498,29 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
       &.hi-freq { min-width: 8rem; text-align: center;}
       &.hi-count { min-width: 8rem; text-align: center;}
       &.external { min-width: 10.5rem; text-align: center;}
-      &.evaluation { min-width: 40rem; width: 40rem; max-width: 40rem;
+      &.evaluation { min-width: 30rem; width: 30rem; max-width: 30rem;
         &.narrow { min-width: 12rem; width: 12rem; max-width: 12rem; }
         .wysiwygeditor { max-height: 4.7rem; overflow: auto; }
+      }
+
+      &.quick-classification {
+        button {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        @each $name, $color in $acmg-map {
+          button.quick-acmg.#{$name} {
+            border: 0;
+            margin: 0;
+            background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name));
+            &:hover {
+              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.2);
+            }
+            &.added {
+              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.3);
+            }
+          }
+        }
       }
 
       @mixin indicator {

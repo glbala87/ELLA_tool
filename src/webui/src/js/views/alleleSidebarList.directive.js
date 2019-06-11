@@ -19,7 +19,7 @@ import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation
 import getAlleleStateById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStateById'
 import isReviewedById from '../store/modules/views/workflows/alleleSidebar/computed/isReviewedById'
 import getWarningById from '../store/modules/views/workflows/alleleSidebar/computed/getWarningById'
-import { sortAcmgByTypeStrength } from '../store/common/helpers/acmg'
+import { sortAcmgByTypeStrength, getCodeBase } from '../store/common/helpers/acmg'
 
 // Templates
 import template from './alleleSidebarList.ngtmpl.html'
@@ -36,36 +36,20 @@ const getAlleles = (alleleIds, alleles) => {
     })
 }
 
-const getSidebarConfig = Compute(
-    props`classificationType`,
-    state`app.config`,
-    (classificationType, config) => {
-        if (!classificationType) {
-            return {
-                columns: [],
-                classification_options: [],
-                comment_options: []
-            }
-        }
-        if (!(classificationType in config.analysis.sidebar)) {
-            throw Error(`Invalid classificationType ${classificationType}`)
-        }
-        return config.analysis.sidebar[classificationType]
-    }
-)
-
 app.component('alleleSidebarList', {
     bindings: {
         sectionTitle: '@?',
         commentType: '@?', // none, 'analysis' or 'evaluation'
         alleleIdsPath: '<', // path on Cerebral store
         allelesPath: '<', // path on Cerebral store
-        rowClickedPath: '<',
-        toggleClickedPath: '<',
+        rowClickedPath: '<', // signal path on Cerebral store
+        toggleClickedPath: '<', // signal path on Cerebral store
         orderByPath: '<?', // path to orderBy object on Cerebral store
-        classificationType: '<', // string, 'full', 'quick' or 'visual'
+        classificationOptions: '=', // array of quick classification options
+        columns: '=', // array of extra info columns to display
         readOnly: '=?', // bool
-        allowClassification: '=?', // bool
+        shadeMultipleInGene: '=',
+        narrowComment: '=?',
         togglable: '=?', // optional, bool, default: false
         toggled: '=?' // optional, {[id]: bool, ... }, default: false for all
     },
@@ -76,7 +60,6 @@ app.component('alleleSidebarList', {
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
-            sidebarConfig: getSidebarConfig,
             reviewed: isReviewedById(state`${props`allelesPath`}`),
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
@@ -216,6 +199,14 @@ app.component('alleleSidebarList', {
                         }
                         return []
                     },
+                    getAcmgTitle(allele_id) {
+                        const aa = $ctrl.alleleassessments[allele_id]
+                        if (aa && aa.evaluation && aa.evaluation.acmg) {
+                            const codesStr = aa.evaluation.acmg.included.map((c) => c.code)
+                            return codesStr.join(' ')
+                        }
+                        return ''
+                    },
                     hasQualityInformation(allele) {
                         return (
                             $ctrl.isLowQual(allele) ||
@@ -301,11 +292,8 @@ app.component('alleleSidebarList', {
                         }
                         return '-'
                     },
-                    shadeMultipleInGene(allele) {
-                        return (
-                            $ctrl.sidebarConfig.shade_multiple_in_gene &&
-                            $ctrl.isMultipleInGene[allele.id]
-                        )
+                    shadeGene(allele) {
+                        return $ctrl.shadeMultipleInGene && $ctrl.isMultipleInGene[allele.id]
                     },
                     getCommentTitle() {
                         if (!$ctrl.showComment()) {
@@ -348,29 +336,39 @@ app.component('alleleSidebarList', {
                         }
                         return true
                     },
+                    canSetClass2(allele_id) {
+                        const aa = $ctrl.alleleassessments[allele_id]
+                        if (aa && aa.evaluation && aa.evaluation.acmg) {
+                            const codesStr = aa.evaluation.acmg.included.map((c) => c.code)
+                            const sorted = sortAcmgByTypeStrength(codesStr, $ctrl.config)
+                            return sorted.benign.length > 0
+                        }
+                        return false
+                    },
+                    isCodeAdded(allele_id, code) {
+                        const aa = $ctrl.alleleassessments[allele_id]
+                        if (aa && aa.evaluation && aa.evaluation.acmg) {
+                            const baseCodes = aa.evaluation.acmg.included.map((c) =>
+                                getCodeBase(c.code)
+                            )
+                            return baseCodes.includes(code)
+                        }
+                        return false
+                    },
                     showComment() {
-                        return $ctrl.sidebarConfig.comment_options.includes($ctrl.commentType)
+                        return ['analysis', 'evaluation'].includes($ctrl.commentType)
                     },
                     showColumn(name) {
-                        return $ctrl.sidebarConfig.columns.includes(name)
-                    },
-                    showClassificationColumn() {
-                        return (
-                            $ctrl.sidebarConfig.classification_options.length &&
-                            $ctrl.allowClassification
-                        )
+                        return $ctrl.columns.includes(name)
                     },
                     showClassificationBtn(name) {
-                        return $ctrl.sidebarConfig.classification_options.includes(name)
+                        return $ctrl.classificationOptions.includes(name)
                     },
-                    constrainSize() {
-                        return $ctrl.sidebarConfig.constrain_size || false
-                    },
-                    narrowComment() {
+                    showNarrowComment() {
                         // A bit hackish, but we don't want to read
                         // another alleleSidebarList to get the <td> width of the
                         // buttons...
-                        return $ctrl.sidebarConfig.narrow_comment || false
+                        return $ctrl.narrowComment || false
                     }
                 })
             }

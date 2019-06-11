@@ -66,6 +66,7 @@ app.component('alleleSidebar', {
     templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
         {
+            config: state`app.config`,
             analysisId: state`views.workflows.data.analysis.id`,
             classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
             constrainSize,
@@ -125,6 +126,9 @@ app.component('alleleSidebar', {
                     },
                     getReportIndicationsTemplates() {
                         return $ctrl.commentTemplates['reportIndications']
+                    },
+                    getSidebarConfig() {
+                        return $ctrl.config.analysis.sidebar[$ctrl.classificationType]
                     }
                 })
             }

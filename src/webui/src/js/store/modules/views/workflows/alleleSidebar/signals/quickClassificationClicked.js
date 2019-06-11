@@ -4,6 +4,10 @@ import changeClassification from '../../interpretation/sequences/changeClassific
 import selectedAlleleChanged from '../../sequences/selectedAlleleChanged'
 import setVerificationStatus from '../../sequences/setVerificationStatus'
 import setNotRelevant from '../../sequences/setNotRelevant'
+import canUpdateAlleleAssessment from '../../interpretation/operators/canUpdateAlleleAssessment'
+import setDirty from '../../interpretation/actions/setDirty'
+import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
+import addAcmgCode from '../../interpretation/actions/addAcmgCode'
 
 export default [
     // Select the allele
@@ -11,6 +15,17 @@ export default [
     selectedAlleleChanged,
 
     // Update relevant data
+    when(props`code`),
+    {
+        true: [
+            canUpdateAlleleAssessment,
+            {
+                true: [addAcmgCode, setDirty, updateSuggestedClassification],
+                false: []
+            }
+        ],
+        false: []
+    },
     when(props`classification`),
     {
         true: changeClassification,
