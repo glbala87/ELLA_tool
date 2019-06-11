@@ -345,7 +345,7 @@ describe('Handling of allele state', () => {
         // Allele 3
         const alleleState3 = interpretationState.allele['3']
 
-        // AlleleAssessment: Should not be reused, existing copied in
+        // AlleleAssessment: Should be reused
         expect(alleleState3.alleleassessment.reuse).toBe(true)
         expect(alleleState3.alleleassessment.reuseCheckedId).toBe(3)
 
@@ -355,7 +355,7 @@ describe('Handling of allele state', () => {
             copiedFromId: 3
         })
 
-        // Re-use outdated assessment
+        // Re-evaluate outdated assessment
         let reuseToggleResult = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', {
             alleleId: 3
         })
