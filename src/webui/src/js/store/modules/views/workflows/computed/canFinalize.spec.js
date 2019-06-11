@@ -319,6 +319,32 @@ describe('canFinalize', function() {
             canFinalize: true,
             messages: []
         })
+
+        state = createState({
+            numOutdated: 1,
+            allowUnclassified: false
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: ['Some variants are missing classifications: TestOutdated id 1']
+        })
+
+        state = createState({
+            numOutdated: 1,
+            allowUnclassified: true
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: true,
+            messages: []
+        })
     })
 
     it('check require classifications, various cases', function() {
@@ -341,8 +367,11 @@ describe('canFinalize', function() {
         })
 
         state = createState({
+            numTechnical: 1,
+            numUnclassified: 1,
+            numClassified: 3,
             numOutdated: 1,
-            numClassified: 1,
+            allowTechnical: true,
             allowUnclassified: false
         })
         result = runCompute(canFinalize, {
@@ -351,7 +380,9 @@ describe('canFinalize', function() {
         })
         expect(result).toEqual({
             canFinalize: false,
-            messages: ['Some variants are missing classifications: TestOutdated id 2']
+            messages: [
+                'Some variants are missing classifications: TestUnclassified id 2, TestOutdated id 6'
+            ]
         })
 
         state = createState({
