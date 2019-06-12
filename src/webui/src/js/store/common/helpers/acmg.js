@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 import thenBy from 'thenby'
 
-export function sortAcmgByTypeStrength(codes, config) {
+export function sortCodeStrByTypeStrength(codes, config) {
     const result = {
         pathogenic: [],
         benign: []
@@ -32,6 +32,27 @@ export function sortAcmgByTypeStrength(codes, config) {
         })
     }
     return result
+}
+
+export function sortCodesByTypeStrength(codes, config) {
+    const codeStrs = codes.map((c) => c.code)
+    const sortedStrs = sortCodeStrByTypeStrength(codeStrs, config)
+    const sortedCodes = {
+        pathogenic: [],
+        benign: []
+    }
+    for (const category of ['pathogenic', 'benign']) {
+        for (const c of codes) {
+            if (sortedStrs[category].includes(c.code)) {
+                sortedCodes[category].push(c)
+            }
+        }
+    }
+    for (const category of ['pathogenic', 'benign']) {
+        sortedCodes[category].sort(thenBy((x) => sortedStrs[category].indexOf(x.code)))
+    }
+
+    return sortedCodes
 }
 
 export function containsCodeBase(codes, codeStrToCheck) {
@@ -104,5 +125,5 @@ export function getAcmgCandidates(config) {
         (code) => !code.startsWith('REQ')
     )
 
-    return sortAcmgByTypeStrength(candidates, config)
+    return sortCodeStrByTypeStrength(candidates, config)
 }

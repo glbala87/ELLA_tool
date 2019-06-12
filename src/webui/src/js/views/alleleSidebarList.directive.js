@@ -19,7 +19,7 @@ import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation
 import getAlleleStateById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStateById'
 import isReviewedById from '../store/modules/views/workflows/alleleSidebar/computed/isReviewedById'
 import getWarningById from '../store/modules/views/workflows/alleleSidebar/computed/getWarningById'
-import { sortAcmgByTypeStrength, getCodeBase } from '../store/common/helpers/acmg'
+import { sortCodeStrByTypeStrength, getCodeBase } from '../store/common/helpers/acmg'
 
 // Templates
 import template from './alleleSidebarList.ngtmpl.html'
@@ -192,7 +192,7 @@ app.component('alleleSidebarList', {
                         const aa = $ctrl.alleleassessments[allele_id]
                         if (aa && aa.evaluation && aa.evaluation.acmg) {
                             const codesStr = aa.evaluation.acmg.included.map((c) => c.code)
-                            const sorted = sortAcmgByTypeStrength(codesStr, $ctrl.config)
+                            const sorted = sortCodeStrByTypeStrength(codesStr, $ctrl.config)
                             return sorted.pathogenic
                                 .concat(sorted.benign)
                                 .map((c) => c.substring(0, 2).toLowerCase())
@@ -340,7 +340,7 @@ app.component('alleleSidebarList', {
                         const aa = $ctrl.alleleassessments[allele_id]
                         if (aa && aa.evaluation && aa.evaluation.acmg) {
                             const codesStr = aa.evaluation.acmg.included.map((c) => c.code)
-                            const sorted = sortAcmgByTypeStrength(codesStr, $ctrl.config)
+                            const sorted = sortCodeStrByTypeStrength(codesStr, $ctrl.config)
                             return sorted.benign.length > 0
                         }
                         return false

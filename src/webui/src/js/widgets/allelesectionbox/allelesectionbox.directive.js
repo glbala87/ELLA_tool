@@ -21,6 +21,7 @@ import getAlleleState from '../../store/modules/views/workflows/interpretation/c
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
 import template from './allelesectionbox.ngtmpl.html'
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
+import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -91,6 +92,7 @@ app.component('alleleSectionbox', {
             collapsed: isCollapsed,
             readOnly: isReadOnly,
             section: getSection,
+            config: state`app.config`,
             commentTemplates: state`app.commentTemplates`,
             selectedAllele: state`views.workflows.selectedAllele`,
             alleleState: getAlleleState(state`views.workflows.selectedAllele`),
@@ -141,7 +143,15 @@ app.component('alleleSectionbox', {
                     },
                     (items) => {
                         if (items) {
-                            $ctrl.includedAcmgCopies = items.map((i) => deepCopy(i))
+                            const includedAcmgCopies = items.map((i) => deepCopy(i))
+                            // Order by pathogenicity and strength
+                            const sortedIncludedAcmgCopies = sortCodesByTypeStrength(
+                                includedAcmgCopies,
+                                $ctrl.config
+                            )
+                            $ctrl.includedAcmgCopies = sortedIncludedAcmgCopies.pathogenic.concat(
+                                sortedIncludedAcmgCopies.benign
+                            )
                         }
                     },
                     true
