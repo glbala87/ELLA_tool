@@ -15,7 +15,7 @@ The different sections presenting annotation evidence are described below, see t
 
 ## Analysis specific (ANALYSES only)
 
-This section is specific to the current sample (analysis) and displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).
+This section is for information and actions specific to the variant as observed in the current sample (analysis), and displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).
 
 ::: warning Note
 This is the only section on this page that is specific to the sample (analysis), all other sections are tied to the variant interpretation, which is independent of samples. This also means that any comments you add here will be visible in this analysis only.
