@@ -4,26 +4,19 @@ import changeClassification from '../../interpretation/sequences/changeClassific
 import selectedAlleleChanged from '../../sequences/selectedAlleleChanged'
 import setVerificationStatus from '../../sequences/setVerificationStatus'
 import setNotRelevant from '../../sequences/setNotRelevant'
-import canUpdateAlleleAssessment from '../../interpretation/operators/canUpdateAlleleAssessment'
-import setDirty from '../../interpretation/actions/setDirty'
-import updateSuggestedClassification from '../../interpretation/sequences/updateSuggestedClassification'
-import addAcmgCode from '../../interpretation/actions/addAcmgCode'
+import toggleAcmgCode from '../sequences/toggleAcmgCode'
 
 export default [
     // Select the allele
-    set(state`views.workflows.selectedAllele`, props`alleleId`),
-    selectedAlleleChanged,
-
+    when(props`selectAllele`),
+    {
+        true: [set(state`views.workflows.selectedAllele`, props`alleleId`), selectedAlleleChanged],
+        false: []
+    },
     // Update relevant data
     when(props`code`),
     {
-        true: [
-            canUpdateAlleleAssessment,
-            {
-                true: [addAcmgCode, setDirty, updateSuggestedClassification],
-                false: []
-            }
-        ],
+        true: [toggleAcmgCode],
         false: []
     },
     when(props`classification`),

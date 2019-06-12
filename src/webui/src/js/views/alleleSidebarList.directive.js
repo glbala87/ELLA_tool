@@ -355,6 +355,20 @@ app.component('alleleSidebarList', {
                         }
                         return false
                     },
+                    /**
+                     * Fetches existing or creates new code
+                     * for toggling ACMG code
+                     */
+                    getCodeForClick(allele_id, codeStr) {
+                        const aa = $ctrl.alleleassessments[allele_id]
+                        let existingCode = null
+                        if (aa && aa.evaluation && aa.evaluation.acmg) {
+                            existingCode = aa.evaluation.acmg.included.find(
+                                (c) => getCodeBase(c.code) === codeStr
+                            )
+                        }
+                        return existingCode ? existingCode : { code: codeStr, source: 'user' }
+                    },
                     showComment() {
                         return ['analysis', 'evaluation'].includes($ctrl.commentType)
                     },

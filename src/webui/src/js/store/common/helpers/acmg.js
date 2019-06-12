@@ -34,6 +34,10 @@ export function sortAcmgByTypeStrength(codes, config) {
     return result
 }
 
+export function containsCodeBase(codes, codeStrToCheck) {
+    return codes.map((c) => getCodeBase(c.code)).includes(getCodeBase(codeStrToCheck))
+}
+
 export function getCodeBase(code) {
     if (code.includes('x')) {
         return code.split('x', 2)[1]

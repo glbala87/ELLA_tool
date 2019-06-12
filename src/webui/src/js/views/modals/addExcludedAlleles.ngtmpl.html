@@ -13,11 +13,13 @@
                 allele-ids-path="'views.workflows.modals.addExcludedAlleles.includedAlleleIds'"
                 alleles-path="'views.workflows.modals.addExcludedAlleles.data.includedAlleles'"
                 toggle-clicked-path="'views.workflows.modals.addExcludedAlleles.excludeAlleleClicked'"
+                classification-options="$ctrl.getSidebarConfig().classification_options.classified"
+                comment-type="{{ $ctrl.getSidebarConfig().comment_type.classified }}"
+                columns="$ctrl.getSidebarConfig().columns"
+                shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
                 togglable="true"
                 toggled="$ctrl.isToggled"
                 read-only="$ctrl.readOnly"
-                classification-type="'list'"
-                allow-classification="false"
             >
             </allele-sidebar-list>
         </div>
@@ -86,11 +88,13 @@
                 allele-ids-path="'views.workflows.modals.addExcludedAlleles.viewAlleleIds'"
                 alleles-path="'views.workflows.modals.addExcludedAlleles.data.alleles'"
                 toggle-clicked-path="'views.workflows.modals.addExcludedAlleles.includeAlleleClicked'"
+                classification-options="$ctrl.getSidebarConfig().classification_options.classified"
+                comment-type="{{ $ctrl.getSidebarConfig().comment_type.classified }}"
+                columns="$ctrl.getSidebarConfig().columns"
+                shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
                 togglable="true"
                 toggled="$ctrl.isToggled"
                 read-only="$ctrl.readOnly"
-                classification-type="'list'"
-                allow-classification="false"
             >
             </allele-sidebar-list>
         </div>

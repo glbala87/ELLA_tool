@@ -98,6 +98,9 @@ app.component('addExcludedAlleles', {
                         $ctrl.closeAddExcludedClicked({
                             includedAlleleIds: $ctrl.includedAlleleIds
                         })
+                    },
+                    getSidebarConfig() {
+                        return $ctrl.config.analysis.sidebar.list
                     }
                 })
             }

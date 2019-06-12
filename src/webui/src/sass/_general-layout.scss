@@ -504,9 +504,14 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
       }
 
       &.quick-classification {
+        padding-left: 0;
+        padding-right: 0;
         button {
           padding-left: 1rem;
           padding-right: 1rem;
+        }
+        button ~ button {
+          margin-left: 0.5rem;
         }
         @each $name, $color in $acmg-map {
           button.quick-acmg.#{$name} {
@@ -744,7 +749,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
   .toast-success { background-color: $green; &:before { content: "SUCCESS"; } }
   .toast-error { background-color: $red; &:before { content: "ERROR"; } }
-  .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
+  .toast-info { background-color: $purple-75; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }
   .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
   .toast-message-collision { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; color: white; padding-top: 0.3rem; }
