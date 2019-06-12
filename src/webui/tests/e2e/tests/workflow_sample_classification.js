@@ -266,17 +266,18 @@ describe('Sample workflow', function() {
                 report: 'REPORT_ROUND1 &~øæå',
                 classification: (idx + 1).toString(),
                 acmg: {
+                    // Codes are sorted by pathogenicity/strength
                     '1': {
-                        code: 'BP2',
-                        comment: 'BP2_ACMG_ROUND_1'
+                        code: 'PS1 VERY STRONG',
+                        comment: 'PS1_ACMG_ROUND_1'
                     },
                     '2': {
                         code: 'PS2 SUPPORTIVE',
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PS1 VERY STRONG',
-                        comment: 'PS1_ACMG_ROUND_1'
+                        code: 'BP2',
+                        comment: 'BP2_ACMG_ROUND_1'
                     }
                 },
                 num_attachments: 1
