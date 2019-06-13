@@ -12,6 +12,10 @@ export default [
             toggleReuseAlleleAssessment,
             copyExistingAlleleAssessments,
             set(
+                state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.classification`,
+                null
+            ),
+            set(
                 state`views.workflows.interpretation.state.allele.${props`alleleId`}.referenceassessments`,
                 []
             ),
