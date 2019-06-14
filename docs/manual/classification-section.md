@@ -6,7 +6,7 @@ title: Classification section
 
 [[toc]]
 
-This section is where you review the information from other sections, summarise your findings, add ACMG criteria and set a classification. In other words, for variants with no pre-existing interpretation, you should review the other sections first. The reason it comes first is to make conclusions from any previous interpretations immediately visible when you open a variant.
+This section is where you review the information from other sections, summarise your findings, add ACMG criteria and set a classification. In other words, for variants with no pre-existing interpretation, you should review the other sections first. 
 
 ## Evaluation and Report: Summarising comments
 
@@ -36,9 +36,21 @@ Previously finalised variant interpretations have a limited period where they ar
 Changing the REPORT field only does not reset the validity period.
 :::
 
-## Review and add ACMG criteria 
+## Review and add ACMG criteria
 
-The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868). *ella* automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the annotation from the HTS bioinformatics pipeline, as well as any information you have added manually, to these adapted criteria. Suggested criteria are shown in the SUGGESTED card:
+The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
+
+Before setting a variant classification, you should add relevant ACMG criteria to the variant interpretation. There are two main ways of doing this, from [suggested criteria](/manual/classification-section.html#suggested-acmg-criteria-and-requirements-req) or [manually](/manual/classification-section.html#add-acmg-criteria-manually), explained below. A third option is available for a few selected criteria in the [Quick classification mode](/manual/quick-classification.md).
+
+Added criteria are shown in a list above the SUGGESTED card.
+
+::: warning NOTE
+Each ACMG criterion can be added only once for a particular variant, irrespective of chosen strenght.
+:::
+
+### Suggested ACMG criteria and requirements (REQ)
+
+*ella* automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
 
@@ -48,11 +60,13 @@ The specific requirements for each criterion are available by clicking on the la
   - Local adjustments: Notes specific to your own setup
   - Match: What triggered the suggestion (this is still in development and may be somewhat cryptic or not available)
 
+To add a suggested criterion to the interpretation, click `ADD` to the right. 
+
 ::: warning NOTE
-The suggestions may be somewhat imprecise and **you should always check that all requirements are satisfied** before clicking ADD. This adds the criterion to the classification, shown as a list above the SUGGESTED card.
+The suggestions may be somewhat imprecise and **you should always check that all requirements are satisfied** before clicking `ADD`.
 :::
 
-### REQ: requirements for ACMG criteria
+#### REQ: requirements for ACMG criteria
 
 Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/concepts/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in *ella*. Each of these REQs is a necessary component for the ACMG criteria they belongs to. *ella* displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
@@ -60,13 +74,7 @@ REQs that have a match in the current variant are shown when you click the `SHOW
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_REQ.png"></div>
 
-## Modifying the strength of added criteria
-
-To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
-
-<div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
-
-## Add ACMG criterion manually
+### Add ACMG criteria manually
 
 To add an ACMG criterion that is not already suggested by *ella*, press the `ADD ACMG` button in the top banner:
 
@@ -75,6 +83,12 @@ To add an ACMG criterion that is not already suggested by *ella*, press the `ADD
 This brings up a side bar where you may modify strength, comment and add any ACMG criterion:
 
 <div style="text-indent: 4%;"><img src="./img/add_ACMG.png"></div>
+
+## Modifying the strength of added criteria
+
+To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
+
+<div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
 
 ## Set variant class
 
