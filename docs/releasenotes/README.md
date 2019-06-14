@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.6](#_1-6)
 - [1.5](#_1-5)
 - [1.4.1](#_1-4-1)
 - [1.4](#_1-4)
@@ -13,6 +14,24 @@ sidebar: auto
 - [1.1.2](#_1-1-2)
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
+
+## 1.6
+
+### Highlights
+
+### Complete list of additions and fixes
+- Added subtitle THIS VARIANT to ANALYSIS SPECIFIC
+- Added possibility to edit comments on individual studies in STUDIES & REFERENCES section after first evaluation.
+- Reference evaluation form: Renamed `SAVE` button to `CLOSE`, removed `CANCEL` button.
+- Fixed missing mouse-over for `M` tag in sidebar
+- Changed HGVSc formatting on REPORT page: Homo-/hemizygous variants were not correctly formatted, as a temporary fix HGVSc is now formatted with empty brackets for nucleotide changes.
+- Fixed bug where variants from other user group show up in VARIANTS overview
+- Sort added ACMG criteria by pathogenic-benign, then strength.
+- Disallow adding same ACMG criterion (irrespective of strength modifications) more than once. If a criterion has already been added, an error message is displayed. 
+- Quick classification: Added check boxes for BS1 and BS2 (class 2), shortened button titles.
+- Sidebar: Added indicators for added ACMG criteria (full list on mouse-over).
+- TECHNICAL button is now avaialble also for CLASSIFIED VARIANTS in VISUAL
+
 
 ## 1.5
 
