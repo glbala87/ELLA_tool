@@ -1,11 +1,9 @@
-import urllib.request, urllib.parse, urllib.error
+import urllib
 from contextlib import closing
 import xml.etree.ElementTree as ET
 import logging
 import json
-import argparse
 import time
-import os.path as path
 from .pubmed_parser import PubMedParser
 
 """
@@ -112,7 +110,7 @@ class PubMedFetcher(object):
 
     def get_references_from_file(
         self,
-        pmid_files=[],
+        pmid_file,
         dump_json=False,
         replace_json=False,
         print_verbose=True,
@@ -128,15 +126,11 @@ class PubMedFetcher(object):
         :param return_references: Return list of refs
         :return : Return list of refs if return_references is 'True'
         """
-        if not hasattr(pmid_files, "__iter__"):  # Ensure iterable pmid_file
-            pmid_files = [pmid_files]
 
-        pmids = set([])
-        for pmid_file in pmid_files:
-            pmids |= set(self.import_pmids(pmid_file))
+        pmids = self.import_pmids(pmid_file)
 
         return self.get_references(
-            pmid=list(pmids),
+            pmid=pmids,
             dump_json=dump_json,
             replace_json=replace_json,
             print_verbose=print_verbose,
@@ -172,7 +166,7 @@ class PubMedFetcher(object):
         # Ensure that only MAX_QUERY ids are included per query
         max_query = self.MAX_QUERY
         n_partial_queries = int(n_refs % max_query > 0)
-        n_queries = n_refs / max_query + n_partial_queries
+        n_queries = n_refs // max_query + n_partial_queries
 
         # Initialize time of previous query
         t_prev_query = time.time()
@@ -240,7 +234,7 @@ class PubMedFetcher(object):
         references = []
         pmparser = PubMedParser()
         for pubmed_article in pubmed_article_set.findall("./*"):
-            pubmed_xml = ET.tostring(pubmed_article)
+            pubmed_xml = ET.tostring(pubmed_article).decode()
             reference = pmparser.from_xml_string(pubmed_xml)
             references.append(reference)
 
@@ -262,72 +256,3 @@ class PubMedFetcher(object):
         if len(pmids_not_in_db):
             w_msg = "Pubmed IDs %s silently ignored."
             log.warning(w_msg % ", ".join(pmids_not_in_db))
-
-
-def main():
-    """
-    :param sys_args: Command line arguments
-    :return : tuple containing an instance of PubMedHandler,
-              a list of references (currently empty), and a
-              namespace of parsed command line arguments
-    """
-    LOG_FILENAME = path.join(path.dirname(__file__), "fetcher.log")
-    logging.basicConfig(filename=LOG_FILENAME, filemode="w", level=logging.DEBUG)
-
-    parser = argparse.ArgumentParser(description="Get references for PubMed IDs")
-    parser.add_argument(
-        "-i",
-        "--pmid_files",
-        type=str,
-        nargs="*",
-        default=argparse.SUPPRESS,
-        help="file containing PubMed IDs",
-    )
-    parser.add_argument(
-        "-o",
-        "--json_file",
-        type=str,
-        nargs="?",
-        const="references.json",
-        default="references.json",
-        help="file to dump references",
-    )
-    parser.add_argument(
-        "-p",
-        "--pmid",
-        type=str,
-        nargs="*",
-        default=argparse.SUPPRESS,
-        help="PubMed IDs from command line",
-    )
-    parser.add_argument(
-        "-v",
-        "--print_verbose",
-        action="store_true",
-        help="Prints references to screen [Default: False]",
-    )
-    parser.add_argument(
-        "-d",
-        "--dump_json",
-        action="store_true",
-        help="Prints references to json file [Default: False]",
-    )
-    parser.add_argument(
-        "-r", "--replace_json", action="store_true", help="Replace .json file [Default: False]"
-    )
-    args = parser.parse_args()
-
-    logging.debug("Argparse arguments: %s" % vars(args))
-
-    pm = PubMedFetcher()
-    if hasattr(args, "pmid_files"):
-        references = pm.get_references_from_file(**vars(args))
-    elif hasattr(args, "pmid"):
-        references = pm.get_references(**vars(args))
-    else:
-        references = []
-    return (pm, references, args)
-
-
-if __name__ == "__main__":
-    pm, references, args = main()

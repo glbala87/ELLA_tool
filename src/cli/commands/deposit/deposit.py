@@ -123,7 +123,7 @@ def cmd_deposit_annotation(logger, session, vcf):
 
 
 @deposit.command("references")
-@click.argument("references_json")
+@click.argument("references_json", type=click.Path(exists=True))
 @session
 @cli_logger()
 def cmd_deposit_references(logger, session, references_json):

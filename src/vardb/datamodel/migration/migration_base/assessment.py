@@ -9,8 +9,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 
-from vardb.datamodel.migration.ci_migration_base import Base
-from vardb.datamodel.migration.ci_migration_base import (
+from vardb.datamodel.migration.migration_base import Base
+from vardb.datamodel.migration.migration_base import (
     gene,
     annotation,
     user,
