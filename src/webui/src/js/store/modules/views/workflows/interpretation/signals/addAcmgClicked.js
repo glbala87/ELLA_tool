@@ -11,7 +11,7 @@ export default [
         true: [
             isAcmgCodeAdded,
             {
-                true: [toast('info', 'ACMG code is already added', 3000)],
+                true: [toast('info', 'ACMG criterion is already added', 3000)],
                 false: [addAcmgCode, updateSuggestedClassification, setDirty]
             }
         ],
