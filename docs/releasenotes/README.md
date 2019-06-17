@@ -19,18 +19,42 @@ sidebar: auto
 
 ### Highlights
 
-### Complete list of additions and fixes
-- Added subtitle THIS VARIANT to ANALYSIS SPECIFIC
-- Added possibility to edit comments on individual studies in STUDIES & REFERENCES section after first evaluation.
-- Reference evaluation form: Renamed `SAVE` button to `CLOSE`, removed `CANCEL` button.
-- Fixed missing mouse-over for `M` tag in sidebar
-- Changed HGVSc formatting on REPORT page: Homo-/hemizygous variants were not correctly formatted, as a temporary fix HGVSc is now formatted with empty brackets for nucleotide changes.
-- Fixed bug where variants from other user group show up in VARIANTS overview
+This update brings a few improvements to the user interface and workflow, in addition to several bug fixes. 
+
+#### Quick check boxes for BS1/BS2 and ACMG indicators
+
+The most noticeable changes are the addition of selection buttons for ACMG criteria BS1 and BS2 (and shortened button titles) in the QUICK CLASSIFICATION mode, and addition of indicators for added ACMG criteria in the side bar. 
+
+Note that to select CLASS 2 for a variant in QUICK CLASSIFICATION mode, you must now first add at least one benign ACMG criterion (e.g. BS1/BS2 via the check boxes); see the figure below.
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-6-quick-classification.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Check boxes for BS1 and BS2 for CLASS 2, and ACMG indicators (vertical bars next to CLASS column) in side bar.
+    </div>
+    <br>
+</div>
+
+#### Outdated variants treated as UNCLASSIFIED 
+
+This update also brings a few changes to how outdated variant interpretations are handled. These are now grouped with UNCLASSIFIED variants in the side bar of an analysis, and must be reopened individually by clicking the RE-EVALUATE button if a new evaluation is to be made. This is to ensure a new validity period is only set for variants that have actually been re-evaluated. 
+
+As an added measure, the classification of reopened variants must also be actively reselected.
+
+### Complete list of changes, additions and fixes
+- QUICK CLASSIFCATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles.
+- Side bar: Added indicators for added ACMG criteria (full list on mouse-over).
+- Disallow adding the same ACMG criterion (irrespective of strength modifications) more than once to the same variant interpretation.
 - Sort added ACMG criteria by pathogenic-benign, then strength.
-- Disallow adding same ACMG criterion (irrespective of strength modifications) more than once. If a criterion has already been added, an error message is displayed. 
-- Quick classification: Added check boxes for BS1 and BS2 (class 2), shortened button titles.
-- Sidebar: Added indicators for added ACMG criteria (full list on mouse-over).
-- TECHNICAL button is now avaialble also for CLASSIFIED VARIANTS in VISUAL
+- Outdated variant interpretations are now grouped with UNCLASSIFED VARIANTS in the side bar in an analysis, and are no longer automatically accepted when opening the analysis.
+- Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
+- TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
+- Added subtitle THIS VARIANT to the ANALYSIS SPECIFIC section on the CLASSIFICATION page, to avoid confusion (some users mistook the section to apply to the analysis as a whole, not the particular variant).
+- REPORT page: Added homo-/hemizygous variants were not correctly HGVSc-formatted. As a temporary fix (until formatting is properly fixed), all HGVSc is now formatted with empty brackets for nucleotide changes, to be filled out by the user.
+- Fixed bug where variants from other user group showed up in the VARIANTS overview.
+- Reference evaluation form: Renamed `SAVE` button to `CLOSE`, removed `CANCEL` button.
+- Fixed missing mouse-over for `M` tag in the side bar.
 
 
 ## 1.5
