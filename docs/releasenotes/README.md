@@ -47,7 +47,7 @@ As an added measure, the classification of reopened variants must also be active
 - Side bar: Added indicators for added ACMG criteria (full list on mouse-over).
 - Disallow adding the same ACMG criterion (irrespective of strength modifications) more than once to the same variant interpretation.
 - Sort added ACMG criteria by pathogenic-benign, then strength.
-- Outdated variant interpretations are now grouped with UNCLASSIFED VARIANTS in the side bar in an analysis, and are no longer automatically accepted when opening the analysis.
+- Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis.
 - Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
 - TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
 - Added subtitle THIS VARIANT to the ANALYSIS SPECIFIC section on the CLASSIFICATION page, to avoid confusion (some users mistook the section to apply to the analysis as a whole, not the particular variant).
