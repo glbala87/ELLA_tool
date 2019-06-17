@@ -107,6 +107,7 @@ app.component('alleleSidebarList', {
             '$scope',
             function($scope) {
                 const SEGREGATION_TAGS = [
+                    ['inherited_mosaicism', 'Inherited mosaicism'],
                     ['denovo', 'De novo'],
                     ['compound_heterozygous', 'Compound heterozygous'],
                     ['autosomal_recessive_homozygous', 'Autosomal recessive homozygous'],
