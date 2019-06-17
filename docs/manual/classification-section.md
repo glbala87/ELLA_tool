@@ -28,15 +28,27 @@ Clicking the `HISTORY` button shows a more detailed history including ACMG crite
 
 ### Interpretations that are still valid
 
-Previously finalised variant interpretations have a limited period where they are still considered valid, after which they should be re-evaluated. Variant interpretations that are still valid are shown with a green background and automatically accepted. However, it is still possible to do a re-interpretation of these variants, by clicking the `REEVALUATE` button in the section banner (only available if the analysis/interpretation has been started). To undo any new interpretation (and avoiding resetting the validity period), click the `UNDO REEVALUATION` button:
+Previously finalised variant interpretations have a limited time period where they are still considered valid, and can be re-used without further evaluation. These variants are grouped with CLASSIFIED VARIANTS in the [side bar](/manual/side-bar.html#side-bar-sections). 
+
+Variant interpretations that are still valid are shown with a green background and automatically accepted as if you had performed a regular interpretation, but without resetting the validity period. 
+
+It is still possible to do a re-evaluation of these variants by clicking the `RE-EVALUATE` button in the section banner (only available if the analysis/interpretation has been started). To undo any new interpretation (and avoid resetting the validity period), click the `UNDO RE-EVALUATION` button:
 
 <div style="text-indent: 4%;"><img src="./img/reevaluate_btn.png"></div>
 
 ::: warning NOTE
-Changing the REPORT field only does not reset the validity period.
+Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalise the variant, you must first reselect a class in the dropdown. 
+
+Changing the REPORT field only does not reset the validity period for a variant.
 :::
 
-## Review and add ACMG criteria
+### Interpretations that are outdated
+
+If a previous variant interpretation has exceeded the validity time period, it will be considered outdated and due for re-evaluation. 
+
+Outdated variants are grouped with UNCLASSIFIED VARIANTS in the [side bar](/manual/side-bar.html#side-bar-sections). Unlike new variants (no previous interpretation in the database), however, you _must_ press the `RE-EVALUATE` button for outdated variants before you are able to update the interpretation. This is to avoid resetting the validity period if no actual re-evaluation has been performed.
+
+## Review and add ACMG criteria 
 
 The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
 
