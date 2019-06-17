@@ -1,4 +1,4 @@
-from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.migration_base import Base
 from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from sqlalchemy.dialects.postgresql import ARRAY
 

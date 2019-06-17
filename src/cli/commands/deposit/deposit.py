@@ -2,6 +2,7 @@ import os
 import logging
 import json
 import re
+from pathlib import Path
 import click
 
 from vardb.datamodel import DB, user, gene
@@ -123,7 +124,7 @@ def cmd_deposit_annotation(logger, session, vcf):
 
 
 @deposit.command("references")
-@click.argument("references_json")
+@click.argument("references_json", type=click.Path(exists=True))
 @session
 @cli_logger()
 def cmd_deposit_references(logger, session, references_json):
@@ -173,9 +174,10 @@ def cmd_deposit_genepanel(
     Create or replace genepanel. If replacing genepanel, use --replace flag.
     """
     if folder:
-        prefix = folder.split("/")[-1]
-        transcripts_path = folder + "/" + prefix + ".transcripts.csv"
-        phenotypes_path = folder + "/" + prefix + ".phenotypes.csv"
+        p = Path(folder)
+        prefix = p.parts[-1]
+        transcripts_path = p / Path(prefix + ".transcripts.csv")
+        phenotypes_path = p / Path(prefix + ".phenotypes.csv")
         genepanel_name, genepanel_version = prefix.split("_", 1)
         assert genepanel_version.startswith("v")
 
@@ -183,7 +185,6 @@ def cmd_deposit_genepanel(
     dg.add_genepanel(
         transcripts_path, phenotypes_path, genepanel_name, genepanel_version, replace=replace
     )
-    logger.echo("Genepanel {}_{} imported successfully".format(genepanel_name, genepanel_version))
 
 
 @deposit.command("append_genepanel_to_usergroup")

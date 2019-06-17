@@ -23,7 +23,7 @@ from .migration_db import (
     migration_history,
     migration_compare,
 )
-from cli.decorators import cli_logger, session
+from cli.decorators import cli_logger
 
 
 DEFAULT_WARNING = "THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to proceed? Type 'CONFIRM' to confirm.\n".format(
@@ -78,7 +78,7 @@ def cmd_refresh(logger, f=None):
     with confirm(logger.echo, "Tables should now have been refreshed.", force=f, warning=warning):
         db = DB()
         db.connect()
-        logger.echo("Refreshing tables...")
+        logger.echo("Refreshing shadow tables and (re)creating triggers.")
         refresh(db)
         logger.echo("Done!")
         db.session.commit()
@@ -98,8 +98,8 @@ def cmd_refresh(logger, f=None):
 
 @database.command(
     "make-migration-base",
-    help="Creates MIGRATION BASE tables in database. Useful when testing migration scripts manually.",
-    short_help="Create base database",
+    help="Creates MIGRATION BASE tables in database.",
+    short_help="Create database from migration base",
 )
 @click.option("-f", is_flag=True, help="Do not ask for confirmation.")
 def cmd_make_migration_base(f=None):
@@ -131,7 +131,7 @@ def cmd_ci_migration_head(f=None):
 
 @database.command("ci-migration-base", help="Creates base database tables")
 @click.option("-f", is_flag=True, help="Do not ask for confirmation.")
-def cmd_ci_migration_base(f=None):
+def cmd_migration_base(f=None):
     with confirm(click.echo, "Base database tables created successfully.", force=f):
         ci_migration_db_remake()
 
@@ -179,3 +179,27 @@ def cmd_history(v, range):
 )
 def cmd_migration_compare():
     migration_compare()
+
+
+@database.command(
+    "make-production",
+    help="Initializes an empty database for production.",
+    short_help="Create production db",
+)
+@click.option("-f", is_flag=True, help="Do not ask for confirmation.")
+def cmd_make_production(f=None):
+    with confirm(click.echo, "Tables should now have been created.", force=f):
+        db = DB()
+        db.connect()
+        table_count = list(
+            db.session.execute(
+                "select count(*) from information_schema.tables where table_schema = 'public'"
+            )
+        )[0][0]
+        assert table_count == 0, "Database schema 'public' is not empty."
+        make_migration_base_db()
+        migration_upgrade("head")
+        click.echo("Refreshing shadow tables and (re)creating triggers.")
+        refresh(db)
+        db.session.commit()
+        click.echo("All done!")

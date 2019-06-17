@@ -56,7 +56,7 @@ Base.metadata = MetaData(naming_convention=convention)
 make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 
 # Don't remove!
-from vardb.datamodel.migration.ci_migration_base import (
+from vardb.datamodel.migration.migration_base import (
     allele,
     annotation,
     annotationshadow,

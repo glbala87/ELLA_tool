@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Index, ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 
-from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.migration_base import Base
 from vardb.util.mutjson import JSONMutableDict
 
 

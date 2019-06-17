@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import ForeignKeyConstraint
 
-from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.migration_base import Base
 from vardb.util.mutjson import JSONMutableDict
 
 
