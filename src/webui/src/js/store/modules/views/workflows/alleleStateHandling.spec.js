@@ -359,7 +359,7 @@ describe('Handling of allele state', () => {
         let reuseToggleResult = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', {
             alleleId: 3
         })
-        // Allele 3 should now be not reused, existing assessment copied in
+        // Allele 3 should now be not reused, existing assessment copied in with classification reset
         const alleleState3v2 = reuseToggleResult.state.views.workflows.interpretation.state.allele['3']
         expect(alleleState3v2.alleleassessment.reuse).toBe(false)
         expect(alleleState3v2.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
