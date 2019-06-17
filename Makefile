@@ -219,7 +219,7 @@ dbsleep:
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db
+.PHONY: any build dev url kill shell logs restart db node-debug
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
@@ -268,6 +268,10 @@ logs:
 
 restart:
 	docker restart $(CONTAINER_NAME)
+
+# run in docker to use the debugger. optional SPEC_NAME to run a specific spec, otherwise will run all tests
+node-inspect:
+	node inspect --harmony /dist/node_modules/jest/bin/jest.js --runInBand $(SPEC_NAME)
 
 
 #---------------------------------------------
