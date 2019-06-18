@@ -12,8 +12,6 @@ export default [
         false: [
             toggleReuseAlleleAssessment,
             copyExistingAlleleAssessments,
-            // resets dropdown in UI, but causes problem with unit tests.
-            // `classification: null` prevents the re-filling of data and so can't be finalized
             when(state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.reuse`),
             {
                 true: [],
