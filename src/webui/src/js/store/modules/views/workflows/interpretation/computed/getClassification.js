@@ -1,7 +1,7 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import getAlleleState from './getAlleleState'
 import isAlleleAssessmentOutdated from '../../../../../common/computes/isAlleleAssessmentOutdated'
+import getAlleleState from './getAlleleState'
 
 export default function getClassification(allele) {
     return Compute(allele, state`app.config`, (allele, config, get) => {
