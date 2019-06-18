@@ -25,7 +25,7 @@ const SELECTOR_FREQ_GNOMAD_GENOMES = `allele-sectionbox contentbox[title="GNOMAD
 const SELECTOR_EXISTING_CLASSIFICATION =
     'allele-sectionbox contentbox.vardb .id-classification-name'
 const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification'
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE'
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 
 class AlleleSectionBox {
     get exacElement() {

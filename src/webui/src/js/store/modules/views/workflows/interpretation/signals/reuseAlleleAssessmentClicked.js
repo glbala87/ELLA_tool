@@ -1,29 +1,33 @@
-import { set } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import isAlleleAssessmentOutdated from '../operators/isAlleleAssessmentOutdated'
-import toast from '../../../../../common/factories/toast'
 import toggleReuseAlleleAssessment from '../actions/toggleReuseAlleleAssessment'
 import copyExistingAlleleAssessments from '../../actions/copyExistingAlleleAssessments'
 import autoReuseExistingReferenceAssessments from '../actions/autoReuseExistingReferenceAssessments'
 import isReadOnly from '../operators/isReadOnly'
+import allelesChanged from '../../alleleSidebar/sequences/allelesChanged';
 
 export default [
     isReadOnly,
     {
         false: [
-            isAlleleAssessmentOutdated,
+            toggleReuseAlleleAssessment,
+            copyExistingAlleleAssessments,
+            when(state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.reuse`),
             {
-                true: [toast('error', 'Cannot toggle reuse of outdated classification')],
+                true: [],
                 false: [
-                    toggleReuseAlleleAssessment,
-                    copyExistingAlleleAssessments,
                     set(
-                        state`views.workflows.interpretation.state.allele.${props`alleleId`}.referenceassessments`,
-                        []
-                    ),
-                    autoReuseExistingReferenceAssessments
+                        state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.classification`,
+                        null
+                    )
                 ]
-            }
+            },
+            set(
+                state`views.workflows.interpretation.state.allele.${props`alleleId`}.referenceassessments`,
+                []
+            ),
+            autoReuseExistingReferenceAssessments,
+            allelesChanged
         ],
         true: []
     }

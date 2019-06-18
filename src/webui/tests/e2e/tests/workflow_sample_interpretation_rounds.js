@@ -22,7 +22,7 @@ let overview = new SampleSelection()
 let analysisPage = new AnalysisPage()
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE'
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
 const TITLE_REVIEW = ' • REVIEW'

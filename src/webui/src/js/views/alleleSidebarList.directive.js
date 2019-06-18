@@ -171,10 +171,13 @@ app.component('alleleSidebarList', {
                     },
                     getExistingClassificationText(allele_id) {
                         const c = $ctrl.classification[allele_id]
-                        if (!c.existing) {
+                        if (c.outdated) {
+                            return `${c.existing}*`
+                        } else if (c.existing && !c.reused) {
+                            return c.existing
+                        } else {
                             return ''
                         }
-                        return !c.reused ? `${c.existing}${c.outdated ? '*' : ''}` : ''
                     },
                     getArrowClassificationText(allele_id) {
                         const c = $ctrl.classification[allele_id]
@@ -184,7 +187,7 @@ app.component('alleleSidebarList', {
                         const c = $ctrl.classification[allele_id]
                         if (c.current) {
                             return c.current
-                        } else if (c.reused) {
+                        } else if (c.reused && !c.outdated) {
                             return c.existing
                         }
                         return ''

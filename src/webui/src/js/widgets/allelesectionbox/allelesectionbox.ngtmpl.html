@@ -15,23 +15,16 @@
                 ng-repeat="control in $ctrl.section.controls"
                 ng-if="$ctrl.showControls()"
             >
-                <button
-                    class="id-classification-outdated"
-                    ng-if="control == 'reuse_classification' && $ctrl.isAlleleAssessmentOutdated"
-                    disabled
-                >
-                    Classification outdated
-                </button>
 
                 <checkable-button
                     class="id-accept-classification"
-                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment && !$ctrl.isAlleleAssessmentOutdated"
+                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment"
                     check-model="$ctrl.isAlleleAssessmentReused"
                     ng-click="$ctrl.reuseAlleleAssessmentClicked({alleleId: $ctrl.selectedAllele})"
                     one-way="true"
                     ng-disabled="$ctrl.readOnly"
                 >
-                    Undo reevaluation <checked>Reevaluate</checked>
+                    Undo re-evaluation <checked>Re-evaluate</checked>
                 </checkable-button>
 
                 <button

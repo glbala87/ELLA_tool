@@ -11,7 +11,7 @@ export default function getClassification(allele) {
             reused: null,
             classification: null,
             outdated: null,
-            hasClassification: false
+            hasValidClassification: false
         }
         if (!allele) {
             return result
@@ -31,7 +31,7 @@ export default function getClassification(allele) {
             result.classification = result.existing
         }
 
-        result.hasClassification = Boolean(result.classification)
+        result.hasValidClassification = Boolean(result.current) || (result.reused && !result.outdated)
         return result
     })
 }

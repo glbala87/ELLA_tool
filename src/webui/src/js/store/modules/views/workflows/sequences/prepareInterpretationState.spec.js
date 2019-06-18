@@ -3,6 +3,7 @@ import { CerebralTest } from 'cerebral/test'
 import RootModule from '../../..'
 import prepareInterpretationState from './prepareInterpretationState'
 import reuseAlleleAssessmentClicked from '../interpretation/signals/reuseAlleleAssessmentClicked'
+import { testUiConfig, testSidebarOrderByNull } from '../../../../fixtures/testData'
 
 let cerebral = null
 
@@ -11,7 +12,12 @@ function createAlleleData(id) {
         id: id,
         annotation: {
             annotation_id: id,
-            references: [{ id: id }]
+            references: [{ id: id }],
+            frequencies: {},
+            external: {
+                HGMD: null,
+                CLINVAR: null
+            }
         },
         allele_assessment: {
             evaluation: { classification: { comment: 'TEST' } },
@@ -50,20 +56,15 @@ describe('prepareInterpretationState', () => {
     })
 
     it('gracefully handles updates to manuallyIncludedAlleleIds', async () => {
-        cerebral.setState('app.config', {
-            classification: {
-                options: [
+        cerebral.setState('app.config', testUiConfig)
+        cerebral.setState('app.config.classification.options', [
                     {
                         name: 'Class 3',
                         value: '3',
                         outdated_after_days: 180
                     }
-                ]
-            },
-            user: {
-                user_config: {}
-            }
-        })
+        ])
+        cerebral.setState('app.config.user.user_config', {})
         cerebral.setState('app.user', {
             id: 1
         })
@@ -95,6 +96,9 @@ describe('prepareInterpretationState', () => {
                 state: {},
                 isOngoing: true,
                 selectedId: 1
+            },
+            alleleSidebar: {
+                orderBy: testSidebarOrderByNull
             }
         })
 

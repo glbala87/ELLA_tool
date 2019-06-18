@@ -49,11 +49,11 @@ In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFI
 
 <div style="text-indent: 4%;"><img src="./img/verified_btn.png"></div>
 
-  - `VERIFIED` means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green “V” tag in the “Q” column of the [side bar](/manual/side-bar.html).
+  - `VERIFIED` means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green “V” tag in the “Q” column of the [side bar](/manual/side-bar.html#variant-tags).
 
-  - `TECHNICAL` means the variant is a false variant call in this sample (analysis). This adds a red “T” tag in the “Q” column of the [side bar](/manual/side-bar.html) and moves the variant to a separate section TECHNICAL VARIANTS in the side bar.
+  - `TECHNICAL` means the variant is a false variant call in this sample (analysis). This adds a red “T” tag in the “Q” column of the [side bar](/manual/side-bar.html#variant-tags) and moves the variant to the TECHNICAL VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
   
-  - `NOT RELEVANT` means the variant should be disregarded in this analysis. 
+  - `NOT RELEVANT` means the variant should be disregarded in this analysis, e.g. due to a mismatch with the phenotype. This moves the variant to the NOT RELEVANT VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
   
 ::: tip Note 
 Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalisation of the analysis.

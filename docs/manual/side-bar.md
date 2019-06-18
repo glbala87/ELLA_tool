@@ -30,6 +30,25 @@ Directly beneath that are several buttons:
 - `QUICK`: Switch to [Quick classification mode](/manual/quick-classification.md).
 - `VISUAL`: Switch to [Visual mode](/manual/visual.md).
 
+## Side bar sections
+
+Variants are listed in one of four side bar sections depending on the state of the variant interpretation: 
+
+- UNCLASSIFIED VARIANTS: New variants with no existing interpretations (historic or current), or variants with previous classifications that are [outdated and due for re-evaluation](/manual/classification-section.html#interpretations-that-are-outdated). 
+
+- CLASSIFIED VARIANTS: Variants with previous interpretations that are [still valid](/manual/classification-section.html#interpretations-that-are-still-valid), or that have been given a classification in the current analysis.
+
+- NOT RELEVANT VARIANTS: Variants [marked as not relevant](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) for the current analysis.
+
+- TECHNICAL VARIANTS: Variants [marked as technical artefacts](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) in the current analysis.
+
+## Variant sorting
+
+The default sorting in each section is (Class) - Inheritance – Gene – HGVSc. You can change the sorting by clicking on any of the list headers (also in [Quick classification](/manual/quick-classification.md)):
+
+  - First click sorts descending (↓)
+  - Second click sorts ascending (↑)
+  - Third click returns to default sort
 
 ## Variant tags
 
@@ -62,14 +81,6 @@ If applicable, variants in the variant list are tagged with:
 ::: tip
 Hold the mouse cursor over a tag to see the full label.
 :::
-
-## Sorting
-
-The default sorting of this list is Inheritance – Gene – HGVSc. You can change the sorting by clicking on any of the list headers (also in [Quick classification](/manual/quick-classification.md)):
-
-  - First click sorts descending (↓)
-  - Second click sorts ascending (↑)
-  - Third click returns to default sort
 
 ## Existing and new classifications  
 
