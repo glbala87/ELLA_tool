@@ -51,7 +51,7 @@ As an added measure, the classification of reopened variants must also be active
 - Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
 - When there are multiple VEP CSQs (consequences) for a variant, these are now sorted in the side bar by severity (worst consequence first). 
 - TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
-- Added subtitle THIS VARIANT to the ANALYSIS SPECIFIC section on the CLASSIFICATION page, to avoid confusion (some users mistook the section to apply to the analysis as a whole, not the particular variant).
+- Added subtitle "FOR VARIANT" to the ANALYSIS SPECIFIC section on the CLASSIFICATION page, to avoid confusion (some users mistook the section to apply to the analysis as a whole, not the particular variant).
 - REPORT page: Added homo-/hemizygous variants were not correctly HGVSc-formatted. As a temporary fix (until formatting is properly fixed), all HGVSc is now formatted with empty brackets for nucleotide changes, to be filled out by the user.
 - Fixed bug where variants from other user group showed up in the VARIANTS overview.
 - Reference evaluation form: Renamed `SAVE` button to `CLOSE`, removed `CANCEL` button.
