@@ -43,12 +43,13 @@ This update also brings a few changes to how outdated variant interpretations ar
 As an added measure, the classification of reopened variants must also be actively reselected.
 
 ### Complete list of changes, additions and fixes
-- QUICK CLASSIFCATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles.
+- QUICK CLASSIFICATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles.
 - Side bar: Added indicators for added ACMG criteria (full list on mouse-over).
 - Disallow adding the same ACMG criterion (irrespective of strength modifications) more than once to the same variant interpretation.
 - Sort added ACMG criteria by pathogenic-benign, then strength.
 - Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis.
 - Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
+- When there are multiple VEP CSQs (consequences) for a variant, these are now sorted in the side bar by severity (worst consequence first). 
 - TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
 - Added subtitle THIS VARIANT to the ANALYSIS SPECIFIC section on the CLASSIFICATION page, to avoid confusion (some users mistook the section to apply to the analysis as a whole, not the particular variant).
 - REPORT page: Added homo-/hemizygous variants were not correctly HGVSc-formatted. As a temporary fix (until formatting is properly fixed), all HGVSc is now formatted with empty brackets for nucleotide changes, to be filled out by the user.
