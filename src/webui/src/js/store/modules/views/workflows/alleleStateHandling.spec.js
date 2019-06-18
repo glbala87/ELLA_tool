@@ -7,6 +7,7 @@ import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAs
 import prepareInterpretationState from './sequences/prepareInterpretationState'
 import finishConfirmationClicked from './modals/finishConfirmation/signals/finishConfirmationClicked'
 import copyInterpretationState from './actions/copyInterpretationState'
+import { testUiConfig, testSidebarOrderByNull } from '../../../fixtures/testData'
 
 const EMPTY_EVALUATION = {
     prediction: {
@@ -53,33 +54,20 @@ describe('Handling of allele state', () => {
         // We need to make sure all expects in the API mocks are called
         expect.assertions(38)
 
-        cerebral.setState('app.config', {
-            classification: {
-                options: [
-                    {
-                        name: 'Class 3',
-                        value: '3',
-                        outdated_after_days: 180
-                    }
-                ]
-            },
-            user: {
-                user_config: {
-                    workflows: {
-                        allele: {
-                            finalize_requirements: {
-                                workflow_status: [
-                                    'Not ready',
-                                    'Interpretation',
-                                    'Review',
-                                    'Medical review'
-                                ]
-                            }
-                        }
-                    }
-                }
+        cerebral.setState('app.config', testUiConfig)
+        cerebral.setState('app.config.classification.options', [
+            {
+                name: 'Class 3',
+                value: '3',
+                outdated_after_days: 180
             }
-        })
+        ])
+        cerebral.setState('app.config.user.user_config.workflows.allele.finalize_requirements', [
+            'Not ready',
+            'Interpretation',
+            'Review',
+            'Medical review'
+        ])
         cerebral.setState('app.user', {
             id: 1
         })
@@ -180,7 +168,12 @@ describe('Handling of allele state', () => {
                         1: {
                             annotation: {
                                 annotation_id: 1,
-                                references: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]
+                                references: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+                                frequencies: {},
+                                external: {
+                                    HGMD: null,
+                                    CLINVAR: null
+                                }
                             },
                             id: 1,
                             reference_assessments: [
@@ -202,12 +195,21 @@ describe('Handling of allele state', () => {
                                     allele_id: 1,
                                     evaluation: { case: 'NEW WITH USER CONTENT' }
                                 }
-                            ]
+                            ],
+                            tags: [],
+                            formatted: {
+                                inheritance: 'AD'
+                            }
                         },
                         2: {
                             annotation: {
                                 annotation_id: 2,
-                                references: [{ id: 1 }]
+                                references: [{ id: 1 }],
+                                frequencies: {},
+                                external: {
+                                    HGMD: null,
+                                    CLINVAR: null
+                                }
                             },
                             id: 2,
                             allele_assessment: {
@@ -227,12 +229,21 @@ describe('Handling of allele state', () => {
                                     allele_id: 2,
                                     evaluation: { case: 'ALLELEASSESSMENT IS REUSED' }
                                 }
-                            ]
+                            ],
+                            tags: [],
+                            formatted: {
+                                inheritance: 'AD'
+                            }
                         },
                         3: {
                             annotation: {
                                 annotation_id: 3,
-                                references: [{ id: 1 }]
+                                references: [{ id: 1 }],
+                                frequencies: {},
+                                external: {
+                                    HGMD: null,
+                                    CLINVAR: null
+                                }
                             },
                             id: 3,
                             allele_report: {
@@ -244,12 +255,21 @@ describe('Handling of allele state', () => {
                                 classification: '3',
                                 id: 3,
                                 seconds_since_update: 180 * 3600 * 24 + 1
+                            },
+                            tags: [],
+                            formatted: {
+                                inheritance: 'AD'
                             }
                         },
                         4: {
                             annotation: {
                                 annotation_id: 4,
-                                references: [{ id: 1 }]
+                                references: [{ id: 1 }],
+                                frequencies: {},
+                                external: {
+                                    HGMD: null,
+                                    CLINVAR: null
+                                }
                             },
                             id: 4,
                             allele_report: {
@@ -261,6 +281,10 @@ describe('Handling of allele state', () => {
                                 classification: '3',
                                 id: 4,
                                 seconds_since_update: 1
+                            },
+                            tags: [],
+                            formatted: {
+                                inheritance: 'AD'
                             }
                         }
                     },
@@ -272,6 +296,9 @@ describe('Handling of allele state', () => {
                 },
                 isOngoing: true,
                 selectedId: 1
+            },
+            alleleSidebar: {
+                orderBy: testSidebarOrderByNull
             }
         })
         cerebral.runSignal('test.copyInterpretationState', {})
@@ -364,7 +391,7 @@ describe('Handling of allele state', () => {
         expect(alleleState3v2.alleleassessment.reuse).toBe(false)
         expect(alleleState3v2.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
         expect(alleleState3v2.alleleassessment.evaluation.classification.comment).toBe('')
-        expect(alleleState3v2.alleleassessment.classification).toBe('3')
+        expect(alleleState3v2.alleleassessment.classification).toBe(null)
 
         // ReferenceAssessment:
         expect(alleleState3v2.referenceassessments).toEqual([])
@@ -398,7 +425,7 @@ describe('Handling of allele state', () => {
         alleleState2 = interpretationState.allele['2']
         expect(alleleState2.alleleassessment.reuse).toBe(false)
         expect(alleleState2.alleleassessment.evaluation.case).toBe('NEW')
-        expect(alleleState2.alleleassessment.classification).toBe('3')
+        expect(alleleState2.alleleassessment.classification).toBe(null)
 
         result = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 2 })
         state = result.state
@@ -437,6 +464,14 @@ describe('Handling of allele state', () => {
         cerebral.setState(
             'views.workflows.interpretation.state.allele.1.alleleassessment.classification',
             '1'
+        )
+        cerebral.setState(
+            'views.workflows.interpretation.state.allele.2.alleleassessment.classification',
+            '3'
+        )
+        cerebral.setState(
+            'views.workflows.interpretation.state.allele.3.alleleassessment.classification',
+            '3'
         )
 
         // Modify one AlleleReport to simluate user change
@@ -551,7 +586,38 @@ describe('Handling of allele state', () => {
                     }
                 ]
             },
-            user: { user_config: {} }
+            user: { user_config: {} },
+            frequencies: {
+                groups: {
+                    external: {
+                        GNOMAD_GENOMES: [
+                            "G",
+                            "AFR",
+                            "AMR",
+                            "EAS",
+                            "FIN",
+                            "NFE",
+                            "OTH",
+                            "SAS"
+                        ],
+                        GNOMAD_EXOMES:[
+                            "G",
+                            "AFR",
+                            "AMR",
+                            "EAS",
+                            "FIN",
+                            "NFE",
+                            "OTH",
+                            "SAS"
+                        ]
+                    },
+                    internal: {
+                        inDB: [
+                            "OUSWES"
+                        ]
+                    }
+                }
+            }
         })
 
         // Real state from pre-1.1
