@@ -1,5 +1,6 @@
 import getReferenceAssessment from '../computed/getReferenceAssessment'
 import isReadOnly from '../../computed/isReadOnly'
+import isAlleleAssessmentReused from '../computed/isAlleleAssessmentReused'
 
 export default function showReferenceEvalModal({
     ReferenceEvalModal,
@@ -14,7 +15,8 @@ export default function showReferenceEvalModal({
         `views.workflows.interpretation.data.references.${props.referenceId}`
     )
     const referenceAssessment = resolve.value(getReferenceAssessment(allele.id, reference.id)) || {}
-    const readOnly = resolve.value(isReadOnly)
+    const readOnly =
+        resolve.value(isReadOnly) || resolve.value(isAlleleAssessmentReused(props.alleleId))
     const commentTemplates = state.get('app.commentTemplates')
 
     return ReferenceEvalModal.show(

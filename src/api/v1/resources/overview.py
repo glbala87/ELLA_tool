@@ -301,7 +301,7 @@ def get_alleles_existing_alleleinterpretation(
 
 
 class OverviewAlleleResource(LogRequestResource):
-    def _get_not_started_analysis_ids(self, session):
+    def _get_not_started_analysis_ids(self, session, genepanels):
         """
         Returns analysis ids for relevant not started analysis workflows.
         """
@@ -311,7 +311,8 @@ class OverviewAlleleResource(LogRequestResource):
                     queries.workflow_analyses_interpretation_not_started(session)
                 ),
                 sample.Analysis.id.in_(queries.workflow_analyses_notready_not_started(session)),
-            )
+            ),
+            sample.Analysis.id.in_(queries.workflow_analyses_for_genepanels(session, genepanels)),
         )
 
     def _get_alleles_no_alleleassessment_notstarted_analysis(self, session, user=None):
@@ -389,7 +390,7 @@ class OverviewAlleleResource(LogRequestResource):
             session, alleleinterpretation_allele_ids
         )
 
-        analysis_ids = self._get_not_started_analysis_ids(session)
+        analysis_ids = self._get_not_started_analysis_ids(session, user.group.genepanels)
         return load_genepanel_alleles(session, gp_allele_ids, analysis_ids=analysis_ids)
 
     def get_alleles_not_started(self, session, user=None):
@@ -410,7 +411,7 @@ class OverviewAlleleResource(LogRequestResource):
         analysis_allele_ids = self._get_alleles_no_alleleassessment_notstarted_analysis(
             session, user
         )
-        analysis_ids = self._get_not_started_analysis_ids(session)
+        analysis_ids = self._get_not_started_analysis_ids(session, user.group.genepanels)
 
         allele_filters = [
             allele.Allele.id.in_(queries.workflow_alleles_interpretation_not_started(session))

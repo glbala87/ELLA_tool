@@ -93,6 +93,7 @@ describe('Read-only version of variant workflow ', function() {
 
         alleleSectionBox.classificationAcceptedToggleBtn.click()
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(true)
+        alleleSectionBox.classifyAs2()
 
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()

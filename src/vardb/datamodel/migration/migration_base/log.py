@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB, INET
 from sqlalchemy.schema import Index, UniqueConstraint
 
-from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.migration_base import Base
 
 
 class ResourceLog(Base):

@@ -108,34 +108,84 @@ config = {
         "sidebar": {
             "full": {
                 "columns": [],
-                "classification_options": [],
-                "comment_options": [],
+                "classification_options": {
+                    "unclassified": [],
+                    "classified": [],
+                    "not_relevant": [],
+                    "technical": [],
+                },
+                "comment_type": {
+                    "unclassified": None,
+                    "classified": None,
+                    "not_relevant": None,
+                    "technical": None,
+                },
                 "shade_multiple_in_gene": True,
             },
             "quick": {
                 "columns": ["qual", "dp", "ratio", "hi-freq", "hi-count", "external"],
-                "classification_options": ["technical", "notrelevant", "classu", "class2"],
-                "comment_options": ["evaluation", "analysis"],
+                "classification_options": {
+                    "unclassified": ["technical", "notrelevant", "classu", "class2"],
+                    "classified": [],
+                    "not_relevant": [],
+                    "technical": [],
+                },
+                "comment_type": {
+                    "unclassified": None,
+                    "classified": "evaluation",
+                    "not_relevant": "analysis",
+                    "technical": "analysis",
+                },
                 "narrow_comment": False,
                 "shade_multiple_in_gene": True,
             },
             "visual": {
                 "columns": ["qual", "ratio"],
-                "classification_options": ["technical"],
-                "comment_options": ["analysis"],
+                "classification_options": {
+                    "unclassified": ["technical"],
+                    "classified": ["technical"],
+                    "not_relevant": [],
+                    "technical": [],
+                },
+                "comment_type": {
+                    "unclassified": None,
+                    "classified": None,
+                    "not_relevant": "analysis",
+                    "technical": "analysis",
+                },
                 "narrow_comment": True,
                 "shade_multiple_in_gene": True,
             },
             "report": {
                 "columns": [],
-                "classification_options": [],
-                "comment_options": [],
+                "classification_options": {
+                    "unclassified": [],
+                    "classified": [],
+                    "not_relevant": [],
+                    "technical": [],
+                },
+                "comment_type": {
+                    "unclassified": None,
+                    "classified": None,
+                    "not_relevant": None,
+                    "technical": None,
+                },
                 "shade_multiple_in_gene": True,
             },
             "list": {
                 "columns": ["qual", "dp", "ratio", "hi-freq", "hi-count", "external"],
-                "classification_options": [],
-                "comment_options": [],
+                "classification_options": {
+                    "unclassified": [],
+                    "classified": [],
+                    "not_relevant": [],
+                    "technical": [],
+                },
+                "comment_options": {
+                    "unclassified": None,
+                    "classified": None,
+                    "not_relevant": None,
+                    "technical": None,
+                },
                 "shade_multiple_in_gene": False,
             },
         },
@@ -259,7 +309,7 @@ config = {
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180,
+                "outdated_after_days": 365,
             },  # Marked as outdated after N number of days
             {
                 "name": "Class 3",

@@ -18,11 +18,7 @@ function formatHGVS(allele, classification, config) {
         let hgvs_short = t.HGVSc_short || allele.formatted.hgvsg
 
         let [type, part] = hgvs_short.split('.')
-        if (allele.samples[0].genotype.homozygous) {
-            hgvs += `${type}.[${part}];[(${part})]` // c.[76A>C];[(76A>C)]
-        } else {
-            hgvs += `${type}.[${part}];[=]` // c.[76A>C];[=]
-        }
+        hgvs += `${type}.[];[]`
         if (classification) {
             hgvs += ` ${config.report.classification_text[classification]}`
         }

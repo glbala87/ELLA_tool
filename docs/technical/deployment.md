@@ -1,10 +1,14 @@
 # Deployment
 
+::: danger NOTE
+ELLA should not run on an network with public access, but rather in a walled garden, with restricted external access.
+:::
+
 ## Production
 
 Only requirement for production deployment is an existing PostgresSQL database.
 
-*ella* primarily uses Docker for deployment. Not using Docker is also possible, but is not documented.
+*ELLA* primarily uses Docker for deployment. Not using Docker is also possible, but is not documented.
 
 ### Build image
 
@@ -31,7 +35,7 @@ If you're not using containers for deployment, you can skip this section.
 
 ### Data directory
 
-The recommended approach is to have one data directory for ella, which contains imported analyses, attachments and IGV data. This directory is outside of the container, and can be mounted in to /data.
+The recommended approach is to have one data directory for ELLA, which contains imported analyses, attachments and IGV data. This directory is outside of the container, and can be mounted in to /data.
 
 One possible structure is this:
 
@@ -86,6 +90,7 @@ docker run \
   {image_name}
 ```
 
+The default entrypoint is `ops/prod/entrypoint.sh`, which will in turn start Supervisor to manage the different processes.
 
 ### Behind the scenes
 
@@ -95,3 +100,15 @@ Internally, the `supervisord` will spin up several services:
   - gunicorn - launching several API workers
   - analyses-watcher - handles watching for and importing new analyses
   - polling - watches for and handles new import jobs
+
+
+### Creating the production database
+
+ELLA relies on an external PostgreSQL database, using the default 'public' schema.
+Provide the URI to the database using the DB_URL environment variable.
+
+Run the following command:
+
+`ella-cli database make-production`
+
+This will first setup the database from the migration base, then run all the migration scripts. Last it will run the `database refresh` command, to setup json schemas and various triggers.

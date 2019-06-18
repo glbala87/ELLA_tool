@@ -115,7 +115,6 @@ contentwrapper { display: flex; flex-direction: column; justify-content: center;
   h5.normaltext { padding-right: 0; }
   ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
   .comment-title { width: 15rem; }
-  .cell + .cell button { margin-left: 6.5rem; }
   .remove { margin-bottom: 0.7rem; @extend .pink; }
   .cb-warning { @extend .slim; color: $white; background-color: $red-75; font-size: 1.5rem; padding: 0.3rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 1rem;
     ul { margin-bottom: 0.6rem; }

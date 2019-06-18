@@ -7,7 +7,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 from vardb.util.mutjson import JSONMutableDict
-from vardb.datamodel.migration.ci_migration_base import Base
+from vardb.datamodel.migration.migration_base import Base
 
 
 class Annotation(Base):

@@ -1,142 +1,182 @@
-<sectionbox color="purple" modal="true" on-close="vm.modal.close" ng-if="!vm.reference">
-  <maintitle>ERROR</maintitle>
-  <contentwrapper>
-    <h4 class="sb-notification" ng-if="!vm.pending_analysis.length">No reference selected</h4>
-  </contentwrapper>
+<sectionbox color="purple" modal="true" on-close="(vm.modal.close)" ng-if="!vm.reference">
+    <maintitle>ERROR</maintitle>
+    <contentwrapper>
+        <h4 class="sb-notification" ng-if="!vm.pending_analysis.length">No reference selected</h4>
+    </contentwrapper>
 </sectionbox>
 
-<sectionbox color="green id-reference-modal-body" modal="true" on-close="vm.modal.close" ng-if="vm.reference">
-  <maintitle>
-    REFERENCE EVALUATION
-  </maintitle>
+<sectionbox
+    color="green id-reference-modal-body"
+    modal="true"
+    on-close="(vm.modal.close)"
+    ng-if="vm.reference"
+>
+    <maintitle>
+        REFERENCE EVALUATION
+    </maintitle>
 
-  <controls>
-    <section class="line-wrapper spaced">
-      <div class="ref-title">
-        <h3 class="slim" ng-if="!vm.reference.urls.pubmed"><b>{{vm.reference.title}}</b></h3>
-        <h3 class="slim" ng-if="vm.reference.urls.pubmed">
-            <a-clip class="id-reference-title" href="{{vm.reference.urls.pubmed}}">{{vm.reference.title}}</a-clip>
-        </h3>
-        <p class="slim">{{vm.reference.formatted.shortDesc}}</p>
-      </div>
-      <div class="line-wrapper">
-        <button class="id-reference-modal-cancel" type="button" ng-click="vm.modal.close()">Cancel</button>
-        <button class="id-reference-modal-save" ng-if="!vm.readOnly" ng-click="vm.save()"> Save </button>
-      </div>
-    </section>
-  </controls>
+    <controls>
+        <section class="line-wrapper spaced">
+            <div class="ref-title">
+                <h3 class="slim" ng-if="!vm.reference.urls.pubmed">
+                    <b>{{ vm.reference.title }}</b>
+                </h3>
+                <h3 class="slim" ng-if="vm.reference.urls.pubmed">
+                    <a-clip class="id-reference-title" href="{{ vm.reference.urls.pubmed }}">{{
+                        vm.reference.title
+                    }}</a-clip>
+                </h3>
+                <p class="slim">{{ vm.reference.formatted.shortDesc }}</p>
+            </div>
+            <div class="line-wrapper">
+                <button class="id-reference-modal-save" ng-click="vm.save()">
+                    Close
+                </button>
+            </div>
+        </section>
+    </controls>
 
-  <contentwrapper>
-
-    <p ng-if="vm.reference.abstract"><a class="clickable"
-        popover-title="Abstract"
-        popover-trigger="outsideClick"
-        uib-popover-template="'abstractPopover.ngtmpl.html'"
-        popover-placement="bottom-left"
-        popover-append-to-body="true"
-        class="faded-title"
-      >Abstract</a></p>
-    <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources()">
-        <div ng-switch=source>
-            <p ng-switch-when="HGMD"><a-clip href="{{vm.allele.urls.hgmd}}">Source: {{ sourceStr }}</a-clip></p>
-            <p ng-switch-when="CLINVAR"><a-clip href="{{vm.allele.urls.clinvar}}">Source: {{ sourceStr }}</a-clip></p>
-            <p ng-switch-default>Source: {{ sourceStr }}</p>
+    <contentwrapper>
+        <p ng-if="vm.reference.abstract">
+            <a
+                class="clickable"
+                popover-title="Abstract"
+                popover-trigger="outsideClick"
+                uib-popover-template="'abstractPopover.ngtmpl.html'"
+                popover-placement="bottom-left"
+                popover-append-to-body="true"
+                class="faded-title"
+                >Abstract</a
+            >
+        </p>
+        <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources()">
+            <div ng-switch="source">
+                <p ng-switch-when="HGMD">
+                    <a-clip href="{{ vm.allele.urls.hgmd }}">Source: {{ sourceStr }}</a-clip>
+                </p>
+                <p ng-switch-when="CLINVAR">
+                    <a-clip href="{{ vm.allele.urls.clinvar }}">Source: {{ sourceStr }}</a-clip>
+                </p>
+                <p ng-switch-default>Source: {{ sourceStr }}</p>
+            </div>
         </div>
-    </div>
 
-    <article class='line-wrapper question medium id-relevance'>
-      <div class="left"
-           popover-title="Help"
-           popover-trigger="mouseenter"
-           uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
-           popover-placement="bottom-right"
-           popover-append-to-body="true"
-           ng-repeat="source in ['relevance']"
-           class="faded-title">
-        <h5 class="slim title"> <b>Relevance</b> </h5>
-        <p> Is the reference relevant? </p>
-      </div>
-      <div class="middle"></div>
-      <div class="right">
-        <div class="bttn-set">
-            <label tabindex=0
-                   class="bttn"
-                   ng-model="vm.referenceAssessment.evaluation.relevance"
-                   uib-btn-radio="item"
-                   ng-repeat="item in vm.sources['relevance'].buttons"
-                   ng-disabled="vm.readOnly"
-            >{{item}}</label>
-        </div>
-      </div>
-    </article>
-      <article class='line-wrapper question'
-               ng-class="{'small': vm.sources[source].optional_dep !== undefined,
+        <article class="line-wrapper question medium id-relevance">
+            <div
+                class="left"
+                popover-title="Help"
+                popover-trigger="mouseenter"
+                uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
+                popover-placement="bottom-right"
+                popover-append-to-body="true"
+                ng-repeat="source in ['relevance']"
+                class="faded-title"
+            >
+                <h5 class="slim title"><b>Relevance</b></h5>
+                <p>Is the reference relevant?</p>
+            </div>
+            <div class="middle"></div>
+            <div class="right">
+                <div class="bttn-set">
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        ng-model="vm.referenceAssessment.evaluation.relevance"
+                        uib-btn-radio="item"
+                        ng-repeat="item in vm.sources['relevance'].buttons"
+                        ng-disabled="vm.readOnly"
+                        >{{ item }}</label
+                    >
+                </div>
+            </div>
+        </article>
+        <article
+            class="line-wrapper question"
+            ng-class="{'small': vm.sources[source].optional_dep !== undefined,
                           'medium': vm.sources[source].optional_dep === undefined,
                           'parent': vm.sources[source].parent_question}"
-               ng-repeat="source in vm.getSources() track by source"
-               ng-if="vm.shouldShow(source)">
-      <div class="left"
-           popover-title="Help"
-           popover-trigger="mouseenter"
-           uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
-           popover-placement="bottom-right"
-           popover-append-to-body="true"
-           class="faded-title">
-        <h5 class="slim title"> <b>{{vm.sources[source].title}}</b> </h5> <p> {{vm.sources[source].desc}} </p> </div>
-      <div class="middle">
-        <span ng-if="vm.sources[source].optional">
-          <input type="checkbox"
-                 class="box"
-                 checklist-model="vm.referenceAssessment.evaluation.sources"
-                 checklist-value="source"
-                 ng-disabled="vm.readOnly"/>
-        </span>
-      </div>
-      <div class="right line-wrapper">
-        <div class="multiple-question-element" ng-repeat="elem in vm.sources[source].elements">
-          <div class="bttn-set" ng-if="elem.type == 'button'">
-              <label tabindex=0
-                     class="bttn"
-                     ng-model="vm.referenceAssessment.evaluation[elem.store]"
-                     uib-btn-radio="item[1]"
-                     uib-uncheckable="true"
-                     ng-repeat="item in elem.options"
-                     ng-disabled="vm.isDisabled(source) || vm.readOnly">{{item[0]}}</label>
-          </div>
-          <div class="dropdown"
-               ng-if="elem.type == 'dropdown'"
-               ng-class="{'disabled': vm.isDisabled(source)}">
-              <select ng-options="v[1] as v[0] for v in elem.options"
-                      ng-model="vm.referenceAssessment.evaluation[elem.store]"
-                      ng-disabled="vm.isDisabled(source) || vm.readOnly">
-                  <option value=""
-                          disabled
-                          selected>{{elem.placeholder}}
-                  </option>
-              </select>
-          </div>
-          <div ng-if="elem.type == 'text'">
-              <input type="text"
-                     placeholder="{{elem.placeholder || ''}}"
-                     ng-disabled="vm.isDisabled(source) || vm.readOnly"
-                     ng-model="vm.referenceAssessment.evaluation[elem.store]">
-          </div>
-        </div>
-      </div>
-    </article>
-    <article class="line-wrapper question medium">
-      <div class="middle"></div>
-      <div class="right">
-          <wysiwyg-editor
-                class="id-reference-comment"
-                templates="vm.getReferenceEvaluationTemplates()"
-                ng-disabled="vm.readOnly"
-                placeholder="COMMENTS"
-                ng-model="vm.referenceAssessment.evaluation['comment']">
-          </wysiwyg-editor>
-      </div>
-      <div class="middle"></div>
-    </article>
-  </contentwrapper>
-
+            ng-repeat="source in vm.getSources() track by source"
+            ng-if="vm.shouldShow(source)"
+        >
+            <div
+                class="left"
+                popover-title="Help"
+                popover-trigger="mouseenter"
+                uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
+                popover-placement="bottom-right"
+                popover-append-to-body="true"
+                class="faded-title"
+            >
+                <h5 class="slim title">
+                    <b>{{ vm.sources[source].title }}</b>
+                </h5>
+                <p>{{ vm.sources[source].desc }}</p>
+            </div>
+            <div class="middle">
+                <span ng-if="vm.sources[source].optional">
+                    <input
+                        type="checkbox"
+                        class="box"
+                        checklist-model="vm.referenceAssessment.evaluation.sources"
+                        checklist-value="source"
+                        ng-disabled="vm.readOnly"
+                    />
+                </span>
+            </div>
+            <div class="right line-wrapper">
+                <div
+                    class="multiple-question-element"
+                    ng-repeat="elem in vm.sources[source].elements"
+                >
+                    <div class="bttn-set" ng-if="elem.type == 'button'">
+                        <label
+                            tabindex="0"
+                            class="bttn"
+                            ng-model="vm.referenceAssessment.evaluation[elem.store]"
+                            uib-btn-radio="item[1]"
+                            uib-uncheckable="true"
+                            ng-repeat="item in elem.options"
+                            ng-disabled="vm.isDisabled(source) || vm.readOnly"
+                            >{{ item[0] }}</label
+                        >
+                    </div>
+                    <div
+                        class="dropdown"
+                        ng-if="elem.type == 'dropdown'"
+                        ng-class="{'disabled': vm.isDisabled(source)}"
+                    >
+                        <select
+                            ng-options="v[1] as v[0] for v in elem.options"
+                            ng-model="vm.referenceAssessment.evaluation[elem.store]"
+                            ng-disabled="vm.isDisabled(source) || vm.readOnly"
+                        >
+                            <option value="" disabled selected>{{ elem.placeholder }} </option>
+                        </select>
+                    </div>
+                    <div ng-if="elem.type == 'text'">
+                        <input
+                            type="text"
+                            placeholder="{{ elem.placeholder || '' }}"
+                            ng-disabled="vm.isDisabled(source) || vm.readOnly"
+                            ng-model="vm.referenceAssessment.evaluation[elem.store]"
+                        />
+                    </div>
+                </div>
+            </div>
+        </article>
+        <article class="line-wrapper question medium">
+            <div class="middle"></div>
+            <div class="right">
+                <wysiwyg-editor
+                    class="id-reference-comment"
+                    templates="vm.getReferenceEvaluationTemplates()"
+                    ng-disabled="vm.readOnly"
+                    placeholder="COMMENTS"
+                    ng-model="vm.referenceAssessment.evaluation['comment']"
+                >
+                </wysiwyg-editor>
+            </div>
+            <div class="middle"></div>
+        </article>
+    </contentwrapper>
 </sectionbox>

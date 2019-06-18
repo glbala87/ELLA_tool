@@ -1,4 +1,6 @@
+import { deepCopy } from '../../../../../../util'
 import getAlleleState from '../computed/getAlleleState'
+import getReferenceAssessment from '../computed/getReferenceAssessment'
 
 /**
  * Sets new referenceassessment data into alleleState.
@@ -7,8 +9,8 @@ import getAlleleState from '../computed/getAlleleState'
  * - If not existing, add a new one
  */
 export default function setReferenceAssessment({ state, resolve, props }) {
-    if (!('evaluation' in props)) {
-        throw Error("Missing required props 'evaluation'")
+    if (!('evaluation' in props) && !('comment' in props)) {
+        throw Error("Missing required props 'evaluation' or 'comment'")
     }
 
     const alleleId = props.alleleId
@@ -20,27 +22,46 @@ export default function setReferenceAssessment({ state, resolve, props }) {
     })
 
     const newReferenceAssessment = {
-        evaluation: props.evaluation,
         allele_id: alleleId,
-        reference_id: referenceId
+        reference_id: referenceId,
+        evaluation: props.evaluation || {}
     }
 
     if (raIdx >= 0) {
-        // We have a match, overwrite existing (also clear reuse status if present)
-        let existing = state.get(
+        // Match on existing one (either reused or not)
+        // Clear reuse status if present
+        let existingInState = state.get(
             `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments.${raIdx}`
         )
-        existing = Object.assign({}, existing, newReferenceAssessment)
-        if ('reuse' in existing) {
-            existing.reuse = false
-            delete existing.id
+        existingInState = Object.assign({}, existingInState, newReferenceAssessment)
+        if ('reuse' in existingInState) {
+            existingInState.reuse = false
+            delete existingInState.id
+        }
+        // If there's no evaluation in props, we need to copy from whatever is there already
+        // either from backend data or in state
+        if (!props.evaluation) {
+            const existingReferenceAssessment = resolve.value(
+                getReferenceAssessment(alleleId, referenceId)
+            )
+            // deepCopy evaluation in case it's from backend data
+            existingInState.evaluation = deepCopy(existingReferenceAssessment.evaluation)
+        }
+        if (props.comment) {
+            existingInState.evaluation.comment = props.comment
         }
         state.set(
             `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments.${raIdx}`,
-            existing
+            existingInState
         )
     } else {
         // Insert new entry
+        if (!props.evaluation) {
+            throw new Error(
+                "Props 'evaluation' must be defined when creating new reference assessment"
+            )
+        }
+
         state.push(
             `views.workflows.interpretation.state.allele.${alleleId}.referenceassessments`,
             newReferenceAssessment

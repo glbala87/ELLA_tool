@@ -38,3 +38,6 @@ Analysis tracks are specific to the analysis (depending on configuration). These
 - `VCF`: All variants called in the VCF file (HTS data only, within gene panel, no filtering)
 - `CNV`: Called CNVs (HTS data only)
 
+## Mark as TECHNICAL
+
+A button `T` is available in the side bar next to each variant for quickly marking technical variants. This works the same as in [Quick classification mode](/manual/quick-classification.md), where clicking the button moves the variant to the TECHNICAL VARIANTS section in the side bar. If applicable, add a comment before moving to the next variant; this will also be reflected in the ANALYSIS SPECIFIC comment field on the CLASSIFICATION page.

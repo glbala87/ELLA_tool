@@ -9,26 +9,7 @@
 .acmg-body { margin-top: 1.3rem; margin-bottom: 0.7rem;
   .suggested-class {transform: all 1.4s; padding-left: 0.3rem; padding-right: 0.1rem; }
 }
-$acmg-map: (
-  ba: hsl(120,100,25),
-  bs: hsl(100,80,40),
-  bp: hsl(80,100,40),
-  re: hsl(60,100,25),
-  pv: hsl(0,100,30),
-  ps: hsl(20,80,40),
-  pm: hsl(30,100,40),
-  pp: hsl(40,80,50),
-);
-$acmg-opacity: (
-  ba: 0.35,
-  bs: 0.25,
-  bp: 0.15,
-  re: 0.5,
-  pv: 0.35,
-  ps: 0.25,
-  pm: 0.15,
-  pp: 0.10,
-);
+
 section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .acmg { margin-right: 0.7rem; margin-bottom: 0.7rem; display: flex; flex-direction: column; border-left: 0.3rem solid $black-25;
   section { min-height: 2.6rem; display: flex; align-items: center; padding: 0.7rem; padding-right: 0; }

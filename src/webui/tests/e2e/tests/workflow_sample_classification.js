@@ -37,7 +37,7 @@ let referenceEvalModal = new ReferenceEvalModal()
 
 jasmine.getEnv().addReporter(failFast.init())
 
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'REEVALUATE'
+const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01'
 const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
@@ -266,17 +266,18 @@ describe('Sample workflow', function() {
                 report: 'REPORT_ROUND1 &~øæå',
                 classification: (idx + 1).toString(),
                 acmg: {
+                    // Codes are sorted by pathogenicity/strength
                     '1': {
-                        code: 'BP2',
-                        comment: 'BP2_ACMG_ROUND_1'
+                        code: 'PS1 VERY STRONG',
+                        comment: 'PS1_ACMG_ROUND_1'
                     },
                     '2': {
                         code: 'PS2 SUPPORTIVE',
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PS1 VERY STRONG',
-                        comment: 'PS1_ACMG_ROUND_1'
+                        code: 'BP2',
+                        comment: 'BP2_ACMG_ROUND_1'
                     }
                 },
                 num_attachments: 1
