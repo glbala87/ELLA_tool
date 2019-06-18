@@ -62,7 +62,7 @@ describe('Handling of allele state', () => {
                 outdated_after_days: 180
             }
         ])
-        cerebral.setState('app.config.user.user_config.workflows.allele.finalize_requirements', [
+        cerebral.setState('app.config.user.user_config.workflows.allele.finalize_requirements.workflow_status', [
             'Not ready',
             'Interpretation',
             'Review',
