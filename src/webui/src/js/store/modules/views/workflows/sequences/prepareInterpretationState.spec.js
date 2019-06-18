@@ -3,7 +3,7 @@ import { CerebralTest } from 'cerebral/test'
 import RootModule from '../../..'
 import prepareInterpretationState from './prepareInterpretationState'
 import reuseAlleleAssessmentClicked from '../interpretation/signals/reuseAlleleAssessmentClicked'
-import { testUiConfig, testAlleleState, testSidebarOrderByNull } from '../../../../fixtures/testData'
+import { testUiConfig, testSidebarOrderByNull } from '../../../../fixtures/testData'
 
 let cerebral = null
 
