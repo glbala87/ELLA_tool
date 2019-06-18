@@ -219,7 +219,7 @@ dbsleep:
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db node-debug
+.PHONY: any build dev url kill shell logs restart db node-inspect
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
