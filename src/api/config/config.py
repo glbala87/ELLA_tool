@@ -259,7 +259,7 @@ config = {
             {
                 "name": "Class 2",
                 "value": "2",
-                "outdated_after_days": 180,
+                "outdated_after_days": 365,
             },  # Marked as outdated after N number of days
             {
                 "name": "Class 3",
