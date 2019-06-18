@@ -10,6 +10,11 @@ export default function acmgCodeChanged({ state, props }) {
         `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment.evaluation.acmg.included.${idx}`
     )
 
+    // If oldCode is gone, there's nothing to update
+    if (!oldCode) {
+        return
+    }
+
     const result = {
         codeChanged: oldCode.code !== code.code
     }

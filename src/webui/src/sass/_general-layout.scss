@@ -463,17 +463,32 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
           color: $red-75;
         }
       }
-      &.classification { min-width: 5rem; width: 5rem; text-align: center;
-        transition: background-color 0.4s; cursor: pointer;
-
+      &.classification { min-width: 5.5rem; width: 5.5rem; text-align: center;
+        transition: background-color 0.4s; cursor: pointer; padding: 0;
         &.reviewed { background-color: $blue-75; color: $white;
-          .classification-container .existing-classification { color: $white-50; }
+          .class-amcg-container .classification-container .existing-classification { color: $white-50; }
         }
-        .classification-container { display: flex;
-          .existing-classification { width: 1.3rem; color: $black-25; }
-          .current-classification { width: 1.3rem; }
-          .arrow-classification { width: 1.3rem;}
-
+        .class-amcg-container {
+          display: flex;
+          flex-direction: row;
+          .classification-container { margin-top: 0.2rem; margin-left: 0.6rem; display: flex; flex: 1;
+            .existing-classification { width: 1.3rem; color: $black-25; }
+            .current-classification { width: 1.3rem; }
+            .arrow-classification { width: 1.3rem;}
+          }
+          .acmg-indicators-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 2.5rem;
+            .acmg-indicator {
+              min-width: 0.6rem;
+              max-height: 50%;
+              flex: 1;
+              @each $name, $color in $acmg-map {
+                &.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color), 0.7); }
+              }
+            }
+          }
         }
       }
       &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
@@ -483,9 +498,34 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
       &.hi-freq { min-width: 8rem; text-align: center;}
       &.hi-count { min-width: 8rem; text-align: center;}
       &.external { min-width: 10.5rem; text-align: center;}
-      &.evaluation { min-width: 40rem; width: 40rem; max-width: 40rem;
+      &.evaluation { min-width: 30rem; width: 30rem; max-width: 30rem;
         &.narrow { min-width: 12rem; width: 12rem; max-width: 12rem; }
         .wysiwygeditor { max-height: 4.7rem; overflow: auto; }
+      }
+
+      &.quick-classification {
+        padding-left: 0;
+        padding-right: 0;
+        button {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        button ~ button {
+          margin-left: 0.5rem;
+        }
+        @each $name, $color in $acmg-map {
+          button.quick-acmg.#{$name} {
+            border: 0;
+            margin: 0;
+            background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name));
+            &:hover {
+              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.2);
+            }
+            &.added {
+              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.3);
+            }
+          }
+        }
       }
 
       @mixin indicator {
@@ -709,7 +749,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
   .toast-success { background-color: $green; &:before { content: "SUCCESS"; } }
   .toast-error { background-color: $red; &:before { content: "ERROR"; } }
-  .toast-info { background-color: $purple-50; &:before { content: "INFORMATION"; } }
+  .toast-info { background-color: $purple-75; &:before { content: "INFORMATION"; } }
   .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }
   .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
   .toast-message-collision { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; color: white; padding-top: 0.3rem; }

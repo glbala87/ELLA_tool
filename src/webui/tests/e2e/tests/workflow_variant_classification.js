@@ -114,17 +114,18 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                 report: 'REPORT_ROUND1',
                 classification: '1',
                 acmg: {
+                    // Codes are sorted by pathogenicity/strength
                     '1': {
-                        code: 'BP2 STRONG',
-                        comment: 'BP2_ACMG_ROUND_1'
+                        code: 'PM1 VERY STRONG',
+                        comment: 'PM1_ACMG_ROUND_1'
                     },
                     '2': {
                         code: 'PS2',
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
-                        code: 'PM1 VERY STRONG',
-                        comment: 'PM1_ACMG_ROUND_1'
+                        code: 'BP2 STRONG',
+                        comment: 'BP2_ACMG_ROUND_1'
                     }
                 }
             }

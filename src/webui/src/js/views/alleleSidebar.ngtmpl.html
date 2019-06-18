@@ -82,27 +82,32 @@
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.unclassified'"
+        classification-options="$ctrl.getSidebarConfig().classification_options.unclassified"
+        comment-type="{{ $ctrl.getSidebarConfig().comment_type.unclassified }}"
+        columns="$ctrl.getSidebarConfig().columns"
+        shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
+        narrow-comment="$ctrl.getSidebarConfig().narrow_comment"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Unclassified variants"
-        classification-type="$ctrl.classificationType"
-        allow-classification="true"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
         class="id-classified"
-        comment-type="evaluation"
         allele-ids-path="'views.workflows.alleleSidebar.classified'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         toggle-clicked-path="'views.workflows.alleleSidebar.alleleRowToggled'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.classified'"
+        classification-options="$ctrl.getSidebarConfig().classification_options.classified"
+        comment-type="{{ $ctrl.getSidebarConfig().comment_type.classified }}"
+        columns="$ctrl.getSidebarConfig().columns"
+        shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
+        narrow-comment="$ctrl.getSidebarConfig().narrow_comment"
         togglable="$ctrl.isTogglable"
         toggled="$ctrl.isToggled"
         read-only="$ctrl.readOnly"
         section-title="Classified variants"
-        classification-type="$ctrl.classificationType"
-        allow-classification="false"
     >
     </allele-sidebar-list>
 
@@ -110,30 +115,36 @@
 
     <allele-sidebar-list
         class="id-notrelevant"
-        comment-type="analysis"
         allele-ids-path="'views.workflows.alleleSidebar.notRelevant'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.notRelevant'"
+        classification-options="$ctrl.getSidebarConfig().classification_options.not_relevant"
+        comment-type="{{ $ctrl.getSidebarConfig().comment_type.not_relevant }}"
+        columns="$ctrl.getSidebarConfig().columns"
+        shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
+        narrow-comment="$ctrl.getSidebarConfig().narrow_comment"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Not relevant variants"
         classification-type="$ctrl.classificationType"
-        allow-classification="false"
     >
     </allele-sidebar-list>
     <allele-sidebar-list
         class="id-technical"
-        comment-type="analysis"
         allele-ids-path="'views.workflows.alleleSidebar.technical'"
         alleles-path="'views.workflows.interpretation.data.alleles'"
         row-clicked-path="'views.workflows.alleleSidebar.alleleRowClicked'"
         order-by-path="'views.workflows.alleleSidebar.orderBy.technical'"
+        classification-options="$ctrl.getSidebarConfig().classification_options.technical"
+        comment-type="{{ $ctrl.getSidebarConfig().comment_type.technical }}"
+        columns="$ctrl.getSidebarConfig().columns"
+        shade-multiple-in-gene="$ctrl.getSidebarConfig().shade_multiple_in_gene"
+        narrow-comment="$ctrl.getSidebarConfig().narrow_comment"
         togglable="false"
         read-only="$ctrl.readOnly"
         section-title="Technical variants"
         classification-type="$ctrl.classificationType"
-        allow-classification="false"
     >
     </allele-sidebar-list>
 </div>
