@@ -10,7 +10,7 @@ function canAddToReport({ state, props, path, resolve }) {
     )
     const allele = state.get(`views.workflows.interpretation.data.alleles.${alleleId}`)
     const classification = resolve.value(getClassification(allele))
-    if (verificationStatus !== 'technical' && classification.hasClassification) {
+    if (verificationStatus !== 'technical' && classification.hasValidClassification) {
         return path.true()
     }
     return path.false()
