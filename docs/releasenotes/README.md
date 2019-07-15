@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.6.1](#_1-6-1)
 - [1.6](#_1-6)
 - [1.5](#_1-5)
 - [1.4.1](#_1-4-1)
@@ -14,6 +15,13 @@ sidebar: auto
 - [1.1.2](#_1-1-2)
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
+
+## 1.6.1
+
+## Fixes
+
+- Fixed add/remove buttons for variants not working in REPORT side bar.
+
 
 ## 1.6
 
