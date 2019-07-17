@@ -139,6 +139,8 @@
         <wysiwyg-editor
             templates="$ctrl.getAlleleassessmentCommentTemplates()"
             references="$ctrl.editorReferences"
+            diff-existing="$ctrl.getAlleleAssessmentCommentDiffText()"
+            diff-existing-title="Compare with existing classification text"
             class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
             ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
             placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
@@ -162,6 +164,8 @@
             templates="$ctrl.getAlleleReportCommentTemplates()"
             references="$ctrl.editorReferences"
             class="control-comment id-comment-report"
+            diff-existing="$ctrl.getAlleleReportCommentDiffText()"
+            diff-existing-title="Compare with existing report text"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.reportComment.placeholder }}"
             ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"

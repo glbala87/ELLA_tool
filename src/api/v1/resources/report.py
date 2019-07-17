@@ -1,9 +1,9 @@
 import datetime
 from flask import send_file
-from io import BytesIO
+from io import BytesIO, StringIO
 
 from api import ApiError
-from api.util.util import authenticate, logger
+from api.util.util import authenticate, logger, request_json
 from api.util import queries
 
 from api.v1.resource import LogRequestResource
@@ -50,3 +50,4 @@ class NonStartedAnalysesVariants(LogRequestResource):
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             cache_timeout=-1,
         )
+

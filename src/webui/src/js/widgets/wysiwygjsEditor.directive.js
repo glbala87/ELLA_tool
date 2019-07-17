@@ -2,10 +2,24 @@
 
 // Extracts the IIFE into an export
 import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysiwygjs/wysiwyg'
+import DiffMatchPatch from 'diff-match-patch'
 
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID, sanitize } from '../util'
 import template from './wysiwygEditor.ngtmpl.html'
+
+function stripHtml(html) {
+    // Create a new div element
+    var temporalDivElement = document.createElement('div')
+    // Set the HTML content with the providen
+    temporalDivElement.innerHTML = html
+    // Retrieve the text property of the element (cross-browser support)
+    // Needs to be rendered for it to work
+    document.body.appendChild(temporalDivElement)
+    const text = temporalDivElement.innerText
+    document.body.removeChild(temporalDivElement)
+    return text
+}
 
 @Directive({
     selector: 'wysiwyg-editor',
@@ -15,7 +29,9 @@ import template from './wysiwygEditor.ngtmpl.html'
         ngDisabled: '=?',
         showControls: '<?',
         templates: '=?',
-        references: '=?' // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        references: '=?', // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        diffExisting: '=?', // Existing text for diff display mode
+        diffExistingTitle: '@?' // Button title for diff display mode
     },
     require: '?ngModel', // get a hold of NgModelController
     template
@@ -27,8 +43,9 @@ export class WysiwygEditorController {
         this.scope = $scope
         this.element = $element[0]
         this.editorelement = $element.children()[0]
-        this.placeholderelement = $element.children()[1]
-        this.buttonselement = $element.children()[2]
+        this.diffmodeelement = $element.children()[1]
+        this.placeholderelement = $element.children()[2]
+        this.buttonselement = $element.children()[3]
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
 
@@ -93,8 +110,8 @@ export class WysiwygEditorController {
         this.buttonselement.hidden = true
         this.isBlurred = true
 
-        this.sourcemode = false
-        this.source = ''
+        this.editorMode = 'editor'
+        this.diffText = ''
 
         this.setupEditor()
         this.setupEventListeners()
@@ -199,7 +216,7 @@ export class WysiwygEditorController {
             references: () => this.togglePopover('references'),
             fontcolor: () => this.togglePopover('fontcolor'),
             highlightcolor: () => this.togglePopover('highlightcolor'),
-            src: () => this.toggleSource
+            diffmode: () => this.toggleDiffMode()
         }
 
         actions[actionName]()
@@ -405,6 +422,7 @@ export class WysiwygEditorController {
         // puts other elements in focus. Plus it's more to do on
         // every single click.
         if (!this.isBlurred) {
+            this.editorMode = 'editor'
             this.closePopovers()
             this.isBlurred = true
             this.timeout(() => {
@@ -440,19 +458,24 @@ export class WysiwygEditorController {
         }
     }
 
-    toggleSource() {
-        if (this.sourcemode) {
-            this.editor.setHTML(this.source)
+    toggleDiffMode() {
+        this.editorMode = this.editorMode === 'diff' ? 'editor' : 'diff'
+
+        if (this.editorMode === 'diff') {
+            const dmp = new DiffMatchPatch()
+
+            // HTML diffing is a nightmare to get 100% correct,
+            // so after numerous experiments we resort to pure text
+            let newHtml = this.editor.getHTML()
+            newHtml = newHtml.replace(/<img.*?>/gi, '[image]')
+            const newText = stripHtml(newHtml)
+            const oldText = stripHtml(this.diffExisting)
+            const diff = dmp.diff_main(oldText, newText)
+            dmp.diff_cleanupSemantic(diff)
+            const htmlResult = dmp.diff_prettyHtml(diff).replace(/&para;/g, '')
+            this.diffmodeelement.innerHTML = htmlResult
         } else {
-            this.source = this.editor.getHTML()
-            this.editor.setHTML(this.source.replace(/</g, '&lt;').replace(/>/g, '&gt;'))
-        }
-        this.editor.readOnly(!this.sourcemode)
-        this.sourcemode = !this.sourcemode
-        for (let btn in this.buttons) {
-            if (btn !== 'src') {
-                this.buttons[btn].disabled = this.editor.readOnly()
-            }
+            this.diffmodeelement.innerHTML = ''
         }
     }
 

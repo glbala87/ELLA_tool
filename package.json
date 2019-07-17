@@ -17,6 +17,7 @@
         "cerebral": "4.2.2",
         "checklist-model": "^1.0.0",
         "copy-to-clipboard": "^3.0.8",
+        "diff-match-patch": "^1.0.4",
         "igv": "2.0.0",
         "markdown-it": "^8.4.2",
         "nprogress": "^0.2.0",
@@ -55,8 +56,8 @@
         "wdio-chromedriver-service": "^5.0.2",
         "webpack": "^4.16.3",
         "webpack-cli": "^3.1.0",
-        "webpack-livereload-plugin": "^2.1.1",
         "webpack-deadcode-plugin": "^0.1.7",
+        "webpack-livereload-plugin": "^2.1.1",
         "xhr-mock": "^2.3.2"
     },
     "resolutions": {

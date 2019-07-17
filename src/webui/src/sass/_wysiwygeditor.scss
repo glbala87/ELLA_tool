@@ -73,6 +73,64 @@ th {
     padding-right: 0.5rem;
 }
 
+
+.wysiwygeditor-diffviewer {
+  border-left: 3px solid $black-25;
+  padding-left: 1rem;
+}
+
+.wysiwygeditor-diffviewer::before {
+  content: 'Comparison mode';
+  color: $black-50;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.3rem;
+}
+
+.wysiwygeditor-diffviewer del, .wysiwygeditor-diffviewer * del {
+  background-color: #FF9999;
+  text-decoration: inherit;
+}
+
+.wysiwygeditor-diffviewer del img {
+  border: 1px solid #FF9999;
+}
+
+.wysiwygeditor-diffviewer ins, .wysiwygeditor-diffviewer * ins {
+  text-decoration: inherit;
+  background-color: #8AFFA7;
+}
+
+.wysiwygeditor-diffviewer ins img {
+  border: 3px solid #8AFFA7;
+}
+
+/* Special ol + ul fix */
+.wysiwygeditor-diffviewer ins > ol, .wysiwygeditor-diffviewer ins > ul {
+  display: inline-block;
+  background-color: #8AFFA7;
+  text-decoration: inherit;
+}
+
+.wysiwygeditor-diffviewer ol > ins, .wysiwygeditor-diffviewer ul > ins {
+  display: inline-block;
+  background-color: #8AFFA7;
+  text-decoration: inherit;
+}
+
+.wysiwygeditor-diffviewer ol > del, .wysiwygeditor-diffviewer ul > del{
+  display: inline-block;
+  background-color: #FF9999;
+  text-decoration: inherit;
+}
+
+.wysiwygeditor-diffviewer del > ol, .wysiwygeditor-diffviewer del > ol{
+  display: inline-block;
+  background-color: #FF9999;
+  text-decoration: inherit;
+}
+
+
 .wysiwygbuttons {
     padding: 0px 0px;
     margin: 0px 0px;
