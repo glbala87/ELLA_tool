@@ -359,6 +359,8 @@ class ApiV1(object):
             r.report.NonStartedAnalysesVariants, "/api/v1/reports/non-started-analyses-variants/"
         )
 
+        self._add_resource(r.report.Diff, "/api/v1/reports/diff/")
+
         # ---------------------------------------------------------------------------------------------------------
         # IGV
         # ---------------------------------------------------------------------------------------------------------

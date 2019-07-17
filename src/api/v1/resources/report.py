@@ -1,9 +1,12 @@
 import datetime
 from flask import send_file
-from io import BytesIO
+from io import BytesIO, StringIO
+import lxml.etree
+import lxml.html
+from xmldiff import main, formatting
 
 from api import ApiError
-from api.util.util import authenticate, logger
+from api.util.util import authenticate, logger, request_json
 from api.util import queries
 
 from api.v1.resource import LogRequestResource
@@ -50,3 +53,74 @@ class NonStartedAnalysesVariants(LogRequestResource):
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             cache_timeout=-1,
         )
+
+
+class Diff(LogRequestResource):
+    @authenticate()
+    @logger()
+    @request_json(["old", "new"])
+    def post(self, session, user=None, data=None):
+
+        # We need a single root element, so create a dummy <diff> element
+        old = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{data["old"]}</diff>'))
+        new = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{data["new"]}</diff>'))
+
+        xml_formatter = formatting.XMLFormatter(
+            text_tags=("p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "font", "span", "div", "img"),
+            formatting_tags=("b", "u", "i", "strike", "em", "super", "sup", "sub", "link", "a"),
+            normalize=formatting.WS_BOTH,
+        )
+        result = main.diff_texts(old, new, formatter=xml_formatter)
+        parsed_diff_xml = lxml.etree.parse(StringIO(result))
+        namespaces = {"diff": "http://namespaces.shoobx.com/diff"}
+
+        def process_elements_with_attribs(xpath_expr, diff_elem_name, remove_attrib_name):
+            """
+            Process elements with added diff attributes.
+
+            Processes
+                <div diff:insert=""><span>Line 3</span><br/></div>
+            Into
+                <div><ins><span >Line 3</span><br/></ins></div>
+
+            """
+            changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
+            for c in changed:
+                new_elem = lxml.etree.Element(diff_elem_name)
+                # Remove the diff attribute
+                del c.attrib[remove_attrib_name]
+
+                # If elem as any content, we wrapt the content.
+                # e.g. <p>Something</p> -> <p><ins>Something</ins></p>
+                if c.text or list(c):
+                    if c.text:
+                        new_elem.text = c.text
+                        c.text = None
+                    new_elem.extend(list(c))
+                    c.append(new_elem)
+                # If no content, wrap element itself.
+                # e.g. <img src=...> -> <ins><img src=...></ins>
+                else:
+                    c.addprevious(new_elem)
+                    new_elem.append(c)
+
+        process_elements_with_attribs("//*[@diff:insert]", "ins", f'{{{namespaces["diff"]}}}insert')
+        process_elements_with_attribs("//*[@diff:delete]", "del", f'{{{namespaces["diff"]}}}delete')
+
+        def process_elements(xpath_expr, diff_elem_name):
+            """
+            Process pure diff elements, like <diff:insert> etc.
+
+            Processes
+                <div>Line <diff:delete>2</diff:delete><diff:insert>4</diff:insert></div>
+            Into
+                <div>Line <del>2</del><ins>4</ins></div>
+            """
+            changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
+            for c in changed:
+                c.tag = diff_elem_name
+
+        process_elements("//diff:insert", "ins")
+        process_elements("//diff:delete", "del")
+
+        return {"result": lxml.etree.tostring(parsed_diff_xml).decode()}
