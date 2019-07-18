@@ -1,9 +1,18 @@
 <contentbox class="vardb" title="Existing" ng-if="$ctrl.allele.allele_assessment">
-  <cbbody>
-    <section class="button-row">
-      <button class="blue" ng-click="$ctrl.showAlleleAssessmentHistory({alleleId: $ctrl.allele.id})">History</button>
-    </section>
+    <cbbody>
+        <section class="button-row">
+            <button
+                class="blue"
+                ng-click="$ctrl.showAlleleAssessmentHistoryClicked({alleleId: $ctrl.allele.id})"
+            >
+                History
+            </button>
+        </section>
 
-    <allele-assessment alleleassessment="$ctrl.allele.allele_assessment" allelereport="$ctrl.allele.allele_report" summary-only="true"></allele-assessment>
-  </cbbody>
+        <allele-assessment
+            alleleassessment="$ctrl.allele.allele_assessment"
+            allelereport="$ctrl.allele.allele_report"
+            summary-only="true"
+        ></allele-assessment>
+    </cbbody>
 </contentbox>

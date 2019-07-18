@@ -1,0 +1,136 @@
+<sectionbox class="prompt" color="purple" modal="true" on-close="($ctrl.close)">
+    <maintitle>CLASSIFICATION HISTORY </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-finish purple" type="button" ng-click="$ctrl.close()">
+                CLOSE
+            </button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <div class="allele-assessment-history">
+            <div class="classification-summary">
+                <h4 class="section-header">Summary</h4>
+                <ul>
+                    <li ng-repeat="aa in $ctrl.alleleAssessments track by aa.id">
+                        <span class="date">{{ $ctrl.formatDate(aa) }}</span
+                        >: <span class="classification">Class {{ aa.classification }}</span>
+                        <span class="details"
+                            >by {{ aa.user.full_name }} on {{ aa.genepanel_name }}_{{
+                                aa.genepanel_version
+                            }}</span
+                        >
+                    </li>
+                </ul>
+            </div>
+            <div class="full-view">
+                <h4 class="section-header">Details</h4>
+                <div class="controls">
+                    <div class="dropdown">
+                        <select
+                            ng-model="$ctrl.modelSelectedAlleleAssessment"
+                            ng-model-watch="$ctrl.selectedAlleleAssessment"
+                            ng-options="aa as $ctrl.formatAlleleAssessment(aa) for aa in $ctrl.alleleAssessments"
+                            ng-change="$ctrl.selectedAlleleAssessmentChanged({selectedAlleleAssessment: $ctrl.modelSelectedAlleleAssessment})"
+                        >
+                        </select>
+                    </div>
+                    <div class="view-mode-buttons">
+                        <div class="bttn-set">
+                            <label
+                                class="bttn"
+                                ng-model="$ctrl.modelSelectedViewMode"
+                                ng-model-watch="$ctrl.selectedViewMode"
+                                uib-btn-radio="'normal'"
+                                ng-change="$ctrl.selectedViewModeChanged({selectedViewMode: $ctrl.modelSelectedViewMode})"
+                                >Normal</label
+                            >
+                            <label
+                                class="bttn"
+                                ng-model="$ctrl.modelSelectedViewMode"
+                                ng-model-watch="$ctrl.selectedViewMode"
+                                uib-btn-radio="'diff'"
+                                ng-change="$ctrl.selectedViewModeChanged({selectedViewMode: $ctrl.modelSelectedViewMode})"
+                                >Compare with previous</label
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="classification-details">
+                    <span class="title">Evaluation</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-classification"
+                        ng-disabled="true"
+                        ng-model="$ctrl.classificationDetails.classification"
+                    >
+                    </wysiwyg-editor>
+
+                    <span class="title">ACMG</span>
+
+                    <div
+                        title="Added ACMG code compared with previous"
+                        class="added-acmg"
+                        ng-repeat="code in $ctrl.classificationDetails.addedAcmg track by $index"
+                    >
+                        <acmg
+                            class="included disabled"
+                            code="code"
+                            comment-model="code.comment"
+                            editable="false"
+                        ></acmg>
+                    </div>
+
+                    <acmg
+                        class="included disabled"
+                        code="code"
+                        ng-repeat="code in $ctrl.classificationDetails.acmg track by $index"
+                        comment-model="code.comment"
+                        editable="false"
+                    ></acmg>
+
+                    <div
+                        class="removed-acmg"
+                        title="Removed ACMG code compared with previous"
+                        ng-repeat="code in $ctrl.classificationDetails.removedAcmg track by $index"
+                    >
+                        <acmg
+                            class="included disabled"
+                            code="code"
+                            comment-model="code.comment"
+                            editable="false"
+                        ></acmg>
+                    </div>
+
+                    <span class="title">Frequency</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-frequency"
+                        ng-disabled="true"
+                        ng-model="$ctrl.classificationDetails.frequency"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">External</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-external"
+                        ng-disabled="true"
+                        ng-model="$ctrl.classificationDetails.external"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">Prediction</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-prediction"
+                        ng-disabled="true"
+                        ng-model="$ctrl.classificationDetails.prediction"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">Reference</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-reference"
+                        ng-disabled="true"
+                        ng-model="$ctrl.classificationDetails.reference"
+                    >
+                    </wysiwyg-editor>
+                </div>
+            </div>
+        </div>
+    </contentwrapper>
+</sectionbox>

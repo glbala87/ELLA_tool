@@ -13,7 +13,7 @@ app.component('alleleInfoClassification', {
         {
             allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
             readOnly: isReadOnly,
-            showAlleleAssessmentHistory: signal`views.workflows.interpretation.showAlleleAssessmentHistoryClicked`
+            showAlleleAssessmentHistoryClicked: signal`views.workflows.modals.alleleAssessmentHistory.showAlleleAssessmentHistoryClicked`
         },
         'AlleleInfoClassification'
     )

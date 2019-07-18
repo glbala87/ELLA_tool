@@ -86,14 +86,7 @@ function RootModule(withRouter = true) {
             toast: toastProvider,
             http
         },
-        services: [
-            'AlleleAssessmentHistoryModal',
-            'CustomAnnotationModal',
-            'ReferenceEvalModal',
-            'ImportModal',
-            'Config',
-            'User'
-        ]
+        services: ['CustomAnnotationModal', 'ReferenceEvalModal', 'ImportModal', 'Config', 'User']
     })
 }
 

@@ -239,3 +239,64 @@ importsingle > contentwrapper {
   font-size: 0.8rem;
 }
 
+
+.allele-assessment-history {
+
+  font-family: $full;
+  font-size: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  min-width: 80vw;
+
+  .classification-summary {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    li {
+      list-style: none;
+      .classification {
+        font-weight: 600;
+      }
+      .details {
+        color: $black-75;
+      }
+    }
+
+  }
+
+  .full-view {
+
+    .controls {
+      display: flex;
+      .dropdown {
+        width: 50rem;
+      }
+      .view-mode-buttons {
+        margin-left: 2rem;
+      }
+    }
+    .classification-details {
+      .title {
+        display: block;
+        margin-top: 1.7rem;
+        margin-bottom: 0.5rem;
+        font-family: $slim; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+      }
+      margin-top: 2rem;
+
+      .added-acmg {
+        display: inline-block;
+        border: 3px solid #8AFFA7;
+        margin-bottom: 0.5rem;
+        padding: 0.2rem;
+      }
+
+      .removed-acmg {
+        display: inline-block;
+        border: 3px solid #FF9999;
+        margin-bottom: 0.5rem;
+        padding: 0.2rem;
+      }
+    }
+  }
+}

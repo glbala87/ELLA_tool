@@ -61,66 +61,96 @@ class Diff(LogRequestResource):
     @request_json(["old", "new"])
     def post(self, session, user=None, data=None):
 
-        # We need a single root element, so create a dummy <diff> element
-        old = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{data["old"]}</diff>'))
-        new = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{data["new"]}</diff>'))
+        if not isinstance(data, list):
+            wrapped_data = [data]
+        else:
+            wrapped_data = data
 
-        xml_formatter = formatting.XMLFormatter(
-            text_tags=("p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "font", "span", "div", "img"),
-            formatting_tags=("b", "u", "i", "strike", "em", "super", "sup", "sub", "link", "a"),
-            normalize=formatting.WS_BOTH,
-        )
-        result = main.diff_texts(old, new, formatter=xml_formatter)
-        parsed_diff_xml = lxml.etree.parse(StringIO(result))
-        namespaces = {"diff": "http://namespaces.shoobx.com/diff"}
+        diff_results = []
+        for d in wrapped_data:
+            # We need a single root element, so create a dummy <diff> element
+            old = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{d["old"]}</diff>'))
+            new = lxml.etree.tostring(lxml.html.fromstring(f'<diff>{d["new"]}</diff>'))
 
-        def process_elements_with_attribs(xpath_expr, diff_elem_name, remove_attrib_name):
-            """
-            Process elements with added diff attributes.
+            xml_formatter = formatting.XMLFormatter(
+                text_tags=(
+                    "p",
+                    "h1",
+                    "h2",
+                    "h3",
+                    "h4",
+                    "h5",
+                    "h6",
+                    "li",
+                    "font",
+                    "span",
+                    "div",
+                    "img",
+                ),
+                formatting_tags=("b", "u", "i", "strike", "em", "super", "sup", "sub", "link", "a"),
+                normalize=formatting.WS_BOTH,
+            )
+            result = main.diff_texts(old, new, formatter=xml_formatter)
+            parsed_diff_xml = lxml.etree.parse(StringIO(result))
+            namespaces = {"diff": "http://namespaces.shoobx.com/diff"}
 
-            Processes
-                <div diff:insert=""><span>Line 3</span><br/></div>
-            Into
-                <div><ins><span >Line 3</span><br/></ins></div>
+            def process_elements_with_attribs(xpath_expr, diff_elem_name, remove_attrib_name):
+                """
+                Process elements with added diff attributes.
 
-            """
-            changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
-            for c in changed:
-                new_elem = lxml.etree.Element(diff_elem_name)
-                # Remove the diff attribute
-                del c.attrib[remove_attrib_name]
+                Processes
+                    <div diff:insert=""><span>Line 3</span><br/></div>
+                Into
+                    <div><ins><span >Line 3</span><br/></ins></div>
 
-                # If elem as any content, we wrapt the content.
-                # e.g. <p>Something</p> -> <p><ins>Something</ins></p>
-                if c.text or list(c):
-                    if c.text:
-                        new_elem.text = c.text
-                        c.text = None
-                    new_elem.extend(list(c))
-                    c.append(new_elem)
-                # If no content, wrap element itself.
-                # e.g. <img src=...> -> <ins><img src=...></ins>
-                else:
-                    c.addprevious(new_elem)
-                    new_elem.append(c)
+                """
+                changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
+                for c in changed:
+                    new_elem = lxml.etree.Element(diff_elem_name)
+                    # Remove the diff attribute
+                    del c.attrib[remove_attrib_name]
 
-        process_elements_with_attribs("//*[@diff:insert]", "ins", f'{{{namespaces["diff"]}}}insert')
-        process_elements_with_attribs("//*[@diff:delete]", "del", f'{{{namespaces["diff"]}}}delete')
+                    # If elem as any content, we wrapt the content.
+                    # e.g. <p>Something</p> -> <p><ins>Something</ins></p>
+                    if c.text or list(c):
+                        if c.text:
+                            new_elem.text = c.text
+                            c.text = None
+                        new_elem.extend(list(c))
+                        c.append(new_elem)
+                    # If no content, wrap element itself.
+                    # e.g. <img src=...> -> <ins><img src=...></ins>
+                    else:
+                        c.addprevious(new_elem)
+                        new_elem.append(c)
 
-        def process_elements(xpath_expr, diff_elem_name):
-            """
-            Process pure diff elements, like <diff:insert> etc.
+            process_elements_with_attribs(
+                "//*[@diff:insert]", "ins", f'{{{namespaces["diff"]}}}insert'
+            )
+            process_elements_with_attribs(
+                "//*[@diff:delete]", "del", f'{{{namespaces["diff"]}}}delete'
+            )
 
-            Processes
-                <div>Line <diff:delete>2</diff:delete><diff:insert>4</diff:insert></div>
-            Into
-                <div>Line <del>2</del><ins>4</ins></div>
-            """
-            changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
-            for c in changed:
-                c.tag = diff_elem_name
+            def process_elements(xpath_expr, diff_elem_name):
+                """
+                Process pure diff elements, like <diff:insert> etc.
 
-        process_elements("//diff:insert", "ins")
-        process_elements("//diff:delete", "del")
+                Processes
+                    <div>Line <diff:delete>2</diff:delete><diff:insert>4</diff:insert></div>
+                Into
+                    <div>Line <del>2</del><ins>4</ins></div>
+                """
+                changed = parsed_diff_xml.xpath(xpath_expr, namespaces=namespaces)
+                for c in changed:
+                    c.tag = diff_elem_name
 
-        return {"result": lxml.etree.tostring(parsed_diff_xml).decode()}
+            process_elements("//diff:insert", "ins")
+            process_elements("//diff:delete", "del")
+
+            diff_results.append({"result": lxml.etree.tostring(parsed_diff_xml).decode()})
+
+        if isinstance(data, list):
+            return diff_results
+        else:
+            assert len(diff_results) == 1
+            return diff_results[0]
