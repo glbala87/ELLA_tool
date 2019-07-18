@@ -15,7 +15,9 @@ import template from './wysiwygEditor.ngtmpl.html'
         ngDisabled: '=?',
         showControls: '<?',
         templates: '=?',
-        references: '=?' // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        references: '=?', // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        diffExisting: '=?', // Existing text for diff display mode
+        diffExistingTitle: '@?' // Button title for diff display mode
     },
     require: '?ngModel', // get a hold of NgModelController
     template
@@ -27,8 +29,9 @@ export class WysiwygEditorController {
         this.scope = $scope
         this.element = $element[0]
         this.editorelement = $element.children()[0]
-        this.placeholderelement = $element.children()[1]
-        this.buttonselement = $element.children()[2]
+        this.diffmodeelement = $element.children()[1]
+        this.placeholderelement = $element.children()[2]
+        this.buttonselement = $element.children()[3]
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
 
@@ -93,8 +96,8 @@ export class WysiwygEditorController {
         this.buttonselement.hidden = true
         this.isBlurred = false
 
-        this.sourcemode = false
-        this.source = ''
+        this.editorMode = 'editor'
+        this.diffText = ''
 
         this.setupEditor()
         this.setupEventListeners()
@@ -199,7 +202,7 @@ export class WysiwygEditorController {
             references: () => this.togglePopover('references'),
             fontcolor: () => this.togglePopover('fontcolor'),
             highlightcolor: () => this.togglePopover('highlightcolor'),
-            src: () => this.toggleSource
+            diffmode: () => this.toggleDiffMode()
         }
 
         actions[actionName]()
@@ -401,6 +404,7 @@ export class WysiwygEditorController {
         // puts other elements in focus. Plus it's more to do on
         // every single click.
         if (!this.isBlurred) {
+            this.editorMode = 'editor'
             this.closePopovers()
             this.isBlurred = true
             this.timeout(() => {
@@ -436,19 +440,32 @@ export class WysiwygEditorController {
         }
     }
 
-    toggleSource() {
-        if (this.sourcemode) {
-            this.editor.setHTML(this.source)
+    toggleDiffMode() {
+        this.editorMode = this.editorMode === 'diff' ? 'editor' : 'diff'
+
+        if (this.editorMode === 'diff') {
+            fetch('api/v1/reports/diff/', {
+                headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                method: 'POST',
+                body: JSON.stringify({
+                    old: this.diffExisting,
+                    new: this.editor.getHTML()
+                })
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw Error('Something went wrong while calculating diff.')
+                    }
+                    return response.json()
+                })
+                .then((data) => {
+                    this.diffmodeelement.innerHTML = data.result
+                })
+                .catch((err) => {
+                    this.diffmodeelement.innerHTML = `<h2 style="color: red;">${err}</h2>`
+                })
         } else {
-            this.source = this.editor.getHTML()
-            this.editor.setHTML(this.source.replace(/</g, '&lt;').replace(/>/g, '&gt;'))
-        }
-        this.editor.readOnly(!this.sourcemode)
-        this.sourcemode = !this.sourcemode
-        for (let btn in this.buttons) {
-            if (btn !== 'src') {
-                this.buttons[btn].disabled = this.editor.readOnly()
-            }
+            this.diffmodeelement.innerHTML = ''
         }
     }
 

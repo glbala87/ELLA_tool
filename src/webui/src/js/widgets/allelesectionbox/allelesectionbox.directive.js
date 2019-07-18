@@ -105,6 +105,8 @@ app.component('alleleSectionbox', {
             hasExistingAlleleAssessment: hasExistingAlleleAssessment(
                 state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
+            existingAlleleAssessment: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}.allele_assessment`,
+            existingAlleleReport: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}.allele_report`,
             isAlleleAssessmentReused: isAlleleAssessmentReused(
                 state`views.workflows.selectedAllele`
             ),
@@ -213,6 +215,17 @@ app.component('alleleSectionbox', {
                     },
                     getAcmgCommentTemplates() {
                         return $ctrl.commentTemplates['classificationAcmg']
+                    },
+                    getAlleleAssessmentCommentDiffText() {
+                        const sectionName = $ctrl.section.alleleassessmentComment.name
+                        if ($ctrl.existingAlleleAssessment) {
+                            return $ctrl.existingAlleleAssessment.evaluation[sectionName].comment
+                        }
+                    },
+                    getAlleleReportCommentDiffText() {
+                        if ($ctrl.existingAlleleReport) {
+                            return $ctrl.existingAlleleReport.evaluation.comment
+                        }
                     }
                 })
             }

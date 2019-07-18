@@ -3,22 +3,17 @@
     title="{{ vm.placeholder }}"
     tabindex="-1"
     spellcheck="false"
+    ng-show="vm.editorMode == 'editor'"
     ng-disabled="vm.ngDisabled"
     ng-model="comment.model.comment"
 ></div>
+<div class="wysiwygeditor wysiwygeditor-diffviewer" ng-show="vm.editorMode == 'diff'"></div>
 <div class="wysiwygplaceholder" title="{{ vm.placeholder }}">{{ vm.placeholder }}</div>
 <div class="wysiwygbuttons" ng-show="vm.showControls">
     <button
         class="wysiwygbutton fixed"
-        title="Toggle HTML source"
-        id="wysiwyg-src"
-        ng-click="vm.buttonAction('src')"
-    >
-        &lt;&gt;
-    </button>
-    <button
-        class="wysiwygbutton fixed"
         title="Bold (Ctrl+B)"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-bold"
         ng-click="vm.buttonAction('bold')"
     >
@@ -27,6 +22,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Italic (Ctrl+I)"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-italic"
         ng-click="vm.buttonAction('italic')"
     >
@@ -35,6 +31,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Underline (Ctrl+U)"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-underline"
         ng-click="vm.buttonAction('underline')"
     >
@@ -43,6 +40,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Code/Monospace font"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-monospace"
         ng-click="vm.buttonAction('monospace')"
     >
@@ -51,6 +49,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Set text color"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-fontcolor"
         ng-click="vm.buttonAction('fontcolor')"
     >
@@ -59,6 +58,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Set highlight color"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-highlightcolor"
         ng-click="vm.buttonAction('highlightcolor')"
     >
@@ -80,6 +80,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Heading 1"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-heading1"
         ng-click="vm.buttonAction('heading1')"
     >
@@ -88,6 +89,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Heading 2"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-heading2"
         ng-click="vm.buttonAction('heading2')"
     >
@@ -96,6 +98,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Normal text"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-paragraph"
         ng-click="vm.buttonAction('paragraph')"
     >
@@ -104,6 +107,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Numbered list"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-orderedList"
         ng-click="vm.buttonAction('orderedList')"
     >
@@ -123,6 +127,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Bullet list"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-unorderedList"
         ng-click="vm.buttonAction('unorderedList')"
     >
@@ -143,6 +148,7 @@
     <button
         class="wysiwygbutton fixed"
         title="Add link"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-link"
         ng-click="vm.buttonAction('linkform')"
     >
@@ -166,17 +172,41 @@
     <button
         class="wysiwygbutton fixed"
         title="Clear formatting"
+        ng-disabled="vm.editorMode != 'editor'"
         id="wysiwyg-removeFormat"
         ng-click="vm.buttonAction('removeFormat')"
     >
         T<span style="vertical-align: sub; margin-left: -0.3rem">&#10005;</span>
     </button>
     <button
+        class="wysiwygbutton fixed"
+        title="{{ vm.diffExistingTitle }}"
+        id="wysiwyg-diffmode"
+        ng-if="vm.diffExisting"
+        ng-click="vm.buttonAction('diffmode')"
+    >
+        <svg
+            id="i-clock"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 32 32"
+            width="70%"
+            height="100%"
+            fill="none"
+            stroke="currentcolor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+        >
+            <circle cx="16" cy="16" r="14" />
+            <path d="M16 8 L16 16 20 20" />
+        </svg>
+    </button>
+    <button
         class="wysiwygbutton fixed id-insert-template-button"
         title="Insert template"
         id="wysiwyg-templates"
         ng-click="vm.buttonAction('templates')"
-        ng-disabled="!vm.templates || vm.templates.length == 0"
+        ng-disabled="vm.editorMode != 'editor' || !vm.templates || vm.templates.length == 0"
     >
         <svg
             width="60%"
@@ -199,7 +229,7 @@
         title="Insert reference"
         id="wysiwyg-references"
         ng-click="vm.buttonAction('references')"
-        ng-disabled="!vm.references || vm.references.length == 0"
+        ng-disabled="vm.editorMode != 'editor' || !vm.references || vm.references.length == 0"
     >
         <svg
             width="60%"
