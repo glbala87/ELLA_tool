@@ -1,83 +1,345 @@
 <sectionbox color="green">
-  <maintitle>
-    IMPORT ANALYSIS
-  </maintitle>
-  <subtitle>
+    <maintitle>
+        ACTIVE IMPORTS
+    </maintitle>
+    <subtitle>{{ $ctrl.activeImportJobs.length }}</subtitle>
+    <contentwrapper class="import">
+        <import-list store-path="'views.overview.import.data.activeImportJobs'"></import-list>
+        <article class="no-jobs" ng-if="$ctrl.activeImportJobs.length == 0">
+            <h2>There are currently no active imports.</h2>
+            <h4>To create a new one, use 'New import' section below.</h4>
+        </article>
+    </contentwrapper>
+</sectionbox>
 
-  </subtitle>
-  <contentwrapper class="import">
-       <div class="question tiny line-wrapper">
-           <div class="left">
-               <h5 class="slim title">
-               <b>Sample</b>
-               </h5>
-           </div>
-           <div class="right">
-               <div class="dropdown white">
-                       <select selector style="width: 25rem;"
-                               change="$ctrl.sampleSelectedWrapper(newValue)"
-                               model="$ctrl.selectedSample"
-                               debounce="500"
-                               label-attr="name"
-                               options="$ctrl.samples"
-                               remote="$ctrl.searchSamples(search)"
-                               placeholder="TYPE TO SEARCH"
-                               disable-search="false"
-                               >
-                               </select>
-                           </div>
-           </div>
-       </div>
-       <div class="question tiny line-wrapper">
+<sectionbox color="green" collapsed="true">
+    <maintitle>
+        IMPORT HISTORY
+    </maintitle>
+    <subtitle>{{ $ctrl.importJobsHistory.pagination.totalCount }} </subtitle>
+    <contentwrapper class="import">
+        <uib-pagination
+            style="justify-content: flex-end; margin: 0; padding-bottom: 2rem;"
+            total-items="$ctrl.importJobsHistory.pagination.totalCount"
+            ng-model="$ctrl.modelImportHistoryPage"
+            ng-model-watch="$ctrl.importHistoryPage"
+            ng-change="$ctrl.importHistoryPageChanged({importHistoryPage: $ctrl.modelImportHistoryPage})"
+            class="pagination-sm"
+            items-per-page="$ctrl.importJobsHistory.pagination.perPage"
+            max-size="5"
+            rotate="false"
+        >
+        </uib-pagination>
+        <import-list
+            store-path="'views.overview.import.data.importJobsHistory.entries'"
+        ></import-list>
+    </contentwrapper>
+</sectionbox>
+
+<sectionbox color="green">
+    <maintitle>
+        NEW IMPORT
+    </maintitle>
+    <subtitle> </subtitle>
+    <contentwrapper class="import">
+        <div class="question tiny line-wrapper">
             <div class="left">
                 <h5 class="slim title">
-                <b>CUSTOM GENEPANEL</b>
+                    <b>Import source</b>
                 </h5>
             </div>
             <div class="right bttn-set">
                 <div class="id-filter-search">
-                <label tabindex=0 class="bttn" uib-btn-radio="item === 'Yes'" ng-model="$ctrl.modelCustomGenepanel" ng-model-watch="$ctrl.customGenepanel"
-                        ng-repeat="item in ['Yes', 'No']" ng-change="$ctrl.customGenepanelSelected({option: $ctrl.modelCustomGenepanel})">{{item}}</label>
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        uib-btn-radio="'user'"
+                        ng-model="$ctrl.modelImportSourceType"
+                        ng-model-watch="$ctrl.importSourceType"
+                        ng-change="$ctrl.importSourceTypeSelected({option: $ctrl.modelImportSourceType})"
+                        >User input</label
+                    ><label
+                        tabindex="0"
+                        class="bttn"
+                        uib-btn-radio="'sample'"
+                        ng-model="$ctrl.modelImportSourceType"
+                        ng-model-watch="$ctrl.importSourceType"
+                        ng-change="$ctrl.importSourceTypeSelected({option: $ctrl.modelImportSourceType})"
+                        >Sample repository</label
+                    >
                 </div>
             </div>
         </div>
-       <div class="question tiny line-wrapper" ng-if="!$ctrl.customGenepanel">
+        <div ng-switch="$ctrl.importSourceType">
+            <section ng-switch-when="user">
+                <section ng-show="!$ctrl.jobData">
+                    <div class="question line-wrapper" style="margin-top: 2rem;">
+                        <div class="left">
+                            <h5 class="slim title">
+                                <b>Raw data</b>
+                            </h5>
+                            <p>Provide raw data in any of the following formats:</p>
+                            <p>
+                                <span
+                                    class="clickable"
+                                    popover-title="HGVSc example"
+                                    uib-popover-html="'<p>NM_000059.3:c.9732_9733insA</p>
+                                                  <p>NM_000059.3:c.9732_9733insA (het)</p>
+                                                  <p>NM_000059.3(BRCA2):c.9732_9733insA (homo)</p>
+                                                '"
+                                    popover-placement="auto bottom"
+                                    popover-append-to-body="true"
+                                    popover-trigger="outsideClick"
+                                    >Full HGVSc coordinates</span
+                                >
+                            </p>
+                            <p>
+                                <span
+                                    class="clickable"
+                                    popover-title="Genomic position example"
+                                    uib-popover-html="'<p>13-32893435-G-T</p>
+                                                  <p>13-32893435-G-T (het)'"
+                                    popover-placement="auto bottom"
+                                    popover-append-to-body="true"
+                                    popover-trigger="outsideClick"
+                                    >Genomic position</span
+                                >
+                            </p>
+                            <p>
+                                <span
+                                    class="clickable"
+                                    popover-title="VCF file example"
+                                    uib-popover-html='"<p>##fileformat=VCFv4.1</p>
+                                                  <p>#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	H01</p>
+                                                  <p>13	32890572	HBLANK	G	A	.	.	class=1	GT	0/1</p>
+                                                  <p>13	32890587	H17	C	T	.	.	class=3	GT	0/1</p>"'
+                                    popover-placement="auto bottom"
+                                    popover-append-to-body="true"
+                                    popover-trigger="outsideClick"
+                                    >VCF file</span
+                                >
+                            </p>
 
-            <div class="left">
-               <h5 class="slim title">
-               <b>GENEPANEL</b>
-               </h5>
-           </div>
-           <div class="right bttn-set">
-               <div class="dropdown white">
-                    <select
-                    class="genepanel-select"
-                    ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels track by gp.name + gp.version"
-                    ng-model="$ctrl.modelSelectedGenepanel"
-                    ng-model-watch="$ctrl.selectedGenepanel"
-                    ng-change="$ctrl.selectedGenepanelChanged({genepanel: $ctrl.modelSelectedGenepanel})"
-                    >
-                    </select>
-                   </div>
-               </div>
-        </div>
-        <div class="spacer"></div>
-        <custom-genepanel-editor ng-if="$ctrl.customGenepanel"></custom-genepanel-editor>
-        <div class="import-all-summary">
-        <h3>Summary:</h3>
-            <p>Import {{$ctrl.selectedSample.name}} on {{$ctrl.displayGenepanelName}}<span ng-if="$ctrl.customGenepanel"> <i>(custom)</i> with {{$ctrl.addedCount.transcripts}} transcripts ({{$ctrl.addedCount.genes}} genes)</span>.</p>
-            <div>
-                <pre class="json-pretty">{{$ctrl.selectedSample | json}}</pre>
-            </div>
-            <div>
-            <button class="blue" ng-click="$ctrl.importClicked()" ng-disabled="!$ctrl.canImport">
-            <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none"
-                    stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <path d="M16 2 L16 30 M2 16 L30 16"/>
-            </svg>
-            Import
-            </button>
-        </div>
+                            <p>
+                                <span
+                                    class="clickable"
+                                    popover-title="SeqPilot export example"
+                                    uib-popover-html='"<pre>Index&#9;Gene&#9;Transcript&#9;Location&#9;Pos.&#9;Type&#9;Nuc Change&#9;AA Change&#9;State&#9;Hint&#9;web Ref.&#9;c. HGVS&#9;p. HGVS&#9;mut Entry&#9;mut Effect</pre>
+                                                  <pre>6&#9;MSH2&#9;NM_000251.2&#9;E5&#9;5 (797) / 4bp   [chr2:g.47641411_47641412 (hg19)]&#9;I&#9;AAGA (het)&#9;[STOP] AA 284 (E5/58)&#9;S&#9;RF changed&#9;&#9;c.796_797insAAGA&#9;p.Ala266Glufs*19&#9;0/1 of 1963</pre>
+                                                  <pre>4&#9;BRCA2&#9;NM_000059.3&#9;E18&#9;188 (8164) / 4bp   [chr13:g.32937502_32937503 (hg19)]&#9;I&#9;GCTC (het)&#9;[STOP] AA 2730 (E18/212)&#9;S&#9;RF changed&#9;&#9;c.8163_8164insGCTC&#9;p.Thr2722Alafs*9&#9;0/1 of 6244</pre>
+                                                  <pre>6&#9;BRCA2&#9;NM_000059.3&#9;E27&#9;85 (9733) / 1bp   [chr13:g.32972382_32972383 (hg19)]&#9;I&#9;A (homo)&#9;[STOP] AA 3254 (E27/112)&#9;S&#9;RF changed&#9;&#9;c.9732_9733insA&#9;p.Ser3245Ilefs*10&#9;0/1 of 6200</pre>"'
+                                    popover-placement="auto bottom"
+                                    popover-append-to-body="true"
+                                    popover-trigger="outsideClick"
+                                    >SeqPilot export file</span
+                                >
+                            </p>
+                            <p><br /></p>
+                            <p>
+                                Raw data can be separated into several imports (called a 'batch') by
+                                inserting separator characters (-). Mixing formats in a single
+                                import is not allowed.
+                            </p>
+                            <p>
+                                <span
+                                    class="clickable"
+                                    popover-title="Example"
+                                    uib-popover-html='"<p>13-32890572-G-A (het)</p>
+                                                  <p>------</p>
+                                                  <p>13-32890587-C-T (homo)<p>"'
+                                    popover-placement="auto bottom"
+                                    popover-append-to-body="true"
+                                    popover-trigger="outsideClick"
+                                    >Batch example</span
+                                >
+                            </p>
+                        </div>
+                        <div class="middle"></div>
+                        <div class="right">
+                            <autosize-textarea
+                                class="big"
+                                ng-model="$ctrl.userInput"
+                                placeholder="RAW DATA"
+                            ></autosize-textarea>
+                        </div>
+                    </div>
 
+                    <div class="question small line-wrapper" style="margin-top: 2rem;">
+                        <div class="left"></div>
+                        <div class="middle">
+                            <button
+                                class="green"
+                                ng-click="$ctrl.parseInput()"
+                                ng-disabled="$ctrl.userInput === ''"
+                            >
+                                <svg
+                                    id="i-plus"
+                                    class="buttonmark"
+                                    viewBox="0 0 32 32"
+                                    width="32"
+                                    height="32"
+                                    fill="none"
+                                    stroke="currentcolor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="6.25%"
+                                >
+                                    <path d="M16 2 L16 30 M2 16 L30 16" />
+                                </svg>
+                                Parse data
+                            </button>
+                        </div>
+                        <div class="right"></div>
+                    </div>
+                </section>
+                <section ng-if="$ctrl.jobData">
+                    <div class="question tiny line-wrapper">
+                        <div class="left"></div>
+                        <div class="right">
+                            <button class="blue" ng-click="$ctrl.revertJobData()">
+                                Edit RAW DATA
+                            </button>
+                        </div>
+                    </div>
+                    <div ng-repeat="(id, parsedInput) in $ctrl.jobData track by id">
+                        <importsingle import-data="parsedInput" index="$index+1"> </importsingle>
+                    </div>
+                    <div class="import-all-summary">
+                        <h3>Summary:</h3>
+                        <p ng-repeat="d in $ctrl.getImportDescription()">{{ d }}</p>
+                        <div>
+                            <button
+                                class="green"
+                                ng-click="$ctrl.userImportClickedWrapper()"
+                                ng-disabled="$ctrl.userImportDisabled()"
+                            >
+                                <svg
+                                    id="i-plus"
+                                    class="buttonmark"
+                                    viewBox="0 0 32 32"
+                                    width="32"
+                                    height="32"
+                                    fill="none"
+                                    stroke="currentcolor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="6.25%"
+                                >
+                                    <path d="M16 2 L16 30 M2 16 L30 16" />
+                                </svg>
+                                Import
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section ng-switch-when="sample">
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title">
+                            <b>Sample</b>
+                        </h5>
+                    </div>
+                    <div class="right">
+                        <div class="dropdown white">
+                            <select
+                                selector
+                                style="width: 25rem;"
+                                change="$ctrl.sampleSelectedWrapper(newValue)"
+                                model="$ctrl.selectedSample"
+                                debounce="500"
+                                label-attr="name"
+                                options="$ctrl.samples"
+                                remote="$ctrl.searchSamples(search)"
+                                placeholder="TYPE TO SEARCH"
+                                disable-search="false"
+                            >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title">
+                            <b>CUSTOM GENE PANEL</b>
+                        </h5>
+                    </div>
+                    <div class="right bttn-set">
+                        <div class="id-filter-search">
+                            <label
+                                tabindex="0"
+                                class="bttn"
+                                uib-btn-radio="item === 'Yes'"
+                                ng-model="$ctrl.modelCustomGenepanel"
+                                ng-model-watch="$ctrl.customGenepanel"
+                                ng-repeat="item in ['Yes', 'No']"
+                                ng-change="$ctrl.customGenepanelSelected({option: $ctrl.modelCustomGenepanel})"
+                                >{{ item }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="question tiny line-wrapper" ng-if="!$ctrl.customGenepanel">
+                    <div class="left">
+                        <h5 class="slim title">
+                            <b>GENE PANEL</b>
+                        </h5>
+                    </div>
+                    <div class="right bttn-set">
+                        <div class="dropdown white">
+                            <select
+                                class="genepanel-select"
+                                ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels track by gp.name + gp.version"
+                                ng-model="$ctrl.modelSelectedGenepanel"
+                                ng-model-watch="$ctrl.selectedGenepanel"
+                                ng-change="$ctrl.selectedGenepanelChanged({genepanel: $ctrl.modelSelectedGenepanel})"
+                            >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+                <custom-genepanel-editor ng-if="$ctrl.customGenepanel"></custom-genepanel-editor>
+                <div class="import-all-summary">
+                    <h3>Summary:</h3>
+                    <p>
+                        Import {{ $ctrl.selectedSample.name }} on {{ $ctrl.displayGenepanelName
+                        }}<span ng-if="$ctrl.customGenepanel">
+                            <i>(custom)</i> with {{ $ctrl.addedCount.transcripts }} transcripts ({{
+                                $ctrl.addedCount.genes
+                            }}
+                            genes)</span
+                        >.
+                    </p>
+                    <div>
+                        <pre class="json-pretty">{{ $ctrl.selectedSample | json }}</pre>
+                    </div>
+                    <div>
+                        <button
+                            class="blue"
+                            ng-click="$ctrl.importClicked()"
+                            ng-disabled="!$ctrl.canImport"
+                        >
+                            <svg
+                                id="i-plus"
+                                class="buttonmark"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                            Import
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
     </contentwrapper>
 </sectionbox>

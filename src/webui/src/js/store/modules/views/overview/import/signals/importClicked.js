@@ -5,6 +5,17 @@ import toast from '../../../../../common/factories/toast'
 import postImportJob from '../actions/postImportJob'
 import resetCustomImport from '../sequences/resetCustomImport'
 
+const preparePostPayload = ({ props, state }) => {
+    const selectedSample = state.get('views.overview.import.selectedSample')
+    const { name, version } = props.genepanel
+    const payload = {
+        sample_id: selectedSample.name,
+        genepanel_name: name,
+        genepanel_version: version
+    }
+    return { importJob: payload }
+}
+
 export default [
     when(state`views.overview.import.customGenepanel`),
     {
@@ -13,6 +24,7 @@ export default [
             postGenepanel,
             {
                 success: [
+                    preparePostPayload,
                     postImportJob,
                     {
                         success: [
@@ -28,6 +40,7 @@ export default [
         ],
         false: [
             set(props`genepanel`, state`views.overview.import.selectedGenepanel`),
+            preparePostPayload,
             postImportJob,
             {
                 success: [

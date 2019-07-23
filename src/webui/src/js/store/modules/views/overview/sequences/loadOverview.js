@@ -8,10 +8,13 @@ import loadFinalized from '../sequences/loadFinalized'
 import progress from '../../../../common/factories/progress'
 import toast from '../../../../common/factories/toast'
 import loadImport from '../import/sequences/loadImport'
+import interval from '../../../../common/factories/interval'
+
+const UPDATE_IMPORT_STATUS_INTERVAL = 30
 
 export default sequence('loadOverview', [
     progress('start'),
-
+    interval('stop', 'views.overview.import.updateImportJobsTriggered'),
     equals(props`section`),
     {
         // section comes from url
@@ -31,7 +34,17 @@ export default sequence('loadOverview', [
             },
             [set(props`page`, 1), loadFinalized]
         ]),
-        import: [loadImport],
+        import: [
+            // Also unset in changeView (plus above)
+            interval(
+                'start',
+                'views.overview.import.updateImportJobsTriggered',
+                {},
+                UPDATE_IMPORT_STATUS_INTERVAL * 1000,
+                false
+            ),
+            loadImport
+        ],
         'analyses-by-findings': parallel('loadOverviewAnalysisByFindings', [
             getOverviewAnalysesByFindings,
             {

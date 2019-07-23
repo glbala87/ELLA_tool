@@ -31,8 +31,12 @@ export default function getImportState() {
         data: {
             samples: null, // Sample results
             genepanels: null, // Available genepanels
-            genepanel: null // Currently selected genepanel
+            genepanel: null, // Currently selected genepanel
+            activeImportJobs: null,
+            importJobsHistory: null
         },
+        importHistoryPage: 1,
+        importSourceType: 'user',
         selectedGenepanel: null,
         candidates: getCandidatesState(),
         added: getAddedState()
