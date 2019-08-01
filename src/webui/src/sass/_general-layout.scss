@@ -1138,6 +1138,20 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     padding-right: 2rem;
   }
 
+  .user-input-left {
+    max-width: 50rem;
+  }
+
+  .user-input-middle {
+    max-width: 2rem;
+
+  }
+
+  .user-input-right {
+    max-width: 70rem;
+
+  }
+
   .import-selection {
     border-top: 1px dashed $black-10;
     margin-top: 1rem;

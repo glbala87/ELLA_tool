@@ -57,7 +57,7 @@
                         ng-model="$ctrl.modelImportSourceType"
                         ng-model-watch="$ctrl.importSourceType"
                         ng-change="$ctrl.importSourceTypeSelected({option: $ctrl.modelImportSourceType})"
-                        >User input</label
+                        >Variants</label
                     ><label
                         tabindex="0"
                         class="bttn"
@@ -73,13 +73,14 @@
         <div ng-switch="$ctrl.importSourceType">
             <section ng-switch-when="user">
                 <section ng-show="!$ctrl.jobData">
-                    <div class="question line-wrapper" style="margin-top: 2rem;">
-                        <div class="left">
-                            <h5 class="slim title">
-                                <b>Raw data</b>
-                            </h5>
-                            <p>Provide raw data in any of the following formats:</p>
+                    <div
+                        class="question line-wrapper"
+                        style="margin-top: 2rem; justify-content: center;"
+                    >
+                        <div class="left user-input-left">
+                            <p>Paste variant data in any of the following formats:</p>
                             <p>
+                                <br />
                                 <span
                                     class="clickable"
                                     popover-title="HGVSc example"
@@ -136,10 +137,11 @@
                             </p>
                             <p><br /></p>
                             <p>
-                                Raw data can be separated into several imports (called a 'batch') by
-                                inserting separator characters (-). Mixing formats in a single
-                                import is not allowed.
+                                You can batch add multiple imports by using lines with the character
+                                "-" as separators. Note that all data in the same batch must be in
+                                the same format.
                             </p>
+                            <br />
                             <p>
                                 <span
                                     class="clickable"
@@ -154,12 +156,12 @@
                                 >
                             </p>
                         </div>
-                        <div class="middle"></div>
-                        <div class="right">
+                        <div class="middle user-input-middle"></div>
+                        <div class="right user-input-right">
                             <autosize-textarea
                                 class="big"
                                 ng-model="$ctrl.userInput"
-                                placeholder="RAW DATA"
+                                placeholder="PASTE VARIANT DATA HERE"
                             ></autosize-textarea>
                         </div>
                     </div>
