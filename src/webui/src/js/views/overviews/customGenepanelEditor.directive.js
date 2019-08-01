@@ -5,7 +5,7 @@ import { state, signal } from 'cerebral/tags'
 import template from './customGenepanelEditor.ngtmpl.html'
 
 const candidatesFilteredTotalItems = Compute(
-    state`views.overview.import.candidates.filteredFlattened`,
+    state`views.overview.import.custom.candidates.filteredFlattened`,
     (flattened) => {
         if (!flattened) {
             return 0
@@ -26,10 +26,10 @@ const candidatesTotalItems = Compute(state`views.overview.import.data.genepanel`
 })
 
 const candidateTranscripts = Compute(
-    state`views.overview.import.candidates.filteredFlattened`,
-    state`views.overview.import.added.addedGenepanel`,
-    state`views.overview.import.candidates.selectedPage`,
-    state`views.overview.import.candidates.perPage`,
+    state`views.overview.import.custom.candidates.filteredFlattened`,
+    state`views.overview.import.custom.added.addedGenepanel`,
+    state`views.overview.import.custom.candidates.selectedPage`,
+    state`views.overview.import.custom.candidates.perPage`,
     (candidatesFlattened, addedGenepanel, selectedPage, perPage) => {
         if (!candidatesFlattened) {
             return []
@@ -53,9 +53,9 @@ const candidateTranscripts = Compute(
 )
 
 const addedTranscripts = Compute(
-    state`views.overview.import.added.filteredFlattened`,
-    state`views.overview.import.added.selectedPage`,
-    state`views.overview.import.added.perPage`,
+    state`views.overview.import.custom.added.filteredFlattened`,
+    state`views.overview.import.custom.added.selectedPage`,
+    state`views.overview.import.custom.added.perPage`,
     (added, selectedPage, perPage) => {
         if (!added) {
             return []
@@ -65,7 +65,7 @@ const addedTranscripts = Compute(
 )
 
 const addedFilteredTotalItems = Compute(
-    state`views.overview.import.added.filteredFlattened`,
+    state`views.overview.import.custom.added.filteredFlattened`,
     (added) => {
         if (!added) {
             return 0
@@ -74,16 +74,19 @@ const addedFilteredTotalItems = Compute(
     }
 )
 
-const addedTotalItems = Compute(state`views.overview.import.added.addedGenepanel`, (genepanel) => {
-    if (!genepanel) {
-        return 0
+const addedTotalItems = Compute(
+    state`views.overview.import.custom.added.addedGenepanel`,
+    (genepanel) => {
+        if (!genepanel) {
+            return 0
+        }
+        let length = 0
+        for (const gene of Object.values(genepanel.genes)) {
+            length += gene.transcripts.length
+        }
+        return length
     }
-    let length = 0
-    for (const gene of Object.values(genepanel.genes)) {
-        length += gene.transcripts.length
-    }
-    return length
-})
+)
 
 app.component('customGenepanelEditor', {
     templateUrl: 'customGenepanelEditor.ngtmpl.html',
@@ -93,26 +96,33 @@ app.component('customGenepanelEditor', {
             addedTranscripts,
             genepanels: state`views.overview.import.data.genepanels`,
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
-            addedGenepanel: state`views.overview.import.added.addedGenepanel`,
+            selectedFilterMode: state`views.overview.import.custom.selectedFilterMode`,
+            addedGenepanel: state`views.overview.import.custom.added.addedGenepanel`,
             candidatesTotalItems,
             candidatesFilteredTotalItems,
             addedTotalItems,
             addedFilteredTotalItems,
-            candidatesSelectedPage: state`views.overview.import.candidates.selectedPage`,
-            candidatesPerPage: state`views.overview.import.candidates.perPage`,
-            candidatesFilter: state`views.overview.import.candidates.filter`,
-            addedPerPage: state`views.overview.import.added.perPage`,
-            addedFilter: state`views.overview.import.added.filter`,
+            candidatesSelectedPage: state`views.overview.import.custom.candidates.selectedPage`,
+            candidatesPerPage: state`views.overview.import.custom.candidates.perPage`,
+            candidatesFilter: state`views.overview.import.custom.candidates.filter`,
+            candidatesFilterBatchProcessed: state`views.overview.import.custom.candidates.filterBatchProcessed`,
+            candidatesFilterBatch: state`views.overview.import.custom.candidates.filterBatch`,
+            addedPerPage: state`views.overview.import.custom.added.perPage`,
+            addedFilter: state`views.overview.import.custom.added.filter`,
             addTranscriptClicked: signal`views.overview.import.addTranscriptClicked`,
             removeTranscriptClicked: signal`views.overview.import.removeTranscriptClicked`,
             addAllTranscriptsClicked: signal`views.overview.import.addAllTranscriptsClicked`,
             removeAllTranscriptsClicked: signal`views.overview.import.removeAllTranscriptsClicked`,
             candidatesFilterChanged: signal`views.overview.import.candidatesFilterChanged`,
             addedFilterChanged: signal`views.overview.import.addedFilterChanged`,
+            applyFilterBatchClicked: signal`views.overview.import.applyFilterBatchClicked`,
+            clearFilterBatchClicked: signal`views.overview.import.clearFilterBatchClicked`,
+            copyFilterBatchClicked: signal`views.overview.import.copyFilterBatchClicked`,
             customGenepanelNameChanged: signal`views.overview.import.customGenepanelNameChanged`,
             selectedCandidatesPageChanged: signal`views.overview.import.selectedCandidatesPageChanged`,
             selectedAddedPageChanged: signal`views.overview.import.selectedAddedPageChanged`,
-            selectedGenepanelChanged: signal`views.overview.import.selectedGenepanelChanged`
+            selectedGenepanelChanged: signal`views.overview.import.selectedGenepanelChanged`,
+            selectedFilterModeChanged: signal`views.overview.import.selectedFilterModeChanged`
         },
         'CustomGenepanelEditor',
         [

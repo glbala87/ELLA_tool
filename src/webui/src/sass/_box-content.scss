@@ -176,34 +176,76 @@ analysis-selection {
       }
     }
     padding: 2rem;
+
     .slim {
       font-size: 1.5rem;
-      padding-left: 2rem;
       line-height: 2.5rem;
     }
-    .selection {
-      padding-top: 1rem;
+
+    .section {
+
       display: flex;
+      padding-top: 1rem;
+      min-height: 15rem;
 
-      .dropdown {
-        margin-right: 2rem;
+      .filter {
+        width: 25rem;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px dashed $black-25;
+        padding-right: 2rem;
+        transition: all 1s linear;
+
+        input[type="text"] {
+          width: unset;
+        }
+
+        .bttn-set {
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .batch-mode {
+
+          .gene-batch-input {
+            height: 13rem;
+            border: 1px solid $black-10;
+            margin-bottom: 1rem;
+          }
+
+          .batch-mode-controls {
+            display: flex;
+            justify-content: space-between;
+            button:only-child { margin-left: auto; }
+          }
+        }
+
       }
 
-      .gene-search-input {
-        width: 13rem;
-      }
-      .grow {
+      .results {
         flex-grow: 1;
-      }
-      .gene-pagination {
-        margin-left: 2rem;
-        margin-right: 1rem;
+        padding-left: 2rem;
+
+        .results-header {
+          display: flex;
+          justify-content: space-between;
+
+          .gene-pagination {
+            margin-left: 2rem;
+            margin-right: 1rem;
+          }
+          .slim {
+            flex-grow: 1;
+          }
+        }
+
+        .gene-list {
+          margin-top: 2rem;
+        }
       }
     }
   }
-  .gene-list {
-    margin-top: 2rem;
-  }
+
 }
 
 

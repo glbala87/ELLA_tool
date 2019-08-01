@@ -1,4 +1,4 @@
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 
-export default [set(state`views.overview.import.added.selectedPage`, props`selectedPage`)]
+export default [set(state`views.overview.import.custom.added.selectedPage`, props`selectedPage`)]

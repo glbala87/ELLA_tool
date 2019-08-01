@@ -6,7 +6,7 @@ import { UUID } from '../../util'
 import { ImportData } from '../../model/importdata'
 import template from './import.ngtmpl.html'
 
-const addedCount = Compute(state`views.overview.import.added.addedGenepanel`, (addedGenepanel) => {
+const addedCount = Compute(state`views.overview.import.custom.added.addedGenepanel`, (addedGenepanel) => {
     const counts = {
         transcripts: 0,
         genes: 0
@@ -24,7 +24,7 @@ const addedCount = Compute(state`views.overview.import.added.addedGenepanel`, (a
 const displayGenepanelName = Compute(
     state`views.overview.import.customGenepanel`,
     state`views.overview.import.selectedGenepanel`,
-    state`views.overview.import.added.addedGenepanel`,
+    state`views.overview.import.custom.added.addedGenepanel`,
     (customGenepanel, selectedGenepanel, addedGenepanel) => {
         if (customGenepanel) {
             if (!addedGenepanel) {
@@ -43,7 +43,7 @@ const canImport = Compute(
     state`views.overview.import.customGenepanel`,
     state`views.overview.import.selectedGenepanel`,
     state`views.overview.import.selectedSample`,
-    state`views.overview.import.added.addedGenepanel`,
+    state`views.overview.import.custom.added.addedGenepanel`,
     (customGenepanel, selectedGenepanel, selectedSample, addedGenepanel) => {
         if (!selectedSample) {
             return false

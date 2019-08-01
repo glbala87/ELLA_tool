@@ -18,6 +18,8 @@ import selectedAddedPageChanged from './signals/selectedAddedPageChanged'
 import addedFilterChanged from './signals/addedFilterChanged'
 import selectedGenepanelChanged from './signals/selectedGenepanelChanged'
 import priorityChanged from './signals/priorityChanged'
+import selectedFilterModeChanged from './signals/selectedFilterModeChanged'
+import applyFilterBatchClicked from './signals/applyFilterBatchClicked'
 
 export default Module({
     state: {}, // State set in changeView
@@ -39,7 +41,9 @@ export default Module({
         selectedCandidatesPageChanged,
         selectedAddedPageChanged,
         selectedGenepanelChanged,
-        updateImportJobsTriggered,
-        priorityChanged
+        priorityChanged,
+        selectedFilterModeChanged,
+        applyFilterBatchClicked,
+        updateImportJobsTriggered
     }
 })
