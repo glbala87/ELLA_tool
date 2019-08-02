@@ -200,14 +200,31 @@ analysis-selection {
           width: unset;
         }
 
-        .bttn-set {
-          margin-top: 1rem;
-          margin-bottom: 1rem;
+        .filter-mode-controls {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+
+          .missing-warning {
+            font-family: $full;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            color: $red-75;
+          }
+          .bttn-set {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          }
         }
+
 
         .batch-mode {
 
+
           .gene-batch-input {
+            &.missing {
+              border: 3px solid $red-75;
+            }
             height: 13rem;
             border: 1px solid $black-10;
             margin-bottom: 1rem;

@@ -12,13 +12,22 @@ export default function batchFilterAndFlattenGenepanel({ state }) {
     let filtered = {}
     const missing = []
     if (filter && filter.length) {
-        const splittedFilter = filter.split(/[\s,;]+/).map((t) => t.toLowerCase())
+        const splittedFilter = filter
+            .split(/[\s,;]+/)
+            .map((s) => s.replace(/\s/g, ''))
+            .filter((s) => s.length > 0)
+
         for (const toFind of splittedFilter) {
-            console.log(toFind)
             let found = false
             for (const [key, g] of Object.entries(genepanel.genes)) {
-                // Filter either on gene name or on any transcript name
-                if (toFind === g.hgnc_symbol.toLowerCase() || toFind === g.hgnc_id) {
+                // Filter either on gene name or hgnc id
+                // Don't use parseInt(), as a (hypothetical) gene name
+                // starting with a number would match an id
+                // (e.g. 2GENE would match hgnc id 2)
+                if (
+                    toFind.toLowerCase() === g.hgnc_symbol.toLowerCase() ||
+                    Number(toFind) === g.hgnc_id
+                ) {
                     filtered[key] = Object.assign({}, g)
                     found = true
                 }
@@ -49,6 +58,7 @@ export default function batchFilterAndFlattenGenepanel({ state }) {
     }
     flattened.sort(thenBy('hgnc_symbol').thenBy('transcript_name'))
 
+    state.set('views.overview.import.custom.candidates.missingBatch', missing)
     state.set('views.overview.import.custom.candidates.filterBatch', missing.join('\n'))
     state.set('views.overview.import.custom.candidates.filteredFlattened', flattened)
     state.set('views.overview.import.custom.candidates.filterBatchProcessed', true)

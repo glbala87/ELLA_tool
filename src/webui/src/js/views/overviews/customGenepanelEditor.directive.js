@@ -7,23 +7,23 @@ import template from './customGenepanelEditor.ngtmpl.html'
 const candidatesFilteredTotalItems = Compute(
     state`views.overview.import.custom.candidates.filteredFlattened`,
     (flattened) => {
-        if (!flattened) {
-            return 0
+        const result = {
+            transcripts: 0,
+            genes: 0
         }
-        return flattened.length
+        if (!flattened) {
+            return result
+        }
+
+        const genes = new Set()
+        for (const t of flattened) {
+            result.transcripts += 1
+            genes.add(t.hgnc_id)
+        }
+        result.genes = genes.size
+        return result
     }
 )
-
-const candidatesTotalItems = Compute(state`views.overview.import.data.genepanel`, (genepanel) => {
-    if (!genepanel) {
-        return 0
-    }
-    let length = 0
-    for (const gene of Object.values(genepanel.genes)) {
-        length += gene.transcripts.length
-    }
-    return length
-})
 
 const candidateTranscripts = Compute(
     state`views.overview.import.custom.candidates.filteredFlattened`,
@@ -67,24 +67,21 @@ const addedTranscripts = Compute(
 const addedFilteredTotalItems = Compute(
     state`views.overview.import.custom.added.filteredFlattened`,
     (added) => {
+        const result = {
+            transcripts: 0,
+            genes: 0
+        }
         if (!added) {
-            return 0
+            return result
         }
-        return added.length
-    }
-)
 
-const addedTotalItems = Compute(
-    state`views.overview.import.custom.added.addedGenepanel`,
-    (genepanel) => {
-        if (!genepanel) {
-            return 0
+        const genes = new Set()
+        for (const t of added) {
+            result.transcripts += 1
+            genes.add(t.hgnc_id)
         }
-        let length = 0
-        for (const gene of Object.values(genepanel.genes)) {
-            length += gene.transcripts.length
-        }
-        return length
+        result.genes = genes.size
+        return result
     }
 )
 
@@ -98,22 +95,23 @@ app.component('customGenepanelEditor', {
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
             selectedFilterMode: state`views.overview.import.custom.selectedFilterMode`,
             addedGenepanel: state`views.overview.import.custom.added.addedGenepanel`,
-            candidatesTotalItems,
             candidatesFilteredTotalItems,
-            addedTotalItems,
             addedFilteredTotalItems,
             candidatesSelectedPage: state`views.overview.import.custom.candidates.selectedPage`,
             candidatesPerPage: state`views.overview.import.custom.candidates.perPage`,
             candidatesFilter: state`views.overview.import.custom.candidates.filter`,
             candidatesFilterBatchProcessed: state`views.overview.import.custom.candidates.filterBatchProcessed`,
             candidatesFilterBatch: state`views.overview.import.custom.candidates.filterBatch`,
+            candidatesMissingBatch: state`views.overview.import.custom.candidates.missingBatch`,
             addedPerPage: state`views.overview.import.custom.added.perPage`,
             addedFilter: state`views.overview.import.custom.added.filter`,
             addTranscriptClicked: signal`views.overview.import.addTranscriptClicked`,
             removeTranscriptClicked: signal`views.overview.import.removeTranscriptClicked`,
             addAllTranscriptsClicked: signal`views.overview.import.addAllTranscriptsClicked`,
             removeAllTranscriptsClicked: signal`views.overview.import.removeAllTranscriptsClicked`,
+            applyFilterBatchClicked: signal`views.overview.import.applyFilterBatchClicked`,
             candidatesFilterChanged: signal`views.overview.import.candidatesFilterChanged`,
+            candidatesFilterBatchChanged: signal`views.overview.import.candidatesFilterBatchChanged`,
             addedFilterChanged: signal`views.overview.import.addedFilterChanged`,
             applyFilterBatchClicked: signal`views.overview.import.applyFilterBatchClicked`,
             clearFilterBatchClicked: signal`views.overview.import.clearFilterBatchClicked`,
@@ -134,32 +132,29 @@ app.component('customGenepanelEditor', {
                         return transcript.added ? 'Added' : 'Add'
                     },
                     getCandidatesFilterText() {
-                        if ($ctrl.candidatesFilter && $ctrl.candidatesFilter.length) {
-                            return `${$ctrl.candidatesFilteredTotalItems} transcripts`
-                        } else {
-                            return `${$ctrl.candidatesTotalItems} available transcripts`
-                        }
+                        return `${$ctrl.candidatesFilteredTotalItems.transcripts} transcripts (${
+                            $ctrl.candidatesFilteredTotalItems.genes
+                        } genes)`
                     },
                     getCandidatesFilterSubText() {
-                        if ($ctrl.candidatesFilter && $ctrl.candidatesFilter.length) {
-                            return `(of ${$ctrl.candidatesTotalItems}) from current filter`
-                        } else {
-                            ;('')
+                        if (
+                            ($ctrl.candidatesFilter && $ctrl.candidatesFilter.length) ||
+                            ($ctrl.candidatesFilterBatch || $ctrl.candidatesFilterBatch.length)
+                        ) {
+                            return 'from filter'
                         }
+                        return ''
                     },
                     getAddedFilterText() {
-                        if ($ctrl.addedFilter && $ctrl.addedFilter.length) {
-                            return `${$ctrl.addedFilteredTotalItems} transcripts`
-                        } else {
-                            return `${$ctrl.addedTotalItems} added transcripts`
-                        }
+                        return `${$ctrl.addedFilteredTotalItems.transcripts} transcripts (${
+                            $ctrl.addedFilteredTotalItems.genes
+                        } genes)`
                     },
                     getAddedFilterSubText() {
                         if ($ctrl.addedFilter && $ctrl.addedFilter.length) {
-                            return `(of ${$ctrl.addedTotalItems}) from current filter`
-                        } else {
-                            ;('')
+                            return `from filter`
                         }
+                        return ''
                     }
                 })
             }

@@ -1,8 +1,8 @@
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import batchFilterAndFlattenGenepanel from '../actions/batchFilterAndFlattenGenepanel'
+import updateCandidatesFilter from '../sequences/updateCandidatesFilter'
 
 export default [
-    set(state`views.overview.import.custom.candidates.filterBatch`, props`filterBatch`),
-    batchFilterAndFlattenGenepanel
+    set(props`filterBatch`, state`views.overview.import.custom.candidates.filterBatch`),
+    updateCandidatesFilter
 ]
