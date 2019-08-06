@@ -8,6 +8,7 @@
             </div>
             <div class="right">
                 <input
+                    class="id-import-custom-panel-name"
                     type="text"
                     maxlength="12"
                     placeholder="NAME"
@@ -24,7 +25,7 @@
         <div class="filter">
             <div class="dropdown white">
                 <select
-                    class="genepanel-select"
+                    class="id-import-genepanel-source genepanel-select"
                     ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels track by gp.name + gp.version"
                     ng-model="$ctrl.modelSelectedGenepanel"
                     ng-model-watch="$ctrl.selectedGenepanel"
@@ -33,7 +34,7 @@
                 </select>
             </div>
             <div class="filter-mode-controls">
-                <div class="bttn-set">
+                <div class="id-import-filter-mode bttn-set">
                     <label
                         tabindex="0"
                         class="bttn"
@@ -54,7 +55,7 @@
             <!-- single mode -->
             <input
                 ng-if="$ctrl.selectedFilterMode == 'single'"
-                class="gene-single-input"
+                class="id-import-filter-single gene-single-input"
                 type="text"
                 placeholder="FILTER"
                 ng-model="$ctrl.modelCandidatesFilter"
@@ -65,7 +66,7 @@
             <div class="batch-mode" ng-if="$ctrl.selectedFilterMode == 'batch'">
                 <textarea
                     ng-class="{'missing': $ctrl.candidatesMissingBatch.length}"
-                    class="gene-batch-input"
+                    class="id-import-filter-batch gene-batch-input"
                     type="text"
                     placeholder="PASTE/TYPE GENE NAMES OR HGNC IDS"
                     ng-model="$ctrl.modelCandidatesFilterBatch"
@@ -82,14 +83,14 @@
                     </button>
                     <button
                         ng-if="$ctrl.candidatesFilterBatchProcessed"
-                        class="red"
+                        class="id-import-filter-clear red"
                         ng-click="$ctrl.clearFilterBatchClicked()"
                     >
                         Clear
                     </button>
                     <button
                         ng-if="!$ctrl.candidatesFilterBatchProcessed"
-                        class="blue"
+                        class="id-import-filter-apply blue"
                         ng-disabled="$ctrl.modelCandidatesFilterBatch.length == 0"
                         ng-click="$ctrl.applyFilterBatchClicked()"
                     >
@@ -101,10 +102,15 @@
         <div class="results">
             <div class="results-header">
                 <span class="slim title upper"
-                    ><b>{{ $ctrl.getCandidatesFilterText() }}</b>
+                    ><b class="id-import-filter-results-text">{{
+                        $ctrl.getCandidatesFilterText()
+                    }}</b>
                     <small>{{ $ctrl.getCandidatesFilterSubText() }}</small></span
                 >
-                <button class="gene-button blue" ng-click="$ctrl.addAllTranscriptsClicked()">
+                <button
+                    class="id-import-add-all gene-button blue"
+                    ng-click="$ctrl.addAllTranscriptsClicked()"
+                >
                     Add all
                 </button>
                 <uib-pagination
@@ -121,7 +127,7 @@
                 </uib-pagination>
             </div>
 
-            <div class="gene-list">
+            <div class="gene-list id-import-filter-results">
                 <div
                     class="list-item"
                     ng-class="{'added': transcript.added}"
@@ -135,7 +141,7 @@
                     </div>
                     <div class="action">
                         <button
-                            class="blue"
+                            class="id-import-add-single blue"
                             ng-disabled="transcript.added"
                             ng-click="$ctrl.addTranscriptClicked({added: transcript})"
                         >
@@ -151,6 +157,7 @@
         <div class="filter">
             <input
                 type="text"
+                class="id-import-filter-single"
                 placeholder="FILTER"
                 ng-model="$ctrl.modelAddedFilter"
                 ng-model-watch="$ctrl.addedFilter"
@@ -160,7 +167,7 @@
         <div class="results">
             <div class="results-header">
                 <span class="slim title upper"
-                    ><b>{{ $ctrl.getAddedFilterText() }}</b>
+                    ><b class="id-import-added-text">{{ $ctrl.getAddedFilterText() }}</b>
                     <small>{{ $ctrl.getAddedFilterSubText() }}</small></span
                 >
                 <button class="red" ng-click="$ctrl.removeAllTranscriptsClicked()">
@@ -179,7 +186,7 @@
                 >
                 </uib-pagination>
             </div>
-            <div class="gene-list">
+            <div class="gene-list id-import-added-results">
                 <div class="list-item" ng-repeat="transcript in $ctrl.addedTranscripts">
                     <div class="gene">
                         {{ transcript.hgnc_symbol }} ({{ transcript.inheritance }})
@@ -189,7 +196,7 @@
                     </div>
                     <div class="action">
                         <button
-                            class="blue"
+                            class="blue id-import-remove-single"
                             ng-click="$ctrl.removeTranscriptClicked({removed: transcript})"
                         >
                             Remove
