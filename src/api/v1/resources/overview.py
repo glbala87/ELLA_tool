@@ -599,9 +599,9 @@ def get_categorized_analyses(session, user=None):
 
         # Load in priority, warning_cleared and review_comment
         analysis_ids = [a.id for a in analyses]
-        priorities = queries.workflow_analyses_priority(session, analysis_ids)
-        review_comments = queries.workflow_analyses_review_comment(session, analysis_ids)
-        warnings_cleared = queries.workflow_analyses_warning_cleared(session, analysis_ids)
+        priorities = queries.workflow_analyses_priority(session, analysis_ids).all()
+        review_comments = queries.workflow_analyses_review_comment(session, analysis_ids).all()
+        warnings_cleared = queries.workflow_analyses_warning_cleared(session, analysis_ids).all()
 
         for analysis in final_analyses[key]:
             priority = next((p.priority for p in priorities if p.analysis_id == analysis["id"]), 1)
