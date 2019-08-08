@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.6.2](#_1-6-2)
 - [1.6.1](#_1-6-1)
 - [1.6](#_1-6)
 - [1.5](#_1-5)
@@ -16,9 +17,16 @@ sidebar: auto
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
 
+## 1.6.2
+
+### Fixes
+
+- Fixed performance bug that caused excessive loading time for ANALYSES overview.
+
+
 ## 1.6.1
 
-## Fixes
+### Fixes
 
 - Fixed add/remove buttons for variants not working in REPORT side bar.
 
