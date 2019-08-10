@@ -1,6 +1,7 @@
 import { Module } from 'cerebral'
 import addExcludedAlleles from './addExcludedAlleles'
 import finishConfirmation from './finishConfirmation'
+import genepanelOverview from './genepanelOverview'
 import reassignWorkflow from './reassignWorkflow'
 
 export default Module({
@@ -12,6 +13,7 @@ export default Module({
     modules: {
         addExcludedAlleles,
         finishConfirmation,
+        genepanelOverview,
         reassignWorkflow
     }
 })

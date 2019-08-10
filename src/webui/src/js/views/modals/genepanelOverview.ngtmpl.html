@@ -1,0 +1,133 @@
+<sectionbox color="green" modal="true" on-close="($ctrl.close)">
+    <maintitle>GENE PANEL INFO </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-close" type="button" ng-click="$ctrl.close()">Close</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <div class="genepanel-overview">
+            <div class="info-container">
+                <div>
+                    <h4 class="section-header">Info:</h4>
+                    Panel: {{ $ctrl.genepanel.name }}_{{ $ctrl.genepanel.version }} <br />
+                    Genes: {{ $ctrl.genepanel.genes.length }} <br />
+                    Transcripts: {{ $ctrl.totalTranscriptsCount }} <br />
+                </div>
+
+                <div>
+                    <div class="genepanel-stats-container">
+                        <h4 class="section-header">5 most similar gene panels:</h4>
+                        <div class="table genepanel-stats">
+                            <div class="tabular-row">
+                                <div class="cell">
+                                    <h4 class="faded-title">Name</h4>
+                                </div>
+                                <div
+                                    class="cell"
+                                    title="Number of additional transcripts (not present in {{
+                                        $ctrl.genepanel.name
+                                    }}_{{ $ctrl.genepanel.version }})"
+                                >
+                                    <h4 class="faded-title">Additional</h4>
+                                </div>
+                                <div class="cell" title="Number of overlapping transcripts">
+                                    <h4 class="faded-title">Overlapping</h4>
+                                </div>
+                                <div
+                                    class="cell"
+                                    title="Number of missing transcripts (only present in {{
+                                        $ctrl.genepanel.name
+                                    }}_{{ $ctrl.genepanel.version }})"
+                                >
+                                    <h4 class="faded-title">Missing</h4>
+                                </div>
+                            </div>
+                            <div class="tabular-row" ng-repeat="entry in $ctrl.stats.overlap">
+                                <div class="cell">{{ entry.name }}_{{ entry.version }}</div>
+                                <div
+                                    class="cell additional-count"
+                                    title="Number of additional transcripts in {{ entry.name }}_{{
+                                        entry.version
+                                    }} (not present in {{ $ctrl.genepanel.name }}_{{
+                                        $ctrl.genepanel.version
+                                    }})"
+                                >
+                                    {{ entry.addition_cnt }}
+                                </div>
+                                <div
+                                    class="cell overlapping-count"
+                                    title="Number of overlapping transcripts in {{ entry.name }}_{{
+                                        entry.version
+                                    }}"
+                                >
+                                    {{ entry.overlap_cnt }}
+                                </div>
+                                <div
+                                    class="cell missing-count"
+                                    title="Number of missing transcripts in {{ entry.name }}_{{
+                                        entry.version
+                                    }} (only present in {{ $ctrl.genepanel.name }}_{{
+                                        $ctrl.genepanel.version
+                                    }})"
+                                >
+                                    {{ entry.missing_cnt }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="section-header">Gene list:</h4>
+            <button class="green copy-button" ng-click="$ctrl.copyGenesToClipboardClicked()">
+                Copy all
+            </button>
+            <button
+                class="green copy-button"
+                ng-click="$ctrl.copyGenesToClipboardClicked({includeTranscripts: true})"
+            >
+                Copy all with transcripts
+            </button>
+            <div class="filter-controls">
+                <input
+                    placeholder="FILTER"
+                    ng-model="$ctrl.modelGeneFilter"
+                    ng-change="$ctrl.geneFilterChanged({filter: $ctrl.modelGeneFilter})"
+                />
+
+                <div class="pagination-controls">
+                    <span ng-if="$ctrl.filteredGenes.genes.length"
+                        >Showing {{ $ctrl.filteredGenes.genes[0].hgnc_symbol }} to
+                        {{
+                            $ctrl.filteredGenes.genes[$ctrl.filteredGenes.genes.length - 1]
+                                .hgnc_symbol
+                        }}
+                    </span>
+                    <uib-pagination
+                        total-items="$ctrl.filteredGenes.totalCount"
+                        ng-model="$ctrl.modelFilteredGenesPage"
+                        ng-model-watch="$ctrl.filteredGenesPage"
+                        class="pagination-sm"
+                        ng-change="$ctrl.filteredGenesPageChanged({page: $ctrl.modelFilteredGenesPage})"
+                        items-per-page="$ctrl.filteredGenesPerPage"
+                        max-size="5"
+                        rotate="false"
+                    >
+                    </uib-pagination>
+                </div>
+            </div>
+            <div class="genepanel-gene-container">
+                <div
+                    class="genepanel-gene"
+                    ng-repeat="gene in $ctrl.filteredGenes.genes track by gene.hgnc_id"
+                >
+                    <span class="gene-name">{{ gene.hgnc_symbol }}</span>
+                </div>
+            </div>
+            <div class="no-results" ng-if="$ctrl.filteredGenes.genes.length == 0">
+                <h4 class="sb-notification">No results</h4>
+            </div>
+        </div>
+    </contentwrapper>
+</sectionbox>

@@ -103,6 +103,10 @@ class ApiV1(object):
 
         self._add_resource(r.genepanel.GenepanelResource, "/api/v1/genepanels/<name>/<version>/")
 
+        self._add_resource(
+            r.genepanel.GenepanelStatsResource, "/api/v1/genepanels/<name>/<version>/stats/"
+        )
+
         self._add_resource(r.reference.ReferenceListResource, "/api/v1/references/")
 
         self._add_resource(
