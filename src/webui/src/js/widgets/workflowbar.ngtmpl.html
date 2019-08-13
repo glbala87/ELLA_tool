@@ -15,8 +15,10 @@
         </div>
     </div>
     <section>
-        <button ng-click="$ctrl.showGenepanelOverviewClicked({name: 'Mendeliome', version: 'v01'})">
-            Show gene panel
+        <button
+            ng-click="$ctrl.showGenepanelOverviewClicked({name: $ctrl.selectedGenepanel.name, version: $ctrl.selectedGenepanel.version})"
+        >
+            Gene panel info
         </button>
         <button ng-click="$ctrl.copyAllAlamutClicked()">Copy all to alamut</button>
         <div class="dropdown white" ng-if="$ctrl.showHistory()">

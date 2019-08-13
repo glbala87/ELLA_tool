@@ -434,7 +434,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   section > div:first-child { margin-top: 0.5rem; }
   section > div:last-child { margin-bottom: 2rem; }
   h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
-  h4.section-title { @extend h4.section-title; margin: 0.3rem 0; }
+  h4.section-title { @extend h4.section-title; color: $blue-50; margin: 0.3rem 0; }
   .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
   i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
@@ -1063,6 +1063,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     margin-right: 0.2rem;
   }
   .section-title {
+    color: $blue-50;
     padding-top: 0.5rem;
   }
 

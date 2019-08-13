@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './genepanelOverview.ngtmpl.html'
+import popoverTemplate from './genepanelOverviewGenePopover.ngtmpl.html'
 
 const filteredGenes = Compute(
     state`views.workflows.modals.genepanelOverview.geneFilter`,
@@ -59,6 +60,9 @@ app.component('genepanelOverview', {
                 Object.assign($ctrl, {
                     close: () => {
                         $ctrl.closeClicked()
+                    },
+                    formatPhenotypes(gene) {
+                        return gene.phenotypes.map((p) => p.inheritance).join(', ')
                     }
                 })
             }

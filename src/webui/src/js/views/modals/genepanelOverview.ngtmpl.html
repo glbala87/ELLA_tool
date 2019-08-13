@@ -80,11 +80,11 @@
             </div>
 
             <h4 class="section-header">Gene list:</h4>
-            <button class="green copy-button" ng-click="$ctrl.copyGenesToClipboardClicked()">
+            <button class="copy-button bttn" ng-click="$ctrl.copyGenesToClipboardClicked()">
                 Copy all
             </button>
             <button
-                class="green copy-button"
+                class="copy-button bttn"
                 ng-click="$ctrl.copyGenesToClipboardClicked({includeTranscripts: true})"
             >
                 Copy all with transcripts
@@ -121,6 +121,11 @@
                 <div
                     class="genepanel-gene"
                     ng-repeat="gene in $ctrl.filteredGenes.genes track by gene.hgnc_id"
+                    uib-popover-template="'genepanelOverviewGenePopover.ngtmpl.html'"
+                    popover-append-to-body="true"
+                    popover-title="{{ gene.hgnc_symbol }}"
+                    popover-trigger="mouseenter"
+                    popover-placement="bottom"
                 >
                     <span class="gene-name">{{ gene.hgnc_symbol }}</span>
                 </div>
