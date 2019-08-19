@@ -1,5 +1,5 @@
 from sqlalchemy import tuple_, func, literal, and_
-from sqlalchemy.sql import label
+from sqlalchemy.sql import label, case
 from sqlalchemy.orm import joinedload, aliased
 from flask import request
 from vardb.datamodel import gene
@@ -235,112 +235,79 @@ class GenepanelStatsResource(LogRequestResource):
             raise ApiError("Invalid genepanel name or version")
 
         # We calculate results relative to input,
-        # i.e. addition_cnt means that a panel given in result has N extra transcripts
+        # i.e. addition_cnt means that a panel given in result has N extra genes
         # compared to input gene panel. Similar for missing, the panel in result is
-        # missing N transcripts present in input panel.
+        # missing N genes present in input panel.
 
-        base_transcript_ids = session.query(gene.genepanel_transcript.c.transcript_id).filter(
-            gene.genepanel_transcript.c.genepanel_name == name,
-            gene.genepanel_transcript.c.genepanel_version == version,
-        )
+        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels]
 
-        base_transcript_ids_count = base_transcript_ids.count()
-        base_transcript_ids = base_transcript_ids.subquery()
-
-        other_addition = (
-            session.query(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-                func.count(gene.genepanel_transcript.c.transcript_id).label("addition_cnt"),
-            )
-            .filter(~gene.genepanel_transcript.c.transcript_id.in_(base_transcript_ids))
-            .group_by(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-            )
-            .subquery("addition")
-        )
-
-        other_overlap = (
-            session.query(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-                func.count(gene.genepanel_transcript.c.transcript_id).label("overlap_cnt"),
-            )
-            .filter(gene.genepanel_transcript.c.transcript_id.in_(base_transcript_ids))
-            .group_by(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-            )
-            .subquery("overlap")
-        )
-
-        other_missing = (
-            session.query(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-                label(
-                    "missing_cnt",
-                    literal(base_transcript_ids_count)
-                    - func.count(gene.genepanel_transcript.c.transcript_id),
-                ),
-            )
-            .filter(gene.genepanel_transcript.c.transcript_id.in_(base_transcript_ids))
-            .group_by(
-                gene.genepanel_transcript.c.genepanel_name,
-                gene.genepanel_transcript.c.genepanel_version,
-            )
-            .subquery("missing")
-        )
-
-        # We need to use other_overlap as primary table, using any of the others
-        # will exclude the genepanels with either 0 additions or 0 missing.
-        # Here we implicitly exclude gene panels with no overlap, but that's what we want
-
-        combined = (
-            session.query(
-                other_overlap.c.genepanel_name,
-                other_overlap.c.genepanel_version,
-                func.coalesce(other_addition.c.addition_cnt, 0).label("addition_cnt"),
-                other_overlap.c.overlap_cnt,
-                func.coalesce(other_missing.c.missing_cnt, 0).label("missing_cnt"),
-            )
-            .outerjoin(
-                other_addition,
-                and_(
-                    other_overlap.c.genepanel_name == other_addition.c.genepanel_name,
-                    other_overlap.c.genepanel_version == other_addition.c.genepanel_version,
-                ),
-            )
-            .outerjoin(
-                other_missing,
-                and_(
-                    other_overlap.c.genepanel_name == other_missing.c.genepanel_name,
-                    other_overlap.c.genepanel_version == other_missing.c.genepanel_version,
-                ),
-            )
+        genepanel_gene_ids = (
+            session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
+            .join(gene.genepanel_transcript)
+            .join(gene.Genepanel)
             .filter(
-                tuple_(other_overlap.c.genepanel_name, other_overlap.c.genepanel_version)
-                != (name, version)
+                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(user_genepanels),
+                gene.Genepanel.official.is_(True),
             )
-            .order_by(  # Put most similar on top
-                func.coalesce(other_addition.c.addition_cnt, 0)
-                + func.coalesce(other_missing.c.missing_cnt, 0)
+            .distinct()
+        )
+
+        input_genepanel_gene_ids = genepanel_gene_ids.filter(
+            gene.Genepanel.name == name, gene.Genepanel.version == version
+        ).subquery()
+
+        input_gene_count = session.query(input_genepanel_gene_ids.c.gene_id).distinct().count()
+
+        genepanel_gene_ids = genepanel_gene_ids.subquery()
+
+        # outerjoin example:
+        # -------------------------------------------------------------------
+        # | name       | version | gene_id | name       | version | gene_id |
+        # -------------------------------------------------------------------
+        # | Mendeliome | v01     | 8124    | None       | None    | None    |
+        # | Ciliopati  | v05     | 4221    | Ciliopati  | v05     | 4221    |
+        # | Mendeliome | v01     | 16404   | None       | None    | None    |
+        # | Mendeliome | v01     | 966     | Ciliopati  | v05     | 966     |
+        # | Mendeliome | v01     | 4887    | None       | None    | None    |
+        # input.gene_id is null -> missing from our gene panel
+        # input.gene_id is not null -> overlaps our gene panel
+        stats = (
+            session.query(
+                genepanel_gene_ids.c.name,
+                genepanel_gene_ids.c.version,
+                # COUNT only counts non-null, so CASE acts as an filter for the count
+                # Missing = total gene count (in our panel) - overlapping
+                label(
+                    "missing",
+                    literal(input_gene_count)
+                    - func.count(case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)])),
+                ),
+                # Overlap = all gene ids where that where joined on gene_id
+                func.count(case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)])).label(
+                    "overlap"
+                ),
+                # Additional = all gene ids that did not join (i.e. missing in our panel)
+                func.count(case([(input_genepanel_gene_ids.c.gene_id.is_(None), True)])).label(
+                    "additional"
+                ),
             )
-            .limit(5)
-            .all()
+            .outerjoin(
+                input_genepanel_gene_ids,
+                and_(input_genepanel_gene_ids.c.gene_id == genepanel_gene_ids.c.gene_id),
+            )
+            .group_by(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version)
         )
 
         result = {"overlap": []}
 
-        for c in combined:
+        for c in stats:
             result["overlap"].append(
                 {
-                    "name": c.genepanel_name,
-                    "version": c.genepanel_version,
-                    "addition_cnt": c.addition_cnt,
-                    "overlap_cnt": c.overlap_cnt,
-                    "missing_cnt": c.missing_cnt,
+                    "name": c.name,
+                    "version": c.version,
+                    "addition_cnt": c.additional,
+                    "overlap_cnt": c.overlap,
+                    "missing_cnt": c.missing,
                 }
             )
         return result
