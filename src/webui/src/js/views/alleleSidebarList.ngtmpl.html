@@ -207,7 +207,7 @@
           </div>
 
           <div ng-if="$ctrl.showColumn('qual')" class="cell qual"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="Quality: {{allele.formatted.display}}"
@@ -215,7 +215,7 @@
             popover-placement="bottom"><span class="clickable">{{$ctrl.qual[allele.id]  || '-'}}</span>
           </div>
           <div ng-if="$ctrl.showColumn('dp')" class="cell dp"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="Quality: {{allele.formatted.display}}"
@@ -223,7 +223,7 @@
             popover-placement="bottom"><span class="clickable">{{$ctrl.depth[allele.id]  || '-'}}</span>
           </div>
           <div ng-if="$ctrl.showColumn('ratio')" class="cell ratio"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="Quality: {{allele.formatted.display}}"
@@ -231,7 +231,7 @@
             popover-placement="bottom"><span class="clickable">{{$ctrl.alleleRatio[allele.id]  || '-'}}</span>
           </div>
           <div ng-if="$ctrl.showColumn('hi-freq')" class="cell hi-freq"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="Frequency: {{allele.formatted.display}}"
@@ -239,7 +239,7 @@
             popover-placement="bottom"><span class="clickable">{{$ctrl.formatFreqValue($ctrl.hiFreq[allele.id])}}</span></span>
           </div>
           <div ng-if="$ctrl.showColumn('hi-count')" class="cell hi-count"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="Frequency: {{allele.formatted.display}}"
@@ -247,7 +247,7 @@
             popover-placement="bottom"><span class="clickable">{{$ctrl.hiCount[allele.id].maxValue || '-'}}</span>
           </div>
           <div ng-if="$ctrl.showColumn('external')" class="cell external"
-            popover-trigger="outsideClick"
+            popover-trigger="mouseenter"
             uib-popover-template="'alleleSidebarExternalPopover.ngtmpl.html'"
             popover-append-to-body="true"
             popover-title="External: {{allele.formatted.display}}"
