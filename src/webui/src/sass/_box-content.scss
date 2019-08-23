@@ -210,9 +210,12 @@ analysis-selection {
 
 .attachment {
   margin-right: 1rem;
-  padding: 0.5rem;
   padding-bottom: 0;
   border: solid 1px $black-05;
+  width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .attachmentcontrollers {
@@ -226,9 +229,14 @@ analysis-selection {
 }
 
 .attachmentfilename {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 1.2rem;
   vertical-align: top;
   margin-top: -0.2rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
 }
 
 .downloadattachment > a {
@@ -251,7 +259,7 @@ analysis-selection {
 }
 
 .attachment * img, .attachment * .attachmentcontrollers, .attachment * .attachmentthumbnail {
-  width: 20rem;
+    width: 100%;
 }
 
 .workflow-status-selection {

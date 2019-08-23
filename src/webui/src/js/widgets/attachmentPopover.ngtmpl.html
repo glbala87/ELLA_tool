@@ -6,13 +6,11 @@
         <b>File size: </b> <span>{{ $ctrl.getPrintedFileSize() }}</span>
     </p>
     <p>
-        <b>MIME type: </b> <span>{{ $ctrl.attachment.mimetype }}</span>
-    </p>
-    <p>
         <b>Uploaded: </b>
         <span
             >{{ $ctrl.attachment.date_created | date: 'dd-MM-yyyy HH:mm' }} by
             {{ $ctrl.attachment.user.full_name }}</span
         >
     </p>
+    <img ng-if="$ctrl.getType() === 'image'" src="/api/v1/attachments/{{ $ctrl.attachment.id }}" />
 </div>

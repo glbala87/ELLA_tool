@@ -59,7 +59,7 @@
                 </svg>
             </a>
         </div>
-        <div class="attachmentfilename">{{ $ctrl.displayFileName() }}</div>
+        <div class="attachmentfilename">{{ $ctrl.attachment.filename }}</div>
         <div
             class="removeattachment"
             ng-if="!($ctrl.readOnly || $ctrl.reused)"

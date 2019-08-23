@@ -30,10 +30,17 @@ app.component('attachment', {
                     getMimeType() {
                         let [type, subtype] = $ctrl.attachment.mimetype.split('/')
                         if (subtype.length > 4) {
+                            if (type.length > 4) {
+                                type = $ctrl.attachment.extension
+                            }
                             return type.length > 4 ? '?' : type
                         } else {
                             return subtype
                         }
+                    },
+                    getType() {
+                        let [type, subtype] = $ctrl.attachment.mimetype.split('/')
+                        return type
                     },
                     getPopoverTemplate() {
                         return 'attachmentPopover.ngtmpl.html'
@@ -43,13 +50,6 @@ app.component('attachment', {
                     },
                     getVisibility() {
                         return $ctrl.readOnly ? 'hidden' : 'visible'
-                    },
-                    displayFileName() {
-                        if ($ctrl.attachment.filename.length > 20) {
-                            return $ctrl.attachment.filename.slice(0, 18) + '...'
-                        } else {
-                            return $ctrl.attachment.filename
-                        }
                     }
                 })
             }
