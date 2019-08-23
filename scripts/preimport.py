@@ -252,7 +252,7 @@ def preimport(
     files["REPORT_CONFIG"] = report_config_file
 
     variables = {
-        "targets": "ella",
+        "target": "ella",
         "GP_NAME": genepanel_name,
         "GP_VERSION": genepanel_version,
         "PRIORITY": priority,
