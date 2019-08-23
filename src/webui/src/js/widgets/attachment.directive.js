@@ -43,6 +43,13 @@ app.component('attachment', {
                     },
                     getVisibility() {
                         return $ctrl.readOnly ? 'hidden' : 'visible'
+                    },
+                    displayFileName() {
+                        if ($ctrl.attachment.filename.length > 20) {
+                            return $ctrl.attachment.filename.slice(0, 18) + '...'
+                        } else {
+                            return $ctrl.attachment.filename
+                        }
                     }
                 })
             }

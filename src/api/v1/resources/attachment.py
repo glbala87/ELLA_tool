@@ -60,7 +60,7 @@ class AttachmentResource(LogRequestResource):
         thumbnail_path = path.with_suffix(".thumbnail")
         if not thumbnail_path.is_file():
             try:
-                cmd = "convert {ifile}[0] -thumbnail 10000@ -gravity center -background white -extent 100x100 jpeg:{ofile}"
+                cmd = "convert {ifile}[0] -thumbnail 300 -gravity center -background white -quality 90 -extent 300x300 jpeg:{ofile}"
                 subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
             except subprocess.CalledProcessError as e:
                 pass

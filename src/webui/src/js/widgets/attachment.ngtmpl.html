@@ -1,27 +1,84 @@
 <article class="attachment">
-  <div uib-popover-template="$ctrl.getPopoverTemplate()"
-            popover-append-to-body=true
-            popover-title="Attachment #{{$ctrl.attachment.id}}"
-            popover-trigger="outsideClick"
-            popover-placement="auto">
-    <img class="attachmentthumbnail" ng-if="$ctrl.attachment.thumbnail !== null" ng-src="data:image/jpg;base64, {{$ctrl.attachment.thumbnail}}" />
-    <div class="attachmentthumbnail" ng-if="$ctrl.attachment.thumbnail === null">
-      <svg id="i-file" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"><path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
-        <text x="16" y="20" text-anchor="middle" font-size=8 style="font-weight: 100;stroke-width:1px;">{{$ctrl.getMimeType()}}</text>
-      </svg>
+    <div
+        uib-popover-template="$ctrl.getPopoverTemplate()"
+        popover-append-to-body="true"
+        popover-title="Attachment"
+        popover-trigger="outsideClick"
+        popover-placement="auto"
+    >
+        <img
+            class="attachmentthumbnail"
+            ng-if="$ctrl.attachment.thumbnail !== null"
+            ng-src="data:image/jpg;base64, {{ $ctrl.attachment.thumbnail }}"
+        />
+        <div class="attachmentthumbnail" ng-if="$ctrl.attachment.thumbnail === null">
+            <svg
+                id="i-file"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 32 32"
+                fill="none"
+                stroke="currentcolor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="0.7"
+            >
+                <path d="M6 2 L6 30 26 30 26 10 18 2 Z M18 2 L18 10 26 10" />
+                <text
+                    x="16"
+                    y="20"
+                    text-anchor="middle"
+                    font-size="8"
+                    style="font-weight: 100;stroke-width:0.5px;"
+                >
+                    {{ $ctrl.getMimeType() }}
+                </text>
+            </svg>
+        </div>
     </div>
-  </div>
-  <section class="attachmentcontrollers">
-    <div class="downloadattachment">
-      <a href="/api/v1/attachments/{{$ctrl.attachment.id}}" target="/api/v1/attachments/{{$ctrl.attachment.id}}">
-        <svg id="i-download" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M9 22 C0 23 1 12 9 13 6 2 23 2 22 10 32 7 32 23 23 22 M11 26 L16 30 21 26 M16 16 L16 30" /></svg>
-      </a>
-    </div>
-    <div class="attachmentid">
-      #{{$ctrl.attachment.id}}
-    </div>
-    <div class="removeattachment" ng-if="!($ctrl.readOnly || $ctrl.reused)" ng-click="$ctrl.removeAttachment({attachmentId: $ctrl.attachment.id, alleleId: $ctrl.selectedAllele})">
-        <svg id="i-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="12" height="12" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M2 30 L30 2 M30 30 L2 2" /></svg>
-    </div>
-  </section>
+    <section class="attachmentcontrollers" title="{{ $ctrl.attachment.filename }}">
+        <div class="downloadattachment">
+            <a
+                href="/api/v1/attachments/{{ $ctrl.attachment.id }}"
+                target="/api/v1/attachments/{{ $ctrl.attachment.id }}"
+            >
+                <svg
+                    id="i-download"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentcolor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                >
+                    <path
+                        d="M9 22 C0 23 1 12 9 13 6 2 23 2 22 10 32 7 32 23 23 22 M11 26 L16 30 21 26 M16 16 L16 30"
+                    />
+                </svg>
+            </a>
+        </div>
+        <div class="attachmentfilename">{{ $ctrl.displayFileName() }}</div>
+        <div
+            class="removeattachment"
+            ng-if="!($ctrl.readOnly || $ctrl.reused)"
+            ng-click="$ctrl.removeAttachment({attachmentId: $ctrl.attachment.id, alleleId: $ctrl.selectedAllele})"
+        >
+            <svg
+                id="i-close"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 32 32"
+                width="12"
+                height="12"
+                fill="none"
+                stroke="currentcolor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+            >
+                <path d="M2 30 L30 2 M30 30 L2 2" />
+            </svg>
+        </div>
+    </section>
 </article>

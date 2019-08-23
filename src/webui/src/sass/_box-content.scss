@@ -225,10 +225,10 @@ analysis-selection {
   justify-content: space-between;
 }
 
-.attachmentid {
-  font-size: 1.4rem;
+.attachmentfilename {
+  font-size: 1.2rem;
   vertical-align: top;
-  margin-top: -0.3rem;
+  margin-top: -0.2rem;
 }
 
 .downloadattachment > a {
@@ -251,7 +251,7 @@ analysis-selection {
 }
 
 .attachment * img, .attachment * .attachmentcontrollers, .attachment * .attachmentthumbnail {
-  width: 9rem;
+  width: 20rem;
 }
 
 .workflow-status-selection {
