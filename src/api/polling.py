@@ -32,12 +32,14 @@ def run_preimport(job):
         return {"files": {}, "variables": {}}
 
     assert os.path.isfile(preimport_script)
+    priority = job.properties.get("priority", 1) if job.properties else 1
 
     args = [
         "GENEPANEL_NAME=%s" % job.genepanel_name,
         "GENEPANEL_VERSION=%s" % job.genepanel_version,
         "SAMPLE_ID=%s" % job.sample_id,
         "USERGROUP=%s" % job.user.group.name,
+        "PRIORITY=%d" % priority,
     ]
 
     cmd = " ".join(args + [preimport_script])

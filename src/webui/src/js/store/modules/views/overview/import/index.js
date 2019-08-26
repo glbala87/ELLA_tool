@@ -17,6 +17,7 @@ import selectedCandidatesPageChanged from './signals/selectedCandidatesPageChang
 import selectedAddedPageChanged from './signals/selectedAddedPageChanged'
 import addedFilterChanged from './signals/addedFilterChanged'
 import selectedGenepanelChanged from './signals/selectedGenepanelChanged'
+import priorityChanged from './signals/priorityChanged'
 
 export default Module({
     state: {}, // State set in changeView
@@ -38,6 +39,7 @@ export default Module({
         selectedCandidatesPageChanged,
         selectedAddedPageChanged,
         selectedGenepanelChanged,
-        updateImportJobsTriggered
+        updateImportJobsTriggered,
+        priorityChanged
     }
 })

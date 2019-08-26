@@ -217,7 +217,9 @@ def _get_exon_regions(transcripts):
     return exon_regions_data
 
 
-def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes):
+def preimport(
+    sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes, priority
+):
     files = dict()
     basename = "%s_%s" % (genepanel_name, genepanel_version)
 
@@ -249,7 +251,12 @@ def preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcrip
 
     files["REPORT_CONFIG"] = report_config_file
 
-    variables = {"targets": "ella", "GP_NAME": genepanel_name, "GP_VERSION": genepanel_version}
+    variables = {
+        "targets": "ella",
+        "GP_NAME": genepanel_name,
+        "GP_VERSION": genepanel_version,
+        "PRIORITY": priority,
+    }
 
     print(json.dumps({"files": files, "variables": variables}, indent=4))
 
@@ -261,8 +268,11 @@ if __name__ == "__main__":
     genepanel_name = os.environ["GENEPANEL_NAME"]
     genepanel_version = os.environ["GENEPANEL_VERSION"]
     usergroup = os.environ["USERGROUP"]
+    priority = os.environ["PRIORITY"]
 
     phenotypes = get_phenotypes(conn, genepanel_name, genepanel_version)
 
     transcripts = get_transcripts(conn, genepanel_name, genepanel_version)
-    preimport(sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes)
+    preimport(
+        sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes, priority
+    )
