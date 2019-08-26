@@ -175,7 +175,7 @@ analysis-selection {
         width: 8rem;
       }
     }
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem;
 
     .slim {
       font-size: 1.5rem;
@@ -226,7 +226,7 @@ analysis-selection {
               border: 3px solid $red-75;
             }
             height: 13rem;
-            border: 1px solid $black-10;
+            border: 1px solid $black-25;
             margin-bottom: 1rem;
           }
 
@@ -260,6 +260,17 @@ analysis-selection {
           margin-top: 2rem;
         }
       }
+    }
+    hr {
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+      border-top-color: $black-25;
+    }
+    .custom-genepanel-results {
+      background-color: $green-05;
+      padding: 1rem;
+      margin: -1rem;
+      margin-top: 0;
     }
   }
 
