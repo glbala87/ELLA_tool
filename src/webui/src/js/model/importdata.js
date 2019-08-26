@@ -13,7 +13,9 @@ export class ImportData {
         this._choices = {
             mode: ['Analysis', 'Variants'],
             type: ['Create', 'Append'],
-            technology: ['Sanger', 'HTS']
+            technology: ['Sanger', 'HTS'],
+            // Should be removed when porting to cerebral (use config values)
+            priority: [1, 2, 3]
         }
 
         // Current import selection, with validation of choices
@@ -54,6 +56,17 @@ export class ImportData {
                     return
                 }
                 this._technology = val
+            },
+            _priority: this._choices.priority[0],
+            get priority() {
+                return this._priority
+            },
+            set priority(val) {
+                if (this._choices['priority'].indexOf(val) < 0) {
+                    console.error(`Invalid choice for type: ${val}`)
+                    return
+                }
+                this._priority = val
             },
             // Non-validated choices
             analysis: null,
@@ -226,10 +239,12 @@ export class ImportData {
 
         if (this.importSelection.mode === 'Analysis') {
             properties.create_or_append = this.importSelection.type
-            properties.analysis_name =
-                this.importSelection.type === 'Append'
-                    ? this.importSelection.analysis.name
-                    : this.importSelection.analysisName
+            if (this.importSelection === 'Create') {
+                properties.analysis_name = this.importSelection.analysisName
+                properties.priority = this.importSelection.priority
+            } else {
+                properties.analysis_name = this.importSelection.analysis.name
+            }
         }
 
         if (this.isAppendToAnalysisType()) {

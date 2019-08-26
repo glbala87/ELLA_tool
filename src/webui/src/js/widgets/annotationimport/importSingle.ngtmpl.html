@@ -134,6 +134,28 @@
                   </div>
                 </div>
               </div>
+
+            <!--Select priority-->
+            <div class="question tiny line-wrapper" ng-if="vm.importData.isCreateNewAnalysisType()">
+                <div class="left-short">
+                    <h5 class="slim title" title="Priority of the imported analysis">
+                        <b>Priority</b>
+                    </h5>
+                </div>
+                <div class="right">
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            class="bttn"
+                            uib-btn-radio="item"
+                            ng-model="vm.importData.importSelection.priority"
+                            ng-repeat="item in vm.importData.getChoices('priority')"
+                            >{{ vm.priorityDisplay['' + item] }}</label
+                        >
+                    </div>
+                </div>
+            </div>
+
             </section>
           </section>
         <section>

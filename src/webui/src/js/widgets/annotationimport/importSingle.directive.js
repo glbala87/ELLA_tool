@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import { Directive, Inject } from '../../ng-decorators'
+import { Directive, Inject, Config } from '../../ng-decorators'
 import template from './importSingle.ngtmpl.html'
 
 @Directive({
@@ -11,14 +11,15 @@ import template from './importSingle.ngtmpl.html'
         index: '='
     }
 })
-@Inject('$scope', 'AnalysisResource', '$filter', 'User')
+@Inject('$scope', 'AnalysisResource', '$filter', 'User', 'Config')
 export class ImportSingleController {
-    constructor($scope, AnalysisResource, $filter, User) {
+    constructor($scope, AnalysisResource, $filter, User, Config) {
         this.scope = $scope
         this.analysisResource = AnalysisResource
         this.filter = $filter
         this.user = User.getCurrentUser()
         this.genepanels = this.user.group.genepanels
+        this.priorityDisplay = Config.config.analysis.priority.display
 
         this.editMode = false
 
@@ -91,7 +92,6 @@ export class ImportSingleController {
             this.importData.importSelection.mode = 'Analysis'
         }
 
-        this.importData.importSelection.technology = 'Sanger'
         this.importData.importSelection.genepanel = this.user.group.default_import_genepanel
             ? this.user.group.default_import_genepanel
             : null

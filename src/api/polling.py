@@ -162,6 +162,7 @@ class AnnotationJobsInterface:
             job_type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
             analysis_name = job.properties["analysis_name"]
+            priority = job.properties.get("priority", 1)
             if job_type == "Create":
                 analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
@@ -170,7 +171,7 @@ class AnnotationJobsInterface:
                 analysis_name=analysis_name,
                 gp_name=gp_name,
                 gp_version=gp_version,
-                priority=1,
+                priority=priority,
             )
             append = job_type != "Create"
             da = DepositAnalysis(self.session)
