@@ -31,9 +31,9 @@
                 <div class="cell"><p>Ratio:</p></div>
                 <div class="cell"><p>{{sample.allele_ratio | number:2}}</p></div>
               </div>
-              <div class="tabular-row" ng-repeat="(k, v) in sample.allele_depth">
-                <div class="cell"><p> - {{$ctrl.formatSequence(k)}}:</p></div>
-                <div class="cell"><p>{{v}}</p></div>
+              <div class="tabular-row" ng-repeat="adRow in sample.allele_depth">
+                <div class="cell"><p> - {{$ctrl.formatSequence(adRow[0])}}:</p></div>
+                <div class="cell"><p>{{adRow[1]}}</p></div>
               </div>
             </div>
           </div>
