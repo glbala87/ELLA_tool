@@ -2,16 +2,17 @@ import thenBy from 'thenby'
 
 export default function batchFilterAndFlattenGenepanel({ state }) {
     const genepanel = state.get('views.overview.import.data.genepanel')
-    const filter = state.get('views.overview.import.custom.candidates.filterBatch')
+    // We store the original filterBatch query, so we can always reapply the original filter
+    // This is done for UI changes like changing gene panel or filter mode
+    const filter = state.get('views.overview.import.custom.candidates.filterBatchOriginal')
     if (!genepanel) {
         return
     }
 
-    // First split filter on separators (space/linebreak, comma and semicolon)
-
     let filtered = {}
     const missing = []
     if (filter && filter.length) {
+        // First split filter on separators (space/linebreak, comma and semicolon)
         const splittedFilter = filter
             .split(/[\s,;]+/)
             .map((s) => s.replace(/\s/g, ''))
@@ -61,5 +62,8 @@ export default function batchFilterAndFlattenGenepanel({ state }) {
     state.set('views.overview.import.custom.candidates.missingBatch', missing)
     state.set('views.overview.import.custom.candidates.filterBatch', missing.join('\n'))
     state.set('views.overview.import.custom.candidates.filteredFlattened', flattened)
-    state.set('views.overview.import.custom.candidates.filterBatchProcessed', true)
+    state.set(
+        'views.overview.import.custom.candidates.filterBatchProcessed',
+        Boolean(filter && filter.length)
+    )
 }

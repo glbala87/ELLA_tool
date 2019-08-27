@@ -3,6 +3,7 @@ import { state, props } from 'cerebral/tags'
 import getGenepanel from '../actions/getGenepanel'
 import toast from '../../../../../common/factories/toast'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
+import updateCandidatesFilter from './updateCandidatesFilter'
 
 export default [
     set(props`genepanelName`, state`views.overview.import.selectedGenepanel.name`),
@@ -11,12 +12,7 @@ export default [
     {
         success: [
             set(state`views.overview.import.data.genepanel`, props`result`),
-            filterAndFlattenGenepanel(
-                'views.overview.import.data.genepanel',
-                'views.overview.import.custom.candidates.filteredFlattened',
-                'views.overview.import.custom.candidates.filter'
-            ),
-            set(state`views.overview.import.custom.candidates.selectedPage`, 1)
+            updateCandidatesFilter
         ],
         error: [toast('error', 'Failed to load genepanel')]
     }

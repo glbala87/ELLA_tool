@@ -1,4 +1,4 @@
-import { set, when } from 'cerebral/operators'
+import { set, equals } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 import batchFilterAndFlattenGenepanel from '../actions/batchFilterAndFlattenGenepanel'
@@ -6,29 +6,20 @@ import batchFilterAndFlattenGenepanel from '../actions/batchFilterAndFlattenGene
 export default [
     set(state`views.overview.import.custom.candidates.selectedPage`, 1),
     set(state`views.overview.import.custom.candidates.missingBatch`, []),
-    when(props`filter`, (t) => t !== undefined),
+    equals(state`views.overview.import.custom.selectedFilterMode`),
     {
-        true: [
-            set(state`views.overview.import.custom.candidates.filter`, props`filter`),
+        single: [
+            //set(state`views.overview.import.custom.candidates.filter`, props`filter`),
+            //set(state`views.overview.import.custom.candidates.filterBatch`, ''),
+            //set(state`views.overview.import.custom.candidates.filterBatchProcessed`, false),
             // If using single mode, reset batch mode to avoid inconsistent UI
-            set(state`views.overview.import.custom.candidates.filterBatch`, ''),
-            set(state`views.overview.import.custom.candidates.filterBatchProcessed`, false),
             filterAndFlattenGenepanel(
                 'views.overview.import.data.genepanel',
                 'views.overview.import.custom.candidates.filteredFlattened',
                 'views.overview.import.custom.candidates.filter'
             )
         ],
-        false: []
-    },
-    when(props`filterBatch`, (t) => t !== undefined),
-    {
-        true: [
-            // Reset single mode
-            set(state`views.overview.import.custom.candidates.filter`, ''),
-            set(state`views.overview.import.custom.candidates.filterBatch`, props`filterBatch`),
-            batchFilterAndFlattenGenepanel
-        ],
-        false: []
+        batch: [batchFilterAndFlattenGenepanel],
+        otherwise: []
     }
 ]

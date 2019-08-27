@@ -132,23 +132,22 @@ app.component('customGenepanelEditor', {
                         return transcript.added ? 'Added' : 'Add'
                     },
                     getCandidatesFilterText() {
-                        return `${$ctrl.candidatesFilteredTotalItems.transcripts} transcripts (${
-                            $ctrl.candidatesFilteredTotalItems.genes
-                        } genes)`
+                        return `${$ctrl.candidatesFilteredTotalItems.transcripts} transcripts (${$ctrl.candidatesFilteredTotalItems.genes} genes)`
                     },
                     getCandidatesFilterSubText() {
                         if (
-                            ($ctrl.candidatesFilter && $ctrl.candidatesFilter.length) ||
-                            ($ctrl.candidatesFilterBatch || $ctrl.candidatesFilterBatch.length)
+                            ($ctrl.selectedFilterMode === 'single' &&
+                                $ctrl.candidatesFilter &&
+                                $ctrl.candidatesFilter.length) ||
+                            ($ctrl.selectedFilterMode === 'batch' &&
+                                $ctrl.candidatesFilterBatchProcessed)
                         ) {
                             return 'from filter'
                         }
                         return ''
                     },
                     getAddedFilterText() {
-                        return `${$ctrl.addedFilteredTotalItems.transcripts} transcripts (${
-                            $ctrl.addedFilteredTotalItems.genes
-                        } genes)`
+                        return `${$ctrl.addedFilteredTotalItems.transcripts} transcripts (${$ctrl.addedFilteredTotalItems.genes} genes)`
                     },
                     getAddedFilterSubText() {
                         if ($ctrl.addedFilter && $ctrl.addedFilter.length) {

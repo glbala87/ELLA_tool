@@ -92,7 +92,7 @@
                         ng-if="!$ctrl.candidatesFilterBatchProcessed"
                         class="id-import-filter-apply blue"
                         ng-disabled="$ctrl.modelCandidatesFilterBatch.length == 0"
-                        ng-click="$ctrl.applyFilterBatchClicked()"
+                        ng-click="$ctrl.applyFilterBatchClicked({filterBatch: $ctrl.modelCandidatesFilterBatch})"
                     >
                         Apply
                     </button>

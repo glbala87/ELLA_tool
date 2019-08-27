@@ -1,5 +1,8 @@
 import { set } from 'cerebral/operators'
-import { props } from 'cerebral/tags'
+import { state } from 'cerebral/tags'
 import updateCandidatesFilter from '../sequences/updateCandidatesFilter'
 
-export default [set(props`filter`, ''), updateCandidatesFilter]
+export default [
+    set(state`views.overview.import.custom.candidates.filterBatchOriginal`, ''),
+    updateCandidatesFilter
+]
