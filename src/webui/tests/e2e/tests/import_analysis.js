@@ -53,18 +53,23 @@ describe('Import functionality', function() {
         importPage.addFilterResult(1)
         expect(importPage.getAddedText()).toBe('5 TRANSCRIPTS (5 GENES)')
 
+        const panelName = `MyPanel_${new Date()
+            .toISOString()
+            .substr(2, 8)
+            .replace(new RegExp('-', 'g'), '')}`
+
         expect(importPage.getImportSummary()).toBe(
-            'Import Testsample1 on MyPanel_190806 (custom) with 5 transcripts (5 genes).'
+            `Import Testsample1 on ${panelName} (custom) with 5 transcripts (5 genes).`
         )
 
         importPage.importButton.click()
 
         expect(importPage.getActiveImportTitle(1)).toBe(
-            'Create new analysis from sample: Testsample1 (MyPanel_190806)'
+            `Create new analysis from sample: Testsample1 (${panelName})`
         )
 
         expect(importPage.getHistoryImportTitle(1)).toBe(
-            'Create new analysis from sample: Testsample1 (MyPanel_190806)'
+            `Create new analysis from sample: Testsample1 (${panelName})`
         )
     })
 
