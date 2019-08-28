@@ -44,6 +44,7 @@
         "mini-css-extract-plugin": "^0.4.1",
         "ng-cache-loader": "^0.0.26",
         "node-sass": "^4.9.2",
+        "prettier": "^1.18.2",
         "sass-loader": "^7.0.3",
         "vuepress": "^0.14.4",
         "wdio-jasmine-framework": "^0.3.5",

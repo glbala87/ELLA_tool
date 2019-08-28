@@ -1,0 +1,4 @@
+src/webui/build/
+**/*references*.json
+src/webui/src/thirdparty/
+.mypy_cache/
