@@ -12,8 +12,7 @@ For in-depth descriptions, go to the referenced pages:
 <div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
 
 - [Choosing a sample or variant](/manual/choosing-sample-variant.md): Select from worklist or perform a search.
-- [Data import](/manual/data-import.md): Import additional data from VCF/text.
-- [Reanalyses](/manual/reanalyses.md): Perform reanalyses with other gene panel on existing data.
+- [Data import and reanalyses](/manual/data-import-reanalyses.md): Import additional data from VCF/text, or perform reanalyses on existing data.
 - [User information and warnings](/manual/user-info-warnings.md): Information and warnings related to user, variant or workflow.
 - [Data export for Sanger](/manual/export-sanger.md): Export samples/variants to be verified by Sanger.
 

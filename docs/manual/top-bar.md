@@ -18,9 +18,10 @@ The view in VARIANTS workflow is almost the same but contains no sample-specific
 
 Button  | Explanation | More information
 :---  | :---  | :---
+`GENE PANEL INFO` | Show information about the gene panel used in the current analysis. | [Gene panel info](/manual/info-page.html#gene-panel-info)
 `COPY ALL TO ALAMUT`  | Copy all variants in analysis to clipboard in Alamut format. | [Links](/manual/classification-page.html#links-to-the-web-and-alamut)
 `WORK LOG`  | System and user messages related to current analysis/interpretation. |  [Work log](/manual/worklog.md)
-`START` / <br>`FINISH`+`SAVE` | Start, save changes and finish an analysis or interpretation. | [Start](/manual/classification-page.html#start-an-analysis-or-interpretation), [Save/Finish](/manual/classification-page.html#save-and-finish)
+`START` / <br>`FINISH`+`SAVE` | Start, save changes and finish an analysis or interpretation. | [Start](/manual/classification-page.html#start-an-analysis-or-interpretation); [Save/Finish](/manual/classification-page.html#save-and-finish)
 
 
 ### Variant

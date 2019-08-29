@@ -22,7 +22,7 @@ With IGV, you can visualize all variants in an analysis, along with customisable
 Global tracks are available to all users. These currently include: 
 
 - `REFGENE`: Transcripts from RefGene.
-- `GENEPANEL`: Regions covered by the current gene panel.
+- `GENE PANEL`: Regions covered by the current gene panel.
 - `VARIANTS`: All variants in the same sample (analysis) _after_ filtering.
 - `CLASSIFICATIONS`: All existing classifications present in the database.
 	

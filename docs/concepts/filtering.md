@@ -48,7 +48,7 @@ Since any given variant can be annotated with many different consequences, this 
 #### Configuration
 
 -   **Consequences**: List consequences to use. Must be a subset of the available [VEP consequences](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
--   **Genepanel only**: Specify if only consequences in genes within the current genepanel should be included (`true`/`false`)
+-   **Gene panel only**: Specify if only consequences in genes within the current gene panel should be included (`true`/`false`)
 
 ##### Example
 
@@ -77,13 +77,13 @@ If you only want to use one of the databases, just omit the other key (`"hgmd"` 
 -   **ClinVar**:
 
     -   **Number of stars**: Specify a comparison operator (>/</=) and a number (1-4) corresponding to [number of stars in ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/docs/details/#review_status).
-    -   **Combinations**: Specify combinations of criterias to compare. Given as source, operator and target.
-    -   **Inverse**: Apply to alleles **NOT** fulfulling the given criteria (default `False`).
+    -   **Combinations**: Specify combinations of criteria to compare. Given as source, operator and target.
+    -   **Inverse**: Apply to alleles **NOT** fulfilling the given criteria (default `False`).
 
 -   **HGMD**:
 
     -   **Tags**: List HGMD variant tags to use (one or more of DM/DM?/FTV/DP/DFP/FP).
-    -   **Inverse**: Apply to alleles **NOT** fulfulling the given criteria (default `False`).
+    -   **Inverse**: Apply to alleles **NOT** fulfilling the given criteria (default `False`).
 
 
 ##### Example
@@ -115,7 +115,7 @@ This configuration is useful for exceptions, and will rescue alleles where _each
 
 The frequency filter filters out alleles based on their population allele frequency. 
 
-May use different frequency thresholds for different dataset groups (data provider/sub-population) and/or inheritance mode. Also supports setting thresholds for number of actual observations required in the dataset.
+May use different frequency thresholds for different data set groups (data provider/sub-population) and/or inheritance mode. Also supports setting thresholds for number of actual observations required in the data set.
 
 ::: warning NOTE
 This filter cannot be used as an exception filter.
@@ -123,7 +123,7 @@ This filter cannot be used as an exception filter.
 
 #### Configuration
 
--   **Filter groups**: Categorise dataset providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external datasets.
+-   **Filter groups**: Categorize data set providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external data sets.
 
 -   **Number threshold**: Set a threshold for the "Allele number" (number of observed chromosomes at a given locus) for each sub-population. Sub-populations with less observations than the threshold at a given locus (e.g. due to poor coverage) will not be used for filtering at that locus. 
 
@@ -183,7 +183,7 @@ The inheritance model filter filters out or rescues alleles that are not consist
 This filter has two different modes:
 
 -   **Recessive non-candidates**: Applies to variants in genes with autosomal recessive (AR) inheritance, where the variant is heterozygous and the only (non-filtered) variant in that gene. Typically used for filtering out variants.
--   **Reccessive candidates**: Applies to variants in genes that are **NOT** autosomal dominant (AD), where the variant is either homozygous or there is at least one other (non-filtered) variant in the same gene. Typically used for rescuing variants from another filter.
+-   **Recessive candidates**: Applies to variants in genes that are **NOT** autosomal dominant (AD), where the variant is either homozygous or there is at least one other (non-filtered) variant in the same gene. Typically used for rescuing variants from another filter.
 
 ::: warning NOTE
 This filter is intended for single samples only and _does not use family information_.
@@ -215,10 +215,10 @@ The polypyrimidine filter filters out or rescues the following allele changes in
 `C>T`, `T>C`, `delCC`, `delTT`, `delCT` and `delTC`
 
 ::: warning NOTE
-For transcripts on the positive genomic strand, deletions will not be filtered out if they are preceeded by an A, as this might introduce a new AG splice site.
-Similarly, on reverse strand transcripts, deletions will not be filtered out if the are preceeded (in genomic coordinates) by a C.
+For transcripts on the positive genomic strand, deletions will not be filtered out if they are preceded by an A, as this might introduce a new AG splice site.
+Similarly, on reverse strand transcripts, deletions will not be filtered out if the are preceded (in genomic coordinates) by a C.
 
-The filter does **not** check for a new splice site, since _ella_ only has access to the base preceeding a deletion from the imported data (VCF).
+The filter does **not** check for a new splice site, since _ella_ only has access to the base preceding a deletion from the imported data (VCF).
 :::
 
 #### Configuration
@@ -307,7 +307,7 @@ The segregation filter uses family data to filter out variants that do **NOT** m
 -   De novo
 -   Compound heterozygous
 -   Autosomal/X-linked recessive AND homozygous
--   Inherited from possible mosacism in either parent
+-   Inherited from possible mosaicism in either parent
 -   Parents have no coverage
 -   Heterozygous in any unaffected siblings
 
@@ -322,7 +322,7 @@ This filter has no configuration.
 
 ## Pre-filter (before import)
 
-For large datasets, it is advisable to apply a special pre-filter that removes variants that are *certain* to be benign (e.g. population frequency above 0.05) before importing new data, to reduce the loading time when opening an analysis. 
+For large data sets, it is advisable to apply a special pre-filter that removes variants that are *certain* to be benign (e.g. population frequency above 0.05) before importing new data, to reduce the loading time when opening an analysis. 
 
 ::: warning NOTE
 Variants removed in this way (before import) will not be visible in [FILTERED variants](/manual/filtered-variants.html#filtered-variants) in *ella*. However, *ella* can be configured to include a `VCF` track in the [VISUAL mode](/manual/visual.html#analysis-tracks), where these variants would be included.  

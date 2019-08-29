@@ -25,3 +25,21 @@ The ANALYSIS INFO section shows some basic information about the current sample.
 ## Pipeline report
 
 The PIPELINE REPORT section displays coverage details from the current HTS run, listing genes and regions with low coverage.
+
+## Gene panel info
+
+Information about the gene panel used for the current analysis is available via a button in the top bar (also available on the CLASSICATION and REPORT pages): 
+
+<div style="text-indent: 4%;"><img src="./img/gene_panel_info_btn.png"></div>
+
+Selecting this will bring up a pop-up showing the included genes: 
+
+<div style="text-indent: 4%;"><img src="./img/gene_panel_info.png"></div>
+
+- Hover your mouse over a gene to show additional information (inheritance mode and default transcript).
+
+- Quickly search for a gene using the FILTER box.
+
+- Copy all genes in the gene panel, with or without default transcripts, using the `COPY ALL`/`COPY ALL WITH TRANSCRIPTS` buttons.
+
+- Also shown (top right) is the five most similar gene panels, with overlapping (equal), additional and missing genes. Note that this does not take into account any differences in default transcripts.  

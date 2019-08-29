@@ -10,21 +10,21 @@ Please contact developers for more details.
 
 Most admin tasks are handled using the command line interface `ella-cli`. It's located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image.
 
-## Usergroups
+## User groups
 
-A usergroup defines the configuration for different groups of users. See `src/vardb/testdata/usergroups.json` for examples of different configuration options. To update the user groups, run the following command:
+A user group defines the configuration for different groups of users. See `src/vardb/testdata/usergroups.json` for examples of different configuration options. To update the user groups, run the following command:
 
 `ella-cli users add_groups <path to usergroups.json>`
 
 This will add new or update existing user groups with the new configurations options.
 
 ::: warning NOTE
-Usergroup configuration history is currently not tracked in the datamodel, so changes should be tracked externally.
+User group configuration history is currently not tracked in the data model, so changes should be tracked externally.
 :::
 
-### Usergroups and genepanels
+### User groups and gene panels
 
-ELLA's current access model revolves around gene panels. The genepanels therefore controls which analysis and variants are available to a given user. It is therefore important that this is configured correctly, and if new gene panels are added to the system, that the configuration is updated accordingly.
+ELLA's current access model revolves around gene panels. The gene panels therefore control which analysis and variants are available to a given user. It is therefore important that this is configured correctly, and if new gene panels are added to the system, that the configuration is updated accordingly.
 
 
 ## Users

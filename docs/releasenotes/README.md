@@ -4,6 +4,7 @@ sidebar: auto
 
 # Release notes
 
+- [1.7](#_1-7)
 - [1.6.2](#_1-6-2)
 - [1.6.1](#_1-6-1)
 - [1.6](#_1-6)
@@ -16,6 +17,55 @@ sidebar: auto
 - [1.1.2](#_1-1-2)
 - [1.1.1](#_1-1-1)
 - [1.1](#_1-1)
+
+## 1.7
+
+### Highlights
+
+#### Improved import function
+
+Import of variants in various text formats and ordering of reanalyses from existing samples is now merged into a single import section on the OVERVIEW page, replacing the old `IMPORT` button in the top bar. 
+
+In addition, it is now possible to search for multiple genes at once (batch query) when ordering a custom reanalysis, e.g. by pasting a list of genes from an external source. Both gene names and HGNC ID is supported, and any genes not found are shown as a list that can be copied out. 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-7-batch-filter.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>The new batch filter mode for searching for multiple genes when ordering a custom reanalysis.
+    </div>
+    <br>
+</div>
+
+#### Gene panel info
+
+Various information about the gene panel used in an analysis is now available via a new button in the top bar: 
+
+<div style="text-indent: 4%;"><img src="./img/1-7-gene-panel-info-btn.png"></div>
+
+The information includes which genes are in the panel (with inheritance and default transcript available on mouse-over; list can be copied), as well as a list of the five most similar gene panels: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-7-gene-panel-info.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Gene panel info.
+    </div>
+    <br>
+</div>
+
+#### Improvements to attachments
+
+Attachments are now named after the filename (instead of an index number), and details are available by hovering the mouse over an attachment.
+
+### Complete list of changes, additions and fixes
+
+- [Merged import functions into single section on OVERVIEW page](#improved-import-function).
+- [Added possibility for batch queries of genes to include in a reanalysis](#improved-import-function).
+- [Added gene panel info](#gene-panel-info).
+- [Attachments named after filename, mouse-over gives details](#improvements-to-attachments).
+- Fixed bug causing missing comment field (REPORT).
+- Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages. 
 
 ## 1.6.2
 
@@ -104,7 +154,7 @@ ACMG criteria where the strength of the original criterion are now displayed acc
 - Added QUAL column to variant lists in the side bar for analysis workflow (QUICK and VISUAL mode) and filtered variants.
 - Adding/removing variants in the REPORT restricted to toggle button (not clicking the anywhere on the variant).
 - Fixed sorting on F column (tag: Included) in the side bar.
-- Fix issue where genepanel was not reloaded when including a filtered variant.
+- Fix issue where gene panel was not reloaded when including a filtered variant.
 
 
 ## 1.4.1
@@ -210,7 +260,7 @@ As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integra
 
 ella provides a few special tracks by default:
 
-- Genepanel: Shows the analysis' genepanel.
+- Gene panel: Shows the analysis' gene panel.
 - Classifications: Shows all classifications present in the database.
 - Variants: Shows the analysis variants _after_ filtering.
 
@@ -266,7 +316,7 @@ Left number is existing class, right is new. An arrow indicates that a new class
 
 #### New user manual
 
-A new, online user manual is now available from within ella itelf. You can access it by clicking `Documentation` in the top navigation bar in the overview.
+A new, online user manual is now available from within ella itself. You can access it by clicking `Documentation` in the top navigation bar in the overview.
 
 ### New features
 
@@ -284,7 +334,7 @@ A new, online user manual is now available from within ella itelf. You can acces
 - Filtered variants are now shown as a list *(analysis workflow)*.
 - [`QUALITY` card is renamed to `ANALYSIS SPECIFIC` *(analysis workflow)*](/releasenotes/#quality-card-renamed-to-analysis-specific-analysis-workflow).
 - [Improved view of class in sidebar *(analysis workflow)*](/releasenotes/#improved-view-of-existing-and-current-class-in-sidebar-analysis-workflow).
-- Workflows can now be finalized with technical, not relevant and/or missing classifictions (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behaviour). *(analysis workflow)*
+- Workflows can now be finalized with technical, not relevant and/or missing classifications (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behavior). *(analysis workflow)*
 - `Requested date` is now read from input `.analysis` file and used in overview.
 - Too wide images in comments will not make the page scrollable in the horizontal direction.
 - Overview comment is now visible for `Finalised` analyses and variants in overview.
@@ -301,7 +351,7 @@ A new, online user manual is now available from within ella itelf. You can acces
 
 #### Family analysis
 
-ella now lets you interpret analyses with variants that have been joint called within a single familiy.
+ella now lets you interpret analyses with variants that have been joint called within a single family.
 
 The following segregation models are supported:
 
@@ -351,7 +401,7 @@ If there are any messages since last time the workflow was `Finalised`, the work
     <img style="width: 8rem" src="./img/1-2-worklog-button.png">
     <br>
     <div style="font-size: 80%;">
-        <strong>Figure: </strong>2 messages since beginning or last finalisation.
+        <strong>Figure: </strong>2 messages since beginning or last finalization.
     </div>
     <br>
 </div>
@@ -419,7 +469,7 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Add ability to search using genomic position on format g.123456
 - Keep existing reference evaluation data when clicking 'Ignore'
 - Fix link and reference description in reference evaluation window.
-- Fix issue where some variants would appear with two genepanels in variants overview
+- Fix issue where some variants would appear with two gene panels in variants overview
 - Fix issue where worst consequence would not display correctly for a rare case with variant having intron_variant as consequence in one transcript and splice_region_variant, intron_variant as consequences in another transcript.
 - Fix issue importing Pubmed XML data for some references.
 
@@ -432,7 +482,7 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 
 *Requires access to the import view.*
 
-ella now lets you re-import previously run samples, using either an existing genepanel or a genepanel customised for that specific sample.
+ella now lets you re-import previously run samples, using either an existing gene panel or a gene panel customized for that specific sample.
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
@@ -450,7 +500,7 @@ The frontend code has been refactored to make it more responsive and to make it 
 
 - Display number of excluded references on 'SHOW EXCLUDED' button
 - Remove scrollbar on comment fields.
-- When there are multiple transcripts in a genepanel, sort them by name. Also display all transcripts in more places, for example in the variants overview.
+- When there are multiple transcripts in a gene panel, sort them by name. Also display all transcripts in more places, for example in the variants overview.
 - Do not add references with Relevance: 'No' to the excluded references list.
 - The 'ADD EXCLUDED' window for adding excluded variants now loads faster.
 - Search results will now show correctly when typing quickly.
