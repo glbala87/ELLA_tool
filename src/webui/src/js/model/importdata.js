@@ -125,14 +125,14 @@ export class ImportData {
     }
 
     _parseVcfLine(line) {
-        let vals = line.trim().split('\t')
-        let chrom = vals[0]
-        let pos = vals[1]
-        let ref = vals[3]
-        let alt = vals[4]
+        const vals = line.trim().split('\t')
+        const chrom = vals[0]
+        const pos = vals[1]
+        const ref = vals[3]
+        const alt = vals[4]
 
-        let format = vals[8]
-        let sample = vals[9]
+        const format = vals[8]
+        const sample = vals[9]
 
         let genotype
         let gt_index = format.split(':').indexOf('GT')

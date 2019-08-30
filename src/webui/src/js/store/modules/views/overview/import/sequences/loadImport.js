@@ -1,4 +1,4 @@
-import { sequence, parallel } from 'cerebral'
+import { sequence } from 'cerebral'
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getGenepanels from '../actions/getGenepanels'

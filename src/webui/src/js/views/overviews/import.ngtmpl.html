@@ -19,12 +19,11 @@
     <subtitle>{{ $ctrl.importJobsHistory.pagination.totalCount }} </subtitle>
     <contentwrapper class="import">
         <uib-pagination
-            style="justify-content: flex-end; margin: 0; padding-bottom: 2rem;"
             total-items="$ctrl.importJobsHistory.pagination.totalCount"
             ng-model="$ctrl.modelImportHistoryPage"
             ng-model-watch="$ctrl.importHistoryPage"
             ng-change="$ctrl.importHistoryPageChanged({importHistoryPage: $ctrl.modelImportHistoryPage})"
-            class="pagination-sm"
+            class="import-history-pagination pagination-sm"
             items-per-page="$ctrl.importJobsHistory.pagination.perPage"
             max-size="5"
             rotate="false"
@@ -110,10 +109,10 @@
                                 <span
                                     class="clickable"
                                     popover-title="VCF file example"
-                                    uib-popover-html='"<p>##fileformat=VCFv4.1</p>
-                                                  <p>#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	H01</p>
-                                                  <p>13	32890572	HBLANK	G	A	.	.	class=1	GT	0/1</p>
-                                                  <p>13	32890587	H17	C	T	.	.	class=3	GT	0/1</p>"'
+                                    uib-popover-html='"<pre>##fileformat=VCFv4.1
+#CHROM POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	H01
+13	32890572	HBLANK	G	A	.	.	class=1	GT	0/1
+13	32890587	H17	C	T	.	.	class=3	GT	0/1</pre>"'
                                     popover-placement="auto bottom"
                                     popover-append-to-body="true"
                                     popover-trigger="outsideClick"

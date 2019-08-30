@@ -6,7 +6,7 @@ import getImportJobs from '../actions/getImportJobs'
 
 export default sequence('loadActiveImports', [
     () => {
-        return { page: 1, perPage: 999, q: { status: ['RUNNING', 'SUBMITTED'] } }
+        return { page: 1, perPage: 999, q: { status: ['RUNNING', 'ANNOTATED', 'SUBMITTED'] } }
     },
     getImportJobs,
     {

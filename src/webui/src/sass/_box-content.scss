@@ -160,6 +160,9 @@ analysis-selection {
 
 
 .import {
+  .import-history-pagination {
+    justify-content: flex-end; margin: 0; padding-bottom: 2rem;
+  }
   .no-jobs { min-height: 4rem; display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
     padding-bottom: 0.5rem;
     h2 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }

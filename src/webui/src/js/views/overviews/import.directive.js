@@ -83,8 +83,7 @@ app.component('import', {
             sampleSelected: signal`views.overview.import.sampleSelected`,
             customGenepanelSelected: signal`views.overview.import.customGenepanelSelected`,
             importClicked: signal`views.overview.import.importClicked`,
-            importSourceTypeSelected: signal`views.overview.import.importSourceTypeSelected`,
-            userImportClicked: signal`views.overview.import.userImportClicked`
+            importSourceTypeSelected: signal`views.overview.import.importSourceTypeSelected`
         },
         'Import',
         [
@@ -215,7 +214,7 @@ app.component('import', {
                     },
                     userImportClickedWrapper() {
                         const importJobs = Object.values($ctrl.jobData).map((j) => j.process())
-                        $ctrl.userImportClicked({ importJobs })
+                        $ctrl.importClicked({ importJobs })
                         $ctrl.jobData = null
                         $ctrl.userInput = ''
                     }
