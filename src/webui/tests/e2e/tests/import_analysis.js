@@ -67,10 +67,6 @@ describe('Import functionality', function() {
         expect(importPage.getActiveImportTitle(1)).toBe(
             `Create new analysis from sample: Testsample1 (${panelName})`
         )
-
-        expect(importPage.getHistoryImportTitle(1)).toBe(
-            `Create new analysis from sample: Testsample1 (${panelName})`
-        )
     })
 
     it('import analysis from variants', function() {
@@ -82,9 +78,6 @@ describe('Import functionality', function() {
         importPage.parseDataButton.click()
         importPage.variantImportButton.click()
         expect(importPage.getActiveImportTitle(1)).toBe(
-            'Create new analysis: TestSample01 (HBOC_v01)'
-        )
-        expect(importPage.getHistoryImportTitle(1)).toBe(
             'Create new analysis: TestSample01 (HBOC_v01)'
         )
     })
