@@ -57,14 +57,14 @@ Results from multiple analyses may be imported at the same time by inserting a l
 The contents of each original file is given its own import number and treated separately.
 
 ::: warning NOTE
-Variants for the same sample must all be given in the same format. If you wish to import variants with multiple formats (e.g. HGVS cDNA and genomic) to the same sample, copy the sample header (starting with “-“) to a new line and move any variants with a deviating format under it.
+Variants for the same sample must all be given in the same format. If you wish to import variants with multiple formats (e.g. HGVS cDNA and genomic) to the same sample, copy the sample header (starting with "-") to a new line and move any variants with a deviating format under it.
 :::
 
 ### Import options
 
-You may change parameters by clicking the `EDIT IMPORT` button (automatically opened if a warning: “Selection is incomplete” is displayed):
+You may change parameters by clicking the `IMPORT OPTIONS` button (automatically opened if a warning: "Selection is incomplete" is displayed):
 
-<div style="text-indent: 4%;"><img src="./img/edit_import_btn.png"></div>
+<div style="text-indent: 4%;"><img src="./img/import_options_btn.png"></div>
 
 Depending on your data, the following options are available:
 
@@ -100,7 +100,12 @@ The default reanalysis mode is to use an existing gene panel (CUSTOM GENE PANEL:
 
 <div style="text-indent: 4%;"><img src="./img/reanalysis_existing.png"></div>
 
-To start a reanalysis, search and choose a sample name, choose a gene panel and then hit the `+ IMPORT` button.
+To start a reanalysis: 
+
+- Search and choose a sample name
+- Choose a gene panel.
+- Set the priority of the sample (for the OVERVIEW worklists)
+- Click the `+ IMPORT` button to submit the import.
 
 ### Use custom gene panel
 

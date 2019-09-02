@@ -36,7 +36,7 @@ Selecting this will bring up a pop-up showing the included genes:
 
 <div style="text-indent: 4%;"><img src="./img/gene_panel_info.png"></div>
 
-- Hover your mouse over a gene to show additional information (inheritance mode and default transcript).
+- Hover your mouse over a gene to show additional information (inheritance mode, indications and default transcript).
 
 - Quickly search for a gene using the FILTER box.
 

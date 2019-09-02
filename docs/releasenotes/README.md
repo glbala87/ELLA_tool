@@ -58,14 +58,22 @@ The information includes which genes are in the panel (with inheritance and defa
 
 Attachments are now named after the filename (instead of an index number), and details are available by hovering the mouse over an attachment.
 
+#### Set priority on manual imports/reanalyses
+
+It is now possible to change the priority (relevant for the OVERVIEW work lists) on manual imports and reanalyses (mode: CREATE).
+
 ### Complete list of changes, additions and fixes
 
 - [Merged import functions into single section on OVERVIEW page](#improved-import-function).
 - [Added possibility for batch queries of genes to include in a reanalysis](#improved-import-function).
 - [Added gene panel info](#gene-panel-info).
 - [Attachments named after filename, mouse-over gives details](#improvements-to-attachments).
+- [Added possibility for setting priority on manual imports and reanalyses](#set-priority-on-manual-imports-reanalyses).
+- Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages.
+- Order of alleles is now consistently REF-ALT in the QUALITY card.
 - Fixed bug causing missing comment field (REPORT).
-- Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages. 
+- Fixed bug causing timeouts when changing workflow state for analyses with large gene panels.
+
 
 ## 1.6.2
 
