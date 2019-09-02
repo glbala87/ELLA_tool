@@ -88,7 +88,9 @@ class GenotypeSampleData(Base):
 
     id = Column(Integer, primary_key=True)
     # Family samples will connect to proband's genotype_ids
-    genotype_id = Column(Integer, ForeignKey("genotype.id", ondelete="CASCADE"), nullable=False)
+    genotype_id = Column(
+        Integer, ForeignKey("genotype.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     genotype = relationship(Genotype, backref="genotypesampledata")
     secondallele = Column(
         Boolean, nullable=False
