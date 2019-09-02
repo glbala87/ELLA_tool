@@ -22,11 +22,11 @@ sidebar: auto
 
 ### Highlights
 
-#### Improved import function
+#### Improved import
 
 Import of variants in various text formats and ordering of reanalyses from existing samples is now merged into a single import section on the OVERVIEW page, replacing the old `IMPORT` button in the top bar. 
 
-In addition, it is now possible to search for multiple genes at once (batch query) when ordering a custom reanalysis, e.g. by pasting a list of genes from an external source. Both gene names and HGNC ID is supported, and any genes not found are shown as a list that can be copied out. 
+The new import solution includes the possibility to adjust the priority (for the OVERVIEW work lists) for any import involving a sample. In addition, it is now possible to search for multiple genes at once (batch query) when ordering a custom reanalysis, e.g. by pasting a list of genes from an external source. Both gene names and HGNC ID is supported, and any genes not found are shown as a list that can be copied out. 
 
 <div style="text-indent: 4%;">
     <img src="./img/1-7-batch-filter.png">
@@ -58,17 +58,13 @@ The information includes which genes are in the panel (with inheritance and defa
 
 Attachments are now named after the filename (instead of an index number), and details are available by hovering the mouse over an attachment.
 
-#### Set priority on manual imports/reanalyses
-
-It is now possible to change the priority (relevant for the OVERVIEW work lists) on manual imports and reanalyses (mode: CREATE).
-
 ### Complete list of changes, additions and fixes
 
-- [Merged import functions into single section on OVERVIEW page](#improved-import-function).
-- [Added possibility for batch queries of genes to include in a reanalysis](#improved-import-function).
+- [Merged import functions into single section on OVERVIEW page](#improved-import).
+- [Added possibility for setting priority on manual imports and reanalyses](#improved-import).
+- [Added possibility for batch queries of genes to include in a reanalysis](#improved-import).
 - [Added gene panel info](#gene-panel-info).
 - [Attachments named after filename, mouse-over gives details](#improvements-to-attachments).
-- [Added possibility for setting priority on manual imports and reanalyses](#set-priority-on-manual-imports-reanalyses).
 - Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages.
 - Order of alleles is now consistently REF-ALT in the QUALITY card.
 - Fixed bug causing missing comment field (REPORT).
