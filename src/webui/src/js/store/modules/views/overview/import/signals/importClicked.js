@@ -37,7 +37,7 @@ export default [
             when(state`views.overview.import.customGenepanel`),
             {
                 true: [
-                    set(props`genepanel`, state`views.overview.import.added.addedGenepanel`),
+                    set(props`genepanel`, state`views.overview.import.custom.added.addedGenepanel`),
                     postGenepanel,
                     {
                         success: [
