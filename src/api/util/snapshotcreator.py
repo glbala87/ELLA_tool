@@ -53,36 +53,28 @@ class SnapshotCreator(object):
         elif interpretation_snapshot_model == "allele":
             allele_ids = [interpretation.allele_id]
 
+        annotation_ids = {a["allele_id"]: a["annotation_id"] for a in annotations}
+        custom_annotation_ids = {
+            a["allele_id"]: a["custom_annotation_id"] for a in custom_annotations
+        }
+        presented_alleleassessment_ids = {a.allele_id: a.id for a in presented_alleleassessments}
+        used_alleleassessment_ids = {a.allele_id: a.id for a in used_alleleassessments}
+        presented_allelereport_ids = {a.allele_id: a.id for a in presented_allelereports}
+        used_allelereport_ids = {a.allele_id: a.id for a in used_allelereports}
+
         snapshot_items = list()
         for allele_id in allele_ids:
-            excluded_category = next((k for k, v in excluded.items() if allele_id in v), None)
             # Check if allele_id is in any of the excluded categories
+            excluded_category = next((k for k, v in excluded.items() if allele_id in v), None)
 
             snapshot_item = {
                 "allele_id": allele_id,
-                "annotation_id": next(
-                    (a["annotation_id"] for a in annotations if a["allele_id"] == allele_id), None
-                ),
-                "customannotation_id": next(
-                    (
-                        a["custom_annotation_id"]
-                        for a in custom_annotations
-                        if a["allele_id"] == allele_id
-                    ),
-                    None,
-                ),
-                "presented_alleleassessment_id": next(
-                    (a.id for a in presented_alleleassessments if a.allele_id == allele_id), None
-                ),
-                "alleleassessment_id": next(
-                    (a.id for a in used_alleleassessments if a.allele_id == allele_id), None
-                ),
-                "presented_allelereport_id": next(
-                    (a.id for a in presented_allelereports if a.allele_id == allele_id), None
-                ),
-                "allelereport_id": next(
-                    (a.id for a in used_allelereports if a.allele_id == allele_id), None
-                ),
+                "annotation_id": annotation_ids.get(allele_id),
+                "customannotation_id": custom_annotation_ids.get(allele_id),
+                "presented_alleleassessment_id": presented_alleleassessment_ids.get(allele_id),
+                "alleleassessment_id": used_alleleassessment_ids.get(allele_id),
+                "presented_allelereport_id": presented_allelereport_ids.get(allele_id),
+                "allelereport_id": used_allelereport_ids.get(allele_id),
             }
 
             if interpretation_snapshot_model == "analysis":
