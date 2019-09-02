@@ -123,10 +123,10 @@ export class WysiwygEditorController {
                 this.getTextFromHTML(this.ngModelController.$viewValue) !== ''
             ) {
                 this.editor.setHTML(this.ngModelController.$viewValue)
-                this.placeholderelement.hidden = true
+                this.placeholderEvent(false)
             } else {
                 this.editor.setHTML('')
-                this.placeholderelement.hidden = false
+                this.placeholderEvent(true)
             }
         }
     }
@@ -391,8 +391,12 @@ export class WysiwygEditorController {
     }
 
     getTextFromHTML(html) {
-        html = html.replace(/<\/?(br|ul|ol|strong|em|li|h1|h2|h3|h4|p|div)[^>]*>/g, '')
-        html = html.replace('/s+/g', '')
+        // Ignore all elements (except <img>)
+        html = html.replace(/<(?!\s*img)[^>]*>/g, '')
+        // Ignore inline comments
+        html = html.replace(/<!--[\s\S]*-->/g, '')
+        // Ignore all whitespace
+        html = html.replace(/s+/g, '')
         return html
     }
 
