@@ -67,7 +67,7 @@ Attachments are now named after the filename (instead of an index number), and d
 - [Attachments named after filename, mouse-over gives details](#improvements-to-attachments).
 - Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages.
 - Order of alleles is now consistently REF-ALT in the QUALITY card.
-- Fixed bug causing missing comment field (REPORT).
+- Fixed bug causing missing REPORT comment field for certain, remnant HTML formatting.
 - Fixed bug causing timeouts when changing workflow state for analyses with large gene panels.
 
 

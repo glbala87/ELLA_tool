@@ -14,12 +14,13 @@ HTS data produced in-house is imported automatically into *ella*, with a gene pa
 
 The import page has the following sections:
 
-  - ACTIVE IMPORTS: Imports currently being processed. Any failed imports are also listed here. 
+  - ACTIVE IMPORTS: Imports currently being processed. 
 
-  - IMPORT HISTORY: Previously imported variants/analyses. 
+  - IMPORT HISTORY: Previously imported variants/analyses. Any failed imports are also listed here.  
+
   - NEW IMPORT: Create a new data import or reanalysis.
     - Select `VARIANTS` (default) for importing variants as text/VCF  (optionally specifying analysis). See [Import variant data](#import-variant-data).
-    - Select `SAMPLE REPOSITORY` for creating a new analysis (e.g. different gene panel) on a previously run sample. See [Custom reanalyses from sample repository](#custom-reanalyses-from-sample-repository).
+    - Select `SAMPLE REPOSITORY` for creating a new analysis (e.g. different gene panel) from an available sample. See [Custom reanalyses from sample repository](#custom-reanalyses-from-sample-repository).
 
 ## Import variant data
 
