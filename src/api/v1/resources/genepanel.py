@@ -179,6 +179,7 @@ class GenepanelResource(LogRequestResource):
                 gene.Gene.hgnc_id,
                 gene.Phenotype.id,
                 gene.Phenotype.inheritance,
+                gene.Phenotype.description,
             )
             .join(gene.Phenotype.gene)
             .join(gene.genepanel_phenotype)
@@ -206,7 +207,9 @@ class GenepanelResource(LogRequestResource):
 
         for p in phenotypes:
             if p.hgnc_id in genes:
-                genes[p.hgnc_id]["phenotypes"].append({"id": p.id, "inheritance": p.inheritance})
+                genes[p.hgnc_id]["phenotypes"].append(
+                    {"id": p.id, "inheritance": p.inheritance, "description": p.description}
+                )
 
         genes = list(genes.values())
         genes.sort(key=lambda x: x["hgnc_symbol"])

@@ -61,8 +61,11 @@ app.component('genepanelOverview', {
                     close: () => {
                         $ctrl.closeClicked()
                     },
+                    formatInheritance(gene) {
+                        return [...new Set(gene.phenotypes.map((p) => p.inheritance))].join(', ')
+                    },
                     formatPhenotypes(gene) {
-                        return gene.phenotypes.map((p) => p.inheritance).join(', ')
+                        return gene.phenotypes.map((p) => `${p.description} (${p.inheritance})`)
                     }
                 })
             }
