@@ -230,19 +230,14 @@ class GenepanelStatsResource(LogRequestResource):
         if version is None:
             raise ApiError("No genepanel version is provided")
 
-        if (
-            not session.query(gene.Genepanel.name, gene.Genepanel.version)
-            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
-            .count()
-        ):
-            raise ApiError("Invalid genepanel name or version")
-
         # We calculate results relative to input,
         # i.e. addition_cnt means that a panel given in result has N extra genes
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
         user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels]
+        if (name, version) not in user_genepanels:
+            raise ApiError("Invalid genepanel name or version")
 
         genepanel_gene_ids = (
             session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
