@@ -1,5 +1,5 @@
 module.exports = {
-    title: 'ella documentation',
+    title: 'ELLA documentation',
     base: '/docs/',
 
     head: [['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `./favicon.png` }]],
@@ -32,8 +32,7 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/manual/choosing-sample-variant',
-                        '/manual/data-import',
-                        '/manual/reanalyses',
+                        '/manual/data-import-reanalyses',
                         '/manual/user-info-warnings',
                         '/manual/export-sanger'
                     ]

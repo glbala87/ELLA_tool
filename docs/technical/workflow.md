@@ -8,7 +8,7 @@ Please contact developers for more details.
 
 [[toc]]
 
-*ella* uses the concept **workflow** to guide the users through the interpretation process.
+ELLA uses the concept **workflow** to guide the users through the interpretation process.
 
 At the end of the workflow the interpretation if **finalized**, making the interpetation work available in other workflows. Until then the classifications (and other info) made of the variants/alleles in that workflow  is available for users.
 

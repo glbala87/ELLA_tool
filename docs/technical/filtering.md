@@ -4,7 +4,7 @@
 
 
 
-*ella* uses filter chains to reduce the number of variants for interpretation in an analysis. These filter chains are modular, and can consist of multiple filters, each with different configurations.
+ELLA uses filter chains to reduce the number of variants for interpretation in an analysis. These filter chains are modular, and can consist of multiple filters, each with different configurations.
 
 
 
@@ -90,6 +90,6 @@ This filter config specifies to first run FilterA on all passed variants/analysi
 
 ## Available filters
 
-A set of filters are implemented in ella, and the modularity of them makes is easy to construct complex filter chains, and reasonably easy to implement new filters.
+A set of filters are implemented in ELLA, and the modularity of them makes is easy to construct complex filter chains, and reasonably easy to implement new filters.
 
 Please see [Concepts](/concepts/filtering.md) for per-filter details.

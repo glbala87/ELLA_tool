@@ -8,13 +8,13 @@ title: ACMG rules engine
 
 ## Generating suggestions
 
-*ella* suggests ACMG criteria and classifications based on the official ACMG/AMP guidelines described in [Richards et al. 2015](https://www.ncbi.nlm.nih.gov/pubmed/25741868). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirement codes (REQs), addition of derived codes to better capture varying evidence quality, prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
+ELLA suggests ACMG criteria and classifications based on the official ACMG/AMP guidelines described in [Richards et al. 2015](https://www.ncbi.nlm.nih.gov/pubmed/25741868). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirement codes (REQs), addition of derived codes to better capture varying evidence quality, prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
 
 Note that these suggestions do not remove the need for expert judgement: The suggestions generated for both ACMG criteria and variant classifications need to be verified and may be overridden, and you may also add ACMG criteria manually. **Figure 1** below gives an overview of this process:
 
 ![](./img/rule_engine.png)
 
-**Figure 1**: Key elements in the process of generating suggested ACMG criteria and clinical classification in *ella*.
+**Figure 1**: Key elements in the process of generating suggested ACMG criteria and clinical classification in ELLA.
 
 ## REQ: Requirements for ACMG criteria
 

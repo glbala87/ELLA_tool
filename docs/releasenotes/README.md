@@ -4,34 +4,91 @@ sidebar: auto
 
 # Release notes
 
-- [1.6.2](#_1-6-2)
-- [1.6.1](#_1-6-1)
-- [1.6](#_1-6)
-- [1.5](#_1-5)
-- [1.4.1](#_1-4-1)
-- [1.4](#_1-4)
-- [1.3.1](#_1-3-1)
-- [1.3](#_1-3)
-- [1.2](#_1-2)
-- [1.1.2](#_1-1-2)
-- [1.1.1](#_1-1-1)
-- [1.1](#_1-1)
+|Major versions|Minor versions|
+|:--|:--|
+[v1.7](#version-1-7)|
+[v1.6](#version-1-6)|[v1.6.2](#version-1-6-2), [v1.6.1](#version-1-6-1)
+[v1.4](#version-1-4)|[v1.4.1](#version-1-4-1)
+[v1.3](#version-1-3)|[v1.3.1](#version-1-3-1)
+[v1.2](#version-1-2)|
+[v1.1](#version-1-1)|[v1.1.2](#version-1-1-2), [v1.1.1](#version-1-1-1)
 
-## 1.6.2
+## Version 1.7
+
+Release date: 05.09.2019
+
+### Highlights
+
+#### Improved import
+
+Import of variants in various text formats and ordering of reanalyses from existing samples is now merged into a single import section on the OVERVIEW page, replacing the old `IMPORT` button in the top bar. 
+
+The new import solution includes the possibility to adjust the priority (for the OVERVIEW work lists) for any import involving a sample. In addition, it is now possible to search for multiple genes at once (batch query) when ordering a custom reanalysis, e.g. by pasting a list of genes from an external source. Both gene names and HGNC ID is supported, and any genes not found are shown as a list that can be copied out. 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-7-batch-filter.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>The new batch filter mode for searching for multiple genes when ordering a custom reanalysis.
+    </div>
+    <br>
+</div>
+
+#### Gene panel info
+
+Various information about the gene panel used in an analysis is now available via a new button in the top bar: 
+
+<div style="text-indent: 4%;"><img src="./img/1-7-gene-panel-info-btn.png"></div>
+
+The information includes which genes are in the panel (with inheritance and default transcript available on mouse-over; list can be copied), as well as a list of the five most similar gene panels: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-7-gene-panel-info.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Gene panel info.
+    </div>
+    <br>
+</div>
+
+#### Improvements to attachments
+
+Attachments are now named after the filename (instead of an index number), and details are available by hovering the mouse over an attachment.
+
+### All changes
+
+- [Merged import functions into single section on OVERVIEW page](#improved-import).
+- [Added possibility for setting priority on manual imports and reanalyses](#improved-import).
+- [Added possibility for batch queries of genes to include in a reanalysis](#improved-import).
+- [Added gene panel info](#gene-panel-info).
+- [Attachments named after filename, mouse-over gives details](#improvements-to-attachments).
+- Harmonized formatting of REPORT field on CLASSIFICATION and REPORT pages.
+- Order of alleles is now consistently REF-ALT in the QUALITY card.
+- Fixed bug causing missing REPORT comment field for certain, remnant HTML formatting.
+- Fixed bug causing timeouts when changing workflow state for analyses with large gene panels.
+
+
+## Version 1.6.2
+
+Release date: 09.08.2019
 
 ### Fixes
 
 - Fixed performance bug that caused excessive loading time for ANALYSES overview.
 
 
-## 1.6.1
+## Version 1.6.1
+
+Release date: 27.06.2019
 
 ### Fixes
 
 - Fixed add/remove buttons for variants not working in REPORT side bar.
 
 
-## 1.6
+## Version 1.6
+
+Release date: 16.06.2019
 
 ### Highlights
 
@@ -58,12 +115,12 @@ This update also brings a few changes to how outdated variant interpretations ar
 
 As an added measure, the classification of reopened variants must also be actively reselected.
 
-### Complete list of changes, additions and fixes
-- QUICK CLASSIFICATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles.
-- Side bar: Added indicators for added ACMG criteria (full list on mouse-over).
+### All changes
+- [QUICK CLASSIFICATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles](#quick-check-boxes-for-bs1-bs2-and-acmg-indicators).
+- [Side bar: Added indicators for added ACMG criteria (full list on mouse-over)](#quick-check-boxes-for-bs1-bs2-and-acmg-indicators).
 - Disallow adding the same ACMG criterion (irrespective of strength modifications) more than once to the same variant interpretation.
 - Sort added ACMG criteria by pathogenic-benign, then strength.
-- Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis.
+- [Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis](#outdated-variants-treated-as-unclassified).
 - Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
 - When there are multiple VEP CSQs (consequences) for a variant, these are now sorted in the side bar by severity (worst consequence first). 
 - TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
@@ -74,7 +131,9 @@ As an added measure, the classification of reopened variants must also be active
 - Fixed missing mouse-over for `M` tag in the side bar.
 
 
-## 1.5
+## Version 1.5
+
+Release date: 23.05.2019
 
 ### Highlights
 
@@ -96,18 +155,20 @@ It is now possible to mark variants as `TECHNICAL` in the side bar in VISUAL mod
 #### ACMG modified criteria according to ClinGen 
 ACMG criteria where the strength of the original criterion are now displayed according to ClinGen's recommendations, e.g. `PM1_Strong` instead of `PSxPM1`. 
 
-### Complete list of additions and fixes
-- VISUALIZATION redefined as view mode VISUAL on CLASSIFICATION page, with navigation moved to the side bar.
-- Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode.
+### All changes
+- [VISUALIZATION redefined as view mode VISUAL on CLASSIFICATION page, with navigation moved to the side bar](#classification-view-modes).
+- [Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode](#changes-to-side-bar-functionality).
 - Mirrored INDICATIONS COMMENT from the REPORT in the side bar on the CLASSIFICATION page.
-- Changed naming of ACMG criteria with modified strength to ClinGen's recommendations. 
+- [Changed naming of ACMG criteria with modified strength to ClinGen's recommendations](#acmg-modified-criteria-according-to-clingen). 
 - Added QUAL column to variant lists in the side bar for analysis workflow (QUICK and VISUAL mode) and filtered variants.
 - Adding/removing variants in the REPORT restricted to toggle button (not clicking the anywhere on the variant).
 - Fixed sorting on F column (tag: Included) in the side bar.
-- Fix issue where genepanel was not reloaded when including a filtered variant.
+- Fix issue where gene panel was not reloaded when including a filtered variant.
 
 
-## 1.4.1
+## Version 1.4.1
+
+Release date: 15.04.2019
 
 ### Additions and fixes
 - Increase overview update interval to lessen strain server.
@@ -115,13 +176,15 @@ ACMG criteria where the strength of the original criterion are now displayed acc
 - Fix issue where finalization would not work under certain conditions.
 
 
-## 1.4
+## Version 1.4
+
+Release date: 26.03.2019
 
 ### Highlights
 
 #### Variant filter configurations
 
-ella now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow: 
+ELLA now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow: 
 
 <div style="text-indent: 4%;">
     <img src="./img/1-4-filter-select.png">
@@ -190,27 +253,31 @@ If no template has been defined or no reference has been found/added (STUDIES & 
 
 ### Backend
 
-- Added broadcast functionality to convey important messages in *ella* to all users.
+- Added broadcast functionality to convey important messages in ELLA to all users.
 - Improvements to filter efficiency and speed.
 
 
-## 1.3.1
+## Version 1.3.1
+
+Release date: 21.12.2018
 
 ### Additions and fixes
 - Fix issue in `Variant report` when parsing warning from pipeline, in some cases yielding wrong number of poorly covered regions.
 
 
-## 1.3
+## Version 1.3
+
+Release date: 14.11.2018
 
 ### Highlights
 
 #### Visualization *(analysis workflow)*
 
-As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ella as part of a new visualization feature. ella now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
+As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ELLA as part of a new visualization feature. ELLA now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
 
-ella provides a few special tracks by default:
+ELLA provides a few special tracks by default:
 
-- Genepanel: Shows the analysis' genepanel.
+- Gene panel: Shows the analysis' gene panel.
 - Classifications: Shows all classifications present in the database.
 - Variants: Shows the analysis variants _after_ filtering.
 
@@ -266,7 +333,7 @@ Left number is existing class, right is new. An arrow indicates that a new class
 
 #### New user manual
 
-A new, online user manual is now available from within ella itelf. You can access it by clicking `Documentation` in the top navigation bar in the overview.
+A new, online user manual is now available from within ELLA itself. You can access it by clicking `Documentation` in the top navigation bar in the overview.
 
 ### New features
 
@@ -277,14 +344,14 @@ A new, online user manual is now available from within ella itelf. You can acces
 - New filter: Quality
 - Region filter now can save variants with certain (configurable) consequences from being filtered.
 - New variant warning: HGVSc and HGVSp mismatch between corresponding Refseq and Ensembl transcripts.
-- [Integrated documentation within ella](/releasenotes/#new-user-manual).
+- [Integrated documentation within ELLA](/releasenotes/#new-user-manual).
 
 
 ### Other additions and fixes
 - Filtered variants are now shown as a list *(analysis workflow)*.
 - [`QUALITY` card is renamed to `ANALYSIS SPECIFIC` *(analysis workflow)*](/releasenotes/#quality-card-renamed-to-analysis-specific-analysis-workflow).
 - [Improved view of class in sidebar *(analysis workflow)*](/releasenotes/#improved-view-of-existing-and-current-class-in-sidebar-analysis-workflow).
-- Workflows can now be finalized with technical, not relevant and/or missing classifictions (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behaviour). *(analysis workflow)*
+- Workflows can now be finalized with technical, not relevant and/or missing classifications (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behavior). *(analysis workflow)*
 - `Requested date` is now read from input `.analysis` file and used in overview.
 - Too wide images in comments will not make the page scrollable in the horizontal direction.
 - Overview comment is now visible for `Finalised` analyses and variants in overview.
@@ -295,13 +362,15 @@ A new, online user manual is now available from within ella itelf. You can acces
 
 
 
-## 1.2
+## Version 1.2
+
+Release date: 02.10.2018
 
 ### Highlights
 
 #### Family analysis
 
-ella now lets you interpret analyses with variants that have been joint called within a single familiy.
+ELLA now lets you interpret analyses with variants that have been joint called within a single family.
 
 The following segregation models are supported:
 
@@ -351,7 +420,7 @@ If there are any messages since last time the workflow was `Finalised`, the work
     <img style="width: 8rem" src="./img/1-2-worklog-button.png">
     <br>
     <div style="font-size: 80%;">
-        <strong>Figure: </strong>2 messages since beginning or last finalisation.
+        <strong>Figure: </strong>2 messages since beginning or last finalization.
     </div>
     <br>
 </div>
@@ -387,10 +456,10 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 
 ### New features
 
-- Support for family data
-- Segregation filter and tags
-- Work log
-- Variant warnings
+- [Support for family data](#family-analysis)
+- [Segregation filter and tags](#family-analysis)
+- [Work log](#work-log)
+- [Variant warnings](#variant-warnings)
 
 ### Other additions and fixes
 - `Quality` is now it's own section in Classification view (*analysis only*)
@@ -398,7 +467,9 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Variants marked as `Technical` are moved to it's own list in the sidebar.
 - Improvements in display of variants with multiple selected transcripts.
 
-## 1.1.2
+## Version 1.1.2
+
+Release date: 18.07.2018
 
 ### Additions and fixes
 
@@ -410,8 +481,9 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Fix missing Hemi total count for gnomAD
 
 
-## 1.1.1
+## Version 1.1.1
 
+Release date: 24.05.2018
 
 ### Additions and fixes
 
@@ -419,12 +491,14 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Add ability to search using genomic position on format g.123456
 - Keep existing reference evaluation data when clicking 'Ignore'
 - Fix link and reference description in reference evaluation window.
-- Fix issue where some variants would appear with two genepanels in variants overview
+- Fix issue where some variants would appear with two gene panels in variants overview
 - Fix issue where worst consequence would not display correctly for a rare case with variant having intron_variant as consequence in one transcript and splice_region_variant, intron_variant as consequences in another transcript.
 - Fix issue importing Pubmed XML data for some references.
 
 
-## 1.1
+## Version 1.1
+
+Release date: 15.05.2018
 
 ### Highlights
 
@@ -432,7 +506,7 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 
 *Requires access to the import view.*
 
-ella now lets you re-import previously run samples, using either an existing genepanel or a genepanel customised for that specific sample.
+ELLA now lets you re-import previously run samples, using either an existing gene panel or a gene panel customized for that specific sample.
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
@@ -450,7 +524,7 @@ The frontend code has been refactored to make it more responsive and to make it 
 
 - Display number of excluded references on 'SHOW EXCLUDED' button
 - Remove scrollbar on comment fields.
-- When there are multiple transcripts in a genepanel, sort them by name. Also display all transcripts in more places, for example in the variants overview.
+- When there are multiple transcripts in a gene panel, sort them by name. Also display all transcripts in more places, for example in the variants overview.
 - Do not add references with Relevance: 'No' to the excluded references list.
 - The 'ADD EXCLUDED' window for adding excluded variants now loads faster.
 - Search results will now show correctly when typing quickly.

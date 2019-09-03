@@ -6,7 +6,7 @@ title: Workflows
 
 [[toc]]
 
-*ella* allows both interpretation of individual [VARIANTS](#variant-centered-workflow-variants) (independent of laboratory samples), and [ANALYSES](#sample-centered-workflow-analyses) of variants in the context of a sample and a pre-specified gene panel. The most important difference is that the VARIANTS workflow does not show any sample-specific information/functionality, which includes:
+ELLA allows both interpretation of individual [VARIANTS](#variant-centered-workflow-variants) (independent of laboratory samples), and [ANALYSES](#sample-centered-workflow-analyses) of variants in the context of a sample and a pre-specified gene panel. The most important difference is that the VARIANTS workflow does not show any sample-specific information/functionality, which includes:
 
   - Genotype
   - Quality of the variant call (read depth, allele balance, mapping quality, etc.)

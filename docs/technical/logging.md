@@ -1,8 +1,8 @@
 # Logging
 
-There are currently two kinds of formal logging functionality in ella, API resource logging and command line logging.
+There are currently two kinds of formal logging functionality in ELLA, API resource logging and command line logging.
 
-In addition, you would normally store the log files from the ella processes as well. They also include an additional copy of all API requests made.
+In addition, you would normally store the log files from the ELLA processes as well. They also include an additional copy of all API requests made.
 
 ## API logging
 

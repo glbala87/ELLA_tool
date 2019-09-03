@@ -18,7 +18,7 @@ This page also links to the current documentation (you can also reach these by g
 
 ## Select analysis or variant from the worklist
 
-Depending on how *ella* is configured, the vertical buttons in the left margin of the OVERVIEW page may include buttons for either `ANALYSES` or `VARIANTS`, or both: 
+Depending on how ELLA is configured, the vertical buttons in the left margin of the OVERVIEW page may include buttons for either `ANALYSES` or `VARIANTS`, or both: 
 
 <div style="text-indent: 4%;"><img src="./img/overview_sidebar_analyses.png"></div>
 
@@ -89,7 +89,7 @@ Possible searches include HGVS cDNA or protein variant name with or without refe
 
 Search results may be narrowed further by selecting gene or user, or by ignoring excluded variants (see figure above).
 
-Clicking on a variant search result will open the variant in a VARIANTS workflow. Note that to (re-)interpret the variant, *ella* has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
+Clicking on a variant search result will open the variant in a VARIANTS workflow. Note that to (re-)interpret the variant, ELLA has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
 
 <div style="text-indent: 4%;"><img src="./img/choose_genepanel.png"></div>
 

@@ -6,7 +6,7 @@ title: Classification page
 
 [[toc]]
 
-The CLASSIFICATION page contains all annotation, as well as tools for visualising, interpreting and classifying each variant. Navigate to this page by using the button in the left corner of the top bar (if no warnings are present, you will start on this page automatically):
+The CLASSIFICATION page contains all annotation, as well as tools for visualizing, interpreting and classifying each variant. Navigate to this page by using the button in the left corner of the top bar (if no warnings are present, you will start on this page automatically):
 
 <div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
 <br>
@@ -20,7 +20,8 @@ This page has three main parts (go to links for further details), a top bar, a s
 
 - [Top bar](/manual/top-bar.html): 
   - Basic information and actions related to an analysis and/or selected variant.
-  - Access the [work log](/manual/worklog.html), which contains system and user messages related to current analysis/interpretation.  
+  - Access the [work log](/manual/worklog.html), which contains system and user messages related to current analysis/interpretation.
+  - Show [gene panel info](/manual/info-page.html#gene-panel-info).  
 - [Side bar](/manual/side-bar.html) (ANALYSES only). : 
   - Variant list with tags. 
   - Review [filtered variants](/manual/filtered-variants.html).
@@ -47,7 +48,7 @@ Buttons for saving and finishing your analyses are in the right corner of the to
 
 ### Saving unfinished work
 
-There is currently no auto-save feature in *ella*, so please make sure to use the `SAVE` button on a regular basis. The button will be purple when there are unsaved changes. Note that if you try to exit the interpretation or close the browser with unsaved changes, you will get a warning first, which will allow you to go back and save your work.
+There is currently no auto-save feature in ELLA, so please make sure to use the `SAVE` button on a regular basis. The button will be purple when there are unsaved changes. Note that if you try to exit the interpretation or close the browser with unsaved changes, you will get a warning first, which will allow you to go back and save your work.
 
 ### Finalise an analysis or interpretation 
 
@@ -76,7 +77,7 @@ Each section on this page has a comment field, which should be used for making n
 
 <div style="text-indent: 4%;"><img src="./img/comment_menu.png"></div>
 
-The menu also includes buttons for adding pre-defined templates (can be configured independtly for specific fields), as well as references from the STUDIES & REFERENCES section. Insert a template or reference by clicking the `+` sign in the pop-up. If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
+The menu also includes buttons for adding pre-defined templates (can be configured independently for specific fields), as well as references from the STUDIES & REFERENCES section. Insert a template or reference by clicking the `+` sign in the pop-up. If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
 
 ::: tip TIP
 Pasting content copied from an external source, such as a web page or Word, can in some cases produce strange text formatting results. If this is the case, try pasting as plain text (`Ctrl` + `Shift` + `V`) instead.
@@ -86,12 +87,11 @@ Pasting content copied from an external source, such as a web page or Word, can 
 
 Image attachments copied to the clipboard may be pasted into any of the section comment fields. Pasted images are added inline to the comment text, and can be zoomed in/out using the slider at the top left of each image. 
 
-In addition, files of any type (\<50 MB) may be added to *ella* using the `ADD ATTACHMENT` button in the top banner:
+In addition, files of any type (\<50 MB) may be added to ELLA using the `ADD ATTACHMENT` button in the top banner:
 
 <div style="text-indent: 4%;"><img src="./img/add_attachment_btn.png"></div>
 
-Attachments added this way are available (through thumbnails) in the CLASSIFICATION section. NB: Attachments are given a number as name, the original file name is lost.
-
+Attachments added this way are available (through thumbnails) in the CLASSIFICATION section. Hover your mouse pointer over the thumbnail to see details. 
 
 ## Example classification workflows
 
@@ -109,7 +109,7 @@ Example workflows for full classification of variants on the CLASSIFICATION page
 3.  In the [CLASSIFICATION](/manual/classification-section.html) section:
     
     a.  Review and choose ACMG criteria, add comments when necessary.  
-	  b.  Provide a summarising comment for the variant and set a classification.
+	  b.  Provide a summarizing comment for the variant and set a classification.
 
 4.  If in the ANALYSIS workflow:
     
@@ -146,7 +146,7 @@ Throughout this page and often in card headers, you will find weblinks, usually 
 
 If you are in an offline environment, when you click one of these, instead of opening a browser or the program directly, the link is copied to your clipboard. To open the link:
 
-  - For weblinks, click on the link, then (as you get the message COPIED LINK TO CLIPBOARD) open a browser on your local computer and paste (Ctrl+V) the contents into the address bar, then hit Enter
+  - For web links, click on the link, then (as you get the message COPIED LINK TO CLIPBOARD) open a browser on your local computer and paste (Ctrl+V) the contents into the address bar, then hit Enter
 
   - For Alamut, click either `COPY ALL TO ALAMUT` or `COPY VARIANT TO ALAMUT` in the top bar, then (as you get the message COPIED TEXT TO CLIPBOARD) paste (Ctrl+V) the contents in the "Go to:" input field at the top right of the Alamut main window:  
       
