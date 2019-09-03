@@ -73,7 +73,7 @@ body.modal-open {
 // Used only in Add references (customAnnotationModal)
 .big textarea { max-height: 25vh; margin: 1.3rem 0 2.6rem; }
 
-.popover { font-family: "Source Sans Pro", sans-serif; max-width: 70vw; overflow-x: auto; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; z-index: 1600; }
+.popover { font-family: "Source Sans Pro", sans-serif; max-width: 70vw; overflow-x: auto; overflow: inherit; padding: 0; border: none; box-shadow: 0 0.3rem 0.3rem $black-25; z-index: 1600; }
 .popover, .popover * { border-radius: 0; }
 .popover .popover-title { @extend .slim; @extend .title; @extend .upper; background-color: $blue-75; color: $white;
                           font-weight: 600; font-size: 1.4rem !important; border: none;

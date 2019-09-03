@@ -30,10 +30,17 @@ app.component('attachment', {
                     getMimeType() {
                         let [type, subtype] = $ctrl.attachment.mimetype.split('/')
                         if (subtype.length > 4) {
+                            if (type.length > 4) {
+                                type = $ctrl.attachment.extension
+                            }
                             return type.length > 4 ? '?' : type
                         } else {
                             return subtype
                         }
+                    },
+                    getType() {
+                        let [type, subtype] = $ctrl.attachment.mimetype.split('/')
+                        return type
                     },
                     getPopoverTemplate() {
                         return 'attachmentPopover.ngtmpl.html'
