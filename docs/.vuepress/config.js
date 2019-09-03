@@ -1,5 +1,5 @@
 module.exports = {
-    title: 'ella documentation',
+    title: 'ELLA documentation',
     base: '/docs/',
 
     head: [['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `./favicon.png` }]],

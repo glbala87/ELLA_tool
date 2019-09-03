@@ -4,7 +4,7 @@ title: Filtering
 
 # Filters
 
-Filters in _ella_ are applied when loading an analysis, and removes variants from the main view.
+Filters in ELLA are applied when loading an analysis, and removes variants from the main view.
 
 Most filters can be used either as a normal filter (filtering out variants) or as an exception to another filter (rescuing variants that would normally be filtered).
 
@@ -22,7 +22,7 @@ The classification filter does not separate between outdated or still valid clas
 
 #### Configuration
 
--   **Class**: List classifications to consider. Must be a subset of the available classes in _ella_.
+-   **Class**: List classifications to consider. Must be a subset of the available classes in ELLA.
 
 ##### Example
 
@@ -218,7 +218,7 @@ The polypyrimidine filter filters out or rescues the following allele changes in
 For transcripts on the positive genomic strand, deletions will not be filtered out if they are preceded by an A, as this might introduce a new AG splice site.
 Similarly, on reverse strand transcripts, deletions will not be filtered out if the are preceded (in genomic coordinates) by a C.
 
-The filter does **not** check for a new splice site, since _ella_ only has access to the base preceding a deletion from the imported data (VCF).
+The filter does **not** check for a new splice site, since ELLA only has access to the base preceding a deletion from the imported data (VCF).
 :::
 
 #### Configuration
@@ -325,5 +325,5 @@ This filter has no configuration.
 For large data sets, it is advisable to apply a special pre-filter that removes variants that are *certain* to be benign (e.g. population frequency above 0.05) before importing new data, to reduce the loading time when opening an analysis. 
 
 ::: warning NOTE
-Variants removed in this way (before import) will not be visible in [FILTERED variants](/manual/filtered-variants.html#filtered-variants) in *ella*. However, *ella* can be configured to include a `VCF` track in the [VISUAL mode](/manual/visual.html#analysis-tracks), where these variants would be included.  
+Variants removed in this way (before import) will not be visible in [FILTERED variants](/manual/filtered-variants.html#filtered-variants) in ELLA. However, ELLA can be configured to include a `VCF` track in the [VISUAL mode](/manual/visual.html#analysis-tracks), where these variants would be included.  
 :::

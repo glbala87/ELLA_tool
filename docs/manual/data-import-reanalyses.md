@@ -6,7 +6,7 @@ title: Data import and reanalyses
 
 [[toc]]
 
-HTS data produced in-house is imported automatically into *ella*, with a gene panel predefined from the pipeline. However, [data for variants and samples can also be added manually](#import-variant-data), and the [gene panel for an existing sample can be changed](#custom-reanalyses-from-sample-repository). Both of these tasks can be performed through the `IMPORT` function available in the left, vertical sidebar:
+HTS data produced in-house is imported automatically into ELLA, with a gene panel predefined from the pipeline. However, [data for variants and samples can also be added manually](#import-variant-data), and the [gene panel for an existing sample can be changed](#custom-reanalyses-from-sample-repository). Both of these tasks can be performed through the `IMPORT` function available in the left, vertical sidebar:
 
 <div style="text-indent: 4%;"><img src="./img/overview_sidebar.png"></div>
 
@@ -77,12 +77,12 @@ Depending on your data, the following options are available:
 
   - TYPE: `VARIANTS`. Imports variants independently of analyses (samples). This is automatically chosen when one or more variants lack genotypes, and a warning message is displayed. 
 
-  - GENE PANEL. Must be specified for all imports, to enable proper filtering. *ella* automatically chooses either the default panel (which you can change), or for MODE: `APPEND`, the panel matching the existing analysis ID (which you shouldn’t change unless you want to change to MODE: `CREATE`). 
+  - GENE PANEL. Must be specified for all imports, to enable proper filtering. ELLA automatically chooses either the default panel (which you can change), or for MODE: `APPEND`, the panel matching the existing analysis ID (which you shouldn’t change unless you want to change to MODE: `CREATE`). 
 
   - TECHNOLOGY: `SANGER`/`HTS`. Default is `SANGER`, but you can change to HTS if importing from an external HTS service. 
 
 ::: warning NOTE
-If you import variants (`APPEND`) to an analysis that is already opened by another user, *ella* displays a warning: "Analysis is ongoing. (\[user/date])!". 
+If you import variants (`APPEND`) to an analysis that is already opened by another user, ELLA displays a warning: "Analysis is ongoing. (\[user/date])!". 
 
 The other user will then get a notification to refresh his/her browser upon next save, which will add any new variants to the ongoing analysis.
 :::
@@ -91,7 +91,7 @@ You may also exclude individual variants from the import by deselecting them in 
 
 ## Custom reanalyses from sample repository
 
-By default, *ella* uses gene panels defined in the pipeline for all samples. However, you may also create a new analysis on a previously run sample (provided other genes were sequenced, e.g. exome/genome data) by using the `SAMPLE REPOSITORY` option in the NEW IMPORT section: 
+By default, ELLA uses gene panels defined in the pipeline for all samples. However, you may also create a new analysis on a previously run sample (provided other genes were sequenced, e.g. exome/genome data) by using the `SAMPLE REPOSITORY` option in the NEW IMPORT section: 
 
 <div style="text-indent: 4%;"><img src="./img/import_source_sample_repo.png"></div>
 

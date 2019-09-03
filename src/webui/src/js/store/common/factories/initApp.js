@@ -29,7 +29,7 @@ function initApp(continueSequence) {
                         set(state`app.config`, null),
                         toast(
                             'error',
-                            'ella cannot start. Please contact support: "Failed to load configuration"',
+                            'ELLA cannot start. Please contact support: "Failed to load configuration"',
                             10000000
                         )
                     ]

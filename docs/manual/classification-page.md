@@ -48,7 +48,7 @@ Buttons for saving and finishing your analyses are in the right corner of the to
 
 ### Saving unfinished work
 
-There is currently no auto-save feature in *ella*, so please make sure to use the `SAVE` button on a regular basis. The button will be purple when there are unsaved changes. Note that if you try to exit the interpretation or close the browser with unsaved changes, you will get a warning first, which will allow you to go back and save your work.
+There is currently no auto-save feature in ELLA, so please make sure to use the `SAVE` button on a regular basis. The button will be purple when there are unsaved changes. Note that if you try to exit the interpretation or close the browser with unsaved changes, you will get a warning first, which will allow you to go back and save your work.
 
 ### Finalise an analysis or interpretation 
 
@@ -87,7 +87,7 @@ Pasting content copied from an external source, such as a web page or Word, can 
 
 Image attachments copied to the clipboard may be pasted into any of the section comment fields. Pasted images are added inline to the comment text, and can be zoomed in/out using the slider at the top left of each image. 
 
-In addition, files of any type (\<50 MB) may be added to *ella* using the `ADD ATTACHMENT` button in the top banner:
+In addition, files of any type (\<50 MB) may be added to ELLA using the `ADD ATTACHMENT` button in the top banner:
 
 <div style="text-indent: 4%;"><img src="./img/add_attachment_btn.png"></div>
 

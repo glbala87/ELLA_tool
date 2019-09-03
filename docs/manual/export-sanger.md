@@ -12,4 +12,4 @@ To quickly set up Sanger-verification of important variants, before the samples 
 
 <div style="text-indent: 4%;"><img src="./img/variant_report_btn.png"></div>
 
-This generates an Excel-sheet that contains all analysis IDs and variants for samples that have not yet been started, along with import date, gene panel and any previously reported classification. The column sanger\_verify (TRUE/FALSE) uses the same criteria for Sanger verification as in *ella*.
+This generates an Excel-sheet that contains all analysis IDs and variants for samples that have not yet been started, along with import date, gene panel and any previously reported classification. The column sanger\_verify (TRUE/FALSE) uses the same criteria for Sanger verification as in ELLA.

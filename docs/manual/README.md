@@ -1,6 +1,6 @@
-# Navigating ella
+# Navigating ELLA
 
-The user interface in *ella* is organised in different pages, which are reached by choosing an analysis/interpretation or through buttons/links in the top bar. 
+The user interface in ELLA is organised in different pages, which are reached by choosing an analysis/interpretation or through buttons/links in the top bar. 
 
 For in-depth descriptions, go to the referenced pages:
 

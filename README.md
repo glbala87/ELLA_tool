@@ -5,7 +5,7 @@
 </div>
 
 
-*ella* is an analysis tool for interpretation of genetic variants, see http://allel.es for more information.
+ELLA is an analysis tool for interpretation of genetic variants, see http://allel.es for more information.
 
 Most functionality is baked into a Makefile, run `make help` to see a quick overview of available commands.
 
@@ -27,6 +27,6 @@ make kill-demo
 
 ### Production setup
 
-For details on how to setup ella for production, please see the [technical documentation](http://allel.es/docs/).
+For details on how to setup ELLA for production, please see the [technical documentation](http://allel.es/docs/).
 
 For support and suggestions, [send us an e-mail](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F)!

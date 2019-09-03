@@ -28,7 +28,7 @@ Global tracks are available to all users. These currently include:
 	
 ## Your tracks (user group)
 
-Your tracks are specific to your user group in *ella*. These typically include data from external sources and references.
+Your tracks are specific to your user group in ELLA. These typically include data from external sources and references.
 	
 ## Analysis tracks
 

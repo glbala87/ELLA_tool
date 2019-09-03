@@ -184,7 +184,7 @@ Release date: 26.03.2019
 
 #### Variant filter configurations
 
-ella now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow: 
+ELLA now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow: 
 
 <div style="text-indent: 4%;">
     <img src="./img/1-4-filter-select.png">
@@ -253,7 +253,7 @@ If no template has been defined or no reference has been found/added (STUDIES & 
 
 ### Backend
 
-- Added broadcast functionality to convey important messages in *ella* to all users.
+- Added broadcast functionality to convey important messages in ELLA to all users.
 - Improvements to filter efficiency and speed.
 
 
@@ -273,9 +273,9 @@ Release date: 14.11.2018
 
 #### Visualization *(analysis workflow)*
 
-As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ella as part of a new visualization feature. ella now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
+As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ELLA as part of a new visualization feature. ELLA now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
 
-ella provides a few special tracks by default:
+ELLA provides a few special tracks by default:
 
 - Gene panel: Shows the analysis' gene panel.
 - Classifications: Shows all classifications present in the database.
@@ -333,7 +333,7 @@ Left number is existing class, right is new. An arrow indicates that a new class
 
 #### New user manual
 
-A new, online user manual is now available from within ella itself. You can access it by clicking `Documentation` in the top navigation bar in the overview.
+A new, online user manual is now available from within ELLA itself. You can access it by clicking `Documentation` in the top navigation bar in the overview.
 
 ### New features
 
@@ -344,7 +344,7 @@ A new, online user manual is now available from within ella itself. You can acce
 - New filter: Quality
 - Region filter now can save variants with certain (configurable) consequences from being filtered.
 - New variant warning: HGVSc and HGVSp mismatch between corresponding Refseq and Ensembl transcripts.
-- [Integrated documentation within ella](/releasenotes/#new-user-manual).
+- [Integrated documentation within ELLA](/releasenotes/#new-user-manual).
 
 
 ### Other additions and fixes
@@ -370,7 +370,7 @@ Release date: 02.10.2018
 
 #### Family analysis
 
-ella now lets you interpret analyses with variants that have been joint called within a single family.
+ELLA now lets you interpret analyses with variants that have been joint called within a single family.
 
 The following segregation models are supported:
 
@@ -506,7 +506,7 @@ Release date: 15.05.2018
 
 *Requires access to the import view.*
 
-ella now lets you re-import previously run samples, using either an existing gene panel or a gene panel customized for that specific sample.
+ELLA now lets you re-import previously run samples, using either an existing gene panel or a gene panel customized for that specific sample.
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
