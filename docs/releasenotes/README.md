@@ -4,21 +4,18 @@ sidebar: auto
 
 # Release notes
 
-- [1.7](#_1-7)
-- [1.6.2](#_1-6-2)
-- [1.6.1](#_1-6-1)
-- [1.6](#_1-6)
-- [1.5](#_1-5)
-- [1.4.1](#_1-4-1)
-- [1.4](#_1-4)
-- [1.3.1](#_1-3-1)
-- [1.3](#_1-3)
-- [1.2](#_1-2)
-- [1.1.2](#_1-1-2)
-- [1.1.1](#_1-1-1)
-- [1.1](#_1-1)
+|Major versions|Minor versions|
+|:--|:--|
+[v1.7](#version-1-7)|
+[v1.6](#version-1-6)|[v1.6.2](#version-1-6-2), [v1.6.1](#version-1-6-1)
+[v1.4](#version-1-4)|[v1.4.1](#version-1-4-1)
+[v1.3](#version-1-3)|[v1.3.1](#version-1-3-1)
+[v1.2](#version-1-2)|
+[v1.1](#version-1-1)|[v1.1.2](#version-1-1-2), [v1.1.1](#version-1-1-1)
 
-## 1.7
+## Version 1.7
+
+Release date: 05.09.2019
 
 ### Highlights
 
@@ -58,7 +55,7 @@ The information includes which genes are in the panel (with inheritance and defa
 
 Attachments are now named after the filename (instead of an index number), and details are available by hovering the mouse over an attachment.
 
-### Complete list of changes, additions and fixes
+### All changes
 
 - [Merged import functions into single section on OVERVIEW page](#improved-import).
 - [Added possibility for setting priority on manual imports and reanalyses](#improved-import).
@@ -71,21 +68,27 @@ Attachments are now named after the filename (instead of an index number), and d
 - Fixed bug causing timeouts when changing workflow state for analyses with large gene panels.
 
 
-## 1.6.2
+## Version 1.6.2
+
+Release date: 09.08.2019
 
 ### Fixes
 
 - Fixed performance bug that caused excessive loading time for ANALYSES overview.
 
 
-## 1.6.1
+## Version 1.6.1
+
+Release date: 27.06.2019
 
 ### Fixes
 
 - Fixed add/remove buttons for variants not working in REPORT side bar.
 
 
-## 1.6
+## Version 1.6
+
+Release date: 16.06.2019
 
 ### Highlights
 
@@ -112,12 +115,12 @@ This update also brings a few changes to how outdated variant interpretations ar
 
 As an added measure, the classification of reopened variants must also be actively reselected.
 
-### Complete list of changes, additions and fixes
-- QUICK CLASSIFICATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles.
-- Side bar: Added indicators for added ACMG criteria (full list on mouse-over).
+### All changes
+- [QUICK CLASSIFICATION mode: Added check boxes for ACMG criteria BS1 and BS2 (for class 2), shortened button titles](#quick-check-boxes-for-bs1-bs2-and-acmg-indicators).
+- [Side bar: Added indicators for added ACMG criteria (full list on mouse-over)](#quick-check-boxes-for-bs1-bs2-and-acmg-indicators).
 - Disallow adding the same ACMG criterion (irrespective of strength modifications) more than once to the same variant interpretation.
 - Sort added ACMG criteria by pathogenic-benign, then strength.
-- Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis.
+- [Variants with outdated interpretations are now grouped with UNCLASSIFIED VARIANTS in the side bar in an analysis, and are no longer automatically reopened with the analysis](#outdated-variants-treated-as-unclassified).
 - Added possibility to edit comments on individual studies in STUDIES & REFERENCES section directly in the list (without opening the evaluation form) after first evaluation.
 - When there are multiple VEP CSQs (consequences) for a variant, these are now sorted in the side bar by severity (worst consequence first). 
 - TECHNICAL button is now available also for CLASSIFIED VARIANTS in VISUAL.
@@ -128,7 +131,9 @@ As an added measure, the classification of reopened variants must also be active
 - Fixed missing mouse-over for `M` tag in the side bar.
 
 
-## 1.5
+## Version 1.5
+
+Release date: 23.05.2019
 
 ### Highlights
 
@@ -150,18 +155,20 @@ It is now possible to mark variants as `TECHNICAL` in the side bar in VISUAL mod
 #### ACMG modified criteria according to ClinGen 
 ACMG criteria where the strength of the original criterion are now displayed according to ClinGen's recommendations, e.g. `PM1_Strong` instead of `PSxPM1`. 
 
-### Complete list of additions and fixes
-- VISUALIZATION redefined as view mode VISUAL on CLASSIFICATION page, with navigation moved to the side bar.
-- Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode.
+### All changes
+- [VISUALIZATION redefined as view mode VISUAL on CLASSIFICATION page, with navigation moved to the side bar](#classification-view-modes).
+- [Added function to mark as `TECHNICAL` (button and comment) in VISUAL mode](#changes-to-side-bar-functionality).
 - Mirrored INDICATIONS COMMENT from the REPORT in the side bar on the CLASSIFICATION page.
-- Changed naming of ACMG criteria with modified strength to ClinGen's recommendations. 
+- [Changed naming of ACMG criteria with modified strength to ClinGen's recommendations](#acmg-modified-criteria-according-to-clingen). 
 - Added QUAL column to variant lists in the side bar for analysis workflow (QUICK and VISUAL mode) and filtered variants.
 - Adding/removing variants in the REPORT restricted to toggle button (not clicking the anywhere on the variant).
 - Fixed sorting on F column (tag: Included) in the side bar.
 - Fix issue where gene panel was not reloaded when including a filtered variant.
 
 
-## 1.4.1
+## Version 1.4.1
+
+Release date: 15.04.2019
 
 ### Additions and fixes
 - Increase overview update interval to lessen strain server.
@@ -169,7 +176,9 @@ ACMG criteria where the strength of the original criterion are now displayed acc
 - Fix issue where finalization would not work under certain conditions.
 
 
-## 1.4
+## Version 1.4
+
+Release date: 26.03.2019
 
 ### Highlights
 
@@ -248,13 +257,17 @@ If no template has been defined or no reference has been found/added (STUDIES & 
 - Improvements to filter efficiency and speed.
 
 
-## 1.3.1
+## Version 1.3.1
+
+Release date: 21.12.2018
 
 ### Additions and fixes
 - Fix issue in `Variant report` when parsing warning from pipeline, in some cases yielding wrong number of poorly covered regions.
 
 
-## 1.3
+## Version 1.3
+
+Release date: 14.11.2018
 
 ### Highlights
 
@@ -349,7 +362,9 @@ A new, online user manual is now available from within ella itself. You can acce
 
 
 
-## 1.2
+## Version 1.2
+
+Release date: 02.10.2018
 
 ### Highlights
 
@@ -441,10 +456,10 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 
 ### New features
 
-- Support for family data
-- Segregation filter and tags
-- Work log
-- Variant warnings
+- [Support for family data](#family-analysis)
+- [Segregation filter and tags](#family-analysis)
+- [Work log](#work-log)
+- [Variant warnings](#variant-warnings)
 
 ### Other additions and fixes
 - `Quality` is now it's own section in Classification view (*analysis only*)
@@ -452,7 +467,9 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Variants marked as `Technical` are moved to it's own list in the sidebar.
 - Improvements in display of variants with multiple selected transcripts.
 
-## 1.1.2
+## Version 1.1.2
+
+Release date: 18.07.2018
 
 ### Additions and fixes
 
@@ -464,8 +481,9 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Fix missing Hemi total count for gnomAD
 
 
-## 1.1.1
+## Version 1.1.1
 
+Release date: 24.05.2018
 
 ### Additions and fixes
 
@@ -478,7 +496,9 @@ Variant warnings are implemented for both the variant and analysis workflows, bu
 - Fix issue importing Pubmed XML data for some references.
 
 
-## 1.1
+## Version 1.1
+
+Release date: 15.05.2018
 
 ### Highlights
 
