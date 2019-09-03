@@ -136,6 +136,16 @@ analysis-selection {
   }
 }
 
+.import-job-list { display: flex; flex-direction: column;
+  .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem; border-bottom: 1px dashed $black-25;
+    .job-date { color: $black-50; }
+    .job-title { flex-grow: 1; padding-left: 1.2rem; }
+    .job-submitted { font-weight: 500; padding-left: 1.2rem; padding-right: 2.2rem; }
+    .job-status { padding-right: 2.2rem; }
+    .job-actions { padding-right: 1.2rem; }
+  }
+}
+
 .gene-list { display: flex; flex-direction: column;
   .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem; border-bottom: 1px dashed $black-25;
     .gene { font-weight: 500; padding-left: 1.2rem; min-width: 10rem; }
@@ -150,6 +160,14 @@ analysis-selection {
 
 
 .import {
+  .import-history-pagination {
+    justify-content: flex-end; margin: 0; padding-bottom: 2rem;
+  }
+  .no-jobs { min-height: 4rem; display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
+    padding-bottom: 0.5rem;
+    h2 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }
+    h4 { font-family: $slim; font-size: 1.6rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25; }
+  }
   .custom-genepanel {
     .name {
       margin-bottom: 1rem;

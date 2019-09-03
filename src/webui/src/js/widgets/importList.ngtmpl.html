@@ -1,0 +1,48 @@
+<article class="import-job-list">
+    <a
+        class="list-item"
+        ng-repeat="job in $ctrl.jobs"
+        popover-title="Import information"
+        uib-popover-template="'annotationjobPopover.ngtmpl.html'"
+        popover-placement="auto top"
+        popover-append-to-body="true"
+        popover-trigger="outsideClick"
+    >
+        <div class="job-date">
+            {{ job.date_submitted | date: 'yyyy-MM-dd' }}
+        </div>
+        <div class="job-title full-title">
+            <b>{{ $ctrl.getJobDisplayType(job) }}: </b>{{ $ctrl.getJobDisplayDetail(job) }}
+        </div>
+
+        <div class="job-status">
+            <div><h3 class="full-title">{{job.status}} • <b>{{job.user.abbrev_name}}</b> • {{job.date_last_update | date:"yyyy-MM-dd HH:mm" }}</i></h3></div>
+        </div>
+        <div class="job-actions">
+            <button
+                class="grey"
+                ng-click="$ctrl.resetImportJobClicked({jobId: job.id});"
+                ng-disabled="!job.status.includes('FAILED')"
+            >
+                <svg
+                    class="buttonmark"
+                    id="i-reload"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                    width="32"
+                    height="32"
+                    fill="none"
+                    stroke="currentcolor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="6.25%"
+                >
+                    <path
+                        d="M29 16 C29 22 24 29 16 29 8 29 3 22 3 16 3 10 8 3 16 3 21 3 25 6 27 9 M20 10 L27 9 28 2"
+                    />
+                </svg>
+            </button>
+            <!--<button class="blue id-cancel-annotationjob" ng-click="vm.deleteJob(job.id)">Delete</button>-->
+        </div>
+    </a>
+</article>

@@ -1085,3 +1085,110 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
 
 
 }
+
+
+.import {
+
+  .selection-warning {
+    height: 1.2rem;
+    font-size: 1.0rem;
+    color: $red-95;
+    font-weight: 700;
+  }
+
+  importsingle > contentwrapper {
+    margin-top: 1.6rem;
+  }
+
+  @keyframes fade-in-import-edit {
+    0% {
+      transform: scale(0.0);
+      transform-origin: top left;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: top left;
+    }
+  }
+
+  .import-edit {
+    background-color: $green-10;
+    padding: 1rem;
+    margin-top: 1rem;
+    &.ng-enter {
+      animation: fade-in-import-edit 0.15s;
+      animation-timing-function: ease-in;
+    }
+  }
+
+  .import-summary {
+    width: 50%;
+    > section > div > div {
+        display: flex;
+        > span {
+          font-size: 1.4rem;
+          &.title {
+            min-width: 15rem;
+            text-transform: uppercase !important;
+            font-weight: 600;
+          }
+        }
+      }
+    padding-right: 2rem;
+  }
+
+  .user-input-left {
+    max-width: 50rem;
+  }
+
+  .user-input-middle {
+    max-width: 2rem;
+
+  }
+
+  .user-input-right {
+    max-width: 70rem;
+
+  }
+
+  .import-selection {
+    border-top: 1px dashed $black-10;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    min-height: 8rem;
+  }
+
+  .import-warning {
+    background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
+    p { color: $white; }
+
+  }
+
+  .import-variants {
+    * input[type=checkbox] {
+      height: inherit;
+    }
+
+  }
+
+  .annotationjobinfo > span {
+    overflow-wrap: break-word;
+  }
+
+  .annotationjobinfo > pre {
+    white-space: pre-wrap;
+  }
+
+  .import-all-summary * {
+    text-align: center;
+    margin-top: 0.3rem;
+  }
+
+  .json-pretty {
+    display: inline-block;
+    text-align: left !important;
+    font-size: 0.8rem;
+  }
+
+}

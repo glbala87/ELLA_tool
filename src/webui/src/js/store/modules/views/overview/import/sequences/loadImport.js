@@ -4,6 +4,7 @@ import { state, props } from 'cerebral/tags'
 import getGenepanels from '../actions/getGenepanels'
 import toast from '../../../../../common/factories/toast'
 import setDefaultSelectedGenepanel from '../actions/setDefaultSelectedGenepanel'
+import loadImportJobs from './loadImportJobs'
 
 export default sequence('loadImport', [
     getGenepanels,
@@ -13,5 +14,6 @@ export default sequence('loadImport', [
             setDefaultSelectedGenepanel
         ],
         error: [toast('error', 'Failed to load genepanels')]
-    }
+    },
+    loadImportJobs
 ])

@@ -90,7 +90,6 @@ function RootModule(withRouter = true) {
             'AlleleAssessmentHistoryModal',
             'CustomAnnotationModal',
             'ReferenceEvalModal',
-            'ImportModal',
             'Config',
             'User'
         ]

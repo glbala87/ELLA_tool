@@ -8,7 +8,6 @@ import loadOverview from '../sequences/loadOverview'
 import setSections from '../actions/setSections'
 import checkAndSelectValidSection from '../actions/checkAndSelectValidSection'
 
-const UPDATE_IMPORT_STATUS_INTERVAL = 180
 const UPDATE_OVERVIEW_INTERVAL = 180
 
 export default sequence('routed', [
@@ -18,13 +17,7 @@ export default sequence('routed', [
     checkAndSelectValidSection,
     {
         valid: [
-            interval(
-                'start',
-                'views.overview.updateImportJobCountTriggered',
-                {},
-                UPDATE_IMPORT_STATUS_INTERVAL * 1000,
-                true
-            ),
+            // Unset by changeView
             interval(
                 'start',
                 'views.overview.updateOverviewTriggered',

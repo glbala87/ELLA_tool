@@ -24,6 +24,7 @@ export default function getImportJobs({ http, path, props }) {
             return path.success({ result })
         })
         .catch((response) => {
+            console.error(response)
             return path.error(response)
         })
 }
