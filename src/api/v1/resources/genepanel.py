@@ -293,6 +293,9 @@ class GenepanelStatsResource(LogRequestResource):
                 input_genepanel_gene_ids,
                 and_(input_genepanel_gene_ids.c.gene_id == genepanel_gene_ids.c.gene_id),
             )
+            .filter(
+                tuple_(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version) != (name, version)
+            )
             .group_by(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version)
         )
 
