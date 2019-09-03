@@ -71,6 +71,7 @@
                     placeholder="PASTE/TYPE GENE NAMES OR HGNC IDS"
                     ng-model="$ctrl.modelCandidatesFilterBatch"
                     ng-model-watch="$ctrl.candidatesFilterBatch"
+                    ng-disabled="$ctrl.candidatesFilterBatchProcessed"
                     ng-change="$ctrl.candidatesFilterBatchChanged({filterBatch: $ctrl.modelCandidatesFilterBatch})"
                 ></textarea>
                 <div class="batch-mode-controls">
