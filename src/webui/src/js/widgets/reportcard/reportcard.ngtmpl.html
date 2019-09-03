@@ -32,7 +32,7 @@
         <div ng-if="$ctrl.reportAlleles.length" class="included-report">
             <div class="report-entry" ng-repeat="item in $ctrl.reportAlleles">
                 <h5>{{ item.hgvsc }}</h5>
-                <div class="content" ng-bind-html="item.comment"></div>
+                <div class="wysiwygeditor" ng-bind-html="item.comment | trusted"></div>
             </div>
         </div>
     </contentwrapper>

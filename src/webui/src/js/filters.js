@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-import { Filter } from './ng-decorators'
+import { Filter, Inject } from './ng-decorators'
 
 class Filters {
     /*
@@ -74,6 +74,16 @@ class Filters {
                 .replace(/ /g, '&nbsp;')
                 .replace(/"|'/g, '')
             return output
+        }
+    }
+
+    @Filter({
+        filterName: 'trusted'
+    })
+    @Inject('$sce')
+    trustedHTML($sce) {
+        return (html) => {
+            return $sce.trustAsHtml(html)
         }
     }
 }
