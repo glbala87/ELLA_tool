@@ -300,6 +300,27 @@
                         </div>
                     </div>
                 </div>
+                <div class="question tiny line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title">
+                            <b>PRIORITY</b>
+                        </h5>
+                    </div>
+                    <div class="right bttn-set">
+                        <div class="id-filter-search">
+                            <label
+                                tabindex="0"
+                                class="bttn"
+                                uib-btn-radio="item"
+                                ng-model="$ctrl.modelPriority"
+                                ng-model-watch="$ctrl.priority"
+                                ng-repeat="item in [1,2,3]"
+                                ng-change="$ctrl.priorityChanged({priority: $ctrl.modelPriority})"
+                                >{{ $ctrl.priorityDisplay['' + item] }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
                 <div class="spacer"></div>
                 <custom-genepanel-editor ng-if="$ctrl.customGenepanel"></custom-genepanel-editor>
                 <div class="import-all-summary">

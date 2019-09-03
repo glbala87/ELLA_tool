@@ -8,11 +8,15 @@ import loadImportJobs from '../sequences/loadImportJobs'
 
 const preparePostPayload = ({ props, state }) => {
     const selectedSample = state.get('views.overview.import.selectedSample')
+    const priority = state.get('views.overview.import.priority')
     const { name, version } = props.genepanel
     const payload = {
         sample_id: selectedSample.name,
         genepanel_name: name,
-        genepanel_version: version
+        genepanel_version: version,
+        properties: {
+            priority: priority
+        }
     }
     return { importJob: payload }
 }

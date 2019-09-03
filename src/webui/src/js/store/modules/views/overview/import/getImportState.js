@@ -39,6 +39,7 @@ export default function getImportState() {
         importSourceType: 'user',
         selectedGenepanel: null,
         candidates: getCandidatesState(),
-        added: getAddedState()
+        added: getAddedState(),
+        priority: 1
     }
 }
