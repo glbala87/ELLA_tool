@@ -24,7 +24,7 @@ The ANALYSIS INFO section shows some basic information about the current sample.
 
 ## Pipeline report
 
-The PIPELINE REPORT section displays coverage details from the current HTS run, listing genes and regions with low coverage.
+The PIPELINE REPORT section displays information from the HTS pipeline, e.g. coverage details.
 
 ## Gene panel info
 
