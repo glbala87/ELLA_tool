@@ -1,5 +1,5 @@
 export default function removeTranscripts({ state, props }) {
-    const addedGenepanel = state.get('views.overview.import.added.addedGenepanel')
+    const addedGenepanel = state.get('views.overview.import.custom.added.addedGenepanel')
     let { removed: toRemove } = props
     if (!Array.isArray(toRemove)) {
         toRemove = [toRemove]
@@ -15,5 +15,5 @@ export default function removeTranscripts({ state, props }) {
             }
         }
     }
-    state.set('views.overview.import.added.addedGenepanel', addedGenepanel)
+    state.set('views.overview.import.custom.added.addedGenepanel', addedGenepanel)
 }

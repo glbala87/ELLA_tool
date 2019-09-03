@@ -4,7 +4,10 @@
     </maintitle>
     <subtitle>{{ $ctrl.activeImportJobs.length }}</subtitle>
     <contentwrapper class="import">
-        <import-list store-path="'views.overview.import.data.activeImportJobs'"></import-list>
+        <import-list
+            class="id-import-active-imports"
+            store-path="'views.overview.import.data.activeImportJobs'"
+        ></import-list>
         <article class="no-jobs" ng-if="$ctrl.activeImportJobs.length == 0">
             <h2>There are currently no active imports.</h2>
             <h4>To create a new one, use 'New import' section below.</h4>
@@ -30,6 +33,7 @@
         >
         </uib-pagination>
         <import-list
+            class="id-import-import-history"
             store-path="'views.overview.import.data.importJobsHistory.entries'"
         ></import-list>
     </contentwrapper>
@@ -48,7 +52,7 @@
                 </h5>
             </div>
             <div class="right bttn-set">
-                <div class="id-filter-search">
+                <div class="id-import-source-type">
                     <label
                         tabindex="0"
                         class="bttn"
@@ -158,7 +162,7 @@
                         <div class="middle user-input-middle"></div>
                         <div class="right user-input-right">
                             <autosize-textarea
-                                class="big"
+                                class="id-variant-data-input big"
                                 ng-model="$ctrl.userInput"
                                 placeholder="PASTE VARIANT DATA HERE"
                             ></autosize-textarea>
@@ -169,7 +173,7 @@
                         <div class="left"></div>
                         <div class="middle">
                             <button
-                                class="green"
+                                class="id-import-parse-data green"
                                 ng-click="$ctrl.parseInput()"
                                 ng-disabled="$ctrl.userInput === ''"
                             >
@@ -198,7 +202,7 @@
                         <div class="left"></div>
                         <div class="right">
                             <button class="blue" ng-click="$ctrl.revertJobData()">
-                                Edit RAW DATA
+                                Edit VARIANT DATA
                             </button>
                         </div>
                     </div>
@@ -210,7 +214,7 @@
                         <p ng-repeat="d in $ctrl.getImportDescription()">{{ d }}</p>
                         <div>
                             <button
-                                class="green"
+                                class="id-import-user-import-button green"
                                 ng-click="$ctrl.userImportClickedWrapper()"
                                 ng-disabled="$ctrl.userImportDisabled()"
                             >
@@ -243,7 +247,7 @@
                         </h5>
                     </div>
                     <div class="right">
-                        <div class="dropdown white">
+                        <div class="id-import-sample dropdown white">
                             <select
                                 selector
                                 style="width: 25rem;"
@@ -267,7 +271,7 @@
                         </h5>
                     </div>
                     <div class="right bttn-set">
-                        <div class="id-filter-search">
+                        <div class="id-import-custom-panel">
                             <label
                                 tabindex="0"
                                 class="bttn"
@@ -288,7 +292,7 @@
                         </h5>
                     </div>
                     <div class="right bttn-set">
-                        <div class="dropdown white">
+                        <div class="id-import-select-panel dropdown white">
                             <select
                                 class="genepanel-select"
                                 ng-options="gp as gp.name + '_' + gp.version for gp in $ctrl.genepanels track by gp.name + gp.version"
@@ -321,11 +325,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="spacer"></div>
                 <custom-genepanel-editor ng-if="$ctrl.customGenepanel"></custom-genepanel-editor>
                 <div class="import-all-summary">
                     <h3>Summary:</h3>
-                    <p>
+                    <p class="id-import-summary">
                         Import {{ $ctrl.selectedSample.name }} on {{ $ctrl.displayGenepanelName
                         }}<span ng-if="$ctrl.customGenepanel">
                             <i>(custom)</i> with {{ $ctrl.addedCount.transcripts }} transcripts ({{
@@ -339,7 +342,7 @@
                     </div>
                     <div>
                         <button
-                            class="blue"
+                            class="blue id-import-import-button"
                             ng-click="$ctrl.importClicked()"
                             ng-disabled="!$ctrl.canImport"
                         >

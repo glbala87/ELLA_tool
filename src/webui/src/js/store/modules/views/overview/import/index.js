@@ -9,6 +9,7 @@ import removeAllTranscriptsClicked from './signals/removeAllTranscriptsClicked'
 import importHistoryPageChanged from './signals/importHistoryPageChanged'
 import importClicked from './signals/importClicked'
 import candidatesFilterChanged from './signals/candidatesFilterChanged'
+import candidatesFilterBatchChanged from './signals/candidatesFilterBatchChanged'
 import resetImportJobClicked from './signals/resetImportJobClicked'
 import updateImportJobsTriggered from './signals/updateImportJobsTriggered'
 import sampleSelected from './signals/sampleSelected'
@@ -18,11 +19,16 @@ import selectedAddedPageChanged from './signals/selectedAddedPageChanged'
 import addedFilterChanged from './signals/addedFilterChanged'
 import selectedGenepanelChanged from './signals/selectedGenepanelChanged'
 import priorityChanged from './signals/priorityChanged'
+import selectedFilterModeChanged from './signals/selectedFilterModeChanged'
+import applyFilterBatchClicked from './signals/applyFilterBatchClicked'
+import clearFilterBatchClicked from './signals/clearFilterBatchClicked'
+import copyFilterBatchClicked from './signals/copyFilterBatchClicked'
 
 export default Module({
     state: {}, // State set in changeView
     signals: {
         candidatesFilterChanged,
+        candidatesFilterBatchChanged,
         addedFilterChanged,
         addTranscriptClicked,
         customGenepanelSelected,
@@ -39,7 +45,11 @@ export default Module({
         selectedCandidatesPageChanged,
         selectedAddedPageChanged,
         selectedGenepanelChanged,
+        priorityChanged,
+        selectedFilterModeChanged,
+        applyFilterBatchClicked,
         updateImportJobsTriggered,
-        priorityChanged
+        clearFilterBatchClicked,
+        copyFilterBatchClicked
     }
 })

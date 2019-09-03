@@ -239,7 +239,7 @@ export class ImportData {
 
         if (this.importSelection.mode === 'Analysis') {
             properties.create_or_append = this.importSelection.type
-            if (this.importSelection === 'Create') {
+            if (this.importSelection.type === 'Create') {
                 properties.analysis_name = this.importSelection.analysisName
                 properties.priority = this.importSelection.priority
             } else {

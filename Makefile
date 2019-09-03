@@ -383,6 +383,7 @@ test-e2e:
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
+	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
@@ -412,6 +413,7 @@ e2e-test-local: test-build
        -v $(shell pwd):/ella \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
+	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -p 5000:5000 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg

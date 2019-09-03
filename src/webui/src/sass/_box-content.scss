@@ -175,35 +175,105 @@ analysis-selection {
         width: 8rem;
       }
     }
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem;
+
     .slim {
       font-size: 1.5rem;
-      padding-left: 2rem;
       line-height: 2.5rem;
     }
-    .selection {
-      padding-top: 1rem;
+
+    .section {
+
       display: flex;
+      padding-top: 1rem;
+      min-height: 15rem;
 
-      .dropdown {
-        margin-right: 2rem;
+      .filter {
+        width: 25rem;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px dashed $black-25;
+        padding-right: 2rem;
+        transition: all 1s linear;
+
+        input[type="text"] {
+          width: unset;
+        }
+
+        .filter-mode-controls {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+
+          .missing-warning {
+            font-family: $full;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            color: $red-75;
+          }
+          .bttn-set {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          }
+        }
+
+
+        .batch-mode {
+
+
+          .gene-batch-input {
+            &.missing {
+              border: 3px solid $red-75;
+            }
+            height: 13rem;
+            border: 1px solid $black-25;
+            margin-bottom: 1rem;
+          }
+
+          .batch-mode-controls {
+            display: flex;
+            justify-content: space-between;
+            button:only-child { margin-left: auto; }
+          }
+        }
+
       }
 
-      .gene-search-input {
-        width: 13rem;
-      }
-      .grow {
+      .results {
         flex-grow: 1;
-      }
-      .gene-pagination {
-        margin-left: 2rem;
-        margin-right: 1rem;
+        padding-left: 2rem;
+
+        .results-header {
+          display: flex;
+          justify-content: space-between;
+
+          .gene-pagination {
+            margin-left: 2rem;
+            margin-right: 1rem;
+          }
+          .slim {
+            flex-grow: 1;
+          }
+        }
+
+        .gene-list {
+          margin-top: 2rem;
+        }
       }
     }
+    hr {
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+      border-top-color: $black-25;
+    }
+    .custom-genepanel-results {
+      background-color: $green-05;
+      padding: 1rem;
+      margin: -1rem;
+      margin-top: 0;
+    }
   }
-  .gene-list {
-    margin-top: 2rem;
-  }
+
 }
 
 

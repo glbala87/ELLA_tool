@@ -1,6 +1,6 @@
 export default function addTranscripts({ state, props }) {
     const sourceGenepanel = state.get('views.overview.import.data.genepanel')
-    const addedGenepanel = state.get('views.overview.import.added.addedGenepanel')
+    const addedGenepanel = state.get('views.overview.import.custom.added.addedGenepanel')
     let { added: toAdd } = props
     // Find already added ones
     if (!Array.isArray(toAdd)) {
@@ -45,5 +45,5 @@ export default function addTranscripts({ state, props }) {
         }
     }
 
-    state.set('views.overview.import.added.addedGenepanel', addedGenepanel)
+    state.set('views.overview.import.custom.added.addedGenepanel', addedGenepanel)
 }

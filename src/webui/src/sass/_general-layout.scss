@@ -13,8 +13,9 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; ba
   }
 }
 textarea, .wysiwygeditor { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 50rem; border: none; background-color: transparent; border-bottom: 1px solid $black-50; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
-  &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
+  &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-40; }
 }
+
 
 // Avoid horizontal overflow of pasted images
 .wysiwygeditor img {
