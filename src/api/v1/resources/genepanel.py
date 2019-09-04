@@ -1,5 +1,5 @@
-from sqlalchemy import tuple_, func, literal, and_
-from sqlalchemy.sql import label, case
+from sqlalchemy import tuple_, func, literal, and_, desc, Float
+from sqlalchemy.sql import label, case, cast
 from sqlalchemy.orm import joinedload, aliased
 from flask import request
 from vardb.datamodel import gene
@@ -243,10 +243,7 @@ class GenepanelStatsResource(LogRequestResource):
             session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
             .join(gene.genepanel_transcript)
             .join(gene.Genepanel)
-            .filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(user_genepanels),
-                gene.Genepanel.official.is_(True),
-            )
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(user_genepanels))
             .distinct()
         )
 
@@ -256,7 +253,8 @@ class GenepanelStatsResource(LogRequestResource):
 
         input_gene_count = session.query(input_genepanel_gene_ids.c.gene_id).distinct().count()
 
-        genepanel_gene_ids = genepanel_gene_ids.subquery()
+        # Only include official gene panels in comparison
+        genepanel_gene_ids = genepanel_gene_ids.filter(gene.Genepanel.official.is_(True)).subquery()
 
         # outerjoin example:
         # -------------------------------------------------------------------
@@ -269,34 +267,58 @@ class GenepanelStatsResource(LogRequestResource):
         # | Mendeliome | v01     | 4887    | None       | None    | None    |
         # input.gene_id is null -> missing from our gene panel
         # input.gene_id is not null -> overlaps our gene panel
+
+        # Missing = total gene count (in our panel) - overlapping
+        missing_expr = literal(input_gene_count) - func.count(
+            # COUNT only counts non-null, so CASE acts as an filter for the count
+            case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)])
+        )
+        # Overlap = all gene ids that joined on gene_id
+        overlap_expr = func.count(case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)]))
+        # Additional = all gene ids that did not join (i.e. missing in our panel)
+        additional_expr = func.count(case([(input_genepanel_gene_ids.c.gene_id.is_(None), True)]))
+
+        # Similarity score:
+        # We weigh distance w.r.t. missing + addition count the most, as long as their
+        # sum is small compared to panel size.
+        # When the distance is large, the overlap similarity kicks in.
+        # The following formula has been tested among >50 official panels,
+        # on different custom panels and yields good results
+        # (keep in mind that missing + addition + overlap are always greater
+        # than input count unless the panels are identical):
+        #
+        # (Overlapping count / input total count) * 2 +
+        # input total count / (missing count + addition count)
+        #
         stats = (
             session.query(
                 genepanel_gene_ids.c.name,
                 genepanel_gene_ids.c.version,
-                # COUNT only counts non-null, so CASE acts as an filter for the count
-                # Missing = total gene count (in our panel) - overlapping
-                label(
-                    "missing",
-                    literal(input_gene_count)
-                    - func.count(case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)])),
-                ),
-                # Overlap = all gene ids where that where joined on gene_id
-                func.count(case([(~input_genepanel_gene_ids.c.gene_id.is_(None), True)])).label(
-                    "overlap"
-                ),
-                # Additional = all gene ids that did not join (i.e. missing in our panel)
-                func.count(case([(input_genepanel_gene_ids.c.gene_id.is_(None), True)])).label(
-                    "additional"
-                ),
+                missing_expr.label("missing"),
+                overlap_expr.label("overlap"),
+                additional_expr.label("additional"),
             )
             .outerjoin(
                 input_genepanel_gene_ids,
                 and_(input_genepanel_gene_ids.c.gene_id == genepanel_gene_ids.c.gene_id),
             )
             .filter(
-                tuple_(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version) != (name, version)
+                # Exclude input panel from results
+                tuple_(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version)
+                != (name, version)
+            )
+            .having(overlap_expr > 0)  # Exclude panels with no overlap
+            .order_by(
+                desc(
+                    (cast(overlap_expr, Float) * 2 / literal(input_gene_count))
+                    + (
+                        cast(literal(input_gene_count), Float)
+                        / (missing_expr + additional_expr + 1)
+                    )
+                )
             )
             .group_by(genepanel_gene_ids.c.name, genepanel_gene_ids.c.version)
+            .limit(5)
         )
 
         result = {"overlap": []}
