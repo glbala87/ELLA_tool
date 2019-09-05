@@ -3,11 +3,11 @@ import { state, props } from 'cerebral/tags'
 import filterAndFlattenGenepanel from '../actions/filterAndFlattenGenepanel'
 
 export default [
-    set(state`views.overview.import.added.filter`, props`filter`),
+    set(state`views.overview.import.custom.added.filter`, props`filter`),
     filterAndFlattenGenepanel(
-        'views.overview.import.added.addedGenepanel',
-        'views.overview.import.added.filteredFlattened',
-        'views.overview.import.added.filter'
+        'views.overview.import.custom.added.addedGenepanel',
+        'views.overview.import.custom.added.filteredFlattened',
+        'views.overview.import.custom.added.filter'
     ),
-    set(state`views.overview.import.added.selectedPage`, 1)
+    set(state`views.overview.import.custom.added.selectedPage`, 1)
 ]

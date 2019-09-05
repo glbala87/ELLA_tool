@@ -9,5 +9,5 @@ export default function prepareAddedGenepanel({ state }) {
             .replace(/-/g, ''), // Date on format YYMMDD
         genes: {}
     }
-    state.set('views.overview.import.added.addedGenepanel', addedGenepanel)
+    state.set('views.overview.import.custom.added.addedGenepanel', addedGenepanel)
 }

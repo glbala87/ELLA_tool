@@ -20,7 +20,7 @@ Unlike other sections, this section contains two main comment fields:
 
 ## Variants with a previous interpretation
 
-*ella* matches the variants in each new sample with existing variant interpretations in the database. If a match is found, the last classification along with user, date and any changes to the report is displayed in a separate card:
+ELLA matches the variants in each new sample with existing variant interpretations in the database. If a match is found, the last classification along with user, date and any changes to the report is displayed in a separate card:
 
 <div style="text-indent: 4%;"><img src="./img/existing_classification.png"></div>
 
@@ -50,7 +50,7 @@ Outdated variants are grouped with UNCLASSIFIED VARIANTS in the [side bar](/manu
 
 ## Review and add ACMG criteria 
 
-The ACMG criteria in *ella* are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
+The ACMG criteria in ELLA are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
 
 Before setting a variant classification, you should add relevant ACMG criteria to the variant interpretation. There are two main ways of doing this, from [suggested criteria](/manual/classification-section.html#suggested-acmg-criteria-and-requirements-req) or [manually](/manual/classification-section.html#add-acmg-criteria-manually), explained below. A third option is available for a few selected criteria in the [Quick classification mode](/manual/quick-classification.md).
 
@@ -62,7 +62,7 @@ Each ACMG criterion can be added only once for a particular variant, irrespectiv
 
 ### Suggested ACMG criteria and requirements (REQ)
 
-*ella* automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
+ELLA automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
 
@@ -80,7 +80,7 @@ The suggestions may be somewhat imprecise and **you should always check that all
 
 #### REQ: requirements for ACMG criteria
 
-Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/concepts/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in *ella*. Each of these REQs is a necessary component for the ACMG criteria they belongs to. *ella* displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
+Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/concepts/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
 REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
@@ -88,7 +88,7 @@ REQs that have a match in the current variant are shown when you click the `SHOW
 
 ### Add ACMG criteria manually
 
-To add an ACMG criterion that is not already suggested by *ella*, press the `ADD ACMG` button in the top banner:
+To add an ACMG criterion that is not already suggested by ELLA, press the `ADD ACMG` button in the top banner:
 
 <div style="text-indent: 4%;"><img src="./img/add_ACMG_btn.png"></div>
 
@@ -104,7 +104,7 @@ To change the strength of a particular, added criterion, click either the `+` or
 
 ## Set variant class
 
-Based on the particular ACMG criteria you have added, *ella* [suggests a classification](/concepts/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
+Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/concepts/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
 
 <div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
 

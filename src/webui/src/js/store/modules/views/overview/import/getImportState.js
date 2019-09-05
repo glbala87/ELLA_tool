@@ -19,6 +19,8 @@ export function getCandidatesState() {
         selectedPage: 1,
         perPage: 5,
         filter: '',
+        filterBatch: '',
+        filterBatchProcessed: false,
         filteredFlattened: null,
         filteredGenepanel: null
     }
@@ -31,10 +33,20 @@ export default function getImportState() {
         data: {
             samples: null, // Sample results
             genepanels: null, // Available genepanels
-            genepanel: null // Currently selected genepanel
+            genepanel: null, // Currently selected genepanel
+            activeImportJobs: null,
+            importJobsHistory: null
         },
+        custom: {
+            selectedFilterMode: 'single',
+            candidates: getCandidatesState(),
+            added: getAddedState()
+        },
+        importHistoryPage: 1,
+        importSourceType: 'user',
         selectedGenepanel: null,
         candidates: getCandidatesState(),
-        added: getAddedState()
+        added: getAddedState(),
+        priority: 1
     }
 }

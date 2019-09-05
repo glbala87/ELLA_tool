@@ -32,12 +32,14 @@ def run_preimport(job):
         return {"files": {}, "variables": {}}
 
     assert os.path.isfile(preimport_script)
+    priority = job.properties.get("priority", 1) if job.properties else 1
 
     args = [
         "GENEPANEL_NAME=%s" % job.genepanel_name,
         "GENEPANEL_VERSION=%s" % job.genepanel_version,
         "SAMPLE_ID=%s" % job.sample_id,
         "USERGROUP=%s" % job.user.group.name,
+        "PRIORITY=%d" % priority,
     ]
 
     cmd = " ".join(args + [preimport_script])
@@ -160,6 +162,7 @@ class AnnotationJobsInterface:
             job_type = job.properties["create_or_append"]
             sample_type = job.properties["sample_type"]
             analysis_name = job.properties["analysis_name"]
+            priority = job.properties.get("priority", 1)
             if job_type == "Create":
                 analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
@@ -168,7 +171,7 @@ class AnnotationJobsInterface:
                 analysis_name=analysis_name,
                 gp_name=gp_name,
                 gp_version=gp_version,
-                priority=1,
+                priority=priority,
             )
             append = job_type != "Create"
             da = DepositAnalysis(self.session)

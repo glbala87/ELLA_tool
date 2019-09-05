@@ -54,6 +54,7 @@ app.component('workflowbar', {
             componentChanged: signal`views.workflows.componentChanged`,
             collapseAllAlleleSectionboxClicked: signal`views.workflows.interpretation.collapseAllAlleleSectionboxClicked`,
             selectedInterpretationChanged: signal`views.workflows.selectedInterpretationChanged`,
+            showGenepanelOverviewClicked: signal`views.workflows.modals.genepanelOverview.showGenepanelOverviewClicked`,
             copyAllAlamutClicked: signal`views.workflows.copyAllAlamutClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,

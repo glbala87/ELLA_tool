@@ -48,7 +48,7 @@ We use webdriver.io for testing. See <http://webdriver.io>.
 In CI tests are run with `make e2e-test`. This will run Chrome inside the container and run the test suites.
 You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
 
-To explore the e2e test data, start a local *ella* instance and import the e2e test data: `make dbreset TESTSET=e2e`
+To explore the e2e test data, start a local ELLA instance and import the e2e test data: `make dbreset TESTSET=e2e`
 
 
 #### Local e2e
@@ -56,7 +56,7 @@ The following must be installed:
 - Chrome
 - Chromedriver
 
-The *ella* app and the test execution (wdio) can be either run locally on your host machine or inside Docker.
+The ELLA app and the test execution (wdio) can be either run locally on your host machine or inside Docker.
 
 First start chromedriver on your host machine: `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''`
 

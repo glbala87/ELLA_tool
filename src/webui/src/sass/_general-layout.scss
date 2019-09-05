@@ -13,8 +13,9 @@ input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; ba
   }
 }
 textarea, .wysiwygeditor { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 50rem; border: none; background-color: transparent; border-bottom: 1px solid $black-50; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
-  &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-25; }
+  &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-40; }
 }
+
 
 // Avoid horizontal overflow of pasted images
 .wysiwygeditor img {
@@ -75,6 +76,7 @@ input[type=range]{-webkit-appearance: none;
 }
 
 
+h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
 a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed; border-color: $black-25; cursor: pointer; }
 a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid; }
 a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
@@ -433,7 +435,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
   section > div:first-child { margin-top: 0.5rem; }
   section > div:last-child { margin-bottom: 2rem; }
   h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
-  h4.section-title { @extend h4.section-title; margin: 0.3rem 0; }
+  h4.section-title { @extend h4.section-title; color: $blue-50; margin: 0.3rem 0; }
   .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
   i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
@@ -742,7 +744,7 @@ nav.warning { display: flex; align-items: center; justify-content: space-between
 }
 
 
-#toast-container { position: fixed; z-index: 100; bottom: 0; right: 0; left: 0; width: 100%; max-height: 20rem; overflow-y: auto; overflow-x: hidden;
+#toast-container { position: fixed; z-index: 10000; bottom: 0; right: 0; left: 0; width: 100%; max-height: 20rem; overflow-y: auto; overflow-x: hidden;
   & > :hover { cursor: pointer; }
   .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
   .toast { background-color: #030303; }
@@ -1062,6 +1064,7 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     margin-right: 0.2rem;
   }
   .section-title {
+    color: $blue-50;
     padding-top: 0.5rem;
   }
 
@@ -1083,5 +1086,112 @@ button.toast-close-button { padding: 0; cursor: pointer; background: transparent
     z-index: 99;
   }
 
+
+}
+
+
+.import {
+
+  .selection-warning {
+    height: 1.2rem;
+    font-size: 1.0rem;
+    color: $red-95;
+    font-weight: 700;
+  }
+
+  importsingle > contentwrapper {
+    margin-top: 1.6rem;
+  }
+
+  @keyframes fade-in-import-edit {
+    0% {
+      transform: scale(0.0);
+      transform-origin: top left;
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      transform-origin: top left;
+    }
+  }
+
+  .import-edit {
+    background-color: $green-10;
+    padding: 1rem;
+    margin-top: 1rem;
+    &.ng-enter {
+      animation: fade-in-import-edit 0.15s;
+      animation-timing-function: ease-in;
+    }
+  }
+
+  .import-summary {
+    width: 50%;
+    > section > div > div {
+        display: flex;
+        > span {
+          font-size: 1.4rem;
+          &.title {
+            min-width: 15rem;
+            text-transform: uppercase !important;
+            font-weight: 600;
+          }
+        }
+      }
+    padding-right: 2rem;
+  }
+
+  .user-input-left {
+    max-width: 50rem;
+  }
+
+  .user-input-middle {
+    max-width: 2rem;
+
+  }
+
+  .user-input-right {
+    max-width: 70rem;
+
+  }
+
+  .import-selection {
+    border-top: 1px dashed $black-10;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    min-height: 8rem;
+  }
+
+  .import-warning {
+    background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
+    p { color: $white; }
+
+  }
+
+  .import-variants {
+    * input[type=checkbox] {
+      height: inherit;
+    }
+
+  }
+
+  .annotationjobinfo > span {
+    overflow-wrap: break-word;
+  }
+
+  .annotationjobinfo > pre {
+    white-space: pre-wrap;
+  }
+
+  .import-all-summary * {
+    text-align: center;
+    margin-top: 0.3rem;
+  }
+
+  .json-pretty {
+    display: inline-block;
+    text-align: left !important;
+    font-size: 0.8rem;
+  }
 
 }

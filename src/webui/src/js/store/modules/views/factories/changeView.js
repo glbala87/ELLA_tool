@@ -19,7 +19,7 @@ const EXEMPT_RESET = ['overview']
 // Can be used to run view specific setup/resets
 const GLOBAL_PRE_SEQUENCE = [
     disableOnBeforeUnload(),
-    interval('stop', 'views.overview.updateImportJobCountTriggered'),
+    interval('stop', 'views.overview.import.updateImportJobsTriggered'),
     interval('stop', 'views.overview.updateOverviewTriggered')
 ]
 

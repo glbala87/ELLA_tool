@@ -13,7 +13,9 @@ export class ImportData {
         this._choices = {
             mode: ['Analysis', 'Variants'],
             type: ['Create', 'Append'],
-            technology: ['Sanger', 'HTS']
+            technology: ['Sanger', 'HTS'],
+            // Should be removed when porting to cerebral (use config values)
+            priority: [1, 2, 3]
         }
 
         // Current import selection, with validation of choices
@@ -54,6 +56,17 @@ export class ImportData {
                     return
                 }
                 this._technology = val
+            },
+            _priority: this._choices.priority[0],
+            get priority() {
+                return this._priority
+            },
+            set priority(val) {
+                if (this._choices['priority'].indexOf(val) < 0) {
+                    console.error(`Invalid choice for type: ${val}`)
+                    return
+                }
+                this._priority = val
             },
             // Non-validated choices
             analysis: null,
@@ -125,14 +138,14 @@ export class ImportData {
     }
 
     _parseVcfLine(line) {
-        let vals = line.trim().split('\t')
-        let chrom = vals[0]
-        let pos = vals[1]
-        let ref = vals[3]
-        let alt = vals[4]
+        const vals = line.trim().split('\t')
+        const chrom = vals[0]
+        const pos = vals[1]
+        const ref = vals[3]
+        const alt = vals[4]
 
-        let format = vals[8]
-        let sample = vals[9]
+        const format = vals[8]
+        const sample = vals[9]
 
         let genotype
         let gt_index = format.split(':').indexOf('GT')
@@ -226,10 +239,12 @@ export class ImportData {
 
         if (this.importSelection.mode === 'Analysis') {
             properties.create_or_append = this.importSelection.type
-            properties.analysis_name =
-                this.importSelection.type === 'Append'
-                    ? this.importSelection.analysis.name
-                    : this.importSelection.analysisName
+            if (this.importSelection.type === 'Create') {
+                properties.analysis_name = this.importSelection.analysisName
+                properties.priority = this.importSelection.priority
+            } else {
+                properties.analysis_name = this.importSelection.analysis.name
+            }
         }
 
         if (this.isAppendToAnalysisType()) {

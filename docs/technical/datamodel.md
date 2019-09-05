@@ -57,7 +57,7 @@ An allele has:
 ### Annotation
 The annotation contains information about a *single* allele's population frequencies, predicted effects and various other data from external databases. Annotation can change often, and whenever it is updated, the previous annotation is archived. Therefore there is only one current annotation for every allele. The current annotation points to the previous to keep track on historic annotations.
 
-The annotation is created outside *ella* by the pipeline.
+The annotation is created outside ELLA by the pipeline.
 
 The annotation has:
 - The actual annotation data (json)

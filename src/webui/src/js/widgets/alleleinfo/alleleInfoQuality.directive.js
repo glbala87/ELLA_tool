@@ -25,7 +25,20 @@ function extractGenotypeDataSample(display, sample) {
     }
     for (let key of GENOTYPE_KEYS) {
         if (key in sample.genotype) {
-            data[key] = sample.genotype[key]
+            if (key == "allele_depth") {
+                var refAllele = []
+                var altAlleles = []
+                for (let [alleleKey, alleleValue] of Object.entries(sample.genotype[key])) {
+                    if (alleleKey.startsWith("REF")) {
+                        refAllele.push([alleleKey, alleleValue])
+                    } else {
+                        altAlleles.push([alleleKey, alleleValue])
+                    }
+                }
+                data[key] = refAllele.concat(altAlleles.sort())
+            } else {
+                data[key] = sample.genotype[key]
+            }
         }
     }
     data.display = display

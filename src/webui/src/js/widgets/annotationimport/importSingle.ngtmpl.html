@@ -20,7 +20,7 @@
               </div>
             </div>
             <button class="blue" ng-click="vm.toggleEditMode()">
-              Edit import
+              Import options
             </button>
 
             <section class="import-edit" ng-if="vm.editMode">
@@ -70,7 +70,7 @@
               <div ng-if="vm.importData.isVariantMode() || vm.importData.isCreateNewAnalysisType()" class="question tiny line-wrapper">
                 <div class="left-short">
                   <h5 class="slim title" title="Select genepanel">
-                    <b>Genepanel</b>
+                    <b>Gene panel</b>
                   </h5>
                 </div>
                 <div class="right">
@@ -134,6 +134,28 @@
                   </div>
                 </div>
               </div>
+
+            <!--Select priority-->
+            <div class="question tiny line-wrapper" ng-if="vm.importData.isCreateNewAnalysisType()">
+                <div class="left-short">
+                    <h5 class="slim title" title="Priority of the imported analysis">
+                        <b>Priority</b>
+                    </h5>
+                </div>
+                <div class="right">
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            class="bttn"
+                            uib-btn-radio="item"
+                            ng-model="vm.importData.importSelection.priority"
+                            ng-repeat="item in vm.importData.getChoices('priority')"
+                            >{{ vm.priorityDisplay['' + item] }}</label
+                        >
+                    </div>
+                </div>
+            </div>
+
             </section>
           </section>
         <section>

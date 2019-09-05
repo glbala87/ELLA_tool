@@ -8,7 +8,7 @@ title: User information and warnings
 
 ## Collision warnings: Same variant - Multiple users
 
-If you open a variant or analysis that overlaps with (unfiltered) variants currently opened by other users, *ella* displays a red warning banner at the bottom. For the warning below, the analysis contains one variant currently being worked on in VARIANTS workflows by the user Bjørnstjerne Bjørnson:
+If you open a variant or analysis that overlaps with (unfiltered) variants currently opened by other users, ELLA displays a red warning banner at the bottom. For the warning below, the analysis contains one variant currently being worked on in VARIANTS workflows by the user Bjørnstjerne Bjørnson:
 
 <div style="text-indent: 4%;"><img src="./img/collision_warning.png"></div>
 
@@ -20,7 +20,7 @@ Similarly, if another user imports new results to an analysis you have already o
 
 ## Date, user and tags
 
-For both ANALYSES and VARIANTS view, each analysis/variant is marked with the date when the sample/variant was loaded into ella (sorted with oldest on top) and, if present, user and date of previous interpretation rounds along with any [overview comments](/manual/top-bar.html#work-log) provided by the previous analyst. In addition, in the ANALYSES view, samples are marked with the source of the data (HTS or SANGER, or both), as well as a [WARNING](/manual/info-page.html#pipeline-warnings) if relevant:
+For both ANALYSES and VARIANTS view, each analysis/variant is marked with the date when the sample/variant was loaded into ELLA (sorted with oldest on top) and, if present, user and date of previous interpretation rounds along with any [overview comments](/manual/top-bar.html#work-log) provided by the previous analyst. In addition, in the ANALYSES view, samples are marked with the source of the data (HTS or SANGER, or both), as well as a [WARNING](/manual/info-page.html#pipeline-warnings) if relevant:
 
 <div style="text-indent: 4%;"><img src="./img/overview_tags.png"></div>
 

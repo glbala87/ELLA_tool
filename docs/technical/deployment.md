@@ -8,7 +8,7 @@ ELLA should not run on an network with public access, but rather in a walled gar
 
 Only requirement for production deployment is an existing PostgresSQL database.
 
-*ELLA* primarily uses Docker for deployment. Not using Docker is also possible, but is not documented.
+ELLA primarily uses Docker for deployment. Not using Docker is also possible, but is not documented.
 
 ### Build image
 

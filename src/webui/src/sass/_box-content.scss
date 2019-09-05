@@ -51,8 +51,7 @@ section.acmg-wrapper { display: flex; flex-wrap: wrap; }
 .report {
   pre { white-space: pre-wrap; background-color: rgba(0, 0, 0, 0.04); padding-left: 1rem; }
   .included-report { font-family: "Source Code Pro", monospace; background-color: $purple-05; padding: 2rem;
-     h5 { font-size: 1.2rem; }
-     .content { font-family: inherit; font-size: 1.2rem; }
+     h5 { font-size: 1.4rem; }
   }
   &-entry ~ &-entry { margin-top: 2.6rem; }
 }
@@ -136,6 +135,16 @@ analysis-selection {
   }
 }
 
+.import-job-list { display: flex; flex-direction: column;
+  .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem; border-bottom: 1px dashed $black-25;
+    .job-date { color: $black-50; }
+    .job-title { flex-grow: 1; padding-left: 1.2rem; }
+    .job-submitted { font-weight: 500; padding-left: 1.2rem; padding-right: 2.2rem; }
+    .job-status { padding-right: 2.2rem; }
+    .job-actions { padding-right: 1.2rem; }
+  }
+}
+
 .gene-list { display: flex; flex-direction: column;
   .list-item { display: flex; margin-bottom: 1.0rem; min-height: 3.0rem; font-size: 1.4rem; border-bottom: 1px dashed $black-25;
     .gene { font-weight: 500; padding-left: 1.2rem; min-width: 10rem; }
@@ -150,6 +159,14 @@ analysis-selection {
 
 
 .import {
+  .import-history-pagination {
+    justify-content: flex-end; margin: 0; padding-bottom: 2rem;
+  }
+  .no-jobs { min-height: 4rem; display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
+    padding-bottom: 0.5rem;
+    h2 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }
+    h4 { font-family: $slim; font-size: 1.6rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25; }
+  }
   .custom-genepanel {
     .name {
       margin-bottom: 1rem;
@@ -158,43 +175,116 @@ analysis-selection {
         width: 8rem;
       }
     }
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem;
+
     .slim {
       font-size: 1.5rem;
-      padding-left: 2rem;
       line-height: 2.5rem;
     }
-    .selection {
-      padding-top: 1rem;
+
+    .section {
+
       display: flex;
+      padding-top: 1rem;
+      min-height: 15rem;
 
-      .dropdown {
-        margin-right: 2rem;
+      .filter {
+        width: 25rem;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px dashed $black-25;
+        padding-right: 2rem;
+        transition: all 1s linear;
+
+        input[type="text"] {
+          width: unset;
+        }
+
+        .filter-mode-controls {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+
+          .missing-warning {
+            font-family: $full;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            color: $red-75;
+          }
+          .bttn-set {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+          }
+        }
+
+
+        .batch-mode {
+
+
+          .gene-batch-input {
+            &.missing {
+              border: 3px solid $red-75;
+            }
+            height: 13rem;
+            border: 1px solid $black-25;
+            margin-bottom: 1rem;
+          }
+
+          .batch-mode-controls {
+            display: flex;
+            justify-content: space-between;
+            button:only-child { margin-left: auto; }
+          }
+        }
+
       }
 
-      .gene-search-input {
-        width: 13rem;
-      }
-      .grow {
+      .results {
         flex-grow: 1;
-      }
-      .gene-pagination {
-        margin-left: 2rem;
-        margin-right: 1rem;
+        padding-left: 2rem;
+
+        .results-header {
+          display: flex;
+          justify-content: space-between;
+
+          .gene-pagination {
+            margin-left: 2rem;
+            margin-right: 1rem;
+          }
+          .slim {
+            flex-grow: 1;
+          }
+        }
+
+        .gene-list {
+          margin-top: 2rem;
+        }
       }
     }
+    hr {
+      margin-top: 4rem;
+      margin-bottom: 2rem;
+      border-top-color: $black-25;
+    }
+    .custom-genepanel-results {
+      background-color: $green-05;
+      padding: 1rem;
+      margin: -1rem;
+      margin-top: 0;
+    }
   }
-  .gene-list {
-    margin-top: 2rem;
-  }
+
 }
 
 
 .attachment {
   margin-right: 1rem;
-  padding: 0.5rem;
   padding-bottom: 0;
   border: solid 1px $black-05;
+  width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .attachmentcontrollers {
@@ -207,10 +297,15 @@ analysis-selection {
   justify-content: space-between;
 }
 
-.attachmentid {
-  font-size: 1.4rem;
+.attachmentfilename {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1.2rem;
   vertical-align: top;
-  margin-top: -0.3rem;
+  margin-top: -0.2rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
 }
 
 .downloadattachment > a {
@@ -233,7 +328,7 @@ analysis-selection {
 }
 
 .attachment * img, .attachment * .attachmentcontrollers, .attachment * .attachmentthumbnail {
-  width: 9rem;
+    width: 100%;
 }
 
 .workflow-status-selection {

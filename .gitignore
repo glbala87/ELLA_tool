@@ -76,3 +76,4 @@ _book
 
 .hypothesis
 .mypy_cache
+.vscode

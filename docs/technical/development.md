@@ -65,7 +65,7 @@ So before manually running the upgrade/downgrade scripts, you need to create the
 The API is documented using [apidocs](https://apispec.readthedocs.io/en/latest/) supporting the OpenAPI specification (f.k.a. Swagger 2.0).
 You can see the specification [here](http://swagger.io/specification/).
 
-You can explore the *ella*'s API at `/api/v1/docs/` in you browser.
+You can explore the ELLA's API at `/api/v1/docs/` in you browser.
 
 To document your resource, have a look at the current resources to see usage examples.
 
