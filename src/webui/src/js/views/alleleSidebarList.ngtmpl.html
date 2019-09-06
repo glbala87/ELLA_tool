@@ -236,7 +236,7 @@
             popover-append-to-body="true"
             popover-title="Frequency: {{allele.formatted.display}}"
             popover-class="popover-title-no-uppercase"
-            popover-placement="bottom"><span class="clickable">{{$ctrl.formatFreqValue($ctrl.hiFreq[allele.id])}}</span></span>
+            popover-placement="bottom"><span class="clickable">{{$ctrl.formatFreqValue($ctrl.hiFreq[allele.id])}}</span>
           </div>
           <div ng-if="$ctrl.showColumn('hi-count')" class="cell hi-count"
             popover-trigger="mouseenter"
@@ -289,6 +289,7 @@
               <h5 ng-if="!$ctrl.isToggled(allele.id)">+</h5>
             </div>
           </div>
+      </div>
       </div>
     </section>
 </div>

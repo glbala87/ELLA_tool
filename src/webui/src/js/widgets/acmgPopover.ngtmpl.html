@@ -10,13 +10,13 @@
     <h3>Notes:</h3>
     <ul class="acmg-notes">
       <li ng-repeat="note in vm.getNotes()">{{note | killLeadingDashes}}</li>
-    <ul>
+    </ul>
   </div>
   <div ng-show="vm.getInternalNotes().length">
     <h3>Local adjustments:</h3>
     <ul class="acmg-notes">
       <li ng-repeat="note in vm.getInternalNotes()">{{note | killLeadingDashes}}</li>
-    <ul>
+    </ul>
   </div>
   <h3>Match:</h3>
   <div>
