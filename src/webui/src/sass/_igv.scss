@@ -1,99 +1,106 @@
 // IGV override styling (might change inbetween versions, so don't spend too much effort here...)
 
-@import "../thirdparty/igv/igv-1.0.5";
+@import '../thirdparty/igv/igv-1.0.5';
 
 igv {
-
-  @mixin base-mixin {
-    background-color: $purple-50; font-family: $full !important; font-size: 1.2rem; font-weight: 500; line-height: 1.6rem; text-transform: uppercase; letter-spacing: 0.2rem; padding: 0.25rem 0.75rem; border-radius: 0 !important; color: #fff;
-  }
-  .igvNavigation {
-    background-color: transparent;
-    border: 0;
-  }
-
-
-  .igvNavigationSearch {
-      width: 30rem;
-      height: 3rem;
-
-    .igvNavigationSearchInput {
-      width: 30rem;
-      height: 3rem;
-      padding: 0.1rem;
-      border-radius: 0;
-      border: 0.1rem solid $purple-50;
-      color: black;
-      font-family: $full;
-      font-size: 1.5rem;
+    @mixin base-mixin {
+        background-color: $purple-50;
+        font-family: $full !important;
+        font-size: 1.2rem;
+        font-weight: 500;
+        line-height: 1.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 0 !important;
+        color: #fff;
     }
-    .fa-search {
-      display: none;
-    }
-  }
-
-  .igv-windowsizepanel-content-div, .igv-toggle-track-labels {
-    display: none !important;
-  }
-
-
-  .igvNavigationZoom {
-    float: right;
-    margin-top: -0.4rem;
-    padding-right: 3rem;
-
-    .fa-minus-circle:before, .fa-plus-circle:before {
-      display: inline-block;
-      height: 3rem;
-      width: 6rem;
-      text-align: center;
-      color: $black-75;
-      line-height: 3rem;
-      font-style: normal;
-      border: 0.1rem solid $purple-50;
-      font-size: 1.5rem;
+    .igvNavigation {
+        background-color: transparent;
+        border: 0;
     }
 
-    .fa-minus-circle:before {
-      content: 'OUT';
+    .igvNavigationSearch {
+        width: 30rem;
+        height: 3rem;
+
+        .igvNavigationSearchInput {
+            width: 30rem;
+            height: 3rem;
+            padding: 0.1rem;
+            border-radius: 0;
+            border: 0.1rem solid $purple-50;
+            color: black;
+            font-family: $full;
+            font-size: 1.5rem;
+        }
+        .fa-search {
+            display: none;
+        }
     }
 
-    .fa-plus-circle:before {
-      content: 'IN';
+    .igv-windowsizepanel-content-div,
+    .igv-toggle-track-labels {
+        display: none !important;
     }
 
-  }
+    .igvNavigationZoom {
+        float: right;
+        margin-top: -0.4rem;
+        padding-right: 3rem;
 
+        .fa-minus-circle:before,
+        .fa-plus-circle:before {
+            display: inline-block;
+            height: 3rem;
+            width: 6rem;
+            text-align: center;
+            color: $black-75;
+            line-height: 3rem;
+            font-style: normal;
+            border: 0.1rem solid $purple-50;
+            font-size: 1.5rem;
+        }
 
-  .igv-toggle-track-labels {
-    margin-top: 1px;
-    @include base-mixin;
-  }
+        .fa-minus-circle:before {
+            content: 'OUT';
+        }
 
-  .igv-track-label {
-    @include base-mixin;
-    letter-spacing: 0.001rem;
-    background-color: $purple-50;
-  }
-
-  .igv-popover {
-    border-radius: 0;
-  }
-
-  .igv-popover-table {
-    font-family: $full;
-    line-height: 1em;
-    hr {
-      margin: 5px;
+        .fa-plus-circle:before {
+            content: 'IN';
+        }
     }
-  }
 
-  .igv-scrollbar-inner-div {
-    border-color: $purple-75;
-    background-color: $purple-75;
-    &:hover, &:active {
-      border-color: $purple-50;
-      background-color: $purple-50;
+    .igv-toggle-track-labels {
+        margin-top: 1px;
+        @include base-mixin;
     }
-  }
+
+    .igv-track-label {
+        @include base-mixin;
+        letter-spacing: 0.001rem;
+        background-color: $purple-50;
+    }
+
+    .igv-popover {
+        border-radius: 0;
+    }
+
+    .igv-popover-table {
+        font-family: $full;
+        line-height: 1em;
+        hr {
+            margin: 5px;
+        }
+    }
+
+    .igv-scrollbar-inner-div {
+        border-color: $purple-75;
+        background-color: $purple-75;
+        &:hover,
+        &:active {
+            border-color: $purple-50;
+            background-color: $purple-50;
+        }
+    }
 }
