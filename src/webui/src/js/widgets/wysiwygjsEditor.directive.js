@@ -157,9 +157,9 @@ export class WysiwygEditorController {
                     this.buttons['highlightcolor'].children[1].style.color =
                         colors['highlightcolors'][0]
                 } else {
-                    this.buttons['highlightcolor'].children[1].style.color = `rgb(${
-                        this.DEFAULT_COLOR.RGB
-                    })`
+                    this.buttons[
+                        'highlightcolor'
+                    ].children[1].style.color = `rgb(${this.DEFAULT_COLOR.RGB})`
                 }
                 if (colors['fontcolors'].length === 1) {
                     this.buttons['fontcolor'].children[0].style.color = colors['fontcolors'][0]

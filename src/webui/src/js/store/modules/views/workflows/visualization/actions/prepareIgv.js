@@ -20,9 +20,7 @@ export default async function prepareIgv({ state, http }) {
                 config: {
                     name: 'Genepanel',
                     type: 'annotation',
-                    url: `/api/v1/igv/genepanel/${analysis.genepanel.name}/${
-                        analysis.genepanel.version
-                    }/`,
+                    url: `/api/v1/igv/genepanel/${analysis.genepanel.name}/${analysis.genepanel.version}/`,
                     format: 'bed',
                     indexed: false,
                     displayMode: 'EXPANDED',

@@ -22,7 +22,7 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
                 reuseCheckedId: allele.allele_assessment.id
             }
             checkReportAlleleIds.push(allele.id)
-            
+
             state.set(
                 `views.workflows.interpretation.state.allele.${alleleId}.alleleassessment`,
                 reusedAlleleAssessment

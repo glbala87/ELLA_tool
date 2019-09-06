@@ -1,4 +1,3 @@
-
 export function prepareAlleleAssessmentModel(alleleAssessment) {
     if (alleleAssessment.reuse) {
         return

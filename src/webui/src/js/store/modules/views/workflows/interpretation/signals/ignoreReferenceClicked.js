@@ -1,9 +1,8 @@
-import toast from '../../../../../common/factories/toast';
-import setDirty from '../actions/setDirty';
-import setReferenceAssessment from '../actions/setReferenceAssessment';
-import getReferenceAssessment from '../computed/getReferenceAssessment';
-import canUpdateReferenceAssessment from '../operators/canUpdateReferenceAssessment';
-
+import toast from '../../../../../common/factories/toast'
+import setDirty from '../actions/setDirty'
+import setReferenceAssessment from '../actions/setReferenceAssessment'
+import getReferenceAssessment from '../computed/getReferenceAssessment'
+import canUpdateReferenceAssessment from '../operators/canUpdateReferenceAssessment'
 
 export default [
     canUpdateReferenceAssessment,

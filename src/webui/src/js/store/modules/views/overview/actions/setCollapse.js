@@ -1,4 +1,3 @@
-
 export default function setCollapse({ props, state }) {
     for (let name of ['section', 'name', 'collapsed']) {
         if (!(name in props)) {

@@ -19,9 +19,7 @@ function getFilteredAlleles({ http, path, state, resolve }) {
 
         return http
             .get(
-                `workflows/analyses/${analysisId}/interpretations/${
-                    selectedInterpretation.id
-                }/filteredalleles/`,
+                `workflows/analyses/${analysisId}/interpretations/${selectedInterpretation.id}/filteredalleles/`,
                 params
             )
             .then((response) => {

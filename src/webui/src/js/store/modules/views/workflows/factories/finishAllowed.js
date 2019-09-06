@@ -37,9 +37,7 @@ export default function(finishType) {
             let rest_filter = encodeURIComponent(JSON.stringify({ sample_ids: sampleIds }))
             return http
                 .get(
-                    `workflows/analyses/${id}/interpretations/${
-                        interpretation.id
-                    }/finishallowed?q=${rest_filter}`
+                    `workflows/analyses/${id}/interpretations/${interpretation.id}/finishallowed?q=${rest_filter}`
                 )
                 .then((r) => {
                     return path.true()

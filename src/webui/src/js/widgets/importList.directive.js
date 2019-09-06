@@ -40,16 +40,12 @@ app.component('importList', {
                     },
                     getJobDisplayDetail(job) {
                         if (job.sample_id) {
-                            return `${job.sample_id} (${job.genepanel_name}_${
-                                job.genepanel_version
-                            })`
+                            return `${job.sample_id} (${job.genepanel_name}_${job.genepanel_version})`
                         } else if (
                             job.mode === 'Analysis' &&
                             job.properties.create_or_append === 'Create'
                         ) {
-                            return `${job.properties.analysis_name} (${job.genepanel_name}_${
-                                job.genepanel_version
-                            })`
+                            return `${job.properties.analysis_name} (${job.genepanel_name}_${job.genepanel_version})`
                         } else if (
                             job.mode === 'Analysis' &&
                             job.properties.create_or_append === 'Append'

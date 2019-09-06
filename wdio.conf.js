@@ -224,9 +224,7 @@ exports.config = {
                                 console.log(`${appUrl} is compiled, moving on...`)
                             } else {
                                 console.log(
-                                    `${appUrl} is not ready (${
-                                        response.statusCode
-                                    }) is still compiling, waiting...`
+                                    `${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`
                                 )
                             }
                             resolve(ok)
