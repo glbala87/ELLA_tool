@@ -1,71 +1,89 @@
 <div class="analysis-info">
-  <sectionbox color="red" ng-if="$ctrl.analysis.warnings.length" collapsed="$ctrl.getWarningOptions().collapsed">
-      <maintitle>
-        Pipeline warnings
-      </maintitle>
-      <subtitle ng-if="$ctrl.warningCleared">
-        CLEARED
-      </subtitle>
-      <contentwrapper class="analysis-info">
-        <markdown-it markdown="$ctrl.analysis.warnings"></markdown-it>
-      </contentwrapper>
-  </sectionbox>
-
-  <sectionbox color="purple">
-      <maintitle>
-        Analysis info
-      </maintitle>
-      <contentwrapper>
-        <h5>Requested:</h5>
-        <p>{{$ctrl.analysis.date_requested | date:"yyyy-MM-dd"}}</p>
-        <h5>Imported:</h5>
-        <p>{{$ctrl.analysis.date_deposited | date:"yyyy-MM-dd HH:mm"}}</p>
-        <h4 class="section-header">Samples</h4>
-        <div class="samples-container">
-          <contentbox class="samples" title="{{s.type.toUpperCase()}}" ng-repeat="s in $ctrl.samples">
-            <cbbody>
-              <div class="cb-table">
-                <div class="tabular-row">
-                  <div class="cell"><h5>Sample name:</h5></div>
-                  <div class="cell"><p>{{s.sample.identifier}}</p></div>
-                </div>
-                <div class="tabular-row">
-                  <div class="cell"><h5>Imported:</h5></div>
-                  <div class="cell"><p>{{s.sample.date_deposited | date:'yyyy-MM-dd HH:mm'}}</p></div>
-                </div>
-                <div class="tabular-row" ng-if="s.type == 'sibling'">
-                  <div class="cell"><h5>Affected:</h5></div>
-                  <div class="cell"><p>{{s.sample.affected ? 'Yes' : 'No'}}</p></div>
-                </div>
-                <div class="tabular-row">
-                  <div class="cell"><h5>Family:</h5></div>
-                  <div class="cell"><p>{{s.sample.family_id || 'Not available'}}</p></div>
-                </div>
-                <div class="tabular-row">
-                  <div class="cell"><h5>Sex:</h5></div>
-                  <div class="cell"><p>{{s.sample.sex || 'Not available'}}</p></div>
-                </div>
-                <div class="tabular-row">
-                  <div class="cell"><h5>Technology:</h5></div>
-                  <div class="cell"><p>{{s.sample.sample_type || 'Not available'}}</p></div>
-                </div>
-              </div>
-
-            </cbbody>
-          </contentbox>
-        </div>
-
-      </contentwrapper>
+    <sectionbox
+        color="red"
+        ng-if="$ctrl.analysis.warnings.length"
+        collapsed="$ctrl.getWarningOptions().collapsed"
+    >
+        <maintitle>
+            Pipeline warnings
+        </maintitle>
+        <subtitle ng-if="$ctrl.warningCleared">
+            CLEARED
+        </subtitle>
+        <contentwrapper class="analysis-info">
+            <markdown-it markdown="$ctrl.analysis.warnings"></markdown-it>
+        </contentwrapper>
     </sectionbox>
 
-  <sectionbox color="purple">
-    <maintitle>
-      Pipeline report
-    </maintitle>
-    <contentwrapper class="analysis-info">
-      <div class="report">
-          <markdown-it markdown="$ctrl.analysis.report"></markdown-it>
-      </div>
-    </contentwrapper>
-  </sectionbox>
+    <sectionbox color="purple">
+        <maintitle>
+            Analysis info
+        </maintitle>
+        <contentwrapper>
+            <h5>Requested:</h5>
+            <p>{{ $ctrl.analysis.date_requested | date: 'yyyy-MM-dd' }}</p>
+            <h5>Imported:</h5>
+            <p>{{ $ctrl.analysis.date_deposited | date: 'yyyy-MM-dd HH:mm' }}</p>
+            <h4 class="section-header">Samples</h4>
+            <div class="samples-container">
+                <contentbox
+                    class="samples"
+                    title="{{ s.type.toUpperCase() }}"
+                    ng-repeat="s in $ctrl.samples"
+                >
+                    <cbbody>
+                        <div class="cb-table">
+                            <div class="tabular-row">
+                                <div class="cell"><h5>Sample name:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.identifier }}</p>
+                                </div>
+                            </div>
+                            <div class="tabular-row">
+                                <div class="cell"><h5>Imported:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.date_deposited | date: 'yyyy-MM-dd HH:mm' }}</p>
+                                </div>
+                            </div>
+                            <div class="tabular-row" ng-if="s.type == 'sibling'">
+                                <div class="cell"><h5>Affected:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.affected ? 'Yes' : 'No' }}</p>
+                                </div>
+                            </div>
+                            <div class="tabular-row">
+                                <div class="cell"><h5>Family:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.family_id || 'Not available' }}</p>
+                                </div>
+                            </div>
+                            <div class="tabular-row">
+                                <div class="cell"><h5>Sex:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.sex || 'Not available' }}</p>
+                                </div>
+                            </div>
+                            <div class="tabular-row">
+                                <div class="cell"><h5>Technology:</h5></div>
+                                <div class="cell">
+                                    <p>{{ s.sample.sample_type || 'Not available' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </cbbody>
+                </contentbox>
+            </div>
+        </contentwrapper>
+    </sectionbox>
+
+    <sectionbox color="purple">
+        <maintitle>
+            Pipeline report
+        </maintitle>
+        <contentwrapper class="analysis-info">
+            <div class="report">
+                <markdown-it markdown="$ctrl.analysis.report"></markdown-it>
+            </div>
+        </contentwrapper>
+    </sectionbox>
 </div>

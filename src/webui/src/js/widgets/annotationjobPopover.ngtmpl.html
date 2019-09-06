@@ -1,10 +1,9 @@
 <div class="annotationjobinfo">
-  <h3><strong>Status:</strong></h3>
-  <p>{{job.status}}</p>
-  <h3>Message:</h3>
-  <!--<p style="white-space: pre;">{{job.message}}</p>-->
-  <span ng-bind-html="job.message|formatText"></span>
-  <h3 ng-if="job.data">Input:</h3>
-  <pre ng-if="job.data">{{job.data}}</pre>
+    <h3><strong>Status:</strong></h3>
+    <p>{{ job.status }}</p>
+    <h3>Message:</h3>
+    <!--<p style="white-space: pre;">{{job.message}}</p>-->
+    <span ng-bind-html="job.message|formatText"></span>
+    <h3 ng-if="job.data">Input:</h3>
+    <pre ng-if="job.data">{{ job.data }}</pre>
 </div>
-
