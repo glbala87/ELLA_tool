@@ -343,7 +343,7 @@ def convert_clinvar(annotation):
         return {"CLINVAR": clinvarjson}
 
 
-def extract_annotation_frequencies(annotation, annotation_key, result_key):
+def extract_annotation_frequencies(annotation, annotation_key, result_key, include_custom=False):
     frequencies = defaultdict(dict)
 
     # TODO: Remove when annotation isn't so messed up...
@@ -354,11 +354,20 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         value = int(value)
         return value
 
+    def extract_float_list(value):
+        if isinstance(value, list):
+            assert len(value) == 1
+            value = value[0]
+        value = float(value)
+        return value
+
     freq = {}
     count = {}
     num = {}
     hom = {}
     hemi = {}
+    af = {}
+    custom = {}
     filter_status = {}
     indications = {}
     for key, value in annotation[annotation_key].items():
@@ -391,14 +400,25 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         elif key.startswith("Hemi_"):
             pop = key.split("Hemi_")[1]
             hemi[pop] = extract_int_list(value)
+        elif key.startswith("AF_"):
+            pop = key.split("AF_")[1]
+            af[pop] = extract_float_list(value)
         elif key.startswith("indications_"):
             pop = key.split("indications_")[1]
             # foo:x,bar:y -> {foo: x, bar:y}
             indications[pop] = {f.split(":", 1)[0]: f.split(":", 1)[1] for f in value.split(",")}
+        elif include_custom:
+
+            custom[key] = ", ".join(
+                map(lambda x: str(x), value if isinstance(value, list) else [value])
+            )
 
     for key in count:
         if key in num and num[key]:
             freq[key] = float(count[key]) / num[key]
+
+    for key in set(af.keys() - freq.keys()):
+        freq[key] = af[key]
 
     # ExAC override. ExAC naming is very misleading!
     # ExAC should use Adj, NOT the default AC and AN!
@@ -422,6 +442,8 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         frequencies[result_key].update({"filter": filter_status})
     if indications:
         frequencies[result_key].update({"indications": indications})
+    if custom:
+        frequencies[result_key].update({"custom": custom})
 
     return dict(frequencies)
 
@@ -482,7 +504,10 @@ def indb_frequencies(annotation):
     if INDB_ANNOTATION_KEY not in annotation:
         return {}
     else:
-        return extract_annotation_frequencies(annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY)
+        s = extract_annotation_frequencies(
+            annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY, include_custom=True
+        )
+        return s
 
 
 def csq_frequencies(annotation):
