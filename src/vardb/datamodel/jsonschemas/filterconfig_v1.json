@@ -116,8 +116,7 @@
                                             "inDB": {
                                                 "type": "array",
                                                 "items": {
-                                                    "type": "string",
-                                                    "enum": ["OUSWES"]
+                                                    "type": "string"
                                                 }
                                             }
                                         }
