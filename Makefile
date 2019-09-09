@@ -240,6 +240,7 @@ dev:
 	  -e PTVS_PORT=5678 \
 	  -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 	  -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
+	  -e OVERRIDE_CONFIG="/ella/src/vardb/testdata/override_config.json" \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  -p $(API_PORT):5000 \
@@ -383,6 +384,7 @@ test-e2e:
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e PRODUCTION=false \
+	   -e OVERRIDE_CONFIG="/ella/src/vardb/testdata/override_config.json" \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \

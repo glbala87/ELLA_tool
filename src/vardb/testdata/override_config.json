@@ -1,0 +1,23 @@
+{
+    "frequencies": {
+        "groups": {
+            "internal": {
+                "inDB": ["OUSWES"]
+            }
+        },
+        "view": {
+            "groups": {
+                "inDB": ["OUSWES"]
+            }
+        }
+    },
+    "report": {
+        "classification_text": {
+            "5": "Disease causing variant",
+            "4": "Likely disease causing variant",
+            "3": "Variant of uncertain significance",
+            "2": "Not likely disease causing variant",
+            "1": "Not disease causing variant"
+        }
+    }
+}
