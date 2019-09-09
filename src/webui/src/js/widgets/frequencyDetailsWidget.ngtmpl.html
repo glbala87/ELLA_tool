@@ -41,3 +41,26 @@
         </div>
     </div>
 </div>
+<div
+    class="cb-table freq-custom"
+    ng-repeat="(key, value) in $ctrl.frequencies.custom"
+    ng-if="$ctrl.frequencies.custom"
+>
+    <div class="tabular-row">
+        <!-- table headers -->
+        <div class="cell">
+            <h4 class="faded-title">custom key</h4>
+        </div>
+        <div class="cell">
+            <h4 class="faded-title">custom value</h4>
+        </div>
+    </div>
+    <div class="tabular-row">
+        <div class="cell">
+            <h5>{{ key }}:</h5>
+        </div>
+        <div class="cell">
+            <p>{{ value }}</p>
+        </div>
+    </div>
+</div>

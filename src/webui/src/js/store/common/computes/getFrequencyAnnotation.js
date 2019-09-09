@@ -70,11 +70,23 @@ export default function(allele, group) {
             filter: [],
             indications: [],
             frequencies: [],
-            fields: fields
+            fields: fields,
+            custom: {}
         }
 
         if (!(group in config.frequencies.view.groups)) {
-            return data
+            return {}
+        }
+
+        if (!(group in allele.annotation.frequencies)) {
+            return {}
+        }
+
+        //
+        // Custom
+        //
+        if ('custom' in allele.annotation.frequencies[group]) {
+            data.custom = allele.annotation.frequencies[group].custom
         }
 
         for (let freqType of config.frequencies.view.groups[group]) {
@@ -88,12 +100,17 @@ export default function(allele, group) {
                     name: freqType
                 }
 
+                let dataExists = false
+
                 for (let field of fields) {
                     if (field in freqDataForGroup && freqType in freqDataForGroup[field]) {
                         container[field] = formatValue(freqDataForGroup, field, freqType, config)
+                        dataExists = true
                     }
                 }
-                data.frequencies.push(container)
+                if (dataExists) {
+                    data.frequencies.push(container)
+                }
             }
 
             // rename labels:
