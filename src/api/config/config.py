@@ -10,7 +10,7 @@ def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
 
-config = {
+_config = {
     "app": {
         # Disable by default for now
         "links_to_clipboard": str2bool(os.environ.get("OFFLINE_MODE", "true")),
@@ -209,7 +209,7 @@ config = {
                 "GNOMAD_GENOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
                 "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
             },
-            "internal": {"inDB": ["OUSWES"]},
+            "internal": {"inDB": []},
         },
         "view": {
             "groups": {
@@ -218,7 +218,7 @@ config = {
                 "ExAC": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
                 "1000g": ["G", "AMR", "ASN", "EUR", "EAS", "SAS"],
                 "esp6500": ["AA", "EA"],
-                "inDB": ["OUSWES"],
+                "inDB": [],
             },
             "precision": 6,  # Float precision (for strings)
             # Convert to scientific notation for frequencies below 10**-x
@@ -337,11 +337,11 @@ config = {
     },
     "report": {
         "classification_text": {
-            "5": "Sykdomsgivende variant",
-            "4": "Sannsynlig sykdomsgivende variant",
-            "3": "Variant med usikker betydning",
-            "2": "Sannsynlig ikke sykdomsgivende variant",
-            "1": "Ikke sykdomsgivende variant",
+            "5": "Pathogenic variant",
+            "4": "Likely pathogenic variant",
+            "3": "Variant of uncertain significance",
+            "2": "Likely benign variant",
+            "1": "Benign variant",
         }
     },
     "transcripts": {
@@ -412,8 +412,44 @@ config = {
     },
 }
 
-config["acmg"] = acmgconfig
-config["custom_annotation"] = customannotationconfig
+_config["acmg"] = acmgconfig
+_config["custom_annotation"] = customannotationconfig
+
+
+# Custom __getattr__ specific for config, e.g. 'from config import config'
+# Will recursively merge config overrides defined in os.environ["CONFIG_OVERRIDES"]
+# with default config.
+def __getattr__(name):
+    if name != "config":
+        try:
+            return globals()[name]
+        except KeyError as e:
+            raise AttributeError(f"No such attribute '{name}'")
+    else:
+        # https://stackoverflow.com/a/3233356
+        import collections
+        import six
+        import json
+
+        def update(d, u):
+            for k, v in six.iteritems(u):
+                dv = d.get(k, {})
+                if not isinstance(dv, collections.Mapping):
+                    d[k] = v
+                elif isinstance(v, collections.Mapping):
+                    d[k] = update(dv, v)
+                else:
+                    d[k] = v
+            return d
+
+        c = copy.deepcopy(_config)
+
+        if "OVERRIDE_CONFIG" in os.environ:
+            with open(os.environ["OVERRIDE_CONFIG"]) as f:
+                override_config = json.load(f)
+                c = update(c, override_config)
+
+        return c
 
 
 def get_user_config(app_config, usergroup_config, user_config):
