@@ -17,21 +17,15 @@ export default function autoIgnoreReferences({ state, resolve }) {
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const alleleState = resolve.value(getAlleleState(alleleId))
-        console.log(`alleleState: ${JSON.stringify(alleleState, null, 2)}`)
         const alleleReferenceIds = resolve.value(getReferencesIdsForAllele(allele))
         const alleleReferences = resolve.value(
             findReferencesFromIds(references, alleleReferenceIds)
         ).references
-        const wat = []
-        console.log(`wat (${typeof(wat)}): ${JSON.stringify(wat)}`)
-        console.log(`alleleReferences (${typeof(alleleReferences)}): ${JSON.stringify(alleleReferences)}`)
 
         for (let ref of alleleReferences) {
             const refAssesment = alleleState.referenceassessments.find((ra) => {
                 return ra.reference_id === ref.id
             })
-            console.log(`checking ref: ${JSON.stringify(ref)}`)
-            console.log(`refAssesment: ${JSON.stringify(refAssesment)}`)
 
             if (
                 'pubmed_id' in ref &&
