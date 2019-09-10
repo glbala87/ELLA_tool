@@ -35,6 +35,9 @@ export default function autoIgnoreReferences({ state, resolve }) {
 
             if (
                 'pubmed_id' in ref &&
+                'interpretation' in userConfig &&
+                'filterPubmedReferences' in userConfig.interpretation &&
+                userConfig.interpretation.filterPubmedReferences &&
                 userConfig.interpretation.filterPubmedReferences.includes(ref.pubmed_id) &&
                 !refAssesment
             ) {
