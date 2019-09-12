@@ -95,9 +95,7 @@ config = {
                 "disease_mode": "ANY",
                 "last_exon_important": "LEI",
             },
-            "interpretation": {
-                "autoIgnoreReferencePubmedIds": []
-            },
+            "interpretation": {"autoIgnoreReferencePubmedIds": []},
         },
     },
     "analysis": {
