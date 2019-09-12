@@ -12,6 +12,13 @@ export default function autoIgnoreReferences({ state, resolve }) {
         references = Object.values(refObj)
     }
     const userConfig = state.get('app.config.user.user_config')
+    if (
+        !'interpretation' in userConfig ||
+        !'autoIgnoreReferencePubmedIds' in userConfig.interpretation ||
+        !userConfig.interpretation.autoIgnoreReferencePubmedIds
+    ) {
+        return
+    }
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         const alleleState = resolve.value(getAlleleState(alleleId))
@@ -25,9 +32,6 @@ export default function autoIgnoreReferences({ state, resolve }) {
 
             if (
                 !refAssesment &&
-                'interpretation' in userConfig &&
-                'autoIgnoreReferencePubmedIds' in userConfig.interpretation &&
-                userConfig.interpretation.autoIgnoreReferencePubmedIds &&
                 'pubmed_id' in ref &&
                 userConfig.interpretation.autoIgnoreReferencePubmedIds.includes(ref.pubmed_id)
             ) {
