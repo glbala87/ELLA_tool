@@ -4,6 +4,7 @@ import { state, signal, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isManuallyAddedById from '../store/modules/views/workflows/alleleSidebar/computed/isManuallyAddedById'
 import isMultipleInGeneById from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleInGeneById'
+import hasUnignoredReferences from '../store/modules/views/workflows/alleleSidebar/computed/hasUnignoredReferences'
 import isNonsenseById from '../store/modules/views/workflows/alleleSidebar/computed/isNonsenseById'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequenceById from '../store/modules/views/workflows/alleleSidebar/computed/getConsequenceById'
@@ -64,6 +65,7 @@ app.component('alleleSidebarList', {
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
             isManuallyAddedById: isManuallyAddedById(state`${props`allelesPath`}`),
+            hasUnignoredReferences: hasUnignoredReferences(state`${props`allelesPath`}`),
             qual: getQualById(state`${props`allelesPath`}`),
             depth: getDepthById(state`${props`allelesPath`}`),
             alleleassessments: getAlleleAssessmentsById,
@@ -253,7 +255,7 @@ app.component('alleleSidebarList', {
                         return allele.tags.includes('homozygous')
                     },
                     hasReferences(allele) {
-                        return allele.tags.includes('has_references')
+                        return $ctrl.hasUnignoredReferences[allele.id]
                     },
                     getSegregationTag(allele) {
                         // Inherited mosaicism takes precedence if tags include both types
