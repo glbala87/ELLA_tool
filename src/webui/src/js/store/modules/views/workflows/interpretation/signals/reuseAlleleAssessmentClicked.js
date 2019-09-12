@@ -4,7 +4,7 @@ import toggleReuseAlleleAssessment from '../actions/toggleReuseAlleleAssessment'
 import copyExistingAlleleAssessments from '../../actions/copyExistingAlleleAssessments'
 import autoReuseExistingReferenceAssessments from '../actions/autoReuseExistingReferenceAssessments'
 import isReadOnly from '../operators/isReadOnly'
-import allelesChanged from '../../alleleSidebar/sequences/allelesChanged';
+import allelesChanged from '../../alleleSidebar/sequences/allelesChanged'
 
 export default [
     isReadOnly,
@@ -12,7 +12,9 @@ export default [
         false: [
             toggleReuseAlleleAssessment,
             copyExistingAlleleAssessments,
-            when(state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.reuse`),
+            when(
+                state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.reuse`
+            ),
             {
                 true: [],
                 false: [

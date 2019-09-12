@@ -3,5 +3,31 @@
     "tabWidth": 4,
     "semi": false,
     "singleQuote": true,
-    "arrowParens": "always"
+    "arrowParens": "always",
+    "overrides": [
+        {
+            "files": "*.html",
+            "options": {
+                "parser": "angular"
+            }
+        },
+        {
+            "files": "*.@(scss|css)",
+            "options": {
+                "parser": "scss"
+            }
+        },
+        {
+            "files": "*.json",
+            "options": {
+                "parser": "json"
+            }
+        },
+        {
+            "files": "*.js",
+            "options": {
+                "parser": "babel"
+            }
+        }
+    ]
 }

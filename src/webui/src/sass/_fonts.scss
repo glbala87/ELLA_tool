@@ -1,80 +1,219 @@
-$full: "Work Sans", sans-serif;
-$slim: "Source Sans Pro", sans-serif;
-$code: "Source Code Pro", monospace;
+$full: 'Work Sans', sans-serif;
+$slim: 'Source Sans Pro', sans-serif;
+$code: 'Source Code Pro', monospace;
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; border: 0; vertical-align: baseline; }
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+}
 
-h3 { font-size: 1.4rem; }
-.full-title { font-family: $full; font-weight: 400;
-  b { font-weight: 500; }
-  i { opacity: 0.65; font-style: normal; }
-  small { font-weight: 300; font-size: inherit; }
-  &.upper { text-transform: uppercase; }
+h3 {
+    font-size: 1.4rem;
 }
-.slim { font-family: $slim; font-weight: 400;
-  &.title { letter-spacing: 0.1rem; word-spacing: 0.2rem; }
-  b { font-weight: 600; }
-  i { opacity: 0.65; font-style: normal; }
-  small { font-weight: 300; font-size: inherit; }
-  &.header { font-weight: 700; }
-  &.upper { text-transform: uppercase; }
-  &.section-top { margin-bottom: 0.35rem; }
+.full-title {
+    font-family: $full;
+    font-weight: 400;
+    b {
+        font-weight: 500;
+    }
+    i {
+        opacity: 0.65;
+        font-style: normal;
+    }
+    small {
+        font-weight: 300;
+        font-size: inherit;
+    }
+    &.upper {
+        text-transform: uppercase;
+    }
 }
-h4.sb-notification { font-family: $full; color: $black-50; font-weight: 600; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem;
-  &.dim { color: $black-25; }
+.slim {
+    font-family: $slim;
+    font-weight: 400;
+    &.title {
+        letter-spacing: 0.1rem;
+        word-spacing: 0.2rem;
+    }
+    b {
+        font-weight: 600;
+    }
+    i {
+        opacity: 0.65;
+        font-style: normal;
+    }
+    small {
+        font-weight: 300;
+        font-size: inherit;
+    }
+    &.header {
+        font-weight: 700;
+    }
+    &.upper {
+        text-transform: uppercase;
+    }
+    &.section-top {
+        margin-bottom: 0.35rem;
+    }
 }
-h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.05rem; color: $black-50; text-transform: uppercase; }
+h4.sb-notification {
+    font-family: $full;
+    color: $black-50;
+    font-weight: 600;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.075rem;
+    margin-top: 0.35rem;
+    &.dim {
+        color: $black-25;
+    }
+}
+h4.section-title {
+    font-family: $slim;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.05rem;
+    color: $black-50;
+    text-transform: uppercase;
+}
 
-.fixed-width-numbers { -webkit-font-feature-settings: 'tnum'; -moz-font-feature-settings: 'tnum'; -ms-font-feature-settings: 'tnum'; font-feature-settings: 'tnum'; }
+.fixed-width-numbers {
+    -webkit-font-feature-settings: 'tnum';
+    -moz-font-feature-settings: 'tnum';
+    -ms-font-feature-settings: 'tnum';
+    font-feature-settings: 'tnum';
+}
 
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 100;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-Thin.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 100;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-Thin.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 200;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-ExtraLight.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 200;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-ExtraLight.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 300;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-Light.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-Light.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 400;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-Regular.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-Regular.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 500;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-Medium.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 500;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-Medium.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 600;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-SemiBold.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-SemiBold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Work Sans';
-  font-weight: 700;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/WorkSans-Bold.woff2') format('woff2');
+    font-family: 'Work Sans';
+    font-weight: 700;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/WorkSans-Bold.woff2') format('woff2');
 }
 // @font-face {
 //   font-family: 'Work Sans';
@@ -92,11 +231,11 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 // }
 
 @font-face {
-  font-family: 'Source Code Pro';
-  font-weight: 400;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/SourceCodePro-Regular.otf.woff2') format('woff2');
+    font-family: 'Source Code Pro';
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/SourceCodePro-Regular.otf.woff2') format('woff2');
 }
 
 // @font-face {
@@ -114,11 +253,11 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 //   src: url('./fonts/SourceSansPro-ExtraLightIt.otf.woff2') format('woff2');
 // }
 @font-face {
-  font-family: 'Source Sans Pro';
-  font-weight: 300;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/SourceSansPro-Light.otf.woff2') format('woff2');
+    font-family: 'Source Sans Pro';
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/SourceSansPro-Light.otf.woff2') format('woff2');
 }
 // @font-face {
 //   font-family: 'Source Sans Pro';
@@ -128,11 +267,11 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 //   src: url('./fonts/SourceSansPro-LightIt.otf.woff2') format('woff2');
 // }
 @font-face {
-  font-family: 'Source Sans Pro';
-  font-weight: 400;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/SourceSansPro-Regular.otf.woff2') format('woff2');
+    font-family: 'Source Sans Pro';
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/SourceSansPro-Regular.otf.woff2') format('woff2');
 }
 // @font-face {
 //   font-family: 'Source Sans Pro';
@@ -142,11 +281,11 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 //   src: url('./fonts/SourceSansPro-It.otf.woff2') format('woff2');
 // }
 @font-face {
-  font-family: 'Source Sans Pro';
-  font-weight: 600;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/SourceSansPro-Semibold.otf.woff2') format('woff2');
+    font-family: 'Source Sans Pro';
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/SourceSansPro-Semibold.otf.woff2') format('woff2');
 }
 // @font-face {
 //   font-family: 'Source Sans Pro';
@@ -156,11 +295,11 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 //   src: url('./fonts/SourceSansPro-SemiboldIt.otf.woff2') format('woff2');
 // }
 @font-face {
-  font-family: 'Source Sans Pro';
-  font-weight: 700;
-  font-style: normal;
-  font-stretch: normal;
-  src: url('./fonts/SourceSansPro-Bold.otf.woff2') format('woff2');
+    font-family: 'Source Sans Pro';
+    font-weight: 700;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('./fonts/SourceSansPro-Bold.otf.woff2') format('woff2');
 }
 // @font-face {
 //   font-family: 'Source Sans Pro';
@@ -183,4 +322,3 @@ h4.section-title { font-family: $slim; font-size: 1.4rem; font-weight: 700; lett
 //   font-stretch: normal;
 //   src: url('./fonts/SourceSansPro-BlackIt.otf.woff2') format('woff2');
 // }
-

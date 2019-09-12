@@ -13,9 +13,7 @@ export default function getGenepanel({ http, path, state, resolve }) {
 
     return http
         .get(
-            `workflows/${type}/${id}/genepanels/${selectedGenepanel.name}/${
-                selectedGenepanel.version
-            }/`,
+            `workflows/${type}/${id}/genepanels/${selectedGenepanel.name}/${selectedGenepanel.version}/`,
             { allele_ids: alleleIds.join(',') }
         )
         .then((response) => {

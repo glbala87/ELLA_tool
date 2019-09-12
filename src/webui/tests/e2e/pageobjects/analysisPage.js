@@ -121,9 +121,7 @@ class AnalysisPage extends Page {
             benign: 2
         }
 
-        let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${
-            categories[category]
-        })`
+        let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
         browser.click(acmg_selector)
         util.element('.popover').scroll(`h4.acmg-title=${code}`)
         util.element('.popover').click(`h4.acmg-title=${code}`)

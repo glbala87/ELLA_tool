@@ -15,7 +15,6 @@
                 ng-repeat="control in $ctrl.section.controls"
                 ng-if="$ctrl.showControls()"
             >
-
                 <checkable-button
                     class="id-accept-classification"
                     ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment"

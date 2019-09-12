@@ -1,21 +1,28 @@
 <div class="main">
-
-
-
     <div class="overviewcontainer">
         <div class="sidenavbar">
             <div class="item-row">
-                <div ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey  }}" class="item" ng-repeat="sectionKey in $ctrl.sectionKeys" ng-class="{'active': $ctrl.sections[sectionKey].selected}" ng-click="$ctrl.sectionChanged({section: sectionKey})">{{$ctrl.sections[sectionKey].displayName}}</div>
+                <div
+                    ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey }}"
+                    class="item"
+                    ng-repeat="sectionKey in $ctrl.sectionKeys"
+                    ng-class="{'active': $ctrl.sections[sectionKey].selected}"
+                    ng-click="$ctrl.sectionChanged({section: sectionKey})"
+                >
+                    {{ $ctrl.sections[sectionKey].displayName }}
+                </div>
             </div>
         </div>
 
         <div class="container with-sidenavbar">
             <search></search>
-                <div>
-                    <analysis-selection ng-if="$ctrl.sections.analyses.selected || $ctrl.sections['analyses-by-findings'].selected"></analysis-selection>
-                    <allele-selection ng-if="$ctrl.sections.variants.selected"></allele-selection>
-                    <import ng-if="$ctrl.sections.import.selected"></import>
-                </div>
-         </div>
-     </div>
+            <div>
+                <analysis-selection
+                    ng-if="$ctrl.sections.analyses.selected || $ctrl.sections['analyses-by-findings'].selected"
+                ></analysis-selection>
+                <allele-selection ng-if="$ctrl.sections.variants.selected"></allele-selection>
+                <import ng-if="$ctrl.sections.import.selected"></import>
+            </div>
+        </div>
+    </div>
 </div>

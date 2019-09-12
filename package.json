@@ -44,6 +44,7 @@
         "mini-css-extract-plugin": "^0.4.1",
         "ng-cache-loader": "^0.0.26",
         "node-sass": "^4.9.2",
+        "prettier": "^1.18.2",
         "sass-loader": "^7.0.3",
         "vuepress": "^0.14.4",
         "wdio-jasmine-framework": "^0.3.5",
@@ -60,13 +61,8 @@
     },
     "jest": {
         "testURL": "http://localhost/",
-        "moduleFileExtensions": [
-            "js",
-            "jsx"
-        ],
-        "moduleDirectories": [
-            "node_modules"
-        ],
+        "moduleFileExtensions": ["js", "jsx"],
+        "moduleDirectories": ["node_modules"],
         "moduleNameMapper": {
             "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/webui/tests/__mocks__/fileMock.js",
             "\\.(css|less)$": "<rootDir>/src/webui/tests/__mocks__/styleMock.js"

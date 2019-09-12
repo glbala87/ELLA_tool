@@ -1,26 +1,43 @@
-<div class="cb-warning" ng-if="$ctrl.getFilterFail().length" >FILTER: {{$ctrl.getFilterFail().join(', ')}}</div>
-<div class="cb-table id-frequency-{{ $ctrl.group }}" ng-if="$ctrl.frequencies.frequencies.length > 0">
-  <div class="tabular-row">
-  <div class="cell"><h4 class="faded-title">Pop</h4></div>
-  <div class="cell" ng-repeat="field in $ctrl.frequencies.fields"> <!-- table headers -->
-    <h4 class="faded-title">{{field}}</h4>
-  </div>
-  </div>
-  <div class="tabular-row exac" ng-repeat="freqData in $ctrl.frequencies.frequencies">
-    <div class="cell"><h5>{{freqData.name}}:</h5></div>
-    <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
-      <p>{{freqData[field]}}</p>
-    </div>
-  </div>
+<div class="cb-warning" ng-if="$ctrl.getFilterFail().length">
+    FILTER: {{ $ctrl.getFilterFail().join(', ') }}
 </div>
-<div class="cb-table" ng-repeat="indications in $ctrl.frequencies.indications" ng-if="$ctrl.frequencies.indications.length">
-  <div class="tabular-row">
-    <div class="cell"><h5>{{indications.name}} indications:</h5></div>
-    <div class="cell"></div>
-  </div>
-  <div class="tabular-row" ng-repeat="i in indications.indications">
-    <div class="cell"><p>- {{i.name}}:</p></div>
-    <div class="cell"><p>{{i.value}}</p></div>
-  </div>
-  </ng-if>
+<div
+    class="cb-table id-frequency-{{ $ctrl.group }}"
+    ng-if="$ctrl.frequencies.frequencies.length > 0"
+>
+    <div class="tabular-row">
+        <div class="cell"><h4 class="faded-title">Pop</h4></div>
+        <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
+            <!-- table headers -->
+            <h4 class="faded-title">{{ field }}</h4>
+        </div>
+    </div>
+    <div class="tabular-row exac" ng-repeat="freqData in $ctrl.frequencies.frequencies">
+        <div class="cell">
+            <h5>{{ freqData.name }}:</h5>
+        </div>
+        <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
+            <p>{{ freqData[field] }}</p>
+        </div>
+    </div>
+</div>
+<div
+    class="cb-table"
+    ng-repeat="indications in $ctrl.frequencies.indications"
+    ng-if="$ctrl.frequencies.indications.length"
+>
+    <div class="tabular-row">
+        <div class="cell">
+            <h5>{{ indications.name }} indications:</h5>
+        </div>
+        <div class="cell"></div>
+    </div>
+    <div class="tabular-row" ng-repeat="i in indications.indications">
+        <div class="cell">
+            <p>- {{ i.name }}:</p>
+        </div>
+        <div class="cell">
+            <p>{{ i.value }}</p>
+        </div>
+    </div>
 </div>

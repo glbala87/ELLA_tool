@@ -1,9 +1,11 @@
 <div class="contentbox fixed-width-numbers" ng-class="vm.getClasses()">
-  <div class="cb titlebar">
-    <div>
-      <h3 class="title" ng-if="!vm.titleUrl">{{vm.title}}</h3>
-      <h3 class="title" ng-if="vm.titleUrl"> <a-clip href="{{vm.titleUrl}}">{{vm.title}}</a-clip> </h3>
+    <div class="cb titlebar">
+        <div>
+            <h3 class="title" ng-if="!vm.titleUrl">{{ vm.title }}</h3>
+            <h3 class="title" ng-if="vm.titleUrl">
+                <a-clip href="{{ vm.titleUrl }}">{{ vm.title }}</a-clip>
+            </h3>
+        </div>
     </div>
-  </div>
-  <div class="cb-body" ng-transclude="cbbody"></div>
+    <div class="cb-body" ng-transclude="cbbody"></div>
 </div>

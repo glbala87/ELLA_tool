@@ -1,17 +1,19 @@
-<sectionbox color="purple" modal="true" on-close="vm.modal.close">
-  <maintitle>
-    <h3 class="title">IGV</h3>
-  </maintitle>
-  <controls>
-    <section class="line-wrapper pinned-right">
-      <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Close</button>
-    </section>
-  </controls>
-  <contentwrapper>
-    <section>
-      <igv options="vm.options" chrom="{{vm.chrom}}" pos="{{vm.pos}}"></igv>
-      <br>
-      <p style="text-align: right;">Powered by <a href="https://github.com/igvteam/igv.js">igv.js</a>.</p>
-    </section>
-  </contentwrapper>
+<sectionbox color="purple" modal="true" on-close="(vm.modal.close)">
+    <maintitle>
+        <h3 class="title">IGV</h3>
+    </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-cancel" type="button" ng-click="vm.modal.close(false)">Close</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <section>
+            <igv options="vm.options" chrom="{{ vm.chrom }}" pos="{{ vm.pos }}"></igv>
+            <br />
+            <p style="text-align: right;">
+                Powered by <a href="https://github.com/igvteam/igv.js">igv.js</a>.
+            </p>
+        </section>
+    </contentwrapper>
 </sectionbox>

@@ -1,4 +1,3 @@
-
 /**
  * Whether to show an exit warning or not.
  * It takes in the raw state from Cerebral,
