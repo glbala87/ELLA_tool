@@ -91,7 +91,7 @@
                 ]
             },
             "interpretation": {
-                "filterPubmedReferences": []
+                "autoIgnoreReferencePubmedIds": []
             }
         }
     },
