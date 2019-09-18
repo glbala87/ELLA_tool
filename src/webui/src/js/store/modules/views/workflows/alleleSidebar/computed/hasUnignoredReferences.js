@@ -1,12 +1,13 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
+import { isIgnored } from '../../../../../common/helpers/reference.js'
 
 export default (alleles) => {
     return Compute(
         alleles,
         state`views.workflows.interpretation.state.allele`,
         (alleles, alleleStates) => {
-            if (!alleles) {
+            if (!alleles || !alleleStates) {
                 return {}
             }
 
@@ -16,16 +17,14 @@ export default (alleles) => {
                 let ignoredRefs = 0
                 if (totalRefs > 0) {
                     if (
+                        Object.keys(alleleStates).includes(alleleId) &&
                         'referenceassessments' in alleleStates[alleleId] &&
                         alleleStates[alleleId].referenceassessments
                     ) {
                         ignoredRefs = alleleStates[
                             alleleId
                         ].referenceassessments.filter(
-                            (ra) =>
-                                'evaluation' in ra &&
-                                'relevance' in ra.evaluation &&
-                                ra.evaluation.relevance === 'Ignore'
+                            (ra) => isIgnored(ra)
                         ).length
                     }
                 }
