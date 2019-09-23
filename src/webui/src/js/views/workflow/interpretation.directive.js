@@ -23,6 +23,16 @@ app.component('interpretation', {
                 return Object.keys(alleles).length
             })
         },
-        'Interpretation'
+        'Interpretation',
+        [
+            '$scope',
+            '$element',
+            ($scope, $element) => {
+                const element = $element[0]
+                const $ctrl = $scope.$ctrl
+                // We use element offset to set height on child components
+                $ctrl.element = element
+            }
+        ]
     )
 })

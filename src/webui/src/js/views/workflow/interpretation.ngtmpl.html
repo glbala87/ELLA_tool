@@ -1,8 +1,16 @@
 <div class="interpretation-container">
     <article class="single-sample-analysis-container" ng-switch="$ctrl.selectedComponent">
-        <allele-sidebar ng-if="$ctrl.showSidebar"></allele-sidebar>
+        <!-- Set max-height on allelesidebar and container. This must be done dynamically, since the navbar + collision warning is dynamic in size. -->
+        <allele-sidebar
+            ng-if="$ctrl.showSidebar"
+            style="max-height: calc(100vh - {{ $ctrl.element.offsetTop }}px);"
+        ></allele-sidebar>
 
-        <section class="container" ng-class="{'inner': $ctrl.showSidebar}">
+        <section
+            class="container"
+            ng-class="{'inner': $ctrl.showSidebar}"
+            style="max-height: calc(100vh - {{ $ctrl.element.offsetTop }}px);"
+        >
             <div ng-switch-when="Info">
                 <analysis-info></analysis-info>
             </div>
