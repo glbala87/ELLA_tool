@@ -26,12 +26,12 @@ export default function autoIgnoreReferences({ state, resolve }) {
         const alleleReferences = findReferencesFromIds(references, alleleReferenceIds).references
 
         for (let ref of alleleReferences) {
-            const refAssesment = alleleState.referenceassessments.find((ra) => {
+            const refAssessment = alleleState.referenceassessments.find((ra) => {
                 return ra.reference_id === ref.id
             })
 
             if (
-                !refAssesment &&
+                !refAssessment &&
                 'pubmed_id' in ref &&
                 userConfig.interpretation.autoIgnoreReferencePubmedIds.includes(ref.pubmed_id)
             ) {
