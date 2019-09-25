@@ -28,10 +28,18 @@ app.component('interpretation', {
             '$scope',
             '$element',
             ($scope, $element) => {
-                const element = $element[0]
                 const $ctrl = $scope.$ctrl
-                // We use element offset to set height on child components
-                $ctrl.element = element
+                $ctrl.offsetTop = '0px'
+                // Offset top is dynamic because of collisionWarning and dynamic nav bar height.
+                // Needs to be set correctly on max-height of child elements to make scrollbar correct.
+                $scope.$watch(
+                    () => {
+                        return $element.prop('offsetTop')
+                    },
+                    (newVal) => {
+                        $ctrl.offsetTop = newVal
+                    }
+                )
             }
         ]
     )
