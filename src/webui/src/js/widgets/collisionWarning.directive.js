@@ -13,7 +13,8 @@ app.component('collisionWarning', {
         'CollisionWarning',
         [
             '$scope',
-            function($scope) {
+            '$rootScope',
+            function($scope, $rootScope) {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($scope.$ctrl, {
@@ -58,6 +59,12 @@ app.component('collisionWarning', {
                             }`
                         }
                         return text
+                    },
+                    clicked() {
+                        // Trigger a digest cycle to detect changes in layout (specifically, offsetTop of interpretation)
+                        setTimeout(() => {
+                            $rootScope.$digest()
+                        }, 0)
                     }
                 })
             }

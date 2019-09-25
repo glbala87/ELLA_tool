@@ -16,7 +16,6 @@ body {
     line-height: 1.42857143;
     color: #333;
     overflow: hidden;
-
 }
 .debug {
     font-size: 2em;
@@ -432,7 +431,6 @@ button {
         margin-left: 0;
         margin-right: 0;
         border-left: 1px dotted $blue-25;
-
     }
 
     // View specific stuff
@@ -447,7 +445,7 @@ button {
 
     .dashboard {
         max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-        overflow:auto;
+        overflow: auto;
         display: flex;
         .full-title {
             padding-left: 1.2rem;
@@ -707,29 +705,48 @@ workflow-buttons {
     }
 }
 
-.collision-warning {
+.collision-warning section {
     margin: 1.5rem;
-    margin-bottom: 0;
-    padding: 1.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    background-color: $red-95;
-    max-height: 10rem;
-    overflow-y: auto;
-    overflow-x: hidden;
-    word-wrap: break-word;
-    font-size: 1.6rem;
-    font-family: $slim;
-    font-weight: 600;
-    color: white;
-    &::-webkit-scrollbar {
-        width: 10px;
+    .titlebar,
+    .titlebar > .sb-title-container,
+    .sb-container {
+        background-color: $red-95;
     }
-    &::-webkit-scrollbar-thumb {
-        background-color: $white-50;
+    .titlebar > .sb-title-container {
+        width: 100%;
     }
-    &:hover::-webkit-scrollbar-thumb {
-        background-color: $white-75;
+    .title,
+    .icon,
+    .sb-container {
+        color: white;
+        font-weight: 800;
+    }
+    p,
+    h5 {
+        color: white;
+        font-family: $slim;
+        font-size: 1.6rem;
+        font-weight: 600;
+        letter-spacing: 0.05rem;
+    }
+    .subtitle {
+        color: $white-50;
+    }
+    .sb-body {
+        animation: none !important;
+        padding-top: 0.5rem !important;
+        max-height: 25vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $white-50;
+        }
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: $white-75;
+        }
     }
 }
 
