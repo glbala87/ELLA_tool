@@ -6,12 +6,35 @@ sidebar: auto
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.8](#version-1-8)|
 [v1.7](#version-1-7)|
 [v1.6](#version-1-6)|[v1.6.2](#version-1-6-2), [v1.6.1](#version-1-6-1)
 [v1.4](#version-1-4)|[v1.4.1](#version-1-4-1)
 [v1.3](#version-1-3)|[v1.3.1](#version-1-3-1)
 [v1.2](#version-1-2)|
 [v1.1](#version-1-1)|[v1.1.2](#version-1-1-2), [v1.1.1](#version-1-1-1)
+
+## Version 1.8
+
+Release date: [TBD]
+
+### Highlights
+
+#### Finalize variant in analysis
+
+[WIP]
+
+#### User group tags and warnings
+
+[WIP]
+
+### All changes
+
+- [WIP] Finalize variant in analysis
+- [WIP] User group tags and warnings
+
+- [MR !317] Added possibility to configure certain reference PubMed IDs to be automatically IGNORED, relevant for recurring, generic references from the annotation that are not relevant to variant interpretation. The IDs can be configured in the `usergroups.json` file (key: `interpretation.autoIgnoreReferencePubmedIds`); see [Technical documentation](/technical/configuration.html#user-groups). [TODO: Add technical notes]
+- [MR !318] Made controls FULL - QUICK - VISUAL and INDICATION comment field in the sidebar sticky to reduce need for scrolling when there are many variants.
 
 ## Version 1.7
 
