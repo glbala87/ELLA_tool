@@ -15,10 +15,13 @@
                             filter criteria.
                         </h4>
                     </div>
+                    <div class="no-alleles" ng-if="$ctrl.hasAlleles && !$ctrl.selectedAllele">
+                        <h2>Please select variant in sidebar.</h2>
+                    </div>
                     <allele-warning ng-if="$ctrl.hasAlleles"></allele-warning>
                     <allele-sectionbox
                         section-key="sectionKey"
-                        ng-if="$ctrl.hasAlleles"
+                        ng-if="$ctrl.hasAlleles && $ctrl.selectedAllele"
                         ng-repeat="sectionKey in $ctrl.sectionKeys"
                     >
                     </allele-sectionbox>
