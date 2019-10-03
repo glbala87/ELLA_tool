@@ -13,7 +13,7 @@ API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/example_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
-ATTACHMENT_STORAGE ?= '/ella/attachments/'
+ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
 TESTSET ?= 'default'
 HYPOTHESIS_PROFILE ?= 'default'
 #RELEASE_TAG =
@@ -198,6 +198,7 @@ review:
 		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
 		--user $(UID):$(GID) \
 		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(REVIEW_NAME) \
 		-e PORT=3114 \
