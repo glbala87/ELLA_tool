@@ -32,6 +32,7 @@ SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Paths are relative to script dir.
 
+FIXTURES = "../testdata/test-fixtures"
 USERS = "../testdata/users.json"
 USERGROUPS = "../testdata/usergroups.json"
 FILTERCONFIGS = "../testdata/filterconfigs.json"
@@ -223,6 +224,11 @@ class DepositTestdata(object):
         custom_anno_path = os.path.join(SCRIPT_DIR, CUSTOM_ANNO)
         import_custom_annotations(self.session, custom_anno_path)
 
+    def deposit_fixtures(self):
+        log.info("Depositing test fixtures")
+        alleleassessments = os.path.join(SCRIPT_DIR, FIXTURES, "alleleassessments.sql")
+        os.system(f"cat {alleleassessments} | psql $DB_URL")
+
     def deposit_all(self, test_set=None):
 
         if test_set not in AVAILABLE_TESTSETS:
@@ -246,6 +252,8 @@ class DepositTestdata(object):
             self.deposit_analyses(test_set=test_set)
             self.deposit_alleles()
             self.deposit_custom_annotation()
+            if test_set == "default":
+                self.deposit_fixtures()
 
         log.info("--------------------")
         log.info(" DB Reset Complete!")
