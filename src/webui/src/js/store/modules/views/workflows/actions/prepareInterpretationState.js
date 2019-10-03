@@ -19,6 +19,18 @@ export default function prepareInterpretationState({ state }) {
         preparedState.manuallyAddedAlleles = []
     }
 
+    if (!('report' in preparedState)) {
+        preparedState.report = {}
+    }
+
+    if (!('comment' in preparedState.report)) {
+        preparedState.report.comment = ''
+    }
+
+    if (!('indicationscomment' in preparedState.report)) {
+        preparedState.report.indicationscomment = ''
+    }
+
     if (!('allele' in preparedUserState)) {
         preparedUserState.allele = {}
     }

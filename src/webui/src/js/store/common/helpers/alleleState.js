@@ -1,6 +1,9 @@
-export function prepareAlleleAssessmentModel(alleleAssessment) {
+export function prepareAlleleAssessmentModel(alleleAssessment, aId) {
     if (alleleAssessment.reuse) {
         return
+    }
+    if (!('allele_id' in alleleAssessment)) {
+        alleleAssessment.allele_id = aId
     }
 
     if (!('attachment_ids' in alleleAssessment)) {
