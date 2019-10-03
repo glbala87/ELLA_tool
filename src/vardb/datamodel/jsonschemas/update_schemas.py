@@ -1,6 +1,5 @@
 import os
 import json
-import jsonref
 import re
 import jsonschema
 from vardb.util.db import DB
@@ -26,7 +25,11 @@ def update_schemas(session):
 
         # Load all refs (jsonref lazy loads references, and can only be circumvented with the "load_on_repr" flag)
         schema = json.loads(
-            repr(schema).replace("'", '"').replace("False", "false").replace("True", "true")
+            repr(schema)
+            .replace("'", '"')
+            .replace("False", "false")
+            .replace("True", "true")
+            .replace("None", "null")
         )
 
         existing = (
@@ -338,10 +341,28 @@ def create_jsonschema_sql_functions(session):
 
 def create_schema_triggers(session):
     schema_triggers = [
-        {"table": "annotation", "json_column": "annotations", "version_column": "schema_version"},
+        {
+            "table": "annotation",
+            "schema_name": "annotation",
+            "json_column": "annotations",
+            "version_column": "schema_version",
+        },
         {
             "table": "filterconfig",
+            "schema_name": "filterconfig",
             "json_column": "filterconfig",
+            "version_column": "schema_version",
+        },
+        {
+            "table": "analysisinterpretation",
+            "schema_name": "state",
+            "json_column": "state",
+            "version_column": "schema_version",
+        },
+        {
+            "table": "alleleinterpretation",
+            "schema_name": "state",
+            "json_column": "state",
             "version_column": "schema_version",
         },
     ]
@@ -349,7 +370,7 @@ def create_schema_triggers(session):
     sql_template = """
         CREATE OR REPLACE FUNCTION {table}_schema_version() RETURNS TRIGGER AS $f$
             BEGIN
-                NEW.{version_column} = schema_version(NEW.{json_column}, '{table}', false);
+                NEW.{version_column} = schema_version(NEW.{json_column}, '{schema_name}', false);
                 RETURN NEW;
             END;
         $f$ LANGUAGE plpgsql;

@@ -2,7 +2,7 @@
 
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, DateTime, Enum, String, Boolean
+from sqlalchemy import Column, Integer, DateTime, Enum, String, Boolean, FetchedValue
 from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint, Index
 from sqlalchemy.orm import relationship, deferred
 from sqlalchemy.dialects.postgresql import JSONB
@@ -31,6 +31,7 @@ class InterpretationMixin(object):
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )
+    schema_version = Column(Integer, nullable=False, server_default=FetchedValue())
 
     @declared_attr
     def user_id(cls):

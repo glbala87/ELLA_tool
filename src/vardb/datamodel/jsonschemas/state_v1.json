@@ -1,0 +1,274 @@
+{
+    "definitions": {
+        "commentOnly": {
+            "type": "object",
+            "required": ["comment"],
+            "additionalProperties": false,
+            "properties": {
+                "comment": {
+                    "type": "string"
+                }
+            }
+        },
+        "reusedAlleleAssessment": {
+            "type": "object",
+            "required": ["reuse", "reuseCheckedId", "allele_id"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": { "enum": [true] },
+                "reuseCheckedId": {
+                    "type": "integer"
+                },
+                "allele_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "newAlleleAssessment": {
+            "type": "object",
+            "required": ["evaluation", "attachment_ids", "classification", "allele_id"],
+            "optional": ["reuse", "reuseCheckedId"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": { "enum": [false] },
+                "reuseCheckedId": {
+                    "type": "integer"
+                },
+                "allele_id": {
+                    "type": "integer"
+                },
+                "attachment_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "classification": {
+                    "enum": [null, "1", "2", "3", "4", "5", "U", "DR"]
+                },
+                "evaluation": {
+                    "type": "object",
+                    "required": [
+                        "acmg",
+                        "external",
+                        "frequency",
+                        "reference",
+                        "prediction",
+                        "classification"
+                    ],
+                    "properties": {
+                        "acmg": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["included", "suggested"],
+                            "optional": ["suggested_classification"],
+                            "properties": {
+                                "included": {
+                                    "type": "array"
+                                },
+                                "suggested": {
+                                    "type": "array"
+                                },
+                                "suggested_classification": {
+                                    "enum": [null, 1, 2, 3, 4, 5]
+                                }
+                            }
+                        },
+                        "external": {
+                            "$ref": "#/definitions/commentOnly"
+                        },
+                        "frequency": {
+                            "$ref": "#/definitions/commentOnly"
+                        },
+                        "reference": {
+                            "$ref": "#/definitions/commentOnly"
+                        },
+                        "prediction": {
+                            "$ref": "#/definitions/commentOnly"
+                        },
+                        "classification": {
+                            "$ref": "#/definitions/commentOnly"
+                        }
+                    }
+                }
+            }
+        },
+        "referenceAssessment": {
+            "type": "object",
+            "required": ["evaluation", "allele_id", "reference_id"],
+            "optional": ["reuse", "reuseCheckedId"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": {
+                    "enum": [false]
+                },
+                "reuseCheckedId": {
+                    "type": "integer"
+                },
+                "evaluation": {
+                    "type": "object",
+                    "optional": ["comment", "sources", "relevance"],
+                    "properties": {
+                        "comment": {
+                            "type": "string"
+                        },
+                        "relevance": {
+                            "enum": ["Ignore", "No", "Yes", "Indirectly"]
+                        },
+                        "sources": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "patternProperties": {
+                        "ref.*": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "enum": [null]
+                                }
+                            ]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "allele_id": {
+                    "type": "integer"
+                },
+                "reference_id": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [
+        {
+            "type": "object",
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "required": ["allele", "report", "manuallyAddedAlleles"],
+            "optional": ["filterconfigId"],
+            "additionalProperties": false,
+            "properties": {
+                "filterconfigId": {
+                    "type": "integer"
+                },
+                "report": {
+                    "type": "object",
+                    "required": ["comment", "indicationscomment"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "comment": {
+                            "type": "string"
+                        },
+                        "indicationscomment": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "manuallyAddedAlleles": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "allele": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "patternProperties": {
+                        "[0-9]+": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "allele_id",
+                                "report",
+                                "analysis",
+                                "workflow",
+                                "alleleassessment",
+                                "allelereport",
+                                "referenceassessments"
+                            ],
+                            "properties": {
+                                "allele_id": {
+                                    "type": "integer"
+                                },
+                                "report": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["included"],
+                                    "properties": {
+                                        "included": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "analysis": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["comment", "verification", "notrelevant"],
+                                    "properties": {
+                                        "comment": {
+                                            "type": "string"
+                                        },
+                                        "verification": {
+                                            "enum": [null, "verified", "technical"]
+                                        },
+                                        "notrelevant": {
+                                            "oneOf": [{ "type": "null" }, { "type": "boolean" }]
+                                        }
+                                    }
+                                },
+                                "workflow": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["reviewed"],
+                                    "properties": {
+                                        "reviewed": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "alleleassessment": {
+                                    "oneOf": [
+                                        { "$ref": "#/definitions/reusedAlleleAssessment" },
+                                        { "$ref": "#/definitions/newAlleleAssessment" }
+                                    ]
+                                },
+                                "referenceassessments": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "$ref": "#/definitions/referenceAssessment"
+                                    }
+                                },
+                                "allelereport": {
+                                    "type": "object",
+                                    "required": ["evaluation"],
+                                    "optional": ["copiedFromId"],
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "evaluation": {
+                                            "$ref": "#/definitions/commentOnly"
+                                        },
+                                        "copiedFromId": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
