@@ -69,6 +69,8 @@ $acmg-map: (
     ps: hsl(20, 80, 40),
     pm: hsl(30, 100, 40),
     pp: hsl(40, 80, 50),
+    pn: hsl(40, 30, 40),
+    bn: hsl(60, 40, 40),
     other: hsl(0, 0, 30)
 );
 
@@ -81,5 +83,7 @@ $acmg-opacity: (
     ps: 0.25,
     pm: 0.15,
     pp: 0.1,
+    pn: 0.1,
+    bn: 0.1,
     other: 0.2
 );

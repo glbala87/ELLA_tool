@@ -7,11 +7,13 @@ import acmgPopover from './acmgPopover.ngtmpl.html'
 
 const STRENGTHS_CLINGEN = {
     benign: {
+        BNW: 'Not weighted',
         BP: 'Supportive',
         BS: 'Strong',
         BA: 'Stand-alone'
     },
     pathogenic: {
+        PNW: 'Not weighted',
         PP: 'Supportive',
         PM: 'Moderate',
         PS: 'Strong',

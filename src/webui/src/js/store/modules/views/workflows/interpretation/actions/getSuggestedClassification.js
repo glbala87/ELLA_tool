@@ -10,6 +10,7 @@ export default function getSuggestedClassification({ http, resolve, path, props 
     const codes = alleleAssessment.evaluation.acmg.included
         .map((c) => c.code)
         .filter((c) => ['pathogenic', 'benign'].includes(extractCodeType(c)))
+        .filter((c) => !['PNW', 'BNW'].includes(c.substring(0, 3)))
     if (!codes || !codes.length) {
         return path.success({ result: { class: null } })
     }

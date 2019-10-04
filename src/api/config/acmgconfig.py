@@ -18,8 +18,14 @@ acmgconfig = {
             "PS",
             "PM",
             "PP",
+            "PNW",  # Not ACMG: Added for ability to have criteria without weight
         ],  # Codes starting with entries will be grouped as pathogenic. Also defines sort order.
-        "benign": ["BP", "BS", "BA"],
+        "benign": [
+            "BNW",  # Not ACMG: Added for ability to have criteria without weight
+            "BP",
+            "BS",
+            "BA",
+        ],
         "other": ["OTHER"],
     },
 }
