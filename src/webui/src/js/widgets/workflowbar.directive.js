@@ -8,6 +8,7 @@ import template from './workflowbar.ngtmpl.html'
 import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
 import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
 import { deepCopy } from '../util'
+import { ACMGHelper } from '../model/acmghelper'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
@@ -97,11 +98,15 @@ app.component('workflowbar', {
                     //
                     acmgPopover: {
                         templateUrl: 'acmgSelectionPopover.ngtmpl.html',
-                        categories: ['Pathogenic', 'Benign'],
+                        categories: ['Pathogenic', 'Benign', 'Other'],
                         selectedCategory: 'Pathogenic',
                         getAcmgClass(code) {
-                            let acmgclass = code.substring(0, 2).toLowerCase()
-                            return code.includes('x') ? `indented ${acmgclass}` : acmgclass
+                            if (ACMGHelper.getCodeType(code) === 'other') {
+                                return 'other'
+                            } else {
+                                let acmgclass = code.substring(0, 2).toLowerCase()
+                                return code.includes('x') ? `indented ${acmgclass}` : acmgclass
+                            }
                         },
                         getExplanationForCode(code) {
                             return $ctrl.config.acmg.explanation[code]

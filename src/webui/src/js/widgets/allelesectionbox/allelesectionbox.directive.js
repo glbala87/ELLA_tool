@@ -149,9 +149,9 @@ app.component('alleleSectionbox', {
                                 includedAcmgCopies,
                                 $ctrl.config
                             )
-                            $ctrl.includedAcmgCopies = sortedIncludedAcmgCopies.pathogenic.concat(
-                                sortedIncludedAcmgCopies.benign
-                            )
+                            $ctrl.includedAcmgCopies = sortedIncludedAcmgCopies.pathogenic
+                                .concat(sortedIncludedAcmgCopies.benign)
+                                .concat(sortedIncludedAcmgCopies.other)
                         }
                     },
                     true

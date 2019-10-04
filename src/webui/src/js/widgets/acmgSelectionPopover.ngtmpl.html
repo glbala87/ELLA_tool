@@ -16,7 +16,7 @@
 <article class="id-acmg-selection-popover line-wrapper question centered">
     <div class="left-basic"></div>
     <div class="left-basic">
-        <h5 class="slim title"><b>Show criteria: </b></h5>
+        <h5 class="slim title"><b>Show: </b></h5>
     </div>
     <div class="right-basic">
         <div class="bttn-set">
@@ -52,6 +52,21 @@
         <div
             class="acmg clickable"
             ng-repeat="r in $ctrl.acmgCandidates.benign"
+            ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
+            ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
+        >
+            <section class="acmg-upper">
+                <h4 class="acmg-title">{{ r }}</h4>
+                <p class="right-item">
+                    {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
+                </p>
+            </section>
+        </div>
+    </aside>
+    <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Other'">
+        <div
+            class="acmg clickable"
+            ng-repeat="r in $ctrl.acmgCandidates.other"
             ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
             ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
         >

@@ -171,8 +171,13 @@ export class AcmgController {
         if (code === undefined) {
             code = this.getCodeForDisplay().code
         }
+
         if (code) {
-            return code.substring(0, 2).toLowerCase()
+            if (ACMGHelper.getCodeType(code) === 'other') {
+                return 'other'
+            } else {
+                return code.substring(0, 2).toLowerCase()
+            }
         }
     }
 

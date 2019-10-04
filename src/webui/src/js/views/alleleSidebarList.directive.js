@@ -200,6 +200,7 @@ app.component('alleleSidebarList', {
                             return sorted.pathogenic
                                 .concat(sorted.benign)
                                 .map((c) => c.substring(0, 2).toLowerCase())
+                                .concat(sorted.other.map((c) => 'other'))
                         }
                         return []
                     },
