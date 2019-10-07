@@ -1,7 +1,7 @@
 import { set, unset } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import { redirect } from '@cerebral/router/operators'
 import toast from '../../../../common/factories/toast'
+import { redirect } from '../../../../common/factories/route'
 import checkUsername from '../actions/checkUsername'
 import postLogin from '../actions/postLogin'
 import reset from '../actions/reset'
