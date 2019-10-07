@@ -52,6 +52,7 @@ export class CustomAnnotationController {
         this.referencePublishStatus = this.referencePublishStatuses[1]
         this.referenceSearchPhrase = ''
         this.referenceSearchResults = []
+        this.maxSearchResults = 15
 
         this.resetManualReference(false)
 
@@ -59,9 +60,11 @@ export class CustomAnnotationController {
             $scope.$watch(
                 () => this.referenceSearchPhrase,
                 () => {
-                    this.referenceResource.search(this.referenceSearchPhrase).then((results) => {
-                        this.referenceSearchResults = results
-                    })
+                    this.referenceResource
+                        .search(this.referenceSearchPhrase, this.maxSearchResults)
+                        .then((results) => {
+                            this.referenceSearchResults = results
+                        })
                 }
             )
         }

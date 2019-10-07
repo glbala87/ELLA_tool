@@ -136,14 +136,14 @@ class ReferenceResource {
         })
     }
 
-    search(searchString) {
+    search(searchString, per_page) {
         return new Promise((resolve) => {
             if (searchString.length < 3) {
                 resolve([])
             } else {
                 let s = JSON.stringify({ search_string: searchString })
                 let r = this.resource(
-                    `${this.base}/references/?s=${encodeURIComponent(s)}&per_page=10`
+                    `${this.base}/references/?s=${encodeURIComponent(s)}&per_page=${per_page}`
                 )
                 let references = r.query(() => {
                     let refs = []
