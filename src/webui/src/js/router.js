@@ -25,7 +25,7 @@ class RouterInit {
         function route(url, signalPath) {
             page(url, (ctx) => {
                 const query = qs.parse(ctx.querystring)
-                cerebral.controller.getSignal(signalPath)(Object.assign({}, ctx.params, query))
+                cerebral.controller.getSignal(signalPath)(Object.assign({}, ctx.params, { query }))
             })
         }
         route('/overview/:section', 'views.overview.routedWithSection')
