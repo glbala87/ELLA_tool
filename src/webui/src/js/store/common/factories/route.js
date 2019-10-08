@@ -6,6 +6,6 @@ export function redirect(url) {
 
 export function goTo(url) {
     return function goTo({ route, resolve }) {
-        route(resolve.value(url))
+        route.goTo(resolve.value(url))
     }
 }
