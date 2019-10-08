@@ -102,7 +102,7 @@ class AnalysisPage extends Page {
     }
 
     /**
-     * @param {string} category Either 'pathogenic' or 'benign'
+     * @param {string} category Either 'pathogenic', 'benign', or 'other'
      * @param {string} code ACMG code to add
      * @param {string} comment Comment to go with added code
      * @param {int} adjust_levels Adjust ACMG code up or down level (-2 is down two times etc.)
@@ -118,7 +118,8 @@ class AnalysisPage extends Page {
 
         let categories = {
             pathogenic: 1,
-            benign: 2
+            benign: 2,
+            other: 3
         }
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
@@ -152,6 +153,10 @@ class AnalysisPage extends Page {
         // Close modal
         browser.element('body').click()
         return finalizePossible
+    }
+
+    getSuggestedClass() {
+        return util.element('.suggested-class').getText()
     }
 }
 

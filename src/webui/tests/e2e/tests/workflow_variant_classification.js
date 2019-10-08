@@ -84,9 +84,17 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
         alleleSectionBox.classificationCommentElement.scroll()
 
+        // Check that other and not weighted does not affect suggested classification
+        expect(analysisPage.getSuggestedClass()).toEqual('')
+        analysisPage.addAcmgCode('other', 'OTHER', 'OTHER_ROUND_1')
+        expect(analysisPage.getSuggestedClass()).toEqual('')
+        analysisPage.addAcmgCode('pathogenic', 'PP1', 'PP1_ACMG_ROUND_1', -1) // Not weighted
+        expect(analysisPage.getSuggestedClass()).toEqual('')
+
         analysisPage.addAcmgCode('benign', 'BP2', 'BP2_ACMG_ROUND_1', 1) // Adjust up to BSxBP2
         analysisPage.addAcmgCode('pathogenic', 'PS2', 'PS2_ACMG_ROUND_1')
         analysisPage.addAcmgCode('pathogenic', 'PM1', 'PM1_ACMG_ROUND_1', 2) // Adjust up to PVSxPM1
+        expect(analysisPage.getSuggestedClass()).not.toEqual('')
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
 
         interpretation_expected_values = {
@@ -124,8 +132,16 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
+                        code: 'PP1 NOT WEIGHTED',
+                        comment: 'PP1_ACMG_ROUND_1'
+                    },
+                    '4': {
                         code: 'BP2 STRONG',
                         comment: 'BP2_ACMG_ROUND_1'
+                    },
+                    '5': {
+                        code: 'OTHER',
+                        comment: 'OTHER_ROUND_1'
                     }
                 }
             }
