@@ -5,7 +5,6 @@ import StorageModule from '@cerebral/storage'
 import AppModule from './app'
 import SearchModule from './search'
 import ViewsModule from './views'
-import AppRouter from './router'
 import {
     IntervalProvider,
     ProgressProvider,
