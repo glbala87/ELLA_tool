@@ -54,7 +54,11 @@ function waitForCerebral() {
             }
         })
     } catch (err) {
-        throw err
+        // Hack: Work around page changes interrupting script after switching to page.js
+        // Any logic around page changes should use waitFor rather than wait for Cerebral anyways
+        if (err.message !== 'javascript error: document unloaded while waiting for result') {
+            throw err
+        }
     }
 }
 

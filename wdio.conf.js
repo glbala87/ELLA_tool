@@ -256,10 +256,6 @@ exports.config = {
     //beforeTest: function(test) {},
     //
     // Runs before a WebdriverIO command gets executed.
-    //beforeCommand: function (commandName, args) {
-    // },
-    //
-    // Runs after a WebdriverIO command gets executed
     beforeCommand: function(commandName, args, result, error) {
         // Wait for cerebral signals to finish.
         if (BEFORE_CNT < 0) {

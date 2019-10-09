@@ -31,7 +31,7 @@ describe('Search functionality', function() {
         search.selectType('analyses')
         search.user('Hen')
         search.runSearch()
-        expect(search.getNumberOfAnalyses()).toBe(1)
+        expect(search.getNumberOfAnalyses(true)).toBe(1)
     })
 
     it('search for variants', function() {
@@ -41,7 +41,7 @@ describe('Search functionality', function() {
         search.searchFreetext('c.1788')
         search.gene('BRCA2')
         search.runSearch()
-        expect(search.getNumberOfAlleles()).toBe(1)
+        expect(search.getNumberOfAlleles(true)).toBe(1)
 
         // Classify variant as class 3
         search.selectFirstAllele()
@@ -58,7 +58,7 @@ describe('Search functionality', function() {
         search.searchFreetext('c.1788')
         search.gene('BRCA2')
         search.runSearch()
-        expect(search.getNumberOfAlleles()).toBe(1)
+        expect(search.getNumberOfAlleles(true)).toBe(1)
 
         // Check that it has classification text
         $('*=CLASS 3').getText()
@@ -68,7 +68,7 @@ describe('Search functionality', function() {
 
         search.user('Hen')
         search.runSearch()
-        expect(search.getNumberOfAlleles()).toBe(1)
+        expect(search.getNumberOfAlleles(true)).toBe(1)
 
         $('.id-select-user').click()
     })
