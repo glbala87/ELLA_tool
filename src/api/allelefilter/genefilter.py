@@ -1,8 +1,7 @@
 from typing import Any, Dict, List, Optional, Set, Tuple
 from sqlalchemy.orm.session import Session
-from sqlalchemy import func, text
+from sqlalchemy import func
 from api.util.queries import annotation_transcripts_genepanel
-from api.util.util import query_print_table
 
 
 class GeneFilter(object):
@@ -16,7 +15,7 @@ class GeneFilter(object):
         self.config = config
 
     def filter_alleles(
-        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, List[str]]
+        self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
     ) -> Dict[Tuple[str, str], Set[int]]:
         """
         Return the allele ids, among the provided allele_ids,
@@ -96,15 +95,13 @@ class GeneFilter(object):
                     ~allele_id_genes.c.hgnc_ids.op(operator)(filter_genes)
                 )
 
-                result[gp_key] = list(
-                    set(filtered_allele_ids.scalar_all()) | allele_ids_no_hgnc_ids
-                )
+                result[gp_key] = set(filtered_allele_ids.scalar_all()) | allele_ids_no_hgnc_ids
 
             else:
                 filtered_allele_ids = filtered_allele_ids.filter(
                     allele_id_genes.c.hgnc_ids.op(operator)(filter_genes)
                 )
 
-                result[gp_key] = filtered_allele_ids.scalar_all()
+                result[gp_key] = set(filtered_allele_ids.scalar_all())
 
         return result
