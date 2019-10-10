@@ -108,24 +108,3 @@ class GeneFilter(object):
                 result[gp_key] = filtered_allele_ids.scalar_all()
 
         return result
-
-
-if __name__ == "__main__":
-    from vardb.util.db import DB
-    from vardb.datamodel import allele
-
-    db = DB()
-    db.connect()
-    session = db.session
-    allele_ids = session.query(allele.Allele.id).scalar_all()
-    print(len(allele_ids))
-
-    gp_allele_ids = {("Mendeliome", "v01"): allele_ids}
-    filter_config = {"genes": [1101], "mode": "all", "inverse": False}
-
-    result = GeneFilter(session, None).filter_alleles(gp_allele_ids, filter_config)
-    for gp_key, value in result.items():
-        q = annotation_transcripts_genepanel(session, [gp_key], value)
-
-        query_print_table(q)
-        print(len(value))

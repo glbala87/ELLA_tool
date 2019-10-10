@@ -14,6 +14,7 @@ from api.allelefilter.externalfilter import ExternalFilter
 from api.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 from api.allelefilter.consequencefilter import ConsequenceFilter
 from api.allelefilter.inheritancemodelfilter import InheritanceModelFilter
+from api.allelefilter.genefilter import GeneFilter
 
 
 log = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ class AlleleFilter(object):
                 "analysis",
                 SegregationFilter(self.session, self.config).filter_alleles,
             ),
+            "gene": ("allele", GeneFilter(self.session, self.config).filter_alleles),
         }
 
     def get_filter_exceptions(
