@@ -6,6 +6,7 @@ Since it consists mostly of database queries, it's tested on a live database.
 from api.allelefilter.genefilter import GeneFilter
 from vardb.datamodel import allele, annotation, gene
 
+import pytest
 import hypothesis as ht
 import hypothesis.strategies as st
 
@@ -125,45 +126,50 @@ def filter_config(draw):
     }
 
 
-@ht.given(
-    st.lists(genepanel(), min_size=1, unique=True),
-    st.lists(annotations(), min_size=5),
-    st.one_of(filter_config()),
-)
-def test_gene_filter(session, genepanel, annotations, fc):
-    session.rollback()
-    gp = create_genepanel(genepanel)
-    session.add(gp)
-    gp_tx = [tx.transcript_name for tx in gp.transcripts]
+class TestGeneFilter(object):
+    @pytest.mark.aa(order=0)
+    def test_prepare_data(self, test_database, session):
+        test_database.refresh()  # Reset db
 
-    allele_ids = []
-    allele_id_genes = {}
-    for ann in annotations:
-        al, an = create_allele_with_annotation(session, ann)
+    @ht.given(
+        st.lists(genepanel(), min_size=1, unique=True),
+        st.lists(annotations(), min_size=5),
+        st.one_of(filter_config()),
+    )
+    def test_gene_filter(self, session, genepanel, annotations, fc):
+        session.rollback()
+        gp = create_genepanel(genepanel)
+        session.add(gp)
+        gp_tx = [tx.transcript_name for tx in gp.transcripts]
 
-        session.flush()
-        allele_ids.append(al.id)
-        allele_id_genes[al.id] = [
-            tx["hgnc_id"] for tx in ann["transcripts"] if tx["transcript"] in gp_tx
-        ]
+        allele_ids = []
+        allele_id_genes = {}
+        for ann in annotations:
+            al, an = create_allele_with_annotation(session, ann)
 
-    gf = GeneFilter(session, None)
-    result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
+            session.flush()
+            allele_ids.append(al.id)
+            allele_id_genes[al.id] = [
+                tx["hgnc_id"] for tx in ann["transcripts"] if tx["transcript"] in gp_tx
+            ]
 
-    if fc["mode"] == "one":
-        expected_result = [
-            allele_id
-            for allele_id, genes in allele_id_genes.items()
-            if set(genes) and set(genes) & set(fc["genes"])
-        ]
-    else:
-        expected_result = [
-            allele_id
-            for allele_id, genes in allele_id_genes.items()
-            if set(genes) and set(genes) - set(fc["genes"]) == set()
-        ]
+        gf = GeneFilter(session, None)
+        result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
+        expected_result = []
+        if fc["mode"] == "one":
+            expected_result = [
+                allele_id
+                for allele_id, genes in allele_id_genes.items()
+                if set(genes) and set(genes) & set(fc["genes"])
+            ]
+        else:
+            expected_result = [
+                allele_id
+                for allele_id, genes in allele_id_genes.items()
+                if set(genes) and set(genes) - set(fc["genes"]) == set()
+            ]
 
-    if fc["inverse"]:
-        expected_result = list(set(allele_ids) - set(expected_result))
+        if fc["inverse"]:
+            expected_result = list(set(allele_ids) - set(expected_result))
 
-    assert set(expected_result) == set(result)
+        assert set(expected_result) == set(result)
