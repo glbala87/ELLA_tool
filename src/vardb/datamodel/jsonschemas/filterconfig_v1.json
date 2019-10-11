@@ -509,12 +509,17 @@
                     },
                     "config": {
                         "type": "object",
-                        "required": ["qual"],
+                        "optional": ["qual", "allele_ratio"],
                         "additionalProperties": false,
                         "properties": {
                             "qual": {
                                 "type": "number",
                                 "minimum": 0
+                            },
+                            "allele_ratio": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
                             }
                         }
                     }
