@@ -1,11 +1,20 @@
 import os
-import shutil
 import pytest
 from vardb.deposit.deposit_from_vcf import DepositFromVCF
-from vardb.datamodel.genotype import Genotype
-from vardb.datamodel import DB
 from vardb.datamodel import sample as sm
-from vardb.watcher.analysis_watcher import *
+from vardb.watcher.analysis_watcher import (
+    AnalysisWatcher,
+    WATCH_PATH_ERROR,
+    DEST_PATH_ERROR,
+    ANALYSIS_POSTFIX,
+    REPORT_FILES,
+    WARNINGS_FILES,
+    ANALYSIS_FILE_MISSING,
+    VCF_POSTFIX,
+    PED_POSTFIX,
+    ANALYSIS_FIELD_MISSING,
+    VCF_FILE_MISSING,
+)
 
 
 non_existing_path = "123nonexistingpath"
@@ -49,15 +58,13 @@ def init(session, analysis_path=watch_path, destination_path=dest_path):
 
 
 def test_analysispath_throws_exception(session):
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match=WATCH_PATH_ERROR.format(non_existing_path)):
         AnalysisWatcher(session, non_existing_path, "")
-    assert WATCH_PATH_ERROR.format(non_existing_path) in str(excinfo)
 
 
 def test_destinationpath_throws_exception(session, init_dest):
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match=DEST_PATH_ERROR.format(non_existing_path)):
         AnalysisWatcher(session, watch_path, non_existing_path)
-    assert DEST_PATH_ERROR.format(non_existing_path) in str(excinfo)
 
 
 def test_ready_filepath(session, init_dest):
@@ -72,13 +79,12 @@ def test_path_to_analysis_config(session, init_dest):
     # Name of .analysis file should match dir name
     assert analysis_config_path == ready_data_path + "/" + analysis_sample + ANALYSIS_POSTFIX
 
-    with pytest.raises(RuntimeError) as excinfo:
-        aw.path_to_analysis_config(empty_data_path, analysis_sample)
-
     expected_error = ANALYSIS_FILE_MISSING.format(
         empty_data_path + "/" + analysis_sample + ANALYSIS_POSTFIX
     )
-    assert expected_error in str(excinfo)
+
+    with pytest.raises(RuntimeError, match=expected_error):
+        aw.path_to_analysis_config(empty_data_path, analysis_sample)
 
 
 def test_loading_report(session, init_dest):
@@ -106,9 +112,11 @@ def test_loading_config_with_error(session, init_dest):
     analysis_config_path = aw.path_to_analysis_config(
         misconfigured_data_path, misconfigured_analysis_sample
     )
-    with pytest.raises(RuntimeError) as excinfo:
+
+    with pytest.raises(
+        RuntimeError, match=ANALYSIS_FIELD_MISSING.format("name", analysis_config_path)
+    ):
         aw.load_analysis_config(analysis_config_path)
-    assert ANALYSIS_FIELD_MISSING.format("name", analysis_config_path) in str(excinfo)
 
 
 def test_vcf_path(session, init_dest):
@@ -117,11 +125,9 @@ def test_vcf_path(session, init_dest):
     assert analysis_vcf_path == os.path.join(ready_data_path, analysis_sample + VCF_POSTFIX)
     assert analysis_ped_path == os.path.join(ready_data_path, analysis_sample + PED_POSTFIX)
 
-    with pytest.raises(RuntimeError) as excinfo:
-        aw.path_to_vcf_file(empty_data_path, analysis_sample)
-
     expected_error = VCF_FILE_MISSING.format(empty_data_path + "/" + analysis_sample + VCF_POSTFIX)
-    assert expected_error in str(excinfo)
+    with pytest.raises(RuntimeError, match=expected_error):
+        aw.path_to_vcf_file(empty_data_path, analysis_sample)
 
 
 def test_extract_from_config(session, init_dest):
@@ -137,9 +143,8 @@ def test_extract_from_config(session, init_dest):
 
 def test_extract_from_config_with_error(session, init_dest):
     aw = init(session)
-    with pytest.raises(Exception) as excinfo:
+    with pytest.raises(Exception, match="Missing field name"):
         aw.extract_from_config(misconfigured_data_path, misconfigured_analysis_sample)
-    assert "Missing field name" in str(excinfo)
 
 
 def test_import_analysis(session, test_database, init_dest):
@@ -151,10 +156,8 @@ def test_import_analysis(session, test_database, init_dest):
 
     session.commit()
 
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError, match="Analysis TestAnalysis-001 is already imported."):
         aw.import_analysis(analysis_config_data)
-
-    assert "Analysis TestAnalysis-001 is already imported." in str(excinfo)
 
     db_genepanel = DepositFromVCF(session).get_genepanel(
         analysis_config_data.gp_name, analysis_config_data.gp_version
