@@ -392,6 +392,7 @@ test-e2e:
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -e BUILD=$(BUILD) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \

@@ -66,6 +66,7 @@ RUN apt-get update && \
     libpq-dev \
     libffi-dev \
     fontconfig \
+    chromium-chromedriver \
     nodejs && \
     echo "Additional tools:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
@@ -74,9 +75,7 @@ RUN apt-get update && \
     curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb https://dl-ssl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list && \
     apt-get -yqq update && \
-    apt-get -yqq install google-chrome-stable && \
-    echo "Chromedriver:" && \
-    curl -L -O https://chromedriver.storage.googleapis.com/77.0.3865.40/chromedriver_linux64.zip && unzip -d /usr/local/bin chromedriver_linux64.zip && rm chromedriver_linux64.zip
+    apt-get -yqq install google-chrome-stable
 
 
 # Add our requirements files
