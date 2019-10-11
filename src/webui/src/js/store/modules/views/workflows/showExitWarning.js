@@ -6,8 +6,11 @@
  * @param {*} state State from Cerebral
  */
 export default function showExitWarning(state) {
-    console.log(state)
     return (
-        state.views.workflows.interpretation.isOngoing && state.views.workflows.interpretation.dirty
+        'views' in state &&
+        'workflows' in state.views &&
+        'interpretation' in state.views.workflows &&
+        state.views.workflows.interpretation.isOngoing &&
+        state.views.workflows.interpretation.dirty
     )
 }
