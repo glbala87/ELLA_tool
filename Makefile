@@ -273,6 +273,16 @@ restart:
 node-inspect:
 	node inspect --harmony /dist/node_modules/jest/bin/jest.js --runInBand $(SPEC_NAME)
 
+build-web-assets:
+	docker run \
+		--rm \
+		--name $(CONTAINER_NAME)-js \
+		--user $(UID):$(GID) \
+		-v $(shell pwd)/src/webui/build:/ella/src/webui/build \
+		-e PRODUCTION=false \
+		$(IMAGE_NAME) \
+		/bin/bash -c "/ella/ops/common/symlink_node_modules && yarn production"
+
 
 #---------------------------------------------
 # TESTING (unit / modules)
@@ -388,8 +398,15 @@ test-e2e:
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
-	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
+	docker exec -e SPEC=$(SPEC) -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
+
+test-check-ci-e2e-tests:
+	docker run --rm \
+	  --name $(CONTAINER_NAME)-formatting \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  ops/test/check_ci_e2e_tests.sh
 
 test-formatting:
 	docker run --rm \

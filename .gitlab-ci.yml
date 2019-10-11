@@ -12,74 +12,48 @@ variables:
 
 stages:
   - build
+  - formatting
   - test
+  - e2e
+  - review
   - release
-
 
 build:
   stage: build
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:latest | cat || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target dev .
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target production-build .
     - docker push $IMAGE_NAME
     - docker push $CI_REGISTRY_IMAGE:latest
 
 
-start_review:
-  stage: build
-  script:
-    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    on_stop: stop_review
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-
-
-# when: manual is also run upon branch deletion
-# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
-stop_review:
-  stage: build
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
-  when: manual
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    action: stop
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-
-
-test_formatting:
+.test-common:
   stage: test
   before_script:
     - apk add --update make
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker pull $IMAGE_NAME | cat
+  needs: ["build"]
+
+test_formatting:
+  extends: .test-common
+  stage: formatting
   script:
     - make test-formatting
   after_script:
     - docker rm  -f -v ${PIPELINE_ID}-formatting
 
 
+test_ci_all_e2e_tests:
+  extends: .test-common
+  stage: formatting
+  script:
+    - make test-check-ci-e2e-tests
+
+
 test_api:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-api
   except:
@@ -90,11 +64,7 @@ test_api:
 
 
 test_api_migration:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-api-migration
   except:
@@ -105,11 +75,7 @@ test_api_migration:
 
 
 test_js:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-js
   except:
@@ -120,11 +86,7 @@ test_js:
 
 
 test_python:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-common
   except:
@@ -135,11 +97,7 @@ test_python:
 
 
 test_cli:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-cli
   after_script:
@@ -147,38 +105,11 @@ test_cli:
 
 
 test_report:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
+  extends: .test-common
   script:
     - make test-report
   after_script:
     - docker rm  -f -v ${PIPELINE_ID}-report
-
-
-test_e2e:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
-    - rm -rf errorShots
-  script:
-    - make test-e2e
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-e2e
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  artifacts:
-      paths:
-      - errorShots/*.png
-      name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
-      when: on_failure
-      expire_in: 2 weeks
-
 
 dependency_scanning:
   only:
@@ -204,6 +135,65 @@ dependency_scanning:
       dependency_scanning: gl-dependency-scanning-report.json
 
 
+
+.test_e2e:
+  stage: e2e
+  before_script:
+    - apk add --update make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker pull $IMAGE_NAME | cat
+    - rm -rf errorShots
+  after_script:
+    - docker rm  -f -v ${PIPELINE_ID}-e2e
+  except:
+    - /^ui-.*$/
+    - /^ops-.*$/
+  artifacts:
+      paths:
+      - errorShots/*.png
+      name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
+      when: on_failure
+      expire_in: 2 weeks
+  needs: ["build", "test_ci_all_e2e_tests"]
+
+
+test_e2e_import_analysis:
+  extends: .test_e2e
+  script: SPEC=import_analysis.js make test-e2e
+
+test_e2e_search_allele_and_analyses:
+  extends: .test_e2e
+  script: SPEC=search_alleles_and_analyses.js make test-e2e
+
+test_e2e_workflow_sample_classification:
+  extends: .test_e2e
+  script: SPEC=workflow_sample_classification.js make test-e2e
+
+test_e2e_workflow_sample_collisions:
+  extends: .test_e2e
+  script: SPEC=workflow_sample_collisions.js make test-e2e
+
+test_e2e_workflow_sample_interpretation_rounds:
+  extends: .test_e2e
+  script: SPEC=workflow_sample_interpretation_rounds.js make test-e2e
+
+test_e2e_workflow_variant_acmg:
+  extends: .test_e2e
+  script: SPEC=workflow_variant_acmg.js make test-e2e
+
+test_e2e_workflow_variant_classification:
+  extends: .test_e2e
+  script: SPEC=workflow_variant_classification.js make test-e2e
+
+test_e2e_workflow_variant_readonly:
+  extends: .test_e2e
+  script: SPEC=workflow_variant_readonly.js make test-e2e
+
+test_e2e_workflow_variant_references:
+  extends: .test_e2e
+  script: SPEC=workflow_variant_references.js make test-e2e
+
+
 release:
   stage: release
   before_script:
@@ -221,3 +211,41 @@ release:
   when: on_success
   only:
     - tags
+
+
+start_review:
+  stage: review
+  script:
+    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+    on_stop: stop_review
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
+  when:
+    - always
+
+
+# when: manual is also run upon branch deletion
+# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
+stop_review:
+  stage: review
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
