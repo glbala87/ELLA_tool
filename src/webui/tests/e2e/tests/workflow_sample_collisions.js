@@ -23,11 +23,14 @@ describe('Sample workflow', function() {
 
     it('gives warning when starting a sample with variants that overlap with other ongoing sample', function() {
         // sample 1
+        loginPage.open()
         loginPage.selectFirstUser()
         analysesSelectionPage.selectTopPending()
         analysisPage.startButton.click()
 
         // sample 2
+        loginPage.open()
+        browser.acceptAlert()
         loginPage.selectSecondUser()
         analysesSelectionPage.selectTopPending()
         analysisPage.collisionWarningBar.waitForExist()

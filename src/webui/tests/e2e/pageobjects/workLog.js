@@ -8,14 +8,13 @@ const SELECTOR_LAST_MESSAGE_EDITOR = '.interpretation-log .messages>div:last-chi
 
 class WorkLog extends Page {
     open() {
-        let buttonSelector = 'button.id-worklog'
-        browser.click(buttonSelector)
-        browser.waitForExist('.interpretationlog-popover', 100) // make sure the popover appeared
+        $('button.id-worklog').click()
+        $('.interpretationlog-popover').waitForExist()
         browser.pause(500) // Wait for popover animation to settle
     }
 
     close() {
-        browser.click('body')
+        $('body').click()
         browser.pause(500) // Wait for popover animation to settle
     }
 
@@ -28,21 +27,21 @@ class WorkLog extends Page {
     }
 
     get reviewCommentElement() {
-        return browser.element('.interpretation-log input.id-review-comment')
+        return $('.interpretation-log input.id-review-comment')
     }
 
     get reviewCommentUpdateBtn() {
-        return browser.element('.interpretation-log button.id-review-comment-update')
+        return $('.interpretation-log button.id-review-comment-update')
     }
 
     addMessage(text) {
         this.newMessageElement.click()
-        browser.setValue(SELECTOR_NEW_MESSAGE_EDITOR, text)
+        $(SELECTOR_NEW_MESSAGE_EDITOR).setValue(text)
         this.newMessageButtonElement.click()
     }
 
     getLastMessage() {
-        return browser.getText(SELECTOR_LAST_MESSAGE_EDITOR)
+        return $(SELECTOR_LAST_MESSAGE_EDITOR).getText()
     }
 }
 

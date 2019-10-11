@@ -68,10 +68,13 @@ RUN apt-get update && \
     fontconfig \
     chromium-browser \
     chromium-chromedriver \
-    nodejs && \
     echo "Additional tools:" && \
+    echo "Node v10.x:" && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -yqq nodejs && \
+    echo "Yarn:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get update && apt-get install -y -q yarn
+    apt-get -yqq update && apt-get install -yqq yarn
 
 
 # Add our requirements files
@@ -99,7 +102,7 @@ RUN chown ella-user:ella-user /dist/*
 USER ella-user
 
 RUN cd /dist &&  \
-    yarn install && \
+    yarn install --frozen-lockfile --non-interactive && \
     yarn cache clean
 
 # See .dockerignore for files that won't be copied

@@ -2,8 +2,6 @@ const testUiConfig = {
     app: {
         links_to_clipboard: false,
         non_production_warning: null,
-        user_confirmation_on_state_change: false,
-        user_confirmation_to_discard_changes: false,
         annotation_service: 'http://172.17.0.1:6000',
         attachment_storage: '/ella/attachments/',
         max_upload_size: 52428800

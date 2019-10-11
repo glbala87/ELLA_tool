@@ -15,34 +15,34 @@ const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 class VariantSelection extends Page {
     open() {
         super.open('overview/')
-        browser.waitForExist(SELECTOR_OVERVIEW_VARIANTS)
-        browser.click(SELECTOR_OVERVIEW_VARIANTS)
-        browser.waitForExist('#nprogress', 10000, true) // Make sure loading is done before proceeding
+        const el = $(SELECTOR_OVERVIEW_VARIANTS)
+        el.waitForExist()
+        el.click()
+        $('#nprogress').waitForExist(10000, true) // Make sure loading is done before proceeding
     }
 
     get variantList() {
-        return browser.element('allele-list')
+        return $('allele-list')
     }
     get yoursSection() {
-        return browser.element(SELECTOR_YOURS)
+        return $(SELECTOR_YOURS)
     }
     get othersSection() {
-        return browser.element(SELECTOR_OTHERS)
+        return $(SELECTOR_OTHERS)
     }
     get pendingSection() {
-        return browser.element(SELECTOR_PENDING)
+        return $(SELECTOR_PENDING)
     }
     get reviewSection() {
-        return browser.element(SELECTOR_REVIEW)
+        return $(SELECTOR_REVIEW)
     }
     get finishedSection() {
-        return browser.element(SELECTOR_FINISHED)
+        return $(SELECTOR_FINISHED)
     }
 
     variantNamePending(number) {
         let selector = `${SELECTOR_PENDING} .id-variant:nth-child(${number})`
-        let element = browser.element(selector)
-        return element.getText('.id-variant-name')
+        return $(`${selector} .id-variant-name`).getText()
     }
 
     expandPendingSection() {
@@ -67,26 +67,24 @@ class VariantSelection extends Page {
 
     _expandSection(sectionSelector) {
         this.open()
-        browser.waitForExist(sectionSelector)
+        $(sectionSelector).waitForExist()
         // Expand if collapsed
-        if (browser.isExisting(sectionSelector + ' .collapsed')) {
-            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR)
+        if ($(sectionSelector + ' .collapsed').isExisting()) {
+            $(sectionSelector + SECTION_EXPAND_SELECTOR).click()
         }
     }
 
     selectItemInSection(number, sectionSelector) {
         this.open()
         // expand box:
-        browser.waitForExist(sectionSelector)
-
+        $(sectionSelector).waitForExist()
         this._expandSection(sectionSelector)
         let selector = `${sectionSelector} .id-variant:nth-child(${number})`
-        util.logSelector(selector)
-        browser.waitForExist(selector)
-        browser.click(selector)
-        let element = browser.element(selector)
-        browser.waitForExist('allele-list', 5000, true)
-        return element
+        const el = $(selector)
+        el.waitForExist()
+        el.click()
+        $('allele-list').waitForExist(5000, true)
+        return el
     }
 
     selectFinished(number) {
@@ -127,7 +125,7 @@ class VariantSelection extends Page {
 
     getReviewComment() {
         let selector = `${SELECTOR_REVIEW} .allele-extras .id-allele-comment`
-        return browser.getText(selector)
+        return $(selector).getText()
     }
 }
 

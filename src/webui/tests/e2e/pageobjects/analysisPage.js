@@ -69,7 +69,7 @@ class AnalysisPage extends Page {
 
     get roundCount() {
         let selector = '.id-interpretationrounds-dropdown option'
-        let all = browser.getText(selector)
+        let all = $(selector).getText()
         if (Array.isArray(all)) {
             return all.length
         } else {
@@ -78,26 +78,26 @@ class AnalysisPage extends Page {
     }
 
     chooseRound(number) {
-        let dropdownOption = `.id-interpretationrounds-dropdown option:nth-child(${number})`
-        browser.waitForExist(dropdownOption)
-        browser.click(dropdownOption)
+        let dropdownOption = $(`.id-interpretationrounds-dropdown option:nth-child(${number})`)
+        dropdownOption.waitForExist()
+        dropdownOption.click()
     }
 
     selectSectionClassification() {
-        let classificationSelector = '#section-classification'
-        browser.click(classificationSelector)
+        $('#section-classification').click()
     }
 
     selectSectionReport() {
-        let reportSelector = '#section-report'
-        browser.click(reportSelector)
+        $('#section-report').click()
     }
 
     addAttachment() {
         let uploadSelector = '.input-label #file-input'
-        // let uploadSelector = '#file-input';
-        browser.chooseFile(uploadSelector, __filename)
-        browser.pause(1000)
+        const remoteFilePath = browser.uploadFile(__filename)
+        browser.execute(`document.querySelector(".input-label #file-input").hidden = false`)
+        const el = $(uploadSelector)
+        el.setValue(remoteFilePath)
+        browser.execute(`document.querySelector(".input-label #file-input").hidden = true`)
         console.log('Added attachment')
     }
 
@@ -112,8 +112,8 @@ class AnalysisPage extends Page {
      */
     addAcmgCode(category, code, comment, adjust_levels = 0) {
         let buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
-        browser.click(buttonSelector)
-        browser.waitForExist('.id-acmg-selection-popover', 100) // make sure the popover appeared
+        $(buttonSelector).click()
+        $('.id-acmg-selection-popover').waitForExist() // make sure the popover appeared
         browser.pause(500) // Wait for popover animation to settle
 
         let categories = {
@@ -123,13 +123,14 @@ class AnalysisPage extends Page {
         }
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
-        browser.click(acmg_selector)
-        util.element('.popover').scroll(`h4.acmg-title=${code}`)
-        util.element('.popover').click(`h4.acmg-title=${code}`)
+        $(acmg_selector).click()
+        $('.popover')
+            .$(`h4.acmg-title=${code}`)
+            .click()
 
         // Set staged code comment
         this.acmgComment.click()
-        browser.setValue(SELECTOR_COMMENT_ACMG_EDITOR, comment)
+        $(SELECTOR_COMMENT_ACMG_EDITOR).setValue(comment)
 
         // Adjust staged code up or down
         let adjust_down = adjust_levels < 0
@@ -146,12 +147,12 @@ class AnalysisPage extends Page {
     }
 
     getFinalizePossible() {
-        browser.waitForExist('.id-finish-analysis')
+        $('.id-finish-analysis').waitForExist()
         this.finishButton.click()
         this.finalizeButton.click()
         const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null
         // Close modal
-        browser.element('body').click()
+        $('body').click()
         return finalizePossible
     }
 

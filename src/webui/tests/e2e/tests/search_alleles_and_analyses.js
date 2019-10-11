@@ -1,14 +1,12 @@
-require('core-js/fn/object/entries')
+const LoginPage = require('../pageobjects/loginPage')
+const AnalysisPage = require('../pageobjects/analysisPage')
+const AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+const Search = require('../pageobjects/overview_search')
 
-let LoginPage = require('../pageobjects/loginPage')
-let AnalysisPage = require('../pageobjects/analysisPage')
-let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
-let Search = require('../pageobjects/overview_search')
-
-let loginPage = new LoginPage()
-let analysisPage = new AnalysisPage()
-let alleleSectionBox = new AlleleSectionBox()
-let search = new Search()
+const loginPage = new LoginPage()
+const analysisPage = new AnalysisPage()
+const alleleSectionBox = new AlleleSectionBox()
+const search = new Search()
 
 var failFast = require('jasmine-fail-fast')
 jasmine.getEnv().addReporter(failFast.init())
@@ -18,18 +16,18 @@ describe('Search functionality', function() {
         browser.resetDb()
     })
     it('search for analyses', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         search.open()
         search.selectType('analyses')
         search.searchFreetext('brca')
-        expect(search.getNumberOfAnalyses()).toBe(3)
-
+        expect(search.getNumberOfAnalyses(true)).toBe(3)
         // Start an analysis from search
         search.selectFirstAnalysis()
         analysisPage.startButton.click()
 
         // Search for analysis by user
-        search.open()
+        search.open(true)
         search.selectType('analyses')
         search.user('Hen')
         search.runSearch()
@@ -63,7 +61,7 @@ describe('Search functionality', function() {
         expect(search.getNumberOfAlleles()).toBe(1)
 
         // Check that it has classification text
-        browser.getText('*=CLASS 3')
+        $('*=CLASS 3').getText()
 
         // Search for variant connected to gene and user
         search.searchFreetext('')
@@ -72,7 +70,7 @@ describe('Search functionality', function() {
         search.runSearch()
         expect(search.getNumberOfAlleles()).toBe(1)
 
-        browser.element('.id-select-user').click()
+        $('.id-select-user').click()
     })
 
     it('shows connected analyses', function() {
@@ -81,6 +79,9 @@ describe('Search functionality', function() {
         search.gene('BRCA2')
         search.runSearch()
         let analyses = search.getAnalysesForFirstAllele()
-        expect(analyses.length).toBe(2)
+        expect(analyses).toEqual([
+            'brca_e2e_test01.HBOCUTV_v01 HTS',
+            'brca_e2e_test02.HBOCUTV_v01 HTS'
+        ])
     })
 })

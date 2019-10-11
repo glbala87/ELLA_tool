@@ -25,6 +25,7 @@ describe('Read-only version of variant workflow ', function() {
     })
 
     it('A pending variant that is started is editable', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
@@ -35,6 +36,7 @@ describe('Read-only version of variant workflow ', function() {
     })
 
     it("others' ongoing work is read-only", function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandOthersSection()
         variantSelectionPage.selectOthers(1)
@@ -42,6 +44,7 @@ describe('Read-only version of variant workflow ', function() {
     })
 
     it('own ongoing work is writeable', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.expandOwnSection()
         variantSelectionPage.selectOwn(1)
@@ -53,16 +56,17 @@ describe('Read-only version of variant workflow ', function() {
 
     it('others review is read-only until started', function() {
         // own classifies as class1 and sets to review
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.expandOwnSection()
         variantSelectionPage.selectOwn(1)
-
         alleleSectionBox.classifyAs2()
         analysisPage.finishButton.click()
         analysisPage.markReviewButton.click()
         analysisPage.modalFinishButton.click()
 
         // other user see a read-only
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectReview(1)
@@ -111,13 +115,14 @@ describe('Read-only version of variant workflow ', function() {
         analysisPage.startButton.click()
         alleleSectionBox.reportCommentElement.click()
         expect(alleleSectionBox.reportCommentEditable).toBe(true)
-        browser.click('body') // a trick to unfocus the above report comment
+        $('body').click() // a trick to unfocus the above report comment
 
         alleleSectionBox.setReportComment('report changed')
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
 
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)

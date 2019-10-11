@@ -38,6 +38,7 @@ describe(`ACMG`, function() {
     }
 
     it('suggested codes and REQs are displayed when interpreting', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
@@ -52,6 +53,7 @@ describe(`ACMG`, function() {
     describe('suggested codes and REQs are', function() {
         beforeAll(function() {
             // classify one variant as 'U'
+            loginPage.open()
             loginPage.selectFirstUser()
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
@@ -61,6 +63,7 @@ describe(`ACMG`, function() {
             analysisPage.modalFinishButton.click()
 
             // select the first we finished, class 1
+            loginPage.open()
             loginPage.selectSecondUser()
             variantSelectionPage.expandFinishedSection()
             variantSelectionPage.selectFinished(2)

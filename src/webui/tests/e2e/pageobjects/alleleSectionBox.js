@@ -32,10 +32,10 @@ class AlleleSectionBox {
         return util.elementIntoView(SELECTOR_FREQ_EXAC)
     }
     get gnomADExomesElement() {
-        return browser.element(SELECTOR_FREQ_GNOMAD_EXOMES)
+        return $(SELECTOR_FREQ_GNOMAD_EXOMES)
     }
     get gnomADGenomesElement() {
-        return browser.element(SELECTOR_FREQ_GNOMAD_GENOMES)
+        return $(SELECTOR_FREQ_GNOMAD_GENOMES)
     }
 
     get analysisCommentElement() {
@@ -43,65 +43,65 @@ class AlleleSectionBox {
     }
 
     get analysisComment() {
-        return browser.getText(SELECTOR_COMMENT_ANALYSIS_EDITOR)
+        return $(SELECTOR_COMMENT_ANALYSIS_EDITOR).getText()
     }
 
     get classificationCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_CLASSIFICATION)
     }
     get classificationComment() {
-        return browser.getText(SELECTOR_COMMENT_CLASSIFICATION_EDITOR)
+        return $(SELECTOR_COMMENT_CLASSIFICATION_EDITOR).getText()
     }
     get existingClassificationName() {
-        return browser.getText(SELECTOR_EXISTING_CLASSIFICATION)
+        return $(SELECTOR_EXISTING_CLASSIFICATION).getText()
     }
 
     setClassificationComment(text) {
         this.classificationCommentElement.click()
-        browser.setValue(SELECTOR_COMMENT_CLASSIFICATION_EDITOR, text)
+        $(SELECTOR_COMMENT_CLASSIFICATION_EDITOR).setValue(text)
     }
 
     get frequencyCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_FREQUENCY)
     }
     get frequencyComment() {
-        return browser.getText(SELECTOR_COMMENT_FREQUENCY_EDITOR)
+        return $(SELECTOR_COMMENT_FREQUENCY_EDITOR).getText()
     }
 
     setFrequencyComment(text) {
         this.frequencyCommentElement.click()
-        browser.setValue(SELECTOR_COMMENT_FREQUENCY_EDITOR, text)
+        $(SELECTOR_COMMENT_FREQUENCY_EDITOR).setValue(text)
     }
 
     get externalCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_EXTERNAL)
     }
     get externalComment() {
-        return browser.getText(SELECTOR_COMMENT_EXTERNAL_EDITOR)
+        return $(SELECTOR_COMMENT_EXTERNAL_EDITOR).getText()
     }
 
     setExternalComment(text) {
         this.externalCommentElement.click()
-        browser.setValue(SELECTOR_COMMENT_EXTERNAL_EDITOR, text)
+        $(SELECTOR_COMMENT_EXTERNAL_EDITOR).setValue(text)
     }
 
     get predictionCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_PREDICTION)
     }
     get predictionComment() {
-        return browser.getText(SELECTOR_COMMENT_PREDICTION_EDITOR)
+        return $(SELECTOR_COMMENT_PREDICTION_EDITOR).getText()
     }
 
     setPredictionComment(text) {
         this.predictionCommentElement.click()
-        browser.setValue(SELECTOR_COMMENT_PREDICTION_EDITOR, text)
+        $(SELECTOR_COMMENT_PREDICTION_EDITOR).setValue(text)
     }
 
     get reportCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_REPORT)
     }
     get reportComment() {
-        return browser.getText(SELECTOR_COMMENT_REPORT_EDITOR)
+        return $(SELECTOR_COMMENT_REPORT_EDITOR).getText()
     }
     get reportCommentEditable() {
         return browser.isCommentEditable(SELECTOR_COMMENT_REPORT_EDITOR)
@@ -109,7 +109,7 @@ class AlleleSectionBox {
 
     setReportComment(text) {
         this.reportCommentElement.click()
-        browser.setValue(SELECTOR_COMMENT_REPORT_EDITOR, text)
+        $(SELECTOR_COMMENT_REPORT_EDITOR).setValue(text)
     }
 
     get classSelection() {
@@ -147,8 +147,7 @@ class AlleleSectionBox {
 
     _setClassification(index) {
         let dropdownOption = `select.id-select-classification option:nth-child(${index})`
-        // console.log(`finding selector ${dropdownOption}`);
-        browser.click(dropdownOption)
+        $(dropdownOption).click()
     }
 
     setClassificationByText(value) {
@@ -220,70 +219,71 @@ class AlleleSectionBox {
         let selectors = ['.id-accept-classification', '.id-marked-class1', '.id-marked-class2']
 
         for (let s of selectors) {
-            if (browser.isExisting(s)) {
+            const el = $(s)
+            if (el.isExisting()) {
                 console.info(`Unclassified variant using using button selector ${s}`)
-                browser.click(s)
+                el.click()
                 return
             }
         }
     }
 
     getNumberOfAttachments() {
-        let elements = browser.elements('.attachment-wrapper attachment')
-        return elements.value.length
+        let elements = $$('.attachment-wrapper attachment')
+        return elements.length
     }
 
     evaluateReference(index) {
         let referenceSelector = `article:nth-child(${index}) .id-reference-pending-published`
-        let title = browser.getText(`${referenceSelector} .id-reference-title`)
-        browser.click(`${referenceSelector} button.id-reference-evaluate`)
+        let title = $(`${referenceSelector} .id-reference-title`).getText()
+        $(`${referenceSelector} button.id-reference-evaluate`).click()
         return title
     }
 
     reEvaluateReference(index) {
-        let title = browser.getText(`.id-reference-evaluated-published .id-reference-title`)
-        browser.click(
+        let title = $(`.id-reference-evaluated-published .id-reference-title`).getText()
+        $(
             `article:nth-child(${index}) .id-reference-evaluated-published button.id-reference-evaluate`
-        )
+        ).click()
         return title
     }
 
     getReferenceComment(index) {
         const selector = `article:nth-child(${index}) .id-reference-evaluated-published .id-reference-comment`
-        return browser.getText(selector)
+        return $(selector).getText()
     }
 
     getReferenceRelevance(index) {
-        return browser.getText(
+        return $(
             `allele-info-published-references article:nth-child(${index}) .id-reference-relevance p`
-        )
+        ).getText()
     }
 
     getExternalOtherAnnotation() {
-        browser.waitForExist('allele-info-external-other div.cell h5')
-        return browser.getText('allele-info-external-other div.cell h5')
+        $('allele-info-external-other div.cell h5').waitForExist()
+        return $('allele-info-external-other div.cell h5').getText()
     }
 
     getExternalOtherValue() {
-        return browser.getText('allele-info-external-other div.cell p')
+        return $('allele-info-external-other div.cell p').getText()
     }
 
     getPredictionOtherAnnotation() {
-        browser.waitForExist('allele-info-prediction-other div.cell h5')
-        return browser.getText('allele-info-prediction-other div.cell h5')
+        $('allele-info-prediction-other div.cell h5').waitForExist()
+        return $('allele-info-prediction-other div.cell h5').getText()
     }
 
     getPredictionOtherValue() {
-        return browser.getText('allele-info-prediction-other div.cell p')
+        return $('allele-info-prediction-other div.cell p').getText()
     }
 
     getExistingClassificationClass() {
-        return browser.getText('allele-info-classification contentbox.vardb cbbody h2')
+        return $('allele-info-classification contentbox.vardb cbbody h2').getText()
     }
 
     hasExistingClassification() {
-        browser.waitForExist('allele-info-classification')
-        return browser.isExisting('allele-info-classification contentbox.vardb')
+        $('allele-info-classification').waitForExist()
+        return $('allele-info-classification contentbox.vardb').isExisting()
     }
 
     expandSectionClassification() {
@@ -301,34 +301,32 @@ class AlleleSectionBox {
     }
 
     getReferences() {
-        return browser.elements('allele-sectionbox .id-references-box article')
+        return $$('allele-sectionbox .id-references-box article')
     }
 
     getAcmgCode(idx) {
-        return browser.getText(`.id-acmg-included acmg:nth-child(${idx}) .acmg-title-wrapper h4`)
+        return $(`.id-acmg-included acmg:nth-child(${idx}) .acmg-title-wrapper h4`).getText()
     }
 
     getAcmgComment(idx) {
-        return browser.getText(
+        return $(
             `.id-acmg-included acmg:nth-child(${idx})  wysiwyg-editor div.wysiwygeditor`
-        )
+        ).getText()
     }
 
     insertClassificationTemplate(idx) {
         this.classificationCommentElement.click()
         util.element(SELECTOR_INSERT_TEMPLATE_BUTTON).click()
-        browser.click(
-            `.wysiwygtemplatespopover .template-item:nth-child(${idx}) > .template-button`
-        )
+        $(`.wysiwygtemplatespopover .template-item:nth-child(${idx}) > .template-button`).click()
     }
 
     insertFrequencyReference(idx) {
         this.frequencyCommentElement.click()
         util.element(`${SELECTOR_COMMENT_FREQUENCY} ${SELECTOR_INSERT_REFERENCE_BUTTON}`).click()
-        browser.click(
+        $(
             `${SELECTOR_COMMENT_FREQUENCY} .wysiwygreferencespopover .reference-item:nth-child(${idx +
                 1}) > .reference-button`
-        )
+        ).click()
     }
 }
 

@@ -22,15 +22,20 @@ const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
 const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 
 class SampleSelection extends Page {
-    open() {
+    open(expectAlert) {
         super.open('overview/')
-        browser.waitForExist(SELECTOR_ANALYSES_OVERVIEW)
-        browser.click(SELECTOR_ANALYSES_OVERVIEW)
+        if (expectAlert) {
+            browser.pause(1000)
+            browser.acceptAlert()
+        }
+        const el = $(SELECTOR_ANALYSES_OVERVIEW)
+        el.waitForExist()
+        el.click()
         // We need to make sure that the page is loaded.
         // waitForExist(#nprogress) doesn't work well here, since it sometimes is so quick that it's missed
         // Pause instead and then make sure the loading is gone
         browser.pause(100)
-        browser.waitForExist('#nprogress', 10000, true) // Make sure loading is done before proceeding
+        $('#nprogress').waitForExist(10000, true) // Make sure loading is done before proceeding
     }
 
     get analysisList() {
@@ -69,29 +74,28 @@ class SampleSelection extends Page {
 
     _expandSection(sectionSelector) {
         this.open()
-        browser.waitForExist(sectionSelector)
+        $(sectionSelector).waitForExist()
         // Expand if collapsed
-        if (browser.isExisting(sectionSelector + ' .collapsed')) {
-            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR)
+        if ($(sectionSelector + ' .collapsed').isExisting()) {
+            $(sectionSelector + SECTION_EXPAND_SELECTOR).click()
         }
     }
 
     selectItemInSection(number, sectionSelector) {
         this.open()
         // expand box:
-        browser.waitForExist(sectionSelector)
+        $(sectionSelector).waitForExist()
 
         // Expand if collapsed
-        if (browser.isExisting(sectionSelector + '.collapsed')) {
-            browser.click(sectionSelector + SECTION_EXPAND_SELECTOR)
+        if ($(sectionSelector + '.collapsed').isExisting()) {
+            $(sectionSelector + SECTION_EXPAND_SELECTOR).click()
         }
         let selector = `${sectionSelector} .id-analysis:nth-child(${number})`
-        // console.log('Going to click selector:' + selector);
-        browser.waitForExist(selector)
-        browser.click(selector)
-        let element = browser.element(selector)
-        browser.waitForExist('analysis-list', 5000, true)
-        return element
+        const el = $(selector)
+        el.waitForExist()
+        el.click()
+        $('analysis-list').waitForExist(5000, true)
+        return el
     }
 
     selectFinished(number) {
@@ -100,18 +104,6 @@ class SampleSelection extends Page {
 
     selectPending(number, name) {
         let analysisWrapper = this.selectItemInSection(number, SELECTOR_PENDING)
-        // attempt to validate the chosen element matches the name:
-        // This fails with a Cannot read property 'ELEMENT' of null
-        // let analysisNameElement = analysisWrapper.element(SELECTOR_ANALYSIS_NAME);
-        //
-        // if (name) {
-        //     actualName = analysisNameElement.getText();
-        //     if (name === actualName) {
-        //         OK
-        // } else {
-        //     console.error("Analysis name mismatch");
-        // }
-        // }
     }
 
     selectWithMissingAssessments(number, name) {
@@ -148,12 +140,12 @@ class SampleSelection extends Page {
 
     getReviewTags() {
         // no ui showing tags!
-        return browser.getText(`${SELECTOR_REVIEW} .analysis-extras .tag`)
+        return $$(`${SELECTOR_REVIEW} .analysis-extras .tag`).map((a) => a.getText())
     }
 
     getReviewComment() {
         let selector = `${SELECTOR_REVIEW} .analysis-extras .id-analysis-comment`
-        return browser.getText(selector)
+        return $(selector).getText()
     }
 }
 
