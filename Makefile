@@ -317,7 +317,7 @@ test-js-auto:
 	  $(IMAGE_NAME) \
 	  yarn test-watch
 
-test-common:
+test-python:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \

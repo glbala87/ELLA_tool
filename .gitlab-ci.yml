@@ -27,6 +27,42 @@ build:
     - docker push $IMAGE_NAME
     - docker push $CI_REGISTRY_IMAGE:latest
 
+start_review:
+  stage: build
+  script:
+    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+    on_stop: stop_review
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
+  # needs: [] # To put in a separate stage, and run without delay we need this: https://gitlab.com/gitlab-org/gitlab/issues/30631
+
+
+# when: manual is also run upon branch deletion
+# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
+stop_review:
+  stage: build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
+  when: manual
+  environment:
+    name: review/$CI_BUILD_REF_SLUG
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - review
+
 
 .test-common:
   stage: test
@@ -36,7 +72,7 @@ build:
     - docker pull $IMAGE_NAME | cat
   needs: ["build"]
 
-test_formatting:
+check_formatting:
   extends: .test-common
   stage: formatting
   script:
@@ -45,14 +81,10 @@ test_formatting:
     - docker rm  -f -v ${PIPELINE_ID}-formatting
 
 
-test_ci_all_e2e_tests:
-  extends: .test-common
-  stage: formatting
-  script:
-    - make test-check-ci-e2e-tests
 
 
-test_api:
+
+api:
   extends: .test-common
   script:
     - make test-api
@@ -63,7 +95,7 @@ test_api:
     - docker rm  -f -v ${PIPELINE_ID}-api
 
 
-test_api_migration:
+api_migration:
   extends: .test-common
   script:
     - make test-api-migration
@@ -74,7 +106,7 @@ test_api_migration:
     - docker rm  -f -v ${PIPELINE_ID}-api-migration
 
 
-test_js:
+js:
   extends: .test-common
   script:
     - make test-js
@@ -85,10 +117,10 @@ test_js:
     - docker rm  -f -v ${PIPELINE_ID}-js
 
 
-test_python:
+python:
   extends: .test-common
   script:
-    - make test-common
+    - make test-python
   except:
     - /^ui-.*$/
     - /^ops-.*$/
@@ -96,7 +128,7 @@ test_python:
     - docker rm  -f -v ${PIPELINE_ID}-common
 
 
-test_cli:
+cli:
   extends: .test-common
   script:
     - make test-cli
@@ -104,7 +136,7 @@ test_cli:
     - docker rm  -f -v ${PIPELINE_ID}-cli
 
 
-test_report:
+report:
   extends: .test-common
   script:
     - make test-report
@@ -154,42 +186,48 @@ dependency_scanning:
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
       expire_in: 2 weeks
-  needs: ["build", "test_ci_all_e2e_tests"]
+  needs: ["build"]
 
 
-test_e2e_import_analysis:
+ci_all_e2e_tests:
+  extends: .test-common
+  stage: e2e
+  script:
+    - make test-check-ci-e2e-tests
+
+import_analysis:
   extends: .test_e2e
   script: SPEC=import_analysis.js make test-e2e
 
-test_e2e_search_allele_and_analyses:
+search_allele_and_analyses:
   extends: .test_e2e
   script: SPEC=search_alleles_and_analyses.js make test-e2e
 
-test_e2e_workflow_sample_classification:
+workflow_sample_classification:
   extends: .test_e2e
   script: SPEC=workflow_sample_classification.js make test-e2e
 
-test_e2e_workflow_sample_collisions:
+workflow_sample_collisions:
   extends: .test_e2e
   script: SPEC=workflow_sample_collisions.js make test-e2e
 
-test_e2e_workflow_sample_interpretation_rounds:
+workflow_sample_interpretation_rounds:
   extends: .test_e2e
   script: SPEC=workflow_sample_interpretation_rounds.js make test-e2e
 
-test_e2e_workflow_variant_acmg:
+workflow_variant_acmg:
   extends: .test_e2e
   script: SPEC=workflow_variant_acmg.js make test-e2e
 
-test_e2e_workflow_variant_classification:
+workflow_variant_classification:
   extends: .test_e2e
   script: SPEC=workflow_variant_classification.js make test-e2e
 
-test_e2e_workflow_variant_readonly:
+workflow_variant_readonly:
   extends: .test_e2e
   script: SPEC=workflow_variant_readonly.js make test-e2e
 
-test_e2e_workflow_variant_references:
+workflow_variant_references:
   extends: .test_e2e
   script: SPEC=workflow_variant_references.js make test-e2e
 
@@ -211,41 +249,3 @@ release:
   when: on_success
   only:
     - tags
-
-
-start_review:
-  stage: review
-  script:
-    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    on_stop: stop_review
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-  when:
-    - always
-
-
-# when: manual is also run upon branch deletion
-# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
-stop_review:
-  stage: review
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
-  when: manual
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    action: stop
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
