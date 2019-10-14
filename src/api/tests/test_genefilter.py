@@ -99,7 +99,7 @@ def get_hgnc_id():
 
 
 @st.composite
-def genepanel(draw):
+def gene_transcripts(draw):
     hgnc_id = draw(get_hgnc_id())
     transcript = "NM_{}.1".format(hgnc_id)
     return (hgnc_id, transcript)
@@ -119,11 +119,8 @@ def annotations(draw):
 
 @st.composite
 def filter_config(draw):
-    return {
-        "mode": draw(st.sampled_from(["one", "all"])),
-        "inverse": draw(st.booleans()),
-        "genes": draw(st.lists(get_hgnc_id(), unique=True, min_size=1)),
-    }
+    # We run all combinations of mode and inverse in the test, so no need to specify here
+    return {"genes": draw(st.lists(get_hgnc_id(), unique=True, min_size=1))}
 
 
 class TestGeneFilter(object):
@@ -131,14 +128,71 @@ class TestGeneFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
+    @ht.example(
+        [(1, "NM_1.1")],
+        [{"transcripts": [{"hgnc_id": 1, "transcript": "NM_1.1"}]}],
+        {"genes": [1], "mode": "all"},
+        [0],
+    )  # Simple case
+    @ht.example(
+        [(1, "NM_alternative1.1")],  # Genepanel has different transcript from annotation
+        [{"transcripts": [{"hgnc_id": 1, "transcript": "NM_1.1"}]}],
+        {"genes": [1], "mode": "one"},
+        [],
+    )
+    @ht.example(
+        [(1, "NM_1.1"), (2, "NM_2.1")],
+        [{"transcripts": [{"hgnc_id": 2, "transcript": "NM_2.1"}]}],
+        {"genes": [1], "mode": "all"},
+        [],
+    )
+    @ht.example(
+        [(1, "NM_1.1"), (2, "NM_2.1")],
+        [{"transcripts": [{"hgnc_id": 1, "transcript": "NM_1.1"}]}],  # Only annotated with one
+        {"genes": [1], "mode": "one"},  # Mode one
+        [0],
+    )
+    @ht.example(
+        [(1, "NM_1.1"), (2, "NM_2.1")],
+        [{"transcripts": [{"hgnc_id": 1, "transcript": "NM_1.1"}]}],  # Only annotated with one
+        {"genes": [1], "mode": "all"},  # Mode all
+        [0],
+    )
+    @ht.example(
+        [(1, "NM_1.1"), (2, "NM_2.1")],
+        [
+            {
+                "transcripts": [
+                    {"hgnc_id": 1, "transcript": "NM_1.1"},
+                    {"hgnc_id": 2, "transcript": "NM_2.1"},
+                ]
+            }
+        ],  # Annotated with both
+        {"genes": [1], "mode": "all"},
+        [],
+    )
+    @ht.example(
+        [(1, "NM_1.1"), (2, "NM_2.1")],
+        [
+            {
+                "transcripts": [
+                    {"hgnc_id": 1, "transcript": "NM_1.1"},
+                    {"hgnc_id": 2, "transcript": "NM_2.1"},
+                ]
+            }
+        ],  # Annotated with both
+        {"genes": [1, 2], "mode": "all"},  # Both genes in filter
+        [0],
+    )
     @ht.given(
-        st.lists(genepanel(), min_size=1, unique=True),
+        st.lists(gene_transcripts(), min_size=1, unique=True),
         st.lists(annotations(), min_size=5),
         st.one_of(filter_config()),
+        st.just(None),
     )
-    def test_gene_filter(self, session, genepanel, annotations, fc):
+    def test_gene_filter(self, session, gene_transcripts, annotations, fc, manually_curated_result):
         session.rollback()
-        gp = create_genepanel(genepanel)
+        gp = create_genepanel(gene_transcripts)
         session.add(gp)
         gp_tx = [tx.transcript_name for tx in gp.transcripts]
 
@@ -154,22 +208,36 @@ class TestGeneFilter(object):
             ]
 
         gf = GeneFilter(session, None)
-        result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
-        expected_result = []
-        if fc["mode"] == "one":
-            expected_result = [
-                allele_id
-                for allele_id, genes in allele_id_genes.items()
-                if set(genes) and set(genes) & set(fc["genes"])
-            ]
-        else:
-            expected_result = [
-                allele_id
-                for allele_id, genes in allele_id_genes.items()
-                if set(genes) and set(genes) - set(fc["genes"]) == set()
-            ]
 
-        if fc["inverse"]:
+        # Check if result has been curated manually
+        if manually_curated_result is not None:
+            result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
+            expected_result = [allele_ids[x] for x in manually_curated_result]
+            assert set(expected_result) == set(result)
+
+        # Run all combinations of filterconfig options
+        for mode in ["all", "one"]:
+            fc["mode"] = mode
+            fc["inverse"] = False
+
+            result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
+
+            if mode == "one":
+                expected_result = [
+                    allele_id
+                    for allele_id, genes in allele_id_genes.items()
+                    if set(genes) and set(genes) & set(fc["genes"])  # Overlaps
+                ]
+            else:
+                expected_result = [
+                    allele_id
+                    for allele_id, genes in allele_id_genes.items()
+                    if set(genes) and set(genes) - set(fc["genes"]) == set()  # Contained in
+                ]
+
+            assert set(expected_result) == set(result)
+
+            # Run inverse filter
+            fc["inverse"] = True
+            result = gf.filter_alleles({(gp.name, gp.version): allele_ids}, fc)[gp.name, gp.version]
             expected_result = list(set(allele_ids) - set(expected_result))
-
-        assert set(expected_result) == set(result)
