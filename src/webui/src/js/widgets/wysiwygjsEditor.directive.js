@@ -91,7 +91,7 @@ export class WysiwygEditorController {
         this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
 
         this.buttonselement.hidden = true
-        this.isBlurred = false
+        this.isBlurred = true
 
         this.sourcemode = false
         this.source = ''
