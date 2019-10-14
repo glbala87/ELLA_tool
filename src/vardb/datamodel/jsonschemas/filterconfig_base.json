@@ -40,7 +40,6 @@
                 "additionalProperties": false,
                 "properties": {
                     "function": {
-                        "type": "string",
                         "enum": ["analysis"]
                     },
                     "params": {
@@ -66,7 +65,7 @@
             }
         },
         "filterconfig": {
-            "anyOf": [{ "$ref": "filterconfig_v1.json" }, { "$ref": "filterconfig_v2.json" }]
+            "$ref": "filterconfig_v1.json"
         }
     }
 }

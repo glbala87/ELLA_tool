@@ -26,7 +26,6 @@
             "sources": {
                 "type": "array",
                 "items": {
-                    "type": "string",
                     "enum": ["HGMD", "CLINVAR"]
                 }
             }
