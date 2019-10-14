@@ -194,55 +194,53 @@ exports.config = {
     // variables, such as `browser`. It is the perfect place to define custom commands.
     before: function(capabilities, specs) {
         commands.addCommands()
-        // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
-        // browser.setViewportSize({ width: 1280, height: 1000});
-        //console.log(
-        //    'browser window size: ' +
-        //        browser.windowHandleSize().value.height +
-        //        'x' +
-        //        browser.windowHandleSize().value.width +
-        //        ' (h x w)'
-        //)
+        console.log(
+            'browser windowRect: ' +
+                browser.getWindowRect().height +
+                'x' +
+                browser.getWindowRect().width +
+                ' (h x w)'
+        )
     },
     //
     // Hook that gets executed before the suite starts
-    //beforeSuite: function(suite) {
-    //    var timeout = 30000
-    //    let baseUrl = browser.options.baseUrl
-    //    var host = baseUrl.substring(0, baseUrl.lastIndexOf(':'))
-    //    var port = baseUrl.substring(baseUrl.lastIndexOf(':') + 1, baseUrl.length)
-    //    let options = {
-    //        host: host,
-    //        port: port,
-    //        path: '/' + BUNDLED_APP
-    //    }
-    //    var appUrl = 'http://' + host + ':' + port + '/' + BUNDLED_APP
-    //    console.log(`Test suite '${suite.fullName}' is waiting for ${appUrl}`)
-    //    browser.waitUntil(
-    //        function() {
-    //            return new Promise(function(resolve, reject) {
-    //                let callback = function(response) {
-    //                    response.on('data', function(chunk) {})
-    //                    response.on('end', function() {
-    //                        let ok = [200, 304].includes(response.statusCode)
-    //                        if (ok) {
-    //                            console.log(`${appUrl} is compiled, moving on...`)
-    //                        } else {
-    //                            console.log(
-    //                                `${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`
-    //                            )
-    //                        }
-    //                        resolve(ok)
-    //                    })
-    //                }
-    //                http.request(options, callback).end()
-    //            })
-    //        },
-    //        timeout,
-    //        appUrl + " wasn't available within " + timeout + " ms. What's up webpack?",
-    //        1000
-    //    )
-    //},
+    beforeSuite: function(suite) {
+        var timeout = 30000
+        let baseUrl = browser.options.baseUrl
+        var host = baseUrl.substring(0, baseUrl.lastIndexOf(':'))
+        var port = baseUrl.substring(baseUrl.lastIndexOf(':') + 1, baseUrl.length)
+        let options = {
+            host: host,
+            port: port,
+            path: '/' + BUNDLED_APP
+        }
+        var appUrl = 'http://' + host + ':' + port + '/' + BUNDLED_APP
+        console.log(`Test suite '${suite.fullName}' is waiting for ${appUrl}`)
+        browser.waitUntil(
+            function() {
+                return new Promise(function(resolve, reject) {
+                    let callback = function(response) {
+                        response.on('data', function(chunk) {})
+                        response.on('end', function() {
+                            let ok = [200, 304].includes(response.statusCode)
+                            if (ok) {
+                                console.log(`${appUrl} is compiled, moving on...`)
+                            } else {
+                                console.log(
+                                    `${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`
+                                )
+                            }
+                            resolve(ok)
+                        })
+                    }
+                    http.request(options, callback).end()
+                })
+            },
+            timeout,
+            appUrl + " wasn't available within " + timeout + " ms. What's up webpack?",
+            1000
+        )
+    },
     //
     // Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
     // beforeEach in Mocha)
@@ -255,16 +253,7 @@ exports.config = {
     // },
     //
     // Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    //beforeTest: function(test) {
-    //    // construct a name describing our hierarchy:
-    //    var pathlikeName = test.fullName.replace(test.title, ' / ' + test.title)
-    //    if (test.parent) {
-    //        pathlikeName = pathlikeName.replace(test.parent, ' / ' + test.parent)
-    //    }
-    //    pathlikeName = pathlikeName.replace(/\s+\/\s+\/?\s?/g, ' / ') // remove repeated space and slash
-    //
-    //    console.log(`Running ${test.type} from ${test.file} for step \n ${pathlikeName}`)
-    //},
+    //beforeTest: function(test) {},
     //
     // Runs before a WebdriverIO command gets executed.
     //beforeCommand: function (commandName, args) {
@@ -297,34 +286,6 @@ exports.config = {
      * @param {Object} test test details
      */
     //afterTest: function(test) {
-    //    // if test passed, ignore, else take and save screenshot.
-    //    if (test.passed) {
-    //        return
-    //    }
-    //
-    //    // construct a filename describing our hierarchy:
-    //    var pathlikeName = test.fullName
-    //    pathlikeName = pathlikeName.replace(test.title, '/' + test.title.trim())
-    //    if (test.parent) {
-    //        pathlikeName = pathlikeName.replace(test.parent, '/' + test.parent.trim())
-    //    }
-    //    var testID = encodeURIComponent(
-    //        pathlikeName.replace(/\s?\/\s?/g, '__').replace(/\s+/g, '-')
-    //    )
-    //
-    //    // build file path
-    //    var filePath =
-    //        this.screenshotPath +
-    //        test.file
-    //            .split('/')
-    //            .pop()
-    //            .split('.')[0] +
-    //        '___' +
-    //        testID +
-    //        '.png'
-    //    // save screenshot
-    //    browser.saveScreenshot(filePath)
-    //    console.log('\n\tScreenshot location:', filePath, '\n')
     //}
     //
     // Hook that gets executed after the suite has ended
@@ -341,8 +302,3 @@ exports.config = {
     // onComplete: function(exitCode) {
     // }
 }
-
-// require("babel-register")({
-//     presets: ['env', 'stage-0'],
-//     plugins: ["babel-plugin-transform-decorators-legacy"]
-// });
