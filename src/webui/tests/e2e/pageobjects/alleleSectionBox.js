@@ -163,7 +163,7 @@ class AlleleSectionBox {
     }
 
     _getClassificationLabel() {
-        return this.classSelection.getText('option:checked')
+        return this.classSelection.$('option:checked').getText()
     }
 
     isClassU() {

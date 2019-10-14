@@ -30,7 +30,6 @@ describe('Sample workflow', function() {
 
         // sample 2
         loginPage.open()
-        browser.acceptAlert()
         loginPage.selectSecondUser()
         analysesSelectionPage.selectTopPending()
         analysisPage.collisionWarningBar.waitForExist()

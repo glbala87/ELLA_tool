@@ -67,14 +67,9 @@ class AnalysisPage extends Page {
         return util.element('.collision-warning')
     }
 
-    get roundCount() {
+    getRounds() {
         let selector = '.id-interpretationrounds-dropdown option'
-        let all = $(selector).getText()
-        if (Array.isArray(all)) {
-            return all.length
-        } else {
-            return 1 // if zero an exception would be called above
-        }
+        return $$(selector).map((a) => a.getText())
     }
 
     chooseRound(number) {

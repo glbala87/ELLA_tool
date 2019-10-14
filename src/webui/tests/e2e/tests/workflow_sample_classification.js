@@ -100,8 +100,6 @@ describe('Sample workflow', function() {
         // For rest of the test, make sure all must be classified, except technical and not relevant
         setFinalizationRequirements(true, true, false)
         browser.refresh()
-        browser.pause(200)
-        browser.acceptAlert()
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
         // Add excluded allele

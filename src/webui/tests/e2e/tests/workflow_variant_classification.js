@@ -83,8 +83,6 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         alleleSectionBox.setReportComment('REPORT_ROUND1')
         $('body').click() // a trick to unfocus the above report comment
 
-        alleleSectionBox.classificationCommentElement.scroll()
-
         // Check that other and not weighted does not affect suggested classification
         expect(analysisPage.getSuggestedClass()).toEqual('')
         analysisPage.addAcmgCode('other', 'OTHER', 'OTHER_ROUND_1')

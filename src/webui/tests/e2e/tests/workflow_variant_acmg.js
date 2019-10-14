@@ -28,13 +28,13 @@ describe(`ACMG`, function() {
     })
 
     function expectSuggestedFeatureIsHidden() {
-        expect(acmg.suggestedElement.isVisible()).toBe(false)
-        expect(acmg.showHideBtn.isVisible()).toBe(false)
+        expect(acmg.suggestedElement.isDisplayed()).toBe(false)
+        expect(acmg.showHideBtn.isDisplayed()).toBe(false)
     }
 
     function expectSuggestedFeatureIsShown() {
-        expect(acmg.suggestedElement.isVisible()).toBe(true)
-        expect(acmg.showHideBtn.isVisible()).toBe(true)
+        expect(acmg.suggestedElement.isDisplayed()).toBe(true)
+        expect(acmg.showHideBtn.isDisplayed()).toBe(true)
     }
 
     it('suggested codes and REQs are displayed when interpreting', function() {
@@ -71,8 +71,6 @@ describe(`ACMG`, function() {
         })
 
         it('hidden when seeing a finished interpretation', function() {
-            // browser.debug();
-            // expect(acmg.collapsed).toBe(true);
             expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
             expectSuggestedFeatureIsHidden()
         })

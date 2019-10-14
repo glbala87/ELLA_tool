@@ -57,19 +57,6 @@ class CustomAnnotationModal extends Page {
         bttn_set.click()
     }
 
-    setText(element, text) {
-        browser.selectorExecute(
-            element.selector,
-            function(matchingElements, msg) {
-                let e = matchingElements[0]
-                e.value = msg
-                // make Angular aware of the change:
-                e.dispatchEvent(new Event('input', { bubbles: true })) //Works
-            },
-            text
-        )
-    }
-
     referenceList() {
         let selector = '.id-custom-annotation-modal .id-references-list article'
         return $$(selector)

@@ -27,7 +27,7 @@ describe('Search functionality', function() {
         analysisPage.startButton.click()
 
         // Search for analysis by user
-        search.open(true)
+        search.open()
         search.selectType('analyses')
         search.user('Hen')
         search.runSearch()

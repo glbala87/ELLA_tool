@@ -131,7 +131,7 @@ describe('Sample workflow ', function() {
     it('shows existing classifications and finalize', function() {
         //  start a second analysis
         // brca_e2e_test02.HBOCUTV_v01
-
+        loginPage.open()
         loginPage.selectThirdUser()
         overview.open()
         overview.selectWithMissingAssessments(1) // some variants assessed in another analysis
@@ -193,6 +193,7 @@ describe('Sample workflow ', function() {
         // brca_e2e_test01.HBOCUTV_v01
 
         // given
+        loginPage.open()
         loginPage.selectThirdUser()
         overview.open()
 
@@ -201,7 +202,7 @@ describe('Sample workflow ', function() {
 
         // then
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_MEDICAL_REVIEW)
-        expect(analysisPage.roundCount).toBe(4) // 'Current data' "round" is added at end
+        expect(analysisPage.getRounds().length).toBe(4) // 'Current data' "round" is added at end
 
         const numberOfClassified = alleleSidebar.countOfClassified()
         expect(alleleSidebar.countOfUnclassified()).toBe(0)
@@ -267,7 +268,7 @@ describe('Sample workflow ', function() {
 
         expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01' + TITLE_INTERPRETATION)
 
-        expect(analysisPage.roundCount).toBe(2)
+        expect(analysisPage.getRounds().length).toBe(2)
 
         const numberOfUnclassified = alleleSidebar.countOfUnclassified()
         expect(numberOfUnclassified).toBe(0)

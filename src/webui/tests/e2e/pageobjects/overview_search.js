@@ -7,12 +7,8 @@ const ALLELE_RESULT_SELECTOR = '.id-search .allele-list a'
 const ANALYSIS_RESULT_SELECTOR = '.id-search .analysis-list a'
 
 class Search extends Page {
-    open(expectAlert) {
+    open() {
         super.open('overview/')
-        if (expectAlert) {
-            browser.pause(1000)
-            browser.acceptAlert()
-        }
         $(SELECTOR_SEARCH).waitForExist()
         if ($(SELECTOR_SEARCH + ' .collapsed').isExisting()) {
             $(SELECTOR_SEARCH + SECTION_EXPAND_SELECTOR).click()
