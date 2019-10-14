@@ -23,7 +23,7 @@ class GeneFilter(object):
         meaning
 
         1. If the genes are not in the genepanel, they will have no effect
-        2.
+        2. If a variant is annotated with a gene in the genepanel, but not on the genepanel transcript, it will not be taken by the filter
 
         The filter can be configured with the following settings:
 
@@ -34,7 +34,6 @@ class GeneFilter(object):
             If 'one', variant annotation must include at least one gene from the gene list (but could be annotated with other genes). Useful for exceptions.
         - inverse (optional, default False):
             If True, run the filter in inverse.
-
         """
         filter_genes = filter_config["genes"]
         inverse = filter_config.get("inverse", False)
@@ -78,30 +77,18 @@ class GeneFilter(object):
                 )
                 .filter(
                     ~allele_ids_annotation_genepanel.c.genepanel_hgnc_id.is_(None)
-                )  # Avoid empty arrays
+                )  # IMPORTANT! Avoid empty arrays, as empty arrays always overlap or is contained within another
                 .group_by(allele_ids_annotation_genepanel.c.allele_id)
                 .subquery()
             )
 
-            filtered_allele_ids = self.session.query(allele_id_genes.c.allele_id)
+            filtered_allele_ids = self.session.query(allele_id_genes.c.allele_id).filter(
+                allele_id_genes.c.hgnc_ids.op(operator)(filter_genes)
+            )
 
-            # Do the filtering, based on the operator, inverse setting and filter genes
             if inverse:
-                # Some alleles might not have annotation on the genepanel. They should not be affected.
-                allele_ids_no_hgnc_ids = set(allele_ids) - set(
-                    self.session.query(allele_id_genes.c.allele_id).scalar_all()
-                )
-                filtered_allele_ids = filtered_allele_ids.filter(
-                    ~allele_id_genes.c.hgnc_ids.op(operator)(filter_genes)
-                )
-
-                result[gp_key] = set(filtered_allele_ids.scalar_all()) | allele_ids_no_hgnc_ids
-
+                result[gp_key] = set(allele_ids) - set(filtered_allele_ids.scalar_all())
             else:
-                filtered_allele_ids = filtered_allele_ids.filter(
-                    allele_id_genes.c.hgnc_ids.op(operator)(filter_genes)
-                )
-
                 result[gp_key] = set(filtered_allele_ids.scalar_all())
 
         return result
