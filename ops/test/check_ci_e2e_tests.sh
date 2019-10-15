@@ -4,13 +4,20 @@ set -e # exit on first failure
 
 THISDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-CI_E2E_TESTS=$(grep -oP "SPEC=\K[^\s]+(?= make test-e2e)" $THISDIR/../../.gitlab-ci.yml | sort)
-E2E_TESTS=$(ls src/webui/tests/e2e/tests/ | sort)
 
-if [ "$CI_E2E_TESTS" == "$E2E_TESTS" ]; then
-    echo "All E2E tests running in CI"
-    exit 0
-else
-    echo "CI missing E2E tests"
-    exit 1
+# Check that all files in src/webui/tests/e2e/tests are in .gitlab-ci.yml
+EXIT_CODE=0
+for test_path in $THISDIR/../../src/webui/tests/e2e/tests/*.js; do
+    test=$(basename ${test_path})
+
+    IN_CI=$(grep "SPEC=${test} make test-e2e" $THISDIR/../../.gitlab-ci.yml) || true
+    if [ -z "$IN_CI" ]; then
+        echo "${test} is NOT in CI"
+        EXIT_CODE=1
+    fi
+done
+
+if [ $EXIT_CODE == 0 ]; then
+    echo "All e2e-tests are in .gitlab-ci.yml"
 fi
+exit $EXIT_CODE
