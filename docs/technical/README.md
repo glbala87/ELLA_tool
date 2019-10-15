@@ -1,26 +1,44 @@
-# Introduction
+---
+title: Overview and introduction
+---
 
+# Technical documentation: <br>Overview and introduction
+
+This page provides an introduction to the technical aspects of ELLA: 
 
 [[toc]]
+
+Detailed descriptions of various technical aspects of ELLA are found in these sections: 
+
+- [Setup](/technical/setup.md): How to deploy and setup a production and/or development environment.
+- [Configuration](/technical/configuration.md): How to configure ELLA for your needs.
+- [System internals](/technical/sysinternals.md): ELLA's inner workings.
+
+## About ELLA
 
 ELLA is a tool for clinical interpretation of genetic variants.
 
 The users will either interpret a **single variant** or several variants belonging together in an analysis.
 
-The result of the interpretation work are **assessments** that include the classification of the variant (1-5, T). The assessments are the product of ELLA. When the same variant(s)  is seen in other samples the previous interpretation work can be reused, saving valuable time.
+The result of the interpretation work are **assessments** that include the classification of the variant (1-5, DR, U). The assessments are the main product of ELLA. When the same variant(s) is seen in other samples, the previous interpretation can be reused, saving valuable time.
 
-The interpretation work must be approved by another person in multi-step **workflow**.
+The interpretation must be approved by another person in a multi-step **workflow**.
 
-In general ELLA has an append-only data model, where no data is deleted or overwritten. Instead an updated copy is made and the versions are linked.
+In general, ELLA has an append-only data model, where no data is deleted or overwritten. Instead, an updated copy is made and the versions are linked.
 
-**High-level system diagram of ELLA:**
+ELLA is built as a web application with a frontend and backend. The frontend runs fully in the user's browser, while the backend runs on a server. The frontend communicates with the backend via a JSON-based REST API.
 
-<br>
-<div style="text-align:center"><img src="./img/system.png"></div>
-
-ELLA is built as a web application, divided between a frontend and a backend. The frontend runs fully in the user's browser, while the backend runs on a server. The frontend communicates with the backend via a JSON based REST API.
+<div style="text-indent: 4%;">
+    <img src="./img/system.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>High-level system diagram of ELLA.
+    </div>
+    <br>
+</div>
 
 ## Frontend
+
 The frontend is written in javascript, using:
 
 - SASS for CSS
@@ -28,11 +46,14 @@ The frontend is written in javascript, using:
 - [Cerebral](http://cerebraljs.com/) for client side state management.
 
 ## Backend
-The backend written in Python, built using [Flask](http://flask.pocoo.org/).
+
+The backend is written in Python and built using [Flask](http://flask.pocoo.org/).
 
 ## Database
-ELLA uses a relational database [PostgreSQL](https://www.postgresql.org/) with the data model
-defined using [SQLAlchemy](https://www.sqlalchemy.org/)
 
-## Command line interface
-ELLA has command line tool (using [Click](http://click.pocoo.org/)) to import gene panels, users and variants.
+ELLA uses a relational [PostgreSQL](https://www.postgresql.org/) database with the data model defined using [SQLAlchemy](https://www.sqlalchemy.org/).
+
+## Command line interface (ella-cli)
+
+Most admin tasks in ELLA are handled using the command line interface "ella-cli". This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image.
+

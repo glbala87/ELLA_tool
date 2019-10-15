@@ -123,11 +123,11 @@ This filter cannot be used as an exception filter.
 
 #### Configuration
 
--   **Filter groups**: Categorize data set providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external data sets.
+-   **Filter groups** (`groups`): Categorize data set providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external data sets.
 
--   **Number threshold**: Set a threshold for the "Allele number" (number of observed chromosomes at a given locus) for each sub-population. Sub-populations with less observations than the threshold at a given locus (e.g. due to poor coverage) will not be used for filtering at that locus. 
+-   **Number threshold** (`num_thresholds`): Set a threshold for the "Allele number" (number of observed chromosomes at a given locus) for each sub-population. Sub-populations with less observations than the threshold at a given locus (e.g. due to poor coverage) will not be used for filtering at that locus. 
 
--   **Frequency threshold**: Set population frequency thresholds. They can be defined for two inheritance types, `AD` (autosomal dominant) and `default`. Thresholds set for `AD` applies to genes specified with AD inheritance mode **only**, i.e. not combinations such as AD/AR. `default` applies to everything not in `AD`. For each inheritance mode, you can also configure the thresholds for each filter group (see above) separately.
+-   **Frequency threshold** (`thresholds`): Set population frequency thresholds (0-1). They can be defined for two inheritance types, `AD` (autosomal dominant) and `default`. Thresholds set for `AD` applies to genes specified with AD inheritance mode **only**, i.e. not combinations such as AD/AR. `default` applies to everything not in `AD`. For each inheritance mode, you can also configure the thresholds for each filter group (see above) separately.
 
 ##### Example
 
@@ -172,6 +172,42 @@ This configuration will filter out variants that are:
                 "internal": 0.05
             }
         }
+    }
+}
+```
+
+## Gene filter
+
+The gene filter filters out or rescues alleles that are within a given gene. 
+
+:::warning NOTE
+The annotation is matched on gene panel with transcript (excluding RefSeq versioning). This means that it will only take into account variants annotated with gene panel transcript(s).
+:::
+
+
+#### Configuration
+
+[TODO: write as other filters]
+
+The filter can be configured with the following settings:
+
+- `genes` (required): List of HGNC IDs
+- `mode` (optional, `one`  or `all`, default `all`):
+    - If `all`: variant must be annotated with genes from the `genes` list only. Useful for filtering out.
+    - If `one`, variant annotation must include at least one gene from the gene list (but could be annotated with other genes). Useful for exceptions.
+- `inverse` (optional, default `False`): If `True`, run the filter in inverse.
+
+##### Example
+
+[TODO: fill in example]
+
+```json
+{
+    "name": "gene",
+    "config": {
+        "gene": {},
+        "mode": {},
+        "inverse" False,
     }
 }
 ```

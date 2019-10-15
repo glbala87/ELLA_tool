@@ -1,5 +1,5 @@
 ---
-title: Info page
+title: Sample information
 ---
 
 # Info page: Sample information

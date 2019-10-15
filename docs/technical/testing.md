@@ -1,5 +1,6 @@
 # Testing
 
+[[toc]]
 
 ## Types of tests
 
