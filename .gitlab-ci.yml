@@ -80,10 +80,6 @@ check_formatting:
   after_script:
     - docker rm  -f -v ${PIPELINE_ID}-formatting
 
-
-
-
-
 api:
   extends: .test-common
   script:
@@ -186,6 +182,8 @@ dependency_scanning:
       name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
       when: on_failure
       expire_in: 2 weeks
+  variables:
+    BUILD: "false"
   needs: ["build"]
 
 

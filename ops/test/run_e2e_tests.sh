@@ -7,14 +7,14 @@ source ./scripts/bash-util.sh
 
 mkdir -p /ella/errorShots
 
-if [ "${BUILD}" = "true" ]; then
+if [ "${BUILD}" = "false" ]; then
+    yellow "Skipping building web assets"
+else
     yellow "Building web assets"
     /ella/ops/common/symlink_node_modules
     yarn production
 
     yellow "Finished building web assets"
-else
-    yellow "Skipping building web assets"
 fi
 
 while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
