@@ -25,7 +25,7 @@ class ReferenceEvalModal extends Page {
     }
 
     waitForClose() {
-        $(TOP_CLASS).waitForExist(10000, true)
+        $(TOP_CLASS).waitForExist(undefined, true)
     }
 }
 

@@ -17,7 +17,7 @@ class LoginPage extends Page {
         $(`.id-username`).setValue(users[number][0])
         $(`.id-password`).setValue(users[number][1])
         $(`.id-login-submit`).click()
-        login.waitForExist(5000, true)
+        login.waitForExist(undefined, true)
     }
 
     selectFirstUser() {

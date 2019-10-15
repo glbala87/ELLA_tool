@@ -18,7 +18,7 @@ class VariantSelection extends Page {
         const el = $(SELECTOR_OVERVIEW_VARIANTS)
         el.waitForExist()
         el.click()
-        $('#nprogress').waitForExist(10000, true) // Make sure loading is done before proceeding
+        $('#nprogress').waitForExist(undefined, true) // Make sure loading is done before proceeding
     }
 
     get variantList() {
@@ -83,7 +83,7 @@ class VariantSelection extends Page {
         const el = $(selector)
         el.waitForExist()
         el.click()
-        $('allele-list').waitForExist(5000, true)
+        $('allele-list').waitForExist(undefined, true)
         return el
     }
 

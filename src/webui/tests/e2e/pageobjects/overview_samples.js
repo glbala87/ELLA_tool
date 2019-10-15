@@ -35,7 +35,7 @@ class SampleSelection extends Page {
         // waitForExist(#nprogress) doesn't work well here, since it sometimes is so quick that it's missed
         // Pause instead and then make sure the loading is gone
         browser.pause(100)
-        $('#nprogress').waitForExist(10000, true) // Make sure loading is done before proceeding
+        $('#nprogress').waitForExist(undefined, true) // Make sure loading is done before proceeding
     }
 
     get analysisList() {
@@ -94,7 +94,7 @@ class SampleSelection extends Page {
         const el = $(selector)
         el.waitForExist()
         el.click()
-        $('analysis-list').waitForExist(5000, true)
+        $('analysis-list').waitForExist(undefined, true)
         return el
     }
 

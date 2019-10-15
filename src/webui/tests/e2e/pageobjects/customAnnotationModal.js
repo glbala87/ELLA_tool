@@ -63,7 +63,7 @@ class CustomAnnotationModal extends Page {
     }
 
     waitForClose() {
-        $('.id-custom-annotation-modal').waitForExist(10000, true)
+        $('.id-custom-annotation-modal').waitForExist(undefined, true)
     }
 }
 
