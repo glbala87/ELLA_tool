@@ -11,10 +11,14 @@ class ReferenceEvalModal extends Page {
     }
 
     setRelevance(index) {
-        $(`${TOP_CLASS} article.id-relevance label:nth-child(${index})`).click()
+        const selector = `${TOP_CLASS} article.id-relevance label:nth-child(${index})`
+        const el = $(selector)
+        el.waitForDisplayed()
+        el.click()
     }
 
     setComment(text) {
+        this.comment.waitForDisplayed()
         this.comment.click()
         let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`
         $(selector).setValue(text)

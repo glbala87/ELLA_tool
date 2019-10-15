@@ -67,7 +67,7 @@ RUN apt-get update && \
     libffi-dev \
     fontconfig \
     chromium-browser \
-    chromium-chromedriver \
+    chromium-chromedriver && \
     echo "Additional tools:" && \
     echo "Node v10.x:" && \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
