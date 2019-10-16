@@ -7,11 +7,13 @@ import acmgPopover from './acmgPopover.ngtmpl.html'
 
 const STRENGTHS_CLINGEN = {
     benign: {
+        BNW: 'Not weighted',
         BP: 'Supportive',
         BS: 'Strong',
         BA: 'Stand-alone'
     },
     pathogenic: {
+        PNW: 'Not weighted',
         PP: 'Supportive',
         PM: 'Moderate',
         PS: 'Strong',
@@ -171,8 +173,13 @@ export class AcmgController {
         if (code === undefined) {
             code = this.getCodeForDisplay().code
         }
+
         if (code) {
-            return code.substring(0, 2).toLowerCase()
+            if (ACMGHelper.getCodeType(code) === 'other') {
+                return 'other'
+            } else {
+                return code.substring(0, 2).toLowerCase()
+            }
         }
     }
 
