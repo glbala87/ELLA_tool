@@ -107,10 +107,12 @@
                                 No references found
                             </h4>
                             <h4
-                                ng-if="vm.referenceSearchResults.length >= 10"
+                                ng-if="vm.referenceSearchResults.length >=
+                                    vm.maxSearchResults
+                                "
                                 class="sb-notification dim"
                             >
-                                Showing first 10 search results only
+                                Showing first {{ vm.maxSearchResults }} search results only
                             </h4>
                         </cbbody>
                     </contentbox>
