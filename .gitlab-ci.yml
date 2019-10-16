@@ -229,6 +229,9 @@ workflow_variant_references:
   extends: .test_e2e
   script: SPEC=workflow_variant_references.js make test-e2e
 
+workflow_not_saved_warnings:
+  extends: .test_e2e
+  script: SPEC=workflow_not_saved_warnings.js make test-e2e
 
 release:
   stage: release
