@@ -99,7 +99,7 @@ def filter_config(draw):
 
 
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 101}],
+    [{"genotype_allele_ratio": 0.24, "variant_quality": 100}],
     {"qual": 100, "allele_ratio": 0.25},
     False,
 )  # Should not filter where only one criteria if fulfilled (in this case, allele_ratio)
