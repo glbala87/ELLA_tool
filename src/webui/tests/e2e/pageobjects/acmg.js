@@ -22,7 +22,7 @@ class Acmg {
     }
 
     hasShowHideButton() {
-        return browser.isExisting(`${SELECTOR_SHOW_HIDE}`)
+        return $(`${SELECTOR_SHOW_HIDE}`).isExisting()
     }
 }
 

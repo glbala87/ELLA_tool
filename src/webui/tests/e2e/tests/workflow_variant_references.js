@@ -30,27 +30,28 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
     let interpretation_expected_values = {}
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(7)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAsU()
 
-        expect(alleleSectionBox.getReferences().value.length).toEqual(4)
+        expect(alleleSectionBox.getReferences().length).toEqual(4)
 
         // add a reference
         console.log(`adding references`)
         alleleSectionBox.addReferencesBtn.click()
         let referenceList = customAnnotationModal.referenceList()
-        const beforeCount = referenceList ? referenceList.value.length : 0
+        const beforeCount = referenceList.length
         customAnnotationModal.pubMedBtn.click()
-        customAnnotationModal.setText(customAnnotationModal.xmlInputEditor, XML_PUBMED)
+        customAnnotationModal.xmlInputEditor.setValue(XML_PUBMED)
         customAnnotationModal.addReferenceBtn.click()
-        const afterCount = customAnnotationModal.referenceList().value.length
+        const afterCount = customAnnotationModal.referenceList().length
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
-        expect(alleleSectionBox.getReferences().value.length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
         analysisPage.finishButton.click()
@@ -59,22 +60,24 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
     })
 
     it('shows references added in review', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
-        expect(alleleSectionBox.getReferences().value.length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
         analysisPage.startButton.click()
-        expect(alleleSectionBox.getReferences().value.length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
     })
 
     it('shows references for completed interpretation ', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
-        expect(alleleSectionBox.getReferences().value.length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
     })
 })
 

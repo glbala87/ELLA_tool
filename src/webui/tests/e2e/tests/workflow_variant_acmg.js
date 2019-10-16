@@ -28,16 +28,17 @@ describe(`ACMG`, function() {
     })
 
     function expectSuggestedFeatureIsHidden() {
-        expect(acmg.suggestedElement.isVisible()).toBe(false)
-        expect(acmg.showHideBtn.isVisible()).toBe(false)
+        expect(acmg.suggestedElement.isDisplayed()).toBe(false)
+        expect(acmg.showHideBtn.isDisplayed()).toBe(false)
     }
 
     function expectSuggestedFeatureIsShown() {
-        expect(acmg.suggestedElement.isVisible()).toBe(true)
-        expect(acmg.showHideBtn.isVisible()).toBe(true)
+        expect(acmg.suggestedElement.isDisplayed()).toBe(true)
+        expect(acmg.showHideBtn.isDisplayed()).toBe(true)
     }
 
     it('suggested codes and REQs are displayed when interpreting', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
@@ -52,6 +53,7 @@ describe(`ACMG`, function() {
     describe('suggested codes and REQs are', function() {
         beforeAll(function() {
             // classify one variant as 'U'
+            loginPage.open()
             loginPage.selectFirstUser()
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
@@ -61,6 +63,7 @@ describe(`ACMG`, function() {
             analysisPage.modalFinishButton.click()
 
             // select the first we finished, class 1
+            loginPage.open()
             loginPage.selectSecondUser()
             variantSelectionPage.expandFinishedSection()
             variantSelectionPage.selectFinished(2)
@@ -68,8 +71,6 @@ describe(`ACMG`, function() {
         })
 
         it('hidden when seeing a finished interpretation', function() {
-            // browser.debug();
-            // expect(acmg.collapsed).toBe(true);
             expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
             expectSuggestedFeatureIsHidden()
         })

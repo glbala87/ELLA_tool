@@ -40,7 +40,8 @@ yellow "Starting e2e tests locally..."
 rm -f dbdump_e2e.sql
 
 yellow "Will run tests $SPEC"
-   DEBUG=true yarn wdio \
+   DEBUG=true yarn wdio run wdio.conf.js \
    --baseUrl "${APP_URL}" \
-   --host "${CHROME_HOST}" \
+   --hostname "${CHROME_HOST}" \
    --port 4444 --path "/" ${SPEC_PARAM}
+

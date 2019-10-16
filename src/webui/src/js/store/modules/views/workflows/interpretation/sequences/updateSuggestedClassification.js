@@ -16,8 +16,7 @@ export default sequence('updateSuggestedClassification', [
                     set(
                         state`views.workflows.interpretation.state.allele.${props`alleleId`}.alleleassessment.evaluation.acmg.suggested_classification`,
                         props`result.class`
-                    ),
-                    setDirty
+                    )
                 ],
                 aborted: [],
                 error: [toast('error', 'Failed to load suggested classification')]

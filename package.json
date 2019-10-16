@@ -25,6 +25,11 @@
         "toastr": "^2.1.4"
     },
     "devDependencies": {
+        "@wdio/cli": "^5.14.5",
+        "@wdio/jasmine-framework": "^5.14.5",
+        "@wdio/local-runner": "^5.14.5",
+        "@wdio/spec-reporter": "^5.14.5",
+        "@wdio/sync": "^5.14.4",
         "autoprefixer": "^9.0.2",
         "babel-core": "^6.26.3",
         "babel-jest": "^23.4.2",
@@ -47,9 +52,7 @@
         "prettier": "^1.18.2",
         "sass-loader": "^7.0.3",
         "vuepress": "^0.14.4",
-        "wdio-jasmine-framework": "^0.3.5",
-        "wdio-spec-reporter": "0.1.2",
-        "webdriverio": "^4.12.0",
+        "wdio-chromedriver-service": "^5.0.2",
         "webpack": "^4.16.3",
         "webpack-cli": "^3.1.0",
         "webpack-livereload-plugin": "^2.1.1",

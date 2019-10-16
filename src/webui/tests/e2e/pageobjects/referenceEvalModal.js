@@ -4,25 +4,28 @@ const TOP_CLASS = '.id-reference-modal-body'
 
 class ReferenceEvalModal extends Page {
     get comment() {
-        return browser.element(`${TOP_CLASS} .id-reference-comment`)
+        return $(`${TOP_CLASS} .id-reference-comment`)
     }
     get saveBtn() {
-        return browser.element(`${TOP_CLASS} button.id-reference-modal-save`)
+        return $(`${TOP_CLASS} button.id-reference-modal-save`)
     }
 
     setRelevance(index) {
-        browser.click(`${TOP_CLASS} article.id-relevance label:nth-child(${index})`)
+        const selector = `${TOP_CLASS} article.id-relevance label:nth-child(${index})`
+        const el = $(selector)
+        el.waitForDisplayed()
+        el.click()
     }
 
     setComment(text) {
-        let commentElement = this.comment
-        commentElement.click()
+        this.comment.waitForDisplayed()
+        this.comment.click()
         let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`
-        browser.setValue(selector, text)
+        $(selector).setValue(text)
     }
 
     waitForClose() {
-        browser.waitForExist(TOP_CLASS, 10000, true)
+        $(TOP_CLASS).waitForExist(undefined, true)
     }
 }
 

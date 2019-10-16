@@ -4,7 +4,7 @@ var util = require('./util')
 class Import extends Page {
     open() {
         super.open('overview/import')
-        browser.waitForExist('.id-import-source-type')
+        $('.id-import-source-type').waitForExist()
     }
 
     get applyFilterBatchButton() {
@@ -36,49 +36,44 @@ class Import extends Page {
     }
 
     getActiveImportTitle(idx) {
-        browser.waitForExist(
+        $(
             `.id-import-active-imports .import-job-list .list-item:nth-child(${idx}) .job-title`
-        )
-        return browser
-            .element(
-                `.id-import-active-imports .import-job-list .list-item:nth-child(${idx}) .job-title`
-            )
-            .getText()
+        ).waitForExist()
+        return $(
+            `.id-import-active-imports .import-job-list .list-item:nth-child(${idx}) .job-title`
+        ).getText()
     }
 
     getHistoryImportTitle(idx) {
         const selector = `import sectionbox:nth-child(2) > section.sectionbox.collapsed`
-        console.log(browser.isExisting(selector))
-        if (browser.isExisting(selector)) {
-            browser.click(
+        if ($(selector).isExisting()) {
+            $(
                 'import sectionbox:nth-child(2) > section.sectionbox.collapsed .sb-title-container'
-            )
+            ).click()
         }
-        browser.waitForExist(
+        $(
             `.id-import-import-history .import-job-list .list-item:nth-child(${idx}) .job-title`
-        )
-        return browser
-            .element(
-                `.id-import-import-history .import-job-list .list-item:nth-child(${idx}) .job-title`
-            )
-            .getText()
+        ).waitForExist()
+        return $(
+            `.id-import-import-history .import-job-list .list-item:nth-child(${idx}) .job-title`
+        ).getText()
     }
 
     selectImportSource(type) {
         if (type === 'variants') {
-            browser.element('.id-import-source-type label:nth-child(1)').click()
+            $('.id-import-source-type label:nth-child(1)').click()
         } else if (type === 'sample') {
-            browser.element('.id-import-source-type label:nth-child(2)').click()
+            $('.id-import-source-type label:nth-child(2)').click()
         }
     }
 
     enterVariantData(data) {
-        browser.element('.id-variant-data-input > textarea').setValue(data)
+        $('.id-variant-data-input > textarea').setValue(data)
     }
 
     searchSample(term) {
-        browser.element('.id-import-sample input').setValue(term)
-        browser.waitForExist('.selector-optgroup')
+        $('.id-import-sample input').setValue(term)
+        $('.selector-optgroup').waitForExist()
     }
 
     selectSearchResult() {
@@ -87,15 +82,15 @@ class Import extends Page {
 
     toggleCustomGenePanel(toggle) {
         const selectorIdx = toggle ? 1 : 2
-        browser.element(`.id-import-custom-panel label:nth-child(${selectorIdx})`).click()
+        $(`.id-import-custom-panel label:nth-child(${selectorIdx})`).click()
 
         if (toggle) {
-            browser.waitForExist('.id-import-filter-results .list-item')
+            $('.id-import-filter-results .list-item').waitForExist()
         }
     }
 
     selectGenePanel(name) {
-        browser.element('.id-import-genepanel-source').selectByVisibleText(name)
+        $('.id-import-genepanel-source').selectByVisibleText(name)
     }
 
     selectFilterMode(mode) {
@@ -103,11 +98,11 @@ class Import extends Page {
             single: 1,
             batch: 2
         }
-        browser.element(`.id-import-filter-mode label:nth-child(${selectors[mode]})`).click()
+        $(`.id-import-filter-mode label:nth-child(${selectors[mode]})`).click()
     }
 
     enterFilterTerm(text) {
-        browser.element(`.id-import-filter-single`).setValue(text)
+        $(`.id-import-filter-single`).setValue(text)
     }
 
     enterFilterBatchTerm(text) {
@@ -115,27 +110,25 @@ class Import extends Page {
     }
 
     enterCustomGenePanelName(name) {
-        browser.element(`.id-import-custom-panel-name`).setValue(name)
+        $(`.id-import-custom-panel-name`).setValue(name)
     }
 
     getFilterResultText() {
-        return browser.element(`.id-import-filter-results-text`).getText()
+        return $(`.id-import-filter-results-text`).getText()
     }
 
     getAddedText() {
-        return browser.element(`.id-import-added-text`).getText()
+        return $(`.id-import-added-text`).getText()
     }
 
     addFilterResult(idx) {
-        browser
-            .element(
-                `.id-import-filter-results .list-item:nth-child(${idx}) button.id-import-add-single`
-            )
-            .click()
+        $(
+            `.id-import-filter-results .list-item:nth-child(${idx}) button.id-import-add-single`
+        ).click()
     }
 
     getImportSummary() {
-        return browser.element(`.id-import-summary`).getText()
+        return $(`.id-import-summary`).getText()
     }
 }
 
