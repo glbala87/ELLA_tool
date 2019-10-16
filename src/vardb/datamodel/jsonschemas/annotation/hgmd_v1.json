@@ -8,7 +8,6 @@
     "additionalProperties": false,
     "properties": {
         "tag": {
-            "type": "string",
             "enum": ["FP", "DM", "DFP", "R", "DP", "DM?"]
         },
         "codon": {

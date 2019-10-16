@@ -40,7 +40,6 @@
                 "additionalProperties": false,
                 "properties": {
                     "function": {
-                        "type": "string",
                         "enum": ["analysis"]
                     },
                     "params": {
