@@ -307,7 +307,7 @@ test-js-auto:
 	  $(IMAGE_NAME) \
 	  yarn test-watch
 
-test-common:
+test-python:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
@@ -382,14 +382,22 @@ test-e2e:
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -e BUILD=$(BUILD) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
 
-	docker exec -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
+	docker exec -e SPEC=$(SPEC) -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
+
+test-check-ci-e2e-tests:
+	docker run --rm \
+	  --name $(CONTAINER_NAME)-formatting \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  ops/test/check_ci_e2e_tests.sh
 
 test-formatting:
 	docker run --rm \

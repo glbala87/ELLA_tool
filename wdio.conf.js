@@ -1,4 +1,5 @@
 var http = require('http')
+const fs = require('fs')
 var addCommands = require('./src/webui/tests/e2e/commands')
 
 // when debugging it's useful to alter some config values
@@ -34,8 +35,8 @@ var debugCapabilities = [
 ]
 var defaultTimeoutInterval = 300000 // ms
 var defaultMaxInstances = 1
-let specHome = 'src/webui/tests/e2e/tests/**'
-var defaultSpecs = [`${specHome}/*.js`]
+let specHome = 'src/webui/tests/e2e/tests'
+var defaultSpecs = [`${specHome}/**/*.js`]
 var BUNDLED_APP = 'app.js' // see webpack config
 
 exports.config = {
@@ -51,7 +52,16 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: process.env.SPEC ? [process.env.SPEC] : defaultSpecs,
+    specs: process.env.SPEC
+        ? [process.env.SPEC].map((x) => {
+              try {
+                  fs.statSync(specHome + '/' + x) // Check if file exists, throw error if not
+                  return specHome + '/' + x
+              } catch (e) {
+                  return x
+              }
+          })
+        : defaultSpecs,
     // Patterns to exclude.
     // exclude: [
     //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'

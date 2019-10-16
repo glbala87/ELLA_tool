@@ -7,3 +7,4 @@ docs/
 .pytest_cache/
 .vscode/
 .git/
+*.yml
