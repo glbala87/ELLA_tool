@@ -412,10 +412,13 @@ button {
     }
     .container {
         margin-left: 2rem;
-        margin-top: calc(#{$nav-bar-top-height});
-        margin-right: 2rem;
-        margin-bottom: 2.6rem;
+        padding-top: 2.5rem;
+        padding-right: 2rem;
+        padding-bottom: 2.5rem;
         width: 100%;
+        overflow: auto;
+        // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set in javascript
+        // max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height} - #{$nav-bar-bottom-buttons-height});
     }
     .container.with-sidenavbar {
         margin-left: 9rem;
@@ -435,9 +438,13 @@ button {
     }
     .overviewcontainer {
         display: flex;
+        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
+        overflow: auto;
     }
 
     .dashboard {
+        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
+        overflow: auto;
         display: flex;
         .full-title {
             padding-left: 1.2rem;
@@ -453,6 +460,7 @@ button {
             width: 32%;
             border: solid white 3px;
             background-color: $green-05;
+            height: 100%;
 
             .sb-title-container {
                 background-color: $green-25;
@@ -492,7 +500,6 @@ button {
 .single-sample-analysis-container {
     display: flex;
     flex-direction: row;
-    margin-right: 1.3rem;
 }
 .full-width {
     width: 100%;
@@ -697,29 +704,48 @@ workflow-buttons {
     }
 }
 
-.collision-warning {
+.collision-warning section {
     margin: 1.5rem;
-    margin-bottom: 0;
-    padding: 1.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    background-color: $red-95;
-    max-height: 10rem;
-    overflow-y: auto;
-    overflow-x: hidden;
-    word-wrap: break-word;
-    font-size: 1.6rem;
-    font-family: $slim;
-    font-weight: 600;
-    color: white;
-    &::-webkit-scrollbar {
-        width: 10px;
+    .titlebar,
+    .titlebar > .sb-title-container,
+    .sb-container {
+        background-color: $red-95;
     }
-    &::-webkit-scrollbar-thumb {
-        background-color: $white-50;
+    .titlebar > .sb-title-container {
+        width: 100%;
     }
-    &:hover::-webkit-scrollbar-thumb {
-        background-color: $white-75;
+    .title,
+    .icon,
+    .sb-container {
+        color: white;
+        font-weight: 800;
+    }
+    p,
+    h5 {
+        color: white;
+        font-family: $slim;
+        font-size: 1.6rem;
+        font-weight: 600;
+        letter-spacing: 0.05rem;
+    }
+    .subtitle {
+        color: $white-50;
+    }
+    .sb-body {
+        animation: none !important;
+        padding-top: 0.5rem !important;
+        max-height: 25vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $white-50;
+        }
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: $white-75;
+        }
     }
 }
 
@@ -737,14 +763,6 @@ workflow-buttons {
     h3:not(:first-child) {
         margin-top: 0.5rem;
     }
-}
-
-.nav-bottom-buttons-spacer {
-    height: calc(#{$nav-bar-bottom-buttons-height} + 0.8rem);
-}
-
-.nav-bottom-allelebar-spacer {
-    height: calc(#{$allelebar-row-height} + 0.8rem);
 }
 
 allelebar {
@@ -1350,14 +1368,23 @@ nav.warning {
     min-width: 45rem;
     position: sticky;
     margin-left: 1.3rem;
-    top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
-    margin-top: 4.5rem;
+    margin-top: 2.5rem;
+    padding-bottom: 4.5rem;
     overflow: auto;
     max-width: 100vw;
-    &.constrain-size {
-        max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem));
-    }
+    // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set on parent element in javascript
+    max-height: inherit;
+
     .controls {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding-bottom: 0.3rem;
+        border-bottom: 2px solid $blue-10;
+        box-shadow: 0 0 0 3px $white;
+        z-index: 1;
+        margin-bottom: 0.3rem;
+
         .control-comment {
             max-width: 70rem;
             .wysiwygeditor {
