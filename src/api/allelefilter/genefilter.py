@@ -22,8 +22,9 @@ class GeneFilter(object):
         that matches the genes given in filter_config. The filter uses annotation on the genepanel only,
         meaning
 
-        1. If the genes are not in the genepanel, they will have no effect
-        2. If a variant is annotated with a gene in the genepanel, but not on the genepanel transcript, it will not be taken by the filter
+        1. If the genes are not in the gene panel, they will have no effect
+        2. The annotation transcripts are matched on gene panel transcripts (excl version), meaning that for an allele to be filtered,
+           it must be annotated with a transcript present in the gene panel.
 
         The filter can be configured with the following settings:
 
