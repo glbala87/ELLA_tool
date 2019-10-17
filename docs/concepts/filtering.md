@@ -188,28 +188,39 @@ The annotation is matched on gene panel with transcript (excluding RefSeq versio
 
 #### Configuration
 
-- **Genes** (`genes`): List of HGNC IDs
+- **Genes** (`genes`): List of HGNC IDs to apply filter to.
 
-- **Mode** (`mode`); either: 
+- **Filter mode** (`mode`); either: 
 
-    - **All** (`all`) (default): Variant must be annotated with genes specified in `genes` only. This is useful for filtering out.
+    - **All** (`all`) (default): Variant must be annotated with genes specified in `genes` *only*. This is useful for filtering out.
     - **One** (`one`): Variant must be annotated with _at least_ one gene from `genes` (but could be annotated with other genes). This is useful for exceptions.
 
 - **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`)
 
+##### Examples
 
-##### Example
-
-[**TODO**: fill in example]
+This configuration will filter out all variants annotated with BRCA1 (1100) and/or BRCA2 (1101), but not if they are also annotated on gene panel transcripts for any other gene:
 
 ```json
 {
     "name": "gene",
     "config": {
-        "gene": {},
-        "mode": {},
-        "inverse" False,
+        "genes": [1100, 1101],
+        "mode": "all",
     }
+}
+```
+
+This configuration will filter out all variants _not_ annotated with either BRCA1 (1100) or BRCA2 (1101):
+    
+```json
+{
+    "name": "gene",
+    "config": {
+      "genes": [1100, 1101],
+      "mode": "one",
+      "inverse": True,
+   }
 }
 ```
 
