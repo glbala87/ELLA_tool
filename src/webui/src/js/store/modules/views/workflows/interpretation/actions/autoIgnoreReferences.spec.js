@@ -165,8 +165,8 @@ describe('autoIgnoreReferences', function() {
                                             allele_id: 1,
                                             reference_id: 1,
                                             evaluation: {
-                                                relevance: "Yes",
-                                                comment: "Keep old evaluation"
+                                                relevance: 'Yes',
+                                                comment: 'Keep old evaluation'
                                             }
                                         }
                                     ]
@@ -210,7 +210,7 @@ describe('autoIgnoreReferences', function() {
                     user: {
                         user_config: {
                             interpretation: {
-                                autoIgnoreReferencePubmedIds: []
+                                autoIgnoreReferencePubmedIds: [1234567890]
                             }
                         }
                     }
@@ -221,14 +221,16 @@ describe('autoIgnoreReferences', function() {
         return runAction(autoIgnoreReferences, { state: testState }).then(({ state }) => {
             expect(
                 state.views.workflows.interpretation.state.allele[1].referenceassessments
-            ).toEqual([{
-                allele_id: 1,
-                reference_id: 1,
-                evaluation: {
-                    relevance: "Yes",
-                    comment: "Keep old evaluation"
+            ).toEqual([
+                {
+                    allele_id: 1,
+                    reference_id: 1,
+                    evaluation: {
+                        relevance: 'Yes',
+                        comment: 'Keep old evaluation'
+                    }
                 }
-            }])
+            ])
 
             expect(
                 state.views.workflows.interpretation.data.alleles['1'].annotation.references.length
