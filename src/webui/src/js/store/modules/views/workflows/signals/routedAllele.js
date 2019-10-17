@@ -23,14 +23,13 @@ export default [
         success: [
             set(state`views.workflows.allele`, props`result`),
             set(state`views.workflows.id`, props`result.id`),
-            when(props`gp`), // If no genepanel is provided, we need to get a list of options
+            when(props`query.gp_name`), // If no genepanel is provided, we need to get a list of options
             {
                 true: [
-                    // Rename props (strange format, see: https://github.com/cerebral/cerebral/issues/1181 )
                     ({ props, state }) => {
                         state.set('views.workflows.selectedGenepanel', {
-                            name: props.gp.name,
-                            version: props.gp.gp.version
+                            name: props.query.gp_name,
+                            version: props.query.gp_version
                         })
                     }
                 ],

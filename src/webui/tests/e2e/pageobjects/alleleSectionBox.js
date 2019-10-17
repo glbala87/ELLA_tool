@@ -46,6 +46,11 @@ class AlleleSectionBox {
         return $(SELECTOR_COMMENT_ANALYSIS_EDITOR).getText()
     }
 
+    setAnalysisSpecificComment(text) {
+        this.analysisCommentElement.click()
+        $(SELECTOR_COMMENT_ANALYSIS_EDITOR).setValue(text)
+    }
+
     get classificationCommentElement() {
         return util.elementIntoView(SELECTOR_COMMENT_CLASSIFICATION)
     }

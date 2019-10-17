@@ -22,12 +22,8 @@ const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
 const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 
 class SampleSelection extends Page {
-    open(expectAlert) {
+    open() {
         super.open('overview/')
-        if (expectAlert) {
-            browser.pause(1000)
-            browser.acceptAlert()
-        }
         const el = $(SELECTOR_ANALYSES_OVERVIEW)
         el.waitForExist()
         el.click()

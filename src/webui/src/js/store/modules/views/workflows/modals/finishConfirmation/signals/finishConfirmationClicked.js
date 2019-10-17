@@ -1,6 +1,6 @@
 import { set, equals } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
-import { goTo } from '@cerebral/router/operators'
+import { goTo } from '../../../../../../common/factories/route'
 import saveInterpretation from '../../../sequences/saveInterpretation'
 import finishWorkflow from '../../../factories/finishWorkflow'
 import toast from '../../../../../../common/factories/toast'

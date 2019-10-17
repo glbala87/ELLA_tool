@@ -5,9 +5,12 @@ import StorageModule from '@cerebral/storage'
 import AppModule from './app'
 import SearchModule from './search'
 import ViewsModule from './views'
-import Router from '@cerebral/router'
-import AppRouter from './router'
-import { IntervalProvider, ProgressProvider, ClipboardProvider } from '../common/providers/'
+import {
+    IntervalProvider,
+    ProgressProvider,
+    ClipboardProvider,
+    RouteProvider
+} from '../common/providers/'
 import onBeforeUnload from '../common/providers/onBeforeUnload'
 import toastProvider from '../common/providers/toastProvider'
 
@@ -65,20 +68,11 @@ function RootModule(withRouter = true) {
             storage,
             search: SearchModule,
             views: ViewsModule,
-            app: AppModule,
-            router: withRouter
-                ? AppRouter
-                : Router({
-                      routes: [
-                          {
-                              path: '/*',
-                              signal: ''
-                          }
-                      ]
-                  }) // Empty router -> Karma messes up when unit testing
+            app: AppModule
         },
         signals: {},
         providers: {
+            route: RouteProvider,
             progress: ProgressProvider,
             onBeforeUnload,
             interval: IntervalProvider,

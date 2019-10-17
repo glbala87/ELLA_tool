@@ -1,6 +1,6 @@
 import { Module } from 'cerebral'
 
-import { redirect } from '@cerebral/router/operators'
+import { redirect } from '../../common/factories/route'
 import LoginModule from './login'
 import OverviewModule from './overview'
 import WorkflowsModule from './workflows'

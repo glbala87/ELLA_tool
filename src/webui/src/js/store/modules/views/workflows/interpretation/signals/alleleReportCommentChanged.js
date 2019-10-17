@@ -17,12 +17,7 @@ export default [
                         props`comment`
                     )
                 ],
-                false: [
-                    toast(
-                        'error',
-                        'Cannot change report comment when interpretation is not Ongoing'
-                    )
-                ]
+                false: []
             }
         ],
         discard: []

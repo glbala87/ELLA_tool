@@ -5,6 +5,10 @@ const SELECTOR_COMMENT_ACMG = 'acmg.id-staged-acmg-code wysiwyg-editor.id-commen
 const SELECTOR_COMMENT_ACMG_EDITOR = `${SELECTOR_COMMENT_ACMG} .wysiwygeditor`
 
 class AnalysisPage extends Page {
+    get overviewLink() {
+        return util.element('a#home-bttn')
+    }
+
     get title() {
         return util.element('.id-workflow-instance').getText()
     }

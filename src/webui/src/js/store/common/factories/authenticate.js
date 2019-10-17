@@ -1,6 +1,6 @@
 import { sequence } from 'cerebral'
 import { set, when } from 'cerebral/operators'
-import { redirect } from '@cerebral/router/operators'
+import { redirect } from '../factories/route'
 import { state, props } from 'cerebral/tags'
 import { getUser } from '../actions'
 

@@ -1,3 +1,4 @@
+import page from 'page'
 import { Module } from 'cerebral'
 import { CerebralTest } from 'cerebral/test'
 import mock from 'xhr-mock'
@@ -28,6 +29,9 @@ const EMPTY_EVALUATION = {
 }
 
 let cerebral = null
+
+// page is confused regarding jest's jsdom window mock
+page.configure({ window: window })
 
 describe('Handling of allele state', () => {
     beforeEach(() => {
