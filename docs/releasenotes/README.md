@@ -37,6 +37,12 @@ In addition, users can often spend significant time evaluating an ACMG criterion
 
 Note that neither "other" or unweighted ACMG criteria are counted in the calculation of suggested classification.
 
+#### Filter improvements: Gene and allele ratio
+
+The filter settings now allows using genes as a variable in rules for filters or exceptions. This allows conditioning any rule on the presence/absence of a gene. 
+
+In addition, it is now also possible to use allele ratio a variable in the quality filter. In our experience, this gives a more powerful filter than using the `qual` variable, removing more true technical variants, but with the caveat that mosaic variants may be missed. 
+
 
 ### All changes
 
@@ -52,4 +58,5 @@ Note that neither "other" or unweighted ACMG criteria are counted in the calcula
 - [MR !324] [Set ACMG criterion as unweighted](#acmg-add-other-and-unweighted-criteria).
 - [MR !325] Increased number of retrieved reference search results. 
 - [MR !326] Fixed bug causing no alerts when navigating away from interpretation view with unsaved work.
-- [MR !327] Added gene filter to filter out (or rescue) variants in specific genes [TODO: Update Concepts].
+- [MR !327] [Added gene filter to filter out (or rescue) variants in specific genes](#filter-improvements-gene-and-allele-ratio) [**TODO**: Update Concepts].
+- [MR !331] [Added possibility to use allele ratio in quality filter](#filter-improvements-gene-and-allele-ratio)

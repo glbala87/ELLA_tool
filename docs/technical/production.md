@@ -1,7 +1,7 @@
 # Production
 
-::: danger NOTE
-ELLA should not run on an network with public access, but rather in a walled garden, with restricted external access.
+::: danger WARNING
+For proper security, ELLA should usually not be run on a public network, but rather in a walled garden with restricted external access.
 :::
 
 ::: warning NOTE

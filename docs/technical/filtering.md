@@ -29,7 +29,7 @@ The default configuration is used as base when applying any custom filter. Custo
 
 ### Exceptions
 
-For each filter, we can specify a list of exceptions. These are filters of their own, and filters can (mostly) be used both as filters, or as exception to other filters.
+For each filter, we can specify a list of exceptions, i.e. rules for when the filter should not apply. Many filter rules can be used both as filters or as exception to other filters.
 
 To specify exceptions to the config above, we add the `exceptions` key to the config:
 
@@ -98,6 +98,6 @@ This filter config specifies to first run FilterA on all passed variants/analysi
 
 A set of filters are implemented in ELLA, and the modularity of them makes is easy to construct complex filter chains, and reasonably easy to implement new filters.
 
-See [Concepts](/concepts/filtering.md) for per-filter details and examples, and `src/vardb/testdata/filterconfigs.json` for further examples. 
+See [Concepts](/concepts/filtering.md) for per-filter details and examples, and `src/vardb/testdata/filterconfigs.json` for examples of a complete setup. 
 
-The schema is located in `src/vardb/datamodel/jsonschemas/filterconfig_v1.json`
+The schema is located in `src/vardb/datamodel/jsonschemas/filterconfig_v1.json`.
