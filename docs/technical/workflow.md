@@ -45,14 +45,13 @@ The analysis is then set to review and another user will either continue the int
 
 So the interpretation goes through (possibly multiple) review rounds before being finalized:
 
-  [Initial round] ---review--> [second round] --review--> [third round] ..... [...] --finalize--> Done
-
+<div style="text-indent: 4%;"><img src="./img/interpretation-rounds.png"></div>
 
 ## Interpretation rounds and history
 
 A record is kept of all rounds, in case an audit is needed. 
 
-When opening a previously finalized analysis, all the previous rounds of the analysis are available read-only. When selecting a particular round, the UI will reflect the informational context at the point of interpretation.
+When opening a previously finalized analysis, all the previous rounds of the analysis are available read-only. When selecting a particular round, the UI will reflect the informational context at the end of that interpretation round.
 
 The interpretation of single a variant will also build an incremental list of rounds.
 

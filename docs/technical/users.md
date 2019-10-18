@@ -81,7 +81,7 @@ A user group defines the configuration for different groups of users. This inclu
 - [Import and deposit](/technical/import.md)  
 - [User interface for groups](/technical/uioptions.html#configure-elements-to-show)
 
-See `src/vardb/testdata/usergroups.json` for examples.
+See `/src/vardb/testdata/usergroups.json` for examples.
 
 To update the user groups, run the following command:
 ```

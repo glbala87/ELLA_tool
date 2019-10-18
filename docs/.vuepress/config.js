@@ -92,6 +92,7 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/technical/setup',
+                        '/technical/demo',
                         '/technical/production',
                         '/technical/logging',
                         '/technical/development',

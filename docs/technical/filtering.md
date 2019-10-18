@@ -17,13 +17,13 @@ All filter configurations follow this pattern:
 },
 ```
 
-The configuration is specific to the filter with the given name. The available filters can be found in this documentation, and in `api/allelefilter/allelefilter.py`. 
+The configuration is specific to the filter with the given name. The available filters can be found in this documentation, and in `/src/api/allelefilter/allelefilter.py`. 
 
 ### Default configuration
 
 The default configuration is used as base when applying any custom filter. Custom filters are shallow merged on top of the defaults. Defaults are given in: 
 
-- File: `src/api/config/config.py`
+- File: `/src/api/config/config.py`
 - Key: `filter.default_filter_config`
 
 
@@ -98,6 +98,6 @@ This filter config specifies to first run FilterA on all passed variants/analysi
 
 A set of filters are implemented in ELLA, and the modularity of them makes is easy to construct complex filter chains, and reasonably easy to implement new filters.
 
-See [Concepts](/concepts/filtering.md) for per-filter details and examples, and `src/vardb/testdata/filterconfigs.json` for examples of a complete setup. 
+See [Concepts](/concepts/filtering.md) for per-filter details and examples, and `/src/vardb/testdata/filterconfigs.json` for examples of a complete setup. 
 
-The schema is located in `src/vardb/datamodel/jsonschemas/filterconfig_v1.json`.
+The schema is located in `/src/vardb/datamodel/jsonschemas/filterconfig_v1.json`.

@@ -10,19 +10,15 @@ This page provides an introduction to the technical aspects of ELLA:
 
 Detailed descriptions of various technical aspects of ELLA are found in these sections: 
 
-- [Setup](/technical/setup.md): How to deploy and setup a production and/or development environment.
+- [Setup](/technical/setup.md): How to deploy and setup a demo, production and/or development environment.
 - [Configuration](/technical/configuration.md): How to configure ELLA for your needs.
 - [System internals](/technical/sysinternals.md): ELLA's inner workings.
 
 ## About ELLA
 
-ELLA is a tool for clinical interpretation of genetic variants.
+ELLA is a tool for clinical interpretation of genetic variants, where the user either interprets a **single variant**, or several variants belonging together in an analysis. The result of the interpretation work are **assessments** that include the classification of the variant (1-5, DR, U). The interpretation must be approved by another person in a multi-step **workflow**.
 
-The users will either interpret a **single variant** or several variants belonging together in an analysis.
-
-The result of the interpretation work are **assessments** that include the classification of the variant (1-5, DR, U). The assessments are the main product of ELLA. When the same variant(s) is seen in other samples, the previous interpretation can be reused, saving valuable time.
-
-The interpretation must be approved by another person in a multi-step **workflow**.
+The assessments are the main product of ELLA. When the same variant(s) is seen in other samples, the previous interpretation can be reused, saving valuable time.
 
 In general, ELLA has an append-only data model, where no data is deleted or overwritten. Instead, an updated copy is made and the versions are linked.
 

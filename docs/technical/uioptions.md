@@ -178,16 +178,7 @@ Configure use of transcripts. See `/src/api/config/config.py` for examples.
 - File: `/src/api/config/config.py`
 - Key: `config.transcripts`
 
-### Worst consequence
-
-Define order of severity for transcript consequences given by VEP (high to low). This is used for searching for "worse consequence". 
-
-- Key: `config.transcripts.consequences`
-- Values: [list of consequences ordered from more to less severe]
-
-### Include transcripts
-
-Types of transcripts to include, e.g. "NM_.*" for RefSeq transcripts. 
-
-- Key: `config.transcripts.inclusion_regex`
-- Value: [regex]
+Subkey | Explanation    |   Values
+:---    |   :---    |   :---
+`consequences`  |   Define order of severity for transcript consequences given by VEP (high to low). This is used for searching for "worse consequence".    |   [list of consequences ordered from more to less severe]
+`inclusion_regex`   |   Types of transcripts to include, e.g. "NM_.*" for RefSeq transcripts.   |   [regex]
