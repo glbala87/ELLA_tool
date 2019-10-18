@@ -14,7 +14,7 @@ class WorkLog extends Page {
     }
 
     close() {
-        browser.click('body')
+        $('body').click()
         browser.pause(1500) // Wait for popover animation to settle
     }
 
