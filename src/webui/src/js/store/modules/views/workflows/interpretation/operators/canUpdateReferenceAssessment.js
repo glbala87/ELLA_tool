@@ -3,7 +3,7 @@ export default function canUpdateReferenceAssessment({ state, path, props }) {
         throw Error('Missing required props alleleId')
     }
     if (!props.referenceId) {
-        throw Error('Missing required props alleleId')
+        throw Error('Missing required props referenceId')
     }
     if (state.get('views.workflows.interpretation.isOngoing')) {
         return path.true()

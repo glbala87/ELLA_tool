@@ -9,6 +9,7 @@ import getHiFrequencyById from '../alleleSidebar/computed/getHiFrequencyById'
 import getExternalSummaryById from '../alleleSidebar/computed/getExternalSummaryById'
 import getQualById from '../alleleSidebar/computed/getQualById'
 import isManuallyAddedById from '../alleleSidebar/computed/isManuallyAddedById'
+import hasUnignoredReferences from '../alleleSidebar/computed/hasUnignoredReferences.js'
 
 function getSortFunctions(
     config,
@@ -20,7 +21,8 @@ function getSortFunctions(
     hiFreq,
     hiCount,
     externalSummary,
-    manuallyAdded
+    manuallyAdded,
+    hasUnignoredReferences
 ) {
     return {
         inheritance: (allele) => {
@@ -80,7 +82,7 @@ function getSortFunctions(
             }
         },
         references: (allele) => {
-            return allele.tags.includes('has_references') ? -1 : 1
+            return hasUnignoredReferences[allele.id] ? -1 : 1
         },
         technical: (allele) => {
             return verificationStatus[allele.id] === 'technical' ? 1 : -1
@@ -171,7 +173,8 @@ export default function sortAlleles(alleles, key, reverse) {
                 get(getHiFrequencyById(allelesById, 'freq')),
                 get(getHiFrequencyById(allelesById, 'count')),
                 get(getExternalSummaryById(allelesById)),
-                get(isManuallyAddedById(allelesById))
+                get(isManuallyAddedById(allelesById)),
+                get(hasUnignoredReferences(allelesById))
             )
 
             const sortedAlleles = Object.values(alleles).slice()

@@ -15,7 +15,7 @@ class WorkLog extends Page {
 
     close() {
         $('body').click()
-        browser.pause(500) // Wait for popover animation to settle
+        browser.pause(1500) // Wait for popover animation to settle
     }
 
     get newMessageElement() {
