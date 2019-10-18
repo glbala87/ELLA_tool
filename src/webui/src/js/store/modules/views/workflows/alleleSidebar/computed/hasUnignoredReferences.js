@@ -13,7 +13,8 @@ export default (alleles) => {
 
             const result = {}
             for (let [alleleId, allele] of Object.entries(alleles)) {
-                let totalRefs = 'references' in allele.annotation ? allele.annotation.references.length : 0
+                let totalRefs =
+                    'references' in allele.annotation ? allele.annotation.references.length : 0
                 let ignoredRefs = 0
                 if (totalRefs > 0) {
                     if (
@@ -21,10 +22,8 @@ export default (alleles) => {
                         'referenceassessments' in alleleStates[alleleId] &&
                         alleleStates[alleleId].referenceassessments
                     ) {
-                        ignoredRefs = alleleStates[
-                            alleleId
-                        ].referenceassessments.filter(
-                            (ra) => isIgnored(ra)
+                        ignoredRefs = alleleStates[alleleId].referenceassessments.filter((ra) =>
+                            isIgnored(ra)
                         ).length
                     }
                 }
