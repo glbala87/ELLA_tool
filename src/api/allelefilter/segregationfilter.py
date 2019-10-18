@@ -28,6 +28,13 @@ class SegregationFilter(object):
     def denovo_p_value(
         self, allele_ids, genotype_table, proband_sample, father_sample, mother_sample
     ):
+        assert all(
+            [
+                sample + "_gl" in genotype_table.columns.keys()
+                for sample in [proband_sample, father_sample, mother_sample]
+            ]
+        ), "get_genotype_temp_table needs to be created with genotypesampledata_extra={'gl': 'genotype_likelihood'} for this function"
+
         genotype_with_allele_table = extend_genotype_table_with_allele(self.session, genotype_table)
         genotype_with_allele_table = genotype_with_allele_table.subquery()
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
@@ -286,6 +293,13 @@ class SegregationFilter(object):
             - Proband has variant
             - Father or mother has allele_ratio between given (mother: heterozygous, father: homozygous) thresholds
         """
+
+        assert all(
+            [
+                sample + "_ar" in genotype_table.columns.keys()
+                for sample in [proband_sample, father_sample, mother_sample]
+            ]
+        ), "get_genotype_temp_table needs to be created with genotypesampledata_extra={'ar': 'allele_ratio'} for this function"
 
         MOSAICISM_HETEROZYGOUS_THRESHOLD = [0, 0.3]  # (start, end]
         MOSAICISM_HOMOZYGOUS_THRESHOLD = [0, 0.8]  # (start, end]
@@ -811,7 +825,12 @@ class SegregationFilter(object):
             unaffected_sibling_sample_names = [s.identifier for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
-            genotype_table = get_genotype_temp_table(self.session, allele_ids, family_sample_ids)
+            genotype_table = get_genotype_temp_table(
+                self.session,
+                allele_ids,
+                family_sample_ids,
+                genotypesampledata_extras={"ar": "allele_ratio", "gl": "genotype_likelihood"},
+            )
 
             result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
                 genotype_table, father_sample.identifier, mother_sample.identifier

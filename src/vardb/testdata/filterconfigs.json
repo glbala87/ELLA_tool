@@ -325,7 +325,7 @@
                 {
                     "name": "quality",
                     "config": {
-                        "qual": 100
+                        "allele_ratio": 0.25
                     },
                     "exceptions": [
                         {
@@ -625,7 +625,7 @@
                 {
                     "name": "quality",
                     "config": {
-                        "qual": 100
+                        "allele_ratio": 0.25
                     },
                     "exceptions": [
                         {

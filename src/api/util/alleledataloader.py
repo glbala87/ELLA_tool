@@ -499,7 +499,12 @@ class AlleleDataLoader(object):
         father_sample = self.segregation_filter.get_father_sample(proband_sample)
         mother_sample = self.segregation_filter.get_mother_sample(proband_sample)
 
-        genotype_table = get_genotype_temp_table(self.session, allele_ids, sample_ids)
+        genotype_table = get_genotype_temp_table(
+            self.session,
+            allele_ids,
+            sample_ids,
+            genotypesampledata_extras={"gl": "genotype_likelihood"},
+        )
         return self.segregation_filter.denovo_p_value(
             allele_ids,
             genotype_table,
