@@ -16,7 +16,7 @@ ELLA relies on a separate annotation service to annotate and import data. Our ow
 
 ## Requirements
 
-- A [PostgreSQL](https://www.postgresql.org/) database.
+- A [PostgreSQL](https://www.postgresql.org/) database. Minimum required version is 9.6, but we recommend version 11.4 or higher.
 - ELLA primarily uses [Docker](https://www.docker.com/) for deployment. Other alternatives (e.g. using [Singularity](https://sylabs.io/) or no container) is also possible, but is not documented here.
 
 
@@ -32,8 +32,7 @@ where `{image_name}` is what you want to name the image.
 
 ## Mount points
 
-The production container defines a few mount points.
-If you're not using containers for deployment, you can skip this section.
+The production container defines a few mount points. If you're not using containers for deployment, you can skip this section.
 
 | Destination	| Description  	                          |
 |------------	|----------------------	                  |
