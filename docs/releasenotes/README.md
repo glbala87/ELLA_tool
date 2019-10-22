@@ -54,6 +54,8 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 - Made collision warnings below the top bar sticky and collapsible.
 <!-- MR !325 -->
 - Increased number of retrieved reference search results. 
+<!-- MR !332 -->
+- Added "Documentation" link to all pages.
 <!-- MR !320 -->
 - Fixed bug causing inability to finish an analysis workflow when all variants were marked as "Not relevant".
 <!-- MR !326 -->
