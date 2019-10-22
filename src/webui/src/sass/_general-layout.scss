@@ -557,6 +557,7 @@ button {
         transform: rotateY(180deg);
         transform-origin: 9rem;
         transform-style: preserve-3d;
+        transition: all 1s, transform-origin 0s;
         color: white;
         opacity: 0.75;
     }
