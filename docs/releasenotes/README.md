@@ -31,9 +31,9 @@ Note that neither "other" or unweighted ACMG criteria are counted in the calcula
 
 #### Filter improvements: Gene and allele ratio
 
-The filter settings now allows using genes as a variable in rules for filters or exceptions. This allows conditioning any rule on the presence/absence of a gene. 
+The filter settings now allows using genes as a variable in rules for filters or exceptions. This allows conditioning any rule on the presence/absence of a gene, e.g. exclude certain genes from a particular filter.
 
-In addition, it is now also possible to use allele ratio (alternative allele reads/total reads) as a variable in the quality filter. In our experience, this gives a more powerful filter than using the `qual` variable, removing more true technical variants, especially for high sequencing depths. However, a caveat is that mosaic variants may be missed. 
+In addition, it is now also possible to use allele ratio (alternative allele reads/total reads) as a variable in the quality filter. In our experience, this gives a more powerful filter than using the `qual` variable, especially for high sequencing depths. A caveat is that mosaic variants may be missed, but this can be partially be circumvented by adding particular genes where mosaics are expected to a gene exclusion rule as described above.
 
 
 ### All changes
@@ -56,6 +56,10 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 - Increased number of retrieved reference search results. 
 <!-- MR !332 -->
 - Added "Documentation" link to all pages.
+<!-- MR !333-->
+- Added possibility to copy gene + transcripts from filtered results in GENE PANEL INFO.
+<!-- MR !333-->
+- Fixed bug that caused non-working filtering in GENE PANEL INFO if using wrong case.
 <!-- MR !320 -->
 - Fixed bug causing inability to finish an analysis workflow when all variants were marked as "Not relevant".
 <!-- MR !326 -->
