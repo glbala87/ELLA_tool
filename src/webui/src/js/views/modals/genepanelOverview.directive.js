@@ -16,11 +16,14 @@ const filteredGenes = Compute(
         }
         let filtered = genepanel.genes
         if (filter) {
-            filtered = filtered.filter((g) => g.hgnc_symbol.toLowerCase().startsWith(filter))
+            filtered = filtered.filter((g) =>
+                g.hgnc_symbol.toLowerCase().startsWith(filter.toLowerCase())
+            )
         }
         const totalFiltered = filtered.length
         return {
             genes: filtered.slice((page - 1) * perPage, page * perPage),
+            allFilteredGenes: filtered,
             totalCount: totalFiltered
         }
     }

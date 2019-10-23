@@ -85,12 +85,13 @@
             </button>
             <button
                 class="copy-button bttn"
-                ng-click="$ctrl.copyGenesToClipboardClicked({includeTranscripts: true})"
+                ng-click="$ctrl.copyGenesToClipboardClicked({includeTranscripts: true, genes: $ctrl.filteredGenes.allFilteredGenes})"
             >
-                Copy all with transcripts
+                Copy {{ ($ctrl.modelGeneFilter && 'filtered') || 'all' }} with transcripts
             </button>
             <div class="filter-controls">
                 <input
+                    style="text-transform: uppercase;"
                     placeholder="FILTER"
                     ng-model="$ctrl.modelGeneFilter"
                     ng-change="$ctrl.geneFilterChanged({filter: $ctrl.modelGeneFilter})"
