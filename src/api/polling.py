@@ -125,6 +125,7 @@ class AnnotationJobsInterface:
         return annotationjob.AnnotationJob(**data)
 
     def patch(self, id, **kwargs):
+        patched = False
         job = self.get_with_id(id)
         allowed_keys = ["status", "message", "task_id"]
         assert len(set(kwargs) - set(allowed_keys)) == 0, "Illegal values passed to patch: " + str(
@@ -138,13 +139,16 @@ class AnnotationJobsInterface:
             job.status_history["history"].insert(
                 0, {"time": datetime.datetime.now(pytz.utc).isoformat(), "status": job.status}
             )
+            patched = True
 
         for k, v in list(kwargs.items()):
             assert hasattr(job, k)
             if v is not None and getattr(job, k) != v:
                 setattr(job, k, v)
+                patched = True
 
-        job.date_last_update = datetime.datetime.now(pytz.utc)
+        if patched:
+            job.date_last_update = datetime.datetime.now(pytz.utc)
         return job
 
     def deposit(self, id, annotated_vcf):
