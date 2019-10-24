@@ -64,6 +64,8 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 - Fixed bug causing inability to finish an analysis workflow when all variants were marked as "Not relevant".
 <!-- MR !326 -->
 - Fixed bug causing no alerts when navigating away from interpretation view with unsaved work.
+<!-- MR !334 -->
+- Changed timestamp of import jobs to start of import.
 <!-- MR !319 -->
 - Improved [Technical documentation](/technical/).
 
