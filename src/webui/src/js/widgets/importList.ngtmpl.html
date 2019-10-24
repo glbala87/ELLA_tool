@@ -9,7 +9,7 @@
         popover-trigger="outsideClick"
     >
         <div class="job-date">
-            {{ job.date_submitted | date: 'yyyy-MM-dd' }}
+            {{ job.date_submitted | date: 'yyyy-MM-dd HH:mm' }}
         </div>
         <div class="job-title full-title">
             <b>{{ $ctrl.getJobDisplayType(job) }}: </b>{{ $ctrl.getJobDisplayDetail(job) }}
