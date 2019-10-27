@@ -8,14 +8,17 @@ Please contact developers for more details.
 
 [[toc]]
 
-## Users
+## Users and passwords
 
 ELLA users and associated data are defined in the file `users.json`. 
 
 To add new or update existing users, run the following command:
+
 ```
 ella-cli users add_many <path to users.json>
 ```
+
+This will print a one-time password to screen for each user that was added. This password is auto-expired and should be used by each user to set a new password upon first login.
 
 ::: warning NOTE
 User configuration history is currently not tracked in the datamodel, so changes should be tracked externally.

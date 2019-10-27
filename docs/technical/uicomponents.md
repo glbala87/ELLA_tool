@@ -10,7 +10,7 @@ Please contact developers for more details.
 
 ## Pages / views
 
-The views and corresponding routes are defined in `index.js`:
+The views and corresponding routes are defined in `router.js`:
 
 - Overview of analysis and samples
 - Analysis interpretation

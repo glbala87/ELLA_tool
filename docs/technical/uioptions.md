@@ -32,7 +32,7 @@ User group settings are configured in:
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
-`views`  |   Tabs to show on the OVERVIEW page.   |   `variants`: Variant centered workflow; <br>`analyses-by-findings`: Sample centered workflow;<br>`import`: Manual import
+`views`  |   Tabs to show on the OVERVIEW page.   |   `variants`: Variant centered workflow; <br>`analyses-by-findings`: Sample centered workflow, grouped by the findings in the analysis;<br>`import`: Manual import
 `show_variant_report`   |   Show/hide externally generated variant report on INFO page.   |   `true`/`false`
 
 Examples also in `/src/vardb/testdata/usergroups.json`.

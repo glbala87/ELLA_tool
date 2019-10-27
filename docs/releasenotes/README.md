@@ -61,11 +61,11 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 <!-- MR !333-->
 - Fixed bug that caused non-working filtering in GENE PANEL INFO if using wrong case.
 <!-- MR !320 -->
-- Fixed bug causing inability to finish an analysis workflow when all variants were marked as "Not relevant".
+- Fixed bug resulting in empty interpretation window when no variant was selected.
 <!-- MR !326 -->
 - Fixed bug causing no alerts when navigating away from interpretation view with unsaved work.
 <!-- MR !334 -->
-- Changed timestamp of import jobs to start of import.
+- Import jobs now show time of day when job was started, and time stamp when status of job last changed.
 <!-- MR !319 -->
 - Improved [Technical documentation](/technical/).
 
