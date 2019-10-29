@@ -58,11 +58,11 @@ describe('prepareInterpretationState', () => {
     it('gracefully handles updates to manuallyIncludedAlleleIds', async () => {
         cerebral.setState('app.config', testUiConfig)
         cerebral.setState('app.config.classification.options', [
-                    {
-                        name: 'Class 3',
-                        value: '3',
-                        outdated_after_days: 180
-                    }
+            {
+                name: 'Class 3',
+                value: '3',
+                outdated_after_days: 180
+            }
         ])
         cerebral.setState('app.config.user.user_config', {})
         cerebral.setState('app.user', {

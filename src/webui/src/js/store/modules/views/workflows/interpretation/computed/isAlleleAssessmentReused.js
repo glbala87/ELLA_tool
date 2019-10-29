@@ -1,5 +1,5 @@
-import { Compute } from 'cerebral';
-import getAlleleState from './getAlleleState';
+import { Compute } from 'cerebral'
+import getAlleleState from './getAlleleState'
 
 export default function(alleleId) {
     return Compute(getAlleleState(alleleId), (alleleState) => {

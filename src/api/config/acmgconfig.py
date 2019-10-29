@@ -18,8 +18,15 @@ acmgconfig = {
             "PS",
             "PM",
             "PP",
+            "PNW",  # Not ACMG: Added for ability to have criteria without weight
         ],  # Codes starting with entries will be grouped as pathogenic. Also defines sort order.
-        "benign": ["BP", "BS", "BA"],
+        "benign": [
+            "BNW",  # Not ACMG: Added for ability to have criteria without weight
+            "BP",
+            "BS",
+            "BA",
+        ],
+        "other": ["OTHER"],
     },
 }
 
@@ -465,5 +472,10 @@ acmgconfig["explanation"] = {
         "short_criteria": "Synonymous, no splice effect",
         "sources": [],
         "criteria": "A synonymous variant for which splicing prediction algorithms predict no impact to the splice consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved",
+    },
+    "OTHER": {
+        "short_criteria": "Non-ACMG criterion",
+        "sources": [],
+        "criteria": "Criterion for any other evidence not supported by ACMG criteria",
     },
 }

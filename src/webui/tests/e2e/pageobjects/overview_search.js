@@ -9,19 +9,19 @@ const ANALYSIS_RESULT_SELECTOR = '.id-search .analysis-list a'
 class Search extends Page {
     open() {
         super.open('overview/')
-        browser.waitForExist(SELECTOR_SEARCH)
-        if (browser.isExisting(SELECTOR_SEARCH + ' .collapsed')) {
-            browser.click(SELECTOR_SEARCH + SECTION_EXPAND_SELECTOR)
+        $(SELECTOR_SEARCH).waitForExist()
+        if ($(SELECTOR_SEARCH + ' .collapsed').isExisting()) {
+            $(SELECTOR_SEARCH + SECTION_EXPAND_SELECTOR).click()
         }
     }
 
     user(username) {
-        browser.element('.id-select-user input').setValue(username)
-        browser.waitForExist('.selector-optgroup')
+        $('.id-select-user input').setValue(username)
+        $('.selector-optgroup').waitForExist()
     }
     gene(genesymbol) {
-        browser.element('.id-select-gene input').setValue('BRCA2')
-        browser.waitForExist('.selector-optgroup')
+        $('.id-select-gene input').setValue('BRCA2')
+        $('.selector-optgroup').waitForExist()
     }
 
     runSearch() {
@@ -30,57 +30,60 @@ class Search extends Page {
 
     selectType(type) {
         if (type === 'variants') {
-            browser.element('.id-search-type:nth-child(1)').click()
+            $('.id-search-type:nth-child(1)').click()
         } else if (type === 'analyses') {
-            browser.element('.id-search-type:nth-child(2)').click()
+            $('.id-search-type:nth-child(2)').click()
         }
     }
 
     searchFreetext(searchText) {
-        browser.element('.id-search-freetext').setValue(searchText)
+        $('.id-search-freetext').setValue(searchText)
     }
 
-    getNumberOfAlleles() {
-        if (!browser.isExisting(ALLELE_RESULT_SELECTOR)) {
+    getNumberOfAlleles(shouldHaveResults) {
+        if (shouldHaveResults) {
+            $(ALLELE_RESULT_SELECTOR).waitForExist()
+        }
+        if (!$(ALLELE_RESULT_SELECTOR).isExisting()) {
             return 0
         } else {
-            return browser.elements(ALLELE_RESULT_SELECTOR).value.length
+            return $$(ALLELE_RESULT_SELECTOR).length
         }
     }
 
-    getNumberOfAnalyses() {
-        if (!browser.isExisting(ANALYSIS_RESULT_SELECTOR)) {
+    getNumberOfAnalyses(shouldHaveResults) {
+        if (shouldHaveResults) {
+            $(ANALYSIS_RESULT_SELECTOR).waitForExist()
+        }
+        if (!$(ANALYSIS_RESULT_SELECTOR).isExisting()) {
             return 0
         } else {
-            return browser.elements(ANALYSIS_RESULT_SELECTOR).value.length
+            return $$(ANALYSIS_RESULT_SELECTOR).length
         }
     }
 
     filterResults() {
-        browser.click('label*=Yes')
+        $('label*=Yes').click()
     }
 
     noFilterResults() {
-        browser.click('label*=No')
+        $('label*=No').click()
     }
 
     selectFirstAllele() {
-        browser.click('.id-search .allele-list:nth-child(1)')
+        $('.id-search .allele-list:nth-child(1)').click()
     }
 
     selectFirstAnalysis() {
-        browser.click('.id-search .analysis-list:nth-child(1)')
+        $('.id-search .analysis-list:nth-child(1)').click()
     }
 
     getAnalysesForFirstAllele() {
-        browser.click('.id-search .allele-list:nth-child(1) .allele-extras button')
-        browser.click('button.red')
-        let analyses = browser.getText('.modal-content .analysis-list .id-analysis-name')
-        if (typeof a === 'string') {
-            return [analyses]
-        } else {
-            return analyses
-        }
+        $('.id-search .allele-list:nth-child(1) .allele-extras button').click()
+        $('button.red').click()
+        $('.modal-content .analysis-list').waitForExist()
+        let analyses = $$('.modal-content .analysis-list .id-analysis-name')
+        return analyses.map((a) => a.getText())
     }
 }
 

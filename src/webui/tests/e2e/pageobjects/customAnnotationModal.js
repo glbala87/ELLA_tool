@@ -2,28 +2,28 @@ var Page = require('./page')
 
 class CustomAnnotationModal extends Page {
     get externalAnnotationSelect() {
-        return browser.element('.id-custom-annotation-modal .id-annotation-select')
+        return $('.id-custom-annotation-modal .id-annotation-select')
     }
     get predictionBtnSet() {
-        return browser.element('.id-custom-annotation-modal .id-annotation-select')
+        return $('.id-custom-annotation-modal .id-annotation-select')
     }
     get saveBtn() {
-        return browser.element('.id-custom-annotation-modal .id-save')
+        return $('.id-custom-annotation-modal .id-save')
     }
     get cancelBtn() {
-        return browser.element('.id-custom-annotation-modal .id-cancel')
+        return $('.id-custom-annotation-modal .id-cancel')
     }
     get pubMedBtn() {
-        return browser.element('.id-referenceMode-PubMed')
+        return $('.id-referenceMode-PubMed')
     }
     get addReferenceBtn() {
-        return browser.element('.id-custom-annotation-modal .id-add-reference-button')
+        return $('.id-custom-annotation-modal .id-add-reference-button')
     }
     get xmlInput() {
-        return browser.element('.id-custom-annotation-modal .id-reference-xml')
+        return $('.id-custom-annotation-modal .id-reference-xml')
     }
     get xmlInputEditor() {
-        return browser.element('.id-custom-annotation-modal .id-reference-xml textarea')
+        return $('.id-custom-annotation-modal .id-reference-xml textarea')
     }
 
     /**
@@ -38,7 +38,7 @@ class CustomAnnotationModal extends Page {
                 'idx === 2 is broken for some obscure reason, it selects 1 instead...every other idx should work fine.'
             )
         }
-        let dropdown = browser.element(
+        let dropdown = $(
             `.id-custom-annotation-modal article:nth-child(${idx}) .id-annotation-select`
         )
         dropdown.selectByVisibleText(dropdown_option_text)
@@ -51,35 +51,19 @@ class CustomAnnotationModal extends Page {
      * @param {*} button_idx  Index of button-group button
      */
     setPredictionAnnotation(idx, button_idx) {
-        let bttn_set = browser.element(
+        let bttn_set = $(
             `.id-custom-annotation-modal article:nth-child(${idx}) .id-annotation-bttn-set label:nth-child(${button_idx})`
         )
         bttn_set.click()
     }
 
-    setText(element, text) {
-        browser.selectorExecute(
-            element.selector,
-            function(matchingElements, msg) {
-                let e = matchingElements[0]
-                e.value = msg
-                // make Angular aware of the change:
-                e.dispatchEvent(new Event('input', { bubbles: true })) //Works
-            },
-            text
-        )
-    }
-
     referenceList() {
         let selector = '.id-custom-annotation-modal .id-references-list article'
-        if (browser.isExisting(selector)) {
-            let elements = browser.elements(selector)
-            return elements
-        }
+        return $$(selector)
     }
 
     waitForClose() {
-        browser.waitForExist('.id-custom-annotation-modal', 10000, true)
+        $('.id-custom-annotation-modal').waitForExist(undefined, true)
     }
 }
 

@@ -38,13 +38,9 @@ export class GenepanelValueController {
         if (this.display === 'last_exon') {
             return this.source[this.display] ? 'LEI' : 'LENI'
         } else if (this.display === 'freq_cutoffs_external') {
-            return `${this.source['freq_cutoffs'].external.lo_freq_cutoff}/${
-                this.source['freq_cutoffs'].external.hi_freq_cutoff
-            }`
+            return `${this.source['freq_cutoffs'].external.lo_freq_cutoff}/${this.source['freq_cutoffs'].external.hi_freq_cutoff}`
         } else if (this.display === 'freq_cutoffs_internal') {
-            return `${this.source['freq_cutoffs'].internal.lo_freq_cutoff}/${
-                this.source['freq_cutoffs'].internal.hi_freq_cutoff
-            }`
+            return `${this.source['freq_cutoffs'].internal.lo_freq_cutoff}/${this.source['freq_cutoffs'].internal.hi_freq_cutoff}`
         }
         return this.source[this.display]
     }

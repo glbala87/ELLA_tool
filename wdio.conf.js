@@ -1,12 +1,13 @@
 var http = require('http')
-var addCommands = require('./src/webui/tests/e2e/commands')
+const fs = require('fs')
+var commands = require('./src/webui/tests/e2e/commands')
 
 // when debugging it's useful to alter some config values
 var debug = process.env.DEBUG
 
 var defaultCapabilities = [
     {
-        chromeOptions: {
+        'goog:chromeOptions': {
             args: ['headless', 'disable-gpu', '--no-sandbox', '--window-size=1440,1080']
         },
         maxInstances: 1,
@@ -20,7 +21,7 @@ var defaultCapabilities = [
 ]
 var debugCapabilities = [
     {
-        chromeOptions: {
+        'goog:chromeOptions': {
             args: ['--window-size=1440,1080']
         },
         maxInstances: 1,
@@ -34,9 +35,11 @@ var debugCapabilities = [
 ]
 var defaultTimeoutInterval = 300000 // ms
 var defaultMaxInstances = 1
-let specHome = 'src/webui/tests/e2e/tests/**'
-var defaultSpecs = [`${specHome}/*.js`]
+let specHome = 'src/webui/tests/e2e/tests'
+var defaultSpecs = [`${specHome}/**/*.js`]
 var BUNDLED_APP = 'app.js' // see webpack config
+
+BEFORE_CNT = 0
 
 exports.config = {
     // debug: true causes a [DEP0062] DeprecationWarning
@@ -51,7 +54,16 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: process.env.SPEC ? [process.env.SPEC] : defaultSpecs,
+    specs: process.env.SPEC
+        ? [process.env.SPEC].map((x) => {
+              try {
+                  fs.statSync(specHome + '/' + x) // Check if file exists, throw error if not
+                  return specHome + '/' + x
+              } catch (e) {
+                  return x
+              }
+          })
+        : defaultSpecs,
     // Patterns to exclude.
     // exclude: [
     //     'src/webui/tests/e2e/tests/workflow_variant_classification.js'
@@ -162,14 +174,7 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since some tests takes some time...
-        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval,
-        //
-        // The Jasmine framework allows interception of each assertion in order to log the state of the application
-        // or website depending on the result. For example, it is pretty handy to take a screenshot every time
-        // an assertion fails.
-        expectationResultHandler: function(passed, assertion) {
-            // do something
-        }
+        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval
     },
 
     //
@@ -188,14 +193,12 @@ exports.config = {
     // Gets executed before test execution begins. At this point you can access all global
     // variables, such as `browser`. It is the perfect place to define custom commands.
     before: function(capabilities, specs) {
-        addCommands()
-        // Despite these settings, not-clickable errors happen locally. (height is limited running on Mac)
-        // browser.setViewportSize({ width: 1280, height: 1000});
+        commands.addCommands()
         console.log(
-            'browser window size: ' +
-                browser.windowHandleSize().value.height +
+            'browser windowRect: ' +
+                browser.getWindowRect().height +
                 'x' +
-                browser.windowHandleSize().value.width +
+                browser.getWindowRect().width +
                 ' (h x w)'
         )
     },
@@ -224,9 +227,7 @@ exports.config = {
                                 console.log(`${appUrl} is compiled, moving on...`)
                             } else {
                                 console.log(
-                                    `${appUrl} is not ready (${
-                                        response.statusCode
-                                    }) is still compiling, waiting...`
+                                    `${appUrl} is not ready (${response.statusCode}) is still compiling, waiting...`
                                 )
                             }
                             resolve(ok)
@@ -252,26 +253,26 @@ exports.config = {
     // },
     //
     // Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    beforeTest: function(test) {
-        // construct a name describing our hierarchy:
-        var pathlikeName = test.fullName.replace(test.title, ' / ' + test.title)
-        if (test.parent) {
-            pathlikeName = pathlikeName.replace(test.parent, ' / ' + test.parent)
-        }
-        pathlikeName = pathlikeName.replace(/\s+\/\s+\/?\s?/g, ' / ') // remove repeated space and slash
-
-        console.log(`Running ${test.type} from ${test.file} for step \n ${pathlikeName}`)
-    },
+    //beforeTest: function(test) {},
     //
     // Runs before a WebdriverIO command gets executed.
-    //beforeCommand: function (commandName, args) {
-    // },
+    beforeCommand: function(commandName, args, result, error) {
+        // Wait for cerebral signals to finish.
+        if (BEFORE_CNT < 0) {
+            BEFORE_CNT = 0
+        }
+        if (BEFORE_CNT === 1) {
+            BEFORE_CNT += 1
+            commands.waitForCerebral()
+        } else {
+            BEFORE_CNT += 1
+        }
+    },
     //
     // Runs after a WebdriverIO command gets executed
     afterCommand: function(commandName, args, result, error) {
-        // Wait for cerebral signals to finish.
-        browser.waitForCerebral()
-    },
+        BEFORE_CNT -= 1
+    }
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
     // afterTest: function (test) {
@@ -280,36 +281,8 @@ exports.config = {
      * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
      * @param {Object} test test details
      */
-    afterTest: function(test) {
-        // if test passed, ignore, else take and save screenshot.
-        if (test.passed) {
-            return
-        }
-
-        // construct a filename describing our hierarchy:
-        var pathlikeName = test.fullName
-        pathlikeName = pathlikeName.replace(test.title, '/' + test.title.trim())
-        if (test.parent) {
-            pathlikeName = pathlikeName.replace(test.parent, '/' + test.parent.trim())
-        }
-        var testID = encodeURIComponent(
-            pathlikeName.replace(/\s?\/\s?/g, '__').replace(/\s+/g, '-')
-        )
-
-        // build file path
-        var filePath =
-            this.screenshotPath +
-            test.file
-                .split('/')
-                .pop()
-                .split('.')[0] +
-            '___' +
-            testID +
-            '.png'
-        // save screenshot
-        browser.saveScreenshot(filePath)
-        console.log('\n\tScreenshot location:', filePath, '\n')
-    }
+    //afterTest: function(test) {
+    //}
     //
     // Hook that gets executed after the suite has ended
     // afterSuite: function (suite) {
@@ -325,8 +298,3 @@ exports.config = {
     // onComplete: function(exitCode) {
     // }
 }
-
-// require("babel-register")({
-//     presets: ['env', 'stage-0'],
-//     plugins: ["babel-plugin-transform-decorators-legacy"]
-// });

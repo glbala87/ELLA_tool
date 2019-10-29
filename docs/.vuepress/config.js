@@ -21,7 +21,7 @@ module.exports = {
         sidebar: {
             '/manual/': [
                 {
-                    title: 'Basics',
+                    title: 'User interface',
                     collapsable: false,
                     children: [
                         '/manual/'
@@ -33,7 +33,6 @@ module.exports = {
                     children: [
                         '/manual/choosing-sample-variant',
                         '/manual/data-import-reanalyses',
-                        '/manual/user-info-warnings',
                         '/manual/export-sanger'
                     ]
                 },
@@ -89,28 +88,36 @@ module.exports = {
                     ]
                 },
                 {
-                    title: 'Deploying',
+                    title: 'Setup',
                     collapsable: false,
                     children: [
-                        '/technical/deployment',
-                        '/technical/configuration',
-                        '/technical/logging'
+                        '/technical/setup',
+                        '/technical/demo',
+                        '/technical/production',
+                        '/technical/logging',
+                        '/technical/development',
+                        '/technical/testing'
                     ]
                 },
                 {
-                    title: 'Development',
+                    title: 'Configuration',
                     collapsable: false,
                     children: [
-                        '/technical/development', 
-                        '/technical/testing'
+                        '/technical/configuration',
+                        '/technical/users',
+                        '/technical/genepanels',
+                        '/technical/filtering',
+                        '/technical/acmg',
+                        '/technical/import',
+                        '/technical/uioptions' 
                     ]
                 },
                 {
                     title: 'System internals',
                     collapsable: false,
                     children: [
+                        '/technical/sysinternals',
                         '/technical/workflow',
-                        '/technical/filtering',
                         '/technical/datamodel',
                         '/technical/uicomponents'
                     ]
@@ -121,7 +128,8 @@ module.exports = {
                     title: 'Release notes',
                     collapsable: false,
                     children: [
-                        '/releasenotes/'
+                        '/releasenotes/',
+                        '/releasenotes/olderreleases'
                     ]
                 }
             ]

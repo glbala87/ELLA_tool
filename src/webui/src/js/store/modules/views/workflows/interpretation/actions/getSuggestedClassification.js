@@ -1,4 +1,5 @@
 import getAlleleAssessment from '../computed/getAlleleAssessment'
+import { extractCodeType } from '../../../../../common/helpers/acmg'
 
 export default function getSuggestedClassification({ http, resolve, path, props }) {
     const { alleleId } = props
@@ -6,7 +7,10 @@ export default function getSuggestedClassification({ http, resolve, path, props 
     if (!alleleAssessment) {
         return path.success({ result: { class: null } })
     }
-    const codes = alleleAssessment.evaluation.acmg.included.map((c) => c.code)
+    const codes = alleleAssessment.evaluation.acmg.included
+        .map((c) => c.code)
+        .filter((c) => ['pathogenic', 'benign'].includes(extractCodeType(c)))
+        .filter((c) => !['PNW', 'BNW'].includes(c.substring(0, 3)))
     if (!codes || !codes.length) {
         return path.success({ result: { class: null } })
     }

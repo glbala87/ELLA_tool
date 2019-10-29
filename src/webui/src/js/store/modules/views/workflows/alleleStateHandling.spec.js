@@ -1,3 +1,4 @@
+import page from 'page'
 import { Module } from 'cerebral'
 import { CerebralTest } from 'cerebral/test'
 import mock from 'xhr-mock'
@@ -28,6 +29,9 @@ const EMPTY_EVALUATION = {
 }
 
 let cerebral = null
+
+// page is confused regarding jest's jsdom window mock
+page.configure({ window: window })
 
 describe('Handling of allele state', () => {
     beforeEach(() => {
@@ -62,12 +66,10 @@ describe('Handling of allele state', () => {
                 outdated_after_days: 180
             }
         ])
-        cerebral.setState('app.config.user.user_config.workflows.allele.finalize_requirements.workflow_status', [
-            'Not ready',
-            'Interpretation',
-            'Review',
-            'Medical review'
-        ])
+        cerebral.setState(
+            'app.config.user.user_config.workflows.allele.finalize_requirements.workflow_status',
+            ['Not ready', 'Interpretation', 'Review', 'Medical review']
+        )
         cerebral.setState('app.user', {
             id: 1
         })
@@ -387,7 +389,8 @@ describe('Handling of allele state', () => {
             alleleId: 3
         })
         // Allele 3 should now be not reused, existing assessment copied in with classification reset
-        const alleleState3v2 = reuseToggleResult.state.views.workflows.interpretation.state.allele['3']
+        const alleleState3v2 =
+            reuseToggleResult.state.views.workflows.interpretation.state.allele['3']
         expect(alleleState3v2.alleleassessment.reuse).toBe(false)
         expect(alleleState3v2.alleleassessment.evaluation.case).toBe('NEW OUTDATED')
         expect(alleleState3v2.alleleassessment.evaluation.classification.comment).toBe('')
@@ -590,31 +593,11 @@ describe('Handling of allele state', () => {
             frequencies: {
                 groups: {
                     external: {
-                        GNOMAD_GENOMES: [
-                            "G",
-                            "AFR",
-                            "AMR",
-                            "EAS",
-                            "FIN",
-                            "NFE",
-                            "OTH",
-                            "SAS"
-                        ],
-                        GNOMAD_EXOMES:[
-                            "G",
-                            "AFR",
-                            "AMR",
-                            "EAS",
-                            "FIN",
-                            "NFE",
-                            "OTH",
-                            "SAS"
-                        ]
+                        GNOMAD_GENOMES: ['G', 'AFR', 'AMR', 'EAS', 'FIN', 'NFE', 'OTH', 'SAS'],
+                        GNOMAD_EXOMES: ['G', 'AFR', 'AMR', 'EAS', 'FIN', 'NFE', 'OTH', 'SAS']
                     },
                     internal: {
-                        inDB: [
-                            "OUSWES"
-                        ]
+                        inDB: ['OUSWES']
                     }
                 }
             }

@@ -1,248 +1,401 @@
-<sectionbox class="custom-annotation-modal id-custom-annotation-modal" color="green" modal="true" on-close="vm.modal.close">
-  <maintitle>
-    {{vm.title}}
-  </maintitle>
-  <controls>
-    <section class="line-wrapper pinned-right">
-      <button class="id-cancel"  type="button" ng-click="vm.modal.close(false)">Cancel</button>
-      <button class="id-save"  type="button" ng-click="vm.save()">Save</button>
-    </section>
-  </controls>
-  <contentwrapper>
-    <section ng-if="vm.category == 'references'">
-
-      <article class="sectionbox-content allele-control-bar">
-        <contentbox class="id-references-list" title="studies" collapsible="false" class="max-width">
-          <cbbody>
-            <article class="content-box" ng-repeat="ref in vm.getCurrent()">
-              <section class="line-wrapper">
-                <div>
-                  <h5 class="wrap">{{vm.getReference(ref.id).title}}</h5>
-                  <p>{{vm.getReference(ref.id).getShortDesc()}}</p>
-                </div>
-                <div><button class="pink" ng-click="vm.removeReference(ref)">REMOVE</button></div>
-              </section>
+<sectionbox
+    class="custom-annotation-modal id-custom-annotation-modal"
+    color="green"
+    modal="true"
+    on-close="(vm.modal.close)"
+>
+    <maintitle>
+        {{ vm.title }}
+    </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-cancel" type="button" ng-click="vm.modal.close(false)">Cancel</button>
+            <button class="id-save" type="button" ng-click="vm.save()">Save</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <section ng-if="vm.category == 'references'">
+            <article class="sectionbox-content allele-control-bar">
+                <contentbox
+                    class="id-references-list"
+                    title="studies"
+                    collapsible="false"
+                    class="max-width"
+                >
+                    <cbbody>
+                        <article class="content-box" ng-repeat="ref in vm.getCurrent()">
+                            <section class="line-wrapper">
+                                <div>
+                                    <h5 class="wrap">{{ vm.getReference(ref.id).title }}</h5>
+                                    <p>{{ vm.getReference(ref.id).getShortDesc() }}</p>
+                                </div>
+                                <div>
+                                    <button class="pink" ng-click="vm.removeReference(ref)">
+                                        REMOVE
+                                    </button>
+                                </div>
+                            </section>
+                        </article>
+                    </cbbody>
+                </contentbox>
             </article>
-          </cbbody>
-        </contentbox>
-      </article>
 
-      <article class='line-wrapper question id-relevance'>
-        <div class="left">
-          <h5 class="slim title"> <b>Mode</b> </h5>
-          <p> Add reference by searching, extracting from pubmed, <br>or add manually (published or unpublished study, e.g. in-house)</p>
-        </div>
-        <div class="middle"></div>
-        <div class="right">
-          <div class="bttn-set">
-              <label tabindex=0
-                     class="bttn id-referenceMode-{{item}}"
-                     ng-class="{active: item===vm.referenceMode}"
-                     ng-model="vm.referenceMode"
-                     uib-btn-radio="item"
-                     ng-repeat="item in vm.referenceModes"
-              >{{item}}</label>
-          </div>
-        </div>
-      </article>
-
-      <article ng-if="vm.referenceMode === vm.referenceModes[0]">
-        <div class="question line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Search phrase</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Search phrase..." ng-model="vm.referenceSearchPhrase"></autosize-textarea>
-          </div>
-        </div>
-        <article class="sectionbox-content allele-control-bar reference-search-results">
-        <contentbox class="id-references-list max-width" title="search results" collapsible="false">
-          <cbbody>
-            <article class="content-box" ng-repeat="ref in vm.referenceSearchResults">
-              <section class="line-wrapper">
-                <div>
-                  <h5 class="wrap">{{ref.title}}</h5>
-                  <p>{{ref.getShortDesc()}}</p>
+            <article class="line-wrapper question id-relevance">
+                <div class="left">
+                    <h5 class="slim title"><b>Mode</b></h5>
+                    <p>
+                        Add reference by searching, extracting from pubmed, <br />or add manually
+                        (published or unpublished study, e.g. in-house)
+                    </p>
                 </div>
-                <div><button class="pink" ng-click="vm.addReference(ref)">ADD</button></div>
-              </section>
+                <div class="middle"></div>
+                <div class="right">
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            class="bttn id-referenceMode-{{ item }}"
+                            ng-class="{active: item===vm.referenceMode}"
+                            ng-model="vm.referenceMode"
+                            uib-btn-radio="item"
+                            ng-repeat="item in vm.referenceModes"
+                            >{{ item }}</label
+                        >
+                    </div>
+                </div>
             </article>
-            <h4 ng-if="!vm.referenceSearchResults.length" class="sb-notification dim">No references found</h4>
-            <h4 ng-if="vm.referenceSearchResults.length >= 10" class="sb-notification dim">Showing first 10 search results only</h4>
-          </cbbody>
-        </contentbox>
-      </article>
-      </article>
-      <article ng-if="vm.referenceMode === vm.referenceModes[1]">
-        <div class="question line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Instructions</b></h5>
-            <p>Find the reference on PubMed - ensure only one reference is displayed - then select XML from the drop-down menu labeled <b>Abstract</b>. Copy the entire contents of that page and paste it below in "Abstract XML data":</p>
-          </div>
-          <div class="middle"></div>
-          <div class="right"><autosize-textarea class="big id-reference-xml" ng-model="vm.reference_xml" placeholder="ABSTRACT XML DATA"></autosize-textarea></div>
-        </div>
-        <div class="question small">
-          <h5 class="slim title" ng-if="vm.reference_error"><b>The pasted text is not valid Pubmed XML. Please check that you pasted it correctly.</b></h5>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left">
-          <button class="green id-add-reference-button" ng-click="vm.addReference()" ng-disabled="vm.reference_xml === ''">
-            <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <path d="M16 2 L16 30 M2 16 L30 16" />
-            </svg>
-            Add reference</button>
-          </div>
-          <div class="middle"></div>
-          <div class="right"></div>
-        </div>
-      </article>
 
-      <article ng-if="vm.referenceMode === vm.referenceModes[2]">
-        <article class='line-wrapper question id-relevance'>
-          <div class="left">
-            <h5 class="slim title"> <b>Mode</b> </h5>
-            <p> Add reference by searching, extracting from pubmed, <br>or add manually (published or unpublished study, e.g. in-house)</p>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <div class="bttn-set">
-              <label tabindex=0
-                     class="bttn id-referenceMode-{{item}}"
-                     ng-class="{active: item===vm.referencePublishStatus}"
-                     ng-change="vm.resetManualReference(vm.manualReference.published)"
-                     ng-model="vm.manualReference.published"
-                     uib-btn-radio="item==='Published'"
-                     ng-repeat="item in vm.referencePublishStatuses"
-              >{{item}}</label>
-            </div>
-          </div>
-        </article>
-        <div class="question small line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Authors</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right" ng-switch="vm.manualReference.published">
-            <autosize-textarea placeholder="Authors*" ng-switch-when="true" ng-model="vm.manualReference.authors"></autosize-textarea>
-            <autosize-textarea placeholder="Authors/responsible*" ng-switch-when="false" ng-model="vm.manualReference.authors"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Title</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right" ng-switch="vm.manualReference.published">
-            <autosize-textarea placeholder="Title*" ng-switch-when="true" ng-model="vm.manualReference.title"></autosize-textarea>
-            <autosize-textarea placeholder="Title/short description*" ng-switch-when="false" ng-model="vm.manualReference.title"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left" ng-switch="vm.manualReference.published">
-            <h5 class="slim title section-top" ng-switch-when="true"><b>Journal/book</b></h5>
-            <h5 class="slim title section-top" ng-switch-when="false"><b>Place</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right" ng-switch="vm.manualReference.published">
-            <autosize-textarea placeholder="Journal/book*" ng-switch-when="true" ng-model="vm.manualReference.journal"></autosize-textarea>
-            <autosize-textarea placeholder="Place of study*" ng-switch-when="false" ng-model="vm.manualReference.journal"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Volume</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Volume" ng-model="vm.manualReference.volume"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Issue</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Issue" ng-model="vm.manualReference.issue"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Year</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Year*" ng-model="vm.manualReference.year"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper" ng-if="vm.manualReference.published">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Pages</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Pages" ng-model="vm.manualReference.pages"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left">
-            <h5 class="slim title section-top"><b>Abstract</b></h5>
-          </div>
-          <div class="middle"></div>
-          <div class="right">
-            <autosize-textarea placeholder="Abstract" ng-model="vm.manualReference.abstract"></autosize-textarea>
-          </div>
-        </div>
-        <div class="question small line-wrapper">
-          <div class="left"></div>
-          <div class="middle"></div>
-          <div class="right">
-          <button class="green id-add-reference-button" ng-click="vm.addReference()" ng-disabled="vm.canAddManualReference()">
-            <svg id="i-plus" class="buttonmark" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.25%">
-                <path d="M16 2 L16 30 M2 16 L30 16" />
-            </svg>
-            Add reference</button>
-          </div>
-        </div>
-      </article>
-    </section>
+            <article ng-if="vm.referenceMode === vm.referenceModes[0]">
+                <div class="question line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Search phrase</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Search phrase..."
+                            ng-model="vm.referenceSearchPhrase"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <article class="sectionbox-content allele-control-bar reference-search-results">
+                    <contentbox
+                        class="id-references-list max-width"
+                        title="search results"
+                        collapsible="false"
+                    >
+                        <cbbody>
+                            <article
+                                class="content-box"
+                                ng-repeat="ref in vm.referenceSearchResults"
+                            >
+                                <section class="line-wrapper">
+                                    <div>
+                                        <h5 class="wrap">{{ ref.title }}</h5>
+                                        <p>{{ ref.getShortDesc() }}</p>
+                                    </div>
+                                    <div>
+                                        <button class="pink" ng-click="vm.addReference(ref)">
+                                            ADD
+                                        </button>
+                                    </div>
+                                </section>
+                            </article>
+                            <h4
+                                ng-if="!vm.referenceSearchResults.length"
+                                class="sb-notification dim"
+                            >
+                                No references found
+                            </h4>
+                            <h4
+                                ng-if="vm.referenceSearchResults.length >=
+                                    vm.maxSearchResults
+                                "
+                                class="sb-notification dim"
+                            >
+                                Showing first {{ vm.maxSearchResults }} search results only
+                            </h4>
+                        </cbbody>
+                    </contentbox>
+                </article>
+            </article>
+            <article ng-if="vm.referenceMode === vm.referenceModes[1]">
+                <div class="question line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Instructions</b></h5>
+                        <p>
+                            Find the reference on PubMed - ensure only one reference is displayed -
+                            then select XML from the drop-down menu labeled <b>Abstract</b>. Copy
+                            the entire contents of that page and paste it below in "Abstract XML
+                            data":
+                        </p>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            class="big id-reference-xml"
+                            ng-model="vm.reference_xml"
+                            placeholder="ABSTRACT XML DATA"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small">
+                    <h5 class="slim title" ng-if="vm.reference_error">
+                        <b
+                            >The pasted text is not valid Pubmed XML. Please check that you pasted
+                            it correctly.</b
+                        >
+                    </h5>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <button
+                            class="green id-add-reference-button"
+                            ng-click="vm.addReference()"
+                            ng-disabled="vm.reference_xml === ''"
+                        >
+                            <svg
+                                id="i-plus"
+                                class="buttonmark"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                            Add reference
+                        </button>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right"></div>
+                </div>
+            </article>
 
+            <article ng-if="vm.referenceMode === vm.referenceModes[2]">
+                <article class="line-wrapper question id-relevance">
+                    <div class="left">
+                        <h5 class="slim title"><b>Mode</b></h5>
+                        <p>
+                            Add reference by searching, extracting from pubmed, <br />or add
+                            manually (published or unpublished study, e.g. in-house)
+                        </p>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <div class="bttn-set">
+                            <label
+                                tabindex="0"
+                                class="bttn id-referenceMode-{{ item }}"
+                                ng-class="{active: item===vm.referencePublishStatus}"
+                                ng-change="vm.resetManualReference(vm.manualReference.published)"
+                                ng-model="vm.manualReference.published"
+                                uib-btn-radio="item==='Published'"
+                                ng-repeat="item in vm.referencePublishStatuses"
+                                >{{ item }}</label
+                            >
+                        </div>
+                    </div>
+                </article>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Authors</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right" ng-switch="vm.manualReference.published">
+                        <autosize-textarea
+                            placeholder="Authors*"
+                            ng-switch-when="true"
+                            ng-model="vm.manualReference.authors"
+                        ></autosize-textarea>
+                        <autosize-textarea
+                            placeholder="Authors/responsible*"
+                            ng-switch-when="false"
+                            ng-model="vm.manualReference.authors"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Title</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right" ng-switch="vm.manualReference.published">
+                        <autosize-textarea
+                            placeholder="Title*"
+                            ng-switch-when="true"
+                            ng-model="vm.manualReference.title"
+                        ></autosize-textarea>
+                        <autosize-textarea
+                            placeholder="Title/short description*"
+                            ng-switch-when="false"
+                            ng-model="vm.manualReference.title"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left" ng-switch="vm.manualReference.published">
+                        <h5 class="slim title section-top" ng-switch-when="true">
+                            <b>Journal/book</b>
+                        </h5>
+                        <h5 class="slim title section-top" ng-switch-when="false"><b>Place</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right" ng-switch="vm.manualReference.published">
+                        <autosize-textarea
+                            placeholder="Journal/book*"
+                            ng-switch-when="true"
+                            ng-model="vm.manualReference.journal"
+                        ></autosize-textarea>
+                        <autosize-textarea
+                            placeholder="Place of study*"
+                            ng-switch-when="false"
+                            ng-model="vm.manualReference.journal"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper" ng-if="vm.manualReference.published">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Volume</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Volume"
+                            ng-model="vm.manualReference.volume"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper" ng-if="vm.manualReference.published">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Issue</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Issue"
+                            ng-model="vm.manualReference.issue"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Year</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Year*"
+                            ng-model="vm.manualReference.year"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper" ng-if="vm.manualReference.published">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Pages</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Pages"
+                            ng-model="vm.manualReference.pages"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Abstract</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Abstract"
+                            ng-model="vm.manualReference.abstract"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left"></div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <button
+                            class="green id-add-reference-button"
+                            ng-click="vm.addReference()"
+                            ng-disabled="vm.canAddManualReference()"
+                        >
+                            <svg
+                                id="i-plus"
+                                class="buttonmark"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                            Add reference
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </section>
 
-    <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
-        <article class='line-wrapper question medium'
-          ng-repeat="group in vm.getAnnotationGroups()">
-          <div class="left-small"
-              class="faded-title">
-          <h5 class="slim title"> <b>{{group.name}}</b> </h5> </div>
-          <div class="middle-small line-wrapper">
-          </div>
-          <div class="right line-wrapper">
-            <div class="multiple-question-element">
-              <div class="id-annotation-bttn-set bttn-set" ng-if="group.options && group.options.length < 5">
-                  <label tabindex=0
-                          class="bttn"
-                          ng-model="vm.getCurrent()[group.key]"
-                          uib-btn-radio="item[1]"
-                          uib-uncheckable="true"
-                          ng-repeat="item in group.options">{{item[0]}}</label>
-              </div>
-              <div class="dropdown"
-                    ng-if="group.options && group.options.length >= 5">
-                  <select class="id-annotation-select"
-                          ng-options="v[1] as v[0] for v in group.options"
-                          ng-model="vm.getCurrent()[group.key]">
-                      <option value="" selected></option>
-                  </select>
-              </div>
-              <div ng-if="group.text">
-                  <autosize-textarea placeholder="ENTER VALUE" ng-model="vm.getCurrent()[group.key]"> </autosize-textarea>
-              </div>
-            </div>
-            <div class="db-url" ng-repeat="url in vm.getUrls(group)"><a-clip href="{{url}}">Visit database</a-clip></div>
-          </div>
-        </article>
-    </section>
-  </contentwrapper>
+        <section ng-if="vm.category == 'external' || vm.category == 'prediction'">
+            <article
+                class="line-wrapper question medium"
+                ng-repeat="group in vm.getAnnotationGroups()"
+            >
+                <div class="left-small" class="faded-title">
+                    <h5 class="slim title">
+                        <b>{{ group.name }}</b>
+                    </h5>
+                </div>
+                <div class="middle-small line-wrapper"></div>
+                <div class="right line-wrapper">
+                    <div class="multiple-question-element">
+                        <div
+                            class="id-annotation-bttn-set bttn-set"
+                            ng-if="group.options && group.options.length < 5"
+                        >
+                            <label
+                                tabindex="0"
+                                class="bttn"
+                                ng-model="vm.getCurrent()[group.key]"
+                                uib-btn-radio="item[1]"
+                                uib-uncheckable="true"
+                                ng-repeat="item in group.options"
+                                >{{ item[0] }}</label
+                            >
+                        </div>
+                        <div class="dropdown" ng-if="group.options && group.options.length >= 5">
+                            <select
+                                class="id-annotation-select"
+                                ng-options="v[1] as v[0] for v in group.options"
+                                ng-model="vm.getCurrent()[group.key]"
+                            >
+                                <option value="" selected></option>
+                            </select>
+                        </div>
+                        <div ng-if="group.text">
+                            <autosize-textarea
+                                placeholder="ENTER VALUE"
+                                ng-model="vm.getCurrent()[group.key]"
+                            >
+                            </autosize-textarea>
+                        </div>
+                    </div>
+                    <div class="db-url" ng-repeat="url in vm.getUrls(group)">
+                        <a-clip href="{{ url }}">Visit database</a-clip>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </contentwrapper>
 </sectionbox>

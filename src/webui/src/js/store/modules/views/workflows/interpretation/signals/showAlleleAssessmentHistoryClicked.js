@@ -1,4 +1,4 @@
-import showAlleleAssessmentHistoryModal from '../actions/showAlleleAssessmentHistoryModal';
+import showAlleleAssessmentHistoryModal from '../actions/showAlleleAssessmentHistoryModal'
 
 export default [
     showAlleleAssessmentHistoryModal,

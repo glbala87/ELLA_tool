@@ -3,38 +3,38 @@ let util = require('./util')
 
 class AlleleSidebar extends Page {
     _ensureLoaded() {
-        browser.waitForExist('allele-sidebar .nav-row')
+        $('allele-sidebar .nav-row').waitForExist()
     }
 
     getUnclassifiedAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-unclassified .nav-row .id-hgvsc')
+        return $$('allele-sidebar .id-unclassified .nav-row .id-hgvsc').map((a) => a.getText())
     }
 
     getClassifiedAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-classified .nav-row .id-hgvsc')
+        return $$('allele-sidebar .id-classified .nav-row .id-hgvsc').map((a) => a.getText())
     }
 
     getNotRelevantAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-notrelevant .nav-row .id-hgvsc')
+        return $$('allele-sidebar .id-notrelevant .nav-row .id-hgvsc').map((a) => a.getText())
     }
 
     getTechnicalAlleles() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .id-technical .nav-row .id-hgvsc')
+        return $$('allele-sidebar .id-technical .nav-row .id-hgvsc').map((a) => a.getText())
     }
 
     getSelectedAllele() {
         this._ensureLoaded()
-        return browser.getText('allele-sidebar .nav-row.active .id-hgvsc')
+        return $('allele-sidebar .nav-row.active .id-hgvsc').getText()
     }
 
     getSelectedAlleleClassification() {
-        let e = browser.element('allele-sidebar .nav-row.active')
-        const current = e.getText('.id-classification .current-classification')
-        const existing = e.getText('.id-classification .existing-classification')
+        let e = $('allele-sidebar .nav-row.active')
+        const current = e.$('.id-classification .current-classification').getText()
+        const existing = e.$('.id-classification .existing-classification').getText()
         return {
             current: current,
             existing: existing
@@ -44,15 +44,7 @@ class AlleleSidebar extends Page {
     _countOf(identifier) {
         this._ensureLoaded()
         const groupSelector = `allele-sidebar ${identifier} .nav-row.allele`
-        if (!browser.isExisting(groupSelector)) {
-            return 0
-        }
-        let all = browser.getText(groupSelector)
-        if (Array.isArray(all)) {
-            return all.length
-        } else {
-            return 1 // if zero an exception would be called above
-        }
+        return $$(groupSelector).map((a) => a.getText()).length
     }
     countOfUnclassified() {
         return this._countOf('.id-unclassified')
@@ -72,18 +64,8 @@ class AlleleSidebar extends Page {
 
     _getAlleleIdx(allele, identifier) {
         // example 'allele-sidebar .id-unclassified.enabled .nav-row .id-hgvsc'
-        let all = browser.getText(`allele-sidebar ${identifier} .nav-row .id-hgvsc`)
-        let alleleIdx = -1 // assume no match
-        if (Array.isArray(all)) {
-            alleleIdx = all.findIndex((s) => s === allele)
-        } else {
-            // not an array, there is only one
-            if (all === allele) {
-                // match
-                alleleIdx = 0
-            }
-        }
-
+        const all = $$(`allele-sidebar ${identifier} .nav-row .id-hgvsc`).map((a) => a.getText())
+        const alleleIdx = all.findIndex((s) => s === allele)
         if (alleleIdx === -1) {
             throw Error(`Allele ${allele} not found among options ${all.join(',')}`)
         }
@@ -99,11 +81,11 @@ class AlleleSidebar extends Page {
         // 1-based
         this._ensureLoaded()
         let allele_selector = `allele-sidebar ${identifier} .nav-row:nth-child(${idx + 1})`
-        browser.click(allele_selector)
+        $(allele_selector).click()
 
         // Check that we changed active allele
         expect(browser.getClass(allele_selector).find((a) => a === 'active')).toBeDefined()
-        return browser.element(allele_selector)
+        return $(allele_selector)
     }
 
     selectUnclassifiedAllele(allele) {
@@ -182,52 +164,51 @@ class AlleleSidebar extends Page {
 
     markClassifiedReview(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
-        browser.click(
+        $(
             `allele-sidebar .id-classified .nav-row:nth-child(${alleleIdx + 2}) .id-classification`
-        )
+        ).click()
     }
 
     quickSetTechnical(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
-        browser.click(
+        $(
             `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
                 2}) .quick-classification .id-quick-technical`
-        )
+        ).click()
     }
 
     quickSetNotRelevant(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
-        browser.click(
+        $(
             `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
                 2}) .quick-classification .id-quick-notrelevant`
-        )
+        ).click()
     }
 
     quickClassU(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
-        browser.click(
+        $(
             `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
                 2}) .quick-classification .id-quick-classu`
-        )
+        ).click()
     }
 
     quickClass2(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
-        browser.click(
+        $(
             `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
                 2}) .quick-classification .id-quick-class2`
-        )
+        ).click()
     }
 
     _setComment(identifier, alleleIdx, text) {
         util.elementIntoView(
             `allele-sidebar ${identifier} .nav-row:nth-child(${alleleIdx + 2}) .evaluation`
         ).click()
-        browser.setValue(
+        $(
             `allele-sidebar ${identifier} .nav-row:nth-child(${alleleIdx +
-                2}) .evaluation .wysiwygeditor`,
-            text
-        )
+                2}) .evaluation .wysiwygeditor`
+        ).setValue(text)
     }
 
     setEvaluationComment(allele, text) {

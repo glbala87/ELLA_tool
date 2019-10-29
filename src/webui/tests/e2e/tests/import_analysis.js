@@ -14,6 +14,7 @@ describe('Import functionality', function() {
         browser.resetDb()
     })
     it('import analysis from sample repository on custom gene panel', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
 
         importPage.open()

@@ -15,6 +15,7 @@ app.component('interpretation', {
             selectedComponent: state`views.workflows.selectedComponent`,
             showSidebar: shouldShowSidebar,
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
+            selectedAllele: state`views.workflows.selectedAllele`,
             hasAlleles: Compute(state`views.workflows.interpretation.data.alleles`, (alleles) => {
                 if (!alleles) {
                     return
@@ -22,6 +23,24 @@ app.component('interpretation', {
                 return Object.keys(alleles).length
             })
         },
-        'Interpretation'
+        'Interpretation',
+        [
+            '$scope',
+            '$element',
+            ($scope, $element) => {
+                const $ctrl = $scope.$ctrl
+                $ctrl.offsetTop = '0px'
+                // Offset top is dynamic because of collisionWarning and dynamic nav bar height.
+                // Needs to be set correctly on max-height of child elements to make scrollbar correct.
+                $scope.$watch(
+                    () => {
+                        return $element.prop('offsetTop')
+                    },
+                    (newVal) => {
+                        $ctrl.offsetTop = newVal
+                    }
+                )
+            }
+        ]
     )
 })

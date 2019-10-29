@@ -3,7 +3,7 @@ var Page = require('./page')
 var users = [['testuser1', 'demo'], ['testuser2', 'demo'], ['testuser3', 'demo']]
 
 class LoginPage extends Page {
-    open(page) {
+    open() {
         super.open('login')
     }
 
@@ -12,12 +12,12 @@ class LoginPage extends Page {
     }
 
     _selectUser(number) {
-        this.open()
-        browser.waitForExist(this.login)
-        browser.setValue(`.id-username`, users[number][0])
-        browser.setValue(`.id-password`, users[number][1])
-        browser.click(`.id-login-submit`)
-        browser.waitForExist(this.login, 1000, true)
+        const login = $(this.login)
+        login.waitForExist()
+        $(`.id-username`).setValue(users[number][0])
+        $(`.id-password`).setValue(users[number][1])
+        $(`.id-login-submit`).click()
+        login.waitForExist(undefined, true)
     }
 
     selectFirstUser() {

@@ -12,7 +12,6 @@
                 "type": "array",
 
                 "items": {
-                    "type": "string",
                     "enum": [
                         "transcript_ablation",
                         "splice_donor_variant",
@@ -75,7 +74,6 @@
                 "type": "string"
             },
             "strand": {
-                "type": "integer",
                 "enum": [-1, 1]
             },
             "amino_acids": {
@@ -112,7 +110,6 @@
                 "anyOf": [{ "type": "integer" }, { "type": "null" }]
             },
             "in_last_exon": {
-                "type": "string",
                 "enum": ["yes", "no"]
             },
             "splice": {

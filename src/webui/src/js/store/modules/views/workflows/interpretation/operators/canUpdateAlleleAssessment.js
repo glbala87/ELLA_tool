@@ -1,9 +1,11 @@
-export default function canUpdateAlleleAssessment({ state, path, props }) {
+import isReadOnly from '../../computed/isReadOnly'
+
+export default function canUpdateAlleleAssessment({ state, path, props, resolve }) {
     if (!props.alleleId) {
         throw Error('Missing required props alleleId')
     }
     if (
-        state.get('views.workflows.interpretation.isOngoing') &&
+        !resolve.value(isReadOnly) &&
         !state.get(
             `views.workflows.interpretation.state.allele.${props.alleleId}.alleleassessment.reuse`
         )

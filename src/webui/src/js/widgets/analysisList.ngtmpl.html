@@ -1,27 +1,48 @@
 <article class="sectionbox-content analysis-list">
-<a class="id-analysis list-item clickable"
-   href="{{analysis.links.workflow}}"
-   ng-repeat="analysis in $ctrl.analyses track by analysis.name"
-   ng-attr-target="{{$ctrl.newTarget ? '_blank' : undefined}}">
+    <a
+        class="id-analysis list-item clickable"
+        href="{{ analysis.links.workflow }}"
+        ng-repeat="analysis in $ctrl.analyses track by analysis.name"
+        ng-attr-target="{{ $ctrl.newTarget ? '_blank' : undefined }}"
+    >
+        <div class="analysis-date">
+            {{ analysis.date_requested || analysis.date_deposited | date: 'yyyy-MM-dd' }}
+        </div>
+        <div class="analysis-priority">{{ $ctrl.getPriorityText(analysis) }}</div>
+        <div class="id-analysis-name full-title">
+            <b class="ref-title">{{ analysis.name }}</b>
+            <span
+                title="{{ analysis.warnings }}"
+                class="tag red id-sample-type"
+                ng-if="analysis.warnings.length && !analysis.warning_cleared"
+                >WARNING</span
+            >
+            <span
+                class="tag id-sample-type"
+                ng-repeat="sample in analysis.samples"
+                ng-if="sample.proband"
+                >{{ sample.sample_type.toUpperCase() }}</span
+            >
+        </div>
+        <div class="analysis-extras">
+            <span
+                class="analysis-comment id-analysis-comment"
+                ng-if="$ctrl.getReviewComment(analysis)"
+            >
+                {{ $ctrl.getReviewComment(analysis) }}
+            </span>
+        </div>
 
-  <div class="analysis-date">{{(analysis.date_requested || analysis.date_deposited) | date:"yyyy-MM-dd"}}</div>
-  <div class="analysis-priority">{{$ctrl.getPriorityText(analysis)}}</div>
-  <div class="id-analysis-name full-title">
-    <b class="ref-title">{{analysis.name}}</b>
-    <span title="{{analysis.warnings}}" class="tag red id-sample-type" ng-if="analysis.warnings.length && !analysis.warning_cleared">WARNING</span>
-    <span class="tag id-sample-type" ng-repeat="sample in analysis.samples" ng-if="sample.proband">{{sample.sample_type.toUpperCase()}}</span>
-  </div>
-  <div class="analysis-extras">
-    <span class="analysis-comment id-analysis-comment"
-          ng-if="$ctrl.getReviewComment(analysis)">
-      {{$ctrl.getReviewComment(analysis)}}
-    </span>
-  </div>
-
-  <div class="analysis-users">
-    <div ng-if="analysis.interpretations.length > 1 || analysis.interpretations[0].user" ng-repeat="interpretation in analysis.interpretations track by interpretation.id">
-      <interpretation-round-info index="{{$index + 1}}" interpretation="interpretation"></interpretation-round-info>
-    </div>
-  </div>
-</a>
+        <div class="analysis-users">
+            <div
+                ng-if="analysis.interpretations.length > 1 || analysis.interpretations[0].user"
+                ng-repeat="interpretation in analysis.interpretations track by interpretation.id"
+            >
+                <interpretation-round-info
+                    index="{{ $index + 1 }}"
+                    interpretation="interpretation"
+                ></interpretation-round-info>
+            </div>
+        </div>
+    </a>
 </article>

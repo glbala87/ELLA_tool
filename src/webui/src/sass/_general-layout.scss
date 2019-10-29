@@ -1,113 +1,300 @@
 // GENERIC ELEMENT STYLES
 
-* { box-sizing: border-box; }
-html { font-size: 62.5%; }
-body { font-size: 62.5%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-family: $full; background-color: hsl(0,0,100); line-height: 1.42857143; color: #333; }
-.debug {font-size: 2em}
-input { font-family: $slim; border: none; border-bottom: 1px solid $black-25; background-color: transparent; padding: 0.3rem; height: 2.6rem; font-size: 1.2rem; font-weight: 400; text-overflow: ellipsis; width: inherit;
-  &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
-  &::placeholder { font-family: $full; -webkit-text-fill-color: $black-50; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; }
-  &.white { color: white; border-bottom: 1px solid rgba(255,255,0,0.5);
-    &::placeholder { color: rgba(255,255,0,1.0); }
-    &:focus { border-bottom: 1px solid white; box-shadow: 0px 1px 0px white; outline: none; transition: all 0.3s ease-in-out; }
-  }
+* {
+    box-sizing: border-box;
 }
-textarea, .wysiwygeditor { font-size: 1.4rem; font-family: $slim; line-height: 2rem; padding: 0 0.3rem; width: 100%; min-height: 2.6rem; max-height: 50rem; border: none; background-color: transparent; border-bottom: 1px solid $black-50; border-radius: 0; outline: none; box-shadow: none; resize: vertical;
-  &::placeholder { font-family: $full; font-size: 1.3rem; letter-spacing: 0.1rem; word-spacing: 0.2rem; font-weight: 500; line-height: 2rem; color: $black-40; }
+html {
+    font-size: 62.5%;
 }
-
+body {
+    font-size: 62.5%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: $full;
+    background-color: hsl(0, 0, 100);
+    line-height: 1.42857143;
+    color: #333;
+}
+.debug {
+    font-size: 2em;
+}
+input {
+    font-family: $slim;
+    border: none;
+    border-bottom: 1px solid $black-25;
+    background-color: transparent;
+    padding: 0.3rem;
+    height: 2.6rem;
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    width: inherit;
+    &:focus {
+        border-bottom: 1px solid Transparent;
+        box-shadow: 0px 0.3rem 0px $blue-50;
+        outline: none;
+        transition: all 0.3s ease-in-out;
+    }
+    &::placeholder {
+        font-family: $full;
+        -webkit-text-fill-color: $black-50;
+        letter-spacing: 0.1rem;
+        word-spacing: 0.2rem;
+        font-weight: 500;
+    }
+    &.white {
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 0, 0.5);
+        &::placeholder {
+            color: rgba(255, 255, 0, 1);
+        }
+        &:focus {
+            border-bottom: 1px solid white;
+            box-shadow: 0px 1px 0px white;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+    }
+}
+textarea,
+.wysiwygeditor {
+    font-size: 1.4rem;
+    font-family: $slim;
+    line-height: 2rem;
+    padding: 0 0.3rem;
+    width: 100%;
+    min-height: 2.6rem;
+    max-height: 50rem;
+    border: none;
+    background-color: transparent;
+    border-bottom: 1px solid $black-50;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    resize: vertical;
+    &::placeholder {
+        font-family: $full;
+        font-size: 1.3rem;
+        letter-spacing: 0.1rem;
+        word-spacing: 0.2rem;
+        font-weight: 500;
+        line-height: 2rem;
+        color: $black-40;
+    }
+}
 
 // Avoid horizontal overflow of pasted images
 .wysiwygeditor img {
-  max-width: -webkit-fill-available;
-  max-width: -moz-available;
-  max-width: fill-available;
-  height: auto;
+    max-width: -webkit-fill-available;
+    max-width: -moz-available;
+    max-width: fill-available;
+    height: auto;
 }
 
 textarea {
-  &:focus { border-bottom: 1px solid Transparent; box-shadow: 0px 0.3rem 0px $blue-50; outline: none; transition: all 0.3s ease-in-out; }
+    &:focus {
+        border-bottom: 1px solid Transparent;
+        box-shadow: 0px 0.3rem 0px $blue-50;
+        outline: none;
+        transition: all 0.3s ease-in-out;
+    }
 }
 
-.linebreak { white-space: pre; }
+.linebreak {
+    white-space: pre;
+}
 
 .wysiwygeditor {
-  &:focus[contenteditable="true"] {
-    @extend textarea:focus
-  }
+    &:focus[contenteditable='true'] {
+        @extend textarea:focus;
+    }
 }
 
-input[type=range]{-webkit-appearance: none;
-  &::-webkit-slider-runnable-track {
-    width: 300px;
-    height: 5px;
-    background: $blue-50;
-    border: solid 1px $black;
-    border-radius: 3px;
-  }
-  &::-webkit-slider-thumb {
+input[type='range'] {
     -webkit-appearance: none;
-    border: solid 1px $black;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: $blue-95;
-    margin-top: -7px;
-  }
-  &:focus {
-    outline: none;
-    box-shadow: none;
-  }
+    &::-webkit-slider-runnable-track {
+        width: 300px;
+        height: 5px;
+        background: $blue-50;
+        border: solid 1px $black;
+        border-radius: 3px;
+    }
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        border: solid 1px $black;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        background: $blue-95;
+        margin-top: -7px;
+    }
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
 }
 
-.inputerror { border-bottom: 3px solid $red-75 !important; }
-.error {color: $red !important; }
-.ok {color: $green !important; }
+.inputerror {
+    border-bottom: 3px solid $red-75 !important;
+}
+.error {
+    color: $red !important;
+}
+.ok {
+    color: $green !important;
+}
 
 .non-production-warning {
-  position: fixed;
-  bottom: calc(50vh - 28rem);
-  width: 100%;
-  font-size: 28rem;
-  z-index: 10000;
-  pointer-events: none;
-  text-align: center;
-  color: $red-15;
+    position: fixed;
+    bottom: calc(50vh - 28rem);
+    width: 100%;
+    font-size: 28rem;
+    z-index: 10000;
+    pointer-events: none;
+    text-align: center;
+    color: $red-15;
 }
 
-
-h4.faded-title { font-weight: 500; font-size: 1.25rem; padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; letter-spacing: -0.04rem; text-transform: uppercase; opacity: 0.5; font-family: $slim; }
-a, .clickable { color: inherit; text-decoration: none; border-bottom: 1px dashed; border-color: $black-25; cursor: pointer; }
-a:hover, .clickable:hover { color: inherit; text-decoration: none; border-bottom: 1px solid; }
-a.white, .clickable.white, a.white:hover, .clickable.white:hover { border-color: $white-25; }
-
-button, select, .bttn { font-family: $full; font-size: 1.2rem; font-weight: 500; letter-spacing: 0.1rem; word-spacing: 0.2rem; text-transform: uppercase; padding: 0.25rem 0.75rem; padding-top: 0.4rem; color: $black-75; white-space: nowrap; border-radius: 0;
-  &.white { color: $white-75; }
-  &:focus { outline: none; box-shadow: 0 0.3rem 0 $blue-50; transition: all 0.3s; }
-  &:hover:not([disabled]) { cursor: pointer; }
+h4.faded-title {
+    font-weight: 500;
+    font-size: 1.25rem;
+    padding-right: 2.6rem;
+    margin: 0.2rem 0;
+    white-space: pre;
+    letter-spacing: -0.04rem;
+    text-transform: uppercase;
+    opacity: 0.5;
+    font-family: $slim;
 }
-button, .dropdown, .bttn { height: 2.6rem; box-shadow: 0 0.3rem 0 $black-05; background-color: $white-75; transition: all 0.3s;
-  &.ng-leave, &.ng-enter { transition: none; }
-  &:hover:not([disabled]) { box-shadow: 0 0.3rem 0.3rem $black-25; background-color: $white; }
+a,
+.clickable {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed;
+    border-color: $black-25;
+    cursor: pointer;
 }
-button.normal { background-color: $blue-05 !important; color: $black-75 !important;
-  &:hover:not([disabled]) { background-color: $white !important; }
+a:hover,
+.clickable:hover {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid;
+}
+a.white,
+.clickable.white,
+a.white:hover,
+.clickable.white:hover {
+    border-color: $white-25;
+}
+
+button,
+select,
+.bttn {
+    font-family: $full;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.1rem;
+    word-spacing: 0.2rem;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    padding-top: 0.4rem;
+    color: $black-75;
+    white-space: nowrap;
+    border-radius: 0;
+    &.white {
+        color: $white-75;
+    }
+    &:focus {
+        outline: none;
+        box-shadow: 0 0.3rem 0 $blue-50;
+        transition: all 0.3s;
+    }
+    &:hover:not([disabled]) {
+        cursor: pointer;
+    }
+}
+button,
+.dropdown,
+.bttn {
+    height: 2.6rem;
+    box-shadow: 0 0.3rem 0 $black-05;
+    background-color: $white-75;
+    transition: all 0.3s;
+    &.ng-leave,
+    &.ng-enter {
+        transition: none;
+    }
+    &:hover:not([disabled]) {
+        box-shadow: 0 0.3rem 0.3rem $black-25;
+        background-color: $white;
+    }
+}
+button.normal {
+    background-color: $blue-05 !important;
+    color: $black-75 !important;
+    &:hover:not([disabled]) {
+        background-color: $white !important;
+    }
 }
 .tag {
-  text-transform: uppercase; font-size: 1.2rem; color: $black-50; border: 1px solid $black-25; padding: 0.2rem; margin-left: 0.5rem;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    color: $black-50;
+    border: 1px solid $black-25;
+    padding: 0.2rem;
+    margin-left: 0.5rem;
 
-  &.red {
-    color: $red; border: 1px solid $red-75;
-  }
+    &.red {
+        color: $red;
+        border: 1px solid $red-75;
+    }
 }
 
-
-select { border: none; box-shadow: none; background: transparent; height: 100%; width: 100%; outline: none; padding-right: 2.6rem; -moz-appearance: none; &:-moz-focusring { color: transparent; text-shadow: 0 0 0 #000; } -webkit-appearance: none; &:focus { border-color: inherit; } }
-.dropdown { position: relative;
-  &:after { content: ' '; position: absolute; top: 0; width: 0; height: 0; right: 10px; bottom: 0; margin: auto; border-style: solid; border-width: 5px 5px 0 5px; border-color: $black-75 transparent transparent transparent; pointer-events: none; }
-  &.disabled { border: 1px solid $black-50; color: $black-75; opacity: 0.25; background-color: inherit; select:hover { cursor: default; } }
+select {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    height: 100%;
+    width: 100%;
+    outline: none;
+    padding-right: 2.6rem;
+    -moz-appearance: none;
+    &:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #000;
+    }
+    -webkit-appearance: none;
+    &:focus {
+        border-color: inherit;
+    }
 }
-
+.dropdown {
+    position: relative;
+    &:after {
+        content: ' ';
+        position: absolute;
+        top: 0;
+        width: 0;
+        height: 0;
+        right: 10px;
+        bottom: 0;
+        margin: auto;
+        border-style: solid;
+        border-width: 5px 5px 0 5px;
+        border-color: $black-75 transparent transparent transparent;
+        pointer-events: none;
+    }
+    &.disabled {
+        border: 1px solid $black-50;
+        color: $black-75;
+        opacity: 0.25;
+        background-color: inherit;
+        select:hover {
+            cursor: default;
+        }
+    }
+}
 
 //select {&:open {color: red;}};
 //
@@ -115,1083 +302,1791 @@ select { border: none; box-shadow: none; background: transparent; height: 100%; 
 //  @extend .bttn;
 //}
 
-p { font-family: $full; font-weight: 300; font-size: 1.4rem; letter-spacing: -0.025rem; color: $black; }
+p {
+    font-family: $full;
+    font-weight: 300;
+    font-size: 1.4rem;
+    letter-spacing: -0.025rem;
+    color: $black;
+}
 
 // interpretation-button button { height: 100%; } // fixes a browser quirk - edit, seems to have gone away with some other changes
-.button ~ .button, a ~ button,button ~ button, button ~ interpretation-button, checkable-button ~ checkable-button, checkable-button ~ button, .dropdown ~ button { margin-left: 1.3rem; }
-button { outline: none; border: 1px solid Transparent;
-  &:disabled { border: 1px solid $black-50; box-shadow: none; color: $black-75; opacity: 0.25; background-color: inherit; &:hover { cursor: default; } }
-  // We use svg in buttons for significantly more control over spacing/color/boldness, and to not rely on UTF8 chars in our markup.
-  // These are awesome and extremely small: https://github.com/danklammer/bytesize-icons
+.button ~ .button,
+a ~ button,
+button ~ button,
+button ~ interpretation-button,
+checkable-button ~ checkable-button,
+checkable-button ~ button,
+.dropdown ~ button {
+    margin-left: 1.3rem;
 }
-.buttonmark { width: 1.5rem; height: 0.8rem; stroke-width: 14%; }
+button {
+    outline: none;
+    border: 1px solid Transparent;
+    &:disabled {
+        border: 1px solid $black-50;
+        box-shadow: none;
+        color: $black-75;
+        opacity: 0.25;
+        background-color: inherit;
+        &:hover {
+            cursor: default;
+        }
+    }
+    // We use svg in buttons for significantly more control over spacing/color/boldness, and to not rely on UTF8 chars in our markup.
+    // These are awesome and extremely small: https://github.com/danklammer/bytesize-icons
+}
+.buttonmark {
+    width: 1.5rem;
+    height: 0.8rem;
+    stroke-width: 14%;
+}
 
-%button-status {width: 0.6rem; height: 0.6rem; margin-left: 0.3rem; margin-right: -0.4rem}
-.button-status-green {@extend %button-status; fill: $green-75;}
-.button-status-red {@extend %button-status; fill: $red-75}
+%button-status {
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-left: 0.3rem;
+    margin-right: -0.4rem;
+}
+.button-status-green {
+    @extend %button-status;
+    fill: $green-75;
+}
+.button-status-red {
+    @extend %button-status;
+    fill: $red-75;
+}
 
-.max-width { width: 100%; }
+.max-width {
+    width: 100%;
+}
 
 .dashboard-navbar {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
 }
 
 // APP-WIDE STYLE
 .main {
-  //display: flex;
-  width: 100%;
-  min-height: calc(100vh - 11rem);
-  height: 100%;
-
-  .sidenavbar { color: $white-75; width: 4rem; background-color: $blue-50; margin-right: 3rem; font-family: $slim; font-weight: 700; letter-spacing: 0.1; text-transform: uppercase; position: fixed;
-    min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-    .item-row { width: 100%; transform: rotate(90deg);  display: flex;
-      .item { transform: rotate(180deg);  height: 4rem; font-size: 2rem; padding-left: 3rem; padding-right: 3rem; line-height: 4rem;
-        &.active {
-          background-color: $blue-25;
-        }
-        &:hover {
-          background-color: $blue-25;
-          color: $white;
-          cursor: pointer;
-        }
-      }
-    }
-  }
-  .container { margin-left: 2.0rem; margin-top: calc(#{$nav-bar-top-height}); margin-right: 2.0rem; margin-bottom: 2.6rem; width: 100%; }
-  .container.with-sidenavbar { margin-left: 9rem; }
-  .container.inner { max-width: 160rem; width: 100%; padding-left: 3.9rem; margin-left: 0; margin-right: 0; border-left: 1px dotted $blue-25; }
-
-
-  // View specific stuff
-  .logout-btn { margin-left: auto; }
-  .overviewcontainer { display: flex; }
-
-  .dashboard {
-    display: flex;
-    .full-title { padding-left: 1.2rem; font-size: 1.4rem; font-weight: 300; }
-    .profile {
-      flex: 1;
-      justify-content: space-between;
-      flex-flow: row wrap;
-      align-items: stretch;
-      align-content: stretch;
-      width: 32%;
-      border: solid white 3px;
-      background-color: $green-05;
-
-      .sb-title-container {
-          background-color: $green-25;
-      }
-    }
-  }
-
-  .dashboard-activity {
-      flex: 1;
-      width: 100%;
-      border: solid white 3px;
-  }
-
-  .loading {
-    height: 80vh;
+    //display: flex;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    .loading-animation {
-      max-width: 20rem;
+    min-height: calc(100vh - 11rem);
+    height: 100%;
+
+    .sidenavbar {
+        color: $white-75;
+        width: 4rem;
+        background-color: $blue-50;
+        margin-right: 3rem;
+        font-family: $slim;
+        font-weight: 700;
+        letter-spacing: 0.1;
+        text-transform: uppercase;
+        position: fixed;
+        min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
+        .item-row {
+            width: 100%;
+            transform: rotate(90deg);
+            display: flex;
+            .item {
+                transform: rotate(180deg);
+                height: 4rem;
+                font-size: 2rem;
+                padding-left: 3rem;
+                padding-right: 3rem;
+                line-height: 4rem;
+                &.active {
+                    background-color: $blue-25;
+                }
+                &:hover {
+                    background-color: $blue-25;
+                    color: $white;
+                    cursor: pointer;
+                }
+            }
+        }
     }
-    .loading-text {
-      font-family: $slim; font-size: 2.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25;
+    .container {
+        margin-left: 2rem;
+        padding-top: 2.5rem;
+        padding-right: 2rem;
+        padding-bottom: 2.5rem;
+        width: 100%;
+        overflow: auto;
+        // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set in javascript
+        // max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height} - #{$nav-bar-bottom-buttons-height});
     }
-  }
-}
-.app .search-area { margin-left: 42rem; }
-.single-sample-analysis-container { display: flex; flex-direction: row; margin-right: 1.3rem; }
-.full-width { width: 100%; }
-.nowrap {white-space: nowrap; }
-
-.no-alleles, .no-results { height: calc(100vh - 19rem); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center;
-}
-.no-alleles {
-   h2 { font-family: $slim; font-size: 2.0rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-50; }
-   h4 { font-family: $slim; font-size: 1.8rem; font-weight: 600; letter-spacing: 0.075rem; text-transform: uppercase; color: $black-25; }
-}
-
-
-.hero { position: static; right: 50%; top: 0.15rem; z-index: 1501; color: black; cursor: pointer;
-  h1 { font-size: 3rem; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; line-height: 4rem; transition: all 1s;  opacity: 0.25; }
-  h1:hover { transform: rotateY(180deg); transform-origin: 9rem; transform-style: preserve-3d; color: white; opacity: 0.75; }
-  h1:hover #e { transform: rotateY(180deg); }
-  h1:hover #les { visibility: visible; opacity: 1; }
-  #e, #a, #les { font-size: 3.2rem; transition: all 1s; }
-  #les { transform: rotateY(180deg); visibility: hidden; opacity: 0; }
-}
-
-.home-svg {fill: $white-50; margin-bottom: -0.4rem;
-  :hover {
-    fill: $white-75;
-  }
-}
-
-
-nav {
-  position: sticky;
-  width:100%;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
-  top: 0;
-  left: 0;
-  right: 0;
-
-  .top {
-    .right { display: flex;
-      .link {padding-left: 8rem;}
+    .container.with-sidenavbar {
+        margin-left: 9rem;
     }
-    background-color: $blue;
-    color: white;
-    padding: 0.7rem 1.3rem;
-    height: 4.5rem;
+    .container.inner {
+        max-width: 160rem;
+        width: 100%;
+        padding-left: 3.9rem;
+        margin-left: 0;
+        margin-right: 0;
+        border-left: 1px dotted $blue-25;
+    }
+
+    // View specific stuff
+    .logout-btn {
+        margin-left: auto;
+    }
+    .overviewcontainer {
+        display: flex;
+        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
+        overflow: auto;
+    }
+
+    .dashboard {
+        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
+        overflow: auto;
+        display: flex;
+        .full-title {
+            padding-left: 1.2rem;
+            font-size: 1.4rem;
+            font-weight: 300;
+        }
+        .profile {
+            flex: 1;
+            justify-content: space-between;
+            flex-flow: row wrap;
+            align-items: stretch;
+            align-content: stretch;
+            width: 32%;
+            border: solid white 3px;
+            background-color: $green-05;
+            height: 100%;
+
+            .sb-title-container {
+                background-color: $green-25;
+            }
+        }
+    }
+
+    .dashboard-activity {
+        flex: 1;
+        width: 100%;
+        border: solid white 3px;
+    }
+
+    .loading {
+        height: 80vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        .loading-animation {
+            max-width: 20rem;
+        }
+        .loading-text {
+            font-family: $slim;
+            font-size: 2.8rem;
+            font-weight: 600;
+            letter-spacing: 0.075rem;
+            text-transform: uppercase;
+            color: $black-25;
+        }
+    }
+}
+.app .search-area {
+    margin-left: 42rem;
+}
+.single-sample-analysis-container {
     display: flex;
     flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .broadcast {
-    background-color: $blue-75-on-white;
-    min-height: 4.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-
-    li.message {
-      .date {
-        color: $white-75;
-        padding-right: 1rem;
-      }
-      font-weight: 600;
-      line-height: 4.5rem;
-      color: $white-95;
-      font-family: $slim;
-      text-transform: uppercase;
-      font-size: 1.5rem;
-      list-style: none;
-    }
-
-  }
-
-  .secondary {
-    display: flex;
-    background-color: $blue;
-    align-items: center;
-    justify-content: space-between;
-    background-color: $blue-50-on-white;
-    height: $nav-bar-secondary-height;
-    padding: 0 1.3rem;
-    section { display: flex;
-      .dropdown { margin-left: 1.4rem; }
-    }
-  }
-
-  .bottom {
-    position: sticky;
-    flex-direction: column;
-    z-index: 100;
-    top: $nav-bar-top-height;
-    background-color: $blue-25-on-white;
-    justify-content: space-between;
+}
+.full-width {
     width: 100%;
-    padding-right: 1.3rem;
-    padding-left: 1.3rem;
-    padding-top: 0.6rem;
-    padding-bottom: 0.6rem;
-    section { margin-top: -0.05rem; display: flex; width: 100%; justify-content: flex-end;  height: $nav-bar-bottom-buttons-height;
-      .dropdown { margin-left: 1.4rem; }
+}
+.nowrap {
+    white-space: nowrap;
+}
+
+.no-alleles,
+.no-results {
+    height: calc(100vh - 19rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+.no-alleles {
+    h2 {
+        font-family: $slim;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.075rem;
+        text-transform: uppercase;
+        color: $black-50;
     }
-    article { display: flex; width: 100%; justify-content: space-between; height: $allelebar-row-height;  }
-  }
+    h4 {
+        font-family: $slim;
+        font-size: 1.8rem;
+        font-weight: 600;
+        letter-spacing: 0.075rem;
+        text-transform: uppercase;
+        color: $black-25;
+    }
+}
+
+.hero {
+    position: static;
+    right: 50%;
+    top: 0.15rem;
+    z-index: 1501;
+    color: black;
+    cursor: pointer;
+    h1 {
+        font-size: 3rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        line-height: 4rem;
+        transition: all 1s;
+        opacity: 0.25;
+    }
+    h1:hover {
+        transform: rotateY(180deg);
+        transform-origin: 9rem;
+        transform-style: preserve-3d;
+        transition: all 1s, transform-origin 0s;
+        color: white;
+        opacity: 0.75;
+    }
+    h1:hover #e {
+        transform: rotateY(180deg);
+    }
+    h1:hover #les {
+        visibility: visible;
+        opacity: 1;
+    }
+    #e,
+    #a,
+    #les {
+        font-size: 3.2rem;
+        transition: all 1s;
+    }
+    #les {
+        transform: rotateY(180deg);
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+
+.home-svg {
+    fill: $white-50;
+    margin-bottom: -0.4rem;
+    :hover {
+        fill: $white-75;
+    }
+}
+
+nav {
+    position: sticky;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    .top {
+        .right {
+            display: flex;
+            .link {
+                padding-left: 8rem;
+            }
+        }
+        background-color: $blue;
+        color: white;
+        padding: 0.7rem 1.3rem;
+        height: 4.5rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .broadcast {
+        background-color: $blue-75-on-white;
+        min-height: 4.5rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+
+        li.message {
+            .date {
+                color: $white-75;
+                padding-right: 1rem;
+            }
+            font-weight: 600;
+            line-height: 4.5rem;
+            color: $white-95;
+            font-family: $slim;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            list-style: none;
+        }
+    }
+
+    .secondary {
+        display: flex;
+        background-color: $blue;
+        align-items: center;
+        justify-content: space-between;
+        background-color: $blue-50-on-white;
+        height: $nav-bar-secondary-height;
+        padding: 0 1.3rem;
+        section {
+            display: flex;
+            .dropdown {
+                margin-left: 1.4rem;
+            }
+        }
+    }
+
+    .bottom {
+        position: sticky;
+        flex-direction: column;
+        z-index: 100;
+        top: $nav-bar-top-height;
+        background-color: $blue-25-on-white;
+        justify-content: space-between;
+        width: 100%;
+        padding-right: 1.3rem;
+        padding-left: 1.3rem;
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+        section {
+            margin-top: -0.05rem;
+            display: flex;
+            width: 100%;
+            justify-content: flex-end;
+            height: $nav-bar-bottom-buttons-height;
+            .dropdown {
+                margin-left: 1.4rem;
+            }
+        }
+        article {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            height: $allelebar-row-height;
+        }
+    }
 }
 
 // Workflow specific
-workflow-buttons { margin-left: 1.4rem;}
-.workflow-options { display: flex;
-  // Invert color of active button since navbar has opposite color scheme.
-  .bttn-set { margin-right: 2rem; background-color: $white;
-    label.bttn { background-color: $blue-75; color: $white;
-      &.active { background-color: $white; color: $black-75; }
+workflow-buttons {
+    margin-left: 1.4rem;
+}
+.workflow-options {
+    display: flex;
+    // Invert color of active button since navbar has opposite color scheme.
+    .bttn-set {
+        margin-right: 2rem;
+        background-color: $white;
+        label.bttn {
+            background-color: $blue-75;
+            color: $white;
+            &.active {
+                background-color: $white;
+                color: $black-75;
+            }
+        }
     }
-  }
 }
 
-.collision-warning { margin: 1.5rem; margin-bottom: 0; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red-95;  max-height: 10rem; overflow-y: auto; overflow-x: hidden;
-  word-wrap: break-word; font-size: 1.6rem; font-family: $slim; font-weight: 600; color: white;
-  &::-webkit-scrollbar {
-    width: 10px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: $white-50;
-  }
-  &:hover::-webkit-scrollbar-thumb {
-    background-color: $white-75;
-  }
+.collision-warning section {
+    margin: 1.5rem;
+    .titlebar,
+    .titlebar > .sb-title-container,
+    .sb-container {
+        background-color: $red-95;
+    }
+    .titlebar > .sb-title-container {
+        width: 100%;
+    }
+    .title,
+    .icon,
+    .sb-container {
+        color: white;
+        font-weight: 800;
+    }
+    p,
+    h5 {
+        color: white;
+        font-family: $slim;
+        font-size: 1.6rem;
+        font-weight: 600;
+        letter-spacing: 0.05rem;
+    }
+    .subtitle {
+        color: $white-50;
+    }
+    .sb-body {
+        animation: none !important;
+        padding-top: 0.5rem !important;
+        max-height: 25vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 10px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $white-50;
+        }
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: $white-75;
+        }
+    }
 }
 
-.allele-warning { margin-bottom: 1.5rem; padding: 1.5rem; padding-left: 2rem; padding-right: 2rem; background-color: $red-95;
-  word-wrap: break-word; font-size: 1.6rem; font-family: $slim; font-weight: 600; color: white;
-  h3:not(:first-child) {
-    margin-top: 0.5rem;
-  }
+.allele-warning {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    background-color: $red-95;
+    word-wrap: break-word;
+    font-size: 1.6rem;
+    font-family: $slim;
+    font-weight: 600;
+    color: white;
+    h3:not(:first-child) {
+        margin-top: 0.5rem;
+    }
 }
-
-.nav-bottom-buttons-spacer {
-  height: calc(#{$nav-bar-bottom-buttons-height} + 0.8rem);
-
-}
-
-.nav-bottom-allelebar-spacer {
-  height: calc(#{$allelebar-row-height} + 0.8rem);
-}
-
-
 
 allelebar {
     width: 100%;
     .genotype-display {
-      &:not(:last-child) {
-        border-right: 1px $black-25 dashed;
-        padding-right: 0.6rem;
-      }
-      padding-left: 0.6rem;
+        &:not(:last-child) {
+            border-right: 1px $black-25 dashed;
+            padding-right: 0.6rem;
+        }
+        padding-left: 0.6rem;
     }
     > table {
-      width: 100%;
-      * tr {
-        height: $allelebar-row-height;
-        > td {
-          text-align: center;
+        width: 100%;
+        * tr {
+            height: $allelebar-row-height;
+            > td {
+                text-align: center;
+            }
+            > td:first-child {
+                text-align: left;
+            }
+            > td:last-child {
+                text-align: right;
+            }
         }
-        > td:first-child {
-          text-align: left;
-        }
-        > td:last-child {
-          text-align: right;
-        }
-      }
     }
-  }
+}
 
 .upload-button {
-  @extend button;
-  margin-left: 1.2rem;
+    @extend button;
+    margin-left: 1.2rem;
 }
 
-.search-box { margin-left: auto; margin-right: 1rem;
-  input { padding: 0.25rem 0.75rem; transition: all 0.3s; }
-  input:focus { background-color: $white-75; }
-  input:hover { background-color: $white-25; }
-  input:focus:hover { background-color: $white-75; }
-}
-
-nav.warning { display: flex; align-items: center; justify-content: space-between; color: $white-95; background-color: $red-95; padding: 1.3rem;
-  h2 {  font-weight: 400; font-size: 1.4rem; color: $white-75;}
-  h3 {  font-weight: 400; font-size: 1.4rem; }
-  h4 {  font-weight: 400; font-size: 1.2rem; padding-left: 1rem; }
-
-}
-
-.search-module .ng-enter { animation: 1s fade-in; }
-.search-module { font-size: 1.3rem; width: 100%; position: relative; margin-bottom: 3.9rem;
-  h4.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; margin-top: 2rem; margin-bottom: 0; font-weight: 700; font-size: 1.3rem; }
-  h4.results-limit-header { @extend .sb-notification; font-family: $slim; color: $black-50; margin-top: 0; margin-bottom: 1rem; font-weight: 700; font-size: 1.25rem; }
-  .element { margin: 1.3rem 0; margin-left: 2.3rem;
-    &-title { @extend .full-title; margin-bottom: 0.7rem; color: $black-50; }
-    &-item { @extend .line-wrapper; padding: 0.35rem 2.3rem; margin-left: 0.3rem; border-left: 1px dotted $black-25;
-      h4 { @extend .slim; color: $black-75; font-size: 1.4rem; transition: all 0.3s; }
-      h4 i { font-size: 1.25rem; opacity: 1; }
-      h4 i, h4 b { margin-right: 2.6rem; }
+.search-box {
+    margin-left: auto;
+    margin-right: 1rem;
+    input {
+        padding: 0.25rem 0.75rem;
+        transition: all 0.3s;
     }
-    &-item:hover h4 { color: $black; cursor: pointer; }
-  }
-  .search-option {
-    .bttn-set {
-      flex-wrap: nowrap;
+    input:focus {
+        background-color: $white-75;
     }
-    width: 30rem;
+    input:hover {
+        background-color: $white-25;
+    }
+    input:focus:hover {
+        background-color: $white-75;
+    }
+}
 
-  }
-  .gene-warning { min-height: 2rem; line-height: 2rem; color: $red; padding-top: 0.2rem; }
-  .no-results { height: auto; padding-top: 3.9rem; padding-bottom: 1.3rem; }
+nav.warning {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $white-95;
+    background-color: $red-95;
+    padding: 1.3rem;
+    h2 {
+        font-weight: 400;
+        font-size: 1.4rem;
+        color: $white-75;
+    }
+    h3 {
+        font-weight: 400;
+        font-size: 1.4rem;
+    }
+    h4 {
+        font-weight: 400;
+        font-size: 1.2rem;
+        padding-left: 1rem;
+    }
+}
+
+.search-module .ng-enter {
+    animation: 1s fade-in;
+}
+.search-module {
+    font-size: 1.3rem;
+    width: 100%;
+    position: relative;
+    margin-bottom: 3.9rem;
+    h4.section-header {
+        @extend .sb-notification;
+        font-family: $slim;
+        color: $blue-75;
+        margin-top: 2rem;
+        margin-bottom: 0;
+        font-weight: 700;
+        font-size: 1.3rem;
+    }
+    h4.results-limit-header {
+        @extend .sb-notification;
+        font-family: $slim;
+        color: $black-50;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    .element {
+        margin: 1.3rem 0;
+        margin-left: 2.3rem;
+        &-title {
+            @extend .full-title;
+            margin-bottom: 0.7rem;
+            color: $black-50;
+        }
+        &-item {
+            @extend .line-wrapper;
+            padding: 0.35rem 2.3rem;
+            margin-left: 0.3rem;
+            border-left: 1px dotted $black-25;
+            h4 {
+                @extend .slim;
+                color: $black-75;
+                font-size: 1.4rem;
+                transition: all 0.3s;
+            }
+            h4 i {
+                font-size: 1.25rem;
+                opacity: 1;
+            }
+            h4 i,
+            h4 b {
+                margin-right: 2.6rem;
+            }
+        }
+        &-item:hover h4 {
+            color: $black;
+            cursor: pointer;
+        }
+    }
+    .search-option {
+        .bttn-set {
+            flex-wrap: nowrap;
+        }
+        width: 30rem;
+    }
+    .gene-warning {
+        min-height: 2rem;
+        line-height: 2rem;
+        color: $red;
+        padding-top: 0.2rem;
+    }
+    .no-results {
+        height: auto;
+        padding-top: 3.9rem;
+        padding-bottom: 1.3rem;
+    }
 }
 
 .allele-sidebar-list {
-  section.enabled, section.disabled { flex-basis: auto;  }
-  section > div:first-child { margin-top: 0.5rem; }
-  section > div:last-child { margin-bottom: 2rem; }
-  h4 { font-family: $slim; font-weight: 600; margin: 0; font-size: 1.4rem; display: flex; justify-content: space-between; }
-  h4.section-title { @extend h4.section-title; color: $blue-50; margin: 0.3rem 0; }
-  .variant { width: 100%; padding-left: 0.7rem; height: 2.6rem; line-height: 2.6rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .variant span { width: 13.0rem; text-overflow: ellipsis; overflow: hidden; margin-left: auto; }
-  i { font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; flex-basis: 10rem; }
-  b { font-weight: 700; color: $black-75; padding: 0 1.3rem; }
-  .nav-table { display: table; width: 45rem; border-collapse: collapse; }
-  .nav-row { display: table-row; align-items: center; color: $black-60; background-color: inherit; width: 45rem; font-family: $slim; font-size: 1.4rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in;
-    &.ng-leave {transition: none;}
-    &.top {border-bottom: 1px solid $black-10;
-      cursor: auto;
-      &:hover {font-weight: 600; color: $black-50; }
-      .cell {font-weight: 600; margin: 0.2rem;
-        &:hover {color: $black-75; }
-      }
+    section.enabled,
+    section.disabled {
+        flex-basis: auto;
     }
-    &.multiple { background-color: $blue-10; }
-    &.technical { color: $black-25; }
-    &.spacer {height: 0.2rem}
-    .cell { display: table-cell; white-space: nowrap; vertical-align: middle; font-weight: 600; padding: 0 0.3rem; text-overflow: ellipsis; overflow: hidden;
-      &.sample-type { min-width: 3rem; width: 3rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.inheritance { min-width: 6rem; width: 6rem; max-width: 4rem; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.gene { min-width: 6rem; width: 6rem; max-width: 6rem; text-overflow: ellipsis; overflow: hidden; font-weight: 400; font-style: normal; font-size: 1.25rem; margin-right: 1.3rem; }
-      &.hgvsc { min-width: 10rem; width: 10rem; max-width: 10rem; text-overflow: ellipsis; overflow: hidden; }
-      &.consequence { min-width: 10rem; width: 10rem; max-width: 10rem;
-        &.hit {
-          color: $red-75;
-        }
-      }
-      &.classification { min-width: 5.5rem; width: 5.5rem; text-align: center;
-        transition: background-color 0.4s; cursor: pointer; padding: 0;
-        &.reviewed { background-color: $blue-75; color: $white;
-          .class-amcg-container .classification-container .existing-classification { color: $white-50; }
-        }
-        .class-amcg-container {
-          display: flex;
-          flex-direction: row;
-          .classification-container { margin-top: 0.2rem; margin-left: 0.6rem; display: flex; flex: 1;
-            .existing-classification { width: 1.3rem; color: $black-25; }
-            .current-classification { width: 1.3rem; }
-            .arrow-classification { width: 1.3rem;}
-          }
-          .acmg-indicators-container {
-            display: flex;
-            flex-direction: column;
-            min-height: 2.5rem;
-            .acmg-indicator {
-              min-width: 0.6rem;
-              max-height: 50%;
-              flex: 1;
-              @each $name, $color in $acmg-map {
-                &.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color), 0.7); }
-              }
-            }
-          }
-        }
-      }
-      &.tab { max-width: 0.5rem; width: 0.5rem; padding: 0; min-width: 0.5rem; height: 2.6rem; }
-      &.qual { min-width: 6rem; text-align: center;}
-      &.dp { min-width: 5rem; text-align: center;}
-      &.ratio { min-width: 6rem; text-align: center;}
-      &.hi-freq { min-width: 8rem; text-align: center;}
-      &.hi-count { min-width: 8rem; text-align: center;}
-      &.external { min-width: 10.5rem; text-align: center;}
-      &.evaluation { min-width: 30rem; width: 30rem; max-width: 30rem;
-        &.narrow { min-width: 12rem; width: 12rem; max-width: 12rem; }
-        .wysiwygeditor { max-height: 4.7rem; overflow: auto; }
-      }
-
-      &.quick-classification {
-        padding-left: 0;
-        padding-right: 0;
-        button {
-          padding-left: 1rem;
-          padding-right: 1rem;
-        }
-        button ~ button {
-          margin-left: 0.5rem;
-        }
-        @each $name, $color in $acmg-map {
-          button.quick-acmg.#{$name} {
-            border: 0;
-            margin: 0;
-            background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name));
-            &:hover {
-              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.2);
-            }
-            &.added {
-              background-color: hsla(hue($color),saturation($color),lightness($color), map-get($acmg-opacity,$name) + 0.3);
-            }
-          }
-        }
-      }
-
-      @mixin indicator {
-        width: 2rem;
-        height: 1.8rem;
-        line-height: 1.8rem;
-        margin-left: -1px;
-      }
-
-      @mixin indicator-hit {
+    section > div:first-child {
+        margin-top: 0.5rem;
+    }
+    section > div:last-child {
+        margin-bottom: 2rem;
+    }
+    h4 {
+        font-family: $slim;
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.4rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    h4.section-title {
+        @extend h4.section-title;
+        color: $blue-50;
+        margin: 0.3rem 0;
+    }
+    .variant {
         width: 100%;
-        display: flex;
-        align-content: center;
-        justify-content: center;
-        border: 1px solid $black-50;
-      }
-
-
-      $ind-width: 0.4rem;
-      &.indicators {
-        display: flex;
-        height: 2.5rem;
+        padding-left: 0.7rem;
+        height: 2.6rem;
+        line-height: 2.6rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .variant span {
+        width: 13rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        margin-left: auto;
+    }
+    i {
+        font-weight: 400;
+        font-style: normal;
+        font-size: 1.25rem;
+        margin-right: 1.3rem;
+        flex-basis: 10rem;
+    }
+    b {
+        font-weight: 700;
+        color: $black-75;
+        padding: 0 1.3rem;
+    }
+    .nav-table {
+        display: table;
+        width: 45rem;
+        border-collapse: collapse;
+    }
+    .nav-row {
+        display: table-row;
         align-items: center;
-        justify-content: center;
-
-        .warning {
-          @include indicator;
-          font-weight: 700;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($red, 15%);
-            color: lighten($red, 15%);
-          }
+        color: $black-60;
+        background-color: inherit;
+        width: 45rem;
+        font-family: $slim;
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease-in;
+        &.ng-leave {
+            transition: none;
         }
-
-        .segregation {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($purple-75, 15%);
-            color: lighten($purple-75, 15%);
-          }
+        &.top {
+            border-bottom: 1px solid $black-10;
+            cursor: auto;
+            &:hover {
+                font-weight: 600;
+                color: $black-50;
+            }
+            .cell {
+                font-weight: 600;
+                margin: 0.2rem;
+                &:hover {
+                    color: $black-75;
+                }
+            }
         }
-
-        .hom {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($yellow, 15%);
-            color: lighten($yellow, 15%);
-            font-weight: 900;
-          }
+        &.multiple {
+            background-color: $blue-10;
         }
-
-        .low-qual {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($black-50, 15%);
-            color: lighten($black-50, 15%);
-          }
+        &.technical {
+            color: $black-25;
         }
-        .technical {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($red, 5%);
-            background-color: $red-75;
-            color: $white-95;
-          }
+        &.spacer {
+            height: 0.2rem;
         }
-        .verified {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($green, 5%);
-            background-color: lighten($green, 10%);
-            color: $white-95;
-          }
-        }
-        .important-source {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border-color: lighten($green-50, 5%);
-            color: lighten($green-50, 5%);
-          }
-        }
-
-        .top {
-          @include indicator;
-          .hit {
-            @include indicator-hit;
-            border: none;
-            color: $black-50;
-            &:hover {color: $black-75; }
-          }
-        }
-
-      }
-    }
-
-    &.togglable .cell {
-      &.tab { align-items: center; text-align: center; justify-content: center; max-width: 2.6rem; width: 2.6rem; min-width: 2.6rem; background-color: $black-50; cursor: pointer; }
-      &.consequence { max-width: 6.8rem; }  // Steal some width, give it to toggle button
-    }
-    &.toggled { color: $blue;
-      .cell.tab { background-color: $blue; }
-    }
-
-    &.disabled { color: $black-25; }
-    &:hover { color: $black-75; }
-    &:hover .tab { background-color: $blue-50; }
-    &.active:not(.toggled):hover { cursor: default; }
-    &.active , &.active:hover { color: $blue; background-color: $blue-25; }
-    &.active .tab, &.active:hover .tab { background-color: $blue; }
-    .added h5 { padding: 0; margin: 0; font-size: 1.3rem; font-weight: 600; color: white; }
-    &.active.toggled {
-      &:hover .tab.togglable { background-color: $black-75; }
-    }
-  }
-}
-.sidebar .ng-enter { opacity: 0; transition: all 0.8s ease-in-out; }
-.sidebar .ng-enter-active { opacity: 1; }
-.sidebar { min-width: 45rem; position: sticky; margin-left: 1.3rem; top: calc(#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem);
-  margin-top: 4.5rem;
-  overflow: auto;
-  max-width: 100vw;
-  &.constrain-size {
-    max-height: calc(100vh - (#{$nav-bar-top-height} + #{$nav-bar-secondary-height} + 11rem));
-  }
-  .controls {
-    .control-comment {
-      max-width: 70rem;
-      .wysiwygeditor {
-        max-height: 13rem;
-        overflow: auto;
-      }
-      margin-bottom: 1rem;
-    }
-    > .control-section {
-        display: flex;
-        padding-bottom: 0.5rem;
-        > button, .button {
-            margin-left: 0;
-            margin-right: 0.5rem;
-        }
-    }
-    & .dropdown {
-        &.filter-config-selection {
-          max-width: 15rem;
-          width: 15rem;
-          & > select {
-            text-overflow: ellipsis;
+        .cell {
+            display: table-cell;
             white-space: nowrap;
-          }
+            vertical-align: middle;
+            font-weight: 600;
+            padding: 0 0.3rem;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            &.sample-type {
+                min-width: 3rem;
+                width: 3rem;
+                font-weight: 400;
+                font-style: normal;
+                font-size: 1.25rem;
+                margin-right: 1.3rem;
+            }
+            &.inheritance {
+                min-width: 6rem;
+                width: 6rem;
+                max-width: 4rem;
+                font-weight: 400;
+                font-style: normal;
+                font-size: 1.25rem;
+                margin-right: 1.3rem;
+            }
+            &.gene {
+                min-width: 6rem;
+                width: 6rem;
+                max-width: 6rem;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                font-weight: 400;
+                font-style: normal;
+                font-size: 1.25rem;
+                margin-right: 1.3rem;
+            }
+            &.hgvsc {
+                min-width: 10rem;
+                width: 10rem;
+                max-width: 10rem;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            &.consequence {
+                min-width: 10rem;
+                width: 10rem;
+                max-width: 10rem;
+                &.hit {
+                    color: $red-75;
+                }
+            }
+            &.classification {
+                min-width: 5.5rem;
+                width: 5.5rem;
+                text-align: center;
+                transition: background-color 0.4s;
+                cursor: pointer;
+                padding: 0;
+                &.reviewed {
+                    background-color: $blue-75;
+                    color: $white;
+                    .class-amcg-container .classification-container .existing-classification {
+                        color: $white-50;
+                    }
+                }
+                .class-amcg-container {
+                    display: flex;
+                    flex-direction: row;
+                    .classification-container {
+                        margin-top: 0.2rem;
+                        margin-left: 0.6rem;
+                        display: flex;
+                        flex: 1;
+                        .existing-classification {
+                            width: 1.3rem;
+                            color: $black-25;
+                        }
+                        .current-classification {
+                            width: 1.3rem;
+                        }
+                        .arrow-classification {
+                            width: 1.3rem;
+                        }
+                    }
+                    .acmg-indicators-container {
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 2.5rem;
+                        .acmg-indicator {
+                            min-width: 0.6rem;
+                            max-height: 50%;
+                            flex: 1;
+                            @each $name, $color in $acmg-map {
+                                &.#{$name} {
+                                    background-color: hsla(
+                                        hue($color),
+                                        saturation($color),
+                                        lightness($color),
+                                        0.7
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            &.tab {
+                max-width: 0.5rem;
+                width: 0.5rem;
+                padding: 0;
+                min-width: 0.5rem;
+                height: 2.6rem;
+            }
+            &.qual {
+                min-width: 6rem;
+                text-align: center;
+            }
+            &.dp {
+                min-width: 5rem;
+                text-align: center;
+            }
+            &.ratio {
+                min-width: 6rem;
+                text-align: center;
+            }
+            &.hi-freq {
+                min-width: 8rem;
+                text-align: center;
+            }
+            &.hi-count {
+                min-width: 8rem;
+                text-align: center;
+            }
+            &.external {
+                min-width: 10.5rem;
+                text-align: center;
+            }
+            &.evaluation {
+                min-width: 30rem;
+                width: 30rem;
+                max-width: 30rem;
+                &.narrow {
+                    min-width: 12rem;
+                    width: 12rem;
+                    max-width: 12rem;
+                }
+                .wysiwygeditor {
+                    max-height: 4.7rem;
+                    overflow: auto;
+                }
+            }
+
+            &.quick-classification {
+                padding-left: 0;
+                padding-right: 0;
+                button {
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                }
+                button ~ button {
+                    margin-left: 0.5rem;
+                }
+                @each $name, $color in $acmg-map {
+                    button.quick-acmg.#{$name} {
+                        border: 0;
+                        margin: 0;
+                        background-color: hsla(
+                            hue($color),
+                            saturation($color),
+                            lightness($color),
+                            map-get($acmg-opacity, $name)
+                        );
+                        &:hover {
+                            background-color: hsla(
+                                hue($color),
+                                saturation($color),
+                                lightness($color),
+                                map-get($acmg-opacity, $name) + 0.2
+                            );
+                        }
+                        &.added {
+                            background-color: hsla(
+                                hue($color),
+                                saturation($color),
+                                lightness($color),
+                                map-get($acmg-opacity, $name) + 0.3
+                            );
+                        }
+                    }
+                }
+            }
+
+            @mixin indicator {
+                width: 2rem;
+                height: 1.8rem;
+                line-height: 1.8rem;
+                margin-left: -1px;
+            }
+
+            @mixin indicator-hit {
+                width: 100%;
+                display: flex;
+                align-content: center;
+                justify-content: center;
+                border: 1px solid $black-50;
+            }
+
+            $ind-width: 0.4rem;
+            &.indicators {
+                display: flex;
+                height: 2.5rem;
+                align-items: center;
+                justify-content: center;
+
+                .warning {
+                    @include indicator;
+                    font-weight: 700;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($red, 15%);
+                        color: lighten($red, 15%);
+                    }
+                }
+
+                .segregation {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($purple-75, 15%);
+                        color: lighten($purple-75, 15%);
+                    }
+                }
+
+                .hom {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($yellow, 15%);
+                        color: lighten($yellow, 15%);
+                        font-weight: 900;
+                    }
+                }
+
+                .low-qual {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($black-50, 15%);
+                        color: lighten($black-50, 15%);
+                    }
+                }
+                .technical {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($red, 5%);
+                        background-color: $red-75;
+                        color: $white-95;
+                    }
+                }
+                .verified {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($green, 5%);
+                        background-color: lighten($green, 10%);
+                        color: $white-95;
+                    }
+                }
+                .important-source {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border-color: lighten($green-50, 5%);
+                        color: lighten($green-50, 5%);
+                    }
+                }
+
+                .top {
+                    @include indicator;
+                    .hit {
+                        @include indicator-hit;
+                        border: none;
+                        color: $black-50;
+                        &:hover {
+                            color: $black-75;
+                        }
+                    }
+                }
+            }
         }
-        > select {
-            color: white;
+
+        &.togglable .cell {
+            &.tab {
+                align-items: center;
+                text-align: center;
+                justify-content: center;
+                max-width: 2.6rem;
+                width: 2.6rem;
+                min-width: 2.6rem;
+                background-color: $black-50;
+                cursor: pointer;
+            }
+            &.consequence {
+                max-width: 6.8rem;
+            } // Steal some width, give it to toggle button
+        }
+        &.toggled {
+            color: $blue;
+            .cell.tab {
+                background-color: $blue;
+            }
+        }
+
+        &.disabled {
+            color: $black-25;
+        }
+        &:hover {
+            color: $black-75;
+        }
+        &:hover .tab {
             background-color: $blue-50;
         }
-        &:after { border-color: white transparent transparent transparent }
+        &.active:not(.toggled):hover {
+            cursor: default;
+        }
+        &.active,
+        &.active:hover {
+            color: $blue;
+            background-color: $blue-25;
+        }
+        &.active .tab,
+        &.active:hover .tab {
+            background-color: $blue;
+        }
+        .added h5 {
+            padding: 0;
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+        }
+        &.active.toggled {
+            &:hover .tab.togglable {
+                background-color: $black-75;
+            }
+        }
     }
-    .classification-type-controls {
-      margin-left: 1rem;
+}
+.sidebar .ng-enter {
+    opacity: 0;
+    transition: all 0.8s ease-in-out;
+}
+.sidebar .ng-enter-active {
+    opacity: 1;
+}
+.sidebar {
+    min-width: 45rem;
+    position: sticky;
+    margin-left: 1.3rem;
+    margin-top: 2.5rem;
+    padding-bottom: 4.5rem;
+    overflow: auto;
+    max-width: 100vw;
+    // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set on parent element in javascript
+    max-height: inherit;
+
+    .controls {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding-bottom: 0.3rem;
+        border-bottom: 2px solid $blue-10;
+        box-shadow: 0 0 0 3px $white;
+        z-index: 1;
+        margin-bottom: 0.3rem;
+
+        .control-comment {
+            max-width: 70rem;
+            .wysiwygeditor {
+                max-height: 13rem;
+                overflow: auto;
+            }
+            margin-bottom: 1rem;
+        }
+        > .control-section {
+            display: flex;
+            padding-bottom: 0.5rem;
+            > button,
+            .button {
+                margin-left: 0;
+                margin-right: 0.5rem;
+            }
+        }
+        & .dropdown {
+            &.filter-config-selection {
+                max-width: 15rem;
+                width: 15rem;
+                & > select {
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+            > select {
+                color: white;
+                background-color: $blue-50;
+            }
+            &:after {
+                border-color: white transparent transparent transparent;
+            }
+        }
+        .classification-type-controls {
+            margin-left: 1rem;
+        }
+        .add-excluded-button {
+            margin-left: 0.5rem;
+        }
     }
-    .add-excluded-button { margin-left: 0.5rem; }
-  }
-  &::-webkit-scrollbar {
-    width: 0.8rem;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: $blue-25;
-  }
-  &:hover::-webkit-scrollbar-thumb {
-    background-color: $blue-50;
-  }
-  .spacer {
-    height: 2rem;
-  }
+    &::-webkit-scrollbar {
+        width: 0.8rem;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: $blue-25;
+    }
+    &:hover::-webkit-scrollbar-thumb {
+        background-color: $blue-50;
+    }
+    .spacer {
+        height: 2rem;
+    }
 }
 
 @mixin info-cell {
-  font-weight: 500;
-  font-size: 1.4rem;
-  min-width: 8rem;
-  color: $black-75;
-  padding-bottom: 1.4rem;
-  padding-right: 2.5rem;
+    font-weight: 500;
+    font-size: 1.4rem;
+    min-width: 8rem;
+    color: $black-75;
+    padding-bottom: 1.4rem;
+    padding-right: 2.5rem;
 }
 
 .info-table-header {
-  @include info-cell;
-  font-size: 1.4rem;
-  color: $black-50;
-  font-weight: 600;
-  //border-bottom: 1px solid;
-  padding-top: 1rem;
+    @include info-cell;
+    font-size: 1.4rem;
+    color: $black-50;
+    font-weight: 600;
+    //border-bottom: 1px solid;
+    padding-top: 1rem;
 }
 
 .info-gene {
-  @include info-cell;
-  color: $black-50;
-  font-weight: 400;
+    @include info-cell;
+    color: $black-50;
+    font-weight: 400;
 }
 
 .info-hgvsc {
-  @include info-cell;
+    @include info-cell;
 }
 
 .info-transcript {
-  @include info-cell;
-  font-weight: 400;
+    @include info-cell;
+    font-weight: 400;
 }
 
-
-#toast-container { position: fixed; z-index: 10000; bottom: 0; right: 0; left: 0; width: 100%; max-height: 20rem; overflow-y: auto; overflow-x: hidden;
-  & > :hover { cursor: pointer; }
-  .toast { position: relative; overflow: hidden; padding: 1.3rem 3.9rem 1.3rem 2.6rem; width: 100vw; margin: 0 auto; background-position: 15px center; background-repeat: no-repeat; color: hsla; opacity: 0.99; }
-  .toast { background-color: #030303; }
-  .toast:before { color: white; font-size: 1.1rem; font-family: $full; letter-spacing: 0.1rem; }
-  .toast-success { background-color: $green; &:before { content: "SUCCESS"; } }
-  .toast-error { background-color: $red; &:before { content: "ERROR"; } }
-  .toast-info { background-color: $purple-75; &:before { content: "INFORMATION"; } }
-  .toast-warning { background-color: $red-75; &:before { content: "WARNING"; } }
-  .toast-message { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; text-transform: uppercase; color: white; padding-top: 0.3rem; }
-  .toast-message-collision { word-wrap: break-word; font-size: 1.7rem; font-family: $slim; font-weight: 600; color: white; padding-top: 0.3rem; }
-  .toast.ng-enter { max-height: 0px ; transition: all 0.6s ease-in-out; }
-  .toast.ng-enter.ng-enter-active { max-height: 1000px; }
-  .toast.ng-leave { max-height: 1000px; transition: all 0.6s ease-in-out; }
-  .toast.ng-leave.ng-leave-active { max-height: 0px; }
+#toast-container {
+    position: fixed;
+    z-index: 10000;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-height: 20rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    & > :hover {
+        cursor: pointer;
+    }
+    .toast {
+        position: relative;
+        overflow: hidden;
+        padding: 1.3rem 3.9rem 1.3rem 2.6rem;
+        width: 100vw;
+        margin: 0 auto;
+        background-position: 15px center;
+        background-repeat: no-repeat;
+        color: hsla;
+        opacity: 0.99;
+    }
+    .toast {
+        background-color: #030303;
+    }
+    .toast:before {
+        color: white;
+        font-size: 1.1rem;
+        font-family: $full;
+        letter-spacing: 0.1rem;
+    }
+    .toast-success {
+        background-color: $green;
+        &:before {
+            content: 'SUCCESS';
+        }
+    }
+    .toast-error {
+        background-color: $red;
+        &:before {
+            content: 'ERROR';
+        }
+    }
+    .toast-info {
+        background-color: $purple-75;
+        &:before {
+            content: 'INFORMATION';
+        }
+    }
+    .toast-warning {
+        background-color: $red-75;
+        &:before {
+            content: 'WARNING';
+        }
+    }
+    .toast-message {
+        word-wrap: break-word;
+        font-size: 1.7rem;
+        font-family: $slim;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: white;
+        padding-top: 0.3rem;
+    }
+    .toast-message-collision {
+        word-wrap: break-word;
+        font-size: 1.7rem;
+        font-family: $slim;
+        font-weight: 600;
+        color: white;
+        padding-top: 0.3rem;
+    }
+    .toast.ng-enter {
+        max-height: 0px;
+        transition: all 0.6s ease-in-out;
+    }
+    .toast.ng-enter.ng-enter-active {
+        max-height: 1000px;
+    }
+    .toast.ng-leave {
+        max-height: 1000px;
+        transition: all 0.6s ease-in-out;
+    }
+    .toast.ng-leave.ng-leave-active {
+        max-height: 0px;
+    }
 }
 
 // all initial styling from toastr, probably needs fixed
-button.toast-close-button { padding: 0; cursor: pointer; background: transparent; border: 0; -webkit-appearance: none; }
-.toast-title { font-weight: bold; }
-.toast-message a, .toast-message label { color: $white-75; }
-.toast-message a:hover { color: $white; text-decoration: none; }
-.toast-close-button { position: relative; right: -0.3em; top: -0.3em; float: right; font-size: 20px; font-weight: bold; color: $white-75; -webkit-text-shadow: 0 1px 0 #ffffff; text-shadow: 0 1px 0 #ffffff; opacity: 0.8; }
-.toast-close-button:hover, .toast-close-button:focus { color: $white; text-decoration: none; cursor: pointer; opacity: 0.4; }
+button.toast-close-button {
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+}
+.toast-title {
+    font-weight: bold;
+}
+.toast-message a,
+.toast-message label {
+    color: $white-75;
+}
+.toast-message a:hover {
+    color: $white;
+    text-decoration: none;
+}
+.toast-close-button {
+    position: relative;
+    right: -0.3em;
+    top: -0.3em;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    color: $white-75;
+    -webkit-text-shadow: 0 1px 0 #ffffff;
+    text-shadow: 0 1px 0 #ffffff;
+    opacity: 0.8;
+}
+.toast-close-button:hover,
+.toast-close-button:focus {
+    color: $white;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 0.4;
+}
 
-.spacer { height: 4rem; }
-.spacer2 { height: 2rem; }
-.spacer-horizontal {width: 4rem; }
+.spacer {
+    height: 4rem;
+}
+.spacer2 {
+    height: 2rem;
+}
+.spacer-horizontal {
+    width: 4rem;
+}
 
 .genepanel {
-  @extend .dropdown;
-  //width: 200px !important;
-  width: 100% !important;
+    @extend .dropdown;
+    //width: 200px !important;
+    width: 100% !important;
 }
 
 .analysis {
-  @extend .dropdown;
-  //width: 300px !important;
-  width: 100%;
-  max-width: 300px !important;
+    @extend .dropdown;
+    //width: 300px !important;
+    width: 100%;
+    max-width: 300px !important;
 }
 
-.selector-container { display: block; position: relative; }
+.selector-container {
+    display: block;
+    position: relative;
+}
 .selector-container,
 .selector-container * input {
-  padding: 0;
-  text-transform: uppercase;
-  line-height: normal;
-  height: 2.6rem !important;
+    padding: 0;
+    text-transform: uppercase;
+    line-height: normal;
+    height: 2.6rem !important;
 }
 .selector-input {
-  display: block;
-  height: 2.6rem;
-  padding-left: 0.7rem;
-  padding-right: 2.6rem;
-  overflow: hidden;
-  font-weight: inherit;
-}
-
-.selector-container .selector-values { list-style: none; margin: unset;}
-.selector-container * input {
-  outline: none;
-  background: none !important;
-  border-color: transparent !important;
-  width: 2px;
-  display: inline-block;
-  cursor: pointer;
-}
-.selector-container.open input,
-.selector-container.has-value input { cursor: text; }
-.selector-container.disabled { opacity: .6; }
-
-/* Single */
-.selector-container.open .selector-input {
-  background: none;
-  border-radius: 0px 0px 0 0;
-}
-
-.selector-container * input {
-  display: block;
-  width:100% !important;
+    display: block;
+    height: 2.6rem;
+    padding-left: 0.7rem;
+    padding-right: 2.6rem;
+    overflow: hidden;
+    font-weight: inherit;
 }
 
 .selector-container .selector-values {
-  position: absolute;
-  white-space: nowrap;
-  overflow: hidden;
-  max-width: calc(100% - 3.5rem);
+    list-style: none;
+    margin: unset;
 }
-.selector-container .selector-values>li,
-.selector-container .selector-values>li>div {
+.selector-container * input {
+    outline: none;
+    background: none !important;
+    border-color: transparent !important;
+    width: 2px;
+    display: inline-block;
+    cursor: pointer;
+}
+.selector-container.open input,
+.selector-container.has-value input {
+    cursor: text;
+}
+.selector-container.disabled {
+    opacity: 0.6;
+}
 
-  display: block;
-  width:100% !important;
-  padding-top: 0.25rem;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.1rem;
-  word-spacing: 0.2rem;
+/* Single */
+.selector-container.open .selector-input {
+    background: none;
+    border-radius: 0px 0px 0 0;
+}
+
+.selector-container * input {
+    display: block;
+    width: 100% !important;
+}
+
+.selector-container .selector-values {
+    position: absolute;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: calc(100% - 3.5rem);
+}
+.selector-container .selector-values > li,
+.selector-container .selector-values > li > div {
+    display: block;
+    width: 100% !important;
+    padding-top: 0.25rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.1rem;
+    word-spacing: 0.2rem;
 }
 
 /* Helper */
 .selector-helper {
-  position: absolute;
-  display: inline-block;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
+    position: absolute;
+    display: inline-block;
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 
 /* Shadow */
 .selector-input input,
 .selector-shadow {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  border-left: 0 !important;
-  border-right: 0 !important;
-  max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    max-width: 100% !important;
 }
-.selector-shadow { position: absolute; top: 0; left: 0; opacity: 0; visibility: hidden; white-space: pre; margin: 0;}
+.selector-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    white-space: pre;
+    margin: 0;
+}
 
 /* Dropdown */
 .selector-dropdown {
-  display: none;
-  list-style: none;
-  padding-top: 0;
-  margin: unset !important;
-  position: absolute;
-  background: $white;
-  border: 1px solid $black-25;
-  max-height: 15.5rem;
-  overflow-x: hidden;
-  overflow-y: auto;
-  z-index: 1000;
-  width: 100%;
+    display: none;
+    list-style: none;
+    padding-top: 0;
+    margin: unset !important;
+    position: absolute;
+    background: $white;
+    border: 1px solid $black-25;
+    max-height: 15.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 100%;
 
-  .selector-optgroup {
-    display: none !important; // Groups in selector are badly broken
-  }
+    .selector-optgroup {
+        display: none !important; // Groups in selector are badly broken
+    }
 }
-.selector-dropdown>li {
-  padding: 0.2em 0.7em;
-  overflow: hidden;
-  cursor: pointer;
-  font-size: 1.2rem;
+.selector-dropdown > li {
+    padding: 0.2em 0.7em;
+    overflow: hidden;
+    cursor: pointer;
+    font-size: 1.2rem;
 }
 
-.selector-dropdown>.selector-option.active { background: $blue-05; }
-.selector-container.open .selector-dropdown { display: block; }
+.selector-dropdown > .selector-option.active {
+    background: $blue-05;
+}
+.selector-container.open .selector-dropdown {
+    display: block;
+}
 
 // CUSTOM
 .selector-container.has-value * input {
-  opacity: 0;
+    opacity: 0;
 }
 .search-options {
-  width: 28vh;
+    width: 28vh;
 }
 
 .interpretation-log {
-  padding-left: 1rem;
-  padding-right: 1rem;
-  font-family: $full;
-  font-size: 1.4rem;
-  font-weight: 400;
-  display: flex;
-  flex-direction: column;
-  height: 88vh;
-  h4 {
-    text-transform: uppercase;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    margin-right: 1rem;
-  }
-  .review-comment {
-    display: flex;
-    padding-top: 1rem;
-    input { width: 30rem; }
-    button { margin-left: 1rem; }
-  }
-  .controls {
-    display: flex;
-    padding-top: 3rem;
-    padding-bottom: 2rem;
-    margin-bottom: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-family: $full;
     font-size: 1.4rem;
-    .dropdown {
-      background-color: $blue-50;
-      &:after { border-color: $white-75 transparent transparent transparent }
-      select { color: white;
-        option { background-color: $blue-50;}
-        &[disabled] { background-color: $blue-25; opacity: 1}
-      }
-    }
-    button {
-      margin-right: 1rem;
-    }
-  }
-  .messages-options {
+    font-weight: 400;
     display: flex;
-    justify-content: space-between;
-  }
-  .messages {
-    flex-grow: 1;
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: $blue-05;
-    overflow-y: scroll;
-    overflow-x: auto;
-    .message-item {
-      margin: 0.25rem 1rem 0.25rem 1rem;
-      padding: 0.5rem 1.5rem 0.5rem 1.5rem;
-      &.editable {
-        border-left: 5px solid $black-05;
-        .heading {
-          height: 2rem;
-        }
-        &.normal-mode:hover {
-          border-left: 5px solid $blue-50;
-        }
-        &.edit-mode {
-          border-left: 5px solid $blue-50;
-        }
-        &.delete-mode {
-          border-left: 5px solid $red-75;
-        }
-        &:hover {
-          .heading {
-            .heading-controls {
-              display: block;
-            }
-          }
-        }
-      }
-      &.normal-mode {
-        .heading-controls {
-          display: none;
-        }
-      }
-      .heading {
+    flex-direction: column;
+    height: 88vh;
+    h4 {
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        margin-right: 1rem;
+    }
+    .review-comment {
         display: flex;
-        flex-direction: row;
-        .heading-info {
-          flex-grow: 1;
-          .name { font-family: $full; color: $blue-75; font-weight: 600; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.075rem; margin-top: 0.35rem; }
-          .time { font-size: 1.2rem; color: $black-75; }
+        padding-top: 1rem;
+        input {
+            width: 30rem;
         }
-
-      }
-      .message {
-        .wysiwygeditor { border: 0; }
-        .wysiwygplaceholder { border: 0; }
-      }
-      .event { @extend .slim; text-transform: uppercase; color: $red-75; }
-      .event-text { @extend .slim; text-transform: uppercase; color: $black-75; }
-      .event-time { color: $black-75; }
-      .hr-text {
-        line-height: 1em;
-        position: relative;
-        outline: 0;
-        border: 0;
-        color: black;
-        text-align: center;
-        height: 1.5em;
-        opacity: .5;
-        &:before {
-          content: '';
-          // use the linear-gradient for the fading effect
-          // use a solid background color for a solid bar
-          background: linear-gradient(to right, $black-50, $black-75, $black-50);
-          position: absolute;
-          left: 0;
-          top: 50%;
-          width: 100%;
-          height: 1px;
+        button {
+            margin-left: 1rem;
         }
-        &:after {
-          content: attr(data-content);
-          position: relative;
-          display: inline-block;
-          color: black;
-
-          padding: 0 .5em;
-          line-height: 1.5em;
-          // this is really the only tricky part, you need to specify the background color of the container element...
-          color: #818078;
-          background-color: #fcfcfa;
-        }
-      }
     }
-  }
-  .compose {
-    padding-top: 1rem;
-    button {
-      margin-top: 1rem;
+    .controls {
+        display: flex;
+        padding-top: 3rem;
+        padding-bottom: 2rem;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        .dropdown {
+            background-color: $blue-50;
+            &:after {
+                border-color: $white-75 transparent transparent transparent;
+            }
+            select {
+                color: white;
+                option {
+                    background-color: $blue-50;
+                }
+                &[disabled] {
+                    background-color: $blue-25;
+                    opacity: 1;
+                }
+            }
+        }
+        button {
+            margin-right: 1rem;
+        }
     }
-  }
+    .messages-options {
+        display: flex;
+        justify-content: space-between;
+    }
+    .messages {
+        flex-grow: 1;
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: $blue-05;
+        overflow-y: scroll;
+        overflow-x: auto;
+        .message-item {
+            margin: 0.25rem 1rem 0.25rem 1rem;
+            padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+            &.editable {
+                border-left: 5px solid $black-05;
+                .heading {
+                    height: 2rem;
+                }
+                &.normal-mode:hover {
+                    border-left: 5px solid $blue-50;
+                }
+                &.edit-mode {
+                    border-left: 5px solid $blue-50;
+                }
+                &.delete-mode {
+                    border-left: 5px solid $red-75;
+                }
+                &:hover {
+                    .heading {
+                        .heading-controls {
+                            display: block;
+                        }
+                    }
+                }
+            }
+            &.normal-mode {
+                .heading-controls {
+                    display: none;
+                }
+            }
+            .heading {
+                display: flex;
+                flex-direction: row;
+                .heading-info {
+                    flex-grow: 1;
+                    .name {
+                        font-family: $full;
+                        color: $blue-75;
+                        font-weight: 600;
+                        font-size: 1.2rem;
+                        text-transform: uppercase;
+                        letter-spacing: 0.075rem;
+                        margin-top: 0.35rem;
+                    }
+                    .time {
+                        font-size: 1.2rem;
+                        color: $black-75;
+                    }
+                }
+            }
+            .message {
+                .wysiwygeditor {
+                    border: 0;
+                }
+                .wysiwygplaceholder {
+                    border: 0;
+                }
+            }
+            .event {
+                @extend .slim;
+                text-transform: uppercase;
+                color: $red-75;
+            }
+            .event-text {
+                @extend .slim;
+                text-transform: uppercase;
+                color: $black-75;
+            }
+            .event-time {
+                color: $black-75;
+            }
+            .hr-text {
+                line-height: 1em;
+                position: relative;
+                outline: 0;
+                border: 0;
+                color: black;
+                text-align: center;
+                height: 1.5em;
+                opacity: 0.5;
+                &:before {
+                    content: '';
+                    // use the linear-gradient for the fading effect
+                    // use a solid background color for a solid bar
+                    background: linear-gradient(to right, $black-50, $black-75, $black-50);
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    width: 100%;
+                    height: 1px;
+                }
+                &:after {
+                    content: attr(data-content);
+                    position: relative;
+                    display: inline-block;
+                    color: black;
+
+                    padding: 0 0.5em;
+                    line-height: 1.5em;
+                    // this is really the only tricky part, you need to specify the background color of the container element...
+                    color: #818078;
+                    background-color: #fcfcfa;
+                }
+            }
+        }
+    }
+    .compose {
+        padding-top: 1rem;
+        button {
+            margin-top: 1rem;
+        }
+    }
 }
 
-
 .new-fade {
-  opacity: 0;
+    opacity: 0;
 }
 
 .new-fade:not(:empty) {
-  animation: fadein 0.5s;
-  opacity: 1;
+    animation: fadein 0.5s;
+    opacity: 1;
 }
 
 @keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
-
 
 .visualization {
-  .bttn-set > label {
-    margin-right: 0.2rem;
-  }
-  .section-title {
-    color: $blue-50;
-    padding-top: 0.5rem;
-  }
+    .bttn-set > label {
+        margin-right: 0.2rem;
+    }
+    .section-title {
+        color: $blue-50;
+        padding-top: 0.5rem;
+    }
 
-  .igv-viewport-container {
-    user-select: none;
-  }
+    .igv-viewport-container {
+        user-select: none;
+    }
 
-  .igv-popover-table * a {
-    display: none;
-  }
+    .igv-popover-table * a {
+        display: none;
+    }
 
-  // Adjust down the extremely high z-indices
-  // so it doesn't scroll over our layout
-  .igv-track-label {
-    z-index: 50;
-  }
+    // Adjust down the extremely high z-indices
+    // so it doesn't scroll over our layout
+    .igv-track-label {
+        z-index: 50;
+    }
 
-  .igv-track-manipulation-handle {
-    z-index: 99;
-  }
-
-
+    .igv-track-manipulation-handle {
+        z-index: 99;
+    }
 }
 
-
 .import {
-
-  .selection-warning {
-    height: 1.2rem;
-    font-size: 1.0rem;
-    color: $red-95;
-    font-weight: 700;
-  }
-
-  importsingle > contentwrapper {
-    margin-top: 1.6rem;
-  }
-
-  @keyframes fade-in-import-edit {
-    0% {
-      transform: scale(0.0);
-      transform-origin: top left;
-      opacity: 0;
+    .selection-warning {
+        height: 1.2rem;
+        font-size: 1rem;
+        color: $red-95;
+        font-weight: 700;
     }
-    100% {
-      transform: scale(1);
-      transform-origin: top left;
-    }
-  }
 
-  .import-edit {
-    background-color: $green-10;
-    padding: 1rem;
-    margin-top: 1rem;
-    &.ng-enter {
-      animation: fade-in-import-edit 0.15s;
-      animation-timing-function: ease-in;
+    importsingle > contentwrapper {
+        margin-top: 1.6rem;
     }
-  }
 
-  .import-summary {
-    width: 50%;
-    > section > div > div {
-        display: flex;
-        > span {
-          font-size: 1.4rem;
-          &.title {
-            min-width: 15rem;
-            text-transform: uppercase !important;
-            font-weight: 600;
-          }
+    @keyframes fade-in-import-edit {
+        0% {
+            transform: scale(0);
+            transform-origin: top left;
+            opacity: 0;
         }
-      }
-    padding-right: 2rem;
-  }
-
-  .user-input-left {
-    max-width: 50rem;
-  }
-
-  .user-input-middle {
-    max-width: 2rem;
-
-  }
-
-  .user-input-right {
-    max-width: 70rem;
-
-  }
-
-  .import-selection {
-    border-top: 1px dashed $black-10;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    min-height: 8rem;
-  }
-
-  .import-warning {
-    background-color: $red; margin: 0.5rem; padding: 1rem; color: $white;
-    p { color: $white; }
-
-  }
-
-  .import-variants {
-    * input[type=checkbox] {
-      height: inherit;
+        100% {
+            transform: scale(1);
+            transform-origin: top left;
+        }
     }
 
-  }
+    .import-edit {
+        background-color: $green-10;
+        padding: 1rem;
+        margin-top: 1rem;
+        &.ng-enter {
+            animation: fade-in-import-edit 0.15s;
+            animation-timing-function: ease-in;
+        }
+    }
 
-  .annotationjobinfo > span {
-    overflow-wrap: break-word;
-  }
+    .import-summary {
+        width: 50%;
+        > section > div > div {
+            display: flex;
+            > span {
+                font-size: 1.4rem;
+                &.title {
+                    min-width: 15rem;
+                    text-transform: uppercase !important;
+                    font-weight: 600;
+                }
+            }
+        }
+        padding-right: 2rem;
+    }
 
-  .annotationjobinfo > pre {
-    white-space: pre-wrap;
-  }
+    .user-input-left {
+        max-width: 50rem;
+    }
 
-  .import-all-summary * {
-    text-align: center;
-    margin-top: 0.3rem;
-  }
+    .user-input-middle {
+        max-width: 2rem;
+    }
 
-  .json-pretty {
-    display: inline-block;
-    text-align: left !important;
-    font-size: 0.8rem;
-  }
+    .user-input-right {
+        max-width: 70rem;
+    }
 
+    .import-selection {
+        border-top: 1px dashed $black-10;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        min-height: 8rem;
+    }
+
+    .import-warning {
+        background-color: $red;
+        margin: 0.5rem;
+        padding: 1rem;
+        color: $white;
+        p {
+            color: $white;
+        }
+    }
+
+    .import-variants {
+        * input[type='checkbox'] {
+            height: inherit;
+        }
+    }
+
+    .annotationjobinfo > span {
+        overflow-wrap: break-word;
+    }
+
+    .annotationjobinfo > pre {
+        white-space: pre-wrap;
+    }
+
+    .import-all-summary * {
+        text-align: center;
+        margin-top: 0.3rem;
+    }
+
+    .json-pretty {
+        display: inline-block;
+        text-align: left !important;
+        font-size: 0.8rem;
+    }
 }

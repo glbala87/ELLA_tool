@@ -1,53 +1,61 @@
-<contentbox class="full-max-width id-acmg-container"
-            title="SUGGESTED"
-            disabled="$ctrl.readOnly || vm.isAlleleAssessmentReused()"
-            >
-  <cbbody>
-    <section class="line-wrapper spaced">
-
-      <div class="id-acmg-show-hide-req">
-        <checkable-button buttonclass="blue"
-                          check-model="$ctrl.showReq">
-          <checked>Hide REQ</checked>
-          Show REQ
-        </checkable-button>
-
-      </div>
-
-    </section>
-
-    <!-- Suggested codes (sans REQ) -->
-    <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-suggested">
-        <h4 class="section-title acmg-body">ACMG Suggested</h4>
-        <section class="acmg-wrapper">
-          <acmg code="code"
-                ng-repeat="code in $ctrl.suggestedAcmgCodes"
-                on-toggle="$ctrl.addAcmgClicked({alleleId: $ctrl.allele.id, code: {code: code.code, match: code.match, op: code.op, source: 'suggested'}})"
-                toggle-text="ADD"
-                is-upgradable="$ctrl.isUpgradeOrDowngradable"
-                is-downgradable="$ctrl.isUpgradeOrDowngradable"
-                editable="$ctrl.isEditable()">
-          </acmg>
+<contentbox
+    class="full-max-width id-acmg-container"
+    title="SUGGESTED"
+    disabled="$ctrl.readOnly || vm.isAlleleAssessmentReused()"
+>
+    <cbbody>
+        <section class="line-wrapper spaced">
+            <div class="id-acmg-show-hide-req">
+                <checkable-button buttonclass="blue" check-model="$ctrl.showReq">
+                    <checked>Hide REQ</checked>
+                    Show REQ
+                </checkable-button>
+            </div>
         </section>
-    </div>
 
-    <!-- REQ codes -->
-    <!-- Don't use 'track by $index' -->
-    <div class="id-acmg-suggested-req" ng-if="$ctrl.showReq">
-        <h4 class="section-title acmg-body">ACMG REQ</h4>
-        <section class="acmg-wrapper">
-          <acmg code="group"
-                ng-repeat="group in $ctrl.reqCodes"
-                is-upgradable="$ctrl.isUpgradeOrDowngradable"
-                is-downgradable="$ctrl.isUpgradeOrDowngradable"
-                add-required-for-code="$ctrl.addAcmgFromReq(code)"
-                editable="$ctrl.isEditable()">
-          </acmg>
-        </section>
-    </div>
+        <!-- Suggested codes (sans REQ) -->
+        <!-- Don't use 'track by $index' -->
+        <div class="id-acmg-suggested">
+            <h4 class="section-title acmg-body">ACMG Suggested</h4>
+            <section class="acmg-wrapper">
+                <acmg
+                    code="code"
+                    ng-repeat="code in $ctrl.suggestedAcmgCodes"
+                    on-toggle="
+                        $ctrl.addAcmgClicked({
+                            alleleId: $ctrl.allele.id,
+                            code: {
+                                code: code.code,
+                                match: code.match,
+                                op: code.op,
+                                source: 'suggested'
+                            }
+                        })
+                    "
+                    toggle-text="ADD"
+                    is-upgradable="$ctrl.isUpgradeOrDowngradable"
+                    is-downgradable="$ctrl.isUpgradeOrDowngradable"
+                    editable="$ctrl.isEditable()"
+                >
+                </acmg>
+            </section>
+        </div>
 
-  </cbbody>
+        <!-- REQ codes -->
+        <!-- Don't use 'track by $index' -->
+        <div class="id-acmg-suggested-req" ng-if="$ctrl.showReq">
+            <h4 class="section-title acmg-body">ACMG REQ</h4>
+            <section class="acmg-wrapper">
+                <acmg
+                    code="group"
+                    ng-repeat="group in $ctrl.reqCodes"
+                    is-upgradable="$ctrl.isUpgradeOrDowngradable"
+                    is-downgradable="$ctrl.isUpgradeOrDowngradable"
+                    add-required-for-code="$ctrl.addAcmgFromReq(code)"
+                    editable="$ctrl.isEditable()"
+                >
+                </acmg>
+            </section>
+        </div>
+    </cbbody>
 </contentbox>
-
-

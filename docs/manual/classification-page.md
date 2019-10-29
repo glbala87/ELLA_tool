@@ -1,5 +1,5 @@
 ---
-title: Classification page
+title: Overview and basics
 ---
 
 # Classification page: Overview and basics

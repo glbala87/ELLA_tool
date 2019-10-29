@@ -35,6 +35,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
     let interpretation_expected_values = {}
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
@@ -80,13 +81,19 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         alleleSectionBox.setExternalComment('EXTERNAL_ROUND1')
         analysisPage.saveButton.click()
         alleleSectionBox.setReportComment('REPORT_ROUND1')
-        browser.click('body') // a trick to unfocus the above report comment
+        $('body').click() // a trick to unfocus the above report comment
 
-        alleleSectionBox.classificationCommentElement.scroll()
+        // Check that other and not weighted does not affect suggested classification
+        expect(analysisPage.getSuggestedClass()).toEqual('')
+        analysisPage.addAcmgCode('other', 'OTHER', 'OTHER_ROUND_1')
+        expect(analysisPage.getSuggestedClass()).toEqual('')
+        analysisPage.addAcmgCode('pathogenic', 'PP1', 'PP1_ACMG_ROUND_1', -1) // Not weighted
+        expect(analysisPage.getSuggestedClass()).toEqual('')
 
         analysisPage.addAcmgCode('benign', 'BP2', 'BP2_ACMG_ROUND_1', 1) // Adjust up to BSxBP2
         analysisPage.addAcmgCode('pathogenic', 'PS2', 'PS2_ACMG_ROUND_1')
         analysisPage.addAcmgCode('pathogenic', 'PM1', 'PM1_ACMG_ROUND_1', 2) // Adjust up to PVSxPM1
+        expect(analysisPage.getSuggestedClass()).not.toEqual('')
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
 
         interpretation_expected_values = {
@@ -124,8 +131,16 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                         comment: 'PS2_ACMG_ROUND_1'
                     },
                     '3': {
+                        code: 'PP1 NOT WEIGHTED',
+                        comment: 'PP1_ACMG_ROUND_1'
+                    },
+                    '4': {
                         code: 'BP2 STRONG',
                         comment: 'BP2_ACMG_ROUND_1'
+                    },
+                    '5': {
+                        code: 'OTHER',
+                        comment: 'OTHER_ROUND_1'
                     }
                 }
             }
@@ -143,12 +158,14 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
     })
 
     it('shows the review comment on overview page', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandReviewSection()
         expect(variantSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
     })
 
     it('keeps the classification from the previous round', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()

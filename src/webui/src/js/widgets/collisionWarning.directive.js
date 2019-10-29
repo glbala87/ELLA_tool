@@ -13,7 +13,8 @@ app.component('collisionWarning', {
         'CollisionWarning',
         [
             '$scope',
-            function($scope) {
+            '$rootScope',
+            function($scope, $rootScope) {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($scope.$ctrl, {
@@ -30,13 +31,9 @@ app.component('collisionWarning', {
                             } else if ($ctrl.type === 'analysis') {
                                 title = 'There '
                                 if ($ctrl.collisions.length > 1) {
-                                    title += `are currently ${
-                                        $ctrl.collisions.length
-                                    } variants being worked on in other workflows.`
+                                    title += `are currently ${$ctrl.collisions.length} variants being worked on in other workflows.`
                                 } else {
-                                    title += `is currently ${
-                                        $ctrl.collisions.length
-                                    } variant being worked on in another workflow.`
+                                    title += `is currently ${$ctrl.collisions.length} variant being worked on in another workflow.`
                                 }
                             }
                         }
@@ -62,6 +59,12 @@ app.component('collisionWarning', {
                             }`
                         }
                         return text
+                    },
+                    clicked() {
+                        // Trigger a digest cycle to detect changes in layout (specifically, offsetTop of interpretation)
+                        setTimeout(() => {
+                            $rootScope.$digest()
+                        }, 0)
                     }
                 })
             }

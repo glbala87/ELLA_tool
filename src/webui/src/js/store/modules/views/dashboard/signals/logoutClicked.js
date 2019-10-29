@@ -1,8 +1,8 @@
 import { set } from 'cerebral/operators'
 import { state } from 'cerebral/tags'
 import { wait } from 'cerebral/operators'
-import { redirect } from '@cerebral/router/operators'
 import postLogout from '../actions/postLogout'
+import { redirect } from '../../../../common/factories/route'
 import toast from '../../../../common/factories/toast'
 import loadBroadcast from '../../../../common/sequences/loadBroadcast'
 

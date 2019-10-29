@@ -8,39 +8,52 @@ Please contact developers for more details.
 
 [[toc]]
 
-ELLA uses the concept **workflow** to guide the users through the interpretation process.
+ELLA uses the concept **workflow** to guide the users through the interpretation process. This section details the technical aspects of this concept. See [Concepts](/docs/concepts/workflows.md) for descriptions aimed at end users.
 
-At the end of the workflow the interpretation if **finalized**, making the interpetation work available in other workflows. Until then the classifications (and other info) made of the variants/alleles in that workflow  is available for users.
+## Steps and rounds
 
-A workflow is a multi-step process where a user interpret the variant(s) using the information presented by the tool or that is found outside and then entered into the tool. After the interpretation the user marks the workflow/interpretation to be ready for review. Another user continues the interpretation and can either mark it for review again or finalize it, the latter meaning the variant(s) get an official assessment/classification. Each 'review' or 'finalize' step is called a **round**. When a workflow is finished all the rounds are available later if one needs to audit the work done in each round.
+A workflow is a process where an analysis or variant goes through multiple **rounds** of interpretation/review, performed by different users. The possible steps are: 
+
+`NOT READY` - `INTERPRETATION` - `REVIEW` - `MEDICAL REVIEW` - `FINALIZE`
+
+New analysis/variants that have not yet been opened by any user are automatically placed in `INTERPRETATION`, all other steps must be chosen by a user.
+
+Each finished workflow step is called a **round**. At the end of a round, users may choose a workflow step that requires review by others, or **finalize** the analysis/variant. Only after this final step has been taken, the results are made "official" and available to other users and workflows.
+
+## Single variants and analyses
 
 The workflow for single variants and analyses are slightly different:
 - In an **allele workflow** a single variant is interpreted and eventually given a classification (1-5).
 - In an **analysis workflow** multiple variants are interpreted, and they all need a classification before the analysis can be finalized.
 
-Variants that are initially filtered out can be manually included by the user. These variants must also be classified.
+Variants that initially have been filtered out need no further action by the user. However, any filtered variants that are manually included by the user must also be subsequently classified.
 
 ## A typical analysis interpretation
 A user selects an analysis and goes through each variant giving them a classification using the information made available in the tool. The classification is set given supporting info such as:
+
 - Relevant references
-- Proteting predictions
-- ACMG codes calculated by a rules engine
+- Bioinformatic predictions
+- ACMG criteria calculated by a rules engine
 
 The user will add info such as:
+
 - Free text
+- Pre-defined choices in forms (e.g. from reference evaluation)
 - Attachments (e.g. images)
 
 The analysis is then set to review and another user will either continue the interpretation (like adding info, changing classification) or finalizing the analysis.
 
-So the interpretation goes through (possibly multiple)  review rounds before being finalized (see figure):
+So the interpretation goes through (possibly multiple) review rounds before being finalized:
 
-  [Initial round] ---review--> [second round] --review--> [third round] ..... [...] --finalize--> Done
-
+<div style="text-indent: 4%;"><img src="./img/interpretation-rounds.png"></div>
 
 ## Interpretation rounds and history
-When later opening an analysis, all the rounds of the analysis are available read-only. Any round can be selected  and the UI will reflect the context at the point of interpreation.
 
-The interpretation of single a variant will also build an increasing list of rounds.
+A record is kept of all rounds, in case an audit is needed. 
+
+When opening a previously finalized analysis, all the previous rounds of the analysis are available read-only. When selecting a particular round, the UI will reflect the informational context at the end of that interpretation round.
+
+The interpretation of single a variant will also build an incremental list of rounds.
 
 
 ## Reopening an analysis

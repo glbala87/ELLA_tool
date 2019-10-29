@@ -32,7 +32,10 @@ def analysis(session, analysis_id, params):
     if "is_single" in params:
         checks.append(params["is_single"] != _is_family(analysis.samples))
 
+    if "genepanel_name" in params:
+        checks.append(re.match(params["genepanel_name"], analysis.genepanel_name) is not None)
+
     if "name" in params:
-        checks.append(re.match(params["name"], analysis.name))
+        checks.append(re.match(params["name"], analysis.name) is not None)
 
     return all(checks)

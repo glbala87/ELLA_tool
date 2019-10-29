@@ -5,6 +5,10 @@ const SELECTOR_COMMENT_ACMG = 'acmg.id-staged-acmg-code wysiwyg-editor.id-commen
 const SELECTOR_COMMENT_ACMG_EDITOR = `${SELECTOR_COMMENT_ACMG} .wysiwygeditor`
 
 class AnalysisPage extends Page {
+    get overviewLink() {
+        return util.element('a#home-bttn')
+    }
+
     get title() {
         return util.element('.id-workflow-instance').getText()
     }
@@ -67,42 +71,37 @@ class AnalysisPage extends Page {
         return util.element('.collision-warning')
     }
 
-    get roundCount() {
+    getRounds() {
         let selector = '.id-interpretationrounds-dropdown option'
-        let all = browser.getText(selector)
-        if (Array.isArray(all)) {
-            return all.length
-        } else {
-            return 1 // if zero an exception would be called above
-        }
+        return $$(selector).map((a) => a.getText())
     }
 
     chooseRound(number) {
-        let dropdownOption = `.id-interpretationrounds-dropdown option:nth-child(${number})`
-        browser.waitForExist(dropdownOption)
-        browser.click(dropdownOption)
+        let dropdownOption = $(`.id-interpretationrounds-dropdown option:nth-child(${number})`)
+        dropdownOption.waitForExist()
+        dropdownOption.click()
     }
 
     selectSectionClassification() {
-        let classificationSelector = '#section-classification'
-        browser.click(classificationSelector)
+        $('#section-classification').click()
     }
 
     selectSectionReport() {
-        let reportSelector = '#section-report'
-        browser.click(reportSelector)
+        $('#section-report').click()
     }
 
     addAttachment() {
         let uploadSelector = '.input-label #file-input'
-        // let uploadSelector = '#file-input';
-        browser.chooseFile(uploadSelector, __filename)
-        browser.pause(1000)
+        const remoteFilePath = browser.uploadFile(__filename)
+        browser.execute(`document.querySelector(".input-label #file-input").hidden = false`)
+        const el = $(uploadSelector)
+        el.setValue(remoteFilePath)
+        browser.execute(`document.querySelector(".input-label #file-input").hidden = true`)
         console.log('Added attachment')
     }
 
     /**
-     * @param {string} category Either 'pathogenic' or 'benign'
+     * @param {string} category Either 'pathogenic', 'benign', or 'other'
      * @param {string} code ACMG code to add
      * @param {string} comment Comment to go with added code
      * @param {int} adjust_levels Adjust ACMG code up or down level (-2 is down two times etc.)
@@ -112,25 +111,25 @@ class AnalysisPage extends Page {
      */
     addAcmgCode(category, code, comment, adjust_levels = 0) {
         let buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
-        browser.click(buttonSelector)
-        browser.waitForExist('.id-acmg-selection-popover', 100) // make sure the popover appeared
+        $(buttonSelector).click()
+        $('.id-acmg-selection-popover').waitForExist() // make sure the popover appeared
         browser.pause(500) // Wait for popover animation to settle
 
         let categories = {
             pathogenic: 1,
-            benign: 2
+            benign: 2,
+            other: 3
         }
 
-        let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${
-            categories[category]
-        })`
-        browser.click(acmg_selector)
-        util.element('.popover').scroll(`h4.acmg-title=${code}`)
-        util.element('.popover').click(`h4.acmg-title=${code}`)
+        let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
+        $(acmg_selector).click()
+        $('.popover')
+            .$(`h4.acmg-title=${code}`)
+            .click()
 
         // Set staged code comment
         this.acmgComment.click()
-        browser.setValue(SELECTOR_COMMENT_ACMG_EDITOR, comment)
+        $(SELECTOR_COMMENT_ACMG_EDITOR).setValue(comment)
 
         // Adjust staged code up or down
         let adjust_down = adjust_levels < 0
@@ -147,13 +146,17 @@ class AnalysisPage extends Page {
     }
 
     getFinalizePossible() {
-        browser.waitForExist('.id-finish-analysis')
+        $('.id-finish-analysis').waitForExist()
         this.finishButton.click()
         this.finalizeButton.click()
         const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null
         // Close modal
-        browser.element('body').click()
+        $('body').click()
         return finalizePossible
+    }
+
+    getSuggestedClass() {
+        return util.element('.suggested-class').getText()
     }
 }
 

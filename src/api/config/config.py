@@ -15,12 +15,6 @@ config = {
         # Disable by default for now
         "links_to_clipboard": str2bool(os.environ.get("OFFLINE_MODE", "true")),
         "non_production_warning": os.environ.get("NON_PRODUCTION_WARNING"),
-        "user_confirmation_on_state_change": str2bool(
-            os.environ.get("USER_CONFIRMATION_ON_STATE_CHANGE", "true")
-        ),
-        "user_confirmation_to_discard_changes": str2bool(
-            os.environ.get("USER_CONFIRMATION_TO_DISCARD_CHANGES", "true")
-        ),
         "annotation_service": os.environ.get("ANNOTATION_SERVICE_URL", "http://localhost:6000"),
         "attachment_storage": os.environ.get("ATTACHMENT_STORAGE", None),
         "max_upload_size": 50 * 1024 * 1024,  # 50 MB
@@ -101,6 +95,7 @@ config = {
                 "disease_mode": "ANY",
                 "last_exon_important": "LEI",
             },
+            "interpretation": {"autoIgnoreReferencePubmedIds": []},
         },
     },
     "analysis": {
@@ -206,8 +201,8 @@ config = {
     "frequencies": {
         "groups": {
             "external": {
-                "GNOMAD_GENOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
-                "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
+                "GNOMAD_GENOMES": ["G", "AFR", "AMR", "EAS", "NFE", "OTH", "SAS"],
+                "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "NFE", "OTH", "SAS"],
             },
             "internal": {"inDB": ["OUSWES"]},
         },
@@ -270,7 +265,6 @@ config = {
                         "AFR": 5000,
                         "AMR": 5000,
                         "EAS": 5000,
-                        "FIN": 5000,
                         "NFE": 5000,
                         "OTH": 5000,
                         "SAS": 5000,
@@ -280,7 +274,6 @@ config = {
                         "AFR": 5000,
                         "AMR": 5000,
                         "EAS": 5000,
-                        "FIN": 5000,
                         "NFE": 5000,
                         "OTH": 5000,
                         "SAS": 5000,

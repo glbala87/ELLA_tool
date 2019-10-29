@@ -1,4 +1,3 @@
-
 /**
  * Whether to show an exit warning or not.
  * It takes in the raw state from Cerebral,
@@ -7,10 +6,11 @@
  * @param {*} state State from Cerebral
  */
 export default function showExitWarning(state) {
-    console.log(state)
     return (
+        'views' in state &&
+        'workflows' in state.views &&
+        'interpretation' in state.views.workflows &&
         state.views.workflows.interpretation.isOngoing &&
-        state.views.workflows.interpretation.dirty &&
-        state.app.config.app.user_confirmation_to_discard_changes
+        state.views.workflows.interpretation.dirty
     )
 }

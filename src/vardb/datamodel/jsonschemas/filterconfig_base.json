@@ -40,12 +40,11 @@
                 "additionalProperties": false,
                 "properties": {
                     "function": {
-                        "type": "string",
                         "enum": ["analysis"]
                     },
                     "params": {
                         "type": "object",
-                        "optional": ["is_trio", "is_single", "is_family", "name"],
+                        "optional": ["is_trio", "is_single", "is_family", "name", "genepanel_name"],
                         "additionalProperties": false,
                         "properties": {
                             "is_trio": {
@@ -58,6 +57,9 @@
                                 "type": "boolean"
                             },
                             "name": {
+                                "type": "string"
+                            },
+                            "genepanel_name": {
                                 "type": "string"
                             }
                         }

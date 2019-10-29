@@ -111,8 +111,8 @@ The manual options are:
 
   - ORTHOLOG CONSERVATION
     
-      - `CONSERVED`: the amino acid is highly conserved in orthologues
-      - `NON-CONSERVED`: the amino acid is not conserved in orthologues
+      - `CONSERVED`: the amino acid is highly conserved in orthologs
+      - `NON-CONSERVED`: the amino acid is not conserved in orthologs
 
   - PARALOG CONSERVATION
     
@@ -159,7 +159,7 @@ If you want to add results from other databases (various LSDBs, depending on the
 
 In the popup, select from the dropdown for each database you want to add from. For pre-specified databases, there will be a <span class="underline">Visit database</span> link to the right, which will take you to the corresponding database and gene. Choices for all databases except OTHER (which is free text) are:
 
-  - Unambigous classification: 
+  - Unambiguous classification: 
 	  - **Pathogenic**: Class 5 or similar
 	  - **Likely pathogenic**: Class 4 or similar
 	  - **Uncertain significance**: Class 3 or similar
@@ -176,13 +176,17 @@ Remember to `SAVE` (top right) once you are done.
 
 ## Studies & references
 
-This section contains literature references describing the selected variant. The references have been automatically retrieved from the annotation, but you can also studies (e.g. in-house results) yourself. 
+This section contains literature references describing the selected variant. The references have been automatically retrieved from the annotation, but you can also [add studies](#add-studies) yourself. 
 
 ### Reference evaluation
 
 Evaluate or ignore a reference by pressing one of the corresponding buttons:
 
 <div style="text-indent: 4%;"><img src="./img/evaluate_ignore_btn.png"></div>
+
+::: tip TIP
+Recurring, generic or otherwise irrelevant references from the annotation can automatically be ignored by [changing the configuration](/technical/uioptions.html#define-references-as-ignored) by a system administrator.
+:::
 
 When a choice/evaluation already has been made, the `EVALUATE` button changes to `RE-EVALUATE`.
 

@@ -1,144 +1,381 @@
 $bar-colors: (
-  green: $green,
-  blue: $blue,
-  purple: $purple,
-  pink: $pink,
-  black: $black,
-  red: $red
+    green: $green,
+    blue: $blue,
+    purple: $purple,
+    pink: $pink,
+    black: $black,
+    red: $red
 );
 @each $name, $color in $bar-colors {
-   .sectionbox.#{$name}, .contentbox.#{$name} { background-color: hsla(hue($color),saturation($color),lightness($color),0.05); }
-   .sectionbox.#{$name} {
-     .sb-title-container { background-color: hsla(hue($color),saturation($color),lightness($color), 0.25); }
-   }
-   .contentbox.#{$name} .cb.titlebar { background-color: hsla(hue($color),saturation($color),lightness($color),0.50); }
-   .#{$name} .sb-controls button, button.#{$name}, .#{$name} .sb-controls .dropdown, .#{$name} .sb-controls .bttn { background-color: hsla(hue($color),saturation($color),lightness($color),0.5); color: white; }
-   .#{$name} .sb-controls .bttn.active { background-color: hsla(hue($color),saturation($color),lightness($color), 0.75); color: white; }
-   .#{$name} .sb-controls button:disabled, button.#{$name}:disabled, .#{$name} .sb-controls .bttn[disabled] { color: $color; border-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
-   .#{$name} .sb-controls li.active, .#{$name} .sb-controls button:hover:not([disabled]), .#{$name} .sb-controls .bttn:hover:not([disabled]), button.#{$name}:hover:not([disabled]) { background-color: hsla(hue($color),saturation($color),lightness($color),0.75); }
+    .sectionbox.#{$name},
+    .contentbox.#{$name} {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.05);
+    }
+    .sectionbox.#{$name} {
+        .sb-title-container {
+            background-color: hsla(hue($color), saturation($color), lightness($color), 0.25);
+        }
+    }
+    .contentbox.#{$name} .cb.titlebar {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.5);
+    }
+    .#{$name} .sb-controls button,
+    button.#{$name},
+    .#{$name} .sb-controls .dropdown,
+    .#{$name} .sb-controls .bttn {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.5);
+        color: white;
+    }
+    .#{$name} .sb-controls .bttn.active {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.75);
+        color: white;
+    }
+    .#{$name} .sb-controls button:disabled,
+    button.#{$name}:disabled,
+    .#{$name} .sb-controls .bttn[disabled] {
+        color: $color;
+        border-color: hsla(hue($color), saturation($color), lightness($color), 0.75);
+    }
+    .#{$name} .sb-controls li.active,
+    .#{$name} .sb-controls button:hover:not([disabled]),
+    .#{$name} .sb-controls .bttn:hover:not([disabled]),
+    button.#{$name}:hover:not([disabled]) {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.75);
+    }
 }
 
-.sectionbox .title, .sectionbox .icon { color: $black-50; }
-.sectionbox .subtitle { color: $black-25; }
+.sectionbox .title,
+.sectionbox .icon {
+    color: $black-50;
+}
+.sectionbox .subtitle {
+    color: $black-25;
+}
 
 @keyframes hide {
-    0%   {opacity: 1; transform: scale(1); } // Scale is used to "remove" element afterwards
-    99%  {opacity: 0; transform: scale(1);}
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    } // Scale is used to "remove" element afterwards
+    99% {
+        opacity: 0;
+        transform: scale(1);
+    }
 }
 @keyframes show {
-    0%   {opacity: 0; transform: scale(1); }
-    99%  {opacity: 1; transform: scale(1);}
+    0% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    99% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
-h2 { white-space: pre; font-family: $slim; font-weight: 400; font-size: 1.8rem; color: #333;  }
-h5 { font-weight: 400;  font-family: $slim; }
+h2 {
+    white-space: pre;
+    font-family: $slim;
+    font-weight: 400;
+    font-size: 1.8rem;
+    color: #333;
+}
+h5 {
+    font-weight: 400;
+    font-family: $slim;
+}
 
 $sb-titlebar-height: 3.8rem;
-.sectionbox { margin-bottom: 1.3rem; display: flex; flex-direction: column;
-  h5 { padding-right: 2.6rem; margin: 0.2rem 0; white-space: pre; }
-  h5, p { font-size: 1.4rem; color: #333; }
-  p { font-weight: 300; word-wrap: break-word; word-break: break-word; }
+.sectionbox {
+    margin-bottom: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    h5 {
+        padding-right: 2.6rem;
+        margin: 0.2rem 0;
+        white-space: pre;
+    }
+    h5,
+    p {
+        font-size: 1.4rem;
+        color: #333;
+    }
+    p {
+        font-weight: 300;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
 
-  .titlebar { display: flex; height: $sb-titlebar-height; min-height: $sb-titlebar-height;
+    .titlebar {
+        display: flex;
+        height: $sb-titlebar-height;
+        min-height: $sb-titlebar-height;
 
-    // Left part containing title and collapse arrow/close button
-    .sb-title-container { display: flex; cursor: pointer; min-width: 20rem; padding-right: 3rem; padding-left: 1.5rem;
-      .title { font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
-        a { color: inherit; border-left: 1px dashed $white-50; border-bottom: none; }
-        a:hover { border-left: 1px solid $white-50; border-bottom: none; }
-      }
-      .icon { transition: all 0.3s; width: 1.2rem; margin-right: 1rem; margin-top: 0.3rem; line-height: $sb-titlebar-height;
-        svg { width: 1.2rem; height: 1.2rem; transition: all 0.3s; transform: rotate(90deg); transform-origin: center; }
-      }
-      .subtitle { padding-left: 1rem; font-family: $slim; line-height: $sb-titlebar-height; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap; }
+        // Left part containing title and collapse arrow/close button
+        .sb-title-container {
+            display: flex;
+            cursor: pointer;
+            min-width: 20rem;
+            padding-right: 3rem;
+            padding-left: 1.5rem;
+            .title {
+                font-family: $slim;
+                line-height: $sb-titlebar-height;
+                font-weight: 700;
+                letter-spacing: 0.1rem;
+                font-size: 1.3rem;
+                text-transform: uppercase;
+                white-space: nowrap;
+                a {
+                    color: inherit;
+                    border-left: 1px dashed $white-50;
+                    border-bottom: none;
+                }
+                a:hover {
+                    border-left: 1px solid $white-50;
+                    border-bottom: none;
+                }
+            }
+            .icon {
+                transition: all 0.3s;
+                width: 1.2rem;
+                margin-right: 1rem;
+                margin-top: 0.4rem;
+                line-height: $sb-titlebar-height;
+                svg {
+                    width: 1.2rem;
+                    height: 1.2rem;
+                    transition: all 0.3s;
+                    transform: rotate(90deg);
+                    transform-origin: center;
+                }
+            }
+            .subtitle {
+                padding-left: 1rem;
+                font-family: $slim;
+                line-height: $sb-titlebar-height;
+                font-weight: 700;
+                letter-spacing: 0.1rem;
+                font-size: 1.3rem;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+        }
+        // Right side controls (buttons)
+        .sb-controls {
+            flex: 1;
+            padding-top: 0.65rem;
+            padding-left: 3rem;
+            padding-right: 1.5rem;
+            transition: all 0.5s 0.2s;
+            .dropdown:after {
+                border-color: $white-75 transparent transparent transparent;
+            }
+            .dropdown select {
+                color: white;
+                option {
+                    background-color: $purple-50;
+                }
+                &[disabled] {
+                    background-color: $purple-25;
+                    opacity: 1;
+                }
+            }
+            &:empty {
+                display: none;
+            }
+            // Animation hacks
+            transform: scale(1);
+            animation: show 0.5s;
+        }
     }
-    // Right side controls (buttons)
-    .sb-controls { flex: 1; padding-top: 0.65rem; padding-left: 3rem; padding-right: 1.5rem; transition: all 0.5s 0.2s;
-      .dropdown:after { border-color: $white-75 transparent transparent transparent }
-      .dropdown select { color: white;
-        option { background-color: $purple-50;}
-        &[disabled] { background-color: $purple-25; opacity: 1}
-      }
-      &:empty { display: none; }
-      // Animation hacks
-      transform: scale(1); animation: show 0.5s;
-    }
-  }
 
-  .sb-container {  display: flex; flex-direction: column;
-    .sb-top {
-       padding: 2rem;
-       padding-bottom: 1rem;
-       flex-grow: 1;
-       &:empty { padding: 0 }
+    .sb-container {
+        display: flex;
+        flex-direction: column;
+        .sb-top {
+            padding: 2rem;
+            padding-bottom: 1rem;
+            flex-grow: 1;
+            &:empty {
+                padding: 0;
+            }
+        }
+        .sb-body {
+            margin-left: 1.3rem;
+            padding: 1.3rem;
+            flex-grow: 1;
+            flex-wrap: wrap;
+            &:empty {
+                padding: 0;
+            }
+            transform: scale(1);
+            animation: show 1s;
+        }
     }
-    .sb-body { margin-left: 1.3rem; padding: 1.3rem; flex-grow: 1; flex-wrap: wrap;
-      &:empty { padding: 0 }
-      transform: scale(1); animation: show 1.0s;
-    }
-  }
 
-  // Collapsed overrides
-  &.collapsed {
-    .sb-title-container .icon.collapser {
-      svg { transform: rotate(0deg); }
-      transform-origin: bottom;
+    // Collapsed overrides
+    &.collapsed {
+        .sb-title-container .icon.collapser {
+            svg {
+                transform: rotate(0deg);
+            }
+            transform-origin: bottom;
+        }
+        .sb-body {
+            display: none;
+        }
     }
-    .sb-body {
-      display: none;
-    }
-  }
 }
 
-.comments { padding-top: 1.3rem; }
 .comments {
-  .control-comment ~ .control-comment { margin-top: 1.3rem; }
+    padding-top: 1.3rem;
+}
+.comments {
+    .control-comment ~ .control-comment {
+        margin-top: 1.3rem;
+    }
 }
 
-contentwrapper { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+contentwrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
 
-.contentbox { margin: 0.35rem; display: flex; height: calc(100% - 0.7rem);
-  .max-width & .cb-body { max-width: 100% !important; }
-  .cb-body { padding: 1.3rem; width: 100%; }
-  .cb.titlebar { height: auto;
-    div { margin: 1.75rem 0; }
-    a { color: white; border-left: 1px dashed $white-50; border-bottom: none; }
-    a:hover { border-left: 1px solid $white-50; border-bottom: none; }
-    .title { color: white; font-family: $slim; transform: rotate(-180deg); writing-mode: vertical-lr; width: 2.8rem; line-height: 2.8rem; font-weight: 700; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;
+.contentbox {
+    margin: 0.35rem;
+    display: flex;
+    height: calc(100% - 0.7rem);
+    .max-width & .cb-body {
+        max-width: 100% !important;
     }
-  }
-  .exac p { padding-right: 2.6rem; }
-  h4.faded-title.content-top { margin-top: 1.3rem; }
-  h4.faded-title.section-top { margin-top: 1.3rem; margin-bottom: 0.7rem; }
-  h5.wrap { white-space: normal; }
-  h5.normaltext { padding-right: 0; }
-  ul { font-size: 1.2rem; padding: 0; margin: 0.7rem 2rem; margin-bottom: 1.3rem; }
-  .comment-title { width: 15rem; }
-  .remove { margin-bottom: 0.7rem; @extend .pink; }
-  .cb-warning { @extend .slim; color: $white; background-color: $red-75; font-size: 1.5rem; padding: 0.3rem; padding-left: 1rem; padding-right: 1rem; margin-bottom: 1rem;
-    ul { margin-bottom: 0.6rem; }
-  }
+    .cb-body {
+        padding: 1.3rem;
+        width: 100%;
+    }
+    .cb.titlebar {
+        height: auto;
+        div {
+            margin: 1.75rem 0;
+        }
+        a {
+            color: white;
+            border-left: 1px dashed $white-50;
+            border-bottom: none;
+        }
+        a:hover {
+            border-left: 1px solid $white-50;
+            border-bottom: none;
+        }
+        .title {
+            color: white;
+            font-family: $slim;
+            transform: rotate(-180deg);
+            writing-mode: vertical-lr;
+            width: 2.8rem;
+            line-height: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1rem;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+    }
+    .exac p {
+        padding-right: 2.6rem;
+    }
+    h4.faded-title.content-top {
+        margin-top: 1.3rem;
+    }
+    h4.faded-title.section-top {
+        margin-top: 1.3rem;
+        margin-bottom: 0.7rem;
+    }
+    h5.wrap {
+        white-space: normal;
+    }
+    h5.normaltext {
+        padding-right: 0;
+    }
+    ul {
+        font-size: 1.2rem;
+        padding: 0;
+        margin: 0.7rem 2rem;
+        margin-bottom: 1.3rem;
+    }
+    .comment-title {
+        width: 15rem;
+    }
+    .remove {
+        margin-bottom: 0.7rem;
+        @extend .pink;
+    }
+    .cb-warning {
+        @extend .slim;
+        color: $white;
+        background-color: $red-75;
+        font-size: 1.5rem;
+        padding: 0.3rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-bottom: 1rem;
+        ul {
+            margin-bottom: 0.6rem;
+        }
+    }
 }
 
 // no-content styling (used when we have no content or if we want to collapse)
-.no-content.contentbox { background-color: $black-25;
-  .cb.titlebar { background-color: Transparent; }
-  .cb-body { padding: 0;  display: none; }
-  .icon { display: none; }
+.no-content.contentbox {
+    background-color: $black-25;
+    .cb.titlebar {
+        background-color: Transparent;
+    }
+    .cb-body {
+        padding: 0;
+        display: none;
+    }
+    .icon {
+        display: none;
+    }
 }
 
-.sectionbox-content { display: flex; flex-wrap: wrap; }
+.sectionbox-content {
+    display: flex;
+    flex-wrap: wrap;
+}
 
-.reference-search-results {padding-left: 15%}
+.reference-search-results {
+    padding-left: 15%;
+}
 
 // Edge cases
-.ref-title { padding-right: 2.6rem; }
-.modal .prompt .sectionbox {
-  .sb-container { align-items: center; }
-  .sb-controls { flex: 1; }
-  .sb-body { flex: 2; }
+.ref-title {
+    padding-right: 2.6rem;
 }
-.full-max-width .cb-body { max-width: 100% !important; }
+.modal .prompt .sectionbox {
+    .sb-container {
+        align-items: center;
+    }
+    .sb-controls {
+        flex: 1;
+    }
+    .sb-body {
+        flex: 2;
+    }
+}
+.full-max-width .cb-body {
+    max-width: 100% !important;
+}
 
-
-.section-header { @extend .sb-notification; font-family: $slim; color: $blue-75; font-weight: 700; font-size: 1.25rem; padding-top: 1.5rem; padding-bottom: 0.4rem;}
+.section-header {
+    @extend .sb-notification;
+    font-family: $slim;
+    color: $blue-75;
+    font-weight: 700;
+    font-size: 1.25rem;
+    padding-top: 1.5rem;
+    padding-bottom: 0.4rem;
+}

@@ -78,8 +78,9 @@ describe('Sample workflow', function() {
     it('allows and disallows finalize without classifying all variants if configured', function() {
         // Modify user config to allow finalization with classifying all variants
 
+        loginPage.open()
         loginPage.selectFirstUser()
-        browser.localStorage('DELETE') // Needs a proper URL, hence after login
+        browser.execute(`localStorage.clear()`) // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
@@ -99,7 +100,6 @@ describe('Sample workflow', function() {
         // For rest of the test, make sure all must be classified, except technical and not relevant
         setFinalizationRequirements(true, true, false)
         browser.refresh()
-        browser.pause(1000)
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
         // Add excluded allele
@@ -116,7 +116,7 @@ describe('Sample workflow', function() {
         )
 
         // Classify first three alleles with visual and quick classification
-        analysisPage.classificationTypeVisualButton.scroll()
+        analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
         alleleSidebar.quickSetTechnical('c.1233dupA')
         // Allele is selected automatically when setting technical
@@ -128,7 +128,7 @@ describe('Sample workflow', function() {
             analysisComment: 'TECHNICAL_ROUND_1'
         }
 
-        analysisPage.classificationTypeQuickButton.scroll()
+        analysisPage.classificationTypeQuickButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeQuickButton.click()
         alleleSidebar.quickSetNotRelevant('c.925dupT')
         selected_allele = alleleSidebar.getSelectedAllele()
@@ -149,21 +149,13 @@ describe('Sample workflow', function() {
         }
 
         // Classify rest using 'Full' classification view
-        analysisPage.classificationTypeFullButton.scroll()
+        analysisPage.classificationTypeFullButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeFullButton.click()
 
         const exomesElement = alleleSectionBox.gnomADExomesElement
         expect(exomesElement).toBeDefined('Missing gnomeAD exomes box on the page')
         const genomesElement = alleleSectionBox.gnomADGenomesElement
         expect(genomesElement).toBeDefined('Missing gnomeAD genomes box on the page')
-
-        const exacElement = alleleSectionBox.exacElement
-        expect(exacElement).toBeDefined('Missing ExAC box on the page')
-        let exacContent = browser.getText(
-            `allele-sectionbox-content contentbox frequency-details[group="'ExAC'"]`
-        ) // array
-        expect(exacContent).toContain('AFR', 'Missing the AFR population from ExAC')
-        expect(exacContent).toContain('TOT', 'Missing the TOTal population key from ExAC')
 
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
@@ -190,7 +182,6 @@ describe('Sample workflow', function() {
             referenceEvalModal.setRelevance(1)
             referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1')
 
-            referenceEvalModal.saveBtn.scroll()
             referenceEvalModal.saveBtn.click()
             referenceEvalModal.waitForClose()
 
@@ -198,7 +189,6 @@ describe('Sample workflow', function() {
 
             // Add external annotation
             console.log('Adding custom annotation')
-            alleleSectionBox.addExternalBtn.scroll()
             alleleSectionBox.addExternalBtn.click()
             customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BRCA Exchange
             customAnnotationModal.saveBtn.click()
@@ -208,7 +198,6 @@ describe('Sample workflow', function() {
 
             // Add prediction annotation
             console.log('Adding prediction annotation')
-            alleleSectionBox.addPredictionBtn.scroll()
             alleleSectionBox.addPredictionBtn.click()
             customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
             customAnnotationModal.saveBtn.click()
@@ -221,13 +210,10 @@ describe('Sample workflow', function() {
             alleleSectionBox.setClassificationComment('EVALUATION_ROUND1')
             analysisPage.saveButton.click()
             alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
-            analysisPage.saveButton.scroll()
             analysisPage.saveButton.click()
             alleleSectionBox.setPredictionComment('PREDICTION_ROUND1')
-            analysisPage.saveButton.scroll()
             analysisPage.saveButton.click()
             alleleSectionBox.setExternalComment('EXTERNAL_ROUND1')
-            analysisPage.saveButton.scroll()
             analysisPage.saveButton.click()
 
             alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå')
@@ -309,12 +295,14 @@ describe('Sample workflow', function() {
     })
 
     it('shows the review comment on overview page', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         sampleSelectionPage.expandReviewSection()
         expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
     })
 
     it('keeps the classification from the previous round', function() {
+        loginPage.open()
         loginPage.selectSecondUser()
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
@@ -332,6 +320,7 @@ describe('Sample workflow', function() {
     })
 
     it('reuses classified variants from a different sample', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         sampleSelectionPage.selectTopPending()
 
@@ -392,7 +381,7 @@ describe('Sample workflow', function() {
         let referenceTitle = alleleSectionBox.reEvaluateReference(1)
         referenceEvalModal.setRelevance(2)
         referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED')
-        referenceEvalModal.saveBtn.scroll()
+        referenceEvalModal.saveBtn.scrollIntoView({ block: 'center' })
         referenceEvalModal.saveBtn.click()
         referenceEvalModal.waitForClose()
 
@@ -431,6 +420,7 @@ describe('Sample workflow', function() {
     })
 
     it('reuses the latest variant classification done in another sample', function() {
+        loginPage.open()
         loginPage.selectFirstUser()
         sampleSelectionPage.selectFindings(1)
         checkAlleleClassification(expected_analysis_2_round_1)

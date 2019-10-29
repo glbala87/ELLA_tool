@@ -1,5 +1,5 @@
 ---
-title: Info page
+title: Sample information
 ---
 
 # Info page: Sample information
@@ -40,6 +40,6 @@ Selecting this will bring up a pop-up showing the included genes:
 
 - Quickly search for a gene using the FILTER box.
 
-- Copy all genes in the gene panel, with or without default transcripts, using the `COPY ALL`/`COPY ALL WITH TRANSCRIPTS` buttons.
+- Copy all genes in the gene panel, with or without default transcripts, using the `COPY ALL`/`COPY ALL WITH TRANSCRIPTS` buttons. Note: If you have used the filter/search, `ALL` changes to `FILTERED`, and only the shown genes will be copied.
 
 - Also shown (top right) is the five most similar gene panels, with overlapping (equal), additional and missing genes. Note that this does not take into account any differences in default transcripts.  

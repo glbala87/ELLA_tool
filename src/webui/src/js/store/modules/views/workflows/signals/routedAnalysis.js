@@ -1,19 +1,19 @@
-import { parallel, sequence } from 'cerebral';
-import { set } from 'cerebral/operators';
-import { props, state, string } from 'cerebral/tags';
-import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload';
-import progress from '../../../../common/factories/progress';
-import setNavbarTitle from '../../../../common/factories/setNavbarTitle';
-import toast from '../../../../common/factories/toast';
-import getAnalysis from '../actions/getAnalysis';
-import getAnalysisStats from '../actions/getAnalysisStats';
-import prepareComponents from '../actions/prepareComponents';
-import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele';
-import getWorkflowTitle from '../computed/getWorkflowTitle';
-import loadInterpretations from '../sequences/loadInterpretations';
-import showExitWarning from '../showExitWarning';
-import loadVisualization from '../visualization/sequences/loadVisualization';
-import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs';
+import { parallel, sequence } from 'cerebral'
+import { set } from 'cerebral/operators'
+import { props, state, string } from 'cerebral/tags'
+import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
+import progress from '../../../../common/factories/progress'
+import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
+import toast from '../../../../common/factories/toast'
+import getAnalysis from '../actions/getAnalysis'
+import getAnalysisStats from '../actions/getAnalysisStats'
+import prepareComponents from '../actions/prepareComponents'
+import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
+import getWorkflowTitle from '../computed/getWorkflowTitle'
+import loadInterpretations from '../sequences/loadInterpretations'
+import showExitWarning from '../showExitWarning'
+import loadVisualization from '../visualization/sequences/loadVisualization'
+import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 

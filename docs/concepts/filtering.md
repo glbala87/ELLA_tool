@@ -8,7 +8,7 @@ Filters in ELLA are applied when loading an analysis, and removes variants from 
 
 Most filters can be used either as a normal filter (filtering out variants) or as an exception to another filter (rescuing variants that would normally be filtered).
 
-Please see the [Technical documentation](/technical/filtering.html#general-filter-config) for further technical specification.
+Please see the [Technical documentation](/technical/filtering.html#general-filter-config) for further technical specification and how to set up filter chains and combinations.
 
 [[toc]]
 
@@ -16,13 +16,13 @@ Please see the [Technical documentation](/technical/filtering.html#general-filte
 
 The classification filter filters out or rescues alleles that have an existing classification in the in-house database. 
 
-::: danger
+::: danger WARNING
 The classification filter does not separate between outdated or still valid classifications.
 :::
 
 #### Configuration
 
--   **Class**: List classifications to consider. Must be a subset of the available classes in ELLA.
+-   **Classes** (`classes`): List classifications to consider. Must be a subset of the available classes in ELLA.
 
 ##### Example
 
@@ -47,8 +47,9 @@ Since any given variant can be annotated with many different consequences, this 
 
 #### Configuration
 
--   **Consequences**: List consequences to use. Must be a subset of the available [VEP consequences](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
--   **Gene panel only**: Specify if only consequences in genes within the current gene panel should be included (`true`/`false`)
+-   **Consequences** (`consequences`): List consequences to use. Must be a subset of the available [VEP consequences](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
+
+-   **Gene panel only** (`genepanel_only`): Specify if only consequences in genes within the current gene panel should be included (`true`/`false`)
 
 ##### Example
 
@@ -69,21 +70,21 @@ This configuration will filter out variants that are annotated as either `synony
 The external filter filters out or rescues alleles based on annotation from HGMD and/or ClinVar.
 
 ::: tip TIP
-If you only want to use one of the databases, just omit the other key (`"hgmd"` or `"clinvar"`).
+If you only want to use one of the databases, just omit the other key (`hgmd` or `clinvar`).
 :::
 
 #### Configuration
 
 -   **ClinVar**:
 
-    -   **Number of stars**: Specify a comparison operator (>/</=) and a number (1-4) corresponding to [number of stars in ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/docs/details/#review_status).
-    -   **Combinations**: Specify combinations of criteria to compare. Given as source, operator and target.
-    -   **Inverse**: Apply to alleles **NOT** fulfilling the given criteria (default `False`).
+    -   **Number of stars** (`num_stars`): Specify a comparison operator (>/</=) and a number (1-4) corresponding to [number of stars in ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/docs/details/#review_status).
+    -   **Combinations** (`combinations`): Specify combinations of criteria to compare. Given as source, operator and target.
+    -   **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`).
 
 -   **HGMD**:
 
-    -   **Tags**: List HGMD variant tags to use (one or more of DM/DM?/FTV/DP/DFP/FP).
-    -   **Inverse**: Apply to alleles **NOT** fulfilling the given criteria (default `False`).
+    -   **Tags** (`tags`): List HGMD variant tags to use (one or more of DM/DM?/FTV/DP/DFP/FP).
+    -   **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`).
 
 
 ##### Example
@@ -123,11 +124,11 @@ This filter cannot be used as an exception filter.
 
 #### Configuration
 
--   **Filter groups**: Categorize data set providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external data sets.
+-   **Filter groups** (`groups`): Categorize data set providers (e.g. gnomAD) and their sub-populations in groups, which can be referred to when specifying thresholds. A group `external` could for instance consist of gnomAD with sub-populations G, AMR and AFR. This can e.g. be used to separate internal in-house and external data sets.
 
--   **Number threshold**: Set a threshold for the "Allele number" (number of observed chromosomes at a given locus) for each sub-population. Sub-populations with less observations than the threshold at a given locus (e.g. due to poor coverage) will not be used for filtering at that locus. 
+-   **Number threshold** (`num_thresholds`): Set a threshold for the "Allele number" (number of observed chromosomes at a given locus) for each sub-population. Sub-populations with less observations than the threshold at a given locus (e.g. due to poor coverage) will not be used for filtering at that locus. 
 
--   **Frequency threshold**: Set population frequency thresholds. They can be defined for two inheritance types, `AD` (autosomal dominant) and `default`. Thresholds set for `AD` applies to genes specified with AD inheritance mode **only**, i.e. not combinations such as AD/AR. `default` applies to everything not in `AD`. For each inheritance mode, you can also configure the thresholds for each filter group (see above) separately.
+-   **Frequency threshold** (`thresholds`): Set population frequency thresholds (0-1). They can be defined for two inheritance types, `AD` (autosomal dominant) and `default`. Thresholds set for `AD` applies to genes specified with AD inheritance mode **only**, i.e. not combinations such as AD/AR. `default` applies to everything not in `AD`. For each inheritance mode, you can also configure the thresholds for each filter group (see above) separately.
 
 ##### Example
 
@@ -176,14 +177,56 @@ This configuration will filter out variants that are:
 }
 ```
 
+## Gene filter
+
+The gene filter filters out or rescues alleles that are within a given gene. 
+
+:::warning NOTE
+The annotation is matched on gene panel with transcript (excluding RefSeq versioning). This means that it will only take into account variants annotated with gene panel transcript(s).
+:::
+
+
+#### Configuration
+
+- **Genes** (`genes`): List of HGNC IDs to apply filter to.
+
+- **Filter mode** (`mode`); either: 
+
+    - **All** (`all`) (default): Variant must be annotated with genes specified in `genes` *only*. This is useful for filtering out.
+    - **One** (`one`): Variant must be annotated with _at least_ one gene from `genes` (but could be annotated with other genes). This is useful for exceptions.
+
+- **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`)
+
+##### Examples
+
+This configuration will filter out all variants annotated with BRCA1 (1100) and/or BRCA2 (1101), but not if they are also annotated on gene panel transcripts for any other gene:
+
+```json
+{
+    "name": "gene",
+    "config": {
+        "genes": [1100, 1101],
+        "mode": "all",
+    }
+}
+```
+
+This configuration will filter out all variants _not_ annotated with either BRCA1 (1100) or BRCA2 (1101):
+    
+```json
+{
+    "name": "gene",
+    "config": {
+      "genes": [1100, 1101],
+      "mode": "one",
+      "inverse": True,
+   }
+}
+```
+
 ## Inheritance model filter
 
 The inheritance model filter filters out or rescues alleles that are not consistent with the inheritance model for a gene given in the gene panel.
-
-This filter has two different modes:
-
--   **Recessive non-candidates**: Applies to variants in genes with autosomal recessive (AR) inheritance, where the variant is heterozygous and the only (non-filtered) variant in that gene. Typically used for filtering out variants.
--   **Recessive candidates**: Applies to variants in genes that are **NOT** autosomal dominant (AD), where the variant is either homozygous or there is at least one other (non-filtered) variant in the same gene. Typically used for rescuing variants from another filter.
 
 ::: warning NOTE
 This filter is intended for single samples only and _does not use family information_.
@@ -193,7 +236,11 @@ By design, only genes specified in the gene panel are checked. This means that i
 
 #### Configuration
 
--   **Filter mode**": Either `recessive_non_candidates` or `recessive_candidates`.
+-   **Filter mode** (`filter_mode`); either:
+
+    -   **Recessive non-candidates** (`recessive_non_candidates`): Applies to variants in genes with autosomal recessive (AR) inheritance, where the variant is heterozygous and the only (non-filtered) variant in that gene. Typically used for filtering out variants.
+    -   **Recessive candidates** (`recessive_candidates`): Applies to variants in genes that are **NOT** autosomal dominant (AD), where the variant is either homozygous or there is at least one other (non-filtered) variant in the same gene. Typically used for rescuing variants from another filter.
+
 
 ##### Example
 
@@ -240,25 +287,29 @@ This configuration will filter out the specified polypyrimidine changes in the r
 
 ## Quality filter
 
-The quality filter filters out alleles with a low quality, using the VCF _QUAL_ field.
+The quality filter filters out alleles with a low quality, either using the VCF _QUAL_ field or the allele ratio. The latter is calculated in ELLA as alternative allele reads/total reads (presented as "Ratio" in the Quality card). 
 
 ::: warning NOTE
 Due to filtering _below_ a certain threshold, this filter is not suitable for exceptions.
+
+Also note that although a skewed allele ratio is most often indicative of technical artifacts, it may also indicate _somatic mosaicism_. This variable should therefore not be used in patients where mosaicism is suspected. 
 :::
 
 #### Configuration
 
-- **Quality** (`qual`): Set threshold value.
+- **Quality** (`qual`): Set threshold value (integer).
+- **Allele ratio** (`allele_ratio`): Set threshold value (0-1).
 
 ##### Example
 
-This configuration will filter out any variant with a _QUAL_ value less than 100.
+This configuration will filter out any variant with _QUAL_ <100 AND allele ratio <0.25:
 
 ```json
 {
     "name": "quality",
     "config": {
-        "qual": 100
+        "qual": 100,
+        "allele_ratio": 0.25
     }
 }
 ```
@@ -275,8 +326,8 @@ The genomic regions from the transcript database is used as basis for the filter
 
 #### Configuration
 
--   **Splice region**: Sets number of bases to treat as splice region, upstream from exon start and downstream from exon end. Variants in the intron outside this region will be filtered.
--   **UTR region**: Sets number of bases to treat as UTR region, upstream from coding start and downstream of coding end. Variants in the UTR outside this region will be filtered.
+-   **Splice region** (`splice_region`): Sets number of bases to treat as splice region, upstream from exon start and downstream from exon end. Variants in the intron outside this region will be filtered.
+-   **UTR region** (`utr_region`): Sets number of bases to treat as UTR region, upstream from coding start and downstream of coding end. Variants in the UTR outside this region will be filtered.
 
 ##### Example
 

@@ -3,10 +3,11 @@ import thenBy from 'thenby'
 
 export function sortCodeStrByTypeStrength(codes, config) {
     const result = {
+        other: [],
         pathogenic: [],
         benign: []
     }
-    for (let t of ['benign', 'pathogenic']) {
+    for (let t of ['other', 'benign', 'pathogenic']) {
         // Map codes to group (benign/pathogenic)
         for (let c of codes) {
             if (config.acmg.codes[t].some((e) => c.startsWith(e))) {
@@ -38,17 +39,18 @@ export function sortCodesByTypeStrength(codes, config) {
     const codeStrs = codes.map((c) => c.code)
     const sortedStrs = sortCodeStrByTypeStrength(codeStrs, config)
     const sortedCodes = {
+        other: [],
         pathogenic: [],
         benign: []
     }
-    for (const category of ['pathogenic', 'benign']) {
+    for (const category of ['other', 'pathogenic', 'benign']) {
         for (const c of codes) {
             if (sortedStrs[category].includes(c.code)) {
                 sortedCodes[category].push(c)
             }
         }
     }
-    for (const category of ['pathogenic', 'benign']) {
+    for (const category of ['other', 'pathogenic', 'benign']) {
         sortedCodes[category].sort(thenBy((x) => sortedStrs[category].indexOf(x.code)))
     }
 
@@ -70,8 +72,10 @@ export function extractCodeType(code) {
     let base = getCodeBase(code)
     if (base.startsWith('B')) {
         return 'benign'
-    } else {
+    } else if (base.startsWith('P')) {
         return 'pathogenic'
+    } else {
+        return 'other'
     }
 }
 

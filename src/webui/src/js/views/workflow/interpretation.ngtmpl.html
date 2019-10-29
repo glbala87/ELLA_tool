@@ -1,8 +1,16 @@
 <div class="interpretation-container">
     <article class="single-sample-analysis-container" ng-switch="$ctrl.selectedComponent">
-        <allele-sidebar ng-if="$ctrl.showSidebar"></allele-sidebar>
+        <!-- Set max-height on allelesidebar and container. This must be done dynamically, since the navbar + collision warning is dynamic in size. -->
+        <allele-sidebar
+            ng-if="$ctrl.showSidebar"
+            ng-style="{'max-height': 'calc(100vh - ' + $ctrl.offsetTop +'px)'}"
+        ></allele-sidebar>
 
-        <section class="container" ng-class="{'inner': $ctrl.showSidebar}">
+        <section
+            class="container"
+            ng-class="{'inner': $ctrl.showSidebar}"
+            ng-style="{'max-height': 'calc(100vh - ' + $ctrl.offsetTop +'px)'}"
+        >
             <div ng-switch-when="Info">
                 <analysis-info></analysis-info>
             </div>
@@ -15,10 +23,13 @@
                             filter criteria.
                         </h4>
                     </div>
+                    <div class="no-alleles" ng-if="$ctrl.hasAlleles && !$ctrl.selectedAllele">
+                        <h2>Please select variant in sidebar.</h2>
+                    </div>
                     <allele-warning ng-if="$ctrl.hasAlleles"></allele-warning>
                     <allele-sectionbox
                         section-key="sectionKey"
-                        ng-if="$ctrl.hasAlleles"
+                        ng-if="$ctrl.hasAlleles && $ctrl.selectedAllele"
                         ng-repeat="sectionKey in $ctrl.sectionKeys"
                     >
                     </allele-sectionbox>

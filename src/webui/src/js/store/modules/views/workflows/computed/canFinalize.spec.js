@@ -105,7 +105,7 @@ function createState(config) {
             id: currentAlleleId,
             formatted: { display: `TestOutdated id ${currentAlleleId}` },
             allele_assessment: {
-                classification: "5",
+                classification: '5',
                 seconds_since_update: 10 * 24 * 3600
             }
         }
@@ -136,9 +136,9 @@ function createState(config) {
                 classification: {
                     options: [
                         {
-                            value: "5",
+                            value: '5',
                             outdated_after_days: 1,
-                            name: "Class 5"
+                            name: 'Class 5'
                         }
                     ]
                 }

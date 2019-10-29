@@ -1,0 +1,10 @@
+src/webui/build/
+**/*references*.json
+src/webui/src/thirdparty/
+.mypy_cache/
+docs/
+.hypothesis/
+.pytest_cache/
+.vscode/
+.git/
+*.yml

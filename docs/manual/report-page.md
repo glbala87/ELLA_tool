@@ -1,5 +1,5 @@
 ---
-title: Report page
+title: Generate a clinical report
 ---
 
 # Report page: Generate a clinical report

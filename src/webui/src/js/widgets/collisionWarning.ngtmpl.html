@@ -1,4 +1,15 @@
-<div class="collision-warning" ng-if="$ctrl.collisions.length">
-    <h4>{{$ctrl.getTitle()}}</h4>
-    <h3 ng-repeat="c in $ctrl.collisions">{{$ctrl.getCollisionText(c)}}</h3>
-</div>
+<sectionbox
+    color="custom"
+    class="collision-warning"
+    ng-if="$ctrl.collisions.length"
+    ng-click="$ctrl.clicked()"
+>
+    <maintitle><h3>Collision warning</h3></maintitle>
+    <subtitle
+        ><h3>{{ $ctrl.collisions.length }}</h3></subtitle
+    >
+    <contentwrapper>
+        <h5>{{ $ctrl.getTitle() }}</h5>
+        <p ng-repeat="c in $ctrl.collisions">{{ $ctrl.getCollisionText(c) }}</p>
+    </contentwrapper>
+</sectionbox>

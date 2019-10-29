@@ -46,21 +46,25 @@ class Util {
 
     elementOrNull(selector) {
         this.logSelector(selector)
-        if (browser.isExisting(selector)) {
-            return browser.element(selector)
-        } else return null
+        const el = $(selector)
+        if (el.isExisting()) {
+            return el
+        } else {
+            return null
+        }
     }
 
     element(selector) {
-        browser.waitForVisible(selector)
-        var el = browser.element(selector)
+        const el = $(selector)
+        el.waitForDisplayed()
         return el
     }
 
     elementIntoView(selector) {
         // Get element, scroll into view (middle of screen), and return element
-        var el = this.element(selector)
-        browser.scroll(el.selector, 0, -browser.windowHandleSize().value.height / 2)
+        const el = this.element(selector)
+        el.scrollIntoView({ block: 'center', inline: 'center' })
+        browser.pause(20) // Scrolling can take a tiny amount of time
         return el
     }
 }

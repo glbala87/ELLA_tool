@@ -45,6 +45,10 @@ export class ACMGHelper {
         const codeStrength = this.getCodeStrength(codeStr, config)
         const codeType = this.getCodeType(codeStr)
 
+        if (codeType === 'other') {
+            return codeStr
+        }
+
         // If code is benign, upgrading the code should mean 'more benign' and vice versa
         if (codeType === 'benign') {
             upgrade = !upgrade
@@ -99,8 +103,10 @@ export class ACMGHelper {
         let base = this.getCodeBase(codeStr)
         if (base.startsWith('B')) {
             return 'benign'
-        } else {
+        } else if (base.startsWith('P')) {
             return 'pathogenic'
+        } else {
+            return 'other'
         }
     }
 }
