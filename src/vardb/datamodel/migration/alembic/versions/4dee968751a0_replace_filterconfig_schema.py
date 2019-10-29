@@ -19,9 +19,9 @@ from vardb.datamodel.jsonschemas.update_schemas import update_schemas
 
 
 def upgrade():
-    # Filterconfig schema is updated, but is fully backward compatible. Therefore, replace the existing
-    # filterconfig schema (should only be one), by first dropping it, and update_schemas again
-    op.execute("DELETE FROM jsonschema WHERE name='filterconfig' and version=1")
+    # Filterconfig and annotations schemas are updated, but is fully backward compatible. Therefore, replace the existing
+    # schemas (should only be one per), by first dropping it, and update_schemas again
+    op.execute("DELETE FROM jsonschema WHERE name in ('filterconfig', 'annotation') and version=1")
     session = Session(bind=op.get_bind())
     update_schemas(session)
     session.flush()
