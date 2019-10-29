@@ -194,17 +194,5 @@ The snapshot is also linked to the interpretation round (AlleleInterpretation or
 
 ### Finalizing an interpretation
 
-When a round is finalized, the interpretation work is persisted by creating (possibly many) AlleleAssessments, ReferenceAssessments and AlleleReports. 
-
-Note that the number of new objects after a finalization won't always be the same as number of alleles, as the user can choose to reuse existing objects.
-
-**Diagram**
-```
-Mark review:   SnapshotCreator (creates AlleleInterpretationSnapshot or AnalysisInterpretationSnapshot)
-Finalize:      SnapshotCreator
-                    AssessmentCreator (creates AlleleAssessment, ReferenceAssessment)
-                    AlleleReportCreator (creates AlleleReport)
-```
-
-Relate to loading data from backend when starting interpretation.
+[TODO]
 
