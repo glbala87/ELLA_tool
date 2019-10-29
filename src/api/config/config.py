@@ -201,8 +201,8 @@ config = {
     "frequencies": {
         "groups": {
             "external": {
-                "GNOMAD_GENOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
-                "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"],
+                "GNOMAD_GENOMES": ["G", "AFR", "AMR", "EAS", "NFE", "OTH", "SAS"],
+                "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "NFE", "OTH", "SAS"],
             },
             "internal": {"inDB": ["OUSWES"]},
         },
@@ -265,7 +265,6 @@ config = {
                         "AFR": 5000,
                         "AMR": 5000,
                         "EAS": 5000,
-                        "FIN": 5000,
                         "NFE": 5000,
                         "OTH": 5000,
                         "SAS": 5000,
@@ -275,7 +274,6 @@ config = {
                         "AFR": 5000,
                         "AMR": 5000,
                         "EAS": 5000,
-                        "FIN": 5000,
                         "NFE": 5000,
                         "OTH": 5000,
                         "SAS": 5000,
