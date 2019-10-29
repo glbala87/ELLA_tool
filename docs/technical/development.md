@@ -1,5 +1,7 @@
 # Development
 
+[[toc]]
+
 ## Getting started
 - Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
 - Populate the database by running `make db` or `make db TEST_SET=..`

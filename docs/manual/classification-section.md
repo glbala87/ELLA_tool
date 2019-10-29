@@ -50,14 +50,14 @@ Outdated variants are grouped with UNCLASSIFIED VARIANTS in the [side bar](/manu
 
 ## Review and add ACMG criteria 
 
-The ACMG criteria in ELLA are based on the official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
+The ACMG criteria in ELLA are based on the official [ACMG 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
 
 Before setting a variant classification, you should add relevant ACMG criteria to the variant interpretation. There are two main ways of doing this, from [suggested criteria](/manual/classification-section.html#suggested-acmg-criteria-and-requirements-req) or [manually](/manual/classification-section.html#add-acmg-criteria-manually), explained below. A third option is available for a few selected criteria in the [Quick classification mode](/manual/quick-classification.md).
 
 Added criteria are shown in a list above the SUGGESTED card.
 
 ::: warning NOTE
-Each ACMG criterion can be added only once for a particular variant, irrespective of chosen strenght.
+Each ACMG criterion can be added only once for a particular variant, irrespective of chosen strength.
 :::
 
 ### Suggested ACMG criteria and requirements (REQ)
@@ -68,7 +68,7 @@ ELLA automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.
 
 The specific requirements for each criterion are available by clicking on the label. The resulting pop-up also contains (where applicable):
 
-  - Notes: From official [ACMG-AMP 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868)
+  - Notes: From official [ACMG 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868)
   - Local adjustments: Notes specific to your own setup
   - Match: What triggered the suggestion (this is still in development and may be somewhat cryptic or not available)
 
@@ -80,7 +80,7 @@ The suggestions may be somewhat imprecise and **you should always check that all
 
 #### REQ: requirements for ACMG criteria
 
-Where possible, some of the ACMG criteria have been split into separate [“requirements” (REQs)](/concepts/acmg-rule-engine.html#req-requirements-for-acmg-criteria) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
+Where possible, some of the ACMG criteria have been split into separate ["requirements" (REQs)](/concepts/acmg-rule-engine.html#req-requirements) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
 REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
@@ -96,11 +96,19 @@ This brings up a side bar where you may modify strength, comment and add any ACM
 
 <div style="text-indent: 4%;"><img src="./img/add_ACMG.png"></div>
 
+#### Other (non-ACMG) criteria
+
+In addition to the official ACMG criteria, you can also add the generic `OTHER` criterion. This can be used for criteria that are not described in the ACMG guidelines, but that are nonetheless important for the clinical classification. This includes, e.g., certain gene-specific criteria from the ENIGMA and InSiGHT guidelines. Note that these will not be used in calculation of the [suggested classfication](#set-variant-class).
+
 ## Modifying the strength of added criteria
 
 To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
+
+### Unweighted ACMG criterion 
+
+If you click the `-` sign all the way, the criterion will be marked as `NOT WEIGHTED`. This can be used when the evaluation of a criterion needs to be documented, but where the evidence does not support using it in the final classification. Any criteria added this way will not be used in the [suggested classfication](#set-variant-class). 
 
 ## Set variant class
 

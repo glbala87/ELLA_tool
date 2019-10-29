@@ -46,15 +46,43 @@ This shows all variant interpretations as well as the annotation available at th
 This history view is specific to analyses performed in [ANALYSES mode](/concepts/workflows.html#sample-centered-workflow-analyses) and does not include history of independent variant interpretations performed in [VARIANTS mode](/concepts/workflows.html#variant-centered-workflow-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
 :::
 
-## Variant warnings
+## Warnings
 
-Variants are tagged with warnings whenever there is something special that needs to be considered for the variant in question. This is displayed both as a [tag in the side bar](/manual/side-bar.html#variant-tags) and as a warning in the top banner when you select the variant. The list of warnings currently includes:
+### Collision warnings
+
+If you open a variant or analysis that overlaps with (unfiltered) variants currently being evaluated by another user, ELLA displays a red warning banner at the top (this can be collapsed by clicking on the banner). For the warning below, the analysis contains one variant currently being worked on in an ANALYSIS workflow by the user Henrik Ibsen:
+
+<div style="text-indent: 4%;"><img src="./img/collision_warning.png"></div>
+
+This means that variant interpretation changes made by the other user may overwrite your own changes, or vice versa. You should therefore wait until the other user is finished, or clarify with the other user if you should do the interpretation for these variants. 
+
+Note that, if you open a variant that is under the OTHERS’ VARIANTS header in a VARIANTS workflow, you can choose to reassign the variant or analysis to yourself by using the `REASSIGN TO ME` button top right:
+
+<div style="text-indent: 4%;"><img src="./img/reassign_btn.png"></div>
+
+Similarly, if another user imports new results to an analysis you have already opened, a warning will be displayed upon next save or if you try to finish the analysis: `ADDITIONAL DATA HAVE BEEN ADDED TO THIS ANALYSIS. PLEASE REFRESH`. In this case, simply refresh your browser (Ctrl + R), which will add the new variants to the analysis.
+
+### Variant warnings
+
+Another type of warning is triggered when certain conditions are met for a variant. This is displayed both as a [tag in the side bar](/manual/side-bar.html#variant-tags) and as a warning in the top banner when you select the variant. The list of warnings currently includes:
 
   - Worse consequences in other transcripts
   - Other variants are within 3 bp of the variant in the analysis
 
-Variant warnings are implemented for both the variant and analysis workflows, but some warnings are only available for analyses.
-
 Example warning:
 
 <div style="text-indent: 4%;"><img src="./img/variant_warning.png"></div>
+
+### Errors
+
+If ELLA is not able to perform an action, an error message will be flashed at the bottom of the page. Note down the error message and contact a system administrator if this happens. 
+
+## User profile and history
+
+By clicking your user name (top right corner), you will get an overview of your profile and interpretation history. Clicking on a variant/sample under YOUR ACTIVITY will open that variant/sample.
+
+This page also includes a `LOGOUT` button (top right).
+
+::: warning NOTE
+Checking the user history will exit any currently active interpretation, so remember to save your work first!
+:::

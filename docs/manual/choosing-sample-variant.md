@@ -73,6 +73,14 @@ Option  | Explanation
 `OTHERS’ VARIANTS` | Variants currently being worked on by other users.
 `FINALISED` | Variants that have been interpreted and marked as Finalised.
 
+## History, comments and tags
+
+For both ANALYSES and VARIANTS view, each analysis/variant is marked with the date when the sample/variant was loaded into ELLA (sorted with oldest on top) and, if present, user and date of previous interpretation rounds along with any [overview comments](/manual/top-bar.html#work-log) provided by the previous analyst. 
+
+In the ANALYSES view, samples are marked with the source of the data (HTS or SANGER, or both), as well as a [WARNING](/manual/info-page.html#pipeline-warnings) from the variant calling pipeline if relevant:
+
+<div style="text-indent: 4%;"><img src="./img/overview_tags.png"></div>
+
 ## Search (and edit) variants and samples
 
 To search for a particular variant or analysis (past or present), use the search section at the top of the OVERVIEW page:
