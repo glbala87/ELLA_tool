@@ -2,9 +2,18 @@
 title: Latest release
 ---
 
-# Release notes: Latest release
+# Release notes: Latest releases
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.8.1
+
+Release date: 30.10.2019
+
+### All changes
+
+Fixed bug where user were not able to finalize and analyses with reused allele assessments with references to be auto-ignored under "Pending evaluation".
+Fix bug where reference data was not reloaded when including variant from filter.
 
 ## Version 1.8
 
@@ -14,7 +23,7 @@ Release date: 30.10.2019
 
 #### Add "other" and unweighted ACMG criteria
 
-Sometimes, criteria that don't match the ACMG guidelines are important for a variant interpretation, e.g. the ENIGMA criteria for the BRCA1/BRCA2 genes. ELLA now allows adding these to the interpretation as a generic `OTHER` criterion. The type and impact on the classification should be given in this criterion's comment field once added. 
+Sometimes, criteria that don't match the ACMG guidelines are important for a variant interpretation, e.g. the ENIGMA criteria for the BRCA1/BRCA2 genes. ELLA now allows adding these to the interpretation as a generic `OTHER` criterion. The type and impact on the classification should be given in this criterion's comment field once added.
 
 In addition, users can often spend significant time evaluating an ACMG criterion for a particular interpretation, but in the end decide that the requirements are not met. ELLA now allows setting an added ACMG criterion as `NOT WEIGHTED`, so that comments related to this work can be properly recorded.
 
@@ -53,7 +62,7 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 <!-- MR !318 -->
 - Made collision warnings below the top bar sticky and collapsible.
 <!-- MR !325 -->
-- Increased number of retrieved reference search results. 
+- Increased number of retrieved reference search results.
 <!-- MR !332 -->
 - Added "Documentation" link to all pages.
 <!-- MR !333-->
@@ -68,4 +77,3 @@ In addition, it is now also possible to use allele ratio (alternative allele rea
 - Import jobs now show time of day when job was started, and time stamp when status of job last changed.
 <!-- MR !319 -->
 - Improved [Technical documentation](/technical/).
-
