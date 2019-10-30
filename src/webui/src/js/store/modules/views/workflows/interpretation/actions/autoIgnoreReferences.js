@@ -13,8 +13,8 @@ export default function autoIgnoreReferences({ state, resolve }) {
     }
     const userConfig = state.get('app.config.user.user_config')
     if (
-        !'interpretation' in userConfig ||
-        !'autoIgnoreReferencePubmedIds' in userConfig.interpretation ||
+        !('interpretation' in userConfig) ||
+        !('autoIgnoreReferencePubmedIds' in userConfig.interpretation) ||
         !userConfig.interpretation.autoIgnoreReferencePubmedIds
     ) {
         return
@@ -29,6 +29,14 @@ export default function autoIgnoreReferences({ state, resolve }) {
             const refAssessment = alleleState.referenceassessments.find((ra) => {
                 return ra.reference_id === ref.id
             })
+
+            if (
+                'alleleassessment' in alleleState &&
+                'reuse' in alleleState.alleleassessment &&
+                alleleState.alleleassessment.reuse
+            ) {
+                continue
+            }
 
             if (
                 !refAssessment &&
