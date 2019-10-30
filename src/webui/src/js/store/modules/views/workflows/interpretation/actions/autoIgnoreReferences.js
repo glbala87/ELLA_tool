@@ -31,6 +31,14 @@ export default function autoIgnoreReferences({ state, resolve }) {
             })
 
             if (
+                'alleleassessment' in alleleState &&
+                'reuse' in alleleState.alleleassessment &&
+                alleleState.alleleassessment.reuse
+            ) {
+                continue
+            }
+
+            if (
                 !refAssessment &&
                 'pubmed_id' in ref &&
                 userConfig.interpretation.autoIgnoreReferencePubmedIds.includes(ref.pubmed_id)
