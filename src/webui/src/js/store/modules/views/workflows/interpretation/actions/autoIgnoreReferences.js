@@ -13,8 +13,8 @@ export default function autoIgnoreReferences({ state, resolve }) {
     }
     const userConfig = state.get('app.config.user.user_config')
     if (
-        !'interpretation' in userConfig ||
-        !'autoIgnoreReferencePubmedIds' in userConfig.interpretation ||
+        !('interpretation' in userConfig) ||
+        !('autoIgnoreReferencePubmedIds' in userConfig.interpretation) ||
         !userConfig.interpretation.autoIgnoreReferencePubmedIds
     ) {
         return
