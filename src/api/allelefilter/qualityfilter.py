@@ -53,10 +53,14 @@ class QualityFilter(object):
                 )
 
             if "filter_status" in filter_config:
-                quality_filters.append(
-                    getattr(genotype_table.c, sample_identifier + "_filter").op("~")(
-                        filter_config["filter_status"]
-                    )
+                quality_filters.extend(
+                    [
+                        ~getattr(genotype_table.c, sample_identifier + "_filter").is_(None),
+                        getattr(genotype_table.c, sample_identifier + "_filter") != ".",
+                        getattr(genotype_table.c, sample_identifier + "_filter").op("~")(
+                            filter_config["filter_status"]
+                        ),
+                    ]
                 )
             assert len(quality_filters)
 

@@ -40,6 +40,9 @@ class AlleleFilter(object):
             ),
             "consequence": ("allele", ConsequenceFilter(self.session, self.config).filter_alleles),
             "quality": ("analysis", QualityFilter(self.session, self.config).filter_alleles),
+            "qualityAR": ("analysis", QualityFilter(self.session, self.config).filter_alleles),
+            "qualityFilter": ("analysis", QualityFilter(self.session, self.config).filter_alleles),
+            "qualityQual": ("analysis", QualityFilter(self.session, self.config).filter_alleles),
             "segregation": (
                 "analysis",
                 SegregationFilter(self.session, self.config).filter_alleles,
@@ -128,6 +131,8 @@ class AlleleFilter(object):
                         {analysis_genepanel: copied_allele_ids}, filter_config
                     )[analysis_genepanel]
 
+                print(name, filtered_allele_ids)
+
                 # We send in copied_allele_ids for the exception analysis filters
                 # since they might need to take all alleles before filtering into account,
                 # not just the result from the filter.
@@ -141,6 +146,7 @@ class AlleleFilter(object):
                 )
 
                 filtered_allele_ids = set(filtered_allele_ids) - filter_exceptions
+
                 # Ensure that filter doesn't return allele_ids not part of input
                 assert not copied_allele_ids - set(
                     allele_ids

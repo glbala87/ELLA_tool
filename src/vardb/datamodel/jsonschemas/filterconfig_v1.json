@@ -10,6 +10,9 @@
                 { "$ref": "#/definitions/filters/inheritancemodel" },
                 { "$ref": "#/definitions/filters/consequence" },
                 { "$ref": "#/definitions/filters/quality" },
+                { "$ref": "#/definitions/filters/qualityAR" },
+                { "$ref": "#/definitions/filters/qualityQual" },
+                { "$ref": "#/definitions/filters/qualityFilter" },
                 { "$ref": "#/definitions/filters/segregation" },
                 { "$ref": "#/definitions/filters/gene" }
             ]
@@ -521,6 +524,62 @@
                                 "minimum": 0,
                                 "maximum": 1
                             },
+                            "filter_status": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "qualityQual": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["qualityQual"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["qual"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "qual": {
+                                "type": "number",
+                                "minimum": 0
+                            }
+                        }
+                    }
+                }
+            },
+            "qualityAR": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["qualityAR"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["allele_ratio"],
+                        "properties": {
+                            "allele_ratio": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "qualityFilter": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["qualityFilter"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["filter_status"],
+                        "additionalProperties": false,
+                        "properties": {
                             "filter_status": {
                                 "type": "string"
                             }

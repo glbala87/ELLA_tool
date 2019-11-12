@@ -16,9 +16,31 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
+from vardb.datamodel.migration.utils import update_enum
+
+TABLE_NAMES = ["alleleinterpretationsnapshot", "analysisinterpretationsnapshot"]
+
+OLD_OPTIONS = [
+    "CLASSIFICATION",
+    "FREQUENCY",
+    "REGION",
+    "POLYPYRIMIDINE",
+    "GENE",
+    "QUALITY",
+    "CONSEQUENCE",
+    "SEGREGATION",
+    "INHERITANCEMODEL",
+]
+NEW_OPTIONS = OLD_OPTIONS + ["QUALITYAR", "QUALITYFILTER", "QUALITYQUAL"]
 
 
 def upgrade():
+    with update_enum(
+        op, TABLE_NAMES, "filtered", "interpretationsnapshot_filtered", OLD_OPTIONS, NEW_OPTIONS
+    ) as tmp_tables:
+        # We don't need to convert enums, we're only adding new ones
+        pass
+
     # Filterconfig schema is updated, but is fully backward compatible. Therefore, replace the existing
     # schemas (should be only one), by first dropping it, and update_schemas again
     op.execute("DELETE FROM jsonschema WHERE name='filterconfig' and version=1")
