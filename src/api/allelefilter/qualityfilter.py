@@ -11,7 +11,11 @@ class QualityFilter(object):
         """
         Returns allele_ids that can be filtered _out_ from an analysis.
         """
-        assert "qual" in filter_config or "allele_ratio" in filter_config
+        assert (
+            "qual" in filter_config
+            or "allele_ratio" in filter_config
+            or "filter_status" in filter_config
+        )
 
         result = dict()
         for analysis_id, allele_ids in analysis_allele_ids.items():
@@ -28,7 +32,7 @@ class QualityFilter(object):
                 self.session,
                 allele_ids,
                 [sample_id],
-                genotype_extras={"qual": "variant_quality"},
+                genotype_extras={"qual": "variant_quality", "filter": "filter_status"},
                 genotypesampledata_extras={"ar": "allele_ratio"},
             )
 
@@ -46,6 +50,13 @@ class QualityFilter(object):
                         getattr(genotype_table.c, sample_identifier + "_ar")
                         != 0.0,  # Allele ratios can sometimes be misleading 0.0. Avoid filtering these out.
                     ]
+                )
+
+            if "filter_status" in filter_config:
+                quality_filters.append(
+                    getattr(genotype_table.c, sample_identifier + "_filter").op("~")(
+                        filter_config["filter_status"]
+                    )
                 )
             assert len(quality_filters)
 

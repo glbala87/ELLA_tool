@@ -520,6 +520,9 @@
                                 "type": "number",
                                 "minimum": 0,
                                 "maximum": 1
+                            },
+                            "filter_status": {
+                                "type": "string"
                             }
                         }
                     }
