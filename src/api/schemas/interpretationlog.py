@@ -14,6 +14,7 @@ class InterpretationLogSchema(Schema):
             "review_comment",
             "user",
             "priority",
+            "alleleassessment_id",
         )
 
     user = fields.Nested(UserSchema)

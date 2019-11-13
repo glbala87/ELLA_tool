@@ -96,15 +96,7 @@ class InterpretationSnapshotMixin(object):
         return Column(Integer, ForeignKey("alleleassessment.id"))
 
     @declared_attr
-    def presented_alleleassessment_id(cls):
-        return Column(Integer, ForeignKey("alleleassessment.id"))
-
-    @declared_attr
     def allelereport_id(cls):
-        return Column(Integer, ForeignKey("allelereport.id"))
-
-    @declared_attr
-    def presented_allelereport_id(cls):
         return Column(Integer, ForeignKey("allelereport.id"))
 
 
@@ -249,3 +241,5 @@ class InterpretationLog(Base):
     priority = Column(Integer)
     review_comment = Column(String)
     warning_cleared = Column(Boolean)
+    alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
+

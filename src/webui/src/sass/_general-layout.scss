@@ -2129,3 +2129,21 @@ button.toast-close-button {
         font-size: 0.8rem;
     }
 }
+
+
+.confirm-button-confirm {
+    background-color: $green-50 !important;
+    margin-left: 0;
+    box-shadow: 0 0.3rem $black-05;
+
+    &:hover {
+        background-color: $green-75 !important;
+    }
+    &.hidden {
+        width: 0;
+        padding-left: 0;
+        padding-right: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+}

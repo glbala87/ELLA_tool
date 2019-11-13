@@ -31,7 +31,7 @@ const BASE_SECTIONS = {
             hideControlsOnCollapse: false,
             showIncludedAcmgCodes: true
         },
-        controls: ['classification', 'reuse_classification'],
+        controls: ['classification', 'finalize', 'reuse_classification'],
         alleleassessmentComment: {
             placeholder: 'EVALUATION',
             name: 'classification'

@@ -267,7 +267,9 @@ class AnalysisActionStartResource(LogRequestResource):
 
 class AnalysisActionMarkNotReadyResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+    )
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis as Not ready.
@@ -301,7 +303,9 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
 
 class AnalysisActionMarkInterpretationResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+    )
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for interpretation.
@@ -335,7 +339,9 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
 
 class AnalysisActionMarkReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+    )
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for review.
@@ -369,7 +375,9 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
 
 class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+    )
     def post(self, session, analysis_id, data=None, user=None):
         """
         Marks an analysis for medical review.
@@ -435,16 +443,60 @@ class AnalysisActionReopenResource(LogRequestResource):
         return None, 200
 
 
+class AnalysisActionFinalizeAlleleResource(LogRequestResource):
+    @authenticate(user_config=True)
+    @request_json(["allele_id", "alleleassessment", "referenceassessments", "allelereport"])
+    def post(self, session, analysis_id, user_config=None, data=None, user=None):
+        """
+        Finalizes a single allele within an analysis.
+
+        This will create any [alleleassessment|referenceassessment|allelereport] objects for the provided allele id.
+
+        For each assessment/report, there are two cases:
+        - 'reuse=False' or reuse is missing: a new assessment/report is created in the database using the data given.
+        - 'reuse=True' The id of an existing assessment/report is expected in 'presented_assessment_id'
+            or 'presented_report_id'.
+
+
+        **Only works for analyses with a `Ongoing` current interpretation**
+
+        ---
+        summary: Finalize allele in analysis
+        tags:
+          - Workflow
+        parameters:
+          - name: analysis_id
+            in: path
+            type: integer
+            description: Analysis id
+          - name: data
+            in: body
+            required: true
+            type: object
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+
+        result = helpers.finalize_allele(
+            session, user.id, data, user_config, analysis_id=analysis_id
+        )
+        session.commit()
+
+        return result, 200
+
+
 class AnalysisActionFinalizeResource(LogRequestResource):
     @authenticate(user_config=True)
     @request_json(
         [
-            "alleleassessments",
-            "referenceassessments",
-            "allelereports",
-            "annotations",
-            "custom_annotations",
-            "attachments",
+            "alleleassessment_ids",
+            "allelereport_ids",
+            "annotation_ids",
+            "custom_annotation_ids",
             "notrelevant_allele_ids",
             "technical_allele_ids",
         ]
