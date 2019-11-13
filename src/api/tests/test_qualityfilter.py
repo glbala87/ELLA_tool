@@ -136,7 +136,7 @@ def filter_config(draw):
 )  # Should not filter out alleles with AR==0.0
 @ht.given(st.lists(filter_data(), min_size=1), st.one_of(filter_config()), st.just(None))
 @ht.settings(deadline=500)
-def test_classificationfilter(session, genotype_data, fc, manually_curated_result):
+def test_qualityfilter(session, genotype_data, fc, manually_curated_result):
     session.rollback()
     # Add generated data to database
     analysis_id, allele_genotype_data = add_data(session, genotype_data)
