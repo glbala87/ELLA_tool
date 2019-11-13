@@ -758,8 +758,8 @@ class TestInheritanceFilter(object):
             sample_names["proband"],
             sample_names.get("father"),
             sample_names.get("mother"),
-            affected_sibling_samples=sample_names.get("affected_siblings"),
-            unaffected_sibling_samples=sample_names.get("unaffected_siblings"),
+            affected_sibling_sample_ids=sample_names.get("affected_siblings"),
+            unaffected_sibling_sample_ids=sample_names.get("unaffected_siblings"),
         )
 
         if manually_curated_result is not None:
@@ -956,8 +956,8 @@ class TestInheritanceFilter(object):
             sample_names["proband"],
             sample_names.get("father"),
             sample_names.get("mother"),
-            unaffected_sibling_samples=sample_names.get("unaffected_siblings"),
-            affected_sibling_samples=sample_names.get("affected_siblings"),
+            unaffected_sibling_sample_ids=sample_names.get("unaffected_siblings"),
+            affected_sibling_sample_ids=sample_names.get("affected_siblings"),
         )
 
         if manually_curated_result is not None:
@@ -1094,8 +1094,8 @@ class TestInheritanceFilter(object):
             sample_names["proband"],
             sample_names.get("father"),
             sample_names.get("mother"),
-            unaffected_sibling_samples=sample_names.get("unaffected_siblings"),
-            affected_sibling_samples=sample_names.get("affected_siblings"),
+            unaffected_sibling_sample_ids=sample_names.get("unaffected_siblings"),
+            affected_sibling_sample_ids=sample_names.get("affected_siblings"),
         )
 
         if manually_curated_result is not None:

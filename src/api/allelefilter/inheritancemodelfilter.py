@@ -98,10 +98,10 @@ class InheritanceModelFilter(object):
                 proband_genotype_tables.append(
                     self.session.query(
                         genotype_table.c.allele_id.label("allele_id"),
-                        getattr(genotype_table.c, proband_sample_name + "_type").label(
+                        getattr(genotype_table.c, f"{proband_sample_id}_type").label(
                             "proband_genotype"
                         ),
-                    ).filter(~getattr(genotype_table.c, proband_sample_name + "_type").is_(None))
+                    ).filter(~getattr(genotype_table.c, f"{proband_sample_id}_type").is_(None))
                 )
 
             proband_genotype_table = proband_genotype_tables[0]
