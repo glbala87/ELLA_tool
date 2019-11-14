@@ -6,14 +6,26 @@ title: Latest release
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.8.2
+
+Release date: 20.11.2019
+
+### All changes
+
+<!-- MR !342 -->
+- Fixed bug where quality filtering did not work for multiple proband samples. 
+- Fixed bug where importing the same sample more than once caused a crash.
+
+
 ## Version 1.8.1
 
 Release date: 30.10.2019
 
 ### All changes
 
-Fixed bug where user were not able to finalize and analyses with reused allele assessments with references to be auto-ignored under "Pending evaluation".
-Fix bug where reference data was not reloaded when including variant from filter.
+<!-- MR !339 -->
+- Fixed bug where users were not able to finalize analyses with reused allele assessments and auto-ignored references under "Pending evaluation".
+- Fixed bug where reference data was not reloaded when including a variant from filtered variants.
 
 ## Version 1.8
 
