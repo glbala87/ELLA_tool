@@ -232,7 +232,9 @@ class AlleleActionStartResource(LogRequestResource):
 
 class AlleleActionMarkInterpretationResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
+    )
     def post(self, session, allele_id, data=None, user=None):
         """
         Marks an allele interpretation for interpretation.
@@ -266,7 +268,9 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
 
 class AlleleActionMarkReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(["alleleassessments", "annotations", "custom_annotations", "allelereports"])
+    @request_json(
+        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
+    )
     def post(self, session, allele_id, data=None, user=None):
         """
         Marks an allele interpretation for review.
@@ -330,88 +334,54 @@ class AlleleActionReopenResource(LogRequestResource):
         return None, 200
 
 
-class AlleleActionFinalizeResource(LogRequestResource):
+class AlleleActionFinalizeAlleleResource(LogRequestResource):
     @authenticate(user_config=True)
-    @request_json(
-        [
-            "alleleassessments",
-            "referenceassessments",
-            "allelereports",
-            "annotations",
-            "custom_annotations",
-            "attachments",
-        ]
-    )
+    @request_json(["allele_id", "alleleassessment", "referenceassessments", "allelereport"])
     def post(self, session, allele_id, user_config=None, data=None, user=None):
         """
-        Finalizes an analysis.
+        Finalizes a single allele within an allele workflow.
 
-        This sets the analysis' current interpretation's status to `Done` and creates
-        any [alleleassessment|referenceassessment|allelereport] objects for the provided alleles,
-        unless it's specified to reuse the existing objects.
-
-        You must provide a list of assessments/reports.
-        For each assessment/report, if an 'id' field is not part of the data, it will create
-        a new assessments/reports in the database.
-        It will then link the analysis to these assessments/reports.
-
-        If an 'id' field does exist, it will check if the assessment/report with this id
-        exists in the database, then link the analysis to this assessment/report. If the 'id' doesn't
-        exists, an ApiError is given.
-
-        In other words, if reusing a preexisting assessment/report, you can pass in just it's 'id',
-        otherwise pass in all the data needed to create a new assessment/report (without an 'id' field).
+        This will create any [alleleassessment|referenceassessment|allelereport] objects for the provided allele id.
 
         **Only works for analyses with a `Ongoing` current interpretation**
 
-        ```javascript
-        Example POST data:
-        {
-            "referenceassessments": [
-                {
-                    // New assessment will be created, superceding any old one
-                    "analysis_id": 3,
-                    "reference_id": 123
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                    "allele_id": 14,
-                },
-                {
-                    // Reusing assessment
-                    "id": 13,
-                    "allele_id": 13,
-                    "reference_id": 1
-                }
-            ],
-            "alleleassessments": [
-                {
-                    // New assessment will be created, superceding any old one
-                    "allele_id": 2,
-                    "classification": "3",
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                },
-                {
-                    // Reusing assessment
-                    "id": 9
-                    "allele_id": 6
-                }
-            ],
-            "allelereports": [
-                {
-                    // New report will be created, superceding any old one
-                    "allele_id": 2,
-                    "evaluation": {...data...},
-                    "analysis_id": 3,
-                },
-                {
-                    // Reusing report
-                    "id": 9
-                    "allele_id": 6
-                }
-            ]
-        }
-        ```
+        ---
+        summary: Finalize allele in analysis
+        tags:
+          - Workflow
+        parameters:
+          - name: allele_id
+            in: path
+            type: integer
+            description: Allele id
+          - name: data
+            in: body
+            required: true
+            type: object
+
+        responses:
+          200:
+            description: Returns null
+          500:
+            description: Error
+        """
+
+        result = helpers.finalize_allele(session, user.id, data, user_config, allele_id=allele_id)
+        session.commit()
+
+        return result, 200
+
+
+class AlleleActionFinalizeResource(LogRequestResource):
+    @authenticate(user_config=True)
+    @request_json(
+        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
+    )
+    def post(self, session, allele_id, user_config=None, data=None, user=None):
+        """
+        Finalizes an allele workflow.
+
+        **Only works for analyses with a `Ongoing` current interpretation**
 
         ---
         summary: Finalize allele workflow
@@ -425,107 +395,7 @@ class AlleleActionFinalizeResource(LogRequestResource):
           - name: data
             in: body
             required: true
-            schema:
-              title: Data object
-              type: object
-              required:
-                - referenceassessments
-                - alleleassessments
-                - allelereports
-              properties:
-                referenceassessments:
-                  name: referenceassessment
-                  type: array
-                  items:
-                    title: ReferenceAssessment
-                    type: object
-                    required:
-                      - allele_id
-                      - reference_id
-                    properties:
-                      id:
-                        description: Existing referenceassessment id. If provided, existing object will be reused
-                        type: integer
-                      analysis_id:
-                        description: Analysis id. Required if not reusing existing object
-                        type: integer
-                      allele_id:
-                        description: Allele id
-                        type: integer
-                      reference_id:
-                        description: Reference id
-                        type: integer
-                      evaluation:
-                        description: Evaluation data object
-                        type: object
-                alleleassessment:
-                  name: alleleassessment
-                  type: array
-                  items:
-                    title: AlleleAssessment
-                    type: object
-                    required:
-                      - allele_id
-                    properties:
-                      id:
-                        description: Existing alleleassessment id. If provided, existing object will be reused
-                        type: integer
-                      analysis_id:
-                        description: Analysis id. Required if not reusing existing object
-                        type: integer
-                      allele_id:
-                        description: Allele id
-                        type: integer
-                      evaluation:
-                        description: Evaluation data object
-                        type: object
-                      classification:
-                        description: Classification
-                        type: string
-                allelereport:
-                  name: allelereport
-                  type: array
-                  items:
-                    title: AlleleReport
-                    type: object
-                    required:
-                      - allele_id
-                    properties:
-                      id:
-                        description: Existing reference id. If provided, existing object will be reused
-                        type: integer
-                      analysis_id:
-                        description: Analysis id. Required if not reusing existing object
-                        type: integer
-                      allele_id:
-                        description: Allele id
-                        type: integer
-                      evaluation:
-                        description: Evaluation data object
-                        type: object
-              example:
-                referenceassessments:
-                  - analysis_id: 3
-                    reference_id: 123
-                    evaluation: {}
-                    allele_id: 14
-                  - id: 13
-                    allele_id: 13
-                    reference_id: 1
-                alleleassessments:
-                  - allele_id: 2
-                    classification: '3'
-                    evaluation: {}
-                    analysis_id: 3
-                  - id: 9
-                    allele_id: 6
-                allelereports:
-                  - allele_id: 2
-                    evaluation: {}
-                    analysis_id: 3
-                  - id: 9
-                    allele_id: 6
-              description: Submitted data
+            type: object
 
 
         responses:
