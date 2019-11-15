@@ -823,13 +823,16 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
 
     assert workflow_id
 
+    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    # If there's no interpretations, there cannot be any logs either
+    if latest_interpretation is None:
+        return {"logs": [], "users": []}
+
     logs = (
         session.query(workflow.InterpretationLog)
         .join(_get_interpretation_model(allele_id, analysis_id))
         .filter(_get_interpretation_model_field(allele_id, analysis_id) == workflow_id)
     )
-
-    latest_interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
 
     field = "alleleinterpretation_id" if allele_id else "analysisinterpretation_id"
     editable = {
