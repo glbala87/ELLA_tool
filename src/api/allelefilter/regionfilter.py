@@ -212,10 +212,10 @@ class RegionFilter(object):
                     (
                         genepanel_transcript_exons.c.cds_end
                         < genepanel_transcript_exons.c.exon_end,
-                        genepanel_transcript_exons.c.cds_end,
+                        genepanel_transcript_exons.c.cds_end - 1,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_end,
+                else_=genepanel_transcript_exons.c.exon_end - 1,
             )
 
             transcript_coding_regions = self.session.query(
@@ -259,7 +259,7 @@ class RegionFilter(object):
                 [
                     (
                         genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_end + 1,
+                        genepanel_transcript_exons.c.exon_end,
                     )
                 ],
                 else_=genepanel_transcript_exons.c.exon_start + tmp_gene_padding.c.exon_upstream,
@@ -269,7 +269,9 @@ class RegionFilter(object):
                 [
                     (
                         genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_end - tmp_gene_padding.c.exon_upstream,
+                        genepanel_transcript_exons.c.exon_end
+                        - 1
+                        - tmp_gene_padding.c.exon_upstream,
                     )
                 ],
                 else_=genepanel_transcript_exons.c.exon_start - 1,
@@ -300,7 +302,7 @@ class RegionFilter(object):
                         - tmp_gene_padding.c.exon_downstream,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_end + 1,
+                else_=genepanel_transcript_exons.c.exon_end,
             )
 
             splicing_downstream_end = case(
@@ -310,7 +312,9 @@ class RegionFilter(object):
                         genepanel_transcript_exons.c.exon_start - 1,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_end + tmp_gene_padding.c.exon_downstream,
+                else_=genepanel_transcript_exons.c.exon_end
+                - 1
+                + tmp_gene_padding.c.exon_downstream,
             )
 
             splicing_region_downstream = _create_region(
@@ -331,7 +335,7 @@ class RegionFilter(object):
             # UTR upstream region for positive strand transcript is (cds_start, cds_start+coding_region_upstream]
             # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end)
             utr_upstream_start = case(
-                [(genepanel_transcripts.c.strand == "-", genepanel_transcripts.c.cds_end + 1)],
+                [(genepanel_transcripts.c.strand == "-", genepanel_transcripts.c.cds_end)],
                 else_=genepanel_transcripts.c.cds_start + tmp_gene_padding.c.coding_region_upstream,
             )
 
@@ -339,7 +343,9 @@ class RegionFilter(object):
                 [
                     (
                         genepanel_transcripts.c.strand == "-",
-                        genepanel_transcripts.c.cds_end - tmp_gene_padding.c.coding_region_upstream,
+                        genepanel_transcripts.c.cds_end
+                        - 1
+                        - tmp_gene_padding.c.coding_region_upstream,
                     )
                 ],
                 else_=genepanel_transcripts.c.cds_start - 1,
@@ -375,7 +381,9 @@ class RegionFilter(object):
 
             utr_downstream_end = case(
                 [(genepanel_transcripts.c.strand == "-", genepanel_transcripts.c.cds_start - 1)],
-                else_=genepanel_transcripts.c.cds_end + tmp_gene_padding.c.coding_region_downstream,
+                else_=genepanel_transcripts.c.cds_end
+                - 1
+                + tmp_gene_padding.c.coding_region_downstream,
             )
             utr_region_downstream = _create_region(
                 genepanel_transcripts, utr_downstream_start, utr_downstream_end
@@ -401,14 +409,16 @@ class RegionFilter(object):
                 allele.Allele.id.in_(allele_ids),
                 allele.Allele.chromosome == all_regions.c.chromosome,
                 or_(
+                    # Contained within or overlapping region
                     and_(
                         allele.Allele.start_position >= all_regions.c.region_start,
                         allele.Allele.start_position <= all_regions.c.region_end,
                     ),
                     and_(
                         allele.Allele.open_end_position > all_regions.c.region_start,
-                        allele.Allele.open_end_position < all_regions.c.region_end,
+                        allele.Allele.open_end_position <= all_regions.c.region_end,
                     ),
+                    # Region contained within variant
                     and_(
                         allele.Allele.start_position <= all_regions.c.region_start,
                         allele.Allele.open_end_position > all_regions.c.region_end,
