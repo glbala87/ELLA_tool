@@ -1,12 +1,29 @@
 import { Compute } from 'cerebral'
+import { state } from 'cerebral/tags'
 
 export default (allele) => {
-    return Compute(allele, (allele, get) => {
+    return Compute(allele, state`views.workflows.data.collisions`, (allele, collisions, get) => {
         if (!allele) {
             return []
         }
 
         let warnings = []
+        if (collisions) {
+            for (const c of collisions.filter((c) => c.allele_id === allele.id)) {
+                const typeText =
+                    c.type === 'analysis' ? 'in another analysis' : 'in variant workflow'
+                if (c.user) {
+                    warnings.push({
+                        warning: `This variant is currently being worked on by ${c.user.full_name} ${typeText}.`
+                    })
+                } else {
+                    warnings.push({
+                        warning: `This variant is currently awaiting review ${typeText}.`
+                    })
+                }
+            }
+        }
+
         if (allele.warnings) {
             warnings = warnings.concat(
                 Object.values(allele.warnings).map((w) => {

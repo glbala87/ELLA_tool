@@ -42,7 +42,7 @@
             ng-class="{'purple': $ctrl.messageCount > 0}"
             tippy-popover="interpretationLogPopover.ngtmpl.html"
         >
-            Work log ({{ $ctrl.messageCount }})
+            Work log <span ng-if="$ctrl.messageCount != null">({{ $ctrl.messageCount }})</span>
         </button>
         <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
     </section>
@@ -116,7 +116,8 @@
                     ng-class="{'purple': $ctrl.messageCount > 0}"
                     tippy-popover="interpretationLogPopover.ngtmpl.html"
                 >
-                    Work log ({{ $ctrl.messageCount }})
+                    Work log
+                    <span ng-if="$ctrl.messageCount != null">({{ $ctrl.messageCount }})</span>
                 </button>
                 <workflow-buttons
                     ng-if="$ctrl.workflowType == 'allele'"

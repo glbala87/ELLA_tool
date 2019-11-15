@@ -1,3 +1,9 @@
-<div class="allele-warning" ng-if="$ctrl.warnings.length">
-    <h3 ng-repeat="w in $ctrl.warnings">{{ w.warning }}</h3>
-</div>
+<sectionbox color="custom" collapsible="false" class="allele-warning" ng-if="$ctrl.warnings.length">
+    <maintitle><h3>Warning</h3></maintitle>
+    <subtitle
+        ><h3>{{ $ctrl.warnings.length }}</h3></subtitle
+    >
+    <contentwrapper>
+        <p ng-repeat="w in $ctrl.warnings">{{ w.warning }}</p>
+    </contentwrapper>
+</sectionbox>

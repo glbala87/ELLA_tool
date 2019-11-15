@@ -12,7 +12,7 @@ class InterpretationLogSchema(Schema):
             "message",
             "warning_cleared",
             "review_comment",
-            "user",
+            "user_id",
             "priority",
             "alleleassessment_id",
         )

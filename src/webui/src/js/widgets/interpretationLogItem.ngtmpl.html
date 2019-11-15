@@ -65,6 +65,16 @@
             ng-model="$ctrl.getMessageModel().message"
         ></wysiwyg-editor>
     </div>
+    <div ng-if="$ctrl.message.alleleassessment">
+        <span class="event">Updated classification for </span
+        ><span ng-repeat="h in $ctrl.message.alleleassessment.hgvsc">{{ h }}</span
+        ><span class="event"
+            ><span ng-if="$ctrl.message.alleleassessment.previous_classification">
+                {{ $ctrl.message.alleleassessment.previous_classification }}</span
+            >
+            → {{ $ctrl.message.alleleassessment.classification }}</span
+        >
+    </div>
     <div ng-if="$ctrl.message.warning_cleared === true">
         <span class="event">Warning cleared</span>
     </div>

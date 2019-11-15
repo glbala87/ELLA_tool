@@ -1,3 +1,4 @@
+from typing import Sequence, Tuple
 import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column
@@ -353,7 +354,9 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
     return result
 
 
-def annotation_transcripts_genepanel(session, genepanel_keys, allele_ids=None):
+def annotation_transcripts_genepanel(
+    session, genepanel_keys: Sequence[Tuple[str, str]], allele_ids: Sequence[int] = None
+):
 
     """
     Returns a joined representation of annotation transcripts against genepanel transcripts

@@ -6,16 +6,21 @@ export default function updateMessages({ state }) {
     const showMessagesOnly = state.get('views.workflows.worklog.showMessagesOnly')
     const messages = []
 
-    if (logs || interpretations) {
+    console.log(logs)
+    if (logs && logs.logs) {
         // Ids can overlap between objects, so rename the id for tracking
         // to work correctly
-        for (const l of Object.values(logs)) {
+        for (const l of logs.logs) {
             let new_l = Object.assign({}, l)
             new_l.originalId = l.id
             new_l.id = 'log_' + l.id
             new_l.type = 'interpretationlog'
+            new_l.user = logs.users.find((u) => u.id === l.user_id)
             messages.push(new_l)
         }
+    }
+
+    if (interpretations) {
         for (const i of interpretations) {
             if (i.status === 'Done' && i.finalized) {
                 let new_i = {
@@ -32,8 +37,10 @@ export default function updateMessages({ state }) {
                 messages.push(new_i)
             }
         }
-        messages.sort(thenBy((m) => m.date_last_update || m.date_created))
     }
+
+    messages.sort(thenBy((m) => m.date_last_update || m.date_created))
+
     // Get count of user messages since last finalized
     let messageCount = 0
     for (const m of messages) {

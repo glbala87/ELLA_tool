@@ -749,12 +749,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Get all ongoing analyses connected to provided allele ids
     # For analyses we exclude alleles with valid alleleassessments
     wf_analysis_allele_ids = (
-        session.query(
-            sample.Analysis.genepanel_name,
-            sample.Analysis.genepanel_version,
-            workflow.AnalysisInterpretation.user_id,
-            allele.Allele.id,
-        )
+        session.query(workflow.AnalysisInterpretation.user_id, allele.Allele.id)
         .join(
             genotype.Genotype.alleles,
             sample.Sample,
@@ -773,10 +768,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     # Get all allele ids for ongoing allele workflows matching provided allele_ids
     wf_allele_allele_ids = (
         session.query(
-            workflow.AlleleInterpretation.genepanel_name,
-            workflow.AlleleInterpretation.genepanel_version,
-            workflow.AlleleInterpretation.user_id,
-            workflow.AlleleInterpretation.allele_id,
+            workflow.AlleleInterpretation.user_id, workflow.AlleleInterpretation.allele_id
         )
         .filter(
             or_(
@@ -802,65 +794,20 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     wf_analysis_allele_ids = wf_analysis_allele_ids.all()
     wf_allele_allele_ids = wf_allele_allele_ids.all()
 
-    collision_gp_allele_ids = defaultdict(set)
-    user_ids = set()
-    for gp_name, gp_version, user_id, allele_id in wf_allele_allele_ids + wf_analysis_allele_ids:
-        collision_gp_allele_ids[(gp_name, gp_version)].add(allele_id)
-        user_ids.add(user_id)
-
-    # For performance we have to jump through some hoops...
-    # First we load in all allele data in one query
-    collision_alleles = (
-        session.query(allele.Allele)
-        .filter(
-            allele.Allele.id.in_(
-                itertools.chain.from_iterable(list(collision_gp_allele_ids.values()))
-            )
-        )
-        .all()
-    )
-
-    # Next load the alleles by their genepanel to load with AlleleDataLoader
-    # using the correct genepanel for those alleles.
-    genepanels = session.query(gene.Genepanel).filter(
-        tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(
-            list(collision_gp_allele_ids.keys())
-        )
-    )
-    adl = AlleleDataLoader(session)
-    gp_dumped_alleles = dict()
-    for gp_key, al_ids in collision_gp_allele_ids.items():
-        genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
-        alleles = [a for a in collision_alleles if a.id in al_ids]
-        gp_dumped_alleles[gp_key] = adl.from_objs(
-            alleles,
-            genepanel=genepanel,
-            include_allele_report=False,
-            include_custom_annotation=False,
-            include_reference_assessments=False,
-            include_allele_assessment=False,
-        )
-
     # Preload the users
+    user_ids = set([a[0] for a in wf_allele_allele_ids + wf_analysis_allele_ids])
     users = session.query(user.User).filter(user.User.id.in_(user_ids)).all()
     dumped_users = schemas.UserSchema().dump(users, many=True).data
 
-    # Finally connect it all together (phew!)
     collisions = list()
     for wf_type, wf_entries in [
         ("allele", wf_allele_allele_ids),
         ("analysis", wf_analysis_allele_ids),
     ]:
-        for gp_name, gp_version, user_id, allele_id in wf_entries:
-            gp_key = (gp_name, gp_version)
-            dumped_allele = next(
-                (a for a in gp_dumped_alleles[gp_key] if a["id"] == allele_id), None
-            )
-            if not dumped_allele:  # Allele might have been filtered out..
-                continue
+        for user_id, allele_id in wf_entries:
             # If an workflow is in review, it will have no user assigned...
             dumped_user = next((u for u in dumped_users if u["id"] == user_id), None)
-            collisions.append({"type": wf_type, "user": dumped_user, "allele": dumped_allele})
+            collisions.append({"type": wf_type, "user": dumped_user, "allele_id": allele_id})
 
     return collisions
 
@@ -897,7 +844,71 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
     for loaded_log in loaded_logs:
         loaded_log["editable"] = editable[loaded_log["id"]]
 
-    return loaded_logs
+    # AlleleAssessments are special, we need to load more data
+    alleleassessment_ids = set([l["alleleassessment_id"] for l in loaded_logs])
+    alleleassessments = (
+        session.query(
+            assessment.AlleleAssessment.id,
+            assessment.AlleleAssessment.allele_id,
+            assessment.AlleleAssessment.classification,
+            assessment.AlleleAssessment.previous_assessment_id,
+        )
+        .filter(assessment.AlleleAssessment.id.in_(alleleassessment_ids))
+        .all()
+    )
+    alleleassessments_by_id = {a.id: a for a in alleleassessments}
+
+    previous_assessment_ids = [
+        a.previous_assessment_id for a in alleleassessments if a.previous_assessment_id
+    ]
+    previous_alleleassessment_classifications = (
+        session.query(assessment.AlleleAssessment.id, assessment.AlleleAssessment.classification)
+        .filter(assessment.AlleleAssessment.id.in_(previous_assessment_ids))
+        .all()
+    )
+    previous_alleleassessment_classifications_by_id = {
+        a.id: a.classification for a in previous_alleleassessment_classifications
+    }
+
+    allele_ids = [a.allele_id for a in alleleassessments]
+    annotation_genepanel = queries.annotation_transcripts_genepanel(
+        session,
+        [(latest_interpretation.genepanel_name, latest_interpretation.genepanel_version)],
+        allele_ids=allele_ids,
+    ).subquery()
+
+    allele_hgvs = session.query(
+        annotation_genepanel.c.allele_id,
+        annotation_genepanel.c.annotation_symbol,
+        annotation_genepanel.c.annotation_hgvsc,
+    ).all()
+
+    allele_hgvs_by_id = defaultdict(list)
+    for a in allele_hgvs:
+        allele_hgvs_by_id[a.allele_id].append(a)
+
+    for loaded_log in loaded_logs:
+        if loaded_log["alleleassessment_id"]:
+            log_aa = alleleassessments_by_id[loaded_log["alleleassessment_id"]]
+            loaded_log["alleleassessment"] = {
+                "allele_id": log_aa.allele_id,
+                "hgvsc": [f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_aa.allele_id])],
+                "classification": log_aa.classification,
+                "previous_classification": previous_alleleassessment_classifications_by_id[
+                    log_aa.previous_assessment_id
+                ]
+                if log_aa.previous_assessment_id
+                else None,
+            }
+        del loaded_log["alleleassessment_id"]
+
+    # Load all relevant user data
+    user_ids = set([l["user_id"] for l in loaded_logs])
+    users = session.query(user.User).filter(user.User.id.in_(user_ids)).all()
+
+    loaded_users = schemas.UserSchema().dump(users, many=True).data
+
+    return {"logs": loaded_logs, "users": loaded_users}
 
 
 def create_interpretationlog(session, user_id, data, allele_id=None, analysis_id=None):
