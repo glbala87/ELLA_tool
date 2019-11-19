@@ -157,7 +157,7 @@ class AssessmentCreator(object):
         analysis: sample.Analysis = None
         if analysis_id:
             analysis = (
-                self.session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).all()
+                self.session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
             )
 
         reference_ids = [ra["reference_id"] for ra in referenceassessments]
