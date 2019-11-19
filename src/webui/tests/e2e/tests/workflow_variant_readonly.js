@@ -74,6 +74,7 @@ describe('Read-only version of variant workflow ', function() {
         // other user starts a review
         analysisPage.startButton.click()
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(true)
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
@@ -93,10 +94,10 @@ describe('Read-only version of variant workflow ', function() {
         analysisPage.startButton.click()
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(false)
 
-        alleleSectionBox.classificationAcceptedToggleBtn.click()
+        alleleSectionBox.reevaluateBtn.click()
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(true)
         alleleSectionBox.classifyAs2()
-
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()

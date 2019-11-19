@@ -67,6 +67,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         expect(alleleSectionBox.getReferences().length).toEqual(5)
         analysisPage.startButton.click()
         expect(alleleSectionBox.getReferences().length).toEqual(5)
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()

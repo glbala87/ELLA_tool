@@ -176,8 +176,12 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
         workLog.close()
 
+        alleleSectionBox.finalize()
+
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
+
+        variantSelectionPage.selectFinished(1)
     })
 })

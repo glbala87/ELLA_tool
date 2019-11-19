@@ -44,7 +44,7 @@ describe(`ACMG`, function() {
         analysisPage.startButton.click()
         alleleSectionBox.classifyAs1()
         expectSuggestedFeatureIsShown()
-
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
@@ -58,6 +58,7 @@ describe(`ACMG`, function() {
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
             alleleSectionBox.classifyAsU()
+            alleleSectionBox.finalize()
             analysisPage.finishButton.click()
             analysisPage.finalizeButton.click()
             analysisPage.modalFinishButton.click()
@@ -71,35 +72,33 @@ describe(`ACMG`, function() {
         })
 
         it('hidden when seeing a finished interpretation', function() {
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsHidden()
         })
 
         it('are shown after opening a finished interpretation', function() {
             // reopen the interpretation
             analysisPage.startButton.click()
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsShown()
         })
 
         it('are shown after starting a finished interpretation', function() {
             // start the interpreation
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
-            expect(alleleSectionBox.reusingClassification()).toBe(true)
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             analysisPage.startButton.click()
-
             expectSuggestedFeatureIsShown()
         })
 
         it('are shown when a reclassification is started', function() {
             // start (re) classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click()
+            alleleSectionBox.reevaluateBtn.click()
 
-            expect(alleleSectionBox.reusingClassification()).toBe(false)
+            expect(alleleSectionBox.undoRevaluationBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsShown()
 
             // let's reuse the existing classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click()
+            alleleSectionBox.undoReevaluation()
 
             expectSuggestedFeatureIsShown()
 

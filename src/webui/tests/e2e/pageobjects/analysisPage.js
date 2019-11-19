@@ -67,9 +67,6 @@ class AnalysisPage extends Page {
     get addExcludedButton() {
         return util.element('button.id-add-excluded')
     }
-    get collisionWarningBar() {
-        return util.element('.collision-warning')
-    }
 
     getRounds() {
         let selector = '.id-interpretationrounds-dropdown option'

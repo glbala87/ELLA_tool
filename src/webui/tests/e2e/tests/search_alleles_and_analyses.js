@@ -47,6 +47,7 @@ describe('Search functionality', function() {
         search.selectFirstAllele()
         analysisPage.startButton.click()
         alleleSectionBox.classifyAs3()
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
