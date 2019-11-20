@@ -405,6 +405,10 @@ class RegionFilter(object):
             )
 
             # Find allele ids within genomic region
+            open_end_position = case(
+                [(allele.Allele.change_type == "ins", allele.Allele.start_position + 1)],
+                else_=allele.Allele.open_end_position,
+            )
             allele_ids_in_genomic_region = self.session.query(allele.Allele.id).filter(
                 allele.Allele.id.in_(allele_ids),
                 allele.Allele.chromosome == all_regions.c.chromosome,
@@ -415,13 +419,13 @@ class RegionFilter(object):
                         allele.Allele.start_position <= all_regions.c.region_end,
                     ),
                     and_(
-                        allele.Allele.open_end_position > all_regions.c.region_start,
-                        allele.Allele.open_end_position <= all_regions.c.region_end,
+                        open_end_position > all_regions.c.region_start,
+                        open_end_position <= all_regions.c.region_end,
                     ),
                     # Region contained within variant
                     and_(
                         allele.Allele.start_position <= all_regions.c.region_start,
-                        allele.Allele.open_end_position > all_regions.c.region_end,
+                        open_end_position > all_regions.c.region_end,
                     ),
                 ),
             )
