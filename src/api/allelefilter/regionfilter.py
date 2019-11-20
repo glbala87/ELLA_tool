@@ -94,10 +94,11 @@ class RegionFilter(object):
                 or_(
                     and_(
                         allele.Allele.start_position >= gene.Transcript.tx_start - max_padding,
-                        allele.Allele.start_position <= gene.Transcript.tx_end + max_padding,
+                        allele.Allele.start_position <= gene.Transcript.tx_end - 1 + max_padding,
                     ),
                     and_(
-                        allele.Allele.open_end_position > gene.Transcript.tx_start - max_padding,
+                        allele.Allele.open_end_position - 1
+                        > gene.Transcript.tx_start - max_padding,
                         allele.Allele.open_end_position < gene.Transcript.tx_end + max_padding,
                     ),
                 ),
@@ -237,6 +238,7 @@ class RegionFilter(object):
                         region_end.label("region_end"),
                     )
                     .join(tmp_gene_padding, tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id)
+                    .filter(region_end > region_start)
                     .distinct()
                 )
 
@@ -376,7 +378,7 @@ class RegionFilter(object):
                         - tmp_gene_padding.c.coding_region_downstream,
                     )
                 ],
-                else_=genepanel_transcripts.c.cds_end + 1,
+                else_=genepanel_transcripts.c.cds_end,
             )
 
             utr_downstream_end = case(
