@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from typing import List, Dict
+from typing import Sequence, Dict, Optional
 from vardb.datamodel import assessment, sample, attachment
 
 
@@ -24,7 +24,7 @@ class AssessmentCreator(object):
         annotation_id: int,
         alleleassessment: Dict,
         custom_annotation_id: int = None,
-        referenceassessments: List[Dict] = None,
+        referenceassessments: Sequence[Dict] = None,
         analysis_id: int = None,
     ):
         """
@@ -65,12 +65,12 @@ class AssessmentCreator(object):
         annotation_id: int,
         alleleassessment: Dict,
         custom_annotation_id: int = None,
-        referenceassessments: List[Dict] = None,
+        referenceassessments: Sequence[Dict] = None,
         analysis_id: int = None,
     ):
         assert alleleassessment["allele_id"] == allele_id
 
-        analysis: sample.Analysis = None
+        analysis: Optional[sample.Analysis] = None
         if analysis_id:
             analysis = (
                 self.session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
@@ -113,7 +113,6 @@ class AssessmentCreator(object):
             # If not analysis_id, genepanel was loaded using schema above.
             # (analysis_id is loaded through schema)
             if analysis:
-                print(assessment_obj.analysis_id, analysis_id)
                 assert assessment_obj.analysis_id == analysis_id
                 assessment_obj.genepanel_name = analysis.genepanel_name
                 assessment_obj.genepanel_version = analysis.genepanel_version

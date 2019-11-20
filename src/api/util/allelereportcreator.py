@@ -1,7 +1,7 @@
 import logging
 import datetime
 import pytz
-from typing import List, Dict
+from typing import Dict, Optional
 from vardb.datamodel import assessment
 
 from api.schemas import AlleleReportSchema
@@ -78,7 +78,7 @@ class AlleleReportCreator(object):
             .one_or_none()
         )
 
-        result_allelereport: assessment.AlleleReport = None
+        result_allelereport: Optional[assessment.AlleleReport] = None
         result_reused: bool = False
 
         if allelereport.get("reuse"):

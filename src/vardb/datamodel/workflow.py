@@ -242,4 +242,3 @@ class InterpretationLog(Base):
     review_comment = Column(String)
     warning_cleared = Column(Boolean)
     alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
-
