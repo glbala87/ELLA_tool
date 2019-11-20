@@ -383,10 +383,17 @@ export class WysiwygEditorController {
     }
 
     // Helper functions for editorelement
-    placeholderEvent(visible) {
-        if (document.activeElement !== this.editorelement || !visible) {
-            this.placeholderelement.hidden = !visible
-            this.editorelement.hidden = visible
+    placeholderEvent(showPlaceholder) {
+        if (document.activeElement !== this.editorelement || !showPlaceholder) {
+            this.placeholderelement.hidden = !showPlaceholder
+            this.editorelement.hidden = showPlaceholder
+            if (showPlaceholder) {
+                // Placeholder updates can trigger for certain changes to the editor content
+                // outside the normal flow. If wysiwyg module tells us to show placeholder,
+                // something might have cleared the content outside AngularJS digest.
+                // If so, we should update our model and UI state accordingly.
+                this.blur()
+            }
         }
     }
 

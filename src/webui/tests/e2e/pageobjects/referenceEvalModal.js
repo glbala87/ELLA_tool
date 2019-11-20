@@ -1,6 +1,8 @@
 let Page = require('./page')
 
 const TOP_CLASS = '.id-reference-modal-body'
+const SELECTOR_COMMENT = `${TOP_CLASS} .id-reference-comment`
+const SELECTOR_COMMENT_EDITOR = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`
 
 class ReferenceEvalModal extends Page {
     get comment() {
@@ -17,11 +19,9 @@ class ReferenceEvalModal extends Page {
         el.click()
     }
 
-    setComment(text) {
-        this.comment.waitForDisplayed()
-        this.comment.click()
-        let selector = `${TOP_CLASS} .id-reference-comment .wysiwygeditor`
-        $(selector).setValue(text)
+    setComment(text, second) {
+        $(SELECTOR_COMMENT).waitForDisplayed()
+        browser.setWysiwygValue(SELECTOR_COMMENT, SELECTOR_COMMENT_EDITOR, text)
     }
 
     waitForClose() {
