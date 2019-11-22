@@ -8,14 +8,15 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.8.2
 
-Release date: 20.11.2019
+Release date: 25.11.2019
 
 ### All changes
 
 <!-- MR !342 -->
-- Fixed bug where quality filtering did not work for multiple proband samples. 
+- Fixed bug where quality filtering did not work for multiple affected siblings. 
 - Fixed bug where importing the same sample more than once caused a crash.
-
+<!-- MR!344 -->
+- Fixed bug causing +1/-1 bp errors in region filter.
 
 ## Version 1.8.1
 
