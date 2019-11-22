@@ -407,10 +407,15 @@ class RegionFilter(object):
             )
 
             # Find allele ids within genomic region
+
+            # In the database, insertions are stored with open_end_position=start_position + <length of insertion> + 1
+            # This does not apply for region filtering, as we compare to the reference genome, where the insertion should have no length
+            # TODO: Change datamodel to use open_end_position=start_position+1 for insertions
             open_end_position = case(
                 [(allele.Allele.change_type == "ins", allele.Allele.start_position + 1)],
                 else_=allele.Allele.open_end_position,
             )
+
             allele_ids_in_genomic_region = self.session.query(allele.Allele.id).filter(
                 allele.Allele.id.in_(allele_ids),
                 allele.Allele.chromosome == all_regions.c.chromosome,
