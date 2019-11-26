@@ -8,7 +8,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.8.2
 
-Release date: 25.11.2019
+Release date: 27.11.2019
 
 ### All changes
 

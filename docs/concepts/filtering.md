@@ -353,22 +353,86 @@ This configuration will filter out:
 
 ## Segregation filter
 
-The segregation filter uses family data to filter out variants that do **NOT** meet any of the following criteria:
+The segregation filter uses family data to filter out variants that do **NOT** meet any of the following criteria (details are linked below):
 
--   De novo
--   Compound heterozygous
--   Autosomal/X-linked recessive AND homozygous
--   Inherited from possible mosaicism in either parent
--   Parents have no coverage
--   Heterozygous in any unaffected siblings
+- [De novo variants](#de-novo-variants)
+- [Compound heterozygous candidate](#compound-heterozygous-candidate)
+- [Homozygous recessive](#homozygous-recessive) 
+- [Inherited mosaicism](#inherited-mosaicism)
+
+This filter has no regular configuration, although some settings may be adjusted in the source code.
 
 ::: warning NOTE
 This filter is not suitable as an exception filter.
 :::
 
-#### Configuration
+::: warning NOTE
+For the purposes below, variants in the pseudo-autosomal X-chromosome regions PAR1 and PAR2 (X:60001-2699520 and X:154931044-155260560 on GRCh37) are treated as autosomal, _not_ X-linked.
+:::
 
-This filter has no configuration.
+::: warning NOTE
+The following special conditions will discard the variant:
+- Missing genotype (i.e. no coverage) in father or mother.
+- A male trio member is reported as heterozygous for an X-linked variant.
+::: 
+
+### De novo variants
+
+Designating a variant as de novo is based on rules given in [Vigeland et al. (2016)](https://doi.org/10.1093/bioinformatics/btw046). Genotype inheritance patterns that designates a variant allele "1" (reference = "0") as de novo in the child (father + mother = child) are:
+
+- For autosomal or pseudo-autosomal regions:
+    - 0/0 + 0/0 = 0/1
+    - 0/0 + 0/0 = 1/1
+    - 0/0 + 0/1 = 1/1
+    - 0/1 + 0/0 = 1/1
+- For X-linked regions, child is a boy:
+    - 0 + 0/0 = 1
+- For X-linked regions, child is a girl:
+    - 0 + 0/0 = 0/1
+    - 0 + 0/0 = 1/1
+    - 0 + 0/1 = 1/1
+
+### Compound heterozygous candidate
+
+Variants are designated as compound heterozygous candidates based on the rule set from [Kamphans et al. (2013)](https://doi.org/10.1371/journal.pone.0070151): 
+
+1. A variant has to be in a heterozygous state in all affected individuals.
+2. A variant must not occur in a homozygous state in any of the unaffected individuals.
+3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
+4. A gene must have two or more heterozygous variants in each of the affected individuals.
+5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
+
+::: warning NOTE
+For the second part of the third rule - "in exactly one of the parents" - note this excerpt from the article:
+
+"[This rule] is applicable only if we assume that no de novo mutations occurred. The number of de novo mutations is estimated to be below five per exome per generation, thus, the likelihood that an individual is compound heterozygous and at least one of these mutations arose de novo is low. If more than one family member is affected, de novo mutations are even orders of magnitudes less likely as a recessive disease cause. On the other hand, excluding these variants from the further analysis helps to remove many sequencing artifacts."
+::: 
+
+### Homozygous recessive
+
+This rule set checks for homo-/hemizygous variants in genes defined with recessive inheritance. The following conditions must be met:
+
+- For autosomal or pseudo-autosomal regions:
+    - Homozygous in the proband and any affected siblings.
+    - Heterozygous in both parents.
+    - Not homozygous in unaffected siblings.
+- For X-linked regions: 
+    - Homo-/hemizygous in the proband and any affected siblings (note: for girls this requires a de novo, but still valid case).
+    - Heterozygous in mother.
+    - Not present in father.
+    - Not homo-/hemizygous in unaffected siblings
+
+
+### Inherited mosaicism
+
+This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism. The following conditions must be met:
+
+- Proband has variant.
+- Father or mother has `allele_ratio` between given thresholds: 
+    - For autosomal or pseudo-autosomal regions: heterozygous (default: `[0, 0.3]`)
+    - For X-linked regions: 
+        - Heterozygous for mother (default: `[0, 0.3]`)
+        - Homozygous for father (default: `[0, 0.8]`)
 
 
 ## Pre-filter (before import)
