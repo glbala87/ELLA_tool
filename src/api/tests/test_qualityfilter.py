@@ -67,8 +67,15 @@ def add_data(session, gt_data):
                 # No genotype for this sample
                 continue
             sample_id = get_sample_id(i)
+            secondallele = bool(
+                data["variant_quality"] is not None and data["variant_quality"] % 7 == 0
+            )  # Run some variants with secondallele = True
+
             gt = genotype.Genotype(
-                allele_id=al.id, sample_id=sample_id, variant_quality=data["variant_quality"]
+                allele_id=al.id,
+                secondallele_id=al.id if secondallele else None,  # Mock the secondallele
+                sample_id=sample_id,
+                variant_quality=data["variant_quality"],
             )
             session.add(gt)
             session.flush()
@@ -78,7 +85,7 @@ def add_data(session, gt_data):
                 genotype_id=gt.id,
                 allele_ratio=data["genotype_allele_ratio"],
                 type="Heterozygous",
-                secondallele=False,
+                secondallele=secondallele,
                 multiallelic=False,
             )
 
