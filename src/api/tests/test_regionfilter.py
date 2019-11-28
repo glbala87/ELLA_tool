@@ -314,10 +314,11 @@ class TestRegionFilter(object):
         final_include_regions = (
             splice_include_regions + utr_include_regions + coding_include_regions
         )
+
         if any(
             (start_position >= p[0] and start_position <= p[1])
-            or (open_end_position > p[0] and open_end_position <= p[1])
-            or (start_position <= p[0] and open_end_position > p[1])
+            or (open_end_position > p[0] and open_end_position < p[1])
+            or (start_position <= p[0] and open_end_position >= p[1])
             for p in final_include_regions
         ):
             assert not result[gp_key]
