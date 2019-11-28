@@ -9,8 +9,9 @@ CONTAINER_NAME ?= ella-$(BRANCH)
 IMAGE_NAME ?= local/ella-$(BRANCH)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
-
 API_PORT ?= 8000-9999
+
+ELLA_CONFIG ?= /ella/example_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/attachments/'
 TESTSET ?= 'default'
@@ -228,13 +229,14 @@ any:
 build:
 	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
-dev: export OFFLINE_MODE="false"
 dev:
 	docker run -d \
 	  --name $(CONTAINER_NAME) \
 	  --hostname $(CONTAINER_NAME) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+	  -e OFFLINE_MODE="false" \
 	  -e PTVS_PORT=5678 \
 	  -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 	  -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
@@ -323,6 +325,7 @@ test-api:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
+	  -v $(shell pwd):/ella \
 	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
@@ -380,6 +383,7 @@ test-e2e:
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e BUILD=$(BUILD) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
@@ -417,6 +421,7 @@ e2e-test-local: test-build
 	   --user $(UID):$(GID) \
        -it \
        -v $(shell pwd):/ella \
+	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
