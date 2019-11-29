@@ -353,30 +353,22 @@ This configuration will filter out:
 
 ## Segregation filter
 
-The segregation filter uses family data to filter out variants that do **NOT** meet any of the following criteria (details are linked below):
+The segregation filter uses family data to filter out any variants that do **NOT** meet any of the following criteria:
 
-- [De novo variants](#de-novo-variants)
+- [De novo variant](#de-novo-variant)
 - [Compound heterozygous candidate](#compound-heterozygous-candidate)
-- [Homozygous recessive](#homozygous-recessive) 
+- [Homozygous recessive variant](#homozygous-recessive-variant) 
 - [Inherited mosaicism](#inherited-mosaicism)
+- Either parent is missing a genotype
 
 This filter has no regular configuration, although some settings may be adjusted in the source code.
 
-::: warning NOTE
-This filter is not suitable as an exception filter.
+::: warning NOTES
+- This filter is not suitable as an exception filter.
+- For the purposes below, variants in the pseudo-autosomal X-chromosome regions PAR1 and PAR2 (X:60001-2699520 and X:154931044-155260560 on GRCh37) are treated as autosomal, _not_ X-linked.
 :::
 
-::: warning NOTE
-For the purposes below, variants in the pseudo-autosomal X-chromosome regions PAR1 and PAR2 (X:60001-2699520 and X:154931044-155260560 on GRCh37) are treated as autosomal, _not_ X-linked.
-:::
-
-::: warning NOTE
-The following special conditions will discard the variant:
-- Missing genotype (i.e. no coverage) in father or mother.
-- A male trio member is reported as heterozygous for an X-linked variant.
-::: 
-
-### De novo variants
+### De novo variant
 
 Designating a variant as de novo is based on rules given in [Vigeland et al. (2016)](https://doi.org/10.1093/bioinformatics/btw046). Genotype inheritance patterns that designates a variant allele "1" (reference = "0") as de novo in the child (father + mother = child) are:
 
@@ -392,6 +384,10 @@ Designating a variant as de novo is based on rules given in [Vigeland et al. (20
     - 0 + 0/0 = 1/1
     - 0 + 0/1 = 1/1
 
+::: warning NOTE
+If a male trio member is reported as heterozygous for an X-linked variant, the variant will be filtered out.
+:::
+
 ### Compound heterozygous candidate
 
 Variants are designated as compound heterozygous candidates based on the rule set from [Kamphans et al. (2013)](https://doi.org/10.1371/journal.pone.0070151): 
@@ -403,12 +399,12 @@ Variants are designated as compound heterozygous candidates based on the rule se
 5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
 
 ::: warning NOTE
-For the second part of the third rule - "in exactly one of the parents" - note this excerpt from the article:
+For the third rule, note this excerpt from the article:
 
 "[This rule] is applicable only if we assume that no de novo mutations occurred. The number of de novo mutations is estimated to be below five per exome per generation, thus, the likelihood that an individual is compound heterozygous and at least one of these mutations arose de novo is low. If more than one family member is affected, de novo mutations are even orders of magnitudes less likely as a recessive disease cause. On the other hand, excluding these variants from the further analysis helps to remove many sequencing artifacts."
 ::: 
 
-### Homozygous recessive
+### Homozygous recessive variant
 
 This rule set checks for homo-/hemizygous variants in genes defined with recessive inheritance. The following conditions must be met:
 
@@ -428,11 +424,11 @@ This rule set checks for homo-/hemizygous variants in genes defined with recessi
 This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism. The following conditions must be met:
 
 - Proband has variant.
-- Father or mother has `allele_ratio` between given thresholds: 
-    - For autosomal or pseudo-autosomal regions: heterozygous (default: `[0, 0.3]`)
+- Father or mother has given genotype and `allele_ratio` between given thresholds: 
+    - For autosomal or pseudo-autosomal regions: heterozygous, [0, 0.3]
     - For X-linked regions: 
-        - Heterozygous for mother (default: `[0, 0.3]`)
-        - Homozygous for father (default: `[0, 0.8]`)
+        - Heterozygous for mother, [0, 0.3]
+        - Homozygous for father, [0, 0.8]
 
 
 ## Pre-filter (before import)
