@@ -204,26 +204,40 @@ class TestRegionFilter(object):
     @ht.example(("1", 1100, 1101), True)  # Within transcript, but outside coding region
     @ht.example(("1", 1451, 1452), True)  # Within transcript, but outside coding regio
     @ht.example(("1", 1289, 1290), True)  # Intronic variant (-11)
-    @ht.example(("1", 1466, 1467), True)  # Intronic variant (+6) (in UTR)
-    @ht.example(("1", 1266, 1267), True)  # Intronic variant (+6)
+    @ht.example(("1", 1465, 1466), True)  # Intronic variant (+6) (in UTR)
+    @ht.example(("1", 1265, 1266), True)  # Intronic variant (+6)
     @ht.example(("5", 5209, 5210), True)  # UTR variant [+21] on reverse transcript
     @ht.example(("5", 5443, 5444), True)  # UTR variant (-13) on reverse transcript
     @ht.example(("5", 5294, 5295), True)  # Intronic variant (+6) on reverse transcript
     @ht.example(("1", 1300, 1301), False)  # Within coding exon
     @ht.example(("1", 1290, 1291), False)  # Within splice region [-10]
     @ht.example(("1", 1090, 1091), False)  # Within splice region of UTR exon [-10]
-    @ht.example(("1", 1165, 1166), False)  # Within splice region of UTR exon [+5]
-    @ht.example(("1", 1450, 1451), False)  # Within utr region [20]
+    @ht.example(("1", 1164, 1165), False)  # Within splice region of UTR exon [+5]
+    @ht.example(("1", 1449, 1450), False)  # Within utr region [20]
     @ht.example(("1", 1218, 1219), False)  # Within utr region [-12]
-    @ht.example(("5", 5442, 5443), False)  # Within utr region [-12] on reverse transcript
+    @ht.example(("5", 5441, 5442), False)  # Within utr region [-12] on reverse transcript
     @ht.example(("5", 5210, 5211), False)  # Within utr region [20] on reverse transcript
-    @ht.example(("5", 5470, 5471), False)  # Within exonic region [-10] on reverse transcript
+    @ht.example(("5", 5469, 5470), False)  # Within exonic region [-10] on reverse transcript
     @ht.example(("5", 5095, 5096), False)  # Within exonic region [+5] on reverse transcript
+    @ht.example(("1", 1261, 1262), False)  # Splice region variant (+2)
+    @ht.example(("1", 1260, 1261), False)  # Intronic variant (+1)
+    @ht.example(("1", 1259, 1260), False)  # Last variant in exon
+    @ht.example(("1", 1199, 1200), False)  # Splice region variant (-1)
+    @ht.example(("1", 1198, 1199), False)  # Splice region variant (-2)
+    @ht.example(("1", 1200, 1201), True)  # First variant in non-coding exon
+    @ht.example(("1", 1260, 1261), False)  # First variant in coding exon
+    @ht.example(("5", 5398, 5399), False)  # Splice region variant (+2) on reverse transcript
+    @ht.example(("5", 5399, 5400), False)  # Splice region variant (+1) on reverse transcript
+    @ht.example(("5", 5400, 5401), False)  # Last variant in exon on reverse transcript
+    @ht.example(("5", 5461, 5462), False)  # Splice region variant (+2) on reverse transcript
+    @ht.example(("5", 5460, 5461), False)  # Splice region variant (+1) on reverse transcript
+    @ht.example(("5", 5459, 5460), True)  # First variant in non-coding exon on reverse transcript
+    @ht.example(("5", 5359, 5460), False)  # First variant in coding exon on reverse transcript
     @ht.given(
         st.one_of(
-            allele_positions("1", 800, 1700),
-            allele_positions("5", 4800, 5700),  # t1, positive strand
-        ),  # t5, negative strand
+            allele_positions("1", 800, 1700),  # t1, positive strand
+            allele_positions("5", 4800, 5700),  # t5, negative strand
+        ),
         st.just(None),
     )
     @ht.settings(deadline=500)
@@ -257,7 +271,6 @@ class TestRegionFilter(object):
                 assert result[gp_key] == set(allele_ids)
             else:
                 assert result[gp_key] == set([])
-            return
 
         genepanel = (
             session.query(gene.Genepanel)
@@ -282,11 +295,11 @@ class TestRegionFilter(object):
                 splice_include_regions.append(
                     (es + splice_upstream, es - 1)
                 )  # Region before exon start
-                splice_include_regions.append((ee + 1, ee + splice_downstream))
+                splice_include_regions.append((ee, ee - 1 + splice_downstream))
 
-                if es <= transcript.cds_end and ee >= transcript.cds_start:
+                if es <= transcript.cds_end - 1 and ee - 1 >= transcript.cds_start:
                     coding_start = es if es > transcript.cds_start else transcript.cds_start
-                    coding_end = ee if ee < transcript.cds_end else transcript.cds_end
+                    coding_end = ee - 1 if ee < transcript.cds_end else transcript.cds_end - 1
                     coding_include_regions.append((coding_start, coding_end))
 
             utr_upstream = utr_region[0] if transcript.strand == "+" else -utr_region[1]
@@ -295,17 +308,17 @@ class TestRegionFilter(object):
             utr_include_regions.extend(
                 [
                     (transcript.cds_start + utr_upstream, transcript.cds_start - 1),
-                    (transcript.cds_end + 1, transcript.cds_end + utr_downstream),
+                    (transcript.cds_end, transcript.cds_end - 1 + utr_downstream),
                 ]
             )
-
         final_include_regions = (
             splice_include_regions + utr_include_regions + coding_include_regions
         )
+
         if any(
             (start_position >= p[0] and start_position <= p[1])
             or (open_end_position > p[0] and open_end_position < p[1])
-            or (start_position <= p[0] and open_end_position > p[1])
+            or (start_position <= p[0] and open_end_position >= p[1])
             for p in final_include_regions
         ):
             assert not result[gp_key]

@@ -58,24 +58,39 @@ class RegionFilter(object):
     def create_genepanel_transcripts_table(
         self, gp_key: Tuple[str, str], allele_ids: List[int], max_padding: int
     ) -> TableClause:
-        # Extract transcripts associated with the genepanel
+        # Extract transcripts associated with the genepanel. Unnest all exons (start, end).
         # To potentially limit the number of regions we need to check, exclude transcripts where we have no alleles
         # overlapping in the region [tx_start-max_padding, tx_end+max_padding]. The filter clause in the query
         # should have no effect on the result, but is included only for performance
+        #
+        # Note: Exons and coding regions are transformed to closed intervals [start, end], rather than the half-open database representation [start, end)
+        #
+        # Returned temp table is of the form:
+        # ------------------------------------------------------------------------------
+        # | gene_id | chromosome | strand | cds_start | cds_end | exon_start | exon_end |
+        # ------------------------------------------------------------------------------
+        # | 329     | 1          | +      | 955552    | 990360  | 986832     | 987024   |
+        # | 329     | 1          | +      | 955552    | 990360  | 987107     | 987194   |
+        # | 329     | 1          | +      | 955552    | 990360  | 989132     | 989356   |
+        # | 329     | 1          | +      | 955552    | 990360  | 989827     | 989930   |
+        # | 329     | 1          | +      | 955552    | 990360  | 990203     | 991498   |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1270657    | 1271894  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273356    | 1273562  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273648    | 1273815  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273901    | 1274032  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1274741    | 1274818  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1274961    | 1275028  |
+        # | 3084    | 1          | -      | 1271521   | 1284444 | 1275115    | 1275191  |
 
         return (
             self.session.query(
-                gene.Transcript.id,
                 gene.Transcript.gene_id,
-                gene.Transcript.transcript_name,
                 gene.Transcript.chromosome,
                 gene.Transcript.strand,
-                gene.Transcript.tx_start,
-                gene.Transcript.tx_end,
                 gene.Transcript.cds_start,
-                gene.Transcript.cds_end,
-                gene.Transcript.exon_starts,
-                gene.Transcript.exon_ends,
+                (gene.Transcript.cds_end - 1).label("cds_end"),
+                func.unnest(gene.Transcript.exon_starts).label("exon_start"),
+                (func.unnest(gene.Transcript.exon_ends) - 1).label("exon_end"),
             )
             .join(
                 gene.genepanel_transcript,
@@ -94,7 +109,7 @@ class RegionFilter(object):
                 or_(
                     and_(
                         allele.Allele.start_position >= gene.Transcript.tx_start - max_padding,
-                        allele.Allele.start_position <= gene.Transcript.tx_end + max_padding,
+                        allele.Allele.start_position <= gene.Transcript.tx_end - 1 + max_padding,
                     ),
                     and_(
                         allele.Allele.open_end_position > gene.Transcript.tx_start - max_padding,
@@ -102,24 +117,8 @@ class RegionFilter(object):
                     ),
                 ),
             )
-            .temp_table("region_filter_internal_genepanel_transcripts")
+            .temp_table("tmp_region_filter_internal_genepanel_regions")
         )
-
-    def create_genepanel_transcript_exons_table(
-        self, genepanel_transcripts: TableClause
-    ) -> TableClause:
-
-        # Unwrap the exons for the genepanel transcript
-        return self.session.query(
-            genepanel_transcripts.c.id,
-            genepanel_transcripts.c.gene_id,
-            genepanel_transcripts.c.chromosome,
-            genepanel_transcripts.c.strand,
-            genepanel_transcripts.c.cds_start,
-            genepanel_transcripts.c.cds_end,
-            func.unnest(genepanel_transcripts.c.exon_starts).label("exon_start"),
-            func.unnest(genepanel_transcripts.c.exon_ends).label("exon_end"),
-        ).temp_table("region_filter_internal")
 
     def filter_alleles(
         self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
@@ -176,11 +175,8 @@ class RegionFilter(object):
             max_padding = max(*max_padding.all())
 
             # Create temp tables
-            genepanel_transcripts = self.create_genepanel_transcripts_table(
+            genepanel_tx_regions = self.create_genepanel_transcripts_table(
                 gp_key, allele_ids, max_padding
-            )
-            genepanel_transcript_exons = self.create_genepanel_transcript_exons_table(
-                genepanel_transcripts
             )
 
             # Create queries for
@@ -199,33 +195,31 @@ class RegionFilter(object):
             coding_start = case(
                 [
                     (
-                        genepanel_transcript_exons.c.cds_start
-                        > genepanel_transcript_exons.c.exon_start,
-                        genepanel_transcript_exons.c.cds_start,
+                        genepanel_tx_regions.c.cds_start > genepanel_tx_regions.c.exon_start,
+                        genepanel_tx_regions.c.cds_start,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_start,
+                else_=genepanel_tx_regions.c.exon_start,
             )
 
             coding_end = case(
                 [
                     (
-                        genepanel_transcript_exons.c.cds_end
-                        < genepanel_transcript_exons.c.exon_end,
-                        genepanel_transcript_exons.c.cds_end,
+                        genepanel_tx_regions.c.cds_end < genepanel_tx_regions.c.exon_end,
+                        genepanel_tx_regions.c.cds_end,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_end,
+                else_=genepanel_tx_regions.c.exon_end,
             )
 
             transcript_coding_regions = self.session.query(
-                genepanel_transcript_exons.c.chromosome.label("chromosome"),
+                genepanel_tx_regions.c.chromosome.label("chromosome"),
                 coding_start.label("region_start"),
                 coding_end.label("region_end"),
             ).filter(
                 # Exclude exons outside the coding region
-                genepanel_transcript_exons.c.exon_start < genepanel_transcript_exons.c.cds_end,
-                genepanel_transcript_exons.c.exon_end > genepanel_transcript_exons.c.cds_start,
+                genepanel_tx_regions.c.exon_start < genepanel_tx_regions.c.cds_end,
+                genepanel_tx_regions.c.exon_end > genepanel_tx_regions.c.cds_start,
             )
 
             # Regions with applied padding
@@ -237,6 +231,9 @@ class RegionFilter(object):
                         region_end.label("region_end"),
                     )
                     .join(tmp_gene_padding, tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id)
+                    # Only include valid regions. region_start will be greater than region_end when padding == 0 .
+                    # Example: [cds_end + 1, cds_end + padding]
+                    .filter(region_end > region_start)
                     .distinct()
                 )
 
@@ -252,31 +249,26 @@ class RegionFilter(object):
             # |----------+              |            +iii--------+                 +iii----------+           |       +iii-----|
             # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
 
-            # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start)
-            # Downstream region for reverse strand transcript is (exon_end, exon_end-exon_upstream]
+            # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start-1]
+            # Downstream region for reverse strand transcript is [exon_end+1, exon_end-exon_upstream]
             # Note: exon_upstream is a *negative* number
             splicing_upstream_start = case(
-                [
-                    (
-                        genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_end + 1,
-                    )
-                ],
-                else_=genepanel_transcript_exons.c.exon_start + tmp_gene_padding.c.exon_upstream,
+                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_end + 1)],
+                else_=genepanel_tx_regions.c.exon_start + tmp_gene_padding.c.exon_upstream,
             )
 
             splicing_upstream_end = case(
                 [
                     (
-                        genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_end - tmp_gene_padding.c.exon_upstream,
+                        genepanel_tx_regions.c.strand == "-",
+                        genepanel_tx_regions.c.exon_end - tmp_gene_padding.c.exon_upstream,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_start - 1,
+                else_=genepanel_tx_regions.c.exon_start - 1,
             )
 
             splicing_region_upstream = _create_region(
-                genepanel_transcript_exons, splicing_upstream_start, splicing_upstream_end
+                genepanel_tx_regions, splicing_upstream_start, splicing_upstream_end
             )
 
             # Splicing downstream
@@ -290,31 +282,25 @@ class RegionFilter(object):
             # |--------ii+              |            +---------ii+                +-----------ii+           |       +--------|
             # |          +--------------+------------+           +----------------+             +-----------+-------+        |
 
-            # Downstream region for positive strand transcript is (exon_end, exon_end+exon_downstream]
-            # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start)
+            # Downstream region for positive strand transcript is [exon_end+1, exon_end+exon_downstream]
+            # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start-1]
             splicing_downstream_start = case(
                 [
                     (
-                        genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_start
-                        - tmp_gene_padding.c.exon_downstream,
+                        genepanel_tx_regions.c.strand == "-",
+                        genepanel_tx_regions.c.exon_start - tmp_gene_padding.c.exon_downstream,
                     )
                 ],
-                else_=genepanel_transcript_exons.c.exon_end + 1,
+                else_=genepanel_tx_regions.c.exon_end + 1,
             )
 
             splicing_downstream_end = case(
-                [
-                    (
-                        genepanel_transcript_exons.c.strand == "-",
-                        genepanel_transcript_exons.c.exon_start - 1,
-                    )
-                ],
-                else_=genepanel_transcript_exons.c.exon_end + tmp_gene_padding.c.exon_downstream,
+                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_start - 1)],
+                else_=genepanel_tx_regions.c.exon_end + tmp_gene_padding.c.exon_downstream,
             )
 
             splicing_region_downstream = _create_region(
-                genepanel_transcript_exons, splicing_downstream_start, splicing_downstream_end
+                genepanel_tx_regions, splicing_downstream_start, splicing_downstream_end
             )
 
             # UTR upstream
@@ -328,25 +314,26 @@ class RegionFilter(object):
             # |----------+              |            +-----------+               +-------------+           |uuuu   +--------|
             # |          +--------------+------------+           +---------------+             +-----------+-------+        |
 
-            # UTR upstream region for positive strand transcript is (cds_start, cds_start+coding_region_upstream]
-            # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end)
+            # UTR upstream region for positive strand transcript is [cds_start-1, cds_start+coding_region_upstream]
+            # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end+1]
+            # Note: coding_region_upstream is a *negative* number
             utr_upstream_start = case(
-                [(genepanel_transcripts.c.strand == "-", genepanel_transcripts.c.cds_end + 1)],
-                else_=genepanel_transcripts.c.cds_start + tmp_gene_padding.c.coding_region_upstream,
+                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_end + 1)],
+                else_=genepanel_tx_regions.c.cds_start + tmp_gene_padding.c.coding_region_upstream,
             )
 
             utr_upstream_end = case(
                 [
                     (
-                        genepanel_transcripts.c.strand == "-",
-                        genepanel_transcripts.c.cds_end - tmp_gene_padding.c.coding_region_upstream,
+                        genepanel_tx_regions.c.strand == "-",
+                        genepanel_tx_regions.c.cds_end - tmp_gene_padding.c.coding_region_upstream,
                     )
                 ],
-                else_=genepanel_transcripts.c.cds_start - 1,
+                else_=genepanel_tx_regions.c.cds_start - 1,
             )
 
             utr_region_upstream = _create_region(
-                genepanel_transcripts, utr_upstream_start, utr_upstream_end
+                genepanel_tx_regions, utr_upstream_start, utr_upstream_end
             )
 
             # UTR downstream
@@ -360,31 +347,32 @@ class RegionFilter(object):
             # |----------+          uuuu|            +-----------+              +-------------+           |       +--------|
             # |          +--------------+------------+           +--------------+             +-----------+-------+        |
 
-            # UTR downstream region for positive strand transcript is (cds_end, cds_end-coding_region_downstream]
-            # UTR downstream region for reverse strand transcript is [cds_start+coding_region_downstream, cds_start)
+            # UTR downstream region for positive strand transcript is [cds_end+1, cds_end+coding_region_downstream]
+            # UTR downstream region for reverse strand transcript is [cds_start-coding_region_downstream, cds_start-1]
             utr_downstream_start = case(
                 [
                     (
-                        genepanel_transcripts.c.strand == "-",
-                        genepanel_transcripts.c.cds_start
+                        genepanel_tx_regions.c.strand == "-",
+                        genepanel_tx_regions.c.cds_start
                         - tmp_gene_padding.c.coding_region_downstream,
                     )
                 ],
-                else_=genepanel_transcripts.c.cds_end + 1,
+                else_=genepanel_tx_regions.c.cds_end + 1,
             )
 
             utr_downstream_end = case(
-                [(genepanel_transcripts.c.strand == "-", genepanel_transcripts.c.cds_start - 1)],
-                else_=genepanel_transcripts.c.cds_end + tmp_gene_padding.c.coding_region_downstream,
+                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_start - 1)],
+                else_=genepanel_tx_regions.c.cds_end + tmp_gene_padding.c.coding_region_downstream,
             )
             utr_region_downstream = _create_region(
-                genepanel_transcripts, utr_downstream_start, utr_downstream_end
+                genepanel_tx_regions, utr_downstream_start, utr_downstream_end
             )
 
             # Union all regions together
             # |          +--------------+------------+           +-------------+             +-----------+-------+        |
             # |-------iii+          uuuuccccccccccccccii---------cccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
             # |          +--------------+------------+           +-------------+             +-----------+-------+        |
+
             all_regions = (
                 transcript_coding_regions.union(
                     splicing_region_upstream,
@@ -397,21 +385,32 @@ class RegionFilter(object):
             )
 
             # Find allele ids within genomic region
+
+            # In the database, insertions are stored with open_end_position=start_position + <length of insertion> + 1
+            # This does not apply for region filtering, as we compare to the reference genome, where the insertion should have no length
+            # TODO: Change datamodel to use open_end_position=start_position+1 for insertions
+            open_end_position = case(
+                [(allele.Allele.change_type == "ins", allele.Allele.start_position + 1)],
+                else_=allele.Allele.open_end_position,
+            )
+
             allele_ids_in_genomic_region = self.session.query(allele.Allele.id).filter(
                 allele.Allele.id.in_(allele_ids),
                 allele.Allele.chromosome == all_regions.c.chromosome,
                 or_(
+                    # Contained within or overlapping region
                     and_(
                         allele.Allele.start_position >= all_regions.c.region_start,
                         allele.Allele.start_position <= all_regions.c.region_end,
                     ),
                     and_(
-                        allele.Allele.open_end_position > all_regions.c.region_start,
-                        allele.Allele.open_end_position < all_regions.c.region_end,
+                        open_end_position > all_regions.c.region_start,
+                        open_end_position < all_regions.c.region_end,
                     ),
+                    # Region contained within variant
                     and_(
                         allele.Allele.start_position <= all_regions.c.region_start,
-                        allele.Allele.open_end_position > all_regions.c.region_end,
+                        open_end_position >= all_regions.c.region_end,
                     ),
                 ),
             )
