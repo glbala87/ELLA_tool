@@ -23,7 +23,67 @@
             "filters": [
                 {
                     "name": "frequency",
-                    "config": {},
+                    "config": {
+                        "groups": {
+                            "external": {
+                                "GNOMAD_GENOMES": [
+                                    "G",
+                                    "AFR",
+                                    "AMR",
+                                    "EAS",
+                                    "FIN",
+                                    "NFE",
+                                    "OTH",
+                                    "SAS"
+                                ],
+                                "GNOMAD_EXOMES": [
+                                    "G",
+                                    "AFR",
+                                    "AMR",
+                                    "EAS",
+                                    "FIN",
+                                    "NFE",
+                                    "OTH",
+                                    "SAS"
+                                ]
+                            },
+                            "internal": {
+                                "inDB": ["OUSWES"]
+                            }
+                        },
+                        "num_thresholds": {
+                            "GNOMAD_GENOMES": {
+                                "G": 5000,
+                                "AFR": 5000,
+                                "AMR": 5000,
+                                "EAS": 5000,
+                                "FIN": 5000,
+                                "NFE": 5000,
+                                "OTH": 5000,
+                                "SAS": 5000
+                            },
+                            "GNOMAD_EXOMES": {
+                                "G": 5000,
+                                "AFR": 5000,
+                                "AMR": 5000,
+                                "EAS": 5000,
+                                "FIN": 5000,
+                                "NFE": 5000,
+                                "OTH": 5000,
+                                "SAS": 5000
+                            }
+                        },
+                        "thresholds": {
+                            "AD": {
+                                "external": 0.005,
+                                "internal": 0.05
+                            },
+                            "default": {
+                                "external": 0.01,
+                                "internal": 0.05
+                            }
+                        }
+                    },
                     "exceptions": [
                         {
                             "name": "classification",
@@ -35,7 +95,10 @@
                 },
                 {
                     "name": "region",
-                    "config": {},
+                    "config": {
+                        "splice_region": [-20, 6],
+                        "utr_region": [0, 0]
+                    },
                     "exceptions": [
                         {
                             "name": "classification",
