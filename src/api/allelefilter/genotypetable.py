@@ -12,7 +12,7 @@ def extend_genotype_table_with_allele(session, genotype_table: Table) -> Extende
         allele.Allele.start_position.label("start_position"),
         allele.Allele.open_end_position.label("open_end_position"),
         allele.Allele.genome_reference.label("genome_reference"),
-        *[c for c in genotype_table.c]
+        *[c for c in genotype_table.c],
     ).join(genotype_table, genotype_table.c.allele_id == allele.Allele.id)
     return genotype_with_allele
 
@@ -69,17 +69,15 @@ def get_genotype_temp_table(
             aliased_genotypesampledata[s.id] = aliased(genotype.GenotypeSampleData)
             sample_fields.extend(
                 [
-                    aliased_genotypesampledata[s.id].id.label(s.identifier + "_id"),
-                    aliased_genotypesampledata[s.id].type.label(s.identifier + "_type"),
-                    literal(s.sex).label(s.identifier + "_sex"),
+                    aliased_genotypesampledata[s.id].id.label(f"{s.id}_genotypeid"),
+                    aliased_genotypesampledata[s.id].type.label(f"{s.id}_type"),
+                    literal(s.sex).label(f"{s.id}_sex"),
                     *[
-                        getattr(genotype.Genotype, field).label(s.identifier + "_" + key)
+                        getattr(genotype.Genotype, field).label(f"{s.id}_{key}")
                         for key, field in genotype_extras.items()
                     ],
                     *[
-                        getattr(aliased_genotypesampledata[s.id], field).label(
-                            s.identifier + "_" + key
-                        )
+                        getattr(aliased_genotypesampledata[s.id], field).label(f"{s.id}_{key}")
                         for key, field in genotypesampledata_extras.items()
                     ],
                 ]
@@ -115,5 +113,5 @@ def get_genotype_temp_table(
 
     genotype_table = genotype_query.temp_table("genotype_query")
 
-    assert session.query(genotype_table.c.allele_id).count() == len(allele_ids)
+    assert session.query(genotype_table.c.allele_id.distinct()).count() == len(allele_ids)
     return genotype_table

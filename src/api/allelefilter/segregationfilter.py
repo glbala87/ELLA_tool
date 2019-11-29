@@ -15,9 +15,9 @@ from api.allelefilter.genotypetable import (
 
 # X chromosome PAR regions for GRCh37 (1-based)
 PAR1_START = 60001
-PAR1_END = 2699520
-PAR2_START = 154931044
-PAR2_END = 155260560
+PAR1_END = 2_699_520
+PAR2_START = 154_931_044
+PAR2_END = 155_260_560
 
 
 class SegregationFilter(object):
@@ -26,12 +26,12 @@ class SegregationFilter(object):
         self.config = config
 
     def denovo_p_value(
-        self, allele_ids, genotype_table, proband_sample, father_sample, mother_sample
+        self, allele_ids, genotype_table, proband_sample_id, father_sample_id, mother_sample_id
     ):
         assert all(
             [
-                sample + "_gl" in genotype_table.columns.keys()
-                for sample in [proband_sample, father_sample, mother_sample]
+                f"{sample_id}_gl" in genotype_table.columns.keys()
+                for sample_id in [proband_sample_id, father_sample_id, mother_sample_id]
             ]
         ), "get_genotype_temp_table needs to be created with genotypesampledata_extra={'gl': 'genotype_likelihood'} for this function"
 
@@ -49,36 +49,36 @@ class SegregationFilter(object):
             for row in genotype_with_allele_table:
                 if not all(
                     [
-                        getattr(row, proband_sample + "_gl"),
-                        getattr(row, father_sample + "_gl"),
-                        getattr(row, mother_sample + "_gl"),
+                        getattr(row, f"{proband_sample_id}_gl"),
+                        getattr(row, f"{father_sample_id}_gl"),
+                        getattr(row, f"{mother_sample_id}_gl"),
                     ]
                 ):
                     dp[row.allele_id] = "-"
                     continue
 
-                if x_minus_par and getattr(row, proband_sample + "_sex") == "Male":
+                if x_minus_par and getattr(row, f"{proband_sample_id}_sex") == "Male":
                     denovo_mode = [
-                        denovo_mode_map["Xmale"][getattr(row, father_sample + "_type")],
-                        denovo_mode_map["Xmale"][getattr(row, mother_sample + "_type")],
-                        denovo_mode_map["Xmale"][getattr(row, proband_sample + "_type")],
+                        denovo_mode_map["Xmale"][getattr(row, f"{father_sample_id}_type")],
+                        denovo_mode_map["Xmale"][getattr(row, f"{mother_sample_id}_type")],
+                        denovo_mode_map["Xmale"][getattr(row, f"{proband_sample_id}_type")],
                     ]
                 else:
                     denovo_mode = [
-                        denovo_mode_map["default"][getattr(row, father_sample + "_type")],
-                        denovo_mode_map["default"][getattr(row, mother_sample + "_type")],
-                        denovo_mode_map["default"][getattr(row, proband_sample + "_type")],
+                        denovo_mode_map["default"][getattr(row, f"{father_sample_id}_type")],
+                        denovo_mode_map["default"][getattr(row, f"{mother_sample_id}_type")],
+                        denovo_mode_map["default"][getattr(row, f"{proband_sample_id}_type")],
                     ]
 
                 # It should not come up as a denovo candidate if either mother or father has the same called genotype
                 assert denovo_mode.count(denovo_mode[2]) == 1
 
                 p = denovo_probability(
-                    getattr(row, proband_sample + "_gl"),
-                    getattr(row, father_sample + "_gl"),
-                    getattr(row, mother_sample + "_gl"),
+                    getattr(row, f"{proband_sample_id}_gl"),
+                    getattr(row, f"{father_sample_id}_gl"),
+                    getattr(row, f"{mother_sample_id}_gl"),
                     x_minus_par,
-                    getattr(row, proband_sample + "_sex") == "Male",
+                    getattr(row, f"{proband_sample_id}_sex") == "Male",
                     denovo_mode,
                 )
                 dp[row.allele_id] = p
@@ -133,7 +133,11 @@ class SegregationFilter(object):
         return x_minus_par_filter
 
     def denovo(
-        self, genotype_table: Table, proband_sample: str, father_sample: str, mother_sample: str
+        self,
+        genotype_table: Table,
+        proband_sample_id: int,
+        father_sample_id: int,
+        mother_sample_id: int,
     ) -> Set[int]:
         """
         Denovo mutations
@@ -166,7 +170,7 @@ class SegregationFilter(object):
 
         """
 
-        if not mother_sample or not father_sample:
+        if not mother_sample_id or not father_sample_id:
             return set()
 
         genotype_with_allele_table = extend_genotype_table_with_allele(self.session, genotype_table)
@@ -177,8 +181,8 @@ class SegregationFilter(object):
 
         denovo_allele_ids = self.session.query(genotype_with_allele_table.c.allele_id).filter(
             # Exclude no coverage
-            getattr(genotype_with_allele_table.c, father_sample + "_type") != "No coverage",
-            getattr(genotype_with_allele_table.c, mother_sample + "_type") != "No coverage",
+            getattr(genotype_with_allele_table.c, f"{father_sample_id}_type") != "No coverage",
+            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type") != "No coverage",
             or_(
                 # Autosomal
                 and_(
@@ -188,32 +192,40 @@ class SegregationFilter(object):
                         # 0/0 + 0/0 = 1/1
                         and_(
                             or_(
-                                getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                                getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                                 == "Homozygous",
-                                getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                                getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                                 == "Heterozygous",
                             ),
-                            getattr(genotype_with_allele_table.c, father_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_type")
                             == "Reference",
-                            getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type")
                             == "Reference",
                         ),
                         # 0/0 + 0/1 = 1/1
                         # 0/1 + 0/0 = 1/1
                         and_(
-                            getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                             == "Homozygous",
                             or_(
                                 and_(
-                                    getattr(genotype_with_allele_table.c, father_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{father_sample_id}_type"
+                                    )
                                     == "Heterozygous",
-                                    getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{mother_sample_id}_type"
+                                    )
                                     == "Reference",
                                 ),
                                 and_(
-                                    getattr(genotype_with_allele_table.c, father_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{father_sample_id}_type"
+                                    )
                                     == "Reference",
-                                    getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{mother_sample_id}_type"
+                                    )
                                     == "Heterozygous",
                                 ),
                             ),
@@ -227,18 +239,18 @@ class SegregationFilter(object):
                         # Male proband
                         and_(
                             # 0 + 0/0 = 1
-                            getattr(genotype_with_allele_table.c, proband_sample + "_sex")
+                            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_sex")
                             == "Male",
-                            getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                             == "Homozygous",
-                            getattr(genotype_with_allele_table.c, father_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_type")
                             == "Reference",
-                            getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type")
                             == "Reference",
                         ),
                         # Female proband
                         and_(
-                            getattr(genotype_with_allele_table.c, proband_sample + "_sex")
+                            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_sex")
                             == "Female",
                             or_(
                                 # 0 + 0/0 = 0/1
@@ -246,26 +258,38 @@ class SegregationFilter(object):
                                 and_(
                                     or_(
                                         getattr(
-                                            genotype_with_allele_table.c, proband_sample + "_type"
+                                            genotype_with_allele_table.c,
+                                            f"{proband_sample_id}_type",
                                         )
                                         == "Homozygous",
                                         getattr(
-                                            genotype_with_allele_table.c, proband_sample + "_type"
+                                            genotype_with_allele_table.c,
+                                            f"{proband_sample_id}_type",
                                         )
                                         == "Heterozygous",
                                     ),
-                                    getattr(genotype_with_allele_table.c, father_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{father_sample_id}_type"
+                                    )
                                     == "Reference",
-                                    getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{mother_sample_id}_type"
+                                    )
                                     == "Reference",
                                 ),
                                 # 0 + 0/1 = 1/1
                                 and_(
-                                    getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{proband_sample_id}_type"
+                                    )
                                     == "Homozygous",
-                                    getattr(genotype_with_allele_table.c, father_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{father_sample_id}_type"
+                                    )
                                     == "Reference",
-                                    getattr(genotype_with_allele_table.c, mother_sample + "_type")
+                                    getattr(
+                                        genotype_with_allele_table.c, f"{mother_sample_id}_type"
+                                    )
                                     == "Heterozygous",
                                 ),
                             ),
@@ -279,7 +303,11 @@ class SegregationFilter(object):
         return denovo_result
 
     def inherited_mosaicism(
-        self, genotype_table: Table, proband_sample: str, father_sample: str, mother_sample: str
+        self,
+        genotype_table: Table,
+        proband_sample_id: int,
+        father_sample_id: int,
+        mother_sample_id: int,
     ) -> Set[int]:
         """
         Inherited mosaicism
@@ -296,8 +324,8 @@ class SegregationFilter(object):
 
         assert all(
             [
-                sample + "_ar" in genotype_table.columns.keys()
-                for sample in [proband_sample, father_sample, mother_sample]
+                f"{sample_id}_ar" in genotype_table.columns.keys()
+                for sample_id in [proband_sample_id, father_sample_id, mother_sample_id]
             ]
         ), "get_genotype_temp_table needs to be created with genotypesampledata_extra={'ar': 'allele_ratio'} for this function"
 
@@ -306,7 +334,7 @@ class SegregationFilter(object):
 
         NON_MOSAICISM_THRESHOLD = 0.3
 
-        if not mother_sample or not father_sample:
+        if not mother_sample_id or not father_sample_id:
             return set()
 
         genotype_with_allele_table = extend_genotype_table_with_allele(self.session, genotype_table)
@@ -320,11 +348,11 @@ class SegregationFilter(object):
         ).filter(
             # Exclude no coverage
             func.coalesce(
-                getattr(genotype_with_allele_table.c, father_sample + "_type"), "No coverage"
+                getattr(genotype_with_allele_table.c, f"{father_sample_id}_type"), "No coverage"
             )
             != "No coverage",
             func.coalesce(
-                getattr(genotype_with_allele_table.c, mother_sample + "_type"), "No coverage"
+                getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type"), "No coverage"
             )
             != "No coverage",
             or_(
@@ -332,25 +360,25 @@ class SegregationFilter(object):
                 # Proband heterozygous, parent with mosaicism ratio
                 and_(
                     ~x_minus_par_filter,
-                    getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                    getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                     == "Heterozygous",
-                    getattr(genotype_with_allele_table.c, proband_sample + "_ar")
+                    getattr(genotype_with_allele_table.c, f"{proband_sample_id}_ar")
                     > NON_MOSAICISM_THRESHOLD,
                     # We don't check the genotype for the parents,
                     # as in this case we care more about the ratio than the called result
                     or_(
                         # Father mosaicism
                         and_(
-                            getattr(genotype_with_allele_table.c, father_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
-                            getattr(genotype_with_allele_table.c, father_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
                         # Mother mosaicism
                         and_(
-                            getattr(genotype_with_allele_table.c, mother_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
-                            getattr(genotype_with_allele_table.c, mother_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
                     ),
@@ -360,26 +388,26 @@ class SegregationFilter(object):
                 and_(
                     x_minus_par_filter,
                     or_(
-                        getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                        getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                         == "Heterozygous",
-                        getattr(genotype_with_allele_table.c, proband_sample + "_type")
+                        getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type")
                         == "Homozygous",
                     ),
-                    getattr(genotype_with_allele_table.c, proband_sample + "_ar")
+                    getattr(genotype_with_allele_table.c, f"{proband_sample_id}_ar")
                     > NON_MOSAICISM_THRESHOLD,
                     or_(
                         # Father mosaicism
                         and_(
-                            getattr(genotype_with_allele_table.c, father_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             > MOSAICISM_HOMOZYGOUS_THRESHOLD[0],
-                            getattr(genotype_with_allele_table.c, father_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1],
                         ),
                         # Mother mosaicism
                         and_(
-                            getattr(genotype_with_allele_table.c, mother_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
-                            getattr(genotype_with_allele_table.c, mother_sample + "_ar")
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
                     ),
@@ -393,11 +421,11 @@ class SegregationFilter(object):
     def autosomal_recessive_homozygous(
         self,
         genotype_table: Table,
-        proband_sample: str,
-        father_sample: Optional[str],
-        mother_sample: Optional[str],
-        affected_sibling_samples: Optional[List[str]] = None,
-        unaffected_sibling_samples: Optional[List[str]] = None,
+        proband_sample_id: int,
+        father_sample_id: Optional[int],
+        mother_sample_id: Optional[int],
+        affected_sibling_sample_ids: Optional[List[int]] = None,
+        unaffected_sibling_sample_ids: Optional[List[int]] = None,
     ) -> Set[int]:
         """
         Autosomal recessive transmission
@@ -411,7 +439,7 @@ class SegregationFilter(object):
         - In chromosome 1-22 or X pseudoautosomal region (PAR1, PAR2)
         """
 
-        if not father_sample or not mother_sample:
+        if not father_sample_id or not mother_sample_id:
             return set()
 
         genotype_with_allele_table = extend_genotype_table_with_allele(self.session, genotype_table)
@@ -421,22 +449,22 @@ class SegregationFilter(object):
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
         filters = [
-            getattr(genotype_with_allele_table.c, proband_sample + "_type") == "Homozygous",
-            getattr(genotype_with_allele_table.c, father_sample + "_type") == "Heterozygous",
-            getattr(genotype_with_allele_table.c, mother_sample + "_type") == "Heterozygous",
+            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type") == "Homozygous",
+            getattr(genotype_with_allele_table.c, f"{father_sample_id}_type") == "Heterozygous",
+            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type") == "Heterozygous",
             ~x_minus_par_filter,  # In chromosome 1-22 or in X PAR
         ]
-        if unaffected_sibling_samples:
+        if unaffected_sibling_sample_ids:
             filters += [
-                func.coalesce(getattr(genotype_with_allele_table.c, s + "_type"), "Reference")
+                func.coalesce(getattr(genotype_with_allele_table.c, f"{s}_type"), "Reference")
                 != "Homozygous"
-                for s in unaffected_sibling_samples
+                for s in unaffected_sibling_sample_ids
             ]
 
-        if affected_sibling_samples:
+        if affected_sibling_sample_ids:
             filters += [
-                getattr(genotype_with_allele_table.c, s + "_type") == "Homozygous"
-                for s in affected_sibling_samples
+                getattr(genotype_with_allele_table.c, f"{s}_type") == "Homozygous"
+                for s in affected_sibling_sample_ids
             ]
 
         autosomal_allele_ids = self.session.query(genotype_with_allele_table.c.allele_id).filter(
@@ -448,11 +476,11 @@ class SegregationFilter(object):
     def xlinked_recessive_homozygous(
         self,
         genotype_table: Table,
-        proband_sample: str,
-        father_sample: Optional[str],
-        mother_sample: Optional[str],
-        affected_sibling_samples: Optional[List[str]] = None,
-        unaffected_sibling_samples: Optional[List[str]] = None,
+        proband_sample_id: int,
+        father_sample_id: Optional[int],
+        mother_sample_id: Optional[int],
+        affected_sibling_sample_ids: Optional[List[int]] = None,
+        unaffected_sibling_sample_ids: Optional[List[int]] = None,
     ) -> Set[int]:
         """
         X-linked recessive
@@ -466,7 +494,7 @@ class SegregationFilter(object):
         - In chromosome X, but not pseudoautosomal region (PAR1, PAR2)
         """
 
-        if not father_sample or not mother_sample:
+        if not father_sample_id or not mother_sample_id:
             return set()
 
         genotype_with_allele_table = extend_genotype_table_with_allele(self.session, genotype_table)
@@ -476,22 +504,22 @@ class SegregationFilter(object):
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
         filters = [
-            getattr(genotype_with_allele_table.c, proband_sample + "_type") == "Homozygous",
-            getattr(genotype_with_allele_table.c, father_sample + "_type") == "Reference",
-            getattr(genotype_with_allele_table.c, mother_sample + "_type") == "Heterozygous",
+            getattr(genotype_with_allele_table.c, f"{proband_sample_id}_type") == "Homozygous",
+            getattr(genotype_with_allele_table.c, f"{father_sample_id}_type") == "Reference",
+            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_type") == "Heterozygous",
             x_minus_par_filter,  # In X chromosome (minus PAR)
         ]
-        if unaffected_sibling_samples:
+        if unaffected_sibling_sample_ids:
             filters += [
-                func.coalesce(getattr(genotype_with_allele_table.c, s + "_type"), "Reference")
+                func.coalesce(getattr(genotype_with_allele_table.c, f"{s}_type"), "Reference")
                 != "Homozygous"
-                for s in unaffected_sibling_samples
+                for s in unaffected_sibling_sample_ids
             ]
 
-        if affected_sibling_samples:
+        if affected_sibling_sample_ids:
             filters += [
-                getattr(genotype_with_allele_table.c, s + "_type") == "Homozygous"
-                for s in affected_sibling_samples
+                getattr(genotype_with_allele_table.c, f"{s}_type") == "Homozygous"
+                for s in affected_sibling_sample_ids
             ]
 
         xlinked_allele_ids = self.session.query(genotype_with_allele_table.c.allele_id).filter(
@@ -503,11 +531,11 @@ class SegregationFilter(object):
     def compound_heterozygous(
         self,
         genotype_table: Table,
-        proband_sample: str,
-        father_sample: Optional[str] = None,
-        mother_sample: Optional[str] = None,
-        affected_sibling_samples: Optional[List[str]] = None,
-        unaffected_sibling_samples: Optional[List[str]] = None,
+        proband_sample_id: int,
+        father_sample_id: Optional[int] = None,
+        mother_sample_id: Optional[int] = None,
+        affected_sibling_sample_ids: Optional[List[int]] = None,
+        unaffected_sibling_sample_ids: Optional[List[int]] = None,
     ) -> Set[int]:
         """
         Autosomal recessive transmission: Compound heterozygous
@@ -546,26 +574,26 @@ class SegregationFilter(object):
         :note: Alleles with 'No coverage' in either parent are not included.
         """
 
-        assert proband_sample
+        assert proband_sample_id
 
-        sample_names = [proband_sample]
-        affected_sample_names = [proband_sample]
-        unaffected_sample_names = []
-        if father_sample:
-            sample_names.append(father_sample)
-            unaffected_sample_names.append(father_sample)
-        if mother_sample:
-            sample_names.append(mother_sample)
-            unaffected_sample_names.append(mother_sample)
-        if affected_sibling_samples:
-            sample_names += affected_sibling_samples
-            affected_sample_names += affected_sibling_samples
-        if unaffected_sibling_samples:
-            sample_names += unaffected_sibling_samples
-            unaffected_sample_names += unaffected_sibling_samples
+        sample_ids = [proband_sample_id]
+        affected_sample_ids = [proband_sample_id]
+        unaffected_sample_ids = []
+        if father_sample_id:
+            sample_ids.append(father_sample_id)
+            unaffected_sample_ids.append(father_sample_id)
+        if mother_sample_id:
+            sample_ids.append(mother_sample_id)
+            unaffected_sample_ids.append(mother_sample_id)
+        if affected_sibling_sample_ids:
+            sample_ids += affected_sibling_sample_ids
+            affected_sample_ids += affected_sibling_sample_ids
+        if unaffected_sibling_sample_ids:
+            sample_ids += unaffected_sibling_sample_ids
+            unaffected_sample_ids += unaffected_sibling_sample_ids
 
         # If only proband, we are not able to compute compound heterozygous candidate alleles.
-        if len(sample_names) == 1:
+        if len(sample_ids) == 1:
             return set()
 
         # Get candidates for compound heterozygosity. Covers the following rules:
@@ -577,27 +605,27 @@ class SegregationFilter(object):
         compound_candidates_filters: List[BinaryExpression] = []
         # Heterozygous in affected
         compound_candidates_filters += [
-            getattr(genotype_table.c, s + "_type") == "Heterozygous" for s in affected_sample_names
+            getattr(genotype_table.c, f"{s}_type") == "Heterozygous" for s in affected_sample_ids
         ]
         # Not homozygous in unaffected
         compound_candidates_filters += [
             # Normally null would be included in below filter,
             # set as Reference to make comparison work
-            func.coalesce(getattr(genotype_table.c, s + "_type"), "Reference") != "Homozygous"
-            for s in unaffected_sample_names
+            func.coalesce(getattr(genotype_table.c, f"{s}_type"), "Reference") != "Homozygous"
+            for s in unaffected_sample_ids
         ]
-        if father_sample and mother_sample:
+        if father_sample_id and mother_sample_id:
             # Heterozygous in _exactly one_ parent.
             # Note: This will also exclude any alleles with 'No coverage' in either parent.
             compound_candidates_filters.append(
                 or_(
                     and_(
-                        getattr(genotype_table.c, father_sample + "_type") == "Heterozygous",
-                        getattr(genotype_table.c, mother_sample + "_type") == "Reference",
+                        getattr(genotype_table.c, f"{father_sample_id}_type") == "Heterozygous",
+                        getattr(genotype_table.c, f"{mother_sample_id}_type") == "Reference",
                     ),
                     and_(
-                        getattr(genotype_table.c, father_sample + "_type") == "Reference",
-                        getattr(genotype_table.c, mother_sample + "_type") == "Heterozygous",
+                        getattr(genotype_table.c, f"{father_sample_id}_type") == "Reference",
+                        getattr(genotype_table.c, f"{mother_sample_id}_type") == "Heterozygous",
                     ),
                 )
             )
@@ -605,7 +633,7 @@ class SegregationFilter(object):
         compound_candidates = (
             self.session.query(
                 genotype_table.c.allele_id,
-                *[getattr(genotype_table.c, s + "_type") for s in sample_names]
+                *[getattr(genotype_table.c, f"{s}_type") for s in sample_ids],
             )
             .filter(*compound_candidates_filters)
             .subquery("compound_candidates")
@@ -646,10 +674,10 @@ class SegregationFilter(object):
             compound_candidates.c.allele_id,
             annotationshadow.AnnotationShadowTranscript.symbol,
         ]
-        if father_sample and mother_sample:
+        if father_sample_id and mother_sample_id:
             candidates_with_genes_columns += [
-                getattr(compound_candidates.c, father_sample + "_type"),
-                getattr(compound_candidates.c, mother_sample + "_type"),
+                getattr(compound_candidates.c, f"{father_sample_id}_type"),
+                getattr(compound_candidates.c, f"{mother_sample_id}_type"),
             ]
         candidates_with_genes = (
             self.session.query(*candidates_with_genes_columns)
@@ -669,14 +697,14 @@ class SegregationFilter(object):
         compound_heterozygous_symbols_having = [func.count(candidates_with_genes.c.allele_id) > 1]
 
         # If parents, heterozygous in both
-        if father_sample and mother_sample:
+        if father_sample_id and mother_sample_id:
             compound_heterozygous_symbols_having += [
                 # bool_or: at least one allele in this gene is 'Heterozygous'
                 func.bool_or(
-                    getattr(candidates_with_genes.c, father_sample + "_type") == "Heterozygous"
+                    getattr(candidates_with_genes.c, f"{father_sample_id}_type") == "Heterozygous"
                 ),
                 func.bool_or(
-                    getattr(candidates_with_genes.c, mother_sample + "_type") == "Heterozygous"
+                    getattr(candidates_with_genes.c, f"{mother_sample_id}_type") == "Heterozygous"
                 ),
             ]
         compound_heterozygous_symbols = (
@@ -693,22 +721,22 @@ class SegregationFilter(object):
 
         return set([a[0] for a in compound_heterozygous_allele_ids.all()])
 
-    def no_coverage_father_mother(self, genotype_table, father_sample, mother_sample):
+    def no_coverage_father_mother(self, genotype_table, father_sample_id, mother_sample_id):
 
-        if not father_sample or not mother_sample:
+        if not father_sample_id or not mother_sample_id:
             return set()
 
         no_coverage_allele_ids = self.session.query(genotype_table.c.allele_id).filter(
             or_(
-                getattr(genotype_table.c, father_sample + "_type") == "No coverage",
-                getattr(genotype_table.c, mother_sample + "_type") == "No coverage",
+                getattr(genotype_table.c, f"{father_sample_id}_type") == "No coverage",
+                getattr(genotype_table.c, f"{mother_sample_id}_type") == "No coverage",
             )
         )
 
         return set([a[0] for a in no_coverage_allele_ids])
 
     def homozygous_unaffected_siblings(
-        self, genotype_table: Table, proband_sample: str, unaffected_sibling_samples: List[str]
+        self, genotype_table: Table, proband_sample: str, unaffected_sibling_sample_ids: List[str]
     ) -> Set[int]:
         """
         Checks whether a homozygous variant in proband is also homozgyous in unaffected sibling.
@@ -717,12 +745,12 @@ class SegregationFilter(object):
         """
 
         # If no unaffected, we'll have no alleles in the result
-        if not unaffected_sibling_samples:
+        if not unaffected_sibling_sample_ids:
             return set()
 
         filters = list()
-        for s in [proband_sample] + unaffected_sibling_samples:
-            filters.append(getattr(genotype_table.c, s + "_type") == "Homozygous")
+        for s in [proband_sample] + unaffected_sibling_sample_ids:
+            filters.append(getattr(genotype_table.c, f"{s}_type") == "Homozygous")
 
         homozygous_unaffected_result = self.session.query(genotype_table.c.allele_id).filter(
             *filters
@@ -819,10 +847,12 @@ class SegregationFilter(object):
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
             father_sample = self.get_father_sample(proband_sample)
             mother_sample = self.get_mother_sample(proband_sample)
-            affected_sibling_samples = self.get_siblings_samples(proband_sample, affected=True)
-            unaffected_sibling_samples = self.get_siblings_samples(proband_sample, affected=False)
-            affected_sibling_sample_names = [s.identifier for s in affected_sibling_samples]
-            unaffected_sibling_sample_names = [s.identifier for s in unaffected_sibling_samples]
+            affected_sibling_sample_ids = self.get_siblings_samples(proband_sample, affected=True)
+            unaffected_sibling_sample_ids = self.get_siblings_samples(
+                proband_sample, affected=False
+            )
+            affected_sibling_sample_ids = [s.id for s in affected_sibling_sample_ids]
+            unaffected_sibling_sample_ids = [s.id for s in unaffected_sibling_sample_ids]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
             genotype_table = get_genotype_temp_table(
@@ -833,56 +863,50 @@ class SegregationFilter(object):
             )
 
             result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
-                genotype_table, father_sample.identifier, mother_sample.identifier
+                genotype_table, father_sample.id, mother_sample.id
             )
 
             result[analysis_id]["denovo"] = self.denovo(
-                genotype_table,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier,
+                genotype_table, proband_sample.id, father_sample.id, mother_sample.id
             )
 
             result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
-                genotype_table,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier,
+                genotype_table, proband_sample.id, father_sample.id, mother_sample.id
             )
 
             result[analysis_id]["compound_heterozygous"] = self.compound_heterozygous(
                 genotype_table,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_sample_names,
-                unaffected_sibling_samples=unaffected_sibling_sample_names,
+                proband_sample.id,
+                father_sample.id,
+                mother_sample.id,
+                affected_sibling_sample_ids=affected_sibling_sample_ids,
+                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
             )
 
             result[analysis_id][
                 "autosomal_recessive_homozygous"
             ] = self.autosomal_recessive_homozygous(
                 genotype_table,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_sample_names,
-                unaffected_sibling_samples=unaffected_sibling_sample_names,
+                proband_sample.id,
+                father_sample.id,
+                mother_sample.id,
+                affected_sibling_sample_ids=affected_sibling_sample_ids,
+                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
             )
 
             result[analysis_id]["xlinked_recessive_homozygous"] = self.xlinked_recessive_homozygous(
                 genotype_table,
-                proband_sample.identifier,
-                father_sample.identifier,
-                mother_sample.identifier,
-                affected_sibling_samples=affected_sibling_sample_names,
-                unaffected_sibling_samples=unaffected_sibling_sample_names,
+                proband_sample.id,
+                father_sample.id,
+                mother_sample.id,
+                affected_sibling_sample_ids=affected_sibling_sample_ids,
+                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
             )
 
             result[analysis_id][
                 "homozygous_unaffected_siblings"
             ] = self.homozygous_unaffected_siblings(
-                genotype_table, proband_sample.identifier, unaffected_sibling_sample_names
+                genotype_table, proband_sample.id, unaffected_sibling_sample_ids
             )
 
         return result

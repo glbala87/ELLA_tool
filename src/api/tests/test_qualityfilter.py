@@ -35,53 +35,85 @@ def add_data(session, gt_data):
     )
     session.add(analysis)
     session.flush()
-    sa = sample.Sample(
-        **{
-            "identifier": "QualityTestSample",
-            "proband": True,
-            "sample_type": "HTS",
-            "affected": True,
-            "analysis_id": analysis.id,
-        }
-    )
-    session.add(sa)
-    session.flush()
-
     allele_genotype_data = {}
-    for data in gt_data:
+
+    sample_ids = []
+
+    def get_sample_id(idx):
+        while idx >= len(sample_ids):
+            sa = sample.Sample(
+                **{
+                    "identifier": "QualityTestSample",
+                    "proband": True,
+                    "sample_type": "HTS",
+                    "affected": True,
+                    "analysis_id": analysis.id,
+                }
+            )
+            session.add(sa)
+            session.flush()
+            sample_ids.append(sa.id)
+
+        return sample_ids[idx]
+
+    for allele_gts in gt_data:
         al = create_allele()
         session.add(al)
         session.flush()
+        allele_genotype_data[al.id] = []
 
-        gt = genotype.Genotype(
-            allele_id=al.id, sample_id=sa.id, variant_quality=data["variant_quality"]
-        )
-        session.add(gt)
-        session.flush()
+        for i, data in enumerate(allele_gts):
+            if data is None:
+                # No genotype for this sample
+                continue
+            sample_id = get_sample_id(i)
+            secondallele = bool(
+                data["variant_quality"] is not None and data["variant_quality"] % 7 == 0
+            )  # Run some variants with secondallele = True
 
-        gsd = genotype.GenotypeSampleData(
-            sample_id=sa.id,
-            genotype_id=gt.id,
-            allele_ratio=data["genotype_allele_ratio"],
-            type="Heterozygous",
-            secondallele=False,
-            multiallelic=False,
-        )
+            gt = genotype.Genotype(
+                allele_id=al.id,
+                secondallele_id=al.id if secondallele else None,  # Mock the secondallele
+                sample_id=sample_id,
+                variant_quality=data["variant_quality"],
+            )
+            session.add(gt)
+            session.flush()
 
-        session.add(gsd)
-        session.flush()
+            gsd = genotype.GenotypeSampleData(
+                sample_id=sample_id,
+                genotype_id=gt.id,
+                allele_ratio=data["genotype_allele_ratio"],
+                type="Heterozygous",
+                secondallele=secondallele,
+                multiallelic=False,
+            )
 
-        allele_genotype_data[al.id] = data
+            session.add(gsd)
+            session.flush()
+
+            allele_genotype_data[al.id].append(data)
 
     return analysis.id, allele_genotype_data
 
 
 @st.composite
 def filter_data(draw):
-    return {
-        "variant_quality": draw(st.integers(min_value=0, max_value=250)),
-        "genotype_allele_ratio": draw(st.floats(min_value=0, max_value=1.0, width=16)),
-    }
+    N = draw(st.integers(min_value=1, max_value=3))  # Max 3 samples
+    gt_data = []
+    for i in range(N):
+        has_genotype = draw(st.booleans())
+        if has_genotype:
+            gt_data.append(
+                {
+                    "variant_quality": draw(st.integers(min_value=0, max_value=250)),
+                    "genotype_allele_ratio": draw(st.floats(min_value=0, max_value=1.0, width=16)),
+                }
+            )
+        else:
+            gt_data = [None] + gt_data
+    ht.assume(any(x is not None for x in gt_data))
+    return gt_data
 
 
 @st.composite
@@ -99,44 +131,112 @@ def filter_config(draw):
 
 
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 100}],
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": 100}]],
     {"qual": 100, "allele_ratio": 0.25},
-    False,
+    [],
 )  # Should not filter where only one criteria if fulfilled (in this case, allele_ratio)
 @ht.example(
-    [{"genotype_allele_ratio": 0.26, "variant_quality": 99}],
+    [[{"genotype_allele_ratio": 0.26, "variant_quality": 99}]],
     {"qual": 100, "allele_ratio": 0.25},
-    False,
+    [],
 )  # Should not filter where only one criteria if fulfilled (in this case, variant_quality)
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 99}],
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": 99}]],
     {"qual": 100, "allele_ratio": 0.25},
-    True,
+    [0],
 )  # Should filter when both criteria fulfilled
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 99}], {"allele_ratio": 0.25}, True
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": 99}]], {"allele_ratio": 0.25}, [0]
 )  # Should disregard variant quality when not set in filter config
 @ht.example(
-    [{"genotype_allele_ratio": 0.26, "variant_quality": 99}], {"allele_ratio": 0.25}, False
+    [[{"genotype_allele_ratio": 0.26, "variant_quality": 99}]], {"allele_ratio": 0.25}, []
 )  # Should disregard variant quality when not set in filter config
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 99}], {"qual": 100}, True
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": 99}]], {"qual": 100}, [0]
 )  # Should disregard allele ratio when not set in filter config
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": 101}], {"qual": 100}, False
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": 101}]], {"qual": 100}, []
 )  # Should disregard allele ratio when not set in filter config
 @ht.example(
-    [{"genotype_allele_ratio": 0.24, "variant_quality": None}], {"qual": 100}, False
+    [[{"genotype_allele_ratio": 0.24, "variant_quality": None}]], {"qual": 100}, []
 )  # Should not filter out alleles with QUAL null
 @ht.example(
-    [{"genotype_allele_ratio": None, "variant_quality": 99}], {"allele_ratio": 0.25}, False
+    [[{"genotype_allele_ratio": None, "variant_quality": 99}]], {"allele_ratio": 0.25}, []
 )  # Should not filter out alleles with AR null
 @ht.example(
-    [{"genotype_allele_ratio": 0.0, "variant_quality": 99}], {"allele_ratio": 0.25}, False
+    [[{"genotype_allele_ratio": 0.0, "variant_quality": 99}]], {"allele_ratio": 0.25}, []
 )  # Should not filter out alleles with AR==0.0
+@ht.example(
+    [
+        [
+            {"genotype_allele_ratio": 0.24, "variant_quality": 99},
+            {"genotype_allele_ratio": 0.26, "variant_quality": 99},
+        ]
+    ],
+    {"allele_ratio": 0.25},
+    [],
+)  # Should not filter when not all samples fulfill the criteria for the genotype
+@ht.example(
+    [
+        [
+            {"genotype_allele_ratio": 0.24, "variant_quality": 101},
+            {"genotype_allele_ratio": 0.26, "variant_quality": 99},
+        ]
+    ],
+    {"qual": 100},
+    [],
+)  # Should not filter when not all samples fulfill the criteria for the genotype
+@ht.example(
+    [
+        [
+            {"genotype_allele_ratio": 0.24, "variant_quality": 99},
+            {"genotype_allele_ratio": 0.24, "variant_quality": 99},
+        ]
+    ],
+    {"allele_ratio": 0.25},
+    [0],
+)  # Should filter when all samples fulfill the criteria for the genotype
+@ht.example(
+    [
+        [None, {"genotype_allele_ratio": 0.24, "variant_quality": 99}],
+        [{"genotype_allele_ratio": 0.24, "variant_quality": 99}],
+    ],
+    {"allele_ratio": 0.25},
+    [0, 1],
+)  # Should disregard samples without the genotype
+@ht.example(
+    [
+        [None, {"genotype_allele_ratio": 0.26, "variant_quality": 99}],
+        [{"genotype_allele_ratio": 0.24, "variant_quality": 99}],
+    ],
+    {"allele_ratio": 0.25},
+    [1],
+)  # Should disregard samples without the genotype
+@ht.example(
+    [
+        [None, {"genotype_allele_ratio": 0.24, "variant_quality": 99}],
+        [{"genotype_allele_ratio": 0.24, "variant_quality": 101}],
+    ],
+    {"qual": 100},
+    [0],
+)  # Should disregard samples without the genotype
+@ht.example(
+    [
+        [None, {"genotype_allele_ratio": 0.26, "variant_quality": 99}],
+        [{"genotype_allele_ratio": 0.26, "variant_quality": 99}],
+    ],
+    {"allele_ratio": 0.25},
+    [],
+)  # Should disregard samples without the genotype
 @ht.given(st.lists(filter_data(), min_size=1), st.one_of(filter_config()), st.just(None))
 @ht.settings(deadline=500)
-def test_classificationfilter(session, genotype_data, fc, manually_curated_result):
+def test_qualityfilter(session, genotype_data, fc, manually_curated_result):
+    """genotype_data is of the form:
+    [
+        [sample1 genotype, sample2 genotype, ...], # Allele 1
+        [sample1 genotype, sample2 genotype, ...], # Allele 2
+    ]
+    """
     session.rollback()
     # Add generated data to database
     analysis_id, allele_genotype_data = add_data(session, genotype_data)
@@ -148,22 +248,23 @@ def test_classificationfilter(session, genotype_data, fc, manually_curated_resul
 
     # Check manually curated result if provided
     if manually_curated_result is not None:
-        if manually_curated_result:
-            assert set(result) == set(allele_ids)
-        else:
-            assert set(result) == set()
+        assert set(result) == set(allele_ids[k] for k in manually_curated_result)
 
     expected_result = []
-    for allele_id, gt_data in allele_genotype_data.items():
-        if "qual" in fc and (
+    for allele_id, sample_gt_data in allele_genotype_data.items():
+        if "qual" in fc and any(
             gt_data["variant_quality"] is None or gt_data["variant_quality"] >= fc["qual"]
+            for gt_data in sample_gt_data
+            if gt_data is not None
         ):
             # Variant quality None or too high
             continue
-        if "allele_ratio" in fc and (
+        if "allele_ratio" in fc and any(
             gt_data["genotype_allele_ratio"] is None
             or gt_data["genotype_allele_ratio"] == 0.0
             or gt_data["genotype_allele_ratio"] >= fc["allele_ratio"]
+            for gt_data in sample_gt_data
+            if gt_data is not None
         ):
             # Allele ratio None, 0.0 or too high
             continue

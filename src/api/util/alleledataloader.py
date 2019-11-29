@@ -282,7 +282,7 @@ class Warnings(object):
             consistency_warnings[
                 r.allele_id
             ] = "Annotation for {} does not match corresponding transcript: {}:{} {}".format(
-                r.gp_transcript, r.corr_tx, r.corr_hgvsc, corr_hgvsp
+                r.gp_transcript, r.corr_tx, corr_hgvsc, corr_hgvsp
             )
 
         return consistency_warnings
@@ -506,11 +506,7 @@ class AlleleDataLoader(object):
             genotypesampledata_extras={"gl": "genotype_likelihood"},
         )
         return self.segregation_filter.denovo_p_value(
-            allele_ids,
-            genotype_table,
-            proband_sample.identifier,
-            father_sample.identifier,
-            mother_sample.identifier,
+            allele_ids, genotype_table, proband_sample.id, father_sample.id, mother_sample.id
         )
 
     def _load_sample_data(self, alleles, analysis_id, segregation_results):
@@ -996,7 +992,7 @@ class AlleleDataLoader(object):
                 return None  # we don't want any entities
         else:
             filters.append(entity_clazz.allele_id.in_(allele_ids) if allele_ids else False)
-            filters.append(entity_clazz.date_superceeded == None)
+            filters.append(entity_clazz.date_superceeded.is_(None))
 
         return filters
 
