@@ -326,6 +326,7 @@ test-api:
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
 	  -v $(shell pwd):/ella \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
@@ -341,6 +342,7 @@ test-api-migration:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
