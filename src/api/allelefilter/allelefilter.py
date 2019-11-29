@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Sequence, Callable
 import logging
 from sqlalchemy.orm.session import Session
 
-from api.config import config as global_config, get_filter_config
+from api.config import config as global_config
 from vardb.datamodel import sample
 
 from api.allelefilter.frequencyfilter import FrequencyFilter
@@ -103,7 +103,7 @@ class AlleleFilter(object):
 
         result: Dict = {"allele_ids": [], "excluded_allele_ids": dict()}
 
-        filters = get_filter_config(self.config, filter_config)
+        filters = filter_config["filters"]
         for f in filters:
             name = f["name"]
             if name not in self.filter_functions:
@@ -200,7 +200,7 @@ class AlleleFilter(object):
 
         result: Dict = {gp_key: {"excluded_allele_ids": dict()} for gp_key in copied_gp_allele_ids}
 
-        filters = get_filter_config(self.config, filter_config)
+        filters = filter_config["filters"]
         for f in filters:
             name = f["name"]
             if name not in self.filter_functions:

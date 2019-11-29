@@ -82,39 +82,67 @@ else:
     )
     config = {}
 
+config.setdefault("transcripts", {})["consequences"] = [
+    "transcript_ablation",
+    "splice_donor_variant",
+    "splice_acceptor_variant",
+    "stop_gained",
+    "frameshift_variant",
+    "start_lost",
+    "initiator_codon_variant",
+    "stop_lost",
+    "inframe_insertion",
+    "inframe_deletion",
+    "missense_variant",
+    "protein_altering_variant",
+    "transcript_amplification",
+    "splice_region_variant",
+    "incomplete_terminal_codon_variant",
+    "synonymous_variant",
+    "stop_retained_variant",
+    "coding_sequence_variant",
+    "mature_miRNA_variant",
+    "5_prime_UTR_variant",
+    "3_prime_UTR_variant",
+    "non_coding_transcript_exon_variant",
+    "non_coding_transcript_variant",
+    "intron_variant",
+    "NMD_transcript_variant",
+    "upstream_gene_variant",
+    "downstream_gene_variant",
+    "TFBS_ablation",
+    "TFBS_amplification",
+    "TF_binding_site_variant",
+    "regulatory_region_variant",
+    "regulatory_region_ablation",
+    "regulatory_region_amplification",
+    "feature_elongation",
+    "feature_truncation",
+    "intergenic_variant",
+]
+
+config["annotation"] = {
+    "clinvar": {
+        "clinical_significance_status": {
+            "criteria provided, conflicting interpretations": 1,
+            "criteria provided, multiple submitters, no conflicts": 2,
+            "criteria provided, single submitter": 1,
+            "no assertion criteria provided": 0,
+            "no assertion provided": 0,
+            "practice guideline": 4,
+            "reviewed by expert panel": 3,
+        }
+    }
+}
+
+
 config["acmg"] = acmgconfig
 config["custom_annotation"] = customannotationconfig
 
 
 def get_user_config(app_config, usergroup_config, user_config):
     # Use json instead of copy.deepcopy for performance
-    merged_config = copy.deepcopy(app_config["user"]["user_config"])
+    merged_config = copy.deepcopy(app_config.get("user", {}).get("user_config", {}))
     merged_config.update(copy.deepcopy(usergroup_config))
     merged_config.update(copy.deepcopy(user_config))
     return merged_config
-
-
-def get_filter_config(app_config, filter_config):
-    """
-    filter_config is shallow merged with the default
-    provided in application config.
-    """
-
-    merged_filters = list()
-    assert "filters" in filter_config
-    for filter_step in filter_config["filters"]:
-
-        base_config = dict(app_config["filter"]["default_filter_config"][filter_step["name"]])
-        base_config.update(filter_step.get("config", {}))
-
-        filter_exceptions = []
-        for filter_exception in filter_step.get("exceptions", []):
-            filter_exceptions.append(
-                {"name": filter_exception["name"], "config": filter_exception.get("config", {})}
-            )
-
-        merged_filters.append(
-            {"name": filter_step["name"], "config": base_config, "exceptions": filter_exceptions}
-        )
-    merged_filters = copy.deepcopy(merged_filters)
-    return merged_filters

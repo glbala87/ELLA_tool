@@ -54,44 +54,6 @@ user:
           allow_technical: true
           # allow_unclassified implies allow_technical and allow_notrelevant
           allow_unclassified: false
-    acmg:
-      frequency:
-        thresholds:
-          AD:
-            external:
-              hi_freq_cutoff: 0.005
-              lo_freq_cutoff: 0.001
-            internal:
-              hi_freq_cutoff: 0.05
-              lo_freq_cutoff: 1
-          default:
-            external:
-              hi_freq_cutoff: 0.01
-              lo_freq_cutoff: 1
-            internal:
-              hi_freq_cutoff: 0.05
-              lo_freq_cutoff: 1
-        num_thresholds:
-          GNOMAD_GENOMES:
-            G: 5000
-            AFR: 5000
-            AMR: 5000
-            EAS: 5000
-            FIN: 5000
-            NFE: 5000
-            OTH: 5000
-            SAS: 5000
-          GNOMAD_EXOMES:
-            G: 5000
-            AFR: 5000
-            AMR: 5000
-            EAS: 5000
-            FIN: 5000
-            NFE: 5000
-            OTH: 5000
-            SAS: 5000
-      disease_mode: ANY
-      last_exon_important: LEI
     interpretation:
       autoIgnoreReferencePubmedIds: []
 analysis:
@@ -190,16 +152,6 @@ analysis:
         not_relevant:
         technical:
       shade_multiple_in_gene: false
-annotation:
-  clinvar:
-    clinical_significance_status:
-      criteria provided, conflicting interpretations: 1
-      criteria provided, multiple submitters, no conflicts: 2
-      criteria provided, single submitter: 1
-      no assertion criteria provided: 0
-      no assertion provided: 0
-      practice guideline: 4
-      reviewed by expert panel: 3
 frequencies:
   groups:
     external:
@@ -207,7 +159,9 @@ frequencies:
         - G
         - AFR
         - AMR
+        - ASJ
         - EAS
+        - FIN
         - NFE
         - OTH
         - SAS
@@ -215,7 +169,9 @@ frequencies:
         - G
         - AFR
         - AMR
+        - ASJ
         - EAS
+        - FIN
         - NFE
         - OTH
         - SAS
@@ -297,47 +253,6 @@ frequencies:
       NFE: E(NF)
       OTH: OTH
       SAS: SA
-filter:
-  default_filter_config:
-    region:
-      splice_region:
-        - -20
-        - 6
-      utr_region:
-        - 0
-        - 0
-    frequency:
-      num_thresholds:
-        GNOMAD_GENOMES:
-          G: 5000
-          AFR: 5000
-          AMR: 5000
-          EAS: 5000
-          NFE: 5000
-          OTH: 5000
-          SAS: 5000
-        GNOMAD_EXOMES:
-          G: 5000
-          AFR: 5000
-          AMR: 5000
-          EAS: 5000
-          NFE: 5000
-          OTH: 5000
-          SAS: 5000
-      thresholds:
-        AD:
-          external: 0.005
-          internal: 0.05
-        default:
-          external: 0.01
-          internal: 0.05
-    inheritancemodel: {}
-    quality: {}
-    segregation: {}
-    external: {}
-    classification: {}
-    ppy: {}
-    consequence: {}
 classification:
   gene_groups:
     MMR:
@@ -378,43 +293,6 @@ report:
     "4": Sannsynlig sykdomsgivende variant
     "5": Sykdomsgivende variant
 transcripts:
-  consequences:
-    - transcript_ablation
-    - splice_donor_variant
-    - splice_acceptor_variant
-    - stop_gained
-    - frameshift_variant
-    - start_lost
-    - initiator_codon_variant
-    - stop_lost
-    - inframe_insertion
-    - inframe_deletion
-    - missense_variant
-    - protein_altering_variant
-    - transcript_amplification
-    - splice_region_variant
-    - incomplete_terminal_codon_variant
-    - synonymous_variant
-    - stop_retained_variant
-    - coding_sequence_variant
-    - mature_miRNA_variant
-    - 5_prime_UTR_variant
-    - 3_prime_UTR_variant
-    - non_coding_transcript_exon_variant
-    - non_coding_transcript_variant
-    - intron_variant
-    - NMD_transcript_variant
-    - upstream_gene_variant
-    - downstream_gene_variant
-    - TFBS_ablation
-    - TFBS_amplification
-    - TF_binding_site_variant
-    - regulatory_region_variant
-    - regulatory_region_ablation
-    - regulatory_region_amplification
-    - feature_elongation
-    - feature_truncation
-    - intergenic_variant
   inclusion_regex: NM_.*
 igv:
   reference:

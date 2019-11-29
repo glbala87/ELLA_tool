@@ -11,26 +11,6 @@ import hypothesis as ht
 import hypothesis.strategies as st
 
 
-APP_CONFIG = {
-    "filter": {
-        "default_filter_config": {
-            "allele_none": {},
-            "allele_one": {},
-            "allele_one_two": {},
-            "allele_duplicate_one_two": {},
-            "allele_three_four": {},
-            "allele_five_six": {},
-            "allele_filter_one_three_if_one": {},
-            "analysis_none": {},
-            "analysis_one_two": {},
-            "analysis_duplicate_one_two": {},
-            "analysis_three_four": {},
-            "analysis_five_six": {},
-            "analysis_filter_one_three_if_one": {},
-        }
-    }
-}
-
 FILTER_CONFIG_NUM = 0
 
 
@@ -42,6 +22,13 @@ def insert_filter_config(session, filter_config):
     jsonschema.JSONSchema.get_or_create(
         session, **{"name": "filterconfig", "version": 10000, "schema": {"type": "object"}}
     )
+
+    # Allelefilter expects the following to be defined. Set them if not.
+    for f in filter_config["filters"]:
+        f.setdefault("config", {})
+        f.setdefault("exceptions", [])
+        for e in f["exceptions"]:
+            e.setdefault("config", {})
 
     fc = sample.FilterConfig(name="Test {}".format(FILTER_CONFIG_NUM), filterconfig=filter_config)
     session.add(fc)
@@ -61,7 +48,7 @@ def create_filter_mock(to_remove):
 
 @pytest.fixture
 def allele_filter(session):
-    af = AlleleFilter(session, config=APP_CONFIG)
+    af = AlleleFilter(session, config={})
 
     # Mock the built-in filters
     def filter_one(key_allele_ids, filter_config):
