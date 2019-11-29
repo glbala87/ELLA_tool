@@ -24,6 +24,10 @@ GLOBAL_CONFIG = {
 }
 
 COMMONESS_FILTER_CONFIG = {
+    "groups": {
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"], "esp6500": ["AA", "EA"]},
+        "internal": {"internalDB": ["AF"]},
+    },
     "thresholds": {
         "AD": {
             "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
@@ -46,6 +50,10 @@ COMMONESS_FILTER_CONFIG = {
 }
 
 FILTER_ALLELES_FILTER_CONFIG = {
+    "groups": {
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"], "esp6500": ["AA", "EA"]},
+        "internal": {"internalDB": ["AF"]},
+    },
     "thresholds": {
         "AD": {"external": 0.005, "internal": 0.05},
         "default": {"external": 0.3, "internal": 0.05},
@@ -353,7 +361,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session, GLOBAL_CONFIG)
+        ff = FrequencyFilter(session)
         gp_key = ("testpanel", "v01")
         allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id, a1g2.id, a1adg2.id]
         result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
@@ -448,7 +456,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session, GLOBAL_CONFIG)
+        ff = FrequencyFilter(session)
         gp_key = ("testpanel", "v01")
         allele_info = {
             anum1.id: (anum1, anum1anno),
@@ -695,7 +703,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session, GLOBAL_CONFIG)
+        ff = FrequencyFilter(session)
         gp_key = ("testpanel", "v01")
         # allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
         allele_info = {
@@ -816,7 +824,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session, GLOBAL_CONFIG)
+        ff = FrequencyFilter(session)
         gp_key = ("testpanel", "v01")
         allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id]
         result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
