@@ -90,10 +90,16 @@ class AssessmentCreator(object):
         result_alleleassessment = None
         result_reused = False
 
+        # If existing, check that user saw the current previous version
+        if existing_assessment:
+            presented_id = alleleassessment["presented_alleleassessment_id"]
+            if presented_id != existing_assessment.id:
+                raise ApiError(
+                    f"'presented_alleleassessment_id': {presented_id} does not match latest existing alleleassessment id: {existing_assessment.id}"
+                )
+
         if alleleassessment.get("reuse"):
             assert existing_assessment
-            # check that user saw the current previous version
-            assert alleleassessment["presented_alleleassessment_id"] == existing_assessment.id
             result_reused = True
             log.debug("Reused assessment %s for allele %s", existing_assessment.id, allele_id)
             result_alleleassessment = existing_assessment
@@ -109,11 +115,10 @@ class AssessmentCreator(object):
             assessment_obj.annotation_id = annotation_id
             assessment_obj.custom_annotation_id = custom_annotation_id
 
-            # If analysis_id provided, link assessment to genepanel through analysis for safety
-            # If not analysis_id, genepanel was loaded using schema above.
-            # (analysis_id is loaded through schema)
+            # If analysis_id provided, link data through analysis for safety
+            # If no analysis, genepanel was loaded using schema above.
             if analysis:
-                assert assessment_obj.analysis_id == analysis_id
+                assessment_obj.analysis_id == analysis_id
                 assessment_obj.genepanel_name = analysis.genepanel_name
                 assessment_obj.genepanel_version = analysis.genepanel_version
             elif not (
@@ -190,9 +195,9 @@ class AssessmentCreator(object):
                 assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
                 assessment_obj.user_id = user_id
 
-                # Link assessment to genepanel through analysis
+                # Fill in assessment data through analysis
                 if analysis:
-                    assert assessment_obj.analysis_id == analysis_id
+                    assessment_obj.analysis_id = analysis_id
                     assessment_obj.genepanel_name = analysis.genepanel_name
                     assessment_obj.genepanel_version = analysis.genepanel_version
                 elif not ("genepanel_name" in ra and "genepanel_version" in ra):

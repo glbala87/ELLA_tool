@@ -87,7 +87,6 @@ export function prepareAlleleFinalizePayload(
     payload.allelereport = _prepareAlleleReportPayload(
         allele,
         alleleState,
-        analysisId,
         allele.allele_assessment ? allele.allele_assessment.id : null
     )
 
@@ -118,21 +117,20 @@ function _prepareAlleleAssessmentPayload(
     analysisId = null
 ) {
     const assessment_data = {
-        allele_id: allele.id,
-        genepanel_name: genepanelName,
-        genepanel_version: genepanelVersion
+        allele_id: allele.id
     }
 
-    if (analysisId) {
-        assessment_data.analysis_id = analysisId
+    if (allele.allele_assessment) {
+        assessment_data.presented_alleleassessment_id = allele.allele_assessment.id
     }
 
     if (allelestate.alleleassessment.reuse) {
         assessment_data.reuse = true
-        assessment_data.presented_alleleassessment_id = allele.allele_assessment.id
     } else {
         Object.assign(assessment_data, {
             reuse: false,
+            genepanel_name: genepanelName,
+            genepanel_version: genepanelVersion,
             classification: allelestate.alleleassessment.classification,
             evaluation: allelestate.alleleassessment.evaluation,
             attachment_ids: allelestate.alleleassessment.attachment_ids
@@ -145,8 +143,7 @@ function _prepareReferenceAssessmentsPayload(
     allelestate,
     references,
     genepanelName,
-    genepanelVersion,
-    analysisId = null
+    genepanelVersion
 ) {
     let referenceassessments_data = []
     if ('referenceassessments' in allelestate) {
@@ -162,9 +159,6 @@ function _prepareReferenceAssessmentsPayload(
                 allele_id: referenceState.allele_id
             }
 
-            if (analysisId) {
-                ra.analysis_id = analysisId
-            }
             if (genepanelName && genepanelVersion) {
                 ra.genepanel_name = genepanelName
                 ra.genepanel_version = genepanelVersion
@@ -183,20 +177,9 @@ function _prepareReferenceAssessmentsPayload(
     return referenceassessments_data
 }
 
-function _prepareAlleleReportPayload(
-    allele,
-    allelestate,
-    analysisId = null,
-    alleleassessmentId = null
-) {
+function _prepareAlleleReportPayload(allele, allelestate, alleleassessmentId = null) {
     let report_data = {
         allele_id: allele.id
-    }
-    if (analysisId) {
-        report_data.analysis_id = analysisId
-    }
-    if (alleleassessmentId) {
-        report_data.alleleassessment_id = alleleassessmentId
     }
 
     if (allele.allele_report) {
@@ -213,7 +196,7 @@ function _prepareAlleleReportPayload(
         report_data.reuse = true
     } else {
         report_data.reuse = false
-        // Fill in fields expected by backend
+
         Object.assign(report_data, {
             evaluation: allelestate.allelereport.evaluation
         })

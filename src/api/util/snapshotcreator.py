@@ -1,4 +1,4 @@
-from typing import List, Dict, Union
+from typing import Sequence, Dict, Union
 import itertools
 
 from vardb.datamodel import workflow, assessment, annotation
@@ -21,7 +21,7 @@ class SnapshotCreator(object):
     def __init__(self, session):
         self.session = session
 
-    def _allele_id_model_id(self, model, model_ids: List[int]):
+    def _allele_id_model_id(self, model, model_ids: Sequence[int]):
         allele_ids_model_ids = (
             self.session.query(getattr(model, "allele_id"), getattr(model, "id"))
             .filter(getattr(model, "id").in_(model_ids))
@@ -33,15 +33,15 @@ class SnapshotCreator(object):
 
     def insert_from_data(
         self,
-        allele_ids: List[int],
+        allele_ids: Sequence[int],
         interpretation_snapshot_model: str,  # 'allele' or 'analysis'
         interpretation: Union[workflow.AnalysisInterpretation, workflow.AlleleInterpretation],
-        annotation_ids: List[int],
-        custom_annotation_ids: List[int],
-        alleleassessment_ids: List[int],
-        allelereport_ids: List[int],
+        annotation_ids: Sequence[int],
+        custom_annotation_ids: Sequence[int],
+        alleleassessment_ids: Sequence[int],
+        allelereport_ids: Sequence[int],
         excluded_allele_ids: Dict = None,
-    ) -> List[Dict]:
+    ) -> Sequence[Dict]:
 
         excluded: Dict = {}
         if interpretation_snapshot_model == "analysis":

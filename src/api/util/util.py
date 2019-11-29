@@ -1,9 +1,12 @@
 from functools import wraps
+import os
 import json
 import datetime
 import pytz
 import time
 import collections
+from pathlib import Path
+from jsonschema import validate, Draft7Validator, RefResolver
 from flask import request, g, Response
 from api import app, db, ApiError
 from api.config import config, get_user_config
@@ -13,6 +16,44 @@ from api.util.useradmin import get_usersession_by_token
 
 
 log = app.logger
+
+JSON_SCHEMA_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "../schemas/jsonschemas/")
+)
+
+
+def jsonschema_validate(schema_path, data, base_schema_path=None):
+    """
+    Validates data according to provided schema.
+
+    If base_schema_path is provided, it supports referencing relative schemas
+    by using { "$ref": "file://anotherSchema.json" }
+    which will be relative to base_schema_path
+    """
+
+    with open(schema_path) as f:
+        schema = json.load(f)
+
+    if not base_schema_path:
+        validate(instance=data, schema=schema)
+    else:
+
+        def jsonschema_handler(uri):
+            """
+            Handles resolving relative file:// paths, prepending
+            the local base_schema_path
+            """
+            resolve_schema_path = Path(uri.replace("file://", ""))
+            if resolve_schema_path.is_absolute():
+                return json.loads(resolve_schema_path.read_text())
+            else:
+                local_path = Path(base_schema_path) / resolve_schema_path
+                return json.loads(local_path.read_text())
+
+        resolver = RefResolver.from_schema(schema, handlers={"file": jsonschema_handler})
+        validator = Draft7Validator(schema, resolver=resolver)
+        validator.check_schema(schema)
+        validator.validate(data)
 
 
 # https://gist.github.com/angstwad/bf22d1822c38a92ec0a9
@@ -229,7 +270,7 @@ def paginate(func):
     return inner
 
 
-def request_json(required, only_required=False, allowed=None):
+def request_json(required=None, only_required=False, allowed=None, jsonschema=None):
     """
     Decorator: Checks flasks's request (root) json object for 'required'
     fields before passing on the data to the function.
@@ -326,10 +367,24 @@ def request_json(required, only_required=False, allowed=None):
 
         return inner
 
-    if isinstance(allowed, dict):
-        return dict_wrapper
-    else:
-        return array_wrapper
+    def jsonschema_wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            data = request.get_json()
+            jsonschema_validate(
+                os.path.join(JSON_SCHEMA_PATH, jsonschema), data, base_schema_path=JSON_SCHEMA_PATH
+            )
+            return func(*args, data=data, **kwargs)
+
+        return inner
+
+    if required is not None:
+        if isinstance(allowed, dict):
+            return dict_wrapper
+        else:
+            return array_wrapper
+    elif jsonschema is not None:
+        return jsonschema_wrapper
 
 
 def populate_g_user():

@@ -336,7 +336,7 @@ class AlleleActionReopenResource(LogRequestResource):
 
 class AlleleActionFinalizeAlleleResource(LogRequestResource):
     @authenticate(user_config=True)
-    @request_json(["allele_id", "alleleassessment", "referenceassessments", "allelereport"])
+    @request_json(jsonschema="workflowActionFinalizeAllelePost.json")
     def post(self, session, allele_id, user_config=None, data=None, user=None):
         """
         Finalizes a single allele within an allele workflow.

@@ -553,6 +553,10 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
         session.add(grouped_assessments["alleleassessment"]["created"])
         alleleassessment = grouped_assessments["alleleassessment"]["created"]
     else:
+        if grouped_assessments["referenceassessments"]["created"]:
+            raise ApiError(
+                "Trying to create referenceassessments for allele, while not also creating alleleassessment"
+            )
         alleleassessment = grouped_assessments["alleleassessment"]["reused"]
 
     reused_referenceassessments = grouped_assessments["referenceassessments"]["reused"]
@@ -562,7 +566,7 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
 
     # Create/reuse allelereports
     allelereport, allelereport_reused = AlleleReportCreator(session).create_from_data(
-        user_id, data["allele_id"], data["allelereport"], alleleassessment
+        user_id, data["allele_id"], data["allelereport"], alleleassessment, analysis_id=analysis_id
     )
 
     if not allelereport_reused:
@@ -609,57 +613,72 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
 
+    # Sanity checks
+    alleleassessment_allele_ids = set(
+        session.query(assessment.AlleleAssessment.allele_id)
+        .filter(assessment.AlleleAssessment.id.in_(data["alleleassessment_ids"]))
+        .scalar_all()
+    )
+
+    allelereport_allele_ids = set(
+        session.query(assessment.AlleleReport.allele_id)
+        .filter(assessment.AlleleReport.id.in_(data["allelereport_ids"]))
+        .scalar_all()
+    )
+
+    assert alleleassessment_allele_ids - set(data["allele_ids"]) == set()
+    assert allelereport_allele_ids - set(data["allele_ids"]) == set()
+
     # Check that we can finalize
     # There are different criterias deciding when finalization is allowed
-
-    # exempted_classification_allele_ids = set()  # allele ids that don't need classification
-    # assert reused_allele_ids & created_allele_ids == set()
-    #
+    exempted_classification_allele_ids = set()  # allele ids that don't need classification
     workflow_type = "allele" if allele_id else "analysis"
-    #
+
+    finalize_requirements = get_nested(
+        user_config, ["workflows", workflow_type, "finalize_requirements"]
+    )
+
+    if finalize_requirements.get("workflow_status"):
+        if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
+            raise ApiError(
+                "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
+                    ", ".join(finalize_requirements["workflow_status"])
+                )
+            )
+
+    if finalize_requirements.get("allow_technical"):
+        if "technical_allele_ids" not in data:
+            raise ApiError(
+                "Missing required key 'technical_allele_ids' when finalized requirement allow_technical is true"
+            )
+        exempted_classification_allele_ids.update(set(data["technical_allele_ids"]))
+
+    if finalize_requirements.get("allow_notrelevant"):
+        if "notrelevant_allele_ids" not in data:
+            raise ApiError(
+                "Missing required key 'notrelevant_allele_ids' when finalized requirement allow_notrelevant is true"
+            )
+        exempted_classification_allele_ids.update(set(data["notrelevant_allele_ids"]))
+
+    # If no "unclassified" are allowed, check that all allele ids minus the
+    # exempted ones have a classification
+    if not finalize_requirements.get("allow_unclassified"):
+
+        needs_classification = set(data["allele_ids"]) - exempted_classification_allele_ids
+        missing_classification = needs_classification - alleleassessment_allele_ids
+        if missing_classification:
+            raise ApiError(
+                "Missing alleleassessments for allele ids {}".format(
+                    ",".join(sorted(list([str(m) for m in missing_classification])))
+                )
+            )
+
+    # Create interpretation snapshot objects
     if workflow_type == "analysis":
         excluded_allele_ids = data["excluded_allele_ids"]
     else:
         excluded_allele_ids = None
-    #
-    # finalize_requirements = get_nested(
-    #    user_config, ["workflows", workflow_type, "finalize_requirements"]
-    # )
-    # if finalize_requirements.get("workflow_status"):
-    #    if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
-    #        raise ApiError(
-    #            "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
-    #                ", ".join(finalize_requirements["workflow_status"])
-    #            )
-    #        )
-    #
-    # if finalize_requirements.get("allow_technical"):
-    #    if "technical_allele_ids" not in data:
-    #        raise ApiError(
-    #            "Missing required key 'technical_allele_ids' when finalized requirement allow_technical is true"
-    #        )
-    #    exempted_classification_allele_ids.update(set(data["technical_allele_ids"]))
-    #
-    # if finalize_requirements.get("allow_notrelevant"):
-    #    if "notrelevant_allele_ids" not in data:
-    #        raise ApiError(
-    #            "Missing required key 'notrelevant_allele_ids' when finalized requirement allow_notrelevant is true"
-    #        )
-    #    exempted_classification_allele_ids.update(set(data["notrelevant_allele_ids"]))
-    #
-    ## If no "unclassified" are allowed, check that all allele ids minus the
-    ## exempted ones have a classification
-    # if not finalize_requirements.get("allow_unclassified"):
-    #    needs_classification = set(data["allele_ids"]) - exempted_classification_allele_ids
-    #    missing_classification = needs_classification - (created_allele_ids | reused_allele_ids)
-    #    if missing_classification:
-    #        raise ApiError(
-    #            "Missing alleleassessments for allele ids {}".format(
-    #                ",".join(sorted(list([str(m) for m in missing_classification])))
-    #            )
-    #        )
-    #
-    # Create interpretation snapshot objects
+
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
         _get_snapshotcreator_mode(allele_id, analysis_id),
@@ -832,6 +851,7 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         session.query(workflow.InterpretationLog)
         .join(_get_interpretation_model(allele_id, analysis_id))
         .filter(_get_interpretation_model_field(allele_id, analysis_id) == workflow_id)
+        .order_by(workflow.InterpretationLog.date_created)
     )
 
     field = "alleleinterpretation_id" if allele_id else "analysisinterpretation_id"
@@ -891,18 +911,23 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         allele_hgvs_by_id[a.allele_id].append(a)
 
     for loaded_log in loaded_logs:
+        loaded_log["alleleassessment"] = {}
         if loaded_log["alleleassessment_id"]:
             log_aa = alleleassessments_by_id[loaded_log["alleleassessment_id"]]
-            loaded_log["alleleassessment"] = {
-                "allele_id": log_aa.allele_id,
-                "hgvsc": [f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_aa.allele_id])],
-                "classification": log_aa.classification,
-                "previous_classification": previous_alleleassessment_classifications_by_id[
-                    log_aa.previous_assessment_id
-                ]
-                if log_aa.previous_assessment_id
-                else None,
-            }
+            loaded_log["alleleassessment"].update(
+                {
+                    "allele_id": log_aa.allele_id,
+                    "hgvsc": [
+                        f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_aa.allele_id])
+                    ],
+                    "classification": log_aa.classification,
+                    "previous_classification": previous_alleleassessment_classifications_by_id[
+                        log_aa.previous_assessment_id
+                    ]
+                    if log_aa.previous_assessment_id
+                    else None,
+                }
+            )
         del loaded_log["alleleassessment_id"]
 
     # Load all relevant user data

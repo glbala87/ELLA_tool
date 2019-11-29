@@ -49,10 +49,11 @@ def _build_dummy_annotations(allele_ids):
 
 
 class WorkflowHelper(object):
-    def __init__(self, workflow_type, workflow_id, genepanel=None, filterconfig_id=None):
+    def __init__(
+        self, workflow_type, workflow_id, genepanel_name, genepanel_version, filterconfig_id=None
+    ):
 
-        if workflow_type == "allele" and not genepanel:
-            raise RuntimeError("Missing required genepanel tuple when workflow_type == 'allele'")
+        assert genepanel_name and genepanel_version
 
         if workflow_type == "analysis" and not filterconfig_id:
             raise RuntimeError("Missing required filterconfig id when workflow_type == 'analysis'")
@@ -60,14 +61,9 @@ class WorkflowHelper(object):
         self.type = workflow_type
         self.id = workflow_id
         self.filterconfig_id = filterconfig_id
-        self.interpretation_extras = (
-            {"gp_name": genepanel[0], "gp_version": genepanel[1]} if genepanel else dict()
-        )
-        self.assessment_extras = (
-            {"genepanel_name": genepanel[0], "genepanel_version": genepanel[1]}
-            if genepanel
-            else dict()
-        )
+        self.genepanel_name = genepanel_name
+        self.genepanel_version = genepanel_version
+        self.interpretation_extras = {"gp_name": genepanel_name, "gp_version": genepanel_version}
 
     def _update_comments(self, state, comment):
         allele_assessments = state["alleleassessments"]
@@ -125,7 +121,7 @@ class WorkflowHelper(object):
         for allele in alleles:
             interpretation["state"]["alleleassessments"].append(
                 ih.allele_assessment_template(
-                    self.type, self.id, allele, extra=self.assessment_extras
+                    allele["id"], self.genepanel_name, self.genepanel_version
                 )
             )
 
@@ -136,13 +132,11 @@ class WorkflowHelper(object):
             for reference in references:
                 interpretation["state"]["referenceassessments"].append(
                     ih.reference_assessment_template(
-                        self.type, self.id, allele, reference, extra=self.assessment_extras
+                        allele["id"], reference["id"], self.genepanel_name, self.genepanel_version
                     )
                 )
 
-            interpretation["state"]["allelereports"].append(
-                ih.allele_report_template(self.type, self.id, allele, extra=self.assessment_extras)
-            )
+            interpretation["state"]["allelereports"].append(ih.allele_report_template(allele["id"]))
 
         self._update_comments(interpretation["state"], comment)
 
@@ -187,15 +181,12 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["status"] == "Done"
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
-        self.check_interpretation(reloaded_interpretation)
-
     def perform_finalize_round(self, interpretation, comment):
 
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
         allele_reports = interpretation["state"]["allelereports"]
-        attachments = []
 
         self._update_comments(interpretation["state"], comment)
 
@@ -225,34 +216,60 @@ class WorkflowHelper(object):
             allele_ids = [self.id]
             excluded_allele_ids = {}
 
+        r = ih.get_alleles(self.type, self.id, interpretation["id"], allele_ids)
+        assert r.status_code == 200
+        alleles = r.get_json()
+
+        # Finalize all alleles
+        annotation_ids = []
+        custom_annotation_ids = []
+        alleleassessment_ids = []
+        allelereport_ids = []
+        for allele_id in allele_ids:
+            allele_assessment = next(
+                aa for aa in allele_assessments if aa["allele_id"] == allele_id
+            )
+            allele_report = next(ar for ar in allele_reports if ar["allele_id"] == allele_id)
+            allele_reference_assessments = [
+                ra for ra in reference_assessments if ra["allele_id"] == allele_id
+            ]
+            allele = next(a for a in alleles if a["id"] == allele_id)
+            annotation_id = allele["annotation"]["annotation_id"]
+            annotation_ids.append(annotation_id)
+            ih.finalize_allele(
+                self.type,
+                self.id,
+                allele_id,
+                annotation_id,
+                None,
+                allele_assessment,
+                allele_report,
+                allele_reference_assessments,
+                interpretation["user"]["username"],
+            )
+            # Check that objects were created as they should
+            (
+                created_alleleassessment_id,
+                created_allelereport_id,
+                created_referenceassessment_ids,
+            ) = self.check_finalize_allele(allele_id, interpretation)
+            alleleassessment_ids.append(created_alleleassessment_id)
+            allelereport_ids.append(created_allelereport_id)
+
+        # Finalize workflow
         r = ih.finalize(
             self.type,
             self.id,
-            annotations,
-            custom_annotations,
-            allele_assessments,
-            reference_assessments,
-            allele_reports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             interpretation["user"]["username"],
-            allele_ids=allele_ids,
             excluded_allele_ids=excluded_allele_ids,
         )
 
         assert r.status_code == 200
-        finalize_response = r.get_json()
-
-        # Check that assessments/reports are created/exists. We reload them from API to be sure they were stored
-        for entity_type in ["alleleassessments", "referenceassessments", "allelereports"]:
-            entities_created = finalize_response[entity_type]
-            for entity in entities_created:
-                entity_in_db = ih.get_entity_by_id(entity_type, entity["id"]).get_json()
-                if self.type == "analysis":
-                    assert entity_in_db["analysis_id"] == self.id
-                else:
-                    assert entity_in_db["allele_id"] == self.id
-
-                assert entity_in_db["evaluation"]["comment"] == comment
 
         interpretations = ih.get_interpretations(self.type, self.id).get_json()
         assert len(interpretations) == interpretation_cnt
@@ -269,15 +286,12 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["status"] == "Done"
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
-        self.check_interpretation(reloaded_interpretation)
-
     def perform_reopened_round(self, interpretation, comment):
 
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
         allele_reports = interpretation["state"]["allelereports"]
-        attachments = []
 
         # annotation is required for finalization
         annotations, custom_annotations = _build_dummy_annotations(
@@ -301,52 +315,83 @@ class WorkflowHelper(object):
         assert r.status_code == 200
         alleles = r.get_json()
 
-        # Reuse existing assessments
-        for allele in alleles:
-            if "allele_assessment" in allele:
-                allele_assessment_for_allele = next(
-                    a for a in allele_assessments if a["allele_id"] == allele["id"]
-                )
-                allele_assessment_for_allele["presented_alleleassessment_id"] = allele[
-                    "allele_assessment"
-                ]["id"]
-                allele_assessment_for_allele["reuse"] = True
-            if "allele_report" in allele:
-                allele_report_for_allele = next(
-                    a for a in allele_reports if a["allele_id"] == allele["id"]
-                )
-                allele_report_for_allele["presented_allelereport_id"] = allele["allele_report"][
-                    "id"
-                ]
-                allele_report_for_allele["reuse"] = True
-            if "reference_assessments" in allele:
-                for ref_assessment in allele["reference_assessments"]:
-                    reference_assessment = next(
-                        ra
-                        for ra in reference_assessments
-                        if ra["allele_id"] == ref_assessment["allele_id"]
-                        and ra["reference_id"] == ref_assessment["reference_id"]
-                    )
-                    # 'id' = reuse for referenceassessments
-                    reference_assessment["id"] = ref_assessment["id"]
+        # Finalize all alleles
+        annotation_ids = []
+        custom_annotation_ids = []
+        alleleassessment_ids = []
+        allelereport_ids = []
+        for allele_id in allele_ids:
+            allele = next(a for a in alleles if a["id"] == allele_id)
+            # For a twist, only update allele report
+            allele_assessment = next(
+                aa for aa in allele_assessments if aa["allele_id"] == allele_id
+            )
+            allele_assessment.clear()
+            allele_assessment["reuse"] = True
+            allele_assessment["allele_id"] = allele_id
+            allele_assessment["presented_alleleassessment_id"] = allele["allele_assessment"]["id"]
 
-        # Finalize
+            allele_report = next(ar for ar in allele_reports if ar["allele_id"] == allele_id)
+            allele_report["evaluation"]["comment"] = comment
+            allele_report["presented_allelereport_id"] = allele["allele_report"]["id"]
+            allele_reference_assessments = []
+            for reference_assessment in reference_assessments:
+                ra = next(
+                    (
+                        ra
+                        for ra in allele["reference_assessments"]
+                        if ra["allele_id"] == reference_assessment["allele_id"]
+                        and ra["reference_id"] == reference_assessment["reference_id"]
+                        and ra["allele_id"] == allele_id
+                    ),
+                    None,
+                )
+                if not ra:
+                    continue
+
+                # Reuse reference assessment
+                allele_reference_assessments.append(
+                    {"id": ra["id"], "allele_id": allele_id, "reference_id": ra["reference_id"]}
+                )
+
+            annotation_id = allele["annotation"]["annotation_id"]
+            annotation_ids.append(annotation_id)
+            ih.finalize_allele(
+                self.type,
+                self.id,
+                allele_id,
+                annotation_id,
+                None,
+                allele_assessment,
+                allele_report,
+                allele_reference_assessments,
+                interpretation["user"]["username"],
+            )
+            # Check that objects were created as they should
+            (
+                created_alleleassessment_id,
+                created_allelereport_id,
+                created_referenceassessment_ids,
+            ) = self.check_finalize_allele(allele_id, interpretation)
+            alleleassessment_ids.append(created_alleleassessment_id)
+            allelereport_ids.append(created_allelereport_id)
+
+        # Finalize workflow
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
         r = ih.finalize(
             self.type,
             self.id,
-            annotations,
-            custom_annotations,
-            allele_assessments,
-            reference_assessments,
-            allele_reports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             interpretation["user"]["username"],
-            allele_ids=allele_ids,
             excluded_allele_ids=excluded_allele_ids,
         )
+
         assert r.status_code == 200
 
         interpretations = ih.get_interpretations(self.type, self.id).get_json()
@@ -360,121 +405,83 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["finalized"] is True
         assert reloaded_interpretation["status"] == "Done"
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
+        assert all(
+            ar["evaluation"]["comment"] == comment
+            for ar in reloaded_interpretation["state"]["allelereports"]
+        )
 
-        self.check_interpretation(reloaded_interpretation)
+    def check_finalize_allele(self, allele_id, interpretation):
 
-    def check_interpretation(self, interpretation):
+        # Check alleleassessment in database
+        state_alleleassessment = next(
+            a for a in interpretation["state"]["alleleassessments"] if a["allele_id"] == allele_id
+        )
+        allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id).get_json()
+        assert allele_assessments_in_db
+        latest_allele_assessment = next(
+            a for a in allele_assessments_in_db if not a["date_superceeded"]
+        )
+        if not state_alleleassessment.get("reuse"):
+            assert (
+                latest_allele_assessment["classification"]
+                == state_alleleassessment["classification"]
+            )
+            assert (
+                latest_allele_assessment["evaluation"]["comment"]
+                == state_alleleassessment["evaluation"]["comment"]
+            )
+        else:
+            assert (
+                latest_allele_assessment["id"]
+                == state_alleleassessment["presented_alleleassessment_id"]
+            )
 
-        # Check snapshot data
-        snapshots = ih.get_snapshots(self.type, self.id).get_json()
-        key = "{}interpretation_id".format(self.type)
-        snapshots = [s for s in snapshots if s[key] == interpretation["id"]]
-        for alleleassessment in interpretation["state"]["alleleassessments"]:
-            snapshot = next(s for s in snapshots if s["allele_id"] == alleleassessment["allele_id"])
-            if "presented_alleleassessment_id" in alleleassessment:
-                assert (
-                    snapshot["presented_alleleassessment_id"]
-                    == alleleassessment["presented_alleleassessment_id"]
-                )
-            else:
-                assert snapshot["presented_alleleassessment_id"] is None
+        # Check allelereport in database
+        state_allelereport = next(
+            a for a in interpretation["state"]["allelereports"] if a["allele_id"] == allele_id
+        )
+        allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id).get_json()
+        assert allele_reports_in_db
+        latest_allele_report = next(a for a in allele_reports_in_db if not a["date_superceeded"])
+        if not state_allelereport.get("reuse"):
+            assert (
+                latest_allele_report["evaluation"]["comment"]
+                == state_allelereport["evaluation"]["comment"]
+            )
+        else:
+            assert latest_allele_assessment["id"] == state_allelereport["presented_allelereport_id"]
 
-        for allelereport in interpretation["state"]["allelereports"]:
-            snapshot = next(s for s in snapshots if s["allele_id"] == allelereport["allele_id"])
-            if "presented_allelereport_id" in allelereport:
-                assert (
-                    snapshot["presented_allelereport_id"]
-                    == allelereport["presented_allelereport_id"]
-                )
-            else:
-                assert snapshot["presented_allelereport_id"] is None
-
-        if interpretation["finalized"]:
-            if self.type == "analysis":
-                filtered_allele_ids = ih.get_filtered_alleles(
-                    self.type, self.id, interpretation["id"], filterconfig_id=None
-                ).get_json()
-                allele_ids = filtered_allele_ids["allele_ids"]
-            else:
-                allele_ids = [self.id]
-
-            for allele_id in allele_ids:
-
-                # Check alleleassessments in database
-                state_alleleassessment = next(
-                    a
-                    for a in interpretation["state"]["alleleassessments"]
-                    if a["allele_id"] == allele_id
-                )
-                allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id).get_json()
-                assert allele_assessments_in_db
-                latest_allele_assessment = next(
-                    a for a in allele_assessments_in_db if not a["date_superceeded"]
-                )
-                if not state_alleleassessment.get("reuse"):
-                    assert (
-                        latest_allele_assessment["classification"]
-                        == state_alleleassessment["classification"]
+        # Check on reference assessments:
+        state_referenceassessments = [
+            a
+            for a in interpretation["state"]["referenceassessments"]
+            if a["allele_id"] == allele_id
+        ]
+        result_reference_assessment_ids = []
+        if state_referenceassessments:
+            reference_assessments_in_db = ih.get_reference_assessments_by_allele(
+                allele_id
+            ).get_json()
+            for state_referenceassessment in state_referenceassessments:
+                matching_reference_assessment = next(
+                    (
+                        ra
+                        for ra in reference_assessments_in_db
+                        if ra["allele_id"] == allele_id
+                        and ra["reference_id"] == state_referenceassessment["reference_id"]
+                        and ra["date_superceeded"] is None
                     )
-                    assert (
-                        latest_allele_assessment["evaluation"]["comment"]
-                        == state_alleleassessment["evaluation"]["comment"]
-                    )
-                else:
-                    assert (
-                        latest_allele_assessment["id"]
-                        == state_alleleassessment["presented_alleleassessment_id"]
-                    )
-
-                # Check allelereports in database
-                state_allelereport = next(
-                    a
-                    for a in interpretation["state"]["allelereports"]
-                    if a["allele_id"] == allele_id
                 )
-                allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id).get_json()
-                assert allele_reports_in_db
-                latest_allele_report = next(
-                    a for a in allele_reports_in_db if not a["date_superceeded"]
-                )
-                if not state_allelereport.get("reuse"):
+                if "id" not in state_referenceassessment:
                     assert (
-                        latest_allele_report["evaluation"]["comment"]
-                        == state_allelereport["evaluation"]["comment"]
+                        matching_reference_assessment["evaluation"]["comment"]
+                        == state_referenceassessment["evaluation"]["comment"]
                     )
                 else:
-                    assert (
-                        latest_allele_assessment["id"]
-                        == state_allelereport["presented_allelereport_id"]
-                    )
-
-                # Check on reference assessments:
-                state_referenceassessments = [
-                    a
-                    for a in interpretation["state"]["referenceassessments"]
-                    if a["allele_id"] == allele_id
-                ]
-                if state_referenceassessments:
-                    reference_assessments_in_db = ih.get_reference_assessments_by_allele(
-                        allele_id
-                    ).get_json()
-                    for state_referenceassessment in state_referenceassessments:
-                        matching_reference_assessment = next(
-                            (
-                                ra
-                                for ra in reference_assessments_in_db
-                                if ra["allele_id"] == allele_id
-                                and ra["reference_id"] == state_referenceassessment["reference_id"]
-                                and ra["date_superceeded"] is None
-                            )
-                        )
-                        if "id" not in state_referenceassessment:
-                            assert (
-                                matching_reference_assessment["evaluation"]["comment"]
-                                == state_referenceassessment["evaluation"]["comment"]
-                            )
-                        else:
-                            assert (
-                                matching_reference_assessment["id"]
-                                == state_referenceassessment["id"]
-                            )
+                    assert matching_reference_assessment["id"] == state_referenceassessment["id"]
+                result_reference_assessment_ids.append(matching_reference_assessment["id"])
+        return (
+            latest_allele_assessment["id"],
+            latest_allele_report["id"],
+            result_reference_assessment_ids,
+        )
