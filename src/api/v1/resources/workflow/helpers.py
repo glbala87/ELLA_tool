@@ -538,7 +538,7 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
             )
 
     # Create/reuse assessments
-    grouped_assessments = AssessmentCreator(session).create_from_data(
+    assessment_result = AssessmentCreator(session).create_from_data(
         user_id,
         data["allele_id"],
         data["annotation_id"],
@@ -549,48 +549,52 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
     )
 
     alleleassessment = None
-    if grouped_assessments["alleleassessment"]["created"]:
-        session.add(grouped_assessments["alleleassessment"]["created"])
-        alleleassessment = grouped_assessments["alleleassessment"]["created"]
+    if assessment_result.created_alleleassessment:
+        session.add(assessment_result.created_alleleassessment)
     else:
-        if grouped_assessments["referenceassessments"]["created"]:
+        if assessment_result.created_referenceassessments:
             raise ApiError(
                 "Trying to create referenceassessments for allele, while not also creating alleleassessment"
             )
-        alleleassessment = grouped_assessments["alleleassessment"]["reused"]
 
-    reused_referenceassessments = grouped_assessments["referenceassessments"]["reused"]
-    created_referenceassessments = grouped_assessments["referenceassessments"]["created"]
-
-    session.add_all(created_referenceassessments)
+    if assessment_result.created_referenceassessments:
+        session.add_all(assessment_result.created_referenceassessments)
 
     # Create/reuse allelereports
-    allelereport, allelereport_reused = AlleleReportCreator(session).create_from_data(
+    report_result = AlleleReportCreator(session).create_from_data(
         user_id, data["allele_id"], data["allelereport"], alleleassessment, analysis_id=analysis_id
     )
 
-    if not allelereport_reused:
-        session.add(allelereport)
-
-    all_referenceassessments = reused_referenceassessments + created_referenceassessments
+    if report_result.created_allelereport:
+        session.add(report_result.created_allelereport)
 
     session.flush()
 
+    # Ensure that we created either alleleassessment or allelereport, otherwise finalization
+    # makes no sense.
+    assert assessment_result.created_alleleassessment or report_result.created_allelereport
+
     # Create entry in interpretation log
-    il_data = {"user_id": user_id, "alleleassessment_id": alleleassessment.id}
+    il_data = {"user_id": user_id}
     if allele_id:
         il_data["alleleinterpretation_id"] = interpretation.id
     if analysis_id:
         il_data["analysisinterpretation_id"] = interpretation.id
+    if assessment_result.created_alleleassessment:
+        il_data["alleleassessment_id"] = assessment_result.created_alleleassessment.id
+    if report_result.created_allelereport:
+        il_data["allelereport_id"] = report_result.created_allelereport.id
 
     il = workflow.InterpretationLog(**il_data)
     session.add(il)
 
     return {
-        "allelereport": schemas.AlleleReportSchema().dump(allelereport).data,
-        "alleleassessment": schemas.AlleleAssessmentSchema().dump(alleleassessment).data,
+        "allelereport": schemas.AlleleReportSchema().dump(report_result.allelereport).data,
+        "alleleassessment": schemas.AlleleAssessmentSchema()
+        .dump(assessment_result.alleleassessment)
+        .data,
         "referenceassessments": schemas.ReferenceAssessmentSchema()
-        .dump(all_referenceassessments, many=True)
+        .dump(assessment_result.referenceassessments, many=True)
         .data,
     }
 
@@ -867,8 +871,10 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
     for loaded_log in loaded_logs:
         loaded_log["editable"] = editable[loaded_log["id"]]
 
-    # AlleleAssessments are special, we need to load more data
-    alleleassessment_ids = set([l["alleleassessment_id"] for l in loaded_logs])
+    # AlleleAssessments and AlleleReports are special, we need to load more data
+    alleleassessment_ids = set(
+        [l["alleleassessment_id"] for l in loaded_logs if l["alleleassessment_id"]]
+    )
     alleleassessments = (
         session.query(
             assessment.AlleleAssessment.id,
@@ -894,6 +900,16 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
     }
 
     allele_ids = [a.allele_id for a in alleleassessments]
+
+    allelereport_ids = set([l["allelereport_id"] for l in loaded_logs if l["allelereport_id"]])
+    allelereports = (
+        session.query(assessment.AlleleReport.id, assessment.AlleleReport.allele_id)
+        .filter(assessment.AlleleReport.id.in_(allelereport_ids))
+        .all()
+    )
+    allelereports_by_id = {a.id: a for a in allelereports}
+
+    allele_ids.extend([a.allele_id for a in allelereports])
     annotation_genepanel = queries.annotation_transcripts_genepanel(
         session,
         [(latest_interpretation.genepanel_name, latest_interpretation.genepanel_version)],
@@ -912,6 +928,7 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
 
     for loaded_log in loaded_logs:
         loaded_log["alleleassessment"] = {}
+        loaded_log["allelereport"] = {}
         if loaded_log["alleleassessment_id"]:
             log_aa = alleleassessments_by_id[loaded_log["alleleassessment_id"]]
             loaded_log["alleleassessment"].update(
@@ -928,7 +945,18 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
                     else None,
                 }
             )
-        del loaded_log["alleleassessment_id"]
+        if loaded_log["allelereport_id"]:
+            log_ar = allelereports_by_id[loaded_log["allelereport_id"]]
+            loaded_log["allelereport"].update(
+                {
+                    "allele_id": log_ar.allele_id,
+                    "hgvsc": [
+                        f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_ar.allele_id])
+                    ],
+                }
+            )
+
+        del loaded_log["allelereport_id"]
 
     # Load all relevant user data
     user_ids = set([l["user_id"] for l in loaded_logs])

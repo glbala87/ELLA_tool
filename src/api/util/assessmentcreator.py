@@ -1,6 +1,7 @@
 import datetime
+from dataclasses import dataclass, field
 import pytz
-from typing import Sequence, Dict, Optional
+from typing import Sequence, Dict, Optional, List, Tuple
 from vardb.datamodel import assessment, sample, attachment
 
 
@@ -9,8 +10,23 @@ from api import ApiError
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
+
+
+@dataclass
+class AssessmentCreatorResult:
+    created_alleleassessment: assessment.AlleleAssessment
+    reused_alleleassessment: assessment.AlleleAssessment
+    created_referenceassessments: List[assessment.ReferenceAssessment] = field(default_factory=list)
+    reused_referenceassessments: List[assessment.ReferenceAssessment] = field(default_factory=list)
+
+    @property
+    def alleleassessment(self) -> assessment.AlleleAssessment:
+        return self.created_alleleassessment or self.reused_alleleassessment
+
+    @property
+    def referenceassessments(self) -> List[assessment.ReferenceAssessment]:
+        return self.created_referenceassessments + self.reused_referenceassessments
 
 
 class AssessmentCreator(object):
@@ -50,13 +66,9 @@ class AssessmentCreator(object):
             analysis_id=analysis_id,
         )
 
-        return {
-            "referenceassessments": {"reused": ra_reused, "created": ra_created},
-            "alleleassessment": {
-                "reused": aa if reused else None,
-                "created": aa if not reused else None,
-            },
-        }
+        return AssessmentCreatorResult(
+            aa if not reused else None, aa if reused else None, ra_created, ra_reused
+        )
 
     def _create_or_reuse_alleleassessment(
         self,
@@ -67,7 +79,7 @@ class AssessmentCreator(object):
         custom_annotation_id: int = None,
         referenceassessments: Sequence[Dict] = None,
         analysis_id: int = None,
-    ):
+    ) -> Tuple[assessment.AlleleAssessment, bool]:
         assert alleleassessment["allele_id"] == allele_id
 
         analysis: Optional[sample.Analysis] = None
@@ -154,7 +166,7 @@ class AssessmentCreator(object):
 
     def _create_or_reuse_referenceassessments(
         self, allele_id, user_id, referenceassessments, analysis_id=None
-    ):
+    ) -> Tuple[List[assessment.ReferenceAssessment], List[assessment.ReferenceAssessment]]:
         if not referenceassessments:
             return list(), list()
 

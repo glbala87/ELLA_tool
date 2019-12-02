@@ -1,15 +1,24 @@
 import logging
+from dataclasses import dataclass
 import datetime
 import pytz
-from typing import Dict, Optional
-from vardb.datamodel import assessment, sample
+from typing import Dict, Optional, Tuple
+from vardb.datamodel import assessment
 
 from api.schemas import AlleleReportSchema
 from api import ApiError
 
-
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
+
+
+@dataclass
+class AlleleReportCreatorResult:
+    created_allelereport: assessment.AlleleReport
+    reused_allelereport: assessment.AlleleReport
+
+    @property
+    def allelereport(self) -> assessment.AlleleReport:
+        return self.created_allelereport or self.reused_allelereport
 
 
 class AlleleReportCreator(object):
@@ -23,13 +32,13 @@ class AlleleReportCreator(object):
         allelereport: dict,
         alleleassessment: assessment.AlleleAssessment = None,
         analysis_id: int = None,
-    ):
+    ) -> AlleleReportCreatorResult:
         """
         If alleleassessment is provided, the allelereport will be connected to
         the alleleassessment. If not, it will be stored with alleleassessment_id empty.
         """
 
-        allelereport_obj, allelereport_reused = self._create_or_reuse_allelereport(
+        allelereport_obj, reused = self._create_or_reuse_allelereport(
             user_id,
             allele_id,
             allelereport,
@@ -37,30 +46,9 @@ class AlleleReportCreator(object):
             analysis_id=analysis_id,
         )
 
-        return allelereport_obj, allelereport_reused
-
-    def find_report_presented(self, report, existing_reports, error_if_not_found=True):
-        """
-        Find a report in list 'existing_reports' whose id == report['presented_allelereport_id']
-        """
-        match = next(
-            (
-                e
-                for e in existing_reports
-                if report["allele_id"] == e.allele_id
-                and "presented_allelereport_id" in report
-                and report["presented_allelereport_id"] == e.id
-            ),
-            None,
+        return AlleleReportCreatorResult(
+            allelereport_obj if not reused else None, allelereport_obj if reused else None
         )
-        if not match and error_if_not_found:
-            raise ApiError(
-                "Found no matching allele report for allele_id: {}, id: {}. Either the report is outdated or it doesn't exist.".format(
-                    report["allele_id"], report["presented_allelereport_id"]
-                )
-            )
-
-        return match
 
     def _create_or_reuse_allelereport(
         self,
@@ -69,7 +57,7 @@ class AlleleReportCreator(object):
         allelereport: Dict,
         alleleassessment: assessment.AlleleAssessment = None,
         analysis_id: int = None,
-    ):
+    ) -> Tuple[assessment.AlleleReport, bool]:
 
         assert allelereport["allele_id"] == allele_id
 

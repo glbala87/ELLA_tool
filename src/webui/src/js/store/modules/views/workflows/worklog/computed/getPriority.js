@@ -6,7 +6,7 @@ export default Compute(state`views.workflows.data.interpretationlogs`, (logs) =>
     if (!logs) {
         return null
     }
-    const sortedPriorities = Object.values(logs)
+    const sortedPriorities = logs.logs
         .sort(thenBy('date_created', -1))
         .filter((l) => l.priority !== null)
         .map((l) => l.priority)

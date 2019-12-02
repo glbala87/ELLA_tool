@@ -6,7 +6,6 @@ export default function updateMessages({ state }) {
     const showMessagesOnly = state.get('views.workflows.worklog.showMessagesOnly')
     const messages = []
 
-    console.log(logs)
     if (logs && logs.logs) {
         // Ids can overlap between objects, so rename the id for tracking
         // to work correctly
