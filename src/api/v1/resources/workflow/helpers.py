@@ -6,7 +6,7 @@ from collections import defaultdict
 from sqlalchemy import tuple_, or_
 from sqlalchemy.orm import joinedload
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene
+from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
 
 from api import schemas, ApiError, ConflictError
 from api.allelefilter.allelefilter import AlleleFilter
@@ -523,6 +523,33 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
             .count()
             == 1
         )
+
+    # Check annotation data
+    latest_annotation_id = (
+        session.query(annotation.Annotation.id)
+        .filter(
+            annotation.Annotation.allele_id == data["allele_id"],
+            annotation.Annotation.date_superceeded.is_(None),
+        )
+        .scalar()
+    )
+    if not latest_annotation_id == data["annotation_id"]:
+        raise ApiError(
+            "Cannot finalize: provided annotation_id does not match latest annotation id"
+        )
+    if data["custom_annotation_id"]:
+        latest_customannotation_id = (
+            session.query(annotation.CustomAnnotation.id)
+            .filter(
+                annotation.CustomAnnotation.allele_id == data["allele_id"],
+                annotation.CustomAnnotation.date_superceeded.is_(None),
+            )
+            .scalar()
+        )
+        if not latest_customannotation_id == data["custom_annotation_id"]:
+            raise ApiError(
+                "Cannot finalize: provided custom_annotation_id does not match latest annotation id"
+            )
 
     # Check that we can finalize allele
     workflow_type = "allele" if allele_id else "analysis"
