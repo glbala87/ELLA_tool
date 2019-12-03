@@ -15,13 +15,13 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class AssessmentCreatorResult:
-    created_alleleassessment: assessment.AlleleAssessment
-    reused_alleleassessment: assessment.AlleleAssessment
+    created_alleleassessment: Optional[assessment.AlleleAssessment]
+    reused_alleleassessment: Optional[assessment.AlleleAssessment]
     created_referenceassessments: List[assessment.ReferenceAssessment] = field(default_factory=list)
     reused_referenceassessments: List[assessment.ReferenceAssessment] = field(default_factory=list)
 
     @property
-    def alleleassessment(self) -> assessment.AlleleAssessment:
+    def alleleassessment(self) -> Optional[assessment.AlleleAssessment]:
         return self.created_alleleassessment or self.reused_alleleassessment
 
     @property
@@ -170,7 +170,7 @@ class AssessmentCreator(object):
         if not referenceassessments:
             return list(), list()
 
-        analysis: sample.Analysis = None
+        analysis: Optional[sample.Analysis] = None
         if analysis_id:
             analysis = (
                 self.session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()

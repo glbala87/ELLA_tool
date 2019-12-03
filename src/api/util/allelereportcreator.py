@@ -13,11 +13,11 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class AlleleReportCreatorResult:
-    created_allelereport: assessment.AlleleReport
-    reused_allelereport: assessment.AlleleReport
+    created_allelereport: Optional[assessment.AlleleReport]
+    reused_allelereport: Optional[assessment.AlleleReport]
 
     @property
-    def allelereport(self) -> assessment.AlleleReport:
+    def allelereport(self) -> Optional[assessment.AlleleReport]:
         return self.created_allelereport or self.reused_allelereport
 
 
@@ -61,7 +61,7 @@ class AlleleReportCreator(object):
 
         assert allelereport["allele_id"] == allele_id
 
-        existing_report = (
+        existing_report: Optional[assessment.AlleleReport] = (
             self.session.query(assessment.AlleleReport)
             .filter(
                 assessment.AlleleReport.allele_id == allele_id,
@@ -72,7 +72,6 @@ class AlleleReportCreator(object):
             .one_or_none()
         )
 
-        result_allelereport: Optional[assessment.AlleleReport] = None
         result_reused: bool = False
 
         # If existing, check that user saw the current previous version
@@ -84,6 +83,7 @@ class AlleleReportCreator(object):
                 )
 
         if allelereport.get("reuse"):
+            assert existing_report
             result_reused = True
             result_allelereport = existing_report
             log.debug("Reused report %s for allele %s", existing_report.id, allele_id)
