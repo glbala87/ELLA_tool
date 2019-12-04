@@ -30,7 +30,8 @@ app.component('workflowButtons', {
             startMode: state`views.workflows.startMode`,
             selectedInterpretation: getSelectedInterpretation,
             dirty: state`views.workflows.interpretation.dirty`,
-            user: state`app.user`
+            user: state`app.user`,
+            workflowLoaded: state`views.workflows.loaded`
         },
         'WorkflowButtons',
         [

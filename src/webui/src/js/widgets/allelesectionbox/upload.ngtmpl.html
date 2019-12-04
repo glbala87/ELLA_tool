@@ -1,10 +1,8 @@
 <label ng-if="$ctrl.mode === 'browse'" for="file-input" class="input-label">
-    <div class="id-upload upload-button" ng-disabled="$ctrl.readOnly || !$ctrl.isUploadEnabled()">
-        {{ $ctrl.buttontext }}
-    </div>
+    <div class="id-upload upload-button">{{ $ctrl.buttontext }}</div>
     <input
         type="file"
-        ng-disabled="$ctrl.readOnly ||  !$ctrl.isUploadEnabled()"
+        ng-disabled="$ctrl.readOnly ||  !$ctrl.isUploadEnabled() || $ctrl.ngDisabled"
         id="file-input"
         hidden="true"
     />

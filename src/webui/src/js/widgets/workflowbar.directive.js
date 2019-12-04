@@ -39,6 +39,7 @@ app.component('workflowbar', {
             analysis: state`views.workflows.data.analysis`,
             commentTemplates: state`app.commentTemplates`,
             config: state`app.config`,
+            workflowLoaded: state`views.workflows.loaded`,
             messageCount: state`views.workflows.worklog.messageCount`,
             workflowType: state`views.workflows.type`,
             selectedComponent: state`views.workflows.selectedComponent`,

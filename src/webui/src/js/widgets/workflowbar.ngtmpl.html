@@ -10,6 +10,7 @@
                 ng-change="$ctrl.componentChanged({selectedComponent: c})"
                 uib-btn-radio="c"
                 ng-repeat="c in $ctrl.componentKeys"
+                ng-disabled="!$ctrl.workflowLoaded"
                 >{{ c }}</label
             >
         </div>
@@ -17,10 +18,13 @@
     <section>
         <button
             ng-click="$ctrl.showGenepanelOverviewClicked({name: $ctrl.selectedGenepanel.name, version: $ctrl.selectedGenepanel.version})"
+            ng-disabled="!$ctrl.workflowLoaded"
         >
             Gene panel info
         </button>
-        <button ng-click="$ctrl.copyAllAlamutClicked()">Copy all to alamut</button>
+        <button ng-click="$ctrl.copyAllAlamutClicked()" ng-disabled="!$ctrl.workflowLoaded">
+            Copy all to alamut
+        </button>
         <div class="dropdown white" ng-if="$ctrl.showHistory()">
             <select
                 class="id-interpretationrounds-dropdown"
@@ -34,6 +38,7 @@
         <button
             ng-if="$ctrl.workflowType == 'analysis'"
             class="id-worklog"
+            ng-disabled="!$ctrl.workflowLoaded"
             ng-class="{'purple': $ctrl.messageCount > 0}"
             uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
             popover-class="interpretationlog-popover"
@@ -59,13 +64,17 @@
     <section>
         <section class="line-wrapper">
             <section>
-                <button class="id-copy-alamut" ng-click="$ctrl.copySelectedAlamutClicked()">
+                <button
+                    class="id-copy-alamut"
+                    ng-click="$ctrl.copySelectedAlamutClicked()"
+                    ng-disabled="!$ctrl.workflowLoaded"
+                >
                     Copy variant to alamut
                 </button>
                 <button
                     class="id-add-references"
                     ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAlleleId, category: 'references'})"
-                    ng-disabled="$ctrl.readOnly"
+                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
                     ng-if="!$ctrl.readOnly"
                 >
                     Add studies
@@ -79,15 +88,21 @@
                     popover-trigger="outsideClick"
                     popover-placement="left"
                     ng-if="!$ctrl.readOnly"
-                    ng-disabled="$ctrl.readOnly"
+                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
                 >
                     Add ACMG
                 </button>
-                <upload ng-if="!$ctrl.readOnly" mode="'browse'" buttontext="'Add attachment'">
+                <upload
+                    ng-if="!$ctrl.readOnly"
+                    mode="'browse'"
+                    buttontext="'Add attachment'"
+                    ng-disabled="!$ctrl.workflowLoaded"
+                >
                 </upload>
                 <button
                     class="id-collapse-all"
                     ng-click="$ctrl.collapseAllAlleleSectionboxClicked()"
+                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
                 >
                     Collapse all
                 </button>
@@ -105,6 +120,7 @@
                     </select>
                 </div>
                 <button
+                    ng-disabled="!$ctrl.workflowLoaded"
                     ng-if="$ctrl.workflowType == 'allele'"
                     class="id-worklog"
                     ng-class="{'purple': $ctrl.messageCount > 0}"
