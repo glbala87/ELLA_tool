@@ -676,3 +676,29 @@ analysis-selection {
         }
     }
 }
+
+.reference-detail {
+    .reference-title-container {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        padding-right: 2rem;
+        font-size: 1.4rem;
+        align-items: flex-start;
+
+        .reference-title {
+            padding-right: 2rem;
+        }
+
+        .reference-desc {
+            white-space: nowrap;
+        }
+    }
+}
+
+hr.reference-divider {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    border: 0;
+    border-top: 1px dashed $black-25;
+}

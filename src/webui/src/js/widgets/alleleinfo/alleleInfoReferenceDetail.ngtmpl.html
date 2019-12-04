@@ -1,6 +1,6 @@
-<section class="line-wrapper spaced">
-    <div>
-        <h5 class="wrap">
+<section class="reference-detail line-wrapper spaced">
+    <div class="reference-title-container">
+        <div class="reference-title">
             <a-clip
                 ng-if="$ctrl.reference.urls.pubmed"
                 class="id-reference-title"
@@ -10,8 +10,24 @@
             <span ng-if="!$ctrl.reference.urls.pubmed" class="id-reference-title">{{
                 $ctrl.reference.title
             }}</span>
-        </h5>
-        <p>{{ $ctrl.reference.formatted.shortDesc }}</p>
+        </div>
+        <div class="reference-desc">
+            {{ $ctrl.reference.formatted.shortDesc }}
+            <span ng-if="$ctrl.getSources().length"
+                >•
+                <span ng-repeat="source in $ctrl.getSources()">
+                    <span ng-switch="source">
+                        <span ng-switch-when="HGMD">
+                            <a-clip href="{{ $ctrl.allele.urls.hgmd }}">{{ source }}</a-clip>
+                        </span>
+                        <span ng-switch-when="CLINVAR">
+                            <a-clip href="{{ $ctrl.allele.urls.clinvar }}">{{ source }}</a-clip>
+                        </span>
+                        <span ng-switch-default>{{ source }}</span></span
+                    ></span
+                >
+            </span>
+        </div>
     </div>
     <div class="nowrap">
         <button
