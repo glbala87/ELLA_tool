@@ -476,7 +476,7 @@ class AnalysisActionFinalizeAlleleResource(LogRequestResource):
         """
 
         result = helpers.finalize_allele(
-            session, user.id, data, user_config, analysis_id=analysis_id
+            session, user.id, user.group.id, data, user_config, analysis_id=analysis_id
         )
         session.commit()
 

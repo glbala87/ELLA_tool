@@ -32,6 +32,7 @@ def upgrade():
     # - presented_allelereport_id has been renamed to allelereport_id
     # - The existing alleleassessment_id and allelereport_id fields indicated ,
     #
+    # Also, we've added usergroup_id to assessments/report, so we need to populate that
 
     # Add alleleassessment/allelereport to interpretation log
     op.add_column(
@@ -230,6 +231,44 @@ def upgrade():
         "alleleassessment",
         ["alleleassessment_id"],
         ["id"],
+    )
+
+    # Populate usergroup_id
+    op.add_column("alleleassessment", sa.Column("usergroup_id", sa.Integer(), nullable=True))
+    op.create_foreign_key(
+        op.f("fk_alleleassessment_usergroup_id_usergroup"),
+        "alleleassessment",
+        "usergroup",
+        ["usergroup_id"],
+        ["id"],
+    )
+
+    op.add_column("allelereport", sa.Column("usergroup_id", sa.Integer(), nullable=True))
+    op.create_foreign_key(
+        op.f("fk_allelereport_usergroup_id_usergroup"),
+        "allelereport",
+        "usergroup",
+        ["usergroup_id"],
+        ["id"],
+    )
+
+    op.add_column("referenceassessment", sa.Column("usergroup_id", sa.Integer(), nullable=True))
+    op.create_foreign_key(
+        op.f("fk_referenceassessment_usergroup_id_usergroup"),
+        "referenceassessment",
+        "usergroup",
+        ["usergroup_id"],
+        ["id"],
+    )
+
+    op.execute(
+        'UPDATE alleleassessment SET usergroup_id = "user".group_id FROM "user" WHERE "user".id = alleleassessment.user_id'
+    )
+    op.execute(
+        'UPDATE allelereport SET usergroup_id = "user".group_id FROM "user" WHERE "user".id = allelereport.user_id'
+    )
+    op.execute(
+        'UPDATE referenceassessment SET usergroup_id = "user".group_id FROM "user" WHERE "user".id = referenceassessment.user_id'
     )
 
 

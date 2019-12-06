@@ -48,6 +48,8 @@ class AlleleAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"))
+    usergroup = relationship("UserGroup", uselist=False)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )
@@ -111,6 +113,8 @@ class ReferenceAssessment(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"))
+    usergroup = relationship("UserGroup", uselist=False)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )
@@ -191,6 +195,8 @@ class AlleleReport(Base):
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
     user_id = Column(Integer, ForeignKey("user.id"))
     user = relationship("User", uselist=False)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"))
+    usergroup = relationship("UserGroup", uselist=False)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )

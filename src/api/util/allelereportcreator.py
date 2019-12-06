@@ -28,6 +28,7 @@ class AlleleReportCreator(object):
     def create_from_data(
         self,
         user_id: int,
+        usergroup_id: int,
         allele_id: int,
         allelereport: dict,
         alleleassessment: assessment.AlleleAssessment = None,
@@ -40,6 +41,7 @@ class AlleleReportCreator(object):
 
         allelereport_obj, reused = self._create_or_reuse_allelereport(
             user_id,
+            usergroup_id,
             allele_id,
             allelereport,
             alleleassessment=alleleassessment,
@@ -53,6 +55,7 @@ class AlleleReportCreator(object):
     def _create_or_reuse_allelereport(
         self,
         user_id: int,
+        usergroup_id: int,
         allele_id: int,
         allelereport: Dict,
         alleleassessment: assessment.AlleleAssessment = None,
@@ -95,6 +98,7 @@ class AlleleReportCreator(object):
                 allelereport
             ).data
             report_object_to_create.user_id = user_id
+            report_object_to_create.usergroup_id = usergroup_id
 
             if analysis_id:
                 report_object_to_create.analysis_id == analysis_id

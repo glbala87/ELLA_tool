@@ -6,6 +6,11 @@ from vardb.datamodel import assessment
 from api.schemas import users, referenceassessments
 
 
+class UsergroupSchema(Schema):
+    class Meta:
+        fields = ("id", "name")
+
+
 class AlleleAssessmentOverviewSchema(Schema):
     class Meta:
         title = "AlleleAssessment"
@@ -29,6 +34,8 @@ class AlleleAssessmentSchema(Schema):
             "custom_annotation_id",
             "previous_assessment_id",
             "user_id",
+            "usergroup_id",
+            "usergroup",
             "user",
             "classification",
             "seconds_since_update",
@@ -38,6 +45,7 @@ class AlleleAssessmentSchema(Schema):
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
+    usergroup = fields.Nested(UsergroupSchema)
     evaluation = fields.Field(required=False, default={})
     classification = fields.Field(required=True)
     date_created = fields.DateTime()

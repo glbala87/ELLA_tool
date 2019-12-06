@@ -366,7 +366,9 @@ class AlleleActionFinalizeAlleleResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_allele(session, user.id, data, user_config, allele_id=allele_id)
+        result = helpers.finalize_allele(
+            session, user.id, user.group.id, data, user_config, allele_id=allele_id
+        )
         session.commit()
 
         return result, 200

@@ -490,7 +490,9 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
     return interpretation, interpretation_next
 
 
-def finalize_allele(session, user_id, data, user_config, allele_id=None, analysis_id=None):
+def finalize_allele(
+    session, user_id, usergroup_id, data, user_config, allele_id=None, analysis_id=None
+):
     """
     Finalizes a single allele within an analysis.
 
@@ -567,6 +569,7 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
     # Create/reuse assessments
     assessment_result = AssessmentCreator(session).create_from_data(
         user_id,
+        usergroup_id,
         data["allele_id"],
         data["annotation_id"],
         data["alleleassessment"],
@@ -589,7 +592,12 @@ def finalize_allele(session, user_id, data, user_config, allele_id=None, analysi
 
     # Create/reuse allelereports
     report_result = AlleleReportCreator(session).create_from_data(
-        user_id, data["allele_id"], data["allelereport"], alleleassessment, analysis_id=analysis_id
+        user_id,
+        usergroup_id,
+        data["allele_id"],
+        data["allelereport"],
+        alleleassessment,
+        analysis_id=analysis_id,
     )
 
     if report_result.created_allelereport:

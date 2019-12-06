@@ -36,6 +36,7 @@ class AssessmentCreator(object):
     def create_from_data(
         self,
         user_id: int,
+        usergroup_id: int,
         allele_id: int,
         annotation_id: int,
         alleleassessment: Dict,
@@ -53,12 +54,13 @@ class AssessmentCreator(object):
         """
 
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(
-            allele_id, user_id, referenceassessments, analysis_id=analysis_id
+            allele_id, user_id, usergroup_id, referenceassessments, analysis_id=analysis_id
         )
 
         aa, reused = self._create_or_reuse_alleleassessment(
             allele_id,
             user_id,
+            usergroup_id,
             annotation_id,
             alleleassessment,
             custom_annotation_id=custom_annotation_id,
@@ -74,6 +76,7 @@ class AssessmentCreator(object):
         self,
         allele_id: int,
         user_id: int,
+        usergroup_id: int,
         annotation_id: int,
         alleleassessment: Dict,
         custom_annotation_id: int = None,
@@ -123,6 +126,7 @@ class AssessmentCreator(object):
             attachment_ids = alleleassessment.pop("attachment_ids")
             assessment_obj = AlleleAssessmentSchema(strict=True).load(alleleassessment).data
             assessment_obj.user_id = user_id
+            assessment_obj.usergroup_id = usergroup_id
             assessment_obj.referenceassessments = referenceassessments
             assessment_obj.annotation_id = annotation_id
             assessment_obj.custom_annotation_id = custom_annotation_id
@@ -165,7 +169,12 @@ class AssessmentCreator(object):
         return result_alleleassessment, result_reused
 
     def _create_or_reuse_referenceassessments(
-        self, allele_id, user_id, referenceassessments, analysis_id=None
+        self,
+        allele_id: int,
+        user_id: int,
+        usergroup_id: int,
+        referenceassessments: Optional[Sequence[dict]],
+        analysis_id: int = None,
     ) -> Tuple[List[assessment.ReferenceAssessment], List[assessment.ReferenceAssessment]]:
         if not referenceassessments:
             return list(), list()
@@ -206,6 +215,7 @@ class AssessmentCreator(object):
             else:
                 assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
                 assessment_obj.user_id = user_id
+                assessment_obj.usergroup_id = usergroup_id
 
                 # Fill in assessment data through analysis
                 if analysis:
