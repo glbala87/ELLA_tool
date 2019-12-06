@@ -12,8 +12,13 @@ export default function canFinalizeAllele(alleleId) {
         (alleleId, type, alleles, config, get) => {
             const interpretation = get(getSelectedInterpretation)
 
+            const result = {
+                canFinalize: false,
+                messages: []
+            }
+
             if (!alleleId || !alleles || !interpretation) {
-                return false
+                return result
             }
 
             let finalizeRequirementsConfig = null
@@ -27,11 +32,17 @@ export default function canFinalizeAllele(alleleId) {
             }
 
             if (!finalizeRequirementsConfig) {
-                return false
+                result.canFinalize = false
+                result.messages.push(
+                    'Your user group is missing valid configuration. Contact support.'
+                )
+                return result
             }
 
             if (interpretation.status !== 'Ongoing') {
-                return false
+                result.canFinalize = false
+                result.messages.push('Interpretation is not Ongoing')
+                return result
             }
 
             const metRequirements = {}
@@ -46,6 +57,11 @@ export default function canFinalizeAllele(alleleId) {
                     metRequirements.workflow_status = true
                 } else {
                     metRequirements.workflow_status = false
+                    result.messages.push(
+                        `You are not in one of the required workflow stages: ${finalizeRequirementsConfig.workflow_status.join(
+                            ', '
+                        )}`
+                    )
                 }
             }
 
@@ -56,7 +72,13 @@ export default function canFinalizeAllele(alleleId) {
             }
 
             metRequirements.classification = Boolean(alleleState.alleleassessment.classification)
-            return Object.values(metRequirements).every((v) => v)
+            if (!metRequirements.classification) {
+                result.messages.push(
+                    `Variant is missing classification. Please select a classification from the dropdown.`
+                )
+            }
+            result.canFinalize = Object.values(metRequirements).every((v) => v)
+            return result
         }
     )
 }

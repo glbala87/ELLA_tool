@@ -256,7 +256,7 @@ app.component('alleleSectionbox', {
                     },
                     canFinalize() {
                         return Boolean(
-                            $ctrl.canFinalizeSelectedAllele ||
+                            $ctrl.canFinalizeSelectedAllele.canFinalize ||
                                 ($ctrl.isAlleleAssessmentReused && $ctrl.alleleReportUpdated)
                         )
                     },
@@ -265,6 +265,9 @@ app.component('alleleSectionbox', {
                             return false
                         }
                         return $ctrl.isAlleleAssessmentReused ? $ctrl.alleleReportUpdated : true
+                    },
+                    finalizeTitle() {
+                        return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
                     }
                 })
             }

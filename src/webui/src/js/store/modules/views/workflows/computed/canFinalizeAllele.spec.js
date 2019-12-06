@@ -101,7 +101,10 @@ describe('canFinalizeAllele', function() {
             state,
             props: {}
         })
-        expect(result).toEqual(false)
+        expect(result.canFinalize).toEqual(false)
+        expect(result.messages).toEqual([
+            'Your user group is missing valid configuration. Contact support.'
+        ])
     })
 
     it('requires ongoing interpretation', function() {
@@ -111,7 +114,8 @@ describe('canFinalizeAllele', function() {
             state,
             props: {}
         })
-        expect(result).toEqual(false)
+        expect(result.canFinalize).toEqual(false)
+        expect(result.messages).toEqual(['Interpretation is not Ongoing'])
     })
 
     it('checks workflow status if required', function() {
@@ -123,7 +127,10 @@ describe('canFinalizeAllele', function() {
             state,
             props: {}
         })
-        expect(result).toEqual(false)
+        expect(result.canFinalize).toEqual(false)
+        expect(result.messages).toEqual([
+            'You are not in one of the required workflow stages: Review'
+        ])
     })
 
     it('checks classification', function() {
@@ -136,7 +143,10 @@ describe('canFinalizeAllele', function() {
             state,
             props: {}
         })
-        expect(result).toEqual(false)
+        expect(result.canFinalize).toEqual(false)
+        expect(result.messages).toEqual([
+            'Variant is missing classification. Please select a classification from the dropdown.'
+        ])
 
         state = createState({
             workflowStatus: 'Review',
@@ -147,6 +157,7 @@ describe('canFinalizeAllele', function() {
             state,
             props: {}
         })
-        expect(result).toEqual(true)
+        expect(result.canFinalize).toEqual(true)
+        expect(result.messages).toEqual([])
     })
 })
