@@ -159,16 +159,13 @@ function _prepareReferenceAssessmentsPayload(
                 allele_id: referenceState.allele_id
             }
 
-            if (genepanelName && genepanelVersion) {
-                ra.genepanel_name = genepanelName
-                ra.genepanel_version = genepanelVersion
-            }
-
             // If id is included, we're reusing an existing one.
             if ('id' in referenceState) {
                 ra.id = referenceState.id
             } else {
                 // Fill in fields expected by backend
+                ra.genepanel_name = genepanelName
+                ra.genepanel_version = genepanelVersion
                 ra.evaluation = referenceState.evaluation || {}
             }
             referenceassessments_data.push(ra)
