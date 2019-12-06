@@ -2122,6 +2122,7 @@ button.toast-close-button {
         background-color: $green-75 !important;
     }
     &.hidden {
+        overflow: hidden;
         width: 0;
         padding-left: 0;
         padding-right: 0;
