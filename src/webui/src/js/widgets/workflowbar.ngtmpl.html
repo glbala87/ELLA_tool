@@ -40,12 +40,7 @@
             class="id-worklog"
             ng-disabled="!$ctrl.workflowLoaded"
             ng-class="{'purple': $ctrl.messageCount > 0}"
-            uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
-            popover-class="interpretationlog-popover"
-            popover-append-to-body="true"
-            popover-title="Work log"
-            popover-trigger="outsideClick"
-            popover-placement="right"
+            tippy-popover="$ctrl.interpretationLogPopover.templateUrl"
         >
             Work log ({{ $ctrl.messageCount }})
         </button>
@@ -81,12 +76,7 @@
                 </button>
                 <button
                     class="id-add-acmg"
-                    uib-popover-template="$ctrl.acmgPopover.templateUrl"
-                    popover-class="add-acmg-popover"
-                    popover-append-to-body="true"
-                    popover-title="Add ACMG criterion"
-                    popover-trigger="outsideClick"
-                    popover-placement="left"
+                    tippy-popover="$ctrl.acmgPopover.templateUrl"
                     ng-if="!$ctrl.readOnly"
                     ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
                 >
@@ -124,12 +114,7 @@
                     ng-if="$ctrl.workflowType == 'allele'"
                     class="id-worklog"
                     ng-class="{'purple': $ctrl.messageCount > 0}"
-                    uib-popover-template="$ctrl.interpretationLogPopover.templateUrl"
-                    popover-class="interpretationlog-popover"
-                    popover-append-to-body="true"
-                    popover-title="Work log"
-                    popover-trigger="outsideClick"
-                    popover-placement="right"
+                    tippy-popover="$ctrl.interpretationLogPopover.templateUrl"
                 >
                     Work log ({{ $ctrl.messageCount }})
                 </button>

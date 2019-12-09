@@ -145,6 +145,45 @@ input[type='range'] {
     color: $green !important;
 }
 
+// tippy
+.tippy-tooltip.la-theme {
+    background-color: $white-95;
+    border: 1px solid $black-05;
+    box-shadow: 0 0 20px 4px rgba(154, 161, 177, 0.15), 0 4px 80px -8px rgba(36, 40, 47, 0.25),
+        0 4px 4px -2px rgba(91, 94, 105, 0.15);
+    border-radius: 0;
+    color: $black-95;
+    font-family: $full;
+    font-size: 1.4rem;
+
+    &[data-placement^='top'] .tippy-arrow {
+        border-top-color: $white-95;
+    }
+    &[data-placement^='bottom'] .tippy-arrow {
+        border-bottom-color: $white-95;
+    }
+    &[data-placement^='left'] .tippy-arrow {
+        border-left-color: $white-95;
+    }
+    &[data-placement^='right'] .tippy-arrow {
+        border-right-color: $white-95;
+    }
+
+    .tippy-content.clipboard {
+        display: flex;
+        cursor: pointer;
+        &:hover {
+            color: $black-75;
+        }
+        &:before {
+            content: url('data:image/svg+xml; utf8, <svg id="i-clipboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4" /></svg>');
+            height: 100%;
+            padding-right: 0.5rem;
+        }
+    }
+
+}
+
 .non-production-warning {
     position: fixed;
     bottom: calc(50vh - 28rem);
