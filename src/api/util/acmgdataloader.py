@@ -88,7 +88,7 @@ class ACMGDataLoader(object):
         for ra in reference_assessments:
             ra_per_allele[ra["allele_id"]].append(ra)
 
-        frequency_filter = FrequencyFilter(self.session)
+        frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
 
         acmg_frequency_config = resolver.get_commoness_config()

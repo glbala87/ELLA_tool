@@ -82,7 +82,13 @@ class TestAnnotationShadow(object):
 
         # We need to recreate the annotation shadow tables,
         # since we want to use our test config
+        # Delete existing filterconfigs and usergroups to avoid errors
+        # when creating new shadow tables
+        session.execute("DELETE FROM usergroupfilterconfig")
+        session.execute("DELETE FROM filterconfig")
+        session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
+        session.commit()
 
         columns = [
             i[0]

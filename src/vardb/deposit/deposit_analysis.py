@@ -22,6 +22,7 @@ import jsonschema
 from sqlalchemy import tuple_
 from api.util import queries
 from vardb.util import DB, vcfiterator
+from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (
     AnalysisImporter,
     AnnotationImporter,
@@ -91,6 +92,7 @@ def import_filterconfigs(session, fc_configs):
             else:
                 result["created"] += 1
 
+            annotationshadow.check_filterconfig(filterconfig)
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)
             session.flush()

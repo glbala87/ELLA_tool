@@ -13,10 +13,19 @@ from vardb.datamodel import allele, annotation, gene, annotationshadow, assessme
 # import logging
 # logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
 
+GLOBAL_CONFIG = {
+    "frequencies": {
+        "groups": {
+            "external": {"ExAC": ["G", "FIN"], "1000g": ["G"], "esp6500": ["AA", "EA"]},
+            "internal": {"internalDB": ["AF"]},
+        }
+    }
+}
+
 
 COMMONESS_FILTER_CONFIG = {
     "groups": {
-        "external": {"GNOMAD_EXOMES": ["G", "FIN"], "GNOMAD_GENOMES": ["G"]},
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"]},
         "internal": {"internalDB": ["AF"]},
     },
     "thresholds": {
@@ -29,7 +38,7 @@ COMMONESS_FILTER_CONFIG = {
             "internal": {"hi_freq_cutoff": 0.05, "lo_freq_cutoff": 0.01},
         },
     },
-    "num_thresholds": {"GNOMAD_EXOMES": {"G": 2000, "FIN": 2000}},
+    "num_thresholds": {"ExAC": {"G": 2000, "FIN": 2000}},
     "genes": {
         "300000": {
             "thresholds": {
@@ -42,14 +51,14 @@ COMMONESS_FILTER_CONFIG = {
 
 FILTER_ALLELES_FILTER_CONFIG = {
     "groups": {
-        "external": {"GNOMAD_EXOMES": ["G", "FIN"], "GNOMAD_GENOMES": ["G"]},
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"]},
         "internal": {"internalDB": ["AF"]},
     },
     "thresholds": {
         "AD": {"external": 0.005, "internal": 0.05},
         "default": {"external": 0.3, "internal": 0.05},
     },
-    "num_thresholds": {"GNOMAD_EXOMES": {"G": 2000, "FIN": 2000}},
+    "num_thresholds": {"ExAC": {"G": 2000, "FIN": 2000}},
     "genes": {"300000": {"thresholds": {"external": 0.5, "internal": 0.7}}},
 }
 
@@ -176,6 +185,11 @@ class TestFrequencyFilter(object):
 
         # We need to recreate the annotation shadow tables,
         # since we want to use our test config
+        # Delete existing filterconfigs and usergroups to avoid errors
+        # when creating new shadow tables
+        session.execute("DELETE FROM usergroupfilterconfig")
+        session.execute("DELETE FROM filterconfig")
+        session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
         gp = create_genepanel()
@@ -202,7 +216,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
                 },  # Above 0.005  # Above 2000
                 "transcripts": [
                     {
@@ -222,7 +236,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.25}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.25}, "num": {"G": 9000}}
                 },  # Between 0.3 and 0.1  # Above 2000
                 "transcripts": [
                     {
@@ -241,7 +255,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.001}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.001}, "num": {"G": 9000}}
                 },  # Less than 0.1  # Above 2000
                 "transcripts": [
                     {
@@ -276,7 +290,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.3},
                         "num": {"G": 9000},
                     }  # Less than 0.5, greater than 0.1  # Above 2000
@@ -298,7 +312,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.006},  # Less than GENE2 0.1, greater than AD default 0.005
                         "num": {"G": 9000},  # Above 2000
                     }
@@ -326,7 +340,7 @@ class TestFrequencyFilter(object):
         # # AD low freq for frequencies below 0.005
         # a1adg4 = create_allele_with_annotation(session, {
         #     'frequencies': {
-        #         'GNOMAD_EXOMES': {
+        #         'ExAC': {
         #             'freq': {
         #                 'G': 0.00001  # Greater than GENE4 1e-12, less than AD default 0.005
         #             },
@@ -352,7 +366,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session)
+        ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
         allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id, a1g2.id, a1adg2.id]
         result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
@@ -371,7 +385,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.0051}, "num": {"G": 1999}}
+                    "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 1999}}
                 },  # Above 0.005  # Below 2000
                 "transcripts": [
                     {
@@ -389,11 +403,11 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.0051, "FIN": 0.0051},  # Above 0.005  # Above 0.005
                         "num": {"G": 1999, "FIN": 2000},  # Below 2000  # Equal 2000
                     },
-                    "GNOMAD_GENOMES": {"freq": {"G": 0.01}},  # Above 0.005
+                    "1000g": {"freq": {"G": 0.01}},  # Above 0.005
                 },
                 "transcripts": [
                     {
@@ -411,11 +425,11 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.0051},
                         "num": {"G": 1999},
                     },  # Above 0.005  # Below 2000
-                    "GNOMAD_GENOMES": {"freq": {"G": 0.01}},  # Above 0.005
+                    "1000g": {"freq": {"G": 0.01}},  # Above 0.005
                 },
                 "transcripts": [
                     {
@@ -432,7 +446,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.6}, "num": {"G": 2001}}
+                    "ExAC": {"freq": {"G": 0.6}, "num": {"G": 2001}}
                 },  # Above 0.5  # Above 2000
                 "transcripts": [
                     {
@@ -447,7 +461,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session)
+        ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
         allele_info = {
             anum1.id: (anum1, anum1anno),
@@ -476,11 +490,11 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.0051},
                         "num": {"G": 9000},
                     },  # Above 0.005 -> common  # Above 2000
-                    "GNOMAD_GENOMES": {"freq": {"G": 0.0001}},  # Below 0.001 -> low_freq
+                    "1000g": {"freq": {"G": 0.0001}},  # Below 0.001 -> low_freq
                 },
                 "transcripts": [
                     {
@@ -507,11 +521,11 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.002},  # Between 0.005 and 0.001 -> less_common
                         "num": {"G": 9000},  # Above 2000
                     },
-                    "GNOMAD_GENOMES": {"freq": {"G": 0.0001}},  # Below 0.001 -> low_freq
+                    "1000g": {"freq": {"G": 0.0001}},  # Below 0.001 -> low_freq
                 },
                 "transcripts": [
                     {
@@ -538,7 +552,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.0001},
                         "num": {"G": 9000},
                     }  # Below 0.001 -> low_freq  # Above 2000
@@ -583,7 +597,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
                 },  # Above 0.005  # Above 2000
                 "transcripts": [
                     {
@@ -601,7 +615,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.31}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.31}, "num": {"G": 9000}}
                 },  # Above 0.30  # Above 2000
                 "transcripts": [
                     {
@@ -620,7 +634,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.31}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.31}, "num": {"G": 9000}}
                 },  # Above 0.30  # Above 2000
                 "transcripts": [
                     {
@@ -656,7 +670,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {
+                    "ExAC": {
                         "freq": {"G": 0.0051},
                         "num": {"G": 9000},
                     },  # Above 0.005  # Above 2000
@@ -679,7 +693,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.005}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.005}, "num": {"G": 9000}}
                 },  # == 0.005  # Above 2000
                 "transcripts": [
                     {
@@ -694,7 +708,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session)
+        ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
         # allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
         allele_info = {
@@ -720,7 +734,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.0049}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.0049}, "num": {"G": 9000}}
                 },  # Below 0.005  # Above 2000
                 "transcripts": [
                     {
@@ -738,7 +752,7 @@ class TestFrequencyFilter(object):
             session,
             {
                 "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0.2999}, "num": {"G": 9000}}
+                    "ExAC": {"freq": {"G": 0.2999}, "num": {"G": 9000}}
                 },  # Below 0.3  # Above 2000
                 "transcripts": [
                     {
@@ -801,9 +815,7 @@ class TestFrequencyFilter(object):
         na4, _ = create_allele_with_annotation(
             session,
             {
-                "frequencies": {
-                    "GNOMAD_EXOMES": {"freq": {"G": 0}, "num": {"G": 9000}}
-                },  # Above 2000
+                "frequencies": {"ExAC": {"freq": {"G": 0}, "num": {"G": 9000}}},  # Above 2000
                 "transcripts": [
                     {
                         "symbol": "GENE1AD",
@@ -817,7 +829,7 @@ class TestFrequencyFilter(object):
 
         session.commit()
 
-        ff = FrequencyFilter(session)
+        ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
         allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id]
         result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)

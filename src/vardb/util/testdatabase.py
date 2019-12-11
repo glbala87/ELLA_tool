@@ -3,7 +3,9 @@ import subprocess
 import tempfile
 from sqlalchemy.pool import NullPool
 from vardb.deposit.deposit_testdata import DepositTestdata
+from vardb.datamodel.annotationshadow import update_annotation_shadow_columns
 from api import db
+from api.config import config
 
 
 class TestDatabase(object):
@@ -64,6 +66,8 @@ class TestDatabase(object):
                 shell=True,
                 stdout=f,
             )
+
+        update_annotation_shadow_columns(config)
 
     def cleanup(self):
         print("Disconnecting...")

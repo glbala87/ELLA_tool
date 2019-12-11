@@ -5,7 +5,7 @@ from sqlalchemy import tuple_
 from sqlalchemy.orm.exc import NoResultFound
 
 import vardb.datamodel
-from vardb.datamodel import DB, user, gene, sample
+from vardb.datamodel import DB, user, gene, sample, annotationshadow
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +57,8 @@ def import_groups(session, groups, log=log.info):
             log("User group {} already exists, updating record...".format(group_data["name"]))
             for k, v in group_data.items():
                 setattr(existing_group, k, v)
+
+        annotationshadow.check_usergroup_config(existing_group if existing_group else new_group)
 
     session.commit()
 

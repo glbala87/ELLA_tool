@@ -10,9 +10,10 @@ from api.util import queries
 
 
 class FrequencyFilter(object):
-    def __init__(self, session: Session, config: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, session: Session, config: Dict[str, Any]) -> None:
         self.session = session
         self.config = config
+        annotationshadow.check_db_consistency(self.session, self.config)
 
     @staticmethod
     def _get_freq_num_threshold_filter(
@@ -83,6 +84,7 @@ class FrequencyFilter(object):
         )
         if num_filter is not None:
             freq_key_filters.append(num_filter)
+
         freq_key_filters.append(
             getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
             >= thresholds["hi_freq_cutoff"]
@@ -406,6 +408,9 @@ class FrequencyFilter(object):
             }
         }
         """
+        annotationshadow.check_db_consistency(
+            self.session, {"frequencies": filter_config}, subset=True
+        )
 
         # First get all genepanel object for the genepanels given in input
         genepanels = (
@@ -455,6 +460,7 @@ class FrequencyFilter(object):
                     )
                     .distinct()
                 )
+
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
         # Create final result structure.
