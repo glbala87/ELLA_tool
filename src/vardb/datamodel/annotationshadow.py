@@ -1,6 +1,9 @@
 from vardb.datamodel import Base
-from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, text, func
+from vardb.datamodel import sample, user
+from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, func, Table
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import mapper, class_mapper
+from sqlalchemy.orm.exc import UnmappedClassError
 
 from api.config import config as global_config
 
@@ -39,9 +42,9 @@ def iter_freq_groups(config):
                 yield freq_provider, freq_key
 
 
-class AnnotationShadowFrequency(Base):
+# Note: not subclassing Base, this is handled in update_annotation_shadow_columns
+class AnnotationShadowFrequency:
     __tablename__ = "annotationshadowfrequency"
-
     id = Column(Integer, primary_key=True)
     allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
 
@@ -52,24 +55,57 @@ class AnnotationShadowFrequency(Base):
 # AnnotationShadowFrequency instance.
 # See create_shadow_tables().
 def update_annotation_shadow_columns(config):
+    # Use columns from config to create mapping of AnnotationShadowFrequency
+    # Note: This function does not guarantee that the mapped class matches
+    # the table in the database.
+    try:
+        m = class_mapper(AnnotationShadowFrequency)
+        m.dispose()
+    except UnmappedClassError:
+        # Class is not mapped yet
+        pass
 
-    # Dynamically add frequency columns
+    if "annotationshadowfrequency" in Base.metadata.tables:
+        Base.metadata.remove(Base.metadata.tables["annotationshadowfrequency"])
+    annotationshadowfreqency = get_annotationshadowfrequency_table(config)
+    mapper(AnnotationShadowFrequency, annotationshadowfreqency)
+    AnnotationShadowFrequency.__table__ = annotationshadowfreqency
+
+
+def iter_config_columns(config):
     for freq_provider, freq_key in iter_freq_groups(config):
-        freq_column_name = freq_provider + "." + freq_key
-        freq_num_column_name = freq_provider + "_num." + freq_key
+        yield freq_provider + "." + freq_key, Float
+        yield freq_provider + "_num." + freq_key, Integer
 
-        # Add frequency
-        if not hasattr(AnnotationShadowFrequency, freq_column_name):
-            setattr(AnnotationShadowFrequency, freq_column_name, Column(Float))
 
-        # Add frequency number, e.g. 'ExAC_num.SAS'
-        if not hasattr(AnnotationShadowFrequency, freq_num_column_name):
-            setattr(AnnotationShadowFrequency, freq_num_column_name, Column(Integer))
+def get_annotationshadowfrequency_table(config, name="annotationshadowfrequency"):
+    return Table(
+        name,
+        Base.metadata,
+        Column("id", Integer, primary_key=True),
+        Column("allele_id", ForeignKey("allele.id"), index=True),
+        *[Column(c[0], c[1]) for c in iter_config_columns(config)]
+    )
 
 
 # By default, create using app global config
 # which is what we want in production
 update_annotation_shadow_columns(global_config)
+
+
+def check_db_consistency(session, config, subset=False):
+    "Check that the config defines the same (or a subset) frequency shadow table as the current table in the database"
+    column_res = session.execute(
+        "select column_name from information_schema.columns where table_schema='public' and table_name='annotationshadowfrequency';"
+    )
+    db_column_names = set([c[0] for c in column_res]) - set(["id", "allele_id"])
+
+    if subset:
+        assert set([c[0] for c in iter_config_columns(config)]) - set(db_column_names) == set()
+    else:
+        assert set([c[0] for c in iter_config_columns(config)]) == set(
+            db_column_names
+        ), "{}\n{}".format(db_column_names, set([c[0] for c in iter_config_columns(config)]))
 
 
 def create_trigger_sql(config):
@@ -144,6 +180,23 @@ def create_trigger_sql(config):
         END;
     $$;
 
+    CREATE OR REPLACE FUNCTION insert_tmpannotationshadowfrequency(allele_id INTEGER, annotations JSONB) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+        BEGIN
+            INSERT INTO tmp_annotationshadowfrequency
+                (
+                    allele_id,
+                    {frequency_insert_into}
+                )
+                VALUES (
+                    allele_id,
+                    {frequency_values}
+                );
+
+        END;
+    $$;
+
     CREATE OR REPLACE FUNCTION delete_annotationshadow(al_id INTEGER) RETURNS void
     LANGUAGE plpgsql
     AS $$
@@ -185,6 +238,65 @@ def create_trigger_sql(config):
     )
 
 
+class MissingColumnError(AssertionError):
+    pass
+
+
+def _check_groups(frequency_groups, column_names=None):
+    "Check that the freq_provider and key, e.g. GNOMAD_EXOMES G is represented in AnnotationShadowFrequency"
+    existing_columns = set(AnnotationShadowFrequency.__table__.columns.keys()) - set(
+        ["id", "allele_id"]
+    )
+
+    frequency_group_columns = set(
+        c[0] for c in iter_config_columns({"frequencies": {"groups": frequency_groups}})
+    )
+    if frequency_group_columns - existing_columns:
+        raise MissingColumnError(
+            "AnnotationShadowFrequency missing column(s) {}. Fix global config, and rebuild shadow tables".format(
+                ", ".join(frequency_group_columns - existing_columns)
+            )
+        )
+
+
+def check_filterconfig(filterconfig):
+    for f in filterconfig["filters"]:
+        if f["name"] != "frequency":
+            continue
+        _check_groups(f["config"]["groups"])
+
+
+def check_usergroup_config(usergroup):
+    if usergroup.config is not None:
+        _check_groups(usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {}))
+
+
+def check_filterconfig_and_acmg_groups(session):
+
+    filterconfigs = session.query(
+        sample.FilterConfig.id, sample.FilterConfig.name, sample.FilterConfig.filterconfig
+    ).filter(sample.FilterConfig.active.is_(True))
+    for id, name, fc in filterconfigs:
+        try:
+            check_filterconfig(fc)
+        except MissingColumnError:
+            raise MissingColumnError(
+                "Column not present used in filterconfig {} ({})".format(id, name)
+            )
+
+    usergroup_configs = session.query(user.UserGroup)
+
+    for usergroup in usergroup_configs:
+        try:
+            check_usergroup_config(usergroup)
+        except MissingColumnError:
+            raise MissingColumnError(
+                "Column not present used in the ACMG config for usergroup {} ({}).".format(
+                    usergroup.id, usergroup.name
+                )
+            )
+
+
 def create_shadow_tables(session, config, create_transcript=True, create_frequency=True):
     """
     Drops (if existing) and (re)creates the annotation shadow tables,
@@ -198,22 +310,36 @@ def create_shadow_tables(session, config, create_transcript=True, create_frequen
     as the rest of the incoming session (?). All actions might therefore not
     happen within one transaction.
     """
-    update_annotation_shadow_columns(config)
+    session.execute(create_trigger_sql(config))
 
     if create_transcript:
         AnnotationShadowTranscript.__table__.drop(session.connection(), checkfirst=True)
         AnnotationShadowTranscript.__table__.create(session.connection())
-    if create_frequency:
-        AnnotationShadowFrequency.__table__.drop(session.connection(), checkfirst=True)
-        AnnotationShadowFrequency.__table__.create(session.connection())
-
-    session.execute(create_trigger_sql(config))
-
-    if create_transcript:
         session.execute(
             "SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
         )
     if create_frequency:
-        session.execute(
-            "SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
+        # Create annotationshadowfrequency in a temp table, insert all data and overwrite existing annotationshadowfrequency table
+        tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
+            config, name="tmp_annotationshadowfrequency"
         )
+        conn = session.connection()
+        tmp_annotationshadowfrequency.create(conn)
+        conn.execute(
+            "SELECT insert_tmpannotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL;"
+            "DROP TABLE IF EXISTS annotationshadowfrequency;"
+            "ALTER TABLE tmp_annotationshadowfrequency RENAME TO annotationshadowfrequency;"
+            "ALTER INDEX pk_tmp_annotationshadowfrequency RENAME TO pk_annotationshadowfrequency;"
+            "ALTER INDEX ix_tmp_annotationshadowfrequency_allele_id RENAME TO ix_annotationshadowfrequency_allele_id;"
+            "DROP FUNCTION IF EXISTS insert_tmpannotationshadowfrequency"
+        )
+
+        # Remove temporary table from metadata
+        Base.metadata.remove(tmp_annotationshadowfrequency)
+
+        # Map AnnotationShadowFrequency using the same config used to refresh the table
+        update_annotation_shadow_columns(config)
+
+        # Check that all filterconfigs and usergroups' ACMG-configuration are still valid,
+        # given the possible change in columns
+        check_filterconfig_and_acmg_groups(session)
