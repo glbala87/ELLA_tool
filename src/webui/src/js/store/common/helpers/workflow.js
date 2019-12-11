@@ -109,13 +109,7 @@ function _getAlleleReferences(allele, references) {
     return findReferencesFromIds(references, alleleReferenceIds).references
 }
 
-function _prepareAlleleAssessmentPayload(
-    allele,
-    allelestate,
-    genepanelName,
-    genepanelVersion,
-    analysisId = null
-) {
+function _prepareAlleleAssessmentPayload(allele, allelestate, genepanelName, genepanelVersion) {
     const assessment_data = {
         allele_id: allele.id
     }

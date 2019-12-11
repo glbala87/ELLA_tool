@@ -15,15 +15,15 @@
                 ng-repeat="control in $ctrl.section.controls"
                 ng-if="$ctrl.showControls()"
             >
-                <confirm-button
+                <button
                     class="id-finalize-button"
                     ng-if="control == 'finalize' && $ctrl.showFinalize()"
                     ng-disabled="!$ctrl.canFinalize()"
-                    confirm-action="$ctrl.finalizeAllele"
+                    ng-click="$ctrl.finalizeAllele()"
                     title="{{ $ctrl.finalizeTitle() }}"
                 >
                     {{ $ctrl.getFinalizeButtonText() }}
-                </confirm-button>
+                </button>
 
                 <confirm-button
                     class="id-undo-reevaluate"

@@ -252,7 +252,7 @@ app.component('alleleSectionbox', {
                         if ($ctrl.isAlleleAssessmentReused) {
                             return 'Update report'
                         }
-                        return $ctrl.hasExistingAlleleAssessment ? 'Update' : 'Create'
+                        return 'Finalize'
                     },
                     canFinalize() {
                         return Boolean(
