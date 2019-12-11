@@ -134,7 +134,7 @@ class AssessmentCreator(object):
             # If analysis_id provided, link data through analysis for safety
             # If no analysis, genepanel was loaded using schema above.
             if analysis:
-                assessment_obj.analysis_id == analysis_id
+                assessment_obj.analysis_id = analysis_id
                 assessment_obj.genepanel_name = analysis.genepanel_name
                 assessment_obj.genepanel_version = analysis.genepanel_version
             elif not (

@@ -101,7 +101,7 @@ class AlleleReportCreator(object):
             report_object_to_create.usergroup_id = usergroup_id
 
             if analysis_id:
-                report_object_to_create.analysis_id == analysis_id
+                report_object_to_create.analysis_id = analysis_id
 
             # Check if there's an existing allelereport for this allele. If so, we want to supercede it
             if existing_report:
