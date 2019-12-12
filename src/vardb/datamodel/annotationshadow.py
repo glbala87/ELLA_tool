@@ -4,12 +4,27 @@ from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, 
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import mapper, class_mapper
 from sqlalchemy.orm.exc import UnmappedClassError
+from typing import Any
 
 from api.config import config as global_config
 
 
-class AnnotationShadowTranscript:
+# Note: not subclassing Base, this is handled by explicitly mapping below
+class _AnnotationShadowTranscript(object):
     pass
+
+
+# Set type Any. Mypy doesn't handle instrumented classes
+AnnotationShadowTranscript: Any = _AnnotationShadowTranscript
+
+
+# Note: not subclassing Base, this is handled in update_annotation_shadow_columns
+class _AnnotationShadowFrequency(object):
+    pass
+
+
+# Set type Any. Mypy doesn't handle instrumented classes
+AnnotationShadowFrequency: Any = _AnnotationShadowFrequency
 
 
 def iter_freq_groups(config):
@@ -20,11 +35,6 @@ def iter_freq_groups(config):
         ].items():  # 'ExAC', ['G', 'SAS', ...]
             for freq_key in freq_keys:
                 yield freq_provider, freq_key
-
-
-# Note: not subclassing Base, this is handled in update_annotation_shadow_columns
-class AnnotationShadowFrequency:
-    pass
 
 
 # HACK: Done this way for integration testing purposes, where we want
@@ -356,6 +366,10 @@ def create_tmp_shadow_tables(session, config, create_transcript=True, create_fre
         conn.execute(
             "SELECT insert_tmpannotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
         )
+
+        # Remove temporary table from metadata
+        Base.metadata.remove(tmp_annotationshadowtranscript)
+
     if create_frequency:
         # Create annotationshadowfrequency in a temp table, insert all data and overwrite existing annotationshadowfrequency table
         tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
