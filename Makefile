@@ -195,6 +195,7 @@ review:
 	docker run -d \
 		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
 		--user $(UID):$(GID) \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(REVIEW_NAME) \
 		-e PORT=3114 \
@@ -311,6 +312,7 @@ test-python:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///vardb-test \
 	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
@@ -356,6 +358,7 @@ test-cli:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///vardb-test \
 	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
@@ -369,6 +372,7 @@ test-report:
 	docker run -d \
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
