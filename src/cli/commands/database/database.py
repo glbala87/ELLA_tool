@@ -9,7 +9,7 @@ import psycopg2
 
 from vardb.datamodel import DB
 from .drop_db import drop_db
-from .make_db import make_db, refresh
+from .make_db import make_db, refresh, refresh_tmp
 from .ci_migration_db import (
     ci_migration_db_remake,
     ci_migration_upgrade_downgrade,
@@ -74,13 +74,23 @@ def cmd_make_db(f=None):
 @click.option("-f", is_flag=True, help="Do not ask for confirmation.")
 @cli_logger()
 def cmd_refresh(logger, f=None):
+    db = DB()
+    db.connect()
+    logger.echo(
+        "Creating temporary shadow tables and (re)creating triggers. This can take some time..."
+    )
+
+    refresh_tmp(db)
+    logger.echo("Done!")
     warning = "This will refresh all shadow tables in the database. Do not run this command while app is running.\nType 'CONFIRM' to confirm.\n"
-    with confirm(logger.echo, "Tables should now have been refreshed.", force=f, warning=warning):
-        db = DB()
-        db.connect()
-        logger.echo("Refreshing shadow tables and (re)creating triggers.")
-        refresh(db)
-        logger.echo("Done!")
+    with confirm(
+        logger.echo,
+        "Shadow tables should now have been refreshed. ELLA can now be restarted again",
+        force=f,
+        warning=warning,
+    ):
+        logger.echo("Replacing existing tables with created temporary tables")
+        refresh(db, skip_tmp_tables=True)
         db.session.commit()
         ast_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowtranscript"))[0][
             0
