@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, 
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import mapper, class_mapper
 from sqlalchemy.orm.exc import UnmappedClassError
+from sqlalchemy.ext.declarative.api import _declarative_constructor
 from typing import Any
 
 from api.config import config as global_config
@@ -11,7 +12,9 @@ from api.config import config as global_config
 
 # Note: not subclassing Base, this is handled by explicitly mapping below
 class _AnnotationShadowTranscript(object):
-    pass
+    def __init__(self, **kwargs):
+        "Allow instantiating using standard declarative notation"
+        _declarative_constructor(self, **kwargs)
 
 
 # Set type Any. Mypy doesn't handle instrumented classes
@@ -20,7 +23,9 @@ AnnotationShadowTranscript: Any = _AnnotationShadowTranscript
 
 # Note: not subclassing Base, this is handled in update_annotation_shadow_columns
 class _AnnotationShadowFrequency(object):
-    pass
+    def __init__(self, **kwargs):
+        "Allow instantiating using standard declarative notation"
+        _declarative_constructor(self, **kwargs)
 
 
 # Set type Any. Mypy doesn't handle instrumented classes
@@ -102,13 +107,15 @@ def get_annotationshadowtranscript_table(name="annotationshadowtranscript"):
 # By default, create using app global config
 # which is what we want in production
 update_annotation_shadow_columns(global_config)
-mapper(AnnotationShadowTranscript, get_annotationshadowtranscript_table())
+_annotationshadowtranscript_table = get_annotationshadowtranscript_table()
+mapper(AnnotationShadowTranscript, _annotationshadowtranscript_table)
+AnnotationShadowTranscript.__table__ = _annotationshadowtranscript_table
 
 
 def check_db_consistency(session, config, subset=False):
     "Check that the config defines the same (or a subset) frequency shadow table as the current table in the database"
     column_res = session.execute(
-        "select column_name from information_schema.columns where table_schema='public' and table_name='annotationshadowfrequency';"
+        "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='annotationshadowfrequency';"
     )
     db_column_names = set([c[0] for c in column_res]) - set(["id", "allele_id"])
 
@@ -396,7 +403,7 @@ def create_shadow_tables(
 ):
     if skip_tmp_tables:
         # Check that tmp tables are available
-        res = session.execute("select table_name from information_schema.tables")
+        res = session.execute("SELECT table_name FROM information_schema.tables")
         table_names = set([r[0] for r in res.fetchall()])
         if create_transcript:
             assert "tmp_annotationshadowtranscript" in table_names
