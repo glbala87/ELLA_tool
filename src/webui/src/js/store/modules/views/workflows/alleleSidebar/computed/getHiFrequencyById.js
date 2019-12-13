@@ -1,62 +1,97 @@
-import { Compute } from 'cerebral'
+import { Compute, resolve } from 'cerebral'
 import { state } from 'cerebral/tags'
 
-export default (alleles, key) => {
-    return Compute(alleles, state`app.config`, key, (alleles, config) => {
-        const result = {}
-        if (!alleles) {
-            return result
-        }
-        const frequencyGroups = config.frequencies.groups
-        const frequencyNumThresholds =
-            config.filter.default_filter_config.frequency.num_thresholds || {}
-        for (let [alleleId, allele] of Object.entries(alleles)) {
-            let maxMeetsThresholdValue = null
-            let maxValue = null
-            const annotationFrequencies = allele.annotation.frequencies
-            for (const providers of Object.values(frequencyGroups)) {
-                for (const [provider, populations] of Object.entries(providers)) {
-                    for (const population of populations) {
+export default function getHiFrequencyById(alleles, key) {
+    return Compute(
+        alleles,
+        state`views.workflows.interpretation.data.filterConfig`,
+        key,
+        (alleles, currentFilterConfig) => {
+            const result = {}
+            if (!alleles) {
+                return result
+            }
+
+            for (let [alleleId, allele] of Object.entries(alleles)) {
+                let maxMeetsThresholdValue = null
+                let maxValue = null
+                const annotationFrequencies = allele.annotation.frequencies
+                for (let { provider, population, numThreshold } of frequencyGroupsGenerator(
+                    currentFilterConfig
+                ))
+                    if (
+                        provider in annotationFrequencies &&
+                        key in annotationFrequencies[provider] &&
+                        population in annotationFrequencies[provider][key]
+                    ) {
+                        // For frequency, check that 'num' is higher than required in config
+                        // If provider is not in config, assume it's good
+                        // (since it would be in filtering)
+                        let meetsNumThreshold = !(key === 'freq' && numThreshold)
+                        if (key === 'freq' && numThreshold) {
+                            meetsNumThreshold =
+                                annotationFrequencies[provider]['num'][population] > numThreshold
+                        }
+
+                        const newValue = annotationFrequencies[provider][key][population]
+                        if (newValue > maxValue || maxValue === null) {
+                            maxValue = newValue
+                        }
                         if (
-                            provider in annotationFrequencies &&
-                            key in annotationFrequencies[provider] &&
-                            population in annotationFrequencies[provider][key]
+                            meetsNumThreshold &&
+                            (newValue > maxMeetsThresholdValue || maxMeetsThresholdValue === null)
                         ) {
-                            // For frequency, check that 'num' is higher than required in config
-                            // If provider is not in config, assume it's good
-                            // (since it would be in filtering)
-                            let meetsNumThreshold = !(
-                                key === 'freq' && provider in frequencyNumThresholds
-                            )
-                            if (
-                                key === 'freq' &&
-                                provider in frequencyNumThresholds &&
-                                population in frequencyNumThresholds[provider]
-                            ) {
-                                meetsNumThreshold =
-                                    annotationFrequencies[provider]['num'][population] >
-                                    frequencyNumThresholds[provider][population]
-                            }
-                            const newValue = annotationFrequencies[provider][key][population]
-                            if (newValue > maxValue || maxValue === null) {
-                                maxValue = newValue
-                            }
-                            if (
-                                meetsNumThreshold &&
-                                (newValue > maxMeetsThresholdValue ||
-                                    maxMeetsThresholdValue === null)
-                            ) {
-                                maxMeetsThresholdValue = newValue
-                            }
+                            maxMeetsThresholdValue = newValue
                         }
                     }
+                result[alleleId] = {
+                    maxMeetsThresholdValue,
+                    maxValue
                 }
             }
-            result[alleleId] = {
-                maxMeetsThresholdValue,
-                maxValue
+            return result
+        }
+    )
+}
+
+export function getHiFrequencyDefinition() {
+    return Compute(
+        state`views.workflows.interpretation.data.filterConfig`,
+        (currentFilterConfig) => {
+            return Array.from(frequencyGroupsGenerator(currentFilterConfig))
+        }
+    )
+}
+
+function* frequencyGroupsGenerator(filterConfig) {
+    if (!filterConfig) {
+        var frequencyGroups = {}
+        var frequencyNumThresholds = {}
+    } else {
+        // WARNING: Select first frequency filter. Not strictly correct when there are multiple frequency filters defined.
+        const frequencyFilter = filterConfig.filterconfig.filters.find(
+            (f) => f.name === 'frequency'
+        )
+        if (!frequencyFilter) {
+            var frequencyGroups = {}
+            var frequencyNumThresholds = {}
+        } else {
+            var frequencyGroups = frequencyFilter.config.groups
+            var frequencyNumThresholds = frequencyFilter.config.num_thresholds || {}
+        }
+    }
+    for (const providers of Object.values(frequencyGroups)) {
+        for (const [provider, populations] of Object.entries(providers)) {
+            for (const population of populations) {
+                let numThreshold = null
+                if (
+                    provider in frequencyNumThresholds &&
+                    population in frequencyNumThresholds[provider]
+                ) {
+                    numThreshold = frequencyNumThresholds[provider][population]
+                }
+                yield { provider, population, numThreshold }
             }
         }
-        return result
-    })
+    }
 }
