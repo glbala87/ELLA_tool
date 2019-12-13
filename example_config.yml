@@ -1,6 +1,6 @@
 app:
   links_to_clipboard: !env_bool [OFFLINE_MODE, true]
-  non_production_warning: !env_str NON_PRODUCTION_WARNING
+  non_production_warning: !env NON_PRODUCTION_WARNING
   annotation_service: !env [ANNOTATION_SERVICE_URL, "http://localhost:6000"]
   attachment_storage: !env "ATTACHMENT_STORAGE"
   max_upload_size: 52428800 # 50 MB

@@ -35,7 +35,6 @@ def environment_constructor(loader, node):
             len(node.value) == 2
         ), "List {} is not of length 2: [ENVIRONMENT_VARIABLE, default]".format(node.value)
         value = os.environ.get(node.value[0].value, node.value[1].value)
-
     # Extract tag to construct value
     if "_" in node.tag:
         # Explicit
@@ -69,6 +68,8 @@ default_tags = [
     tag.split(":")[-1].lstrip("!") for tag in ConfigLoader.yaml_constructors if tag is not None
 ]
 for tag in default_tags:
+    if tag == "str":
+        continue
     ConfigLoader.add_constructor("!env_{}".format(tag), environment_constructor)
 
 if "ELLA_CONFIG" in os.environ:
