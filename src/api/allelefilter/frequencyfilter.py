@@ -254,7 +254,7 @@ class FrequencyFilter(object):
                             self._get_freq_threshold_filter(
                                 filter_config["groups"],
                                 gene_filter_config["thresholds"],
-                                gene_filter_config["num_thresholds"],
+                                gene_filter_config.get("num_thresholds", {}),
                                 threshold_func,
                                 combine_func,
                             ),
@@ -290,7 +290,7 @@ class FrequencyFilter(object):
                         self._get_freq_threshold_filter(
                             filter_config["groups"],
                             filter_config["thresholds"]["AD"],
-                            filter_config["num_thresholds"],
+                            filter_config.get("num_thresholds", {}),
                             threshold_func,
                             combine_func,
                         ),
@@ -325,7 +325,7 @@ class FrequencyFilter(object):
                     self._get_freq_threshold_filter(
                         filter_config["groups"],
                         filter_config["thresholds"]["default"],
-                        filter_config["num_thresholds"],
+                        filter_config.get("num_thresholds", {}),
                         threshold_func,
                         combine_func,
                     ),

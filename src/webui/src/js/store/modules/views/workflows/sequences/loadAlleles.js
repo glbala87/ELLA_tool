@@ -14,11 +14,7 @@ export default sequence('loadAlleles', [
         success: [
             set(state`views.workflows.interpretation.data.alleles`, props`result`),
             prepareInterpretationState,
-            equals(state`views.workflows.type`),
-            {
-                analysis: [allelesChanged], // Analysis workflow. Update alleleSidebar
-                allele: [set(state`views.workflows.selectedAllele`, state`views.workflows.id`)] // Variant workflow
-            },
+            allelesChanged,
             loadCollisions,
             when(state`views.workflows.selectedAllele`),
             {
