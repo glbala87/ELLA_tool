@@ -146,11 +146,6 @@ analysis:
         classified: []
         not_relevant: []
         technical: []
-      comment_options:
-        unclassified:
-        classified:
-        not_relevant:
-        technical:
       shade_multiple_in_gene: false
 frequencies:
   groups:

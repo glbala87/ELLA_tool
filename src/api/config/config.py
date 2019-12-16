@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
+import json
+import jsonschema
 import copy
 import yaml
 
@@ -75,6 +76,10 @@ for tag in default_tags:
 if "ELLA_CONFIG" in os.environ:
     with open(os.environ["ELLA_CONFIG"]) as ella_config_file:
         config = yaml.load(ella_config_file, Loader=ConfigLoader)
+    schema_path = os.path.join(os.path.split(os.path.abspath(__file__))[0], "config.schema.json")
+    with open(schema_path, "r") as schema_file:
+        schema = json.load(schema_file)
+    jsonschema.validate(config, schema)
 else:
     assert not str2bool(
         os.environ["PRODUCTION"]
