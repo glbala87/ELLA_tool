@@ -678,19 +678,31 @@ analysis-selection {
 }
 
 .reference-detail {
+    width: 100%;
     .reference-title-container {
         display: flex;
-        justify-content: space-between;
         width: 100%;
+        flex-wrap: nowrap;
         padding-right: 2rem;
         font-size: 1.4rem;
         align-items: flex-start;
 
         .reference-title {
+            flex-grow: 1;
             padding-right: 2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .reference-desc {
+            padding-right: 2rem;
+            justify-self: flex-start;
+            white-space: nowrap;
+        }
+
+        .reference-controls {
+            justify-self: flex-start;
             white-space: nowrap;
         }
     }

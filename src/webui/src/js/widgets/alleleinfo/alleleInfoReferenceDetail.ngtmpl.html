@@ -5,11 +5,15 @@
                 ng-if="$ctrl.reference.urls.pubmed"
                 class="id-reference-title"
                 href="{{ $ctrl.reference.urls.pubmed }}"
+                title="{{ $ctrl.reference.title }}"
                 >{{ $ctrl.reference.title }}</a-clip
             >
-            <span ng-if="!$ctrl.reference.urls.pubmed" class="id-reference-title">{{
-                $ctrl.reference.title
-            }}</span>
+            <span
+                ng-if="!$ctrl.reference.urls.pubmed"
+                class="id-reference-title"
+                title="{{ $ctrl.reference.title }}"
+                >{{ $ctrl.reference.title }}</span
+            >
         </div>
         <div class="reference-desc">
             {{ $ctrl.reference.formatted.shortDesc }}
@@ -28,20 +32,20 @@
                 >
             </span>
         </div>
-    </div>
-    <div class="nowrap">
-        <button
-            class="blue id-reference-evaluate"
-            ng-click="$ctrl.evaluateReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.reference.id})"
-        >
-            {{ $ctrl.getEvaluateBtnText() }}
-        </button>
-        <button
-            class="blue id-reference-evaluate"
-            ng-disabled="$ctrl.readOnly || $ctrl.alleleAssessmentReused"
-            ng-click="$ctrl.ignoreReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.referenceId})"
-        >
-            Ignore
-        </button>
+        <div class="reference-controls">
+            <button
+                class="blue id-reference-evaluate"
+                ng-click="$ctrl.evaluateReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.reference.id})"
+            >
+                {{ $ctrl.getEvaluateBtnText() }}
+            </button>
+            <button
+                class="blue id-reference-evaluate"
+                ng-disabled="$ctrl.readOnly || $ctrl.alleleAssessmentReused"
+                ng-click="$ctrl.ignoreReferenceClicked({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.referenceId})"
+            >
+                Ignore
+            </button>
+        </div>
     </div>
 </section>
