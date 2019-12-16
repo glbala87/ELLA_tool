@@ -396,7 +396,7 @@
                     ng-click="$ctrl.reviewedClicked({alleleId: allele.id})"
                     class="cell classification id-classification"
                     ng-class="{reviewed: $ctrl.reviewed[allele.id] == 'reviewed', finalized: $ctrl.reviewed[allele.id] == 'finalized'}"
-                    tippy-title="Mark reviewed"
+                    tippy-title="{{ $ctrl.getReviewedTitle(allele.id) }}"
                 >
                     <div class="class-amcg-container">
                         <div class="classification-container">

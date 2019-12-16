@@ -390,6 +390,17 @@ app.component('alleleSidebarList', {
                         // another alleleSidebarList to get the <td> width of the
                         // buttons...
                         return $ctrl.narrowComment || false
+                    },
+                    getReviewedTitle(alleleId) {
+                        if (!(alleleId in $ctrl.reviewed)) {
+                            return 'Mark reviewed'
+                        }
+                        if ($ctrl.reviewed[alleleId] === 'finalized') {
+                            return 'Finalized in this analysis'
+                        } else if ($ctrl.reviewed[alleleId] === 'reviewed') {
+                            return 'Marked reviewed'
+                        }
+                        return 'Mark reviewed'
                     }
                 })
             }
