@@ -17,6 +17,7 @@ def str2bool(v):
 
 
 def file_constructor(loader, node):
+    "YAML constructor for getting correct file path"
     resolved = os.path.join(ELLA_ROOT, node.value)
     assert os.path.isfile(
         resolved
@@ -27,7 +28,7 @@ def file_constructor(loader, node):
 
 
 def environment_constructor(loader, node):
-    "Load !env and !env_<subtag> tags"
+    "YAML constructor for loading !env and !env_<subtag> tags"
     if isinstance(node.value, str):
         # Default to "null", which will be resolved by yaml to None
         value = os.environ.get(node.value, "null")
@@ -73,21 +74,16 @@ for tag in default_tags:
         continue
     ConfigLoader.add_constructor("!env_{}".format(tag), environment_constructor)
 
-if "ELLA_CONFIG" in os.environ:
-    with open(os.environ["ELLA_CONFIG"]) as ella_config_file:
-        config = yaml.load(ella_config_file, Loader=ConfigLoader)
-    schema_path = os.path.join(os.path.split(os.path.abspath(__file__))[0], "config.schema.json")
-    with open(schema_path, "r") as schema_file:
-        schema = json.load(schema_file)
-    jsonschema.validate(config, schema)
-else:
-    assert not str2bool(
-        os.environ["PRODUCTION"]
-    ), "No config specified. This is only possible when not running in PRODUCTION mode: $PRODUCTION={}".format(
-        os.environ["PRODUCTION"]
-    )
-    config = {}
+# Load config
+assert "ELLA_CONFIG" in os.environ, "Config file not provided in environment variable 'ELLA_CONFIG'"
+with open(os.environ["ELLA_CONFIG"]) as ella_config_file:
+    config = yaml.load(ella_config_file, Loader=ConfigLoader)
+schema_path = os.path.join(os.path.split(os.path.abspath(__file__))[0], "config.schema.json")
+with open(schema_path, "r") as schema_file:
+    schema = json.load(schema_file)
+jsonschema.validate(config, schema)
 
+# The following is not a natural part of the config, but left here for legacy reasons
 config.setdefault("transcripts", {})["consequences"] = [
     "transcript_ablation",
     "splice_donor_variant",

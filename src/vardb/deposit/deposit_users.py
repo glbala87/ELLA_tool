@@ -4,8 +4,7 @@ import logging
 from sqlalchemy import tuple_
 from sqlalchemy.orm.exc import NoResultFound
 
-import vardb.datamodel
-from vardb.datamodel import DB, user, gene, sample, annotationshadow
+from vardb.datamodel import DB, user, gene, annotationshadow
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +57,7 @@ def import_groups(session, groups, log=log.info):
             for k, v in group_data.items():
                 setattr(existing_group, k, v)
 
+        # Check that usergroup's ACMG config is compatible with annotationshadowfrequency columns
         annotationshadow.check_usergroup_config(existing_group if existing_group else new_group)
 
     session.commit()

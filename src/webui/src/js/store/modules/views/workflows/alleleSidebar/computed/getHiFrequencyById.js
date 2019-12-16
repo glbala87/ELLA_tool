@@ -1,4 +1,4 @@
-import { Compute, resolve } from 'cerebral'
+import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 
 export default function getHiFrequencyById(alleles, key) {
@@ -64,6 +64,7 @@ export function getHiFrequencyDefinition() {
 }
 
 function* frequencyGroupsGenerator(filterConfig) {
+    // Iterate over provider, population, and num threshold in filterconfig
     if (!filterConfig) {
         var frequencyGroups = {}
         var frequencyNumThresholds = {}

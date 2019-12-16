@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import { set, when, equals } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAlleles from '../actions/getAlleles'
 import toast from '../../../../common/factories/toast'
@@ -14,7 +14,7 @@ export default sequence('loadAlleles', [
         success: [
             set(state`views.workflows.interpretation.data.alleles`, props`result`),
             prepareInterpretationState,
-            allelesChanged,
+            allelesChanged, // Update alleleSidebar
             loadCollisions,
             when(state`views.workflows.selectedAllele`),
             {

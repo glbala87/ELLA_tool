@@ -67,6 +67,7 @@ class TestDatabase(object):
                 stdout=f,
             )
 
+        # Update mapping of annotation shadow tables based on global config
         update_annotation_shadow_columns(config)
 
     def cleanup(self):

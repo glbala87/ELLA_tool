@@ -92,6 +92,7 @@ def import_filterconfigs(session, fc_configs):
             else:
                 result["created"] += 1
 
+            # Check that filterconfig is supported by available annotationshadowfrequency columns
             annotationshadow.check_filterconfig(filterconfig)
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)

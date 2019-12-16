@@ -292,7 +292,7 @@ class MissingColumnError(AssertionError):
     pass
 
 
-def _check_groups(frequency_groups, column_names=None):
+def _check_groups(frequency_groups):
     "Check that the freq_provider and key, e.g. GNOMAD_EXOMES G is represented in AnnotationShadowFrequency"
     existing_columns = set(AnnotationShadowFrequency.__table__.columns.keys()) - set(
         ["id", "allele_id"]
@@ -310,6 +310,7 @@ def _check_groups(frequency_groups, column_names=None):
 
 
 def check_filterconfig(filterconfig):
+    "Verify that the columns to be used for frequency filtering are present in annotationshadowfrequency"
     for f in filterconfig["filters"]:
         if f["name"] != "frequency":
             continue
@@ -317,12 +318,13 @@ def check_filterconfig(filterconfig):
 
 
 def check_usergroup_config(usergroup):
+    "Verify that the columns to be used for ACMG frequency config are present in annotationshadowfrequency"
     if usergroup.config is not None:
         _check_groups(usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {}))
 
 
 def check_filterconfig_and_acmg_groups(session):
-
+    "Check that the columns in annotationshadowfrequency allow for all active filterconfigs and ACMG configs"
     filterconfigs = session.query(
         sample.FilterConfig.id, sample.FilterConfig.name, sample.FilterConfig.filterconfig
     ).filter(sample.FilterConfig.active.is_(True))
@@ -349,23 +351,18 @@ def check_filterconfig_and_acmg_groups(session):
 
 def create_tmp_shadow_tables(session, config, create_transcript=True, create_frequency=True):
     """
-    Drops (if existing) and (re)creates the annotation shadow tables,
-    along with their triggers. After they're setup, the tables
-    are populated according to existing data in annotation table.
+    Creates temporary shadow tables. Populate according to existing data
+    the annotation table.
 
-    Call this function whenever the shadow table definitions or
-    frequency group config has changed, as the tables will need to be updated.
+    This function might take some time, but creating them in temporary tables
+    avoids a lock on the shadow tables.
 
-    :warning: TODO: The table recreation might not be within the same transaction
-    as the rest of the incoming session (?). All actions might therefore not
-    happen within one transaction.
     """
     session.execute(create_trigger_sql(config))
 
     conn = session.connection()
     if create_transcript:
-        # AnnotationShadowTranscript.__table__.drop(session.connection(), checkfirst=True)
-        # AnnotationShadowTranscript.__table__.create(session.connection())
+        # Create annotationshadowtranscript in a temp table amd insert all data
         tmp_annotationshadowtranscript = get_annotationshadowtranscript_table(
             "tmp_annotationshadowtranscript"
         )
@@ -378,7 +375,7 @@ def create_tmp_shadow_tables(session, config, create_transcript=True, create_fre
         Base.metadata.remove(tmp_annotationshadowtranscript)
 
     if create_frequency:
-        # Create annotationshadowfrequency in a temp table, insert all data and overwrite existing annotationshadowfrequency table
+        # Create annotationshadowfrequency in a temp table amd insert all data
         tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
             config, name="tmp_annotationshadowfrequency"
         )
@@ -401,6 +398,19 @@ def create_tmp_shadow_tables(session, config, create_transcript=True, create_fre
 def create_shadow_tables(
     session, config, create_transcript=True, create_frequency=True, skip_tmp_tables=False
 ):
+    """
+    Optionally create temporary shadow tables (needs to be done if not done).
+
+    Drops existing tables, and renames temporary tables to their corresponding
+    permanent tables.
+
+    Call this function whenever the shadow table definitions or
+    frequency group config has changed, as the tables will need to be updated.
+
+    :warning: TODO: The table recreation might not be within the same transaction
+    as the rest of the incoming session (?). All actions might therefore not
+    happen within one transaction.
+    """
     if skip_tmp_tables:
         # Check that tmp tables are available
         res = session.execute("SELECT table_name FROM information_schema.tables")
