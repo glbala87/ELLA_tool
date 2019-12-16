@@ -37,52 +37,55 @@ tippy.setDefaultProps({
 app.directive('tippyTitle', function() {
     return {
         restrict: 'A',
-        link: ($scope, elem) => {
-            const enableCopy = $scope.tippyClipboard === 'true'
-            if ($scope.tippyTitle && $scope.tippyTitle !== '') {
-                tippy(elem[0], {
-                    content: $scope.tippyTitle,
-                    interactive: enableCopy,
-                    copyOnClick: enableCopy
-                })
-            }
-        },
-        scope: {
-            tippyTitle: '@',
-            tippyClipboard: '@?'
+        link: ($scope, elem, attrs) => {
+            const enableCopy = attrs.tippyClipboard === 'true'
+            const instance = tippy(elem[0], {
+                interactive: enableCopy,
+                copyOnClick: enableCopy
+            })
+            attrs.$observe('tippyTitle', (c) => {
+                instance.setContent(c)
+            })
         }
     }
 })
 
-app.directive('tippyPopover', function() {
-    return {
-        restrict: 'A',
-        link: ($scope, elem) => {
-            const toCompile = `<div><div ng-include="'${$scope.tippyPopover}'"></div></div>`
-            const compiled = $scope.$compile(toCompile)($scope.$parent)[0]
-            tippy(elem[0], {
-                trigger: 'click',
-                content: () => compiled,
-                allowHTML: true,
-                delay: 0,
-                flipOnUpdate: true,
-                maxWidth: '120rem',
-                boundary: 'window',
-                interactive: true,
-                appendTo: document.body,
-                placement: $scope.tippyPlacement ? $scope.tippyPlacement : 'top'
-            })
-        },
-        controller: [
-            '$compile',
-            '$scope',
-            ($compile, $scope) => {
-                $scope.$compile = $compile
+app.directive('tippyPopover', [
+    '$compile',
+    function($compile) {
+        return {
+            restrict: 'A',
+            link: ($scope, elem, attrs) => {
+                const props = {
+                    trigger: attrs.tippyTrigger ? attrs.tippyPopover : 'click',
+                    allowHTML: true,
+                    delay: 0,
+                    flipOnUpdate: true,
+                    maxWidth: '120rem',
+                    boundary: 'window',
+                    interactive: true,
+                    appendTo: document.body,
+                    placement: attrs.tippyPlacement ? attrs.tippyPlacement : 'top',
+                    onTrigger: (instance, event) => {
+                        const title = attrs.tippyPopoverTitle
+                            ? `<div class="tippy-popover-title">${attrs.tippyPopoverTitle}</div>`
+                            : ''
+                        const toCompile = `<div class="tippy-popover">${title}<div ng-include="'${attrs.tippyPopover}'"></div></div>`
+                        const compiled = $compile(toCompile)($scope)[0]
+                        instance.setContent(compiled)
+                        $scope.$apply()
+                    }
+                }
+
+                const instance = tippy(elem[0], props)
+                attrs.$observe('tippyPlacement', (c) => {
+                    instance.setProps({ placement: c })
+                })
+
+                attrs.$observe('tippyTrigger', (c) => {
+                    instance.setProps({ trigger: c })
+                })
             }
-        ],
-        scope: {
-            tippyPopover: '<',
-            tippyPlacement: '@?'
         }
     }
-})
+])

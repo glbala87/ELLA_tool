@@ -123,7 +123,7 @@ class AnalysisPage extends Page {
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
         $(acmg_selector).click()
-        $('.popover')
+        $('.acmg-selection-popover')
             .$(`h4.acmg-title=${code}`)
             .click()
 

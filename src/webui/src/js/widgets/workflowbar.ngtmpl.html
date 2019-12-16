@@ -40,7 +40,7 @@
             class="id-worklog"
             ng-disabled="!$ctrl.workflowLoaded"
             ng-class="{'purple': $ctrl.messageCount > 0}"
-            tippy-popover="$ctrl.interpretationLogPopover.templateUrl"
+            tippy-popover="interpretationLogPopover.ngtmpl.html"
         >
             Work log ({{ $ctrl.messageCount }})
         </button>
@@ -69,21 +69,21 @@
                 <button
                     class="id-add-references"
                     ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAlleleId, category: 'references'})"
-                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
+                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded || $ctrl.isCurrentAlleleReused"
                     ng-if="!$ctrl.readOnly"
                 >
                     Add studies
                 </button>
                 <button
                     class="id-add-acmg"
-                    tippy-popover="$ctrl.acmgPopover.templateUrl"
+                    tippy-popover="acmgSelectionPopover.ngtmpl.html"
                     ng-if="!$ctrl.readOnly"
-                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded"
+                    ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded || $ctrl.isCurrentAlleleReused"
                 >
                     Add ACMG
                 </button>
                 <upload
-                    ng-if="!$ctrl.readOnly"
+                    ng-if="!$ctrl.readOnly && !$ctrl.isCurrentAlleleReused"
                     mode="'browse'"
                     buttontext="'Add attachment'"
                     ng-disabled="!$ctrl.workflowLoaded"
@@ -114,7 +114,7 @@
                     ng-if="$ctrl.workflowType == 'allele'"
                     class="id-worklog"
                     ng-class="{'purple': $ctrl.messageCount > 0}"
-                    tippy-popover="$ctrl.interpretationLogPopover.templateUrl"
+                    tippy-popover="interpretationLogPopover.ngtmpl.html"
                 >
                     Work log ({{ $ctrl.messageCount }})
                 </button>

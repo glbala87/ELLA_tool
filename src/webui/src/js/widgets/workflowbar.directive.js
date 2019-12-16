@@ -9,6 +9,7 @@ import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
 import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
 import { deepCopy } from '../util'
 import { ACMGHelper } from '../model/acmghelper'
+import isAlleleAssessmentReused from '../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 
 let acmgCandidates = Compute(state`app.config`, (config) => {
     return getAcmgCandidates(config)
@@ -51,6 +52,7 @@ app.component('workflowbar', {
             isOngoing: state`views.workflows.interpretation.isOngoing`,
             genepanels: state`views.workflows.data.genepanels`,
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
+            isCurrentAlleleReused: isAlleleAssessmentReused(state`views.workflows.selectedAllele`),
             readOnly: isReadOnly,
             acmgCandidates,
             componentChanged: signal`views.workflows.componentChanged`,
@@ -98,7 +100,6 @@ app.component('workflowbar', {
                     // Add ACMG popover
                     //
                     acmgPopover: {
-                        templateUrl: 'acmgSelectionPopover.ngtmpl.html',
                         categories: ['Pathogenic', 'Benign', 'Other'],
                         selectedCategory: 'Pathogenic',
                         getAcmgClass(code) {
@@ -136,9 +137,6 @@ app.component('workflowbar', {
                         getAcmgCommentTemplates() {
                             return $ctrl.commentTemplates['classificationAcmg']
                         }
-                    },
-                    interpretationLogPopover: {
-                        templateUrl: 'interpretationLogPopover.ngtmpl.html'
                     }
                 })
             }

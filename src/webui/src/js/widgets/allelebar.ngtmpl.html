@@ -15,8 +15,9 @@
                 <div class="allele_popup" isolate-click>
                     <span
                         class="clickable"
-                        tippy-popover="'phenotypes_popover.ngtmpl.html'"
+                        tippy-popover="phenotypes_popover.ngtmpl.html"
                         tippy-placement="bottom"
+                        tippy-popover-title="Gene info"
                     >
                         {{ t.symbol }} ({{ t.exon }})
                     </span>
@@ -35,8 +36,9 @@
                     <span
                         class="clickable"
                         item="t"
-                        tippy-popover="'cdnaPopover.ngtmpl.html'"
+                        tippy-popover="cdnaPopover.ngtmpl.html"
                         tippy-placement="bottom"
+                        tippy-popover-title="HGVSc"
                     >
                         <i>{{ t.transcript }}:</i
                         ><b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
@@ -46,18 +48,18 @@
                         <span
                             class="genotype-display"
                             ng-repeat="gt in $ctrl.genotypeDisplay"
-                            title="{{ gt.title }}"
+                            tippy-title="{{ gt.title }}"
                         >
                             <span ng-if="$ctrl.genotypeDisplay.length > 1"
                                 >{{ gt.sample_label }}: </span
                             >{{ gt.display }}
                             <span
-                                title="Homozygous"
+                                tippy-title="Homozygous"
                                 class="tag red"
                                 ng-if="gt.sample_label == 'P' && gt.type == 'Homozygous'"
                                 >HOM</span
                             >
-                            <span title="Multiallelic" class="tag" ng-if="gt.multiallelic"
+                            <span tippy-title="Multiallelic" class="tag" ng-if="gt.multiallelic"
                                 >MUL</span
                             >
                         </span>
@@ -71,7 +73,7 @@
                 <div class="allele_popup" isolate-click>
                     <span
                         class="clickable"
-                        tippy-popover="'proteinPopover.ngtmpl.html'"
+                        tippy-popover="proteinPopover.ngtmpl.html"
                         tippy-placement="bottom"
                     >
                         <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
@@ -85,7 +87,7 @@
         <td>
             <h3 class="full-title">
                 <div
-                    tippy-popover="'alleleInfoConsequencePopover.ngtmpl.html'"
+                    tippy-popover="alleleInfoConsequencePopover.ngtmpl.html"
                     tippy-placement="bottom"
                 >
                     <span class="clickable" ng-repeat="c in t.consequences">{{

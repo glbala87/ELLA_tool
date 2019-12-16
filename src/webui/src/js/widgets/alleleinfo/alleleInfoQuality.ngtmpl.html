@@ -2,14 +2,14 @@
     <cbbody>
         <div class="allele-info-quality">
             <div class="sample-display" ng-repeat="sample in $ctrl.displaySamples" ng-if="sample">
-                <h5 class="sample-title" title="{{ sample.title }}">{{ sample.display }}</h5>
+                <h5 class="sample-title" tippy-title="{{ sample.title }}">{{ sample.display }}</h5>
                 <div class="cb-warning" ng-if="sample.needs_verification">
                     NEEDS VERIFICATION
                 </div>
                 <div class="cb-table">
                     <div class="tabular-row" ng-if="sample.p_denovo">
                         <div class="cell">
-                            <h5 title="De novo posterior probility">P(de novo):</h5>
+                            <h5 tippy-title="De novo posterior probility">P(de novo):</h5>
                         </div>
                         <div class="cell">
                             <p>{{ sample.p_denovo | number: 2 }}</p>

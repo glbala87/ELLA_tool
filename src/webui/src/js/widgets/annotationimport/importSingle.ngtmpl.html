@@ -27,7 +27,7 @@
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
-                                        title="Create new or append to existing analysis, or annotate standalone variants."
+                                        tippy-title="Create new or append to existing analysis, or annotate standalone variants."
                                     >
                                         <b>Type</b>
                                     </h5>
@@ -56,7 +56,7 @@
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
-                                        title="Create new or append to analysis."
+                                        tippy-title="Create new or append to analysis."
                                     >
                                         <b>Mode</b>
                                     </h5>
@@ -83,7 +83,7 @@
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
-                                        title="Provide a descriptive name for the analysis"
+                                        tippy-title="Provide a descriptive name for the analysis"
                                     >
                                         <b>Analysis name</b>
                                     </h5>
@@ -102,7 +102,7 @@
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
-                                    <h5 class="slim title" title="Select genepanel">
+                                    <h5 class="slim title" tippy-title="Select genepanel">
                                         <b>Gene panel</b>
                                     </h5>
                                 </div>
@@ -134,7 +134,10 @@
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
-                                    <h5 class="slim title" title="Choose analysis to append to">
+                                    <h5
+                                        class="slim title"
+                                        tippy-title="Choose analysis to append to"
+                                    >
                                         <b>Analysis</b>
                                     </h5>
                                 </div>
@@ -163,7 +166,7 @@
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
-                                        title="Is this data coming from HTS or Sanger"
+                                        tippy-title="Is this data coming from HTS or Sanger"
                                     >
                                         <b>Technology</b>
                                     </h5>
@@ -190,7 +193,7 @@
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
-                                        title="Priority of the imported analysis"
+                                        tippy-title="Priority of the imported analysis"
                                     >
                                         <b>Priority</b>
                                     </h5>
@@ -231,7 +234,7 @@
                     <div>
                         <p ng-repeat="(description,line) in vm.importData.contents.lines">
                             <input
-                                title="Include in import"
+                                tippy-title="Include in import"
                                 type="checkbox"
                                 ng-model="line.include"
                                 class="box"
