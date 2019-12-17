@@ -168,18 +168,19 @@ input[type='range'] {
     &[data-placement^='right'] .tippy-arrow {
         border-right-color: $white-95;
     }
+}
 
-    .tippy-content.clipboard {
-        display: flex;
-        cursor: pointer;
-        &:hover {
-            color: $black-75;
-        }
-        &:before {
-            content: url('data:image/svg+xml; utf8, <svg id="i-clipboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4" /></svg>');
-            height: 100%;
-            padding-right: 0.5rem;
-        }
+.copy-text {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    &:hover {
+        color: $black-75;
+    }
+    &:before {
+        content: url('data:image/svg+xml; utf8, <svg id="i-clipboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4" /></svg>');
+        padding-right: 0.5rem;
+        margin-top: 0.5rem;
     }
 }
 
@@ -890,7 +891,7 @@ nav.warning {
         color: $blue-75;
         margin-top: 2rem;
         margin-bottom: 0;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.3rem;
     }
     h4.results-limit-header {
@@ -899,7 +900,7 @@ nav.warning {
         color: $black-50;
         margin-top: 0;
         margin-bottom: 1rem;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.25rem;
     }
     .element {
@@ -1858,7 +1859,7 @@ button.toast-close-button {
         justify-content: space-between;
     }
     .messages {
-        flex-shrink: 1;
+        flex-grow: 1;
         margin-top: 1rem;
         padding: 1rem;
         background-color: $blue-05;

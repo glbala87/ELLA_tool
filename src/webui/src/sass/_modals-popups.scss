@@ -212,7 +212,7 @@ body.modal-open {
         width: 100%;
     }
     h3.p-title {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.4rem;
         color: $black-75;
         margin: 0.7rem 0;
@@ -220,11 +220,12 @@ body.modal-open {
 }
 .acmg-notes {
     margin-left: 2.6rem;
+    color: #333;
 }
 
 .acmg-popover {
     h3 {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.4rem;
         color: $black-75;
         margin: 0.7rem 0;
@@ -254,7 +255,7 @@ body.modal-open {
     padding: 0.2rem;
     height: calc(100vh - #{$nav-bar-top-height} - 10rem);
     h3 {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.4rem;
         color: $black-75;
         margin: 0.7rem 0;

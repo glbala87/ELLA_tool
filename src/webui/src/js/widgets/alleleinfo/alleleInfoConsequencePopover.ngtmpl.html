@@ -1,5 +1,7 @@
 <ul class="popover-list">
     <li ng-repeat="t in $ctrl.allele.annotation.transcripts track by t.transcript">
-        {{ t.transcript }}: <span ng-repeat="c in t.consequences">{{ c }}</span>
+        <copy-text
+            text="{{ t.transcript + '(' + t.symbol + '): ' + t.consequences.join(', ') }}"
+        ></copy-text>
     </li>
 </ul>

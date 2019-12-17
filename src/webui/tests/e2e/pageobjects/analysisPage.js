@@ -135,14 +135,16 @@ class AnalysisPage extends Page {
         let adjust_down = adjust_levels < 0
         for (let i = 0; i < Math.abs(adjust_levels); i++) {
             if (adjust_down) {
-                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-down').click()
+                util.element('.id-staged-acmg-code .id-adjust-down').click()
             } else {
-                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-up').click()
+                util.element('.id-staged-acmg-code .id-adjust-up').click()
             }
         }
 
         // Add staged code
-        util.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
+        util.element('.id-staged-acmg-code .acmg-upper button').click()
+        // Hide popover
+        util.element('body').click()
     }
 
     getFinalizePossible() {

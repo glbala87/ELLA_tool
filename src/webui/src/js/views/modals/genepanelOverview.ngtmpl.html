@@ -127,8 +127,6 @@
                     class="genepanel-gene"
                     ng-repeat="gene in $ctrl.filteredGenes.genes track by gene.hgnc_id"
                     tippy-popover="genepanelOverviewGenePopover.ngtmpl.html"
-                    popover-append-to-body="true"
-                    tippy-trigger="mouseenter"
                     tippy-placement="bottom"
                 >
                     <span class="gene-name">{{ gene.hgnc_symbol }}</span>

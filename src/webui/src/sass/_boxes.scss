@@ -123,7 +123,7 @@ $sb-titlebar-height: 3.8rem;
             .title {
                 font-family: $slim;
                 line-height: $sb-titlebar-height;
-                font-weight: 700;
+                font-weight: 600;
                 letter-spacing: 0.1rem;
                 font-size: 1.3rem;
                 text-transform: uppercase;
@@ -156,7 +156,7 @@ $sb-titlebar-height: 3.8rem;
                 padding-left: 1rem;
                 font-family: $slim;
                 line-height: $sb-titlebar-height;
-                font-weight: 700;
+                font-weight: 600;
                 letter-spacing: 0.1rem;
                 font-size: 1.3rem;
                 text-transform: uppercase;
@@ -278,7 +278,7 @@ contentwrapper {
             writing-mode: vertical-lr;
             width: 2.8rem;
             line-height: 2.8rem;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 0.1rem;
             font-size: 1.3rem;
             text-transform: uppercase;
@@ -376,7 +376,7 @@ contentwrapper {
     @extend .sb-notification;
     font-family: $slim;
     color: $blue-75;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1.25rem;
     padding-top: 1.5rem;
     padding-bottom: 0.4rem;

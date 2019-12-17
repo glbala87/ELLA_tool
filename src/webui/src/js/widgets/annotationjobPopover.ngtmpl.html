@@ -1,9 +1,9 @@
-<div class="annotationjobinfo">
-    <h3><strong>Status:</strong></h3>
+<div class="annotationjobinfo" style="overflow: auto;">
+    <h4 class="section-title">Status:</h4>
     <p>{{ job.status }}</p>
-    <h3>Message:</h3>
+    <h4 class="section-title">Message:</h4>
     <!--<p style="white-space: pre;">{{job.message}}</p>-->
     <span ng-bind-html="job.message|formatText"></span>
-    <h3 ng-if="job.data">Input:</h3>
+    <h4 class="section-title" ng-if="job.data">Input:</h4>
     <pre ng-if="job.data">{{ job.data }}</pre>
 </div>

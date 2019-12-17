@@ -1,7 +1,7 @@
 <div class="acmg-popover">
     <p>{{ vm.getShortCriteria() }}</p>
     <div ng-show="vm.getRequiredFor().length">
-        <h3>Required for:</h3>
+        <h4 class="section-title">Required for:</h4>
         <div
             class="acmg"
             ng-class="vm.getACMGclass(r)"
@@ -13,21 +13,21 @@
             </section>
         </div>
     </div>
-    <h3 ng-if="vm.getCriteria()">Details:</h3>
+    <h4 class="section-title" ng-if="vm.getCriteria()">Details:</h4>
     <p>{{ vm.getCriteria() }}</p>
     <div ng-show="vm.getNotes().length">
-        <h3>Notes:</h3>
+        <h4 class="section-title">Notes:</h4>
         <ul class="acmg-notes">
             <li ng-repeat="note in vm.getNotes()">{{ note | killLeadingDashes }}</li>
         </ul>
     </div>
     <div ng-show="vm.getInternalNotes().length">
-        <h3>Local adjustments:</h3>
+        <h4 class="section-title">Local adjustments:</h4>
         <ul class="acmg-notes">
             <li ng-repeat="note in vm.getInternalNotes()">{{ note | killLeadingDashes }}</li>
         </ul>
     </div>
-    <h3>Match:</h3>
+    <h4 class="section-title">Match:</h4>
     <div>
         <p ng-repeat="match in vm.matches">{{ match.source }} {{ match.op }} {{ match.match }}</p>
     </div>

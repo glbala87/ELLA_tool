@@ -5,50 +5,32 @@ import 'tippy.js/dist/tippy.css'
 
 import app from '../ng-decorators'
 
-const copyOnClick = {
-    name: 'copyOnClick',
-    defaultValue: false,
+tippy.setDefaultProps({
+    theme: 'la',
+    delay: [500, 200]
+})
 
-    fn: (instance) => {
-        const copyClickHandler = (event) => {
-            copy(instance.props.content)
-            toastr.info('Copied text to clipboard')
-        }
+app.directive('tippyTitle', [
+    '$compile',
+    function($compile) {
         return {
-            onMount(instance) {
-                if (instance.props.copyOnClick) {
-                    instance.popperChildren.content.classList.add('clipboard')
-                    instance.popperChildren.content.addEventListener('click', copyClickHandler)
-                }
-            },
-            onHidden(instance) {
-                instance.popperChildren.content.removeEventListener('click', copyClickHandler)
+            restrict: 'A',
+            link: ($scope, elem, attrs) => {
+                const enableCopy = attrs.tippyClipboard === 'true'
+                const instance = tippy(elem[0], {
+                    interactive: enableCopy
+                })
+                attrs.$observe('tippyTitle', (c) => {
+                    if (enableCopy) {
+                        const toCompile = `<copy-text text="${c}"<copy-text>`
+                        c = $compile(toCompile)($scope)[0]
+                    }
+                    instance.setContent(c)
+                })
             }
         }
     }
-}
-
-tippy.setDefaultProps({
-    theme: 'la',
-    delay: [500, 200],
-    plugins: [copyOnClick]
-})
-
-app.directive('tippyTitle', function() {
-    return {
-        restrict: 'A',
-        link: ($scope, elem, attrs) => {
-            const enableCopy = attrs.tippyClipboard === 'true'
-            const instance = tippy(elem[0], {
-                interactive: enableCopy,
-                copyOnClick: enableCopy
-            })
-            attrs.$observe('tippyTitle', (c) => {
-                instance.setContent(c)
-            })
-        }
-    }
-})
+])
 
 app.directive('tippyPopover', [
     '$compile',
@@ -70,7 +52,13 @@ app.directive('tippyPopover', [
                         const title = attrs.tippyPopoverTitle
                             ? `<div class="tippy-popover-title">${attrs.tippyPopoverTitle}</div>`
                             : ''
-                        const toCompile = `<div class="tippy-popover">${title}<div ng-include="'${attrs.tippyPopover}'"></div></div>`
+
+                        let toCompile = ''
+                        if (attrs.tippyPopover.endsWith('.html')) {
+                            toCompile = `<div class="tippy-popover">${title}<div ng-include="'${attrs.tippyPopover}'"></div></div>`
+                        } else {
+                            toCompile = `<div class="tippy-popover">${title}<div>${attrs.tippyPopover}`
+                        }
                         const compiled = $compile(toCompile)($scope)[0]
                         instance.setContent(compiled)
                         $scope.$apply()

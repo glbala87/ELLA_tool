@@ -75,6 +75,7 @@
                         class="clickable"
                         tippy-popover="proteinPopover.ngtmpl.html"
                         tippy-placement="bottom"
+                        tippy-popover-title="Protein"
                     >
                         <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
                             $ctrl.formatCodons(t.codons)
@@ -89,6 +90,7 @@
                 <div
                     tippy-popover="alleleInfoConsequencePopover.ngtmpl.html"
                     tippy-placement="bottom"
+                    tippy-popover-title="Consequence"
                 >
                     <span class="clickable" ng-repeat="c in t.consequences">{{
                         c | noUnderscores
