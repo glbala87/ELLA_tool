@@ -1089,7 +1089,8 @@ nav.warning {
                 transition: background-color 0.4s;
                 cursor: pointer;
                 padding: 0;
-                &.reviewed,  &.finalized {
+                &.reviewed,
+                &.finalized {
                     color: $white;
                     .class-amcg-container .classification-container .existing-classification {
                         color: $white-50;
@@ -1100,7 +1101,6 @@ nav.warning {
                 }
                 &.finalized {
                     background-color: $blue;
-
                 }
                 .class-amcg-container {
                     display: flex;

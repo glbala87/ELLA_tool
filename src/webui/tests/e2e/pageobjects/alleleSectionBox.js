@@ -150,11 +150,7 @@ class AlleleSectionBox {
     }
 
     get finalizeBtn() {
-        return util.elementIntoView('allele-sectionbox .id-finalize-button > button:first-of-type')
-    }
-
-    get finalizeConfirmBtn() {
-        return util.elementIntoView('allele-sectionbox .id-finalize-button > button:nth-of-type(2)')
+        return util.elementIntoView('allele-sectionbox .id-finalize-button')
     }
 
     get alleleWarningText() {
@@ -168,7 +164,6 @@ class AlleleSectionBox {
 
     finalize() {
         this.finalizeBtn.click()
-        this.finalizeConfirmBtn.click()
     }
 
     _setClassification(index) {
