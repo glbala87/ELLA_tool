@@ -12,10 +12,6 @@ from .customannotationconfig import customannotationconfig
 ELLA_ROOT = os.path.abspath(os.path.join(os.path.split(os.path.abspath(__file__))[0], "../../.."))
 
 
-def str2bool(v):
-    return v.lower() in ("yes", "true", "t", "1")
-
-
 def file_constructor(loader, node):
     "YAML constructor for getting correct file path"
     resolved = os.path.join(ELLA_ROOT, node.value)
@@ -41,7 +37,7 @@ def environment_constructor(loader, node):
     if "_" in node.tag:
         # Explicit
         # Resolve tag from e.g. "str" -> "tag:yaml.org,2002:str"
-        unresolved_tag = node.tag.split("_")[1]
+        unresolved_tag = node.tag.split("_", 1)[1]
         if loader.DEFAULT_TAGS["!!"] + unresolved_tag in loader.yaml_constructors:
             # Tag is standard (bool, str, int etc)
             tag = loader.DEFAULT_TAGS["!!"] + unresolved_tag
@@ -64,15 +60,10 @@ class ConfigLoader(yaml.SafeLoader):
 
 # Add custom YAML constructors
 ConfigLoader.add_constructor("!file", file_constructor)
-ConfigLoader.add_constructor("!env", environment_constructor)
-# Add YAML constructors for !env_bool, !env_str, !env_file etc
-default_tags = [
-    tag.split(":")[-1].lstrip("!") for tag in ConfigLoader.yaml_constructors if tag is not None
-]
-for tag in default_tags:
-    if tag == "str":
-        continue
-    ConfigLoader.add_constructor("!env_{}".format(tag), environment_constructor)
+ConfigLoader.add_constructor("!env", environment_constructor)  # No need for env_str
+ConfigLoader.add_constructor("!env_bool", environment_constructor)
+ConfigLoader.add_constructor("!env_int", environment_constructor)
+ConfigLoader.add_constructor("!env_float", environment_constructor)
 
 # Load config
 assert "ELLA_CONFIG" in os.environ, "Config file not provided in environment variable 'ELLA_CONFIG'"
@@ -144,7 +135,7 @@ config["custom_annotation"] = customannotationconfig
 
 def get_user_config(app_config, usergroup_config, user_config):
     # Use json instead of copy.deepcopy for performance
-    merged_config = copy.deepcopy(app_config.get("user", {}).get("user_config", {}))
-    merged_config.update(copy.deepcopy(usergroup_config))
-    merged_config.update(copy.deepcopy(user_config))
+    merged_config = json.loads(json.dumps(app_config.get("user", {}).get("user_config", {})))
+    merged_config.update(json.loads(json.dumps((usergroup_config))))
+    merged_config.update(json.loads(json.dumps((user_config))))
     return merged_config
