@@ -20,17 +20,11 @@ def make_db(db):
 def refresh_tmp(db):
     # Although the annotationshadow tables were created above in create_all()
     # they have extra logic with triggers on dynamic fields, so we need to (re)create them
-    create_tmp_shadow_tables(db.session, config, create_transcript=True, create_frequency=True)
+    create_tmp_shadow_tables(db.session, config)
 
 
-def refresh(db, skip_tmp_tables=False):
+def refresh(db, use_prepared_tmp_tables=False):
     # Add json schemas to table
     update_schemas(db.session)
 
-    create_shadow_tables(
-        db.session,
-        config,
-        create_transcript=True,
-        create_frequency=True,
-        skip_tmp_tables=skip_tmp_tables,
-    )
+    create_shadow_tables(db.session, config, use_prepared_tmp_tables=use_prepared_tmp_tables)

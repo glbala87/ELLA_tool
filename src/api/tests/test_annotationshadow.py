@@ -19,14 +19,14 @@ GLOBAL_CONFIG = {
 
 def get_freq_column_names():
     names = list()
-    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
+    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG["frequencies"]["groups"]):
         names.append("{}.{}".format(provider, key))
     return names
 
 
 def get_freq_num_column_names():
     names = list()
-    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG):
+    for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG["frequencies"]["groups"]):
         names.append("{}_num.{}".format(provider, key))
     return names
 

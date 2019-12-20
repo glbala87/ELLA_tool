@@ -82,7 +82,7 @@ def cmd_refresh(logger, f=None):
 
     refresh_tmp(db)
     logger.echo("Done!")
-    warning = "This will refresh all shadow tables in the database. Do not run this command while app is running.\nType 'CONFIRM' to confirm.\n"
+    warning = "Ready to replace existing shadow tables. Make sure ELLA is not running before continuing.\nType 'CONFIRM' to confirm.\n"
     with confirm(
         logger.echo,
         "Shadow tables should now have been refreshed. ELLA can now be restarted again",
@@ -90,7 +90,7 @@ def cmd_refresh(logger, f=None):
         warning=warning,
     ):
         logger.echo("Replacing existing tables with created temporary tables")
-        refresh(db, skip_tmp_tables=True)
+        refresh(db, use_prepared_tmp_tables=True)
         db.session.commit()
         ast_count = list(db.session.execute("SELECT COUNT(*) FROM annotationshadowtranscript"))[0][
             0

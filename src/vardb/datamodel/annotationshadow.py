@@ -32,8 +32,7 @@ class _AnnotationShadowFrequency(object):
 AnnotationShadowFrequency: Any = _AnnotationShadowFrequency
 
 
-def iter_freq_groups(config):
-    frequency_groups = config["frequencies"]["groups"]
+def iter_freq_groups(frequency_groups):
     for freq_group in frequency_groups:
         for freq_provider, freq_keys in frequency_groups[
             freq_group
@@ -66,7 +65,7 @@ def update_annotation_shadow_columns(config):
 
 
 def iter_config_columns(config):
-    for freq_provider, freq_key in iter_freq_groups(config):
+    for freq_provider, freq_key in iter_freq_groups(config["frequencies"]["groups"]):
         yield freq_provider + "." + freq_key, Float
         yield freq_provider + "_num." + freq_key, Integer
 
@@ -77,7 +76,7 @@ def get_annotationshadowfrequency_table(config, name="annotationshadowfrequency"
         Base.metadata,
         Column("id", Integer, primary_key=True),
         Column("allele_id", ForeignKey("allele.id"), index=True),
-        *[Column(c[0], c[1]) for c in iter_config_columns(config)]
+        *[Column(c[0], c[1]) for c in iter_config_columns(config)],
     )
 
 
@@ -127,7 +126,7 @@ def check_db_consistency(session, config, subset=False):
         ), "{}\n{}".format(db_column_names, set([c[0] for c in iter_config_columns(config)]))
 
 
-def create_trigger_sql(config):
+def create_trigger_sql(config, for_tmp=False):
     """
     Set up triggers to update annotationshadow tables upon
     changes (INSERT, UPDATE, or DELETE) to the annotation table.
@@ -136,7 +135,7 @@ def create_trigger_sql(config):
     """
     freq_insert_into = []
     freq_values = []
-    for freq_provider, freq_key in iter_freq_groups(config):
+    for freq_provider, freq_key in iter_freq_groups(config["frequencies"]["groups"]):
         freq_insert_into.append('"{}.{}"'.format(freq_provider, freq_key))
         freq_insert_into.append('"{}_num.{}"'.format(freq_provider, freq_key))
         freq_values.append(
@@ -149,13 +148,24 @@ def create_trigger_sql(config):
                 freq_provider, freq_key
             )
         )
+    frequency_insert_into = ",\n".join(freq_insert_into)
+    frequency_values = ",\n".join(freq_values)
 
-    return """
-    CREATE OR REPLACE FUNCTION insert_annotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
+    if not for_tmp:
+        annotationshadow = "annotationshadow"
+        annotationshadowtranscript = "annotationshadowtranscript"
+        annotationshadowfrequency = "annotationshadowfrequency"
+    else:
+        annotationshadow = "tmp_annotationshadow"
+        annotationshadowtranscript = "tmp_annotationshadowtranscript"
+        annotationshadowfrequency = "tmp_annotationshadowfrequency"
+
+    return f"""
+    CREATE OR REPLACE FUNCTION insert_{annotationshadowtranscript}(allele_id INTEGER, annotations JSONB) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            INSERT INTO annotationshadowtranscript
+            INSERT INTO {annotationshadowtranscript}
                 (
                     allele_id,
                     hgnc_id,
@@ -182,42 +192,11 @@ def create_trigger_sql(config):
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION insert_tmpannotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
+    CREATE OR REPLACE FUNCTION insert_{annotationshadowfrequency}(allele_id INTEGER, annotations JSONB) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            INSERT INTO tmp_annotationshadowtranscript
-                (
-                    allele_id,
-                    hgnc_id,
-                    symbol,
-                    transcript,
-                    hgvsc,
-                    protein,
-                    hgvsp,
-                    consequences,
-                    exon_distance,
-                    coding_region_distance
-                )
-                SELECT allele_id,
-                    (a->>'hgnc_id')::integer,
-                    a->>'symbol',
-                    a->>'transcript',
-                    a->>'HGVSc',
-                    a->>'protein',
-                    a->>'HGVSp',
-                    ARRAY(SELECT jsonb_array_elements_text(a->'consequences')),
-                    (a->>'exon_distance')::integer,
-                    (a->>'coding_region_distance')::integer
-                FROM jsonb_array_elements(annotations->'transcripts') as a;
-        END;
-    $$;
-
-    CREATE OR REPLACE FUNCTION insert_annotationshadowfrequency(allele_id INTEGER, annotations JSONB) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-        BEGIN
-            INSERT INTO annotationshadowfrequency
+            INSERT INTO {annotationshadowfrequency}
                 (
                     allele_id,
                     {frequency_insert_into}
@@ -230,38 +209,21 @@ def create_trigger_sql(config):
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION insert_tmpannotationshadowfrequency(allele_id INTEGER, annotations JSONB) RETURNS void
+    CREATE OR REPLACE FUNCTION delete_{annotationshadow}(al_id INTEGER) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            INSERT INTO tmp_annotationshadowfrequency
-                (
-                    allele_id,
-                    {frequency_insert_into}
-                )
-                VALUES (
-                    allele_id,
-                    {frequency_values}
-                );
-
+            DELETE FROM {annotationshadowtranscript} WHERE allele_id = al_id;
+            DELETE FROM {annotationshadowfrequency} WHERE allele_id = al_id;
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION delete_annotationshadow(al_id INTEGER) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-        BEGIN
-            DELETE FROM annotationshadowtranscript WHERE allele_id = al_id;
-            DELETE FROM annotationshadowfrequency WHERE allele_id = al_id;
-        END;
-    $$;
-
-    CREATE OR REPLACE FUNCTION annotation_to_annotationshadow() RETURNS TRIGGER AS $annotation_to_annotationshadow$
+    CREATE OR REPLACE FUNCTION annotation_to_{annotationshadow}() RETURNS TRIGGER AS $annotation_to_{annotationshadow}$
         BEGIN
             IF (TG_OP = 'INSERT') THEN
-                PERFORM delete_annotationshadow(NEW.allele_id);
-                PERFORM insert_annotationshadowtranscript(NEW.allele_id, NEW.annotations);
-                PERFORM insert_annotationshadowfrequency(NEW.allele_id, NEW.annotations);
+                PERFORM delete_{annotationshadow}(NEW.allele_id);
+                PERFORM insert_{annotationshadowtranscript}(NEW.allele_id, NEW.annotations);
+                PERFORM insert_{annotationshadowfrequency}(NEW.allele_id, NEW.annotations);
                 RETURN NEW;
             ELSIF (TG_OP = 'UPDATE') THEN
                 IF (
@@ -277,79 +239,68 @@ def create_trigger_sql(config):
                 RETURN OLD;
             END IF;
         END;
-    $annotation_to_annotationshadow$ LANGUAGE plpgsql;
+    $annotation_to_{annotationshadow}$ LANGUAGE plpgsql;
 
-    DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation;
-    CREATE TRIGGER annotation_to_annotationshadow
+    DROP TRIGGER IF EXISTS annotation_to_{annotationshadow} ON annotation;
+    CREATE TRIGGER annotation_to_{annotationshadow}
     BEFORE INSERT OR UPDATE OR DELETE ON annotation
-        FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadow();
-    """.format(
-        frequency_insert_into=",\n".join(freq_insert_into), frequency_values=",\n".join(freq_values)
-    )
+        FOR EACH ROW EXECUTE PROCEDURE annotation_to_{annotationshadow}();
+    """
 
 
-class MissingColumnError(AssertionError):
-    pass
-
-
-def _check_groups(frequency_groups):
-    "Check that the freq_provider and key, e.g. GNOMAD_EXOMES G is represented in AnnotationShadowFrequency"
-    existing_columns = set(AnnotationShadowFrequency.__table__.columns.keys()) - set(
-        ["id", "allele_id"]
-    )
-
-    frequency_group_columns = set(
-        c[0] for c in iter_config_columns({"frequencies": {"groups": frequency_groups}})
-    )
-    if frequency_group_columns - existing_columns:
-        raise MissingColumnError(
-            "AnnotationShadowFrequency missing column(s) {}. Fix global config, and rebuild shadow tables".format(
-                ", ".join(frequency_group_columns - existing_columns)
-            )
-        )
-
-
-def check_filterconfig(filterconfig):
-    "Verify that the columns to be used for frequency filtering are present in annotationshadowfrequency"
+def check_filterconfig(filterconfig, config):
+    """Verify that the frequency groups to be used for frequency filtering are a subset of the
+    global frequency groups, used to build the annotationshadowfrequency table"""
     for f in filterconfig["filters"]:
         if f["name"] != "frequency":
             continue
-        _check_groups(f["config"]["groups"])
+
+        missing_freq_groups = set(iter_freq_groups(f["config"]["groups"])) - set(
+            iter_freq_groups(config["frequencies"]["groups"])
+        )
+        assert not missing_freq_groups, "Missing frequency group(s) in global config: {}".format(
+            missing_freq_groups
+        )
 
 
-def check_usergroup_config(usergroup):
-    "Verify that the columns to be used for ACMG frequency config are present in annotationshadowfrequency"
+def check_usergroup_config(usergroup, config):
+    """Verify that the ACMG frequency groups are a subset of the global frequency groups, used to
+     build the annotationshadowfrequency table"""
     if usergroup.config is not None:
-        _check_groups(usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {}))
+        amcg_freq_config = usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {})
+        missing_freq_groups = set(iter_freq_groups(amcg_freq_config)) - set(
+            iter_freq_groups(config["frequencies"]["groups"])
+        )
+        assert not missing_freq_groups, "Missing frequency group(s) in global config: {}".format(
+            missing_freq_groups
+        )
 
 
-def check_filterconfig_and_acmg_groups(session):
+def check_filterconfig_and_acmg_groups(session, config):
     "Check that the columns in annotationshadowfrequency allow for all active filterconfigs and ACMG configs"
     filterconfigs = session.query(
         sample.FilterConfig.id, sample.FilterConfig.name, sample.FilterConfig.filterconfig
     ).filter(sample.FilterConfig.active.is_(True))
     for id, name, fc in filterconfigs:
         try:
-            check_filterconfig(fc)
-        except MissingColumnError:
-            raise MissingColumnError(
-                "Column not present used in filterconfig {} ({})".format(id, name)
-            )
+            check_filterconfig(fc, config)
+        except AssertionError:
+            raise AssertionError("Frequency group(s) used in filterconfig {} ({})".format(id, name))
 
     usergroup_configs = session.query(user.UserGroup)
 
     for usergroup in usergroup_configs:
         try:
-            check_usergroup_config(usergroup)
-        except MissingColumnError:
-            raise MissingColumnError(
-                "Column not present used in the ACMG config for usergroup {} ({}).".format(
+            check_usergroup_config(usergroup, config)
+        except AssertionError:
+            raise AssertionError(
+                "Frequency group(s) used in the ACMG config for usergroup {} ({}).".format(
                     usergroup.id, usergroup.name
                 )
             )
 
 
-def create_tmp_shadow_tables(session, config, create_transcript=True, create_frequency=True):
+def create_tmp_shadow_tables(session, config):
     """
     Creates temporary shadow tables. Populate according to existing data
     the annotation table.
@@ -358,46 +309,42 @@ def create_tmp_shadow_tables(session, config, create_transcript=True, create_fre
     avoids a lock on the shadow tables.
 
     """
-    session.execute(create_trigger_sql(config))
+    session.execute(create_trigger_sql(config, for_tmp=True))
 
     conn = session.connection()
-    if create_transcript:
-        # Create annotationshadowtranscript in a temp table amd insert all data
-        tmp_annotationshadowtranscript = get_annotationshadowtranscript_table(
-            "tmp_annotationshadowtranscript"
-        )
-        tmp_annotationshadowtranscript.create(conn)
-        conn.execute(
-            "SELECT insert_tmpannotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
-        )
+    # Create annotationshadowtranscript in a temp table amd insert all data
+    tmp_annotationshadowtranscript = get_annotationshadowtranscript_table(
+        "tmp_annotationshadowtranscript"
+    )
+    tmp_annotationshadowtranscript.create(conn)
+    conn.execute(
+        "SELECT insert_tmp_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
+    )
 
-        # Remove temporary table from metadata
-        Base.metadata.remove(tmp_annotationshadowtranscript)
+    # Remove temporary table from metadata
+    Base.metadata.remove(tmp_annotationshadowtranscript)
 
-    if create_frequency:
-        # Create annotationshadowfrequency in a temp table amd insert all data
-        tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
-            config, name="tmp_annotationshadowfrequency"
-        )
-        tmp_annotationshadowfrequency.create(conn)
-        conn.execute(
-            "SELECT insert_tmpannotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL;"
-        )
+    # Create annotationshadowfrequency in a temp table amd insert all data
+    tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
+        config, name="tmp_annotationshadowfrequency"
+    )
+    tmp_annotationshadowfrequency.create(conn)
+    conn.execute(
+        "SELECT insert_tmp_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL;"
+    )
 
-        # Remove temporary table from metadata
-        Base.metadata.remove(tmp_annotationshadowfrequency)
+    # Remove temporary table from metadata
+    Base.metadata.remove(tmp_annotationshadowfrequency)
 
-        # Map AnnotationShadowFrequency using the same config used to refresh the table
-        update_annotation_shadow_columns(config)
+    # Map AnnotationShadowFrequency using the same config used to refresh the table
+    update_annotation_shadow_columns(config)
 
-        # Check that all filterconfigs and usergroups' ACMG-configuration are still valid,
-        # given the possible change in columns
-        check_filterconfig_and_acmg_groups(session)
+    # Check that all filterconfigs and usergroups' ACMG-configuration are still valid,
+    # given the possible change in columns
+    check_filterconfig_and_acmg_groups(session, config)
 
 
-def create_shadow_tables(
-    session, config, create_transcript=True, create_frequency=True, skip_tmp_tables=False
-):
+def create_shadow_tables(session, config, use_prepared_tmp_tables=False):
     """
     Optionally create temporary shadow tables (needs to be done if not done).
 
@@ -411,14 +358,14 @@ def create_shadow_tables(
     as the rest of the incoming session (?). All actions might therefore not
     happen within one transaction.
     """
-    if skip_tmp_tables:
+    if use_prepared_tmp_tables:
         # Check that tmp tables are available
         res = session.execute("SELECT table_name FROM information_schema.tables")
         table_names = set([r[0] for r in res.fetchall()])
-        if create_transcript:
-            assert "tmp_annotationshadowtranscript" in table_names
-        if create_frequency:
-            assert "tmp_annotationshadowfrequency" in table_names
+        assert (
+            set(["tmp_annotationshadowtranscript", "tmp_annotationshadowfrequency"]) - table_names
+            == set()
+        )
     else:
         create_tmp_shadow_tables(session, config)
 
@@ -454,8 +401,12 @@ def create_shadow_tables(
                 )
             )
 
-    if create_frequency:
-        rename_tmp("annotationshadowfrequency")
+    session.execute(create_trigger_sql(config))
+    session.execute(
+        "DROP TRIGGER annotation_to_tmp_annotationshadow ON annotation;"
+        "DROP FUNCTION annotation_to_tmp_annotationshadow;"
+        "DROP FUNCTION delete_tmp_annotationshadow;"
+    )
 
-    if create_transcript:
-        rename_tmp("annotationshadowtranscript")
+    rename_tmp("annotationshadowfrequency")
+    rename_tmp("annotationshadowtranscript")
