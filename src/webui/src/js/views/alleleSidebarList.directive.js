@@ -75,7 +75,7 @@ app.component('alleleSidebarList', {
             alleleRatio: getAlleleRatioById(state`${props`allelesPath`}`),
             hiFreq: getHiFrequencyById(state`${props`allelesPath`}`, 'freq'),
             hiCount: getHiFrequencyById(state`${props`allelesPath`}`, 'count'),
-            hiFreqDef: getHiFrequencyDefinition(),
+            hiFreqDef: getHiFrequencyDefinition,
             externalSummary: getExternalSummaryById(state`${props`allelesPath`}`),
             isNonsense: isNonsenseById(state`${props`allelesPath`}`),
             isMultipleSampleType,
@@ -306,13 +306,13 @@ app.component('alleleSidebarList', {
                         let title = ''
                         for (let { provider, population, numThreshold } of $ctrl.hiFreqDef) {
                             if (numThreshold) {
-                                title += `${provider}.${population} (count > ${numThreshold})\n`
+                                title += `${provider}.${population} (number > ${numThreshold})\n`
                             } else {
                                 title += `${provider}.${population}\n`
                             }
                         }
                         if (title === '') {
-                            return 'Highest frequency'
+                            return 'No frequency filter configured'
                         } else {
                             return 'Highest frequency from:\n' + title
                         }

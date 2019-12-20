@@ -54,31 +54,25 @@ export default function getHiFrequencyById(alleles, key) {
     )
 }
 
-export function getHiFrequencyDefinition() {
-    return Compute(
-        state`views.workflows.interpretation.data.filterConfig`,
-        (currentFilterConfig) => {
-            return Array.from(frequencyGroupsGenerator(currentFilterConfig))
-        }
-    )
-}
+export const getHiFrequencyDefinition = Compute(
+    state`views.workflows.interpretation.data.filterConfig`,
+    (currentFilterConfig) => {
+        return Array.from(frequencyGroupsGenerator(currentFilterConfig))
+    }
+)
 
 function* frequencyGroupsGenerator(filterConfig) {
     // Iterate over provider, population, and num threshold in filterconfig
-    if (!filterConfig) {
-        var frequencyGroups = {}
-        var frequencyNumThresholds = {}
-    } else {
+    let frequencyGroups = {}
+    let frequencyNumThresholds = {}
+    if (filterConfig) {
         // WARNING: Select first frequency filter. Not strictly correct when there are multiple frequency filters defined.
         const frequencyFilter = filterConfig.filterconfig.filters.find(
             (f) => f.name === 'frequency'
         )
-        if (!frequencyFilter) {
-            var frequencyGroups = {}
-            var frequencyNumThresholds = {}
-        } else {
-            var frequencyGroups = frequencyFilter.config.groups
-            var frequencyNumThresholds = frequencyFilter.config.num_thresholds || {}
+        if (frequencyFilter) {
+            frequencyGroups = frequencyFilter.config.groups
+            frequencyNumThresholds = frequencyFilter.config.num_thresholds || {}
         }
     }
     for (const providers of Object.values(frequencyGroups)) {
