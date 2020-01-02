@@ -1,5 +1,5 @@
+from typing import DefaultDict, Dict, List
 import datetime
-import itertools
 import pytz
 from collections import defaultdict
 
@@ -14,7 +14,6 @@ from api.util.assessmentcreator import AssessmentCreator
 from api.util.allelereportcreator import AlleleReportCreator
 from api.util.snapshotcreator import SnapshotCreator
 from api.util.alleledataloader import AlleleDataLoader
-from api.util.interpretationdataloader import InterpretationDataLoader
 from api.util import queries
 from api.util.util import get_nested
 
@@ -351,9 +350,11 @@ def get_interpretations(
     return loaded_interpretations
 
 
-def override_interpretation(session, user_id, allele_id=None, analysis_id=None):
+def override_interpretation(
+    session, user_id, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
 
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
 
     # Get user by username
     new_user = session.query(user.User).filter(user.User.id == user_id).one()
@@ -367,20 +368,22 @@ def override_interpretation(session, user_id, allele_id=None, analysis_id=None):
     return interpretation
 
 
-def start_interpretation(session, user_id, data, allele_id=None, analysis_id=None):
+def start_interpretation(
+    session, user_id, data, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
 
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
 
     # Get user by username
     start_user = session.query(user.User).filter(user.User.id == user_id).one()
 
     if not interpretation:
-        interpretation_model = _get_interpretation_model(allele_id, analysis_id)
+        interpretation_model = _get_interpretation_model(workflow_allele_id, workflow_analysis_id)
         interpretation = interpretation_model()
-        if allele_id is not None:
-            interpretation.allele_id = allele_id
-        elif analysis_id is not None:
-            interpretation.analysis_id = analysis_id
+        if workflow_allele_id is not None:
+            interpretation.allele_id = workflow_allele_id
+        elif workflow_analysis_id is not None:
+            interpretation.analysis_id = workflow_analysis_id
 
         session.add(interpretation)
 
@@ -395,11 +398,13 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     interpretation.status = "Ongoing"
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
-    if analysis_id is not None:
-        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+    if workflow_analysis_id is not None:
+        analysis = (
+            session.query(sample.Analysis).filter(sample.Analysis.id == workflow_analysis_id).one()
+        )
         interpretation.genepanel = analysis.genepanel
 
-    elif allele_id is not None:
+    elif workflow_allele_id is not None:
         # For allele workflow, the user can choose genepanel context for each interpretation
         interpretation.genepanel_name = data["gp_name"]
         interpretation.genepanel_version = data["gp_version"]
@@ -409,13 +414,15 @@ def start_interpretation(session, user_id, data, allele_id=None, analysis_id=Non
     return interpretation
 
 
-def mark_interpretation(session, workflow_status, data, allele_id=None, analysis_id=None):
+def mark_interpretation(
+    session, workflow_status, data, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
     """
     Marks (and copies) an interpretation for a new workflow_status,
     creating Snapshot objects to record history.
     """
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
-    interpretation_model = _get_interpretation_model(allele_id, analysis_id)
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
+    interpretation_model = _get_interpretation_model(workflow_allele_id, workflow_analysis_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError(
@@ -426,7 +433,7 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
 
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
-        _get_snapshotcreator_mode(allele_id, analysis_id),
+        _get_snapshotcreator_mode(workflow_allele_id, workflow_analysis_id),
         interpretation,
         data["annotation_ids"],
         data["custom_annotation_ids"],
@@ -447,30 +454,48 @@ def mark_interpretation(session, workflow_status, data, allele_id=None, analysis
     return interpretation, interpretation_next
 
 
-def marknotready_interpretation(session, data, analysis_id=None):
-    return mark_interpretation(session, "Not ready", data, analysis_id=analysis_id)
-
-
-def markinterpretation_interpretation(session, data, allele_id=None, analysis_id=None):
+def marknotready_interpretation(session, data, workflow_analysis_id: int = None):
     return mark_interpretation(
-        session, "Interpretation", data, allele_id=allele_id, analysis_id=analysis_id
+        session, "Not ready", data, workflow_analysis_id=workflow_analysis_id
     )
 
 
-def markreview_interpretation(session, data, allele_id=None, analysis_id=None):
+def markinterpretation_interpretation(
+    session, data, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
     return mark_interpretation(
-        session, "Review", data, allele_id=allele_id, analysis_id=analysis_id
+        session,
+        "Interpretation",
+        data,
+        workflow_allele_id=workflow_allele_id,
+        workflow_analysis_id=workflow_analysis_id,
     )
 
 
-def markmedicalreview_interpretation(session, data, analysis_id=None):
-    return mark_interpretation(session, "Medical review", data, analysis_id=analysis_id)
+def markreview_interpretation(
+    session, data, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
+    return mark_interpretation(
+        session,
+        "Review",
+        data,
+        workflow_allele_id=workflow_allele_id,
+        workflow_analysis_id=workflow_analysis_id,
+    )
 
 
-def reopen_interpretation(session, allele_id=None, analysis_id=None):
+def markmedicalreview_interpretation(session, data, workflow_analysis_id: int = None):
+    return mark_interpretation(
+        session, "Medical review", data, workflow_analysis_id=workflow_analysis_id
+    )
 
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
-    interpretation_model = _get_interpretation_model(allele_id, analysis_id)
+
+def reopen_interpretation(
+    session, workflow_allele_id: int = None, workflow_analysis_id: int = None
+):
+
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
+    interpretation_model = _get_interpretation_model(workflow_allele_id, workflow_analysis_id)
 
     if interpretation is None:
         raise ApiError(
@@ -491,37 +516,39 @@ def reopen_interpretation(session, allele_id=None, analysis_id=None):
 
 
 def finalize_allele(
-    session, user_id, usergroup_id, data, user_config, allele_id=None, analysis_id=None
+    session,
+    user_id: int,
+    usergroup_id: int,
+    data,
+    user_config,
+    workflow_allele_id: int = None,
+    workflow_analysis_id: int = None,
 ):
     """
     Finalizes a single allele within an analysis.
 
-    This will create any [alleleassessment|referenceassessment|allelereport] objects for the provided allele id.
+    This will create any [alleleassessment|referenceassessments|allelereport] objects for the provided allele id (in data).
 
-    For each assessment/report, there are two cases:
-    - 'reuse=False' or reuse is missing: a new assessment/report is created in the database using the data given.
-    - 'reuse=True' The id of an existing assessment/report is expected in 'presented_assessment_id'
-        or 'presented_report_id'.
-
-
-    **Only works for analyses with a `Ongoing` current interpretation**
+    **Only works for workflows with a `Ongoing` current interpretation**
     """
 
-    assert allele_id or analysis_id
+    assert workflow_allele_id or workflow_analysis_id
 
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize allele when latest interpretation is not 'Ongoing'")
 
-    if allele_id:
-        assert data["allele_id"] == allele_id
+    if workflow_allele_id:
+        assert data["allele_id"] == workflow_allele_id
 
-    if analysis_id:
+    if workflow_analysis_id:
         assert (
             session.query(allele.Allele)
             .join(allele.Allele.genotypes, sample.Sample, sample.Analysis)
-            .filter(sample.Analysis.id == analysis_id, allele.Allele.id == data["allele_id"])
+            .filter(
+                sample.Analysis.id == workflow_analysis_id, allele.Allele.id == data["allele_id"]
+            )
             .count()
             == 1
         )
@@ -554,7 +581,7 @@ def finalize_allele(
             )
 
     # Check that we can finalize allele
-    workflow_type = "allele" if allele_id else "analysis"
+    workflow_type = "allele" if workflow_allele_id else "analysis"
     finalize_requirements = get_nested(
         user_config, ["workflows", workflow_type, "finalize_requirements"]
     )
@@ -572,10 +599,12 @@ def finalize_allele(
         usergroup_id,
         data["allele_id"],
         data["annotation_id"],
+        data["custom_annotation_id"],
+        interpretation.genepanel_name,
+        interpretation.genepanel_version,
         data["alleleassessment"],
-        custom_annotation_id=data["custom_annotation_id"],
-        referenceassessments=data["referenceassessments"],
-        analysis_id=analysis_id,
+        data["referenceassessments"],
+        analysis_id=workflow_analysis_id,
     )
 
     alleleassessment = None
@@ -597,7 +626,7 @@ def finalize_allele(
         data["allele_id"],
         data["allelereport"],
         alleleassessment,
-        analysis_id=analysis_id,
+        analysis_id=workflow_analysis_id,
     )
 
     if report_result.created_allelereport:
@@ -611,9 +640,9 @@ def finalize_allele(
 
     # Create entry in interpretation log
     il_data = {"user_id": user_id}
-    if allele_id:
+    if workflow_allele_id:
         il_data["alleleinterpretation_id"] = interpretation.id
-    if analysis_id:
+    if workflow_analysis_id:
         il_data["analysisinterpretation_id"] = interpretation.id
     if assessment_result.created_alleleassessment:
         il_data["alleleassessment_id"] = assessment_result.created_alleleassessment.id
@@ -634,7 +663,14 @@ def finalize_allele(
     }
 
 
-def finalize_interpretation(session, user_id, data, user_config, allele_id=None, analysis_id=None):
+def finalize_workflow(
+    session,
+    user_id: int,
+    data,
+    user_config,
+    workflow_allele_id: int = None,
+    workflow_analysis_id: int = None,
+):
     """
     Finalizes an interpretation.
 
@@ -647,7 +683,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
     **Only works for analyses with a `Ongoing` current interpretation**
     """
 
-    interpretation = _get_latest_interpretation(session, allele_id, analysis_id)
+    interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
@@ -671,7 +707,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
     # Check that we can finalize
     # There are different criterias deciding when finalization is allowed
     exempted_classification_allele_ids = set()  # allele ids that don't need classification
-    workflow_type = "allele" if allele_id else "analysis"
+    workflow_type = "allele" if workflow_allele_id else "analysis"
 
     finalize_requirements = get_nested(
         user_config, ["workflows", workflow_type, "finalize_requirements"]
@@ -720,7 +756,7 @@ def finalize_interpretation(session, user_id, data, user_config, allele_id=None,
 
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
-        _get_snapshotcreator_mode(allele_id, analysis_id),
+        _get_snapshotcreator_mode(workflow_allele_id, workflow_analysis_id),
         interpretation,
         data["annotation_ids"],
         data["custom_annotation_ids"],
@@ -893,9 +929,9 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         .order_by(workflow.InterpretationLog.date_created)
     )
 
-    field = "alleleinterpretation_id" if allele_id else "analysisinterpretation_id"
+    id_field = "alleleinterpretation_id" if allele_id else "analysisinterpretation_id"
     editable = {
-        l.id: getattr(l, field) == latest_interpretation.id
+        l.id: getattr(l, id_field) == latest_interpretation.id
         and (not latest_interpretation.finalized or latest_interpretation.status != "Done")
         and l.user_id == user_id
         and l.message is not None
@@ -951,27 +987,40 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         allele_ids=allele_ids,
     ).subquery()
 
-    allele_hgvs = session.query(
-        annotation_genepanel.c.allele_id,
-        annotation_genepanel.c.annotation_symbol,
-        annotation_genepanel.c.annotation_hgvsc,
-    ).all()
+    allele_hgvs = (
+        session.query(
+            allele.Allele.id,
+            allele.Allele.chromosome,
+            allele.Allele.vcf_pos,
+            allele.Allele.vcf_ref,
+            allele.Allele.vcf_alt,
+            annotation_genepanel.c.annotation_symbol,
+            annotation_genepanel.c.annotation_hgvsc,
+        )
+        .outerjoin(annotation_genepanel, annotation_genepanel.c.allele_id == allele.Allele.id)
+        .filter(allele.Allele.id.in_(allele_ids))
+        .all()
+    )
 
-    allele_hgvs_by_id = defaultdict(list)
+    formatted_allele_by_id: DefaultDict[int, List] = defaultdict(list)
     for a in allele_hgvs:
-        allele_hgvs_by_id[a.allele_id].append(a)
+        if a.annotation_hgvsc:
+            formatted_allele_by_id[a.id].append(f"{a.annotation_symbol} {a.annotation_hgvsc}")
+        else:
+            formatted_allele_by_id[a.id].append(
+                f"{a.chromosome}:{a.vcf_pos} {a.vcf_ref}>{a.vcf_alt}"
+            )
 
     for loaded_log in loaded_logs:
         loaded_log["alleleassessment"] = {}
         loaded_log["allelereport"] = {}
-        if loaded_log["alleleassessment_id"]:
-            log_aa = alleleassessments_by_id[loaded_log["alleleassessment_id"]]
+        alleleassessment_id = loaded_log.pop("alleleassessment_id", None)
+        if alleleassessment_id:
+            log_aa = alleleassessments_by_id[alleleassessment_id]
             loaded_log["alleleassessment"].update(
                 {
                     "allele_id": log_aa.allele_id,
-                    "hgvsc": [
-                        f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_aa.allele_id])
-                    ],
+                    "hgvsc": sorted(formatted_allele_by_id[log_aa.allele_id]),
                     "classification": log_aa.classification,
                     "previous_classification": previous_alleleassessment_classifications_by_id[
                         log_aa.previous_assessment_id
@@ -980,18 +1029,15 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
                     else None,
                 }
             )
-        if loaded_log["allelereport_id"]:
-            log_ar = allelereports_by_id[loaded_log["allelereport_id"]]
+        allelereport_id = loaded_log.pop("allelereport_id", None)
+        if allelereport_id:
+            log_ar = allelereports_by_id[allelereport_id]
             loaded_log["allelereport"].update(
                 {
                     "allele_id": log_ar.allele_id,
-                    "hgvsc": [
-                        f"{a[1]} {a[2]}" for a in sorted(allele_hgvs_by_id[log_ar.allele_id])
-                    ],
+                    "hgvsc": sorted(formatted_allele_by_id[log_ar.allele_id]),
                 }
             )
-
-        del loaded_log["allelereport_id"]
 
     # Load all relevant user data
     user_ids = set([l["user_id"] for l in loaded_logs])

@@ -16,6 +16,43 @@ from alembic import op
 import sqlalchemy as sa
 
 
+def get_interpretation_alleleassessment_query(interpretationtype: str) -> str:
+    assert interpretationtype in ["analysisinterpretation", "alleleinterpretation"]
+    return f"""INSERT INTO interpretationlog
+        ({interpretationtype}_id, user_id, date_created, alleleassessment_id, allelereport_id)
+        SELECT
+            ais.{interpretationtype}_id,
+            ai.user_id,
+            ais.date_created,
+            ais.alleleassessment_id,
+            CASE WHEN
+                ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
+                THEN ais.allelereport_id ELSE null
+            END
+        FROM {interpretationtype}snapshot AS ais
+        JOIN {interpretationtype} AS ai ON ais.{interpretationtype}_id = ai.id
+        WHERE ai.finalized IS true
+            AND ais.alleleassessment_id != coalesce(ais.presented_alleleassessment_id, 0)
+            AND ais.alleleassessment_id IS NOT NULL
+        ORDER BY ais.date_created
+    """
+
+
+def get_interpretation_allelereport_query(interpretationtype: str) -> str:
+    assert interpretationtype in ["analysisinterpretation", "alleleinterpretation"]
+    return f"""INSERT INTO interpretationlog
+        ({interpretationtype}_id, user_id, date_created, alleleassessment_id, allelereport_id)
+        SELECT ais.{interpretationtype}_id, ai.user_id, ais.date_created, null, ais.allelereport_id
+        FROM {interpretationtype}snapshot AS ais
+        JOIN {interpretationtype} AS ai ON ais.{interpretationtype}_id = ai.id
+        WHERE ai.finalized IS true
+            AND ais.alleleassessment_id = ais.presented_alleleassessment_id
+            AND ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
+            AND ais.allelereport_id IS NOT NULL
+        ORDER BY ais.date_created
+    """
+
+
 def upgrade():
 
     # Change overview:
@@ -30,7 +67,6 @@ def upgrade():
     #
     # - presented_alleleassessment_id has been renamed to alleleassessment_id
     # - presented_allelereport_id has been renamed to allelereport_id
-    # - The existing alleleassessment_id and allelereport_id fields indicated ,
     #
     # Also, we've added usergroup_id to assessments/report, so we need to populate that
 
@@ -61,76 +97,12 @@ def upgrade():
     # when user updated variant report only.
 
     # Analysisinterpretation
-    op.execute(
-        f"""INSERT INTO interpretationlog
-        (analysisinterpretation_id, user_id, date_created, alleleassessment_id, allelereport_id)
-        SELECT
-            ais.analysisinterpretation_id,
-            ai.user_id,
-            ais.date_created,
-            ais.alleleassessment_id,
-            CASE WHEN
-                ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
-                THEN ais.allelereport_id ELSE null
-            END
-        FROM analysisinterpretationsnapshot AS ais
-        JOIN analysisinterpretation AS ai ON ais.analysisinterpretation_id = ai.id
-        WHERE ai.finalized IS true
-            AND ais.alleleassessment_id != coalesce(ais.presented_alleleassessment_id, 0)
-            AND ais.alleleassessment_id IS NOT NULL
-        ORDER BY ais.date_created
-        """
-    )
-
-    op.execute(
-        f"""INSERT INTO interpretationlog
-        (analysisinterpretation_id, user_id, date_created, alleleassessment_id, allelereport_id)
-        SELECT ais.analysisinterpretation_id, ai.user_id, ais.date_created, null, ais.allelereport_id
-        FROM analysisinterpretationsnapshot AS ais
-        JOIN analysisinterpretation AS ai ON ais.analysisinterpretation_id = ai.id
-        WHERE ai.finalized IS true
-            AND ais.alleleassessment_id = ais.presented_alleleassessment_id
-            AND ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
-            AND ais.allelereport_id IS NOT NULL
-        ORDER BY ais.date_created
-        """
-    )
+    op.execute(get_interpretation_alleleassessment_query("analysisinterpretation"))
+    op.execute(get_interpretation_allelereport_query("analysisinterpretation"))
 
     # Alleleinterpretation
-    op.execute(
-        f"""INSERT INTO interpretationlog
-        (alleleinterpretation_id, user_id, date_created, alleleassessment_id, allelereport_id)
-        SELECT
-            ais.alleleinterpretation_id,
-            ai.user_id,
-            ais.date_created,
-            ais.alleleassessment_id,
-            CASE WHEN
-                ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
-                THEN ais.allelereport_id ELSE null
-            END
-        FROM alleleinterpretationsnapshot AS ais
-        JOIN alleleinterpretation AS ai ON ais.alleleinterpretation_id = ai.id
-        WHERE ai.finalized IS true
-            AND ais.alleleassessment_id != coalesce(ais.presented_alleleassessment_id, 0)
-            AND ais.alleleassessment_id IS NOT NULL
-        ORDER BY ais.date_created
-        """
-    )
-
-    op.execute(
-        f"""INSERT INTO interpretationlog
-        (alleleinterpretation_id, user_id, date_created, alleleassessment_id, allelereport_id)
-        SELECT ais.alleleinterpretation_id, ai.user_id, ais.date_created, null, ais.allelereport_id
-        FROM alleleinterpretationsnapshot AS ais
-        JOIN alleleinterpretation AS ai ON ais.alleleinterpretation_id = ai.id
-        WHERE ai.finalized IS true
-            AND ais.alleleassessment_id = ais.presented_alleleassessment_id
-            AND ais.allelereport_id != coalesce(ais.presented_allelereport_id, 0)
-            AND ais.allelereport_id IS NOT NULL
-        ORDER BY ais.date_created
-        """
-    )
+    op.execute(get_interpretation_alleleassessment_query("alleleinterpretation"))
+    op.execute(get_interpretation_allelereport_query("alleleinterpretation"))
 
     # Drop migrated columns
     op.drop_constraint(
@@ -232,6 +204,8 @@ def upgrade():
         ["alleleassessment_id"],
         ["id"],
     )
+
+    # End rename columns
 
     # Populate usergroup_id
     op.add_column("alleleassessment", sa.Column("usergroup_id", sa.Integer(), nullable=True))

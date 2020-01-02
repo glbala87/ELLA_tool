@@ -13,17 +13,9 @@ export default function postFinalizeAllele({ state, props, http, path, resolve }
     const references = state.get('views.workflows.interpretation.data.references')
     const allele = state.get(`views.workflows.interpretation.data.alleles.${alleleId}`)
     const alleleState = resolve.value(getAlleleState(alleleId))
-    const selectedGenepanel = state.get('views.workflows.selectedGenepanel')
 
     try {
-        const payload = prepareAlleleFinalizePayload(
-            allele,
-            alleleState,
-            selectedGenepanel.name,
-            selectedGenepanel.version,
-            Object.values(references),
-            type === 'analysis' ? id : null
-        )
+        const payload = prepareAlleleFinalizePayload(allele, alleleState, Object.values(references))
 
         return http
             .post(`workflows/${TYPES[type]}/${id}/actions/finalizeallele/`, payload)

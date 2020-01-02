@@ -378,6 +378,7 @@ def request_json(required=None, only_required=False, allowed=None, jsonschema=No
 
         return inner
 
+    assert not (jsonschema and required)
     if required is not None:
         if isinstance(allowed, dict):
             return dict_wrapper

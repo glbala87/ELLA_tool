@@ -12,13 +12,18 @@ export default (allele) => {
             for (const c of collisions.filter((c) => c.allele_id === allele.id)) {
                 const typeText =
                     c.type === 'analysis' ? 'in another analysis' : 'in variant workflow'
+                const unfinishedTypeText =
+                    c.type === 'analysis'
+                        ? 'an unfinished analysis'
+                        : 'an unfinished variant workflow'
+
                 if (c.user) {
                     warnings.push({
                         warning: `This variant is currently being worked on by ${c.user.full_name} ${typeText}.`
                     })
                 } else {
                     warnings.push({
-                        warning: `This variant is currently awaiting review ${typeText}.`
+                        warning: `This variant is currently waiting in ${unfinishedTypeText}.`
                     })
                 }
             }

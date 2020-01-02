@@ -39,22 +39,28 @@ class AssessmentCreator(object):
         usergroup_id: int,
         allele_id: int,
         annotation_id: int,
+        custom_annotation_id: Optional[int],
+        genepanel_name: str,
+        genepanel_version: str,
         alleleassessment: Dict,
-        custom_annotation_id: int = None,
-        referenceassessments: Sequence[Dict] = None,
+        referenceassessments: Optional[Sequence[Dict]],
         analysis_id: int = None,
-    ):
+    ) -> AssessmentCreatorResult:
         """
         Takes in alleleassessment/referenceassessment data and (if not reused),
-        creates new assessment objects in database.
+        creates new assessment objects.
 
-        Returns the alleleassessment/referenceassessments, along with a flag whether it was created or reused.
-
-        ReferenceAssessments are connected to the AlleleAssessment.
+        The created objects are not added to session/database.
         """
 
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(
-            allele_id, user_id, usergroup_id, referenceassessments, analysis_id=analysis_id
+            allele_id,
+            user_id,
+            usergroup_id,
+            genepanel_name,
+            genepanel_version,
+            referenceassessments,
+            analysis_id=analysis_id,
         )
 
         aa, reused = self._create_or_reuse_alleleassessment(
@@ -62,6 +68,8 @@ class AssessmentCreator(object):
             user_id,
             usergroup_id,
             annotation_id,
+            genepanel_name,
+            genepanel_version,
             alleleassessment,
             custom_annotation_id=custom_annotation_id,
             referenceassessments=ra_created + ra_reused,
@@ -78,6 +86,8 @@ class AssessmentCreator(object):
         user_id: int,
         usergroup_id: int,
         annotation_id: int,
+        genepanel_name: str,
+        genepanel_version: str,
         alleleassessment: Dict,
         custom_annotation_id: int = None,
         referenceassessments: Sequence[Dict] = None,
@@ -129,20 +139,12 @@ class AssessmentCreator(object):
             assessment_obj.usergroup_id = usergroup_id
             assessment_obj.referenceassessments = referenceassessments
             assessment_obj.annotation_id = annotation_id
+            assessment_obj.genepanel_name = genepanel_name
+            assessment_obj.genepanel_version = genepanel_version
             assessment_obj.custom_annotation_id = custom_annotation_id
 
-            # If analysis_id provided, link data through analysis for safety
-            # If no analysis, genepanel was loaded using schema above.
             if analysis:
-                assessment_obj.analysis_id = analysis_id
-                assessment_obj.genepanel_name = analysis.genepanel_name
-                assessment_obj.genepanel_version = analysis.genepanel_version
-            elif not (
-                "genepanel_name" in alleleassessment and "genepanel_version" in alleleassessment
-            ):
-                raise ApiError(
-                    "No 'analysis_id' and no 'genepanel_name' + 'genepanel_version' given for assessment"
-                )
+                assessment_obj.analysis_id == analysis_id
 
             # If there's an existing assessment for this allele, we want to supercede it
             if existing_assessment:
@@ -173,6 +175,8 @@ class AssessmentCreator(object):
         allele_id: int,
         user_id: int,
         usergroup_id: int,
+        genepanel_name: str,
+        genepanel_version: str,
         referenceassessments: Optional[Sequence[dict]],
         analysis_id: int = None,
     ) -> Tuple[List[assessment.ReferenceAssessment], List[assessment.ReferenceAssessment]]:
@@ -216,16 +220,11 @@ class AssessmentCreator(object):
                 assessment_obj = ReferenceAssessmentSchema(strict=True).load(ra).data
                 assessment_obj.user_id = user_id
                 assessment_obj.usergroup_id = usergroup_id
+                assessment_obj.genepanel_name = genepanel_name
+                assessment_obj.genepanel_version = genepanel_version
 
-                # Fill in assessment data through analysis
                 if analysis:
                     assessment_obj.analysis_id = analysis_id
-                    assessment_obj.genepanel_name = analysis.genepanel_name
-                    assessment_obj.genepanel_version = analysis.genepanel_version
-                elif not ("genepanel_name" in ra and "genepanel_version" in ra):
-                    raise ApiError(
-                        "No 'analysis_id' and no 'genepanel_name' + 'genepanel_version' given for referenceassessment"
-                    )
 
                 # Check if there's an existing assessment for this allele/reference. If so, we want to supercede it
                 to_supercede = next(

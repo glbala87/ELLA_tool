@@ -6,7 +6,7 @@ from vardb.datamodel import assessment
 from api.schemas import users
 
 
-class UsergroupSchema(Schema):
+class AlleleReportsUsergroupSchema(Schema):
     class Meta:
         fields = ("id", "name")
 
@@ -32,7 +32,7 @@ class AlleleReportSchema(Schema):
 
     user_id = fields.Integer()
     user = fields.Nested(users.UserSchema)
-    usergroup = fields.Nested(UsergroupSchema)
+    usergroup = fields.Nested(AlleleReportsUsergroupSchema)
     evaluation = fields.Field(required=False, default={})
     date_created = fields.DateTime()
     date_superceeded = fields.DateTime(allow_none=True)

@@ -23,6 +23,7 @@ import template from './allelesectionbox.ngtmpl.html'
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import canFinalizeAllele from '../../store/modules/views/workflows/computed/canFinalizeAllele'
 import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'
+import { compareAlleleReport } from '../../store/common/helpers/workflow'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -89,17 +90,7 @@ const alleleReportUpdated = Compute(
         if (!alleleState || !allele) {
             return false
         }
-        // Special case, no existing allele report and empty comment -> not updated
-        let existingComment = ''
-        if (
-            allele.allele_report &&
-            allele.allele_report.evaluation &&
-            allele.allele_report.evaluation.comment
-        ) {
-            existingComment = allele.allele_report.evaluation.comment
-        }
-        const newComment = alleleState.allelereport.evaluation.comment
-        return existingComment !== newComment
+        return !compareAlleleReport(alleleState, allele)
     }
 )
 
@@ -183,7 +174,6 @@ app.component('alleleSectionbox', {
                 )
 
                 Object.assign($ctrl, {
-                    finalizeNeedsConfirmation: false,
                     showControls() {
                         if (
                             $ctrl.section.options &&

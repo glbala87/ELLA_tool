@@ -113,7 +113,7 @@ class AlleleReportCreator(object):
             if alleleassessment:
                 result_allelereport.alleleassessment_id = alleleassessment.id
 
-            log.info(
+            log.debug(
                 "Created report for allele: %s, it supercedes: %s",
                 report_object_to_create.allele_id,
                 report_object_to_create.previous_report_id,

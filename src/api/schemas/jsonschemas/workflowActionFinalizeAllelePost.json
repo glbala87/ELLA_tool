@@ -12,15 +12,7 @@
         },
         "newAlleleAssessment": {
             "type": "object",
-            "required": [
-                "reuse",
-                "evaluation",
-                "attachment_ids",
-                "classification",
-                "allele_id",
-                "genepanel_name",
-                "genepanel_version"
-            ],
+            "required": ["reuse", "evaluation", "attachment_ids", "classification", "allele_id"],
             "optional": ["presented_alleleassessment_id"],
             "additionalProperties": false,
             "properties": {
@@ -49,13 +41,7 @@
         },
         "newReferenceAssessment": {
             "type": "object",
-            "required": [
-                "evaluation",
-                "allele_id",
-                "reference_id",
-                "genepanel_name",
-                "genepanel_version"
-            ],
+            "required": ["evaluation", "allele_id", "reference_id"],
             "additionalProperties": false,
             "properties": {
                 "evaluation": {

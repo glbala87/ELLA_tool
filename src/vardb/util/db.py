@@ -3,7 +3,6 @@ import re
 import json
 from sqlalchemy.orm import scoped_session
 from .extended_query import ExtendedQuery
-import jsonschema
 
 
 class DB(object):

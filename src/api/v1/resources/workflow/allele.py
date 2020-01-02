@@ -109,7 +109,7 @@ class AlleleInterpretationAllelesListResource(LogRequestResource):
                     interpretation_id, allele_id
                 )
             )
-        allele_ids = request.args.get("allele_ids").split(",")
+        allele_ids = request.args.get("allele_ids", "").split(",")
         current = request.args.get("current", "").lower() == "true"
         return helpers.get_alleles(
             session,
@@ -172,7 +172,7 @@ class AlleleActionOverrideResource(LogRequestResource):
           500:
             description: Error
         """
-        helpers.override_interpretation(session, user.id, allele_id=allele_id)
+        helpers.override_interpretation(session, user.id, workflow_allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -224,7 +224,7 @@ class AlleleActionStartResource(LogRequestResource):
             description: Error
         """
 
-        helpers.start_interpretation(session, user.id, data, allele_id=allele_id)
+        helpers.start_interpretation(session, user.id, data, workflow_allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -260,7 +260,7 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markinterpretation_interpretation(session, data, allele_id=allele_id)
+        helpers.markinterpretation_interpretation(session, data, workflow_allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -296,7 +296,7 @@ class AlleleActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markreview_interpretation(session, data, allele_id=allele_id)
+        helpers.markreview_interpretation(session, data, workflow_allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -328,7 +328,7 @@ class AlleleActionReopenResource(LogRequestResource):
             description: Error
         """
 
-        helpers.reopen_interpretation(session, allele_id=allele_id)
+        helpers.reopen_interpretation(session, workflow_allele_id=allele_id)
         session.commit()
 
         return None, 200
@@ -367,7 +367,7 @@ class AlleleActionFinalizeAlleleResource(LogRequestResource):
         """
 
         result = helpers.finalize_allele(
-            session, user.id, user.group.id, data, user_config, allele_id=allele_id
+            session, user.id, user.group.id, data, user_config, workflow_allele_id=allele_id
         )
         session.commit()
 
@@ -407,8 +407,8 @@ class AlleleActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_interpretation(
-            session, user.id, data, user_config, allele_id=allele_id
+        result = helpers.finalize_workflow(
+            session, user.id, data, user_config, workflow_allele_id=allele_id
         )
         session.commit()
 

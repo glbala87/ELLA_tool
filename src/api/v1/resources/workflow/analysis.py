@@ -229,7 +229,7 @@ class AnalysisActionOverrideResource(LogRequestResource):
             description: Error
         """
 
-        helpers.override_interpretation(session, user.id, analysis_id=analysis_id)
+        helpers.override_interpretation(session, user.id, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -259,7 +259,7 @@ class AnalysisActionStartResource(LogRequestResource):
             description: Error
         """
 
-        helpers.start_interpretation(session, user.id, {}, analysis_id=analysis_id)
+        helpers.start_interpretation(session, user.id, {}, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -295,7 +295,7 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
             description: Error
         """
 
-        helpers.marknotready_interpretation(session, data, analysis_id=analysis_id)
+        helpers.marknotready_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -331,7 +331,7 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markinterpretation_interpretation(session, data, analysis_id=analysis_id)
+        helpers.markinterpretation_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -367,7 +367,7 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markreview_interpretation(session, data, analysis_id=analysis_id)
+        helpers.markreview_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -403,7 +403,7 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markmedicalreview_interpretation(session, data, analysis_id=analysis_id)
+        helpers.markmedicalreview_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -437,7 +437,7 @@ class AnalysisActionReopenResource(LogRequestResource):
             description: Error
         """
 
-        helpers.reopen_interpretation(session, analysis_id=analysis_id)
+        helpers.reopen_interpretation(session, workflow_analysis_id=analysis_id)
         session.commit()
 
         return None, 200
@@ -476,7 +476,7 @@ class AnalysisActionFinalizeAlleleResource(LogRequestResource):
         """
 
         result = helpers.finalize_allele(
-            session, user.id, user.group.id, data, user_config, analysis_id=analysis_id
+            session, user.id, user.group.id, data, user_config, workflow_analysis_id=analysis_id
         )
         session.commit()
 
@@ -520,8 +520,8 @@ class AnalysisActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_interpretation(
-            session, user.id, data, user_config, analysis_id=analysis_id
+        result = helpers.finalize_workflow(
+            session, user.id, data, user_config, workflow_analysis_id=analysis_id
         )
         session.commit()
 
