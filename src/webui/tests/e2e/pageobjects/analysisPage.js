@@ -110,10 +110,10 @@ class AnalysisPage extends Page {
      *
      */
     addAcmgCode(category, code, comment, adjust_levels = 0) {
-        let buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
+        const buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
         $(buttonSelector).click()
         $('.id-acmg-selection-popover').waitForExist() // make sure the popover appeared
-        browser.pause(500) // Wait for popover animation to settle
+        browser.pause(200) // Wait for popover animation to settle
 
         let categories = {
             pathogenic: 1,
@@ -144,7 +144,9 @@ class AnalysisPage extends Page {
         // Add staged code
         util.element('.id-staged-acmg-code .acmg-upper button').click()
         // Hide popover
-        util.element('body').click()
+        $(buttonSelector).click()
+        // Wait for popover to fade out
+        browser.pause(200)
     }
 
     getFinalizePossible() {
