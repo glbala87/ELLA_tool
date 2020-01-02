@@ -202,7 +202,6 @@ body.modal-open {
     .tippy-popover-title {
         @extend .slim;
         @extend .title;
-        @extend .upper;
         color: $blue;
         font-weight: 600;
         font-size: 1.4rem !important;

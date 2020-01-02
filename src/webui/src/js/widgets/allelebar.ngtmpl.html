@@ -17,7 +17,7 @@
                         class="clickable"
                         tippy-popover="phenotypes_popover.ngtmpl.html"
                         tippy-placement="bottom"
-                        tippy-popover-title="Gene info"
+                        tippy-popover-title="GENE INFO"
                     >
                         {{ t.symbol }} ({{ t.exon }})
                     </span>
@@ -75,7 +75,7 @@
                         class="clickable"
                         tippy-popover="proteinPopover.ngtmpl.html"
                         tippy-placement="bottom"
-                        tippy-popover-title="Protein"
+                        tippy-popover-title="PROTEIN"
                     >
                         <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
                             $ctrl.formatCodons(t.codons)
@@ -90,7 +90,7 @@
                 <div
                     tippy-popover="alleleInfoConsequencePopover.ngtmpl.html"
                     tippy-placement="bottom"
-                    tippy-popover-title="Consequence"
+                    tippy-popover-title="CONSEQUENCE"
                 >
                     <span class="clickable" ng-repeat="c in t.consequences">{{
                         c | noUnderscores

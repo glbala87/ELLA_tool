@@ -7,7 +7,7 @@ import app from '../ng-decorators'
 
 tippy.setDefaultProps({
     theme: 'la',
-    delay: [500, 200]
+    delay: [350, 200]
 })
 
 app.directive('tippyTitle', [
