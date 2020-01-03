@@ -679,6 +679,8 @@ analysis-selection {
 
 .reference-detail {
     width: 100%;
+    min-height: 4rem;
+
     .reference-title-container {
         display: flex;
         width: 100%;
@@ -689,7 +691,7 @@ analysis-selection {
 
         .reference-title {
             flex-grow: 1;
-            padding-right: 2rem;
+            margin-right: 2rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -708,9 +710,24 @@ analysis-selection {
     }
 }
 
-hr.reference-divider {
-    margin-top: 2.5rem;
-    margin-bottom: 2.5rem;
-    border: 0;
-    border-top: 1px dashed $black-25;
+allele-info-references {
+    h3 {
+        margin-top: 1rem;
+    }
+
+    article {
+        margin-left: -1.3rem;
+        margin-right: -1.2rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        padding-left: 1.3rem;
+        padding-right: 1.2rem;
+
+        border: 0;
+        border-bottom: 0.3rem solid #8ca6ba;
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
 }

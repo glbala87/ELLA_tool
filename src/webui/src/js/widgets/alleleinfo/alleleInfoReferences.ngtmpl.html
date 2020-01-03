@@ -10,23 +10,21 @@
             Unpublished studies
         </h3>
         <article
-            class="acmg-body id-reference-{{ $ctrl.type }}-unpublished"
+            class="id-reference-{{ $ctrl.type }}-unpublished"
             ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
             <referenceassessment reference-id="ref.id"></referenceassessment>
-            <hr class="reference-divider" />
         </article>
         <h3 ng-if="$ctrl.references[$ctrl.type].published.length > 0 && $ctrl.type === 'evaluated'">
             Published studies
         </h3>
         <article
-            class="acmg-body id-reference-{{ $ctrl.type }}-published"
+            class="id-reference-{{ $ctrl.type }}-published"
             ng-repeat="ref in $ctrl.references[$ctrl.type].published"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
             <referenceassessment reference-id="ref.id"></referenceassessment>
-            <hr class="reference-divider" />
         </article>
 
         <article

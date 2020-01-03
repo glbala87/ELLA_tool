@@ -112,7 +112,7 @@ const BASE_SECTIONS = {
                     title: 'Evaluated',
                     type: 'evaluated'
                 },
-                class: ['max-width']
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
@@ -120,7 +120,7 @@ const BASE_SECTIONS = {
                     title: 'Pending',
                     type: 'pending'
                 },
-                class: ['max-width']
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
@@ -128,7 +128,7 @@ const BASE_SECTIONS = {
                     title: 'Not relevant',
                     type: 'notrelevant'
                 },
-                class: ['max-width']
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
@@ -136,7 +136,7 @@ const BASE_SECTIONS = {
                     title: 'Ignored',
                     type: 'ignored'
                 },
-                class: ['max-width']
+                class: ['max-width', 'reference-detail-margin-top']
             }
         ]
     }
