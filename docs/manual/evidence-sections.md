@@ -63,7 +63,7 @@ Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your conf
 
 This section displays population frequencies reported in external or internal datasets (if any). Note that variants with a population frequency exceeding the threshold for ACMG criterion BA1 have already been [filtered out](/manual/top-bar.html#excluded-variants).
 
-### Included Datasets
+### Included datasets
 
   - gnomAD exomes and genomes: <http://gnomad.broadinstitute.org/>
   - ExAC: <http://exac.broadinstitute.org/> (NB: partly deprecated, most samples are included in gnomAD)
@@ -74,14 +74,6 @@ This section displays population frequencies reported in external or internal da
 	:::
 
 Variants with quality issues reported in gnomAD display a warning in the gnomAD cards.
-
-### Mark as Class 2 variant
-
-You may quickly set a class 2 for the current variant by pressing the `MARK CLASS 2` button in the header of this section:
-
-<div style="text-indent: 4%;"><img src="./img/class2_btn.png"></div>
-
-This will move the variant to CLASSIFIED VARIANTS in the side bar.
 
 ## Prediction
 
@@ -157,7 +149,7 @@ If you want to add results from other databases (various LSDBs, depending on the
 
 <div style="text-indent: 4%;"><img src="./img/add_external_btn.png"></div>
 
-In the popup, select from the dropdown for each database you want to add from. For pre-specified databases, there will be a <span class="underline">Visit database</span> link to the right, which will take you to the corresponding database and gene. Choices for all databases except OTHER (which is free text) are:
+In the pop-up, select from the dropdown for each database you want to add from. For pre-specified databases, there will be a <span class="underline">Visit database</span> link to the right, which will take you to the corresponding database and gene. Choices for all databases except OTHER (which is free text) are:
 
   - Unambiguous classification: 
 	  - **Pathogenic**: Class 5 or similar

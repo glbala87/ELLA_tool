@@ -151,3 +151,9 @@ If you are in an offline environment, when you click one of these, instead of op
   - For Alamut, click either `COPY ALL TO ALAMUT` or `COPY VARIANT TO ALAMUT` in the top bar, then (as you get the message COPIED TEXT TO CLIPBOARD) paste (Ctrl+V) the contents in the "Go to:" input field at the top right of the Alamut main window:  
       
     <div style="text-indent: 4%;"><img src="./img/alamut.png"></div>
+
+### Copy text in pop-ups to clipboard on mouse-click
+
+Many pop-ups has a function to copy text directly to the clipboard when you click on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
+
+<div style="text-indent: 4%;"><img src="./img/popup.png"></div>

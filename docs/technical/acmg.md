@@ -60,7 +60,7 @@ In addition, the subkey `comment` can be defined, specifying information relevan
 
 ## ACMG descriptions
 
-Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/concepts/acmg-rule-engine.html#req-requirements) (shown in UI popups) are given in: 
+Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/concepts/acmg-rule-engine.html#req-requirements) (shown in UI pop-ups) are given in: 
 
 - File: `/src/api/config/acmgconfig.py`
 - Key: `acmgconfig["explanation"]`
