@@ -10,7 +10,7 @@
             Unpublished studies
         </h3>
         <article
-            class="acmg-body id-reference-{{ $ctrl.type }}-unpublished"
+            class="id-reference-{{ $ctrl.type }}-unpublished"
             ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
@@ -20,7 +20,7 @@
             Published studies
         </h3>
         <article
-            class="acmg-body id-reference-{{ $ctrl.type }}-published"
+            class="id-reference-{{ $ctrl.type }}-published"
             ng-repeat="ref in $ctrl.references[$ctrl.type].published"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>

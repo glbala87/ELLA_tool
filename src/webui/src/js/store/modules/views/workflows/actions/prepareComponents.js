@@ -111,28 +111,32 @@ const BASE_SECTIONS = {
                 attr: {
                     title: 'Evaluated',
                     type: 'evaluated'
-                }
+                },
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
                 attr: {
                     title: 'Pending',
                     type: 'pending'
-                }
+                },
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
                 attr: {
                     title: 'Not relevant',
                     type: 'notrelevant'
-                }
+                },
+                class: ['max-width', 'reference-detail-margin-top']
             },
             {
                 tag: 'allele-info-references',
                 attr: {
                     title: 'Ignored',
                     type: 'ignored'
-                }
+                },
+                class: ['max-width', 'reference-detail-margin-top']
             }
         ]
     }

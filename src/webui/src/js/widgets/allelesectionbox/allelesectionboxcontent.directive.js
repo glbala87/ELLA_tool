@@ -35,10 +35,10 @@ import { Directive, Inject } from '../../ng-decorators'
         let html = ''
         if (scope.boxes) {
             for (let box of scope.boxes) {
-                let classes = ''
+                let classes = ['cb-wrapper']
                 let attrs = ''
                 if ('class' in box) {
-                    classes = box.class.join(' ')
+                    classes = classes.concat(box.class)
                 }
 
                 if ('attr' in box) {
@@ -49,7 +49,7 @@ import { Directive, Inject } from '../../ng-decorators'
 
                 html += `
                 <${box.tag}
-                    class="cb-wrapper"
+                    class="${classes.join(' ')}"
                     allele-path="vm.allelePath"
                     ${attrs}
                 ></${box.tag}>`

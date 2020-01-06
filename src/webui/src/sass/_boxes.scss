@@ -249,11 +249,11 @@ contentwrapper {
     display: flex;
     height: calc(100% - 0.7rem);
     .max-width & .cb-body {
-        max-width: 100% !important;
+        max-width: calc(100% - 2.8rem) !important;
     }
     .cb-body {
         padding: 1.3rem;
-        width: 100%;
+        width: calc(100% - 2.8rem);
     }
     .cb.titlebar {
         height: auto;

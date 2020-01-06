@@ -14,6 +14,7 @@ app.component('alleleInfoReferenceDetail', {
     controller: connect(
         {
             selectedAllele: state`views.workflows.selectedAllele`,
+            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
             reference: state`views.workflows.interpretation.data.references.${props`referenceId`}`,
             readOnly: isReadOnly,
             alleleAssessmentReused: isAlleleAssessmentReused(state`views.workflows.selectedAllele`),
@@ -39,6 +40,15 @@ app.component('alleleInfoReferenceDetail', {
                             return 'Re-evaluate'
                         }
                         return 'Evaluate'
+                    },
+                    getSources() {
+                        const annotationReference = $ctrl.allele.annotation.references.find(
+                            (a) => a.pubmed_id === $ctrl.reference.pubmed_id
+                        )
+                        if (!annotationReference) {
+                            return []
+                        }
+                        return annotationReference.sources
                     }
                 })
             }
