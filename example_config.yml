@@ -282,12 +282,13 @@ classification:
       value: DR
 report:
   classification_text:
-    "1": Ikke sykdomsgivende variant
-    "2": Sannsynlig ikke sykdomsgivende variant
-    "3": Variant med usikker betydning
-    "4": Sannsynlig sykdomsgivende variant
-    "5": Sykdomsgivende variant
+    "1": Benign variant
+    "2": Likely benign variant
+    "3": Variant of uncertain significance
+    "4": Likely pathogenic variant
+    "5": Pathogenic variant
 transcripts:
+  # Regex for selecting which transcripts to use in filters and presented data in front end
   inclusion_regex: NM_.*
 igv:
   reference:
