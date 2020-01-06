@@ -35,7 +35,6 @@ const STRENGTHS_CLINGEN = {
         onToggle: '&?',
         onUpdate: '&?', // when comment changes or upgrade/downgrade
         toggleText: '@?',
-        popoverPlacement: '=?',
         addRequiredForCode: '&?' // Callback when clicking on code in "required for" section
     },
     template: acmgTemplate
@@ -47,7 +46,6 @@ export class AcmgController {
         this.popover = {
             templateUrl: 'acmgPopover.ngtmpl.html'
         }
-        this.popoverPlacement = this.popoverPlacement || 'auto'
 
         $scope.$watch(
             () => this.code,

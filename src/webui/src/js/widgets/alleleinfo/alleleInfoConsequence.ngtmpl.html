@@ -12,7 +12,7 @@
             ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript"
             class="clickable"
             tippy-popover="alleleInfoConsequencePopover.ngtmpl.html"
-            tippy-popover-title="Consequence"
+            tippy-popover-title="CONSEQUENCE"
         >
             <transcript-wrapper transcript="t">
                 <p ng-repeat="c in t.consequences">{{ c | noUnderscores }}</p>

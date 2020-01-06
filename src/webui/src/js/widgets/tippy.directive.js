@@ -22,7 +22,7 @@ app.directive('tippyTitle', [
                 })
                 attrs.$observe('tippyTitle', (c) => {
                     if (enableCopy) {
-                        const toCompile = `<copy-text text="${c}"<copy-text>`
+                        const toCompile = `<copy-text text="${c}"></copy-text>`
                         c = $compile(toCompile)($scope)[0]
                     }
                     instance.setContent(c)
@@ -57,7 +57,7 @@ app.directive('tippyPopover', [
                         if (attrs.tippyPopover.endsWith('.html')) {
                             toCompile = `<div class="tippy-popover">${title}<div ng-include="'${attrs.tippyPopover}'"></div></div>`
                         } else {
-                            toCompile = `<div class="tippy-popover">${title}<div>${attrs.tippyPopover}`
+                            toCompile = `<div class="tippy-popover">${title}<div>${attrs.tippyPopover}</div></div>`
                         }
                         const compiled = $compile(toCompile)($scope)[0]
                         instance.setContent(compiled)
@@ -65,14 +65,7 @@ app.directive('tippyPopover', [
                     }
                 }
 
-                const instance = tippy(elem[0], props)
-                attrs.$observe('tippyPlacement', (c) => {
-                    instance.setProps({ placement: c })
-                })
-
-                attrs.$observe('tippyTrigger', (c) => {
-                    instance.setProps({ trigger: c })
-                })
+                tippy(elem[0], props)
             }
         }
     }
