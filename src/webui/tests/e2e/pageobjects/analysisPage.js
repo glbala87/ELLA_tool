@@ -146,7 +146,8 @@ class AnalysisPage extends Page {
     }
 
     getFinalizePossible() {
-        $('.id-finish-analysis').waitForExist()
+        $('.id-finish-analysis').waitForDisplayed()
+        $('#nprogress').waitForExist(undefined, true)
         this.finishButton.click()
         this.finalizeButton.click()
         const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null

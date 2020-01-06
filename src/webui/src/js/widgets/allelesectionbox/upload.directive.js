@@ -7,7 +7,8 @@ import template from './upload.ngtmpl.html'
 app.component('upload', {
     bindings: {
         mode: '<',
-        buttontext: '<'
+        buttontext: '<',
+        ngDisabled: '<?'
     },
     templateUrl: 'upload.ngtmpl.html',
     controller: connect(
