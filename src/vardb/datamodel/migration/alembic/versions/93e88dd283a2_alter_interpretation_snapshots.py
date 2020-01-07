@@ -69,6 +69,7 @@ def upgrade():
     # - presented_allelereport_id has been renamed to allelereport_id
     #
     # Also, we've added usergroup_id to assessments/report, so we need to populate that
+    # in addition to making user_id on same tables not nullable
 
     # Add alleleassessment/allelereport to interpretation log
     op.add_column(
@@ -244,6 +245,11 @@ def upgrade():
     op.execute(
         'UPDATE referenceassessment SET usergroup_id = "user".group_id FROM "user" WHERE "user".id = referenceassessment.user_id'
     )
+
+    # Make user_id not nullable
+    op.alter_column("alleleassessment", "user_id", nullable=False)
+    op.alter_column("referenceassessment", "user_id", nullable=False)
+    op.alter_column("allelereport", "user_id", nullable=False)
 
 
 def downgrade():
