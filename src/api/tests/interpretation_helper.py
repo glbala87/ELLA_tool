@@ -30,7 +30,23 @@ def finalize_allele_template(
     return data
 
 
-def finalize_template(
+def finalize_wf_allele_template(
+    annotation_ids: Sequence[int],
+    custom_annotation_ids: Sequence[int],
+    alleleassessment_ids: Sequence[int],
+    allelereport_ids: Sequence[int],
+    allele_ids: Sequence[int],
+):
+    return {
+        "annotation_ids": annotation_ids,
+        "custom_annotation_ids": custom_annotation_ids,
+        "alleleassessment_ids": alleleassessment_ids,
+        "allelereport_ids": allelereport_ids,
+        "allele_ids": allele_ids,
+    }
+
+
+def finalize_wf_analysis_template(
     annotation_ids: Sequence[int],
     custom_annotation_ids: Sequence[int],
     alleleassessment_ids: Sequence[int],
@@ -45,10 +61,10 @@ def finalize_template(
         "custom_annotation_ids": custom_annotation_ids,
         "alleleassessment_ids": alleleassessment_ids,
         "allelereport_ids": allelereport_ids,
-        "technical_allele_ids": technical_allele_ids,
-        "notrelevant_allele_ids": notrelevant_allele_ids,
         "allele_ids": allele_ids,
         "excluded_allele_ids": excluded_allele_ids,
+        "technical_allele_ids": technical_allele_ids,
+        "notrelevant_allele_ids": notrelevant_allele_ids,
     }
 
 
@@ -326,9 +342,16 @@ def finalize(
     technical_allele_ids=None,
     notrelevant_allele_ids=None,
 ):
-    response = api.post(
-        "/workflows/{}/{}/actions/finalize/".format(uri_part[workflow_type], workflow_id),
-        finalize_template(
+    if workflow_type == "allele":
+        payload = finalize_wf_allele_template(
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
+            allele_ids,
+        )
+    else:
+        payload = finalize_wf_analysis_template(
             annotation_ids,
             custom_annotation_ids,
             alleleassessment_ids,
@@ -337,7 +360,10 @@ def finalize(
             excluded_allele_ids if excluded_allele_ids else {},
             technical_allele_ids if technical_allele_ids else [],
             notrelevant_allele_ids if notrelevant_allele_ids else [],
-        ),
+        )
+    response = api.post(
+        "/workflows/{}/{}/actions/finalize/".format(uri_part[workflow_type], workflow_id),
+        payload,
         username=username,
     )
     return response

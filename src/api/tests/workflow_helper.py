@@ -236,12 +236,19 @@ class WorkflowHelper(object):
             allele = next(a for a in alleles if a["id"] == allele_id)
             annotation_id = allele["annotation"]["annotation_id"]
             annotation_ids.append(annotation_id)
+            custom_annotation_id = (
+                allele["annotation"]["custom_annotation_id"]
+                if "custom_annotation_id" in allele["annotation"]
+                else None
+            )
+            if custom_annotation_id:
+                custom_annotation_ids.append(custom_annotation_id)
             ih.finalize_allele(
                 self.type,
                 self.id,
                 allele_id,
                 annotation_id,
-                None,
+                custom_annotation_id,
                 allele_assessment,
                 allele_report,
                 allele_reference_assessments,
@@ -356,12 +363,19 @@ class WorkflowHelper(object):
 
             annotation_id = allele["annotation"]["annotation_id"]
             annotation_ids.append(annotation_id)
+            custom_annotation_id = (
+                allele["annotation"]["custom_annotation_id"]
+                if "custom_annotation_id" in allele["annotation"]
+                else None
+            )
+            if custom_annotation_id:
+                custom_annotation_ids.append(custom_annotation_id)
             ih.finalize_allele(
                 self.type,
                 self.id,
                 allele_id,
                 annotation_id,
-                None,
+                custom_annotation_id,
                 allele_assessment,
                 allele_report,
                 allele_reference_assessments,
@@ -391,7 +405,6 @@ class WorkflowHelper(object):
             interpretation["user"]["username"],
             excluded_allele_ids=excluded_allele_ids,
         )
-
         assert r.status_code == 200
 
         interpretations = ih.get_interpretations(self.type, self.id).get_json()

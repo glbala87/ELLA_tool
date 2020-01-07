@@ -155,6 +155,7 @@ class TestOther(object):
 
         # Create dummy alleleassessment
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="1",
             evaluation={},
@@ -191,7 +192,7 @@ class TestOther(object):
             1,
             1,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
@@ -213,6 +214,7 @@ class TestOther(object):
 
         # Create dummy referenceassessment
         ra = assessment.ReferenceAssessment(
+            user_id=1,
             allele_id=1,
             reference_id=1,
             evaluation={},
@@ -225,6 +227,7 @@ class TestOther(object):
 
         # Will get id = 2
         ra = assessment.ReferenceAssessment(
+            user_id=1,
             allele_id=1,
             reference_id=1,
             evaluation={},
@@ -257,7 +260,7 @@ class TestOther(object):
             1,
             1,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
@@ -276,6 +279,7 @@ class TestOther(object):
 
         # Create dummy alleleassessment
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="1",
             evaluation={},
@@ -288,6 +292,7 @@ class TestOther(object):
 
         # Will get id = 2
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="2",
             evaluation={},
@@ -316,7 +321,7 @@ class TestOther(object):
             1,
             1,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
@@ -367,7 +372,7 @@ class TestFinalizationRequirements:
             1,
             1,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
@@ -385,7 +390,11 @@ class TestFinalizationRequirements:
             1,
             [1],
             [a["annotation"]["annotation_id"] for a in alleles],
-            [],
+            [
+                a["annotation"]["custom_annotation_id"]
+                for a in alleles
+                if "custom_annotation_id" in a["annotation"]
+            ],
             [],
             [],
             "testuser1",
@@ -404,7 +413,11 @@ class TestFinalizationRequirements:
             {
                 "allele_ids": [1],
                 "annotation_ids": [a["annotation"]["annotation_id"] for a in alleles],
-                "custom_annotation_ids": [],
+                "custom_annotation_ids": [
+                    a["annotation"]["custom_annotation_id"]
+                    for a in alleles
+                    if "custom_annotation_id" in a["annotation"]
+                ],
                 "alleleassessment_ids": [],
                 "allelereport_ids": [],
             },
@@ -421,7 +434,7 @@ class TestFinalizationRequirements:
             1,
             1,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
@@ -436,7 +449,11 @@ class TestFinalizationRequirements:
             1,
             [1],
             [a["annotation"]["annotation_id"] for a in alleles],
-            [],
+            [
+                a["annotation"]["custom_annotation_id"]
+                for a in alleles
+                if "custom_annotation_id" in a["annotation"]
+            ],
             [alleleassessment_id],
             [],
             "testuser1",
@@ -482,12 +499,13 @@ class TestFinalizationRequirements:
             allele_id,
             allele_id,
             alleles[0]["annotation"]["annotation_id"],
-            None,
+            alleles[0]["annotation"]["custom_annotation_id"],
             alleleassessment,
             allelereport,
             referenceassessments,
             "testuser1",
         )
+        assert r.status_code == 500
         assert (
             "Cannot finalize: Interpretation's workflow status is in one of required ones"
             in r.get_json()["message"]
@@ -523,7 +541,7 @@ class TestFinalizationRequirements:
                 1,
                 allele["id"],
                 allele["annotation"]["annotation_id"],
-                None,
+                1 if allele["id"] == 1 else None,
                 alleleassessment,
                 allelereport,
                 referenceassessments,
@@ -586,6 +604,7 @@ class TestFinalizationRequirements:
         # Create assessment for all except first allele
         for al in alleles[1:]:
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 allele_id=al["id"],
                 classification="1",
                 evaluation={},
@@ -619,7 +638,10 @@ class TestFinalizationRequirements:
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_technical is set to false, but some allele ids are marked technical"
+        )
 
         # Allow technical and try again
         user_config = {
@@ -688,6 +710,7 @@ class TestFinalizationRequirements:
         # Create assessment for all except first allele
         for al in alleles[1:]:
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 allele_id=al["id"],
                 classification="1",
                 evaluation={},
@@ -698,7 +721,7 @@ class TestFinalizationRequirements:
             session.commit()
             alleleassessment_ids.append(aa.id)
 
-        # Make one variant unclassified, but reported as technical
+        # Make one variant unclassified, but reported as not relevant
         allele_ids = [a["id"] for a in alleles]
         notrelevant_allele_ids = [alleles[0]["id"]]
         technical_allele_ids = []
@@ -721,7 +744,10 @@ class TestFinalizationRequirements:
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_notrelevant is set to false, but some allele ids are marked not relevant"
+        )
 
         # Allow technical and try again
         user_config = {
@@ -790,6 +816,7 @@ class TestFinalizationRequirements:
         # Create assessment for all except first allele
         for al in alleles[1:]:
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 allele_id=al["id"],
                 classification="1",
                 evaluation={},
@@ -823,7 +850,10 @@ class TestFinalizationRequirements:
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_unclassified is set to false, but some allele ids are missing classification"
+        )
 
         # Allow technical and try again
         user_config = {

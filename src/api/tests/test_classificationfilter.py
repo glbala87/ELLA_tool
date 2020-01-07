@@ -1,6 +1,5 @@
 import pytest
 from api.allelefilter.classificationfilter import ClassificationFilter
-from api.config.config import config
 from vardb.datamodel import assessment
 
 import hypothesis as ht
@@ -13,7 +12,11 @@ def classifications(session):
     for i in range(1, 7):
         c[i] = str(i) if i < 6 else "U"
         assm = assessment.AlleleAssessment(
-            allele_id=i, classification=c[i], genepanel_name="HBOC", genepanel_version="v01"
+            user_id=1,
+            allele_id=i,
+            classification=c[i],
+            genepanel_name="HBOC",
+            genepanel_version="v01",
         )
         session.add(assm)
     return c
@@ -36,11 +39,13 @@ def filter_data(draw):
 def test_classificationfilter(session, classifications, filter_data):
     classes, allele_ids = filter_data
 
-    testdata = {"key": allele_ids}
+    testdata = {("dummyname", "v01"): allele_ids}
 
     filter_config = {"classes": classes}
 
-    expected_result = {"key": set(a for a in allele_ids if classifications.get(a) in classes)}
+    expected_result = {
+        ("dummyname", "v01"): set(a for a in allele_ids if classifications.get(a) in classes)
+    }
     cf = ClassificationFilter(session, None)
     if "non-existing-class" in classes:
         with pytest.raises(AssertionError):

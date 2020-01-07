@@ -363,6 +363,7 @@ class TestAnalysisOverview(object):
             )
 
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 classification=classification["value"],
                 allele_id=allele["id"],
                 genepanel_name=interpretation["genepanel_name"],
@@ -800,6 +801,7 @@ class TestAlleleOverview(object):
         )
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification[
                 "value"
             ],  # Actual value doesn't matter as long as not outdated
@@ -838,6 +840,7 @@ class TestAlleleOverview(object):
         allele_id = ih.get_alleles("analysis", 3, interpretation_id, allele_ids).get_json()[0]["id"]
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
@@ -882,6 +885,7 @@ class TestAlleleOverview(object):
 
         timedelta = datetime.timedelta(days=with_finding_classification["outdated_after_days"] + 1)
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
