@@ -771,7 +771,7 @@ def finalize_workflow(
         excluded_allele_ids=excluded_allele_ids,
     )
 
-    # Update interpretation and return data
+    # Update interpretation
     interpretation.status = "Done"
     interpretation.finalized = True
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)

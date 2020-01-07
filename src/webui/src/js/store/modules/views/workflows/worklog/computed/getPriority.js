@@ -2,11 +2,11 @@ import thenBy from 'thenby'
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 
-export default Compute(state`views.workflows.data.interpretationlogs`, (logs) => {
-    if (!logs) {
+export default Compute(state`views.workflows.data.interpretationlogs`, (logData) => {
+    if (!logData) {
         return null
     }
-    const sortedPriorities = logs.logs
+    const sortedPriorities = logData.logs
         .sort(thenBy('date_created', -1))
         .filter((l) => l.priority !== null)
         .map((l) => l.priority)
