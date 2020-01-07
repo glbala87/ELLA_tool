@@ -525,14 +525,18 @@ def finalize_allele(
     workflow_analysis_id: int = None,
 ):
     """
-    Finalizes a single allele within an analysis.
+    Finalizes a single allele.
 
     This will create any [alleleassessment|referenceassessments|allelereport] objects for the provided allele id (in data).
 
     **Only works for workflows with a `Ongoing` current interpretation**
     """
 
-    assert workflow_allele_id or workflow_analysis_id
+    assert (
+        workflow_allele_id
+        or workflow_analysis_id
+        and not (workflow_allele_id and workflow_analysis_id)
+    )
 
     interpretation = _get_latest_interpretation(session, workflow_allele_id, workflow_analysis_id)
 
@@ -566,19 +570,19 @@ def finalize_allele(
         raise ApiError(
             "Cannot finalize: provided annotation_id does not match latest annotation id"
         )
-    if data["custom_annotation_id"]:
-        latest_customannotation_id = (
-            session.query(annotation.CustomAnnotation.id)
-            .filter(
-                annotation.CustomAnnotation.allele_id == data["allele_id"],
-                annotation.CustomAnnotation.date_superceeded.is_(None),
-            )
-            .scalar()
+
+    latest_customannotation_id = (
+        session.query(annotation.CustomAnnotation.id)
+        .filter(
+            annotation.CustomAnnotation.allele_id == data["allele_id"],
+            annotation.CustomAnnotation.date_superceeded.is_(None),
         )
-        if not latest_customannotation_id == data["custom_annotation_id"]:
-            raise ApiError(
-                "Cannot finalize: provided custom_annotation_id does not match latest annotation id"
-            )
+        .scalar()
+    )
+    if not latest_customannotation_id == data.get("custom_annotation_id"):
+        raise ApiError(
+            "Cannot finalize: provided custom_annotation_id does not match latest annotation id"
+        )
 
     # Check that we can finalize allele
     workflow_type = "allele" if workflow_allele_id else "analysis"
@@ -674,8 +678,8 @@ def finalize_workflow(
     """
     Finalizes an interpretation.
 
-    This sets the allele/analysis' current interpretation's status to `Done`
-    and if.
+    This sets the allele/analysis' current interpretation's status to `Done`,
+    and finalized to True.
 
     The provided data is recorded in a snapshot to be able to present user
     with the view at end of interpretation round.
@@ -706,7 +710,6 @@ def finalize_workflow(
 
     # Check that we can finalize
     # There are different criterias deciding when finalization is allowed
-    exempted_classification_allele_ids = set()  # allele ids that don't need classification
     workflow_type = "allele" if workflow_allele_id else "analysis"
 
     finalize_requirements = get_nested(
@@ -721,32 +724,35 @@ def finalize_workflow(
                 )
             )
 
-    if finalize_requirements.get("allow_technical"):
-        if "technical_allele_ids" not in data:
-            raise ApiError(
-                "Missing required key 'technical_allele_ids' when finalized requirement allow_technical is true"
-            )
-        exempted_classification_allele_ids.update(set(data["technical_allele_ids"]))
+    if workflow_type == "analysis":
+        assert "technical_allele_ids" in data and "notrelevant_allele_ids" in data
 
-    if finalize_requirements.get("allow_notrelevant"):
-        if "notrelevant_allele_ids" not in data:
-            raise ApiError(
-                "Missing required key 'notrelevant_allele_ids' when finalized requirement allow_notrelevant is true"
-            )
-        exempted_classification_allele_ids.update(set(data["notrelevant_allele_ids"]))
+    if workflow_type == "allele":
+        assert "technical_allele_ids" not in data and "notrelevant_allele_ids" not in data
+        assert (
+            "allow_technical" not in finalize_requirements
+            and "allow_notrelevant" not in finalize_requirements
+            and "allow_unclassified" not in finalize_requirements
+        )
 
-    # If no "unclassified" are allowed, check that all allele ids minus the
-    # exempted ones have a classification
-    if not finalize_requirements.get("allow_unclassified"):
+    if not finalize_requirements.get("allow_technical") and data.get("technical_allele_ids"):
+        raise ApiError("allow_technical is set to false, but some allele ids are marked technical")
 
-        needs_classification = set(data["allele_ids"]) - exempted_classification_allele_ids
-        missing_classification = needs_classification - alleleassessment_allele_ids
-        if missing_classification:
-            raise ApiError(
-                "Missing alleleassessments for allele ids {}".format(
-                    ",".join(sorted(list([str(m) for m in missing_classification])))
-                )
-            )
+    if not finalize_requirements.get("allow_notrelevant") and data.get("notrelevant_allele_ids"):
+        raise ApiError(
+            "allow_notrelevant is set to false, but some allele ids are marked not relevant"
+        )
+
+    unclassified_allele_ids = (
+        set(data["allele_ids"])
+        - set(data.get("notrelevant_allele_ids", []))
+        - set(data.get("technical_allele_ids", []))
+        - alleleassessment_allele_ids
+    )
+    if not finalize_requirements.get("allow_unclassified") and unclassified_allele_ids:
+        raise ApiError(
+            "allow_unclassified is set to false, but some allele ids are missing classification"
+        )
 
     # Create interpretation snapshot objects
     if workflow_type == "analysis":

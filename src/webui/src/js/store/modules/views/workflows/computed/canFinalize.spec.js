@@ -7,8 +7,8 @@ const defaultConfig = {
     workflowStatus: 'Review',
     status: 'Ongoing',
     requiredWorkflowStatus: ['Review'],
-    allowTechnical: false,
-    allowNotRelevant: false,
+    allowTechnical: true,
+    allowNotRelevant: true,
     allowUnclassified: false,
     numTechnical: 0,
     numNotRelevant: 0,
@@ -291,7 +291,9 @@ describe('canFinalize', function() {
         })
         expect(result).toEqual({
             canFinalize: false,
-            messages: ['Some variants are missing classifications: TestTechnical id 1']
+            messages: [
+                'Some variants are marked as technical, while this is disallowed in configuration.'
+            ]
         })
 
         state = createState({
@@ -319,7 +321,9 @@ describe('canFinalize', function() {
         })
         expect(result).toEqual({
             canFinalize: false,
-            messages: ['Some variants are missing classifications: TestNotRelevant id 1']
+            messages: [
+                'Some variants are marked as not relevant, while this is disallowed in configuration.'
+            ]
         })
 
         state = createState({
@@ -474,6 +478,27 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: true,
             messages: []
+        })
+
+        state = createState({
+            numUnclassified: 1,
+            numClassified: 1,
+            numNotRelevant: 2,
+            numTechnical: 2,
+            allowUnclassified: true,
+            allowNotRelevant: false,
+            allowTechnical: false
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: [
+                'Some variants are marked as technical, while this is disallowed in configuration.',
+                'Some variants are marked as not relevant, while this is disallowed in configuration.'
+            ]
         })
     })
 
