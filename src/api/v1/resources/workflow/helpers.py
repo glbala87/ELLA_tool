@@ -1,9 +1,9 @@
-from typing import DefaultDict, Dict, List
+from typing import DefaultDict, Dict, List, Set, Union, Type
 import datetime
 import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_, or_
+from sqlalchemy import tuple_, or_, literal, func
 from sqlalchemy.orm import joinedload
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
@@ -825,31 +825,65 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         allele_id is not None
     ), "No object passed to compute collisions with"
 
-    # Get all analysis workflows that are either Ongoing, or waiting for review
-    # i.e having not only 'Not started' interpretations or not only 'Done' interpretations.
-    workflow_analysis_ids = (
-        session.query(sample.Analysis.id)
-        .join(workflow.AnalysisInterpretation)
-        .filter(
-            or_(
-                sample.Analysis.id.in_(queries.workflow_analyses_review_not_started(session)),
-                sample.Analysis.id.in_(
-                    queries.workflow_analyses_medicalreview_not_started(session)
-                ),
-                sample.Analysis.id.in_(queries.workflow_analyses_ongoing(session)),
-            ),
-            workflow.AnalysisInterpretation.status != "Done",
+    def get_collision_interpretation_model_ids(
+        model: Union[Type[workflow.AnalysisInterpretation], Type[workflow.AlleleInterpretation]],
+        model_attr_id: str,
+    ) -> Set[int]:
+        """
+        Get all analysis/allele ids for workflows that have an interpretation that may contain
+        work that is not commited.
+        Criteria:
+        1. Include if more than one interpretation and latest is not finalized.
+        The first criterion (more than one) is due to single interpretations
+        may be in 'Not started' status and we don't want to include those.
+        2. In addition, include all Ongoing interpretations. These will naturally
+        contain uncommited work. This case is partly covered in 1. above, but not
+        for single interpretations.
+        """
+
+        more_than_one = (
+            session.query(getattr(model, model_attr_id))
+            .group_by(getattr(model, model_attr_id))
+            .having(func.count(getattr(model, model_attr_id)) > 1)
+            .subquery()
         )
+
+        not_finalized = queries.workflow_by_status(
+            session, model, model_attr_id, finalized=False
+        ).subquery()
+
+        ongoing = set(
+            queries.workflow_by_status(session, model, model_attr_id, status="Ongoing").scalar_all()
+        )
+
+        more_than_one_not_finalized = set(
+            session.query(getattr(more_than_one.c, model_attr_id))
+            .join(
+                not_finalized,
+                getattr(not_finalized.c, model_attr_id) == getattr(more_than_one.c, model_attr_id),
+            )
+            .distinct()
+            .scalar_all()
+        )
+
+        return ongoing | more_than_one_not_finalized
+
+    workflow_analysis_ids = get_collision_interpretation_model_ids(
+        workflow.AnalysisInterpretation, "analysis_id"
     )
 
     # Exclude "ourself" if applicable
-    if analysis_id is not None:
-        workflow_analysis_ids = workflow_analysis_ids.filter(sample.Analysis.id != analysis_id)
+    if analysis_id in workflow_analysis_ids:
+        workflow_analysis_ids.remove(analysis_id)
 
     # Get all ongoing analyses connected to provided allele ids
     # For analyses we exclude alleles with valid alleleassessments
     wf_analysis_allele_ids = (
-        session.query(workflow.AnalysisInterpretation.user_id, allele.Allele.id)
+        session.query(
+            workflow.AnalysisInterpretation.user_id,
+            allele.Allele.id,
+            workflow.AnalysisInterpretation.analysis_id,
+        )
         .join(
             genotype.Genotype.alleles,
             sample.Sample,
@@ -860,54 +894,72 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             sample.Analysis.id.in_(workflow_analysis_ids),
             allele.Allele.id.in_(allele_ids),
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),
-            workflow.AnalysisInterpretation.status != "Done",
         )
-        .distinct()
-    )
+        .distinct(workflow.AnalysisInterpretation.analysis_id, allele.Allele.id)
+        .order_by(
+            workflow.AnalysisInterpretation.analysis_id,
+            allele.Allele.id,
+            workflow.AnalysisInterpretation.date_created.desc(),
+        )
+    ).all()
 
-    # Get all allele ids for ongoing allele workflows matching provided allele_ids
-    wf_allele_allele_ids = (
-        session.query(
-            workflow.AlleleInterpretation.user_id, workflow.AlleleInterpretation.allele_id
-        )
-        .filter(
-            or_(
-                workflow.AlleleInterpretation.allele_id.in_(
-                    queries.workflow_alleles_review_not_started(session)
-                ),
-                workflow.AlleleInterpretation.allele_id.in_(
-                    queries.workflow_alleles_ongoing(session)
-                ),
-            ),
-            workflow.AlleleInterpretation.status != "Done",
-            workflow.AlleleInterpretation.allele_id.in_(allele_ids),
-        )
-        .distinct()
+    # Allele workflow
+    workflow_allele_ids = get_collision_interpretation_model_ids(
+        workflow.AlleleInterpretation, "allele_id"
     )
 
     # Exclude "ourself" if applicable
-    if allele_id is not None:
-        wf_allele_allele_ids = wf_allele_allele_ids.filter(
-            workflow.AlleleInterpretation.allele_id != allele_id
-        )
+    if allele_id in workflow_allele_ids:
+        workflow_allele_ids.remove(allele_id)
 
-    wf_analysis_allele_ids = wf_analysis_allele_ids.all()
-    wf_allele_allele_ids = wf_allele_allele_ids.all()
+    wf_allele_allele_ids = (
+        session.query(
+            workflow.AlleleInterpretation.user_id,
+            workflow.AlleleInterpretation.allele_id,
+            literal(None).label("analysis_id"),
+        )
+        .filter(
+            workflow.AlleleInterpretation.allele_id.in_(workflow_allele_ids),
+            workflow.AlleleInterpretation.allele_id.in_(allele_ids),
+        )
+        .distinct(workflow.AlleleInterpretation.allele_id)
+        .order_by(
+            workflow.AlleleInterpretation.allele_id,
+            workflow.AlleleInterpretation.date_created.desc(),
+        )
+    ).all()
 
     # Preload the users
-    user_ids = set([a[0] for a in wf_allele_allele_ids + wf_analysis_allele_ids])
+    user_ids = set([a.user_id for a in wf_allele_allele_ids + wf_analysis_allele_ids])
     users = session.query(user.User).filter(user.User.id.in_(user_ids)).all()
     dumped_users = schemas.UserSchema().dump(users, many=True).data
+
+    # Preload the analysis names
+    analysis_ids = [a.analysis_id for a in wf_analysis_allele_ids]
+    analysis_id_names = (
+        session.query(sample.Analysis.id, sample.Analysis.name)
+        .filter(sample.Analysis.id.in_(analysis_ids))
+        .all()
+    )
+    analysis_name_by_id = {a.id: a.name for a in analysis_id_names}
 
     collisions = list()
     for wf_type, wf_entries in [
         ("allele", wf_allele_allele_ids),
         ("analysis", wf_analysis_allele_ids),
     ]:
-        for user_id, allele_id in wf_entries:
+        for user_id, allele_id, analysis_id in wf_entries:
             # If an workflow is in review, it will have no user assigned...
             dumped_user = next((u for u in dumped_users if u["id"] == user_id), None)
-            collisions.append({"type": wf_type, "user": dumped_user, "allele_id": allele_id})
+            collisions.append(
+                {
+                    "type": wf_type,
+                    "user": dumped_user,
+                    "allele_id": allele_id,
+                    "analysis_name": analysis_name_by_id.get(analysis_id),
+                    "analysis_id": analysis_id,
+                }
+            )
 
     return collisions
 

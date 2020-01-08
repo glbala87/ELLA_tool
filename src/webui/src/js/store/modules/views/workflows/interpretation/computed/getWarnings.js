@@ -11,10 +11,12 @@ export default (allele) => {
         if (collisions) {
             for (const c of collisions.filter((c) => c.allele_id === allele.id)) {
                 const typeText =
-                    c.type === 'analysis' ? 'in another analysis' : 'in variant workflow'
+                    c.type === 'analysis'
+                        ? `in another analysis: ${c.analysis_name}`
+                        : 'in variant workflow'
                 const unfinishedTypeText =
                     c.type === 'analysis'
-                        ? 'an unfinished analysis'
+                        ? `an unfinished analysis: ${c.analysis_name}`
                         : 'an unfinished variant workflow'
 
                 if (c.user) {

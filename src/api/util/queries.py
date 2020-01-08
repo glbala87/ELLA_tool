@@ -46,7 +46,7 @@ def allele_ids_with_valid_alleleassessments(session):
 
 
 def workflow_by_status(
-    session, model, model_id_attr, workflow_status=None, status=None, finalized=False
+    session, model, model_id_attr, workflow_status=None, status=None, finalized=None
 ):
     """
     Fetches all allele_id/analysis_id where the last interpretation matches provided
@@ -64,10 +64,12 @@ def workflow_by_status(
     See https://www.postgresql.org/docs/10.0/static/sql-select.html#SQL-DISTINCT
     """
 
-    if workflow_status is None and status is None and not finalized:
+    if workflow_status is None and status is None and finalized is None:
         raise RuntimeError(
-            "You must provide either 'workflow_status' or 'status' argument, or specify finalized=True"
+            "You must provide either 'workflow_status', 'status' or 'finalized' argument"
         )
+
+    assert model_id_attr in ["allele_id", "analysis_id"]
 
     latest_interpretation = (
         session.query(
@@ -83,9 +85,19 @@ def workflow_by_status(
         filters.append(latest_interpretation.c.workflow_status == workflow_status)
     if status:
         filters.append(latest_interpretation.c.status == status)
-    if finalized:
-        filters.append(latest_interpretation.c.finalized.is_(True))
-    return session.query(getattr(latest_interpretation.c, model_id_attr)).filter(*filters)
+    if finalized is not None:
+        if finalized:
+            filters.append(latest_interpretation.c.finalized.is_(True))
+        else:
+            filters.append(
+                or_(
+                    latest_interpretation.c.finalized.is_(None),
+                    latest_interpretation.c.finalized.is_(False),
+                )
+            )
+    return session.query(
+        getattr(latest_interpretation.c, model_id_attr).label(model_id_attr)
+    ).filter(*filters)
 
 
 def workflow_analyses_finalized(session):
