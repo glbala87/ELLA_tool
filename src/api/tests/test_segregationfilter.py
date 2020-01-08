@@ -407,60 +407,76 @@ class TestInheritanceFilter(object):
 
     # All denovo positive cases
     @example(
-        (10001, "1", 1, 2), (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference"))
+        (10001, "1", 1, 2), (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")), True
     )  # AD denovo
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference"))
+        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")), True
     )  # AD denovo
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
+        True,
     )  # AD denovo
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference")),
+        True,
     )  # AD denovo
     @example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous"), fs("Reference"), ms("Reference")),
+        True,
     )
     @example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Reference")),
+        True,
     )
     @example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Heterozygous")),
+        True,
     )
     @example(  # X-linked male
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        True,
     )
-    # Denovo negative examples
     @example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        True,
     )
+    # Denovo negative examples
     @example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        False,
     )
     @example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
+        False,
     )
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("No coverage"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("No coverage")),
+        False,
     )
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
+        False,
     )
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Homozygous"), ms("Heterozygous"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Homozygous"), ms("Heterozygous")),
+        False,
     )
     @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("No coverage"), ms("Heterozygous"))
-    )
-    @example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("No coverage"), ms("Heterozygous"))
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("No coverage"), ms("Heterozygous")),
+        False,
     )
     @given(
         allele_strategy,
@@ -470,9 +486,10 @@ class TestInheritanceFilter(object):
             unaffected_siblings_num=0,
             affected_siblings_num=0,
         ),
+        st.just(None),
     )
     @settings(deadline=None)
-    def test_denovo(self, session, allele_data, entry):
+    def test_denovo(self, session, allele_data, entry, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
 
         session.rollback()
@@ -492,6 +509,12 @@ class TestInheritanceFilter(object):
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).denovo(
             genotype_table, sample_names["proband"], sample_names["father"], sample_names["mother"]
         )
+
+        if manually_curated_result is not None:
+            if manually_curated_result:
+                assert result_allele_ids == set([allele_id])
+            else:
+                assert result_allele_ids == set([])
 
         ps = next(s for s in entry if s.name == sample_names["proband"])
         fs = next(s for s in entry if s.name == sample_names["father"])
@@ -1004,6 +1027,11 @@ class TestInheritanceFilter(object):
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         True,
+    )
+    @example(
+        (10001, "X", PAR1_START - 1, PAR1_START),
+        (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference")),
+        False,
     )
     @example(
         (10001, "X", PAR1_START - 1, PAR1_START),
