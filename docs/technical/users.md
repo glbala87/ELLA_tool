@@ -20,6 +20,10 @@ ella-cli users add_many <path to users.json>
 
 This will print a one-time password to screen for each user that was added. This password is auto-expired and should be used by each user to set a new password upon first login.
 
+::: danger WARNING
+For security, do _not_ provide `password` and `password_expiry` in `users.json`.
+:::
+
 ::: warning NOTE
 User configuration history is currently not tracked in the datamodel, so changes should be tracked externally.
 :::
@@ -42,17 +46,16 @@ See also `/src/vardb/testdata/users.json`
 
 ## User configuration
 
-Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/src/api/config/config.py` for examples. 
+Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/example_config.yml` for examples. 
 
-- File: `/src/api/config/config.py`
-- Key: `config.user`
-
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `user`
 
 ### Authentication: Passwords
 
 Requirements for valid password.
 
-- Key: `config.user.auth`
+- Key: `user.auth`
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
@@ -67,7 +70,7 @@ Subkey	|	Explanation |   Values
 
 Settings related to user interface, workflow and ACMG rules. 
 
-- Key: `config.user.user_config`
+- Key: `user.user_config`
 
 See: 
 - [Overview](/technical/uioptions.html#overview-and-info-page) (subkey: `overview`)

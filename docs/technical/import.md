@@ -14,8 +14,8 @@ Options for import or deposit of variants and/or samples.
 
 [TODO]
 
-- File: `/src/api/config/config.py`
-- Key: `config.import` 
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `import` 
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---

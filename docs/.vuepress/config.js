@@ -105,11 +105,11 @@ module.exports = {
                     children: [
                         '/technical/configuration',
                         '/technical/users',
+                        '/technical/uioptions',
                         '/technical/genepanels',
-                        '/technical/filtering',
-                        '/technical/acmg',
                         '/technical/import',
-                        '/technical/uioptions' 
+                        '/technical/filtering',
+                        '/technical/acmg'
                     ]
                 },
                 {

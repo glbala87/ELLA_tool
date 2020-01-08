@@ -19,14 +19,6 @@ All filter configurations follow this pattern:
 
 The configuration is specific to the filter with the given name. The available filters can be found in this documentation, and in `/src/api/allelefilter/allelefilter.py`. 
 
-### Default configuration
-
-The default configuration is used as base when applying any custom filter. Custom filters are shallow merged on top of the defaults. Defaults are given in: 
-
-- File: `/src/api/config/config.py`
-- Key: `filter.default_filter_config`
-
-
 ### Exceptions
 
 For each filter, we can specify a list of exceptions, i.e. rules for when the filter should not apply. Many filter rules can be used both as filters or as exception to other filters.

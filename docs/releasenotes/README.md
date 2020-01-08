@@ -40,7 +40,7 @@ Finalizing variants means each variant interpretation will be tagged with the ma
 <!-- MR !348 -->
 - All action buttons are now disabled until all data has been loaded when opening an analysis.
 <!-- MR !349 -->
-- Some configuration files that was hard coded have now been replaced by a dynamic configuration.
+- Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
 <!-- MR !350 -->
 - Mouse popovers and tooltips now use tippy.js, with possibility for copying text to clipboard by mouse-click (any text marked with a clipboard symbol).
 

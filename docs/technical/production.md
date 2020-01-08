@@ -55,7 +55,7 @@ Example folder structure:
     incoming/  - New analyses for analysis watcher
     imported/  - Analyses that are imported
   igv-data/    - IGV resources, global and usergroup tracks.
-  fixtures/    - Any kind of data that is imported into database. Examples:
+  fixtures/    - Any kind of data that is imported into the database. Examples:
     users.json
     usergroups.json
     references.json
@@ -66,7 +66,7 @@ Example folder structure:
 
 ## Setup environment
 
-There are a few environment variables that should be set.
+There are a few environment variables that should be set:
 
 | Variable  	    | Description  	                                 | Values  |
 |:--- | :---  | :---  |
@@ -74,11 +74,11 @@ There are a few environment variables that should be set.
 | `PORT`     | Listen port for nginx.	                         | Default: `3114`  |
 | `ANALYSES_PATH`  | Path to imported analyses. 	| path (e.g. `/data/analyses/imported`) |
 | `ANALYSES_INCOMING`   | Path to incoming analyses. Used by analysis watcher to import new analyses 	| path (e.g. `/data/analyses/incoming`) |
+| `ELLA_CONFIG`  | Application configuration. 	| path (e.g. `/config/ella_config.yml`) |
 | `IGV_DATA`  | Path to IGV resources. 	| path (e.g. `/data/igv_data`) |
-| `ATTACHMENT_STORAGE`   | Path to where to store attachments. 	| path (e.g. `/data/attachments/`) |
-| `ANNOTATION_SERVICE_URL`   | URL to `anno` service. 	| URL (e.g. "http://localhost:6000") |
-| `OFFLINE_MODE`   | Whether used in offline environment. Adjusts whether links should be copied to clipboard.	| `TRUE`/`FALSE` <br>(default: `FALSE` )    |
+| `OFFLINE_MODE`   | Whether ELLA should be used in an offline environment. Adjusts whether links should be copied to clipboard instead of open directly.	| `TRUE`/`FALSE` <br>(default: `FALSE` )    |
 
+Additional environment variables (`ATTACHMENT_STORAGE` and `ANNOTATION_SERVICE_URL`) can be set in the application configuration, see [Other app settings](#other-app-settings).
 
 ## Start container
 
@@ -88,14 +88,14 @@ We can launch a new container like the following
 docker run \
   --name {container_name} \
   -p 80:80 \
+  -v /local/data/path:/data \
+  -v /local/config/path:/config \
   -v /local/logs/path:/logs \
-  -v /local/logs/path:/logs \
+  -e ELLA_CONFIG=/config/ella_config.yml \
   -e DB_URL={db_url} \
   -e ANALYSES_PATH=/data/analyses/imported \
   -e ANALYSES_INCOMING=/data/analyses/incoming \
-  -e ATTACHMENT_STORAGE=/data/attachments \
   -e IGV_DATA=/data/igv_data \
-  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
   {image_name}
 ```
 
@@ -145,10 +145,10 @@ The references table in the database can be populated with PubMed IDs using a js
 
 ## Other app settings 
 
-Vavious settings related to backend setup of ELLA. See `/src/api/config/config.py` for examples.
+Vavious settings related to backend setup of ELLA. See `/example_config.yml` for examples.
 
-- File: `/src/api/config/config.py`
-- Key: `config.app`
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `app`
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
@@ -157,3 +157,5 @@ Subkey	|	Explanation |   Values
 `annotation_service`    |   Define URL for annotation service. |    Example: `http:localhost:6000`
 `attachment_storage`    |   Define path to attachment storage.  |   [path] or `None`
 `max_upload_size`   |   Define max size of file uploads |   Example: 50 * 1024 * 1024
+
+See `/example_config.yml` for examples. 
