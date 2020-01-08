@@ -110,10 +110,10 @@ class AnalysisPage extends Page {
      *
      */
     addAcmgCode(category, code, comment, adjust_levels = 0) {
-        let buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
+        const buttonSelector = 'button.id-add-acmg' // Select top sectionbox' button
         $(buttonSelector).click()
         $('.id-acmg-selection-popover').waitForExist() // make sure the popover appeared
-        browser.pause(500) // Wait for popover animation to settle
+        browser.pause(200) // Wait for popover animation to settle
 
         let categories = {
             pathogenic: 1,
@@ -123,7 +123,7 @@ class AnalysisPage extends Page {
 
         let acmg_selector = `.id-acmg-selection-popover .id-acmg-category:nth-child(${categories[category]})`
         $(acmg_selector).click()
-        $('.popover')
+        $('.acmg-selection-popover')
             .$(`h4.acmg-title=${code}`)
             .click()
 
@@ -135,14 +135,18 @@ class AnalysisPage extends Page {
         let adjust_down = adjust_levels < 0
         for (let i = 0; i < Math.abs(adjust_levels); i++) {
             if (adjust_down) {
-                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-down').click()
+                util.element('.id-staged-acmg-code .id-adjust-down').click()
             } else {
-                util.element('.acmg-selection .id-staged-acmg-code .id-adjust-up').click()
+                util.element('.id-staged-acmg-code .id-adjust-up').click()
             }
         }
 
         // Add staged code
-        util.element('.acmg-selection .id-staged-acmg-code .acmg-upper button').click()
+        util.element('.id-staged-acmg-code .acmg-upper button').click()
+        // Hide popover
+        $(buttonSelector).click()
+        // Wait for popover to fade out
+        browser.pause(200)
     }
 
     getFinalizePossible() {

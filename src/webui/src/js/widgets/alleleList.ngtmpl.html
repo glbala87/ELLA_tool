@@ -8,7 +8,9 @@
         <div>{{ item.oldest_analysis | date: 'yyyy-MM-dd' }}</div>
         <div class="allele-priority">{{ $ctrl.getPriorityText(item) }}</div>
         <div class="full-title ref-title id-variant-name">
-            <b>{{ item.allele.formatted.display }}</b>
+            <b tippy-title="{{ item.allele.formatted.display }}" tippy-clipboard="true">{{
+                item.allele.formatted.display
+            }}</b>
             <span class="tag id-assessment">{{ $ctrl.getClassificationText(item.allele) }}</span>
         </div>
         <div class="allele-genepanel">{{ item.genepanel.name }}_{{ item.genepanel.version }}</div>

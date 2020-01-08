@@ -11,7 +11,7 @@ import template from './contentbox.ngtmpl.html'
     selector: 'contentbox',
     scope: {
         color: '@',
-        title: '@?', // Title (can also be set through options, options takes precedence)
+        boxtitle: '@?',
         titleUrl: '@?',
         disabled: '=?'
     },

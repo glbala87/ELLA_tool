@@ -25,18 +25,18 @@
                                 </div>
                                 <div
                                     class="cell"
-                                    title="Number of additional genes (not present in {{
+                                    tippy-title="Number of additional genes (not present in {{
                                         $ctrl.genepanel.name
                                     }}_{{ $ctrl.genepanel.version }})"
                                 >
                                     <h4 class="faded-title">Additional</h4>
                                 </div>
-                                <div class="cell" title="Number of overlapping genes">
+                                <div class="cell" tippy-title="Number of overlapping genes">
                                     <h4 class="faded-title">Overlapping</h4>
                                 </div>
                                 <div
                                     class="cell"
-                                    title="Number of missing genes (only present in {{
+                                    tippy-title="Number of missing genes (only present in {{
                                         $ctrl.genepanel.name
                                     }}_{{ $ctrl.genepanel.version }})"
                                 >
@@ -47,7 +47,7 @@
                                 <div class="cell">{{ entry.name }}_{{ entry.version }}</div>
                                 <div
                                     class="cell additional-count"
-                                    title="Number of additional genes in {{ entry.name }}_{{
+                                    tippy-title="Number of additional genes in {{ entry.name }}_{{
                                         entry.version
                                     }} (not present in {{ $ctrl.genepanel.name }}_{{
                                         $ctrl.genepanel.version
@@ -57,7 +57,7 @@
                                 </div>
                                 <div
                                     class="cell overlapping-count"
-                                    title="Number of overlapping genes in {{ entry.name }}_{{
+                                    tippy-title="Number of overlapping genes in {{ entry.name }}_{{
                                         entry.version
                                     }}"
                                 >
@@ -65,7 +65,7 @@
                                 </div>
                                 <div
                                     class="cell missing-count"
-                                    title="Number of missing genes in {{ entry.name }}_{{
+                                    tippy-title="Number of missing genes in {{ entry.name }}_{{
                                         entry.version
                                     }} (only present in {{ $ctrl.genepanel.name }}_{{
                                         $ctrl.genepanel.version
@@ -126,11 +126,8 @@
                 <div
                     class="genepanel-gene"
                     ng-repeat="gene in $ctrl.filteredGenes.genes track by gene.hgnc_id"
-                    uib-popover-template="'genepanelOverviewGenePopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="{{ gene.hgnc_symbol }}"
-                    popover-trigger="mouseenter"
-                    popover-placement="bottom"
+                    tippy-popover="genepanelOverviewGenePopover.ngtmpl.html"
+                    tippy-placement="bottom"
                 >
                     <span class="gene-name">{{ gene.hgnc_symbol }}</span>
                 </div>

@@ -188,73 +188,43 @@ body.modal-open {
     margin: 1.3rem 0 2.6rem;
 }
 
-.popover {
-    font-family: 'Source Sans Pro', sans-serif;
-    max-width: 70vw;
-    overflow-x: auto;
-    overflow: inherit;
-    padding: 0;
-    border: none;
-    box-shadow: 0 0.3rem 0.3rem $black-25;
-    z-index: 1600;
+.tippy-content {
+    padding: 0.8rem !important;
 }
-.popover,
-.popover * {
-    border-radius: 0;
-}
-.popover .popover-title {
-    @extend .slim;
-    @extend .title;
-    @extend .upper;
-    background-color: $blue-75;
-    color: $white;
-    font-weight: 600;
-    font-size: 1.4rem !important;
-    border: none;
-    padding-bottom: 0.3rem;
-    padding-top: 0.3rem;
-    width: 100%;
-}
-.popover-title-no-uppercase {
-    text-transform: none !important;
-}
-.popover-content {
-    padding-top: 0.3rem;
-    h3,
-    p {
-        @extend .slim;
+
+.tippy-popover {
+    .popover-list {
+        list-style: none;
+        &.indented {
+            margin-left: 1.3rem;
+        }
     }
-}
-.popover-content > pre {
-    white-space: pre-wrap;
-}
-.popover-content .gpv_override {
-    color: $red;
-}
-.popover-list {
-    list-style-type: none;
-    max-width: 50vw;
-}
-.popover-list.indented {
-    margin-left: 1.3rem;
+    .tippy-popover-title {
+        @extend .slim;
+        @extend .title;
+        color: $blue;
+        font-weight: 600;
+        font-size: 1.4rem !important;
+        border: none;
+        padding-bottom: 0.3rem;
+        padding-top: 0.3rem;
+        width: 100%;
+    }
+    h3.p-title {
+        font-weight: 600;
+        font-size: 1.4rem;
+        color: $black-75;
+        margin: 0.7rem 0;
+    }
 }
 .acmg-notes {
     margin-left: 2.6rem;
-}
-.popover h3.p-title {
-    font-weight: 700;
-    font-size: 1.4rem;
-    color: $black-75;
-    margin: 0.7rem 0;
-}
-
-.popover * .small {
-    font-weight: 300;
+    color: #333;
 }
 
 .acmg-popover {
     h3 {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.4rem;
         color: $black-75;
         margin: 0.7rem 0;
@@ -267,70 +237,24 @@ body.modal-open {
         font-size: 1.4rem;
     }
 }
-.acmg-selection aside {
-    margin-top: 3.9rem;
-}
-.acmg-selection aside ~ aside {
-    margin-top: 5.2rem;
-}
 
-@keyframes slide-from-left {
-    from {
-        left: -34rem;
+.acmg-selection-popover {
+    min-width: 40rem;
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - #{$nav-bar-top-height} - 15rem);
+    .acmg-selection {
+        overflow-y: auto;
     }
-    to {
-        left: 0rem;
-    }
-}
-@keyframes slide-to-left {
-    from {
-        left: 0rem;
-    }
-    to {
-        left: -34rem;
-    }
-}
-
-.add-acmg-popover {
-    margin: 0;
-    top: $nav-bar-top-height !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    position: fixed;
-    overflow: scroll;
-    width: 36rem;
-    will-change: left;
-}
-.add-acmg-popover.in-add {
-    animation: slide-from-left;
-    animation-delay: 0s;
-    animation-duration: 0.6s;
-    animation-fill-mode: forwards;
-}
-.add-acmg-popover.in-remove {
-    animation: slide-to-left;
-    animation-delay: 0s;
-    animation-duration: 0.3s;
-    animation-fill-mode: forwards;
-}
-.add-acmg-popover.fade,
-.acmg-popover.fade-add,
-.acmg-popover.in-remove {
-    opacity: 1;
-    display: block;
-    visibility: visible;
-}
-.add-acmg-popover .popover-title {
-    background-color: transparent;
-    color: inherit;
-}
-.add-acmg-popover .arrow {
-    display: none;
 }
 
 .interpretationlog-popover {
+    min-width: 70rem;
+    padding: 0.2rem;
+    height: calc(100vh - #{$nav-bar-top-height} - 10rem);
     h3 {
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.4rem;
         color: $black-75;
         margin: 0.7rem 0;
@@ -342,63 +266,6 @@ body.modal-open {
         word-break: break-word;
         font-size: 1.4rem;
     }
-}
-
-$interpretationlog-width: 70rem;
-@keyframes slide-from-right {
-    from {
-        right: -$interpretationlog-width;
-    }
-    to {
-        right: 0rem;
-    }
-}
-@keyframes slide-to-right {
-    from {
-        right: 0rem;
-    }
-    to {
-        right: -$interpretationlog-width;
-    }
-}
-.interpretationlog-popover {
-    margin: 0;
-    top: $nav-bar-top-height !important;
-    bottom: 0 !important;
-    left: initial !important;
-    right: 0 !important;
-    position: fixed;
-    width: $interpretationlog-width;
-    will-change: right;
-    .arrow {
-        display: none;
-    }
-}
-.interpretationlog-popover.in-add {
-    animation: slide-from-right;
-    animation-delay: 0s;
-    animation-duration: 0.6s;
-    animation-fill-mode: forwards;
-}
-.interpretationlog-popover.in-remove {
-    animation: slide-to-right;
-    animation-delay: 0s;
-    animation-duration: 0.3s;
-    animation-fill-mode: forwards;
-}
-.interpretationlog-popover.fade,
-.interpretationlog-popover.fade-add,
-.interpretationlog-popover.in-remove {
-    opacity: 1;
-    display: block;
-    visibility: visible;
-}
-.interpretationlog-popover .popover-title {
-    background-color: transparent;
-    color: inherit;
-}
-.interpretationlog-popover .arrow {
-    display: none;
 }
 
 .reference,

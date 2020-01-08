@@ -272,17 +272,19 @@ exports.config = {
     // Runs after a WebdriverIO command gets executed
     afterCommand: function(commandName, args, result, error) {
         BEFORE_CNT -= 1
-    }
+    },
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    // afterTest: function (test) {
-    // },
-    /**
-     * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-     * @param {Object} test test details
-     */
-    //afterTest: function(test) {
-    //}
+    afterTest: function(test) {
+        if (test.error !== undefined) {
+            // get current test title and clean it, to use it as file name
+            const filename = encodeURIComponent(test.fullTitle.replace(/\s+/g, '-'))
+            // build file path
+            const filePath = this.screenshotPath + filename + '.png'
+            // save screenshot
+            browser.saveScreenshot(filePath)
+        }
+    }
     //
     // Hook that gets executed after the suite has ended
     // afterSuite: function (suite) {

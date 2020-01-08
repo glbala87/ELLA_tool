@@ -9,7 +9,7 @@
                 <!-- Header for selected colorbox -->
                 <div
                     class="cell"
-                    title="Sample type"
+                    tippy-title="Sample type"
                     ng-if="$ctrl.isMultipleSampleType"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'type'})"
                 >
@@ -21,7 +21,7 @@
                 </div>
                 <div
                     class="cell"
-                    title="Inheritance"
+                    tippy-title="Inheritance"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'inheritance'})"
                 >
                     <span ng-class="{'clickable': $ctrl.orderByPath}">INH</span>
@@ -32,7 +32,7 @@
                 </div>
                 <div
                     class="cell"
-                    title="Gene"
+                    tippy-title="Gene"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'gene'})"
                 >
                     <span ng-class="{'clickable': $ctrl.orderByPath}">GENE</span>
@@ -43,7 +43,7 @@
                 </div>
                 <div
                     class="cell"
-                    title="HGVSc"
+                    tippy-title="HGVSc"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'hgvsc'})"
                 >
                     <span ng-class="{'clickable': $ctrl.orderByPath}">HGVSc</span>
@@ -54,7 +54,7 @@
                 </div>
                 <div
                     class="cell"
-                    title="Consequence"
+                    tippy-title="Consequence"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'consequence'})"
                 >
                     <span ng-class="{'clickable': $ctrl.orderByPath}">CSQ</span>
@@ -64,7 +64,7 @@
                     </span>
                 </div>
                 <div class="cell indicators">
-                    <div title="Warnings" class="top">
+                    <div tippy-title="Warnings" class="top">
                         <div
                             class="hit"
                             ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'warning'})"
@@ -77,7 +77,7 @@
                         </div>
                     </div>
                     <div
-                        title="Filtered variants"
+                        tippy-title="Filtered variants"
                         class="top"
                         ng-if="$ctrl.showManuallyAddedIndicator()"
                     >
@@ -92,7 +92,7 @@
                             </span>
                         </div>
                     </div>
-                    <div title="Segregation type" class="top">
+                    <div tippy-title="Segregation type" class="top">
                         <div
                             class="hit"
                             ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'segregation'})"
@@ -104,7 +104,7 @@
                             </span>
                         </div>
                     </div>
-                    <div title="Homozygous" class="top">
+                    <div tippy-title="Homozygous" class="top">
                         <div
                             class="hit"
                             ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'homozygous'})"
@@ -116,7 +116,7 @@
                             </span>
                         </div>
                     </div>
-                    <div title="Quality issues" class="top">
+                    <div tippy-title="Quality issues" class="top">
                         <div
                             class="hit"
                             ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'quality'})"
@@ -128,7 +128,7 @@
                             </span>
                         </div>
                     </div>
-                    <div title="Reference(s) available" class="top">
+                    <div tippy-title="Reference(s) available" class="top">
                         <div
                             class="hit"
                             ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'references'})"
@@ -141,7 +141,7 @@
                         </div>
                     </div>
                 </div>
-                <div ng-if="$ctrl.showColumn('qual')" class="cell qual" title="Quality">
+                <div ng-if="$ctrl.showColumn('qual')" class="cell qual" tippy-title="Quality">
                     <div
                         class="hit"
                         ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'qual'})"
@@ -153,7 +153,7 @@
                         </span>
                     </div>
                 </div>
-                <div ng-if="$ctrl.showColumn('dp')" class="cell dp" title="Read depth">
+                <div ng-if="$ctrl.showColumn('dp')" class="cell dp" tippy-title="Read depth">
                     <div
                         class="hit"
                         ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'readDepth'})"
@@ -165,7 +165,11 @@
                         </span>
                     </div>
                 </div>
-                <div ng-if="$ctrl.showColumn('ratio')" class="cell ratio" title="Allele ratio">
+                <div
+                    ng-if="$ctrl.showColumn('ratio')"
+                    class="cell ratio"
+                    tippy-title="Allele ratio"
+                >
                     <div
                         class="hit"
                         ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'ratio'})"
@@ -180,7 +184,7 @@
                 <div
                     ng-if="$ctrl.showColumn('hi-freq')"
                     class="cell hi-freq"
-                    title="Highest frequency"
+                    tippy-title="Highest frequency"
                 >
                     <div
                         class="hit"
@@ -196,7 +200,7 @@
                 <div
                     ng-if="$ctrl.showColumn('hi-count')"
                     class="cell hi-count"
-                    title="Highest allele count"
+                    tippy-title="Highest allele count"
                 >
                     <div
                         class="hit"
@@ -212,7 +216,7 @@
                 <div
                     ng-if="$ctrl.showColumn('external')"
                     class="cell external"
-                    title="External databases"
+                    tippy-title="External databases"
                 >
                     <div
                         class="hit"
@@ -229,13 +233,13 @@
                 <div
                     class="cell quick-classification"
                     ng-if="$ctrl.classificationOptions.length"
-                    title="Classification"
+                    tippy-title="Classification"
                 ></div>
                 <div
                     class="cell evaluation"
                     ng-if="$ctrl.showComment()"
                     ng-class="{'narrow': $ctrl.showNarrowComment()}"
-                    title="{{ $ctrl.getCommentTitle() }}"
+                    tippy-title="{{ $ctrl.getCommentTitle() }}"
                 >
                     {{ $ctrl.getCommentTitle() }}
                 </div>
@@ -248,7 +252,7 @@
             >
                 <div ng-if="!$ctrl.isTogglable()" class="cell tab"></div>
                 <div
-                    title="{{ $ctrl.getSampleTypesFull(allele) }}"
+                    tippy-title="{{ $ctrl.getSampleTypesFull(allele) }}"
                     ng-if="$ctrl.isMultipleSampleType"
                     class="cell sample-type id-sample-type"
                 >
@@ -257,21 +261,23 @@
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell inheritance id-inheritance"
-                    title="{{ allele.formatted.inheritance }}"
+                    tippy-title="{{ allele.formatted.inheritance }}"
                 >
                     {{ allele.formatted.inheritance }}
                 </div>
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell gene id-gene"
-                    title="{{ $ctrl.getGene(allele) }}"
+                    tippy-title="{{ $ctrl.getGene(allele) }}"
+                    tippy-clipboard="true"
                 >
                     {{ $ctrl.getGene(allele) }}
                 </div>
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell hgvsc id-hgvsc"
-                    title="{{ $ctrl.getHGVScTitle(allele) }}"
+                    tippy-title="{{ $ctrl.getHGVScTitle(allele) }}"
+                    tippy-clipboard="true"
                 >
                     {{ $ctrl.getHGVSc(allele) }}
                 </div>
@@ -279,7 +285,8 @@
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell consequence id-consequence"
                     ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}"
-                    title="{{ $ctrl.consequence[allele.id] }}"
+                    tippy-title="{{ $ctrl.consequence[allele.id] }}"
+                    tippy-clipboard="true"
                 >
                     {{ $ctrl.consequence[allele.id] }}
                 </div>
@@ -287,13 +294,13 @@
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell indicators id-indicators"
                 >
-                    <div title="{{ $ctrl.getWarningsTitle(allele) }}" class="warning">
+                    <div tippy-title="{{ $ctrl.getWarningsTitle(allele) }}" class="warning">
                         <div class="hit" ng-if="$ctrl.hasWarning(allele)">
                             <span>!</span>
                         </div>
                     </div>
                     <div
-                        title="Included from filtering"
+                        tippy-title="Included from filtering"
                         class="low-qual"
                         ng-if="$ctrl.showManuallyAddedIndicator()"
                     >
@@ -301,18 +308,18 @@
                             <span>I</span>
                         </div>
                     </div>
-                    <div title="{{ $ctrl.getSegregationTitle(allele) }}" class="segregation">
+                    <div tippy-title="{{ $ctrl.getSegregationTitle(allele) }}" class="segregation">
                         <div class="hit" ng-if="$ctrl.getSegregationTag(allele)">
                             <span>{{ $ctrl.getSegregationTag(allele) }}</span>
                         </div>
                     </div>
-                    <div title="Homozygous" class="hom">
+                    <div tippy-title="Homozygous" class="hom">
                         <div class="hit" ng-if="$ctrl.isHomozygous(allele)">
                             <span>O</span>
                         </div>
                     </div>
                     <div
-                        title="{{ $ctrl.getQualityTitle(allele.id) }}"
+                        tippy-title="{{ $ctrl.getQualityTitle(allele.id) }}"
                         ng-class="$ctrl.getQualityClass(allele.id)"
                     >
                         <div class="hit" ng-if="$ctrl.hasQualityInformation(allele)">
@@ -321,7 +328,7 @@
                     </div>
                     <div class="important-source">
                         <div
-                            title="Reference(s) available"
+                            tippy-title="Reference(s) available"
                             class="hit"
                             ng-if="$ctrl.hasReferences(allele)"
                         >
@@ -333,48 +340,32 @@
                 <div
                     ng-if="$ctrl.showColumn('qual')"
                     class="cell qual"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Quality: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarQualityPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">{{ $ctrl.qual[allele.id] || '-' }}</span>
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('dp')"
                     class="cell dp"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Quality: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarQualityPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">{{ $ctrl.depth[allele.id] || '-' }}</span>
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('ratio')"
                     class="cell ratio"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarQualityPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Quality: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarQualityPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">{{ $ctrl.alleleRatio[allele.id] || '-' }}</span>
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('hi-freq')"
                     class="cell hi-freq"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Frequency: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarFrequencyPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">{{
                         $ctrl.formatFreqValue($ctrl.hiFreq[allele.id])
@@ -383,24 +374,16 @@
                 <div
                     ng-if="$ctrl.showColumn('hi-count')"
                     class="cell hi-count"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarFrequencyPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Frequency: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarFrequencyPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">{{ $ctrl.hiCount[allele.id].maxValue || '-' }}</span>
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('external')"
                     class="cell external"
-                    popover-trigger="mouseenter"
-                    uib-popover-template="'alleleSidebarExternalPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="External: {{ allele.formatted.display }}"
-                    popover-class="popover-title-no-uppercase"
-                    popover-placement="bottom"
+                    tippy-popover="alleleSidebarExternalPopover.ngtmpl.html"
+                    tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
                     <span class="clickable">
                         <span ng-repeat="s in $ctrl.externalSummary[allele.id]"
@@ -413,7 +396,7 @@
                     ng-click="$ctrl.reviewedClicked({alleleId: allele.id})"
                     class="cell classification id-classification"
                     ng-class="{reviewed: $ctrl.reviewed[allele.id]}"
-                    title="Mark reviewed"
+                    tippy-title="Mark reviewed"
                 >
                     <div class="class-amcg-container">
                         <div class="classification-container">
@@ -429,7 +412,7 @@
                         </div>
                         <div
                             class="acmg-indicators-container"
-                            title="{{ $ctrl.getAcmgTitle(allele.id) }}"
+                            tippy-title="{{ $ctrl.getAcmgTitle(allele.id) }}"
                         >
                             <div
                                 class="acmg-indicator"
@@ -445,7 +428,7 @@
                         class="purple id-quick-technical"
                         ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical', selectAllele: true})"
                         ng-disabled="$ctrl.readOnly"
-                        title="Mark as technical"
+                        tippy-title="Mark as technical"
                     >
                         T
                     </button>
@@ -454,7 +437,7 @@
                         class="purple id-quick-notrelevant"
                         ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true, selectAllele: true})"
                         ng-disabled="$ctrl.readOnly"
-                        title="Mark as not relevant"
+                        tippy-title="Mark as not relevant"
                     >
                         NR
                     </button>
@@ -463,7 +446,7 @@
                         class="purple id-quick-classu"
                         ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id, selectAllele: true})"
                         ng-disabled="$ctrl.readOnly"
-                        title="Mark as Class U"
+                        tippy-title="Mark as Class U"
                     >
                         U
                     </button>
@@ -472,7 +455,7 @@
                         class="purple id-quick-class2"
                         ng-click="$ctrl.quickClassificationClicked({classification: '2', alleleId: allele.id, selectAllele: true})"
                         ng-disabled="$ctrl.readOnly || !$ctrl.canSetClass2(allele.id)"
-                        title="Mark as Class 2"
+                        tippy-title="Mark as Class 2"
                     >
                         2</button
                     ><button
@@ -481,7 +464,7 @@
                         ng-if="$ctrl.showClassificationBtn('class2')"
                         ng-click="$ctrl.quickClassificationClicked({code: $ctrl.getCodeForClick(allele.id, 'BS1'), alleleId: allele.id})"
                         ng-disabled="$ctrl.readOnly"
-                        title="Add BS1"
+                        tippy-title="Add BS1"
                     >
                         BS1</button
                     ><button
@@ -490,7 +473,7 @@
                         ng-if="$ctrl.showClassificationBtn('class2')"
                         ng-click="$ctrl.quickClassificationClicked({code: $ctrl.getCodeForClick(allele.id, 'BS2'), alleleId: allele.id})"
                         ng-disabled="$ctrl.readOnly"
-                        title="Add BS2"
+                        tippy-title="Add BS2"
                     >
                         BS2
                     </button>
@@ -512,7 +495,6 @@
                     ng-if="$ctrl.isTogglable()"
                     ng-click="$ctrl.toggleClicked({alleleId: allele.id})"
                     class="cell tab"
-                    title="{{ $ctrl.readOnly ? 'Not allowed (read-only)' : '' }}"
                 >
                     <div class="added">
                         <h5 ng-if="$ctrl.isToggled(allele.id)">-</h5>

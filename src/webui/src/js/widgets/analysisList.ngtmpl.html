@@ -10,7 +10,9 @@
         </div>
         <div class="analysis-priority">{{ $ctrl.getPriorityText(analysis) }}</div>
         <div class="id-analysis-name full-title">
-            <b class="ref-title">{{ analysis.name }}</b>
+            <b class="ref-title" tippy-title="{{ analysis.name }}" tippy-clipboard="true">{{
+                analysis.name
+            }}</b>
             <span
                 title="{{ analysis.warnings }}"
                 class="tag red id-sample-type"
