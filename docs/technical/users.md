@@ -63,7 +63,7 @@ Subkey	|	Explanation |   Values
 `password_minimum_length`   |   Minimum length of valid password. |   [integer]
 `password_match_groups`   |   Character types in valid password. |   [regex]
 `password_match_groups_descr`   |   Descriptions for character types. |   [free text]
-`password_num_match_groups`   |   Number of characted types required for valid password.  |   [integer]
+`password_num_match_groups`   |   Number of character types required for valid password.  |   [integer]
 
 
 ### User interface, workflow and ACMG

@@ -16,17 +16,46 @@ This version adds changes to better support larger number of users and user grou
 
 #### Finalize variants in analyses
 
-The most important change is the addition of a "finalize variant" function in analyses. This allows variant interpretations to be released for overlapping analyses (where the same variant is present in more than one non-finalized analysis workflow) as quickly as possible. This also means that workflow collision warnings are given per variant instead of per analysis, reducing the number of displayed warnings.
+The most important change in this version is the addition of a "finalize variant" function in analyses. This allows variant interpretations to be released for overlapping analyses (where the same variant is present in more than one non-finalized analysis workflow) as quickly as possible. This also means that workflow collision warnings are given per variant instead of per analysis, reducing the number of displayed warnings.
 
-With this change, each variant with a new/updated classification in an analysis should now be finalized by pressing a `FINALIZE` button in the CLASSIFICATION section before the analysis can be finalized.
+With this change, each variant with a new/updated classification in an analysis needs to be finalized by pressing the new `FINALIZE` button in the CLASSIFICATION section before the analysis (sample) itself can be finalized:
 
-[TODO: screenshot + manual]
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-finalize-variant.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New button to finalize variant in analysis.
+    </div>
+    <br>
+</div>
+
+Note that this also needs to be performed for any classification done in [QUICK mode](/manual/quick-classification.md).
 
 #### User group warnings
 
-Finalizing variants means each variant interpretation will be tagged with the main responsible user and user group. This also allows showing a warning if the previous (finalized) variant interpretation was performed by a user from another user group than your own. 
+Finalizing variants means each variant interpretation will be tagged with the main responsible user and user group. This also allows showing a warning if the previous (finalized) variant interpretation was performed by a user from another user group than your own: 
 
-[TODO: screenshot + manual]
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-user-group-warning.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New user group warning.
+    </div>
+    <br>
+</div>
+
+#### Copy text by mouse-click
+
+You can now more easily copy text from many pop-overs by clicking on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-popup.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New option to copy text directly by mouse-click in popups.
+    </div>
+    <br>
+</div>
 
 ### All changes
 
@@ -42,6 +71,4 @@ Finalizing variants means each variant interpretation will be tagged with the ma
 <!-- MR !349 -->
 - Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
 <!-- MR !350 -->
-- Mouse popovers and tooltips now use tippy.js, with possibility for copying text to clipboard by mouse-click (any text marked with a clipboard symbol).
-
-
+- Mouse popovers and tooltips now use tippy.js, with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).

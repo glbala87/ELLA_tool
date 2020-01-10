@@ -36,11 +36,11 @@ Variants are listed in one of four side bar sections depending on the state of t
 
 - UNCLASSIFIED VARIANTS: New variants with no existing interpretations (historic or current), or variants with previous classifications that are [outdated and due for re-evaluation](/manual/classification-section.html#interpretations-that-are-outdated). 
 
-- CLASSIFIED VARIANTS: Variants with previous interpretations that are [still valid](/manual/classification-section.html#interpretations-that-are-still-valid), or that have been given a classification in the current analysis.
+- CLASSIFIED VARIANTS: Variants with previous interpretations that are [still valid](/manual/classification-section.html#interpretations-that-are-still-valid), or that have been given a new/updated classification in the current analysis.
 
 - NOT RELEVANT VARIANTS: Variants [marked as not relevant](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) for the current analysis.
 
-- TECHNICAL VARIANTS: Variants [marked as technical artefacts](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) in the current analysis.
+- TECHNICAL VARIANTS: Variants [marked as technical artifacts](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) in the current analysis.
 
 ## Variant sorting
 
@@ -54,9 +54,9 @@ The default sorting in each section is (Class) - Inheritance – Gene – HGVSc.
 
 If applicable, variants in the variant list are tagged with:
 
-  - `!` [Variant warnings](/manual/top-bar.html#variant-warnings).
+  - `!` [Variant warnings](/manual/warnings.md). 
 
-  - `S` [Segregation](/concepts/filtering.html#segregation-filter). Depdending on data, changes to:
+  - `S` [Segregation](/concepts/filtering.html#segregation-filter). Depending on data, changes to:
     
       - `D` De novo
       - `A` Autosomal recessive homozygous
@@ -94,10 +94,10 @@ An arrow (→) indicates that a new classification will be created, and any exis
 Outdated variants marked with `*` in CLASSIFIED VARIANTS should be re-interpreted before you finish the analysis.
 :::
 
-## Mark as reviewed
+## Mark as reviewed/finalized
 
 You can toggle a blue colouring of the background of the class by clicking on it in the side bar: 
 
 <div style="text-indent: 4%;"><img src="./img/mark_reviewed.png"></div>
 
-This can be used to indicates which variants have been reviewed, i.e. to keep track of the work done in a review round. 
+This is done automatically when you finalize a variant. Manual marking can be used to indicates which variants have been reviewed, i.e. to keep track of the work done in a review round.  

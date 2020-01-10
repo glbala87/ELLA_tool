@@ -20,7 +20,7 @@ Configure user interface elements for different pages. See `/example_config.yml`
 
 Define defaults view on OVERVIEW and INFO pages for all users, or per user group. 
 
-Default settings for all users (overriddden by any group settings) are configured in: 
+Default settings for all users (overridden by any group settings) are configured in: 
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user.user_config.overview`
@@ -106,7 +106,7 @@ Workflow    |   Subkey	|	Explanation |   Values
 `allele` or `analysis`  |   `workflow_status`  |   Workflow statuses allowing finalization. |   [list of statuses]
 `analysis`  |   `allow_not_relevant`    |   Allow variants marked as "Not relevant" when finalizing.    |   `True` / `False`
 `analysis`  |   `allow_technical`    |   Allow variants marked as "Technical" when finalizing.    |  `True` / `False`
-`analysis`  |   `allow_unclassified`    |   Allow unclassified variants when finalizing. Note: This setting implies `allow_technical` and `allow_notrelevant` |   `True` / `False`
+`analysis`  |   `allow_unclassified`    |   Allow unclassified variants when finalizing.  |   `True` / `False`
 
 ### Define references as IGNORED
 

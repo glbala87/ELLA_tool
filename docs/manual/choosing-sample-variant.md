@@ -39,7 +39,7 @@ Option  | Explanation
 `PENDING REVIEW`  | Samples that have been interpreted by another user and marked for review.
 `PENDING MEDICAL REVIEW`  | Samples marked for review by a lab physician.
 `OTHERS’ ANALYSES`  | Samples currently being worked on by other users.
-`FINALISED` | Samples that have been analysed and marked as Finalised.
+`FINALIZED` | Samples that have been analysed and marked as Finalized.
 
 #### Optional/alternative ANALYSES worklist items
 
@@ -71,7 +71,7 @@ Option  | Explanation
 `PENDING CLASSIFICATION` | Variants that have not yet been opened/interpreted.
 `PENDING REVIEW` | Variants that have been interpreted at least once and that have been marked for review. Users and dates for previous interpretations are given to the far right.
 `OTHERS’ VARIANTS` | Variants currently being worked on by other users.
-`FINALISED` | Variants that have been interpreted and marked as Finalised.
+`FINALIZED` | Variants that have been interpreted and marked as Finalized.
 
 ## History, comments and tags
 

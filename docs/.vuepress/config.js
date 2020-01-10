@@ -55,7 +55,8 @@ module.exports = {
                         '/manual/evidence-sections',
                         '/manual/classification-section',
                         '/manual/quick-classification',
-                        '/manual/visual'
+                        '/manual/visual',
+                        '/manual/warnings'
                     ]
                 },
                 {
