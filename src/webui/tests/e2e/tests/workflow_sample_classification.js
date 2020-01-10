@@ -302,13 +302,6 @@ describe('Sample workflow', function() {
 
     it('keeps the classification from the previous round', function() {
         loginPage.open()
-        setFinalizationRequirements(true, true, false, [
-            'Interpretation',
-            'Review',
-            'Medical review'
-        ])
-        browser.refresh()
-        loginPage.open()
         loginPage.selectSecondUser()
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
@@ -327,12 +320,17 @@ describe('Sample workflow', function() {
             alleleSectionBox.finalize()
         }
 
+        expect(alleleSidebar.countOfUnclassified()).toBe(0)
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
     })
 
     it('reuses classified variants from a different sample', function() {
+        loginPage.open()
+        // Allow finalization directly from Interpretation
+        setFinalizationRequirements(true, true, false, ['Interpretation'])
+        browser.refresh()
         loginPage.open()
         loginPage.selectFirstUser()
         sampleSelectionPage.selectTopPending()

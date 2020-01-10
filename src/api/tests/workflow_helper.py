@@ -353,7 +353,7 @@ class WorkflowHelper(object):
                     ),
                     None,
                 )
-                if not ra:
+                if ra is None:
                     continue
 
                 # Reuse reference assessment

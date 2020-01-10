@@ -110,7 +110,15 @@ describe('canFinalizeAllele', function() {
     it('requires ongoing interpretation', function() {
         const state = createState({})
         state.views.workflows.data.interpretations[0].status = 'Done'
-        const result = runCompute(canFinalizeAllele(1), {
+        let result = runCompute(canFinalizeAllele(1), {
+            state,
+            props: {}
+        })
+        expect(result.canFinalize).toEqual(false)
+        expect(result.messages).toEqual(['Interpretation is not Ongoing'])
+
+        state.views.workflows.data.interpretations[0].status = 'Not started'
+        result = runCompute(canFinalizeAllele(1), {
             state,
             props: {}
         })

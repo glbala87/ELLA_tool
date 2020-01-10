@@ -729,7 +729,7 @@ class TestFinalizationRequirements:
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         custom_annotation_ids = []
 
-        # allow_technical is False, so it should fail
+        # allow_notrelevant is False, so it should fail
         r = ih.finalize(
             "analysis",
             1,
@@ -749,7 +749,7 @@ class TestFinalizationRequirements:
             == "allow_notrelevant is set to false, but some allele ids are marked not relevant"
         )
 
-        # Allow technical and try again
+        # Allow notrelevant and try again
         user_config = {
             "workflows": {
                 "analysis": {
@@ -827,7 +827,7 @@ class TestFinalizationRequirements:
             session.commit()
             alleleassessment_ids.append(aa.id)
 
-        # Make one variant unclassified, but reported as technical
+        # Make one variant unclassified
         allele_ids = [a["id"] for a in alleles]
         notrelevant_allele_ids = []
         technical_allele_ids = []
@@ -835,7 +835,7 @@ class TestFinalizationRequirements:
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         custom_annotation_ids = []
 
-        # allow_technical is False, so it should fail
+        # allow_unclassified is False, so it should fail
         r = ih.finalize(
             "analysis",
             1,
@@ -855,7 +855,7 @@ class TestFinalizationRequirements:
             == "allow_unclassified is set to false, but some allele ids are missing classification"
         )
 
-        # Allow technical and try again
+        # Allow unclassified and try again
         user_config = {
             "workflows": {
                 "analysis": {

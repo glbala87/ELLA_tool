@@ -638,21 +638,12 @@ describe('Handling of allele state', () => {
         })
 
         // Rest is checked in API mocks
-        await cerebral.runSignal('test.postFinalizeAllele', {
-            alleleId: 1
-        })
 
-        await cerebral.runSignal('test.postFinalizeAllele', {
-            alleleId: 2
-        })
-
-        await cerebral.runSignal('test.postFinalizeAllele', {
-            alleleId: 3
-        })
-
-        await cerebral.runSignal('test.postFinalizeAllele', {
-            alleleId: 4
-        })
+        for (let alleleId of [1, 2, 3, 4]) {
+            await cerebral.runSignal('test.postFinalizeAllele', {
+                alleleId
+            })
+        }
     })
 
     it('migrates old state correctly', async () => {

@@ -13,6 +13,7 @@ def check_log(
     priority=None,
     warning_cleared=None,
     alleleassessment=False,
+    allelereport=False,
 ):
     # Only one of these can be given at a time
     assert (
@@ -27,6 +28,7 @@ def check_log(
     assert log["priority"] == priority
     assert log["warning_cleared"] == warning_cleared
     assert bool(log["alleleassessment"]) == alleleassessment
+    assert bool(log["allelereport"]) == allelereport
 
 
 def check_latest_log(
@@ -38,11 +40,11 @@ def check_latest_log(
     warning_cleared=None,
     editable=False,
     alleleassessment=False,
+    allelereport=False,
 ):
     url_type = "alleles" if workflow_type == "allele" else "analyses"
     r = client.get("/api/v1/workflows/{}/{}/logs/".format(url_type, ALLELE_ID))
     logs = r.get_json()["logs"]
-    print(logs)
     check_log(
         logs[-1],
         message=message,
@@ -50,6 +52,7 @@ def check_latest_log(
         priority=priority,
         warning_cleared=warning_cleared,
         alleleassessment=alleleassessment,
+        allelereport=allelereport,
     )
     assert logs[-1]["editable"] is editable
     return logs[-1]
@@ -116,7 +119,7 @@ def test_allele_workflow(client, test_database):
     # Finalize to create alleleassessment
     interpretation = allele_wh.start_interpretation("testuser1")
     allele_wh.perform_finalize_round(interpretation, "Finalize comment")
-    check_latest_log(client, "allele", alleleassessment=True, editable=False)
+    check_latest_log(client, "allele", alleleassessment=True, allelereport=True, editable=False)
 
 
 def test_analyses_workflow(client, test_database):
@@ -180,7 +183,7 @@ def test_analyses_workflow(client, test_database):
 
     check_latest_log(client, "analysis", warning_cleared=True, editable=False)
 
-    # Finalize to create alleleassessment
+    # Finalize to create alleleassessment/allelereport
     # perform_finalize_round creates one assessment per allele
     interpretation = analysis_wh.start_interpretation("testuser1")
     filtered_allele_ids = ih.get_filtered_alleles(
@@ -190,7 +193,13 @@ def test_analyses_workflow(client, test_database):
     r = client.get("/api/v1/workflows/analyses/{}/logs/".format(ALLELE_ID))
     logs = r.get_json()["logs"]
     filtered_allele_ids_cnt = len(filtered_allele_ids)
+    # Check alleleassessments in log
     created_aa_allele_ids = set(
         l["alleleassessment"]["allele_id"] for l in logs[-filtered_allele_ids_cnt:]
     )
     assert set(created_aa_allele_ids) == set(filtered_allele_ids)
+    # Check allelereports in log
+    created_ar_allele_ids = set(
+        l["allelereport"]["allele_id"] for l in logs[-filtered_allele_ids_cnt:]
+    )
+    assert set(created_ar_allele_ids) == set(filtered_allele_ids)
