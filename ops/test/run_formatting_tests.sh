@@ -36,7 +36,7 @@ fi
 echo -e "\n${LIGHTGREEN}### Running prettier ###${COLOROFF}\n"
 
 # Explicitly run angular parser on html: https://github.com/prettier/prettier-vscode/issues/638#issuecomment-459661114
-yarn prettier -l "**/*\.@(js|scss|json|css|html)" || EXIT_CODE=3
+yarn prettier -l "**/*\.@(js|scss|json|css|html|yml)" || EXIT_CODE=3
 if [ "$EXIT_CODE" == "3" ]
 then
     echo -e "\n${RED}### prettier: FAILED ###${COLOROFF}\n"

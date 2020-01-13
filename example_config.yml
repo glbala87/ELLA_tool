@@ -1,303 +1,303 @@
 app:
-  links_to_clipboard: !env_bool [OFFLINE_MODE, true]
-  non_production_warning: !env NON_PRODUCTION_WARNING
-  annotation_service: !env [ANNOTATION_SERVICE_URL, "http://localhost:6000"]
-  attachment_storage: !env "ATTACHMENT_STORAGE"
-  max_upload_size: 52428800 # 50 MB
+    links_to_clipboard: !env_bool [OFFLINE_MODE, true]
+    non_production_warning: !env NON_PRODUCTION_WARNING
+    annotation_service: !env [ANNOTATION_SERVICE_URL, 'http://localhost:6000']
+    attachment_storage: !env 'ATTACHMENT_STORAGE'
+    max_upload_size: 52428800 # 50 MB
 user:
-  # Password policy
-  auth:
-    # Number of days a password is valid before it needs changing.
-    # All sessions will be invalidated when the password is expired.
-    # Note: Changing this will not affect existing passwords
-    password_expiry_days: 90
-    # Min length of password
-    password_minimum_length: 8
-    # Password strength requirements
-    password_match_groups_descr:
-      - Uppercase letters [A-Z]
-      - Lowercase letters [a-z]
-      - Digits [0-9]
-      - Special characters
-    password_match_groups:
-      - ".*[A-Z].*"
-      - ".*[a-z].*"
-      - ".*[0-9].*"
-      - ".*[^A-Za-z0-9].*"
-    # Number of the match groups that must be satisfied
-    password_num_match_groups: 3
-  user_config:
-    # Default user config
-    # Is _shallow_ merged with usergroup's and user's config at runtime
-    overview:
-      # Available: analyses, analyses-by-findings, variants, import
-      views:
-        - analyses
-        - import
-    workflows:
-      allele:
-        finalize_requirements:
-          # Workflow statuses allowing finalization of variants
-          workflow_status:
-            - Interpretation
-            - Review
-      analysis:
-        finalize_requirements:
-          # Workflow statuses allowing finalization of analyses
-          workflow_status:
-            - Not ready
-            - Interpretation
-            - Review
-            - Medical review
-          # Allow not relevant/technical variants without classification when finalizing analysis
-          allow_notrelevant: false
-          allow_technical: true
-          # allow_unclassified implies allow_technical and allow_notrelevant
-          allow_unclassified: false
-    interpretation:
-      autoIgnoreReferencePubmedIds: []
+    # Password policy
+    auth:
+        # Number of days a password is valid before it needs changing.
+        # All sessions will be invalidated when the password is expired.
+        # Note: Changing this will not affect existing passwords
+        password_expiry_days: 90
+        # Min length of password
+        password_minimum_length: 8
+        # Password strength requirements
+        password_match_groups_descr:
+            - Uppercase letters [A-Z]
+            - Lowercase letters [a-z]
+            - Digits [0-9]
+            - Special characters
+        password_match_groups:
+            - '.*[A-Z].*'
+            - '.*[a-z].*'
+            - '.*[0-9].*'
+            - '.*[^A-Za-z0-9].*'
+        # Number of the match groups that must be satisfied
+        password_num_match_groups: 3
+    user_config:
+        # Default user config
+        # Is _shallow_ merged with usergroup's and user's config at runtime
+        overview:
+            # Available: analyses, analyses-by-findings, variants, import
+            views:
+                - analyses
+                - import
+        workflows:
+            allele:
+                finalize_requirements:
+                    # Workflow statuses allowing finalization of variants
+                    workflow_status:
+                        - Interpretation
+                        - Review
+            analysis:
+                finalize_requirements:
+                    # Workflow statuses allowing finalization of analyses
+                    workflow_status:
+                        - Not ready
+                        - Interpretation
+                        - Review
+                        - Medical review
+                    # Allow not relevant/technical variants without classification when finalizing analysis
+                    allow_notrelevant: false
+                    allow_technical: true
+                    # allow_unclassified implies allow_technical and allow_notrelevant
+                    allow_unclassified: false
+        interpretation:
+            autoIgnoreReferencePubmedIds: []
 analysis:
-  priority:
-    # Display text for priority 1,2,3
-    display:
-      "1": Normal
-      "2": High
-      "3": Urgent
-  sidebar:
-    # Sidebar configuration for the different sidebar views
-    full:
-      columns: []
-      classification_options:
-        unclassified: []
-        classified: []
-        not_relevant: []
-        technical: []
-      comment_type:
-        unclassified:
-        classified:
-        not_relevant:
-        technical:
-      shade_multiple_in_gene: true
-    quick:
-      columns:
-        - qual
-        - dp
-        - ratio
-        - hi-freq
-        - hi-count
-        - external
-      classification_options:
-        unclassified:
-          - technical
-          - notrelevant
-          - classu
-          - class2
-        classified: []
-        not_relevant: []
-        technical: []
-      comment_type:
-        unclassified:
-        classified: evaluation
-        not_relevant: analysis
-        technical: analysis
-      narrow_comment: false
-      shade_multiple_in_gene: true
-    visual:
-      columns:
-        - qual
-        - ratio
-      classification_options:
-        unclassified:
-          - technical
-        classified:
-          - technical
-        not_relevant: []
-        technical: []
-      comment_type:
-        unclassified:
-        classified:
-        not_relevant: analysis
-        technical: analysis
-      narrow_comment: true
-      shade_multiple_in_gene: true
-    report:
-      columns: []
-      classification_options:
-        unclassified: []
-        classified: []
-        not_relevant: []
-        technical: []
-      comment_type:
-        unclassified:
-        classified:
-        not_relevant:
-        technical:
-      shade_multiple_in_gene: true
-    list:
-      columns:
-        - qual
-        - dp
-        - ratio
-        - hi-freq
-        - hi-count
-        - external
-      classification_options:
-        unclassified: []
-        classified: []
-        not_relevant: []
-        technical: []
-      shade_multiple_in_gene: false
+    priority:
+        # Display text for priority 1,2,3
+        display:
+            '1': Normal
+            '2': High
+            '3': Urgent
+    sidebar:
+        # Sidebar configuration for the different sidebar views
+        full:
+            columns: []
+            classification_options:
+                unclassified: []
+                classified: []
+                not_relevant: []
+                technical: []
+            comment_type:
+                unclassified:
+                classified:
+                not_relevant:
+                technical:
+            shade_multiple_in_gene: true
+        quick:
+            columns:
+                - qual
+                - dp
+                - ratio
+                - hi-freq
+                - hi-count
+                - external
+            classification_options:
+                unclassified:
+                    - technical
+                    - notrelevant
+                    - classu
+                    - class2
+                classified: []
+                not_relevant: []
+                technical: []
+            comment_type:
+                unclassified:
+                classified: evaluation
+                not_relevant: analysis
+                technical: analysis
+            narrow_comment: false
+            shade_multiple_in_gene: true
+        visual:
+            columns:
+                - qual
+                - ratio
+            classification_options:
+                unclassified:
+                    - technical
+                classified:
+                    - technical
+                not_relevant: []
+                technical: []
+            comment_type:
+                unclassified:
+                classified:
+                not_relevant: analysis
+                technical: analysis
+            narrow_comment: true
+            shade_multiple_in_gene: true
+        report:
+            columns: []
+            classification_options:
+                unclassified: []
+                classified: []
+                not_relevant: []
+                technical: []
+            comment_type:
+                unclassified:
+                classified:
+                not_relevant:
+                technical:
+            shade_multiple_in_gene: true
+        list:
+            columns:
+                - qual
+                - dp
+                - ratio
+                - hi-freq
+                - hi-count
+                - external
+            classification_options:
+                unclassified: []
+                classified: []
+                not_relevant: []
+                technical: []
+            shade_multiple_in_gene: false
 frequencies:
-  groups:
-    external:
-      GNOMAD_GENOMES:
-        - G
-        - AFR
-        - AMR
-        - ASJ
-        - EAS
-        - FIN
-        - NFE
-        - OTH
-        - SAS
-      GNOMAD_EXOMES:
-        - G
-        - AFR
-        - AMR
-        - ASJ
-        - EAS
-        - FIN
-        - NFE
-        - OTH
-        - SAS
-    internal:
-      inDB:
-        - OUSWES
-  view:
     groups:
-      GNOMAD_GENOMES:
-        - G
-        - AFR
-        - AMR
-        - ASJ
-        - EAS
-        - FIN
-        - NFE
-        - OTH
-        - SAS
-      GNOMAD_EXOMES:
-        - G
-        - AFR
-        - AMR
-        - ASJ
-        - EAS
-        - FIN
-        - NFE
-        - OTH
-        - SAS
-      ExAC:
-        - G
-        - AFR
-        - AMR
-        - EAS
-        - FIN
-        - NFE
-        - OTH
-        - SAS
-      1000g:
-        - G
-        - AMR
-        - ASN
-        - EUR
-        - EAS
-        - SAS
-      esp6500:
-        - AA
-        - EA
-      inDB:
-        - OUSWES
-    precision: 6
-    scientific_threshold: 4
-    indications_threshold: 10
-    GNOMAD_GENOMES:
-      G: TOT
-      AFR: AFR
-      AMR: LAT
-      ASJ: ASJ
-      EAS: EA
-      FIN: E(F)
-      NFE: E(NF)
-      OTH: OTH
-      SAS: SA
-    GNOMAD_EXOMES:
-      G: TOT
-      AFR: AFR
-      AMR: LAT
-      ASJ: ASJ
-      EAS: EA
-      FIN: E(F)
-      NFE: E(NF)
-      OTH: OTH
-      SAS: SA
-    ExAC:
-      G: TOT
-      AFR: AFR
-      AMR: LAT
-      EAS: EA
-      FIN: E(F)
-      NFE: E(NF)
-      OTH: OTH
-      SAS: SA
+        external:
+            GNOMAD_GENOMES:
+                - G
+                - AFR
+                - AMR
+                - ASJ
+                - EAS
+                - FIN
+                - NFE
+                - OTH
+                - SAS
+            GNOMAD_EXOMES:
+                - G
+                - AFR
+                - AMR
+                - ASJ
+                - EAS
+                - FIN
+                - NFE
+                - OTH
+                - SAS
+        internal:
+            inDB:
+                - OUSWES
+    view:
+        groups:
+            GNOMAD_GENOMES:
+                - G
+                - AFR
+                - AMR
+                - ASJ
+                - EAS
+                - FIN
+                - NFE
+                - OTH
+                - SAS
+            GNOMAD_EXOMES:
+                - G
+                - AFR
+                - AMR
+                - ASJ
+                - EAS
+                - FIN
+                - NFE
+                - OTH
+                - SAS
+            ExAC:
+                - G
+                - AFR
+                - AMR
+                - EAS
+                - FIN
+                - NFE
+                - OTH
+                - SAS
+            1000g:
+                - G
+                - AMR
+                - ASN
+                - EUR
+                - EAS
+                - SAS
+            esp6500:
+                - AA
+                - EA
+            inDB:
+                - OUSWES
+        precision: 6
+        scientific_threshold: 4
+        indications_threshold: 10
+        GNOMAD_GENOMES:
+            G: TOT
+            AFR: AFR
+            AMR: LAT
+            ASJ: ASJ
+            EAS: EA
+            FIN: E(F)
+            NFE: E(NF)
+            OTH: OTH
+            SAS: SA
+        GNOMAD_EXOMES:
+            G: TOT
+            AFR: AFR
+            AMR: LAT
+            ASJ: ASJ
+            EAS: EA
+            FIN: E(F)
+            NFE: E(NF)
+            OTH: OTH
+            SAS: SA
+        ExAC:
+            G: TOT
+            AFR: AFR
+            AMR: LAT
+            EAS: EA
+            FIN: E(F)
+            NFE: E(NF)
+            OTH: OTH
+            SAS: SA
 classification:
-  gene_groups:
-    MMR:
-      - MLH1
-      - MSH2
-      - MSH6
-      - PMS2
-  options:
-    - name: Class U
-      value: U
-    - name: Class 1
-      value: "1"
-    - name: Class 2
-      value: "2"
-      outdated_after_days: 365
-    - name: Class 3
-      value: "3"
-      outdated_after_days: 180
-      include_report: true
-      include_analysis_with_findings: true
-    - name: Class 4
-      value: "4"
-      outdated_after_days: 180
-      include_report: true
-      include_analysis_with_findings: true
-    - name: Class 5
-      value: "5"
-      outdated_after_days: 365
-      include_report: true
-      include_analysis_with_findings: true
-    - name: Drug response
-      value: DR
+    gene_groups:
+        MMR:
+            - MLH1
+            - MSH2
+            - MSH6
+            - PMS2
+    options:
+        - name: Class U
+          value: U
+        - name: Class 1
+          value: '1'
+        - name: Class 2
+          value: '2'
+          outdated_after_days: 365
+        - name: Class 3
+          value: '3'
+          outdated_after_days: 180
+          include_report: true
+          include_analysis_with_findings: true
+        - name: Class 4
+          value: '4'
+          outdated_after_days: 180
+          include_report: true
+          include_analysis_with_findings: true
+        - name: Class 5
+          value: '5'
+          outdated_after_days: 365
+          include_report: true
+          include_analysis_with_findings: true
+        - name: Drug response
+          value: DR
 report:
-  classification_text:
-    "1": Benign variant
-    "2": Likely benign variant
-    "3": Variant of uncertain significance
-    "4": Likely pathogenic variant
-    "5": Pathogenic variant
+    classification_text:
+        '1': Benign variant
+        '2': Likely benign variant
+        '3': Variant of uncertain significance
+        '4': Likely pathogenic variant
+        '5': Pathogenic variant
 transcripts:
-  # Regex for selecting which transcripts to use in filters and presented data in front end
-  inclusion_regex: NM_.*
+    # Regex for selecting which transcripts to use in filters and presented data in front end
+    inclusion_regex: NM_.*
 igv:
-  reference:
-    fastaURL: api/v1/igv/human_g1k_v37_decoy.fasta
-    cytobandURL: api/v1/igv/cytoBand.txt
-  valid_resource_files:
-    - cytoBand.txt
-    - human_g1k_v37_decoy.fasta
-    - human_g1k_v37_decoy.fasta.fai
+    reference:
+        fastaURL: api/v1/igv/human_g1k_v37_decoy.fasta
+        cytobandURL: api/v1/igv/cytoBand.txt
+    valid_resource_files:
+        - cytoBand.txt
+        - human_g1k_v37_decoy.fasta
+        - human_g1k_v37_decoy.fasta.fai
 import:
-  automatic_deposit_with_sample_id: false
-  preimport_script: !file "scripts/preimport.py" # Relative to ELLA root folder
+    automatic_deposit_with_sample_id: false
+    preimport_script: !file 'scripts/preimport.py' # Relative to ELLA root folder
