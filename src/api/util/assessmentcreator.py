@@ -144,7 +144,7 @@ class AssessmentCreator(object):
             assessment_obj.custom_annotation_id = custom_annotation_id
 
             if analysis:
-                assessment_obj.analysis_id == analysis_id
+                assessment_obj.analysis_id = analysis_id
 
             # If there's an existing assessment for this allele, we want to supercede it
             if existing_assessment:
