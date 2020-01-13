@@ -1,14 +1,14 @@
 """Alter interpretation snapshots
 
 Revision ID: 93e88dd283a2
-Revises: d6290a3fdf7b
+Revises: 16a0a693b537
 Create Date: 2019-12-02 09:44:16.636082
 
 """
 
 # revision identifiers, used by Alembic.
 revision = "93e88dd283a2"
-down_revision = "d6290a3fdf7b"
+down_revision = "16a0a693b537"
 branch_labels = None
 depends_on = None
 
