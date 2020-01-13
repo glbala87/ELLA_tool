@@ -31,7 +31,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(7)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAsU()
@@ -61,7 +61,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('shows references added in review', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
         expect(alleleSectionBox.getReferences().length).toEqual(5)
@@ -75,7 +75,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('shows references for completed interpretation ', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
         expect(alleleSectionBox.getReferences().length).toEqual(5)

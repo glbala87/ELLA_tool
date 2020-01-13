@@ -80,7 +80,7 @@ describe('Sample workflow', function() {
         // Modify user config to allow finalization with classifying all variants
 
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         browser.execute(`localStorage.clear()`) // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
 
@@ -295,14 +295,14 @@ describe('Sample workflow', function() {
 
     it('shows the review comment on overview page', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         sampleSelectionPage.expandReviewSection()
         expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
     })
 
     it('keeps the classification from the previous round', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
@@ -332,7 +332,7 @@ describe('Sample workflow', function() {
         setFinalizationRequirements(true, true, false, ['Interpretation'])
         browser.refresh()
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         sampleSelectionPage.selectTopPending()
 
         expect(analysisPage.title).toBe(SAMPLE_TWO + TITLE_INTERPRETATION)
@@ -432,7 +432,7 @@ describe('Sample workflow', function() {
 
     it('reuses the latest variant classification done in another sample', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         sampleSelectionPage.selectFindings(1)
         checkAlleleClassification(expected_analysis_2_round_1)
     })

@@ -39,7 +39,7 @@ describe(`ACMG`, function() {
 
     it('suggested codes and REQs are displayed when interpreting', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAs1()
@@ -54,7 +54,7 @@ describe(`ACMG`, function() {
         beforeAll(function() {
             // classify one variant as 'U'
             loginPage.open()
-            loginPage.selectFirstUser()
+            loginPage.loginAs('testuser1')
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
             alleleSectionBox.classifyAsU()
@@ -65,7 +65,7 @@ describe(`ACMG`, function() {
 
             // select the first we finished, class 1
             loginPage.open()
-            loginPage.selectSecondUser()
+            loginPage.loginAs('testuser2')
             variantSelectionPage.expandFinishedSection()
             variantSelectionPage.selectFinished(2)
             expect(alleleSectionBox.isClass1()).toBe(true)

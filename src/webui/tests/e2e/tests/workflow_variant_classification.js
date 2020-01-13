@@ -36,7 +36,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
 
@@ -159,14 +159,14 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
     it('shows the review comment on overview page', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         expect(variantSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
     })
 
     it('keeps the classification from the previous round', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
         analysisPage.startButton.click()

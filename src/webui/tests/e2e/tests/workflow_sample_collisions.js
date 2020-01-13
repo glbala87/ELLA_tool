@@ -28,17 +28,36 @@ describe('Sample workflow', function() {
     it('gives warning when starting a sample with variants that overlap with other ongoing sample', function() {
         // sample 1
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         analysesSelectionPage.selectTopPending()
         analysisPage.startButton.click()
 
         // sample 2
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         analysesSelectionPage.selectTopPending()
         alleleSidebar.selectUnclassifiedAlleleByIdx(3)
         expect(alleleSectionBox.alleleWarningText).toEqual(
             'This variant is currently being worked on by Henrik Ibsen in another analysis: brca_e2e_test01.HBOCUTV_v01.'
+        )
+    })
+
+    it('gives warning when variant is classified by different user group', function() {
+        // sample 1
+        loginPage.open()
+        loginPage.loginAs('testuser1')
+        analysesSelectionPage.selectTopPending()
+        analysisPage.startButton.click()
+
+        // Classify NM_000059.3:c.10G>T as 5
+        alleleSectionBox.classifyAs5()
+        alleleSectionBox.finalize()
+
+        browser.psql(`UPDATE alleleassessment SET usergroup_id = 2`)
+        browser.refresh()
+        alleleSidebar.selectFirstClassified()
+        expect(alleleSectionBox.alleleWarningText).toEqual(
+            `This variant's existing classification was performed by a different user group: testgroup02.`
         )
     })
 })
