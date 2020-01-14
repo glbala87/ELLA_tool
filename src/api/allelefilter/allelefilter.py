@@ -111,7 +111,7 @@ class AlleleFilter(object):
 
             try:
                 filter_config = f["config"]
-                exceptions_config = f["exceptions"]
+                exceptions_config = f.get("exceptions", [])
 
                 filter_data_type, filter_function = self.filter_functions[name]
                 assert filter_data_type in [
@@ -208,7 +208,7 @@ class AlleleFilter(object):
 
             try:
                 filter_config = f["config"]
-                exceptions_config = f["exceptions"]
+                exceptions_config = f.get("exceptions", [])
 
                 filter_data_type, filter_function = self.filter_functions[name]
                 assert filter_data_type in [
