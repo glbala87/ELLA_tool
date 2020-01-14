@@ -1,4 +1,4 @@
-# User interface
+# UI/UX
 
 ::: warning NOTE
 This documentation is a work in progress and is incomplete.
@@ -8,7 +8,7 @@ Please contact developers for more details.
 
 [[toc]]
 
-Configuration related to the user interface. Most are defined as default settings for all users, but some settings may be overridden by [user group specific settings](#user-group-specific-settings). 
+Configuration related to the user interface and user experience in ELLA. Most are defined as default settings for all users, but some settings may be overridden by [user group specific settings](#user-group-specific-settings). 
 
 
 ## Configure elements to show
@@ -61,20 +61,7 @@ Subkey	|	Explanation |   Values
 `comment_type`   |   Define which comment field to show. |   `None`, `analysis`, `evaluation`
 `shade_multiple_in_gene`   |   Apply background shade to variants if there are more than one in the same gene.   | `true` / `false`
 
-### IGV
-
-Configuration of IGV in VISUAL mode. See `/example_config.yml` for examples.
-
-- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
-- Key: `igv`
-
-Subkey	|	Explanation |   Values
-:---	|	:---    |	:---
-`reference`    |   Define what to show as reference data. |  
-`valid_resource_files`    |   Files permitted accessible on `/igv/<file>` resource, relative to `$IGV_DATA` env.    |    
-
-
-### Comment templates
+### Comment field templates
 
 It is possible to define templates for most comment fields in ELLA, which are available to add for the user in the text format menu. This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. 
 
@@ -89,6 +76,25 @@ Subkey	|	Explanation |   Values
 `comment_fields`    |   Defines where (which comment fields) the template should be available. |   `classificationAnalysisSpecific`, <br>`classificationEvaluation`, <br>`classificationAcmg`,<br>`classificationReport`, <br>`classificationFrequency`,<br>`classificationPrediction`, <br>`classificationExternal`,<br>`classificationReferences`, <br>`reportIndications`, <br>`reportSummary`, <br>`referenceEvaluation`, <br>`workLogMessage`
 `template`  |   Specifies the template    |     [pure text or basic html]
 
+### IGV in VISUAL
+
+Configuration of IGV in VISUAL mode. See `/example_config.yml` for examples.
+
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `igv`
+
+Subkey	|	Explanation |   Values
+:---	|	:---    |	:---
+`reference`    |   Define what to show as reference data. |  
+`valid_resource_files`    |   Files permitted accessible on `/igv/<file>` resource, relative to `$IGV_DATA` env.    |    
+
+### Auto-text in REPORT
+
+Configure text to include automatically for different classifications on the REPORT page. See `/example_config.yml` for examples.
+
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `report.classification_text`
+- Value: `"[class]": "[text]"`
 
 ## Workflows 
 
@@ -117,66 +123,3 @@ This is a [user group](/technical/users.html#user-groups) specific setting, see 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `interpretation.autoIgnoreReferencePubmedIds`
 - Value: [list of PubMedIDs (integers)]
-
-### ClinVar
-
-Settings related to ClinVar annotation. 
-
-- File: `/src/api/config/config.py`
-- Key: `config.annotation.clinvar`
-
-[TODO]
-
-### Frequencies
-
-Settings related to displaying population frequency annotation. 
-
-- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
-- Key: `frequencies`
-
-#### Groups
-
-The key `frequencies.groups` defines which data should be in the `external` and `internal` frequency groups. 
-
-#### View
-
-The key `frequencies.view` defines how frequency data should be shown.
-
-Subkey	|	Explanation |   Values
-:---	|	:---    |	:---
-`groups`    |   Define how to group frequency annotation data.  |
-`precision`  |  Float precision (for strings).  |   [integer]
-`scientific_threshold`  |   Convert to scientific notation for frequencies below 10^-[x]. |   [integer]
-`indications_threshold`  |   Define max threshold to show indications from internal database (depends on how the internal database is set up).  |   [integer]
-`[translations]`  |   Define key to be used to link/lookup other sources of information.    |
-
-### Custom annotation
-
-[TODO]
-
-- Key: `custom_annotation`
-
-## Report: Auto-text
-
-Configure text to include automatically for different classifications on the REPORT page. See `/example_config.yml` for examples.
-
-- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
-- Key: `report.classification_text`
-- Value: `"[class]": "[text]"`
-
-
-## Transcripts
-
-### Included
-
-Configure types transcripts to include using regex, e.g. `NM_.*` for RefSeq transcripts.
-
-- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
-- Key: `transcripts.inclusion_regex`
-
-### Consequence 
-
-Define order of severity for transcript consequences given by VEP (high to low). This is used for searching for "worse consequence".
-
-- File: `/src/api/config/config.py`
-- Key: `config.setdefault("transcripts", {})["consequences"]`

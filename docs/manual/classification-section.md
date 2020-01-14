@@ -133,8 +133,8 @@ Once you have set a classification, you have the option to finalize the variant:
 Once a variant is finalized, the interpretation is made available to other users and will not generate [collision warnings](/manual/warnings.html#collision-warnings) if there are overlapping analyses. 
 
 ::: warning NOTES
-Finalization of all new/updated classified variants is a requirement to finalize the analysis. This includes any classifications that were set using [QUICK mode](/manual/quick-classification.md).
-
-Finalizing a variant should only be used when you consider the evaluation to be complete, i.e. no further review is needed. Depending on configuration, this option may therefore not be available except in review workflow steps. 
+- Finalization of all new/updated classified variants is a requirement to finalize the analysis. This includes any classifications that were set using [QUICK mode](/manual/quick-classification.md).
+- Finalizing a variant should only be used when you consider the evaluation to be complete, i.e. no further review is needed. Depending on configuration, this option may therefore not be available except in review workflow steps.
+- If you are in VARIANTS view (e.g. searched for and opened a specific variant), you must also change the workflow step to `FINALIZED` via the `FINISH` button in the top bar before the variant interpretation is considered truly finalized and workflow warnings are removed.
 :::
 

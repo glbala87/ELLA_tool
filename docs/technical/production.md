@@ -55,7 +55,7 @@ Example folder structure:
     incoming/  - New analyses for analysis watcher
     imported/  - Analyses that are imported
   igv-data/    - IGV resources, global and usergroup tracks.
-  fixtures/    - Any kind of data that is imported into the database. Examples:
+  fixtures/    - Any kind of configuration data that should be imported into the database. Examples:
     users.json
     usergroups.json
     references.json
@@ -76,9 +76,8 @@ There are a few environment variables that should be set:
 | `ANALYSES_INCOMING`   | Path to incoming analyses. Used by analysis watcher to import new analyses 	| path (e.g. `/data/analyses/incoming`) |
 | `ELLA_CONFIG`  | Application configuration. 	| path (e.g. `/config/ella_config.yml`) |
 | `IGV_DATA`  | Path to IGV resources. 	| path (e.g. `/data/igv_data`) |
-| `OFFLINE_MODE`   | Whether ELLA should be used in an offline environment. Adjusts whether links should be copied to clipboard instead of open directly.	| `TRUE`/`FALSE` <br>(default: `FALSE` )    |
 
-Additional environment variables (`ATTACHMENT_STORAGE` and `ANNOTATION_SERVICE_URL`) can be set in the application configuration, see [Other app settings](#other-app-settings).
+Additional environment variables can be utilized in the application configuration, see [Other app settings](#other-app-settings).
 
 ## Start container
 
@@ -145,17 +144,15 @@ The references table in the database can be populated with PubMed IDs using a js
 
 ## Other app settings 
 
-Vavious settings related to backend setup of ELLA. See `/example_config.yml` for examples.
+Various settings related to setup of ELLA. These variables may be set as environment variables ... [TODO]. See `/example_config.yml` for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `app`
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
-`links_to_clipboard`    |   Define if links should be copied to clipboard instead of opening a browser. |   `true` / `false`
-`non_production_warning`    |   Show warning (e.g. STAGING or TEST) when running a non-production environment.  |    `NON_PRODUCTION_WARNING` env variable
-`annotation_service`    |   Define URL for annotation service. |    Example: `http:localhost:6000`
-`attachment_storage`    |   Define path to attachment storage.  |   [path] or `None`
-`max_upload_size`   |   Define max size of file uploads |   Example: 50 * 1024 * 1024
-
-See `/example_config.yml` for examples. 
+`links_to_clipboard`    |   Define if links should be copied to clipboard instead of opening a browser. |   Boolean 
+`non_production_warning`    |   Show warning (e.g. STAGING or TEST) when running a non-production environment.  |    String
+`annotation_service`    |   Define URL for annotation service. |    String (url)
+`attachment_storage`    |   Define path to attachment storage.  |   String (path)
+`max_upload_size`   |   Define max size of file uploads in bytes. |   Example: `52428800` (= 50 MB)

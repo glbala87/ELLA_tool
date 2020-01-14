@@ -29,7 +29,7 @@ With this change, each variant with a new/updated classification in an analysis 
     <br>
 </div>
 
-Note that this also needs to be performed for any classification done in [QUICK mode](/manual/quick-classification.md).
+Note that this also needs to be performed for any classification done in [QUICK mode](/manual/quick-classification.md), and that interpretations done in VARIANTS mode (stand-alone variants e.g. from search) still need to be finalized as before via the `FINISH` button in the top bar before the variant is considered truly finalized. 
 
 #### User group warnings
 
@@ -61,14 +61,15 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 
 <!-- MR !341 -->
 - [Finalize variant in analysis](#finalize-variants-in-analyses)
-- `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
 <!-- MR !346 -->
 - [Display warning when variant was finalized by different group](#user-group-warnings)
 <!-- MR !347 -->
 - Entries listed in the STUDIES & REFERENCES section are now shown with annotation source and better separation. 
+<!-- MR !350 -->
+- Mouse popovers and tooltips now use tippy.js, with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).
+<!-- MR !341-->
+- `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
 <!-- MR !348 -->
 - All action buttons are now disabled until all data has been loaded when opening an analysis.
 <!-- MR !349 -->
 - Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
-<!-- MR !350 -->
-- Mouse popovers and tooltips now use tippy.js, with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).

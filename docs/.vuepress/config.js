@@ -107,6 +107,7 @@ module.exports = {
                         '/technical/configuration',
                         '/technical/users',
                         '/technical/uioptions',
+                        '/technical/annotation',
                         '/technical/genepanels',
                         '/technical/import',
                         '/technical/filtering',

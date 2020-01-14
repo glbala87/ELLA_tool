@@ -20,10 +20,6 @@ ella-cli users add_many <path to users.json>
 
 This will print a one-time password to screen for each user that was added. This password is auto-expired and should be used by each user to set a new password upon first login.
 
-::: danger WARNING
-For security, do _not_ provide `password` and `password_expiry` in `users.json`.
-:::
-
 ::: warning NOTE
 User configuration history is currently not tracked in the datamodel, so changes should be tracked externally.
 :::
@@ -43,6 +39,11 @@ User example:
 ```
 
 See also `/src/vardb/testdata/users.json`
+
+::: warning NOTE
+For simplicity, `password` and `password_expiry` are provided in the testdata version of `users.json`. However, this should _not_ be done in production, as this may have undesired side effects. Instead, use the procedure [above](#users-and-passwords).
+:::
+
 
 ## User configuration
 
