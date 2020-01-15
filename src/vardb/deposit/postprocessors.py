@@ -46,7 +46,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         # Log item must be created before finalization so that the dates are correct
         il = workflow.InterpretationLog(
             analysisinterpretation_id=interpretation.id,
-            message="Analysis had no findings at time of import. Automatically finalised by system.",
+            message="Analysis had no findings at time of import. Automatically finalized by system.",
         )
         session.add(il)
 
