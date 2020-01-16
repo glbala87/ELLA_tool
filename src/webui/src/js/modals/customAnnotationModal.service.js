@@ -42,7 +42,7 @@ export class CustomAnnotationController {
         this.custom_annotation = {}
 
         // Reference specific
-        this.reference_xml = '' // Holds user pasted xml
+        this.reference_raw = '' // Holds user pasted data (xml or ris)
         this.reference_error = false
         this.references = [] // Holds reference objects for showing details
 
@@ -204,13 +204,13 @@ export class CustomAnnotationController {
             this._addReferenceToAnnotation(reference.id, reference.pubmed_id)
             this._loadReferences()
         } else if (this.referenceMode === this.referenceModes[1]) {
-            // PubMed XML
+            // PubMed XML or RIS
             this.referenceResource
-                .createFromXml(this.reference_xml)
+                .createFromRaw(this.reference_raw)
                 .then((ref) => {
                     this.reference_error = false
                     this._addReferenceToAnnotation(ref.id, ref.pubmed_id)
-                    this.reference_xml = ''
+                    this.reference_raw = ''
                     this._loadReferences() // Reload list of references to reflect possible changes
                 })
                 .catch(() => {

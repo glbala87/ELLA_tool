@@ -123,18 +123,23 @@
                     <div class="left">
                         <h5 class="slim title section-top"><b>Instructions</b></h5>
                         <p>
-                            Find the reference on PubMed - ensure only one reference is displayed -
-                            then select XML from the drop-down menu labeled <b>Abstract</b>. Copy
-                            the entire contents of that page and paste it below in "Abstract XML
-                            data":
+                            Legacy PubMed: Find the reference on PubMed - ensure only one reference
+                            is displayed - then select XML from the drop-down menu labeled
+                            <b>Abstract</b>. Copy the entire contents of that page and paste it
+                            below in "PUBMED RAW DATA".
+                            <br />
+                            <br />
+                            New PubMed: Find the reference on PubMed - Select Cite, and select
+                            "Download .ris". Copy the entire contents of the downloaded file, and
+                            paste it below in "PUBMED RAW DATA".
                         </p>
                     </div>
                     <div class="middle"></div>
                     <div class="right">
                         <autosize-textarea
-                            class="big id-reference-xml"
-                            ng-model="vm.reference_xml"
-                            placeholder="ABSTRACT XML DATA"
+                            class="big id-reference-raw"
+                            ng-model="vm.reference_raw"
+                            placeholder="RAW PUBMED DATA"
                         ></autosize-textarea>
                     </div>
                 </div>
@@ -151,7 +156,7 @@
                         <button
                             class="green id-add-reference-button"
                             ng-click="vm.addReference()"
-                            ng-disabled="vm.reference_xml === ''"
+                            ng-disabled="vm.reference_raw === ''"
                         >
                             <svg
                                 id="i-plus"

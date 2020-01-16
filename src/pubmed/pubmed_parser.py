@@ -1,5 +1,6 @@
 import logging
 import re
+import os
 import xml.etree.ElementTree as ET
 
 """
@@ -13,12 +14,88 @@ NOT_IN_PUBMED = "NOT IN PUBMED"
 
 
 class PubMedParser(object):
+    def parse(self, data):
+        if self.is_pubmed_xml(data):
+            return self.from_xml_string(data)
+        else:
+            return self.from_ris(data)
+
+    def is_pubmed_xml(self, data):
+        try:
+            ET.fromstring(data)
+            return True
+        except ET.ParseError:
+            return False
+
     def from_xml_string(self, pubmed_xml):
         # Strip out basic formatting tags from xml
         p = re.compile("</?[ibu]>")
         pubmed_xml = re.sub(p, "", pubmed_xml)
 
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
+
+    def from_ris(self, pubmed_ris):
+        def find_ris(key, string, many=True, required=False):
+            pattern = r"^{}\s*-\s*(.*)$".format(key)
+            x = re.findall(pattern, string, re.M)
+            if required:
+                assert len(x) > 0, f"Did not find any values for {key}:\n{string}"
+
+            if many:
+                return x
+            else:
+                assert len(x) <= 1, f"Multiple values for {key}:\n{string}"
+                return x[0] if len(x) else None
+
+        reference_type = find_ris("TY", pubmed_ris, False)
+
+        reference = {}
+        try:
+            reference["pubmed_id"] = int(find_ris("AN", pubmed_ris, False, True))
+        except (ValueError, AssertionError):
+            return
+
+        authors = find_ris("AU", pubmed_ris, True, False)
+
+        if authors is None:
+            reference["authors"] = "N/A"
+        elif len(authors) > 2:
+            reference["authors"] = authors[0] + " et al."
+        else:
+            reference["authors"] = " & ".join(authors)
+
+        reference["title"] = find_ris("T1", pubmed_ris, False, True)
+
+        reference["abstract"] = find_ris("AB", pubmed_ris, False, False)
+        if reference_type == "JOUR":
+            journal = find_ris("J2", pubmed_ris, False, True)
+            volume = find_ris("VL", pubmed_ris, False, False)
+            issue = find_ris("IS", pubmed_ris, False, False)
+            page_start = find_ris("SP", pubmed_ris, False, False)
+            page_end = find_ris("EP", pubmed_ris, False, False)
+            if page_start and page_end and len(page_start) == len(page_end):
+                page_end = page_end[len(os.path.commonprefix([page_start, page_end])) :]
+
+            reference["journal"] = "{journal}: {volume}{issue}, {ps}{pe}".format(
+                journal=journal,
+                volume=volume if volume else "",
+                issue="({})".format(issue) if issue else "",
+                ps=page_start if page_start else "",
+                pe="-" + page_end if page_end else "",
+            )
+        elif reference_type == "CHAP":
+            book_title = find_ris("BT", pubmed_ris, False, True)
+            publisher = find_ris("PB", pubmed_ris, False, True)
+            reference["journal"] = f"{book_title}, {publisher}"
+        elif reference_type == "BOOK":
+            publisher = find_ris("PB", pubmed_ris, False, True)
+            reference["journal"] = publisher
+
+        reference["journal"] = reference["journal"].rstrip(":, ")
+        year = find_ris("Y1", pubmed_ris, False, True)
+        reference["year"] = year.split("/", 1)[0]
+
+        return reference
 
     def parse_pubmed_article(self, pubmed_article):
         """

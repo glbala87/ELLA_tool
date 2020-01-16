@@ -13,9 +13,9 @@ class ReferenceResource {
         this.base = '/api/v1'
     }
 
-    createFromXml(xml) {
+    createFromRaw(raw) {
         let data = {
-            xml
+            raw
         }
         return new Promise((resolve, reject) => {
             let r = this.resource(`${this.base}/references/`, {}, { create: { method: 'POST' } })
