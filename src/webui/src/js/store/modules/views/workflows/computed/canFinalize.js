@@ -165,14 +165,14 @@ export default Compute(
                 metRequirements.notSubmitted = false
                 if (allelesNotSubmittedChanges.length > 3) {
                     result.messages.push(
-                        `${allelesNotSubmittedChanges.length} variants have changes to classification that are not submitted.`
+                        `${allelesNotSubmittedChanges.length} variants have classifications that are not finalized.`
                     )
                 } else {
                     const variantText = allelesNotSubmittedChanges
                         .map((a) => a.formatted.display)
                         .join(', ')
                     result.messages.push(
-                        `Some variants have changes to classification that are not submitted: ${variantText}`
+                        `Some variants have classifications that are not finalized: ${variantText}`
                     )
                 }
             } else {

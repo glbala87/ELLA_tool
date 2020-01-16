@@ -405,7 +405,7 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: false,
             messages: [
-                'Some variants have changes to classification that are not submitted: TestNotSubmitted id 1'
+                'Some variants have classifications that are not finalized: TestNotSubmitted id 1'
             ]
         })
 
@@ -419,7 +419,7 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: false,
             messages: [
-                'Some variants have changes to classification that are not submitted: TestNotSubmittedReused id 1'
+                'Some variants have classifications that are not finalized: TestNotSubmittedReused id 1'
             ]
         })
     })
