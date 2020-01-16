@@ -15,9 +15,7 @@ export default (allele) => {
                         ? `in another analysis: ${c.analysis_name}`
                         : 'in variant workflow'
                 const unfinishedTypeText =
-                    c.type === 'analysis'
-                        ? `an unfinished analysis: ${c.analysis_name}`
-                        : 'an unfinished variant workflow'
+                    c.type === 'analysis' ? `an analysis: ${c.analysis_name}` : 'a variant workflow'
 
                 if (c.user) {
                     warnings.push({
@@ -25,7 +23,7 @@ export default (allele) => {
                     })
                 } else {
                     warnings.push({
-                        warning: `This variant is currently waiting in ${unfinishedTypeText}.`
+                        warning: `This variant is currently waiting in ${c.workflow_status.toUpperCase()} in ${unfinishedTypeText}.`
                     })
                 }
             }

@@ -881,6 +881,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     wf_analysis_allele_ids = (
         session.query(
             workflow.AnalysisInterpretation.user_id,
+            workflow.AnalysisInterpretation.workflow_status,
             allele.Allele.id,
             workflow.AnalysisInterpretation.analysis_id,
         )
@@ -915,6 +916,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
     wf_allele_allele_ids = (
         session.query(
             workflow.AlleleInterpretation.user_id,
+            workflow.AlleleInterpretation.workflow_status,
             workflow.AlleleInterpretation.allele_id,
             literal(None).label("analysis_id"),
         )
@@ -948,7 +950,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         ("allele", wf_allele_allele_ids),
         ("analysis", wf_analysis_allele_ids),
     ]:
-        for user_id, allele_id, analysis_id in wf_entries:
+        for user_id, workflow_status, allele_id, analysis_id in wf_entries:
             # If an workflow is in review, it will have no user assigned...
             dumped_user = next((u for u in dumped_users if u["id"] == user_id), None)
             collisions.append(
@@ -958,6 +960,7 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
                     "allele_id": allele_id,
                     "analysis_name": analysis_name_by_id.get(analysis_id),
                     "analysis_id": analysis_id,
+                    "workflow_status": workflow_status,
                 }
             )
 
