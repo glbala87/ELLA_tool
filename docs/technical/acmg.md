@@ -38,7 +38,7 @@ Subkey	|	Explanation	|	Values
 `disease_mode`	|	Whether only missense (`MISS`) or loss of function (`LOF`) mutations, or both (`ANY`), are expected to cause disease.	|	`MISS` / `LOF` / `ANY` (default)
 `last_exon_important`	|	Whether the last exon is important (`LEI`) or not (`LENI`).	|	`LEI` (default) / `LENI`
 
-\* Similar to [filter frequency thresholds](/concepts/filtering.html#frequency-filter), with possibilities for separation of dataset groups and inheritance modes.
+\* Similar to [filter frequency thresholds](/technical/filtering.html#frequency-filter), with possibilities for separation of dataset groups and inheritance modes.
 
 #### Gene-specific overrides
 
@@ -48,7 +48,7 @@ In addition, the subkey `comment` can be defined, specifying information relevan
 
 ## ACMG descriptions
 
-Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/concepts/acmg-rule-engine.html#req-requirements) (shown in UI pop-ups) are given in: 
+Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/manual/acmg-rule-engine.html#req-requirements) (shown in UI pop-ups) are given in: 
 
 - File: `/src/api/config/acmgconfig.py`
 - Key: `acmgconfig["explanation"]`

@@ -8,7 +8,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.9
 
-Release date: 22.01.2020
+Release date: 29.01.2020
 
 ### Highlights
 
@@ -44,6 +44,10 @@ Finalizing variants means each variant interpretation will be tagged with the ma
     <br>
 </div>
 
+#### Changes in optional ANALYSES OVERVIEW sections
+
+Optional sections on the OVERVIEW page have been simplified, see [ANALYSIS worklist](/manual/choosing-sample-variant.html#optional-alternative-analyses-worklist-sections). This is part of an effort to ultimately retire parts of the VARIANT-centered workflow, which is only suited for user groups where all gene panels are relatively small, and adds a lot of complexity to the code. This coming change will of course not remove the possibility to interpret single variants via search, only the VARIANTS OVERVIEW functionality.
+
 #### Copy text by mouse-click
 
 You can now more easily copy text from many pop-overs by clicking on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
@@ -63,13 +67,20 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 - [Finalize variant in analysis](#finalize-variants-in-analyses)
 <!-- MR !346 -->
 - [Display warning when variant was finalized by different group](#user-group-warnings)
+<!-- MR !??? -->
+- [Changes in optional ANALYSES OVERVIEW sections](#changes-in-optional-analyses-overview-sections)
+<!-- MR !350 -->
+- Mouse popovers and tooltips now use [tippy.js](https://atomiks.github.io/tippyjs/), with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).
 <!-- MR !347 -->
 - Entries listed in the STUDIES & REFERENCES section are now shown with annotation source and better separation. 
-<!-- MR !350 -->
-- Mouse popovers and tooltips now use tippy.js, with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).
 <!-- MR !341-->
 - `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
+<!-- MR !355 -->
+- ACMG criteria now have short descriptions available everywhere.
 <!-- MR !348 -->
 - All action buttons are now disabled until all data has been loaded when opening an analysis.
 <!-- MR !349 -->
 - Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
+<!-- MR !351 -->
+- Changes to the documentation, including moving the "Concepts" section to the user manual. 
+

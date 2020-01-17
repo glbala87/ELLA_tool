@@ -1,6 +1,16 @@
-# Navigating ELLA
+---
+title: Overview
+---
 
-The user interface in ELLA is organised in different pages, which are reached by choosing an analysis/interpretation or through buttons/links in the top bar. 
+# User manual
+
+These pages provide information important for ELLA end-users. 
+
+[[toc]]
+
+## Navigating ELLA
+
+The user interface in ELLA is organized in different pages, which are reached by choosing an analysis/interpretation or through buttons/links in the top bar. 
 
 For in-depth descriptions, go to the referenced pages:
 
@@ -50,3 +60,11 @@ For in-depth descriptions, go to the referenced pages:
 <div style="text-indent: 4%;"><img src="./img/nav_report_btn.png"></div>
 
 - [Report page](/manual/report-page.html) 
+
+## Concepts
+
+These pages provide in-depth background on key aspects of ELLA that are important for the end-user, but that are not immediately visible in the user interface.
+
+- [Workflows](/manual/workflows)
+- [ACMG rules engine](/manual/acmg-rule-engine)
+- [Gene panels](/manual/gene-panels)

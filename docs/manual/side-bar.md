@@ -24,7 +24,7 @@ Directly beneath that are several buttons:
 <div style="text-indent: 4%;"><img src="./img/sidebar_buttons.png"></div>
 <br>
 
-- `FILTER`: View and optionally add back [filtered variants](/manual/filtered-variants.md)
+- `FILTER`: View and optionally add back [filtered variants](/manual/filtered-variants.md).
 - [Drop-down menu]: Switch between (pre-defined) [filter configurations](/manual/filtered-variants.md).
 - `FULL`: Switch to Full (default; detailed) classification. See also [Evidence sections](/manual/evidence-sections.html), [Classification section](/manual/classification-section.html).
 - `QUICK`: Switch to [Quick classification mode](/manual/quick-classification.md).
@@ -56,7 +56,7 @@ If applicable, variants in the variant list are tagged with:
 
   - `!` [Variant warnings](/manual/warnings.md). 
 
-  - `S` [Segregation](/concepts/filtering.html#segregation-filter). Depending on data, changes to:
+  - `S` [Segregation](/technical/filtering.html#segregation-filter). Depending on data, changes to:
     
       - `D` De novo
       - `A` Autosomal recessive homozygous

@@ -24,7 +24,7 @@ Settings related to population frequency annotation.
 
 ### Groups
 
-The key `frequencies.groups` defines which data should be in the `external` and `internal` frequency groups. Note that this also determines which groups can be used in the [frequency filter](/concepts/filtering.html#frequency-filter) and [ACMG frequency](/technical/acmg.html#user-group-rules) configuration. 
+The key `frequencies.groups` defines which data should be in the `external` and `internal` frequency groups. Note that this also determines which groups can be used in the [frequency filter](/technical/filtering.html#frequency-filter) and [ACMG frequency](/technical/acmg.html#user-group-rules) configuration. 
 
 ### View
 

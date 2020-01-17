@@ -62,7 +62,7 @@ Each ACMG criterion can be added only once for a particular variant, irrespectiv
 
 ### Suggested ACMG criteria and requirements (REQ)
 
-ELLA automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
+ELLA automatically [suggests relevant ACMG criteria](/manual/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
 
@@ -80,7 +80,7 @@ The suggestions may be somewhat imprecise and **you should always check that all
 
 #### REQ: requirements for ACMG criteria
 
-Where possible, some of the ACMG criteria have been split into separate ["requirements" (REQs)](/concepts/acmg-rule-engine.html#req-requirements) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
+Where possible, some of the ACMG criteria have been split into separate ["requirements" (REQs)](/manual/acmg-rule-engine.html#req-requirements) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
 REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
@@ -112,7 +112,7 @@ If you click the `-` sign all the way, the criterion will be marked as `NOT WEIG
 
 ## Set variant class
 
-Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/concepts/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
+Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/manual/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
 
 <div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
 

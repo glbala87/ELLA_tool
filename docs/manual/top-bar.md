@@ -43,7 +43,7 @@ When a previously analysed sample is opened in ANALYSES mode, a drop-down menu i
 This shows all variant interpretations as well as the annotation available at the selected time. Note that if you click `REOPEN` (button the right of the drop-down) for a finalized sample, the annotation and variant interpretations shown are always equal to the most current state.
 
 ::: warning NOTE
-This history view is specific to analyses performed in [ANALYSES mode](/concepts/workflows.html#sample-centered-workflow-analyses) and does not include history of independent variant interpretations performed in [VARIANTS mode](/concepts/workflows.html#variant-centered-workflow-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
+This history view is specific to analyses performed in [ANALYSES mode](/manual/workflows.html#sample-centered-workflow-analyses) and does not include history of independent variant interpretations performed in [VARIANTS mode](/manual/workflows.html#variant-centered-workflow-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
 :::
 
 ## User profile and history

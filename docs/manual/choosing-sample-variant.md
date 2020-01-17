@@ -22,7 +22,7 @@ Depending on how ELLA is configured, the vertical buttons in the left margin of 
 
 <div style="text-indent: 4%;"><img src="./img/overview_sidebar_analyses.png"></div>
 
-For an in-depth explanation of the difference between an ANALYSES workflow and a VARIANTS workflow, see [Concepts](/concepts/workflows.md). Most importantly: 
+For an in-depth explanation of the difference between an ANALYSES workflow and a VARIANTS workflow, see [Workflows](/manual/workflows.md). Most importantly: 
 
 - ANALYSES are tied to a specific laboratory sample and gene panel.
 - VARIANTS are stand-alone variant interpretations, and therefore contains no sample-specific information (e.g. genotype and variant calling quality).
@@ -35,31 +35,29 @@ Option  | Explanation
 :--- | :---
 `NOT READY` | Imported analyses where a variant needs validation or regions are insufficiently covered. The variants in these samples should not be interpreted until validation/sequencing of missing regions has been performed.
 `YOUR ANALYSES` | Any unfinished analyses that you have started and saved, but not completed.
-`PENDING INTERPRETATION`  | Samples that have not yet been opened by any user.
-`PENDING REVIEW`  | Samples that have been interpreted by another user and marked for review.
-`PENDING MEDICAL REVIEW`  | Samples marked for review by a lab physician.
-`OTHERS’ ANALYSES`  | Samples currently being worked on by other users.
-`FINALIZED` | Samples that have been analysed and marked as Finalized.
+`INTERPRETATION`  | Analyses that have not yet been opened by any user.
+`REVIEW`  | Analyses that have been interpreted by another user and marked for review.
+`MEDICAL REVIEW`  | Analyses marked for review by a lab physician.
+`OTHERS’ ANALYSES`  | Analyses currently being worked on by other users.
+`FINALIZED` | Analyses that have been analysed and marked as Finalized.
 
-#### Optional/alternative ANALYSES worklist items
+#### Optional/alternative ANALYSES worklist sections
 
-Depending on configuration, some of the worklist items may have been swapped by other alternatives. 
+Depending on configuration, some of the worklist sections may have been swapped by other alternatives. 
 
-Optional replacements for `PENDING INTERPRETATION`:
-
-Option  | Explanation
-:--- | :---
-`WITH FINDINGS: CLASS 3-5`  | Samples that have at least one variant previously classified as class 3, 4 or 5.
-`ONLY NORMAL: CLASS 1-2 + U`  | Samples where all variants have been classified as Class 1, 2 or U.
-`MISSING CLASSIFICATIONS` | Samples that have not yet been opened/analysed and where there are no previously classified class 3-5 variants.
-
-Optional replacements for `PENDING REVIEW`:
+Optional replacement for `INTERPRETATION`:
 
 Option  | Explanation
 :--- | :---
-`PENDING REVIEW - WITH FINDINGS: CLASS 3-5` | Samples that have at least one variant previously classified as class 3, 4 or 5.
-`PENDING REVIEW - ONLY NORMAL: CLASS 1-2 + U` | Samples where all variants have been classified as Class 1, 2 or U.
-`PENDING REVIEW - MISSING CLASSIFICATIONS`  | Samples that have not yet been opened/analysed and where there are no previously classified class 3-5 variants.
+`INTERPRETATION - ALL VARIANTS CLASSIFIED`  | Analyses ready for interpretation, but where all variants already have a valid classification.
+`INTERPRETATION - MISSING CLASSIFICATIONS` | Analyses ready for interpretation and where at least one variant is missing a valid classification (all analyses not in above section)
+
+Optional replacement for `REVIEW`:
+
+Option  | Explanation
+:--- | :---
+`REVIEW - ALL VARIANTS CLASSIFIED` | Analyses ready for review, but where all variants already have a valid classification.
+`REVIEW - MISSING CLASSIFICATIONS`  | Analyses ready for review and where at least one variant is missing a valid classification (all analyses not in above section).
 
 ### VARIANTS worklist
 
