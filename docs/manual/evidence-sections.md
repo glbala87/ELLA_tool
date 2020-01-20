@@ -215,6 +215,6 @@ The resulting dialogue lets you add studies in one of three ways:
 
   - SEARCH: Search the internal database for studies that have already been added but not connected to the current variant, then click ADD next to a positive search result.
   
-  - PUBMED: Add reference data as provided in PubMed XML format - see instructions in the pop-up.
+  - PUBMED: Add reference data as provided by PubMed in .RIS or .XML (legacy) format - see instructions in the pop-up.
   
   - MANUAL: Add studies manually, either PUBLISHED or UNPUBLISHED (e.g., in-house) studies. Fields marked with a \* are mandatory.

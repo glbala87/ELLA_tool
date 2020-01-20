@@ -71,6 +71,8 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 - [Changes in optional ANALYSES OVERVIEW sections](#changes-in-optional-analyses-overview-sections)
 <!-- MR !350 -->
 - Mouse popovers and tooltips now use [tippy.js](https://atomiks.github.io/tippyjs/), with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).
+<!-- MR !356 -->
+- Added support for importing references with .RIS format from the [new PubMed webpage](https://pubmed.ncbi.nlm.nih.gov/).
 <!-- MR !347 -->
 - Entries listed in the STUDIES & REFERENCES section are now shown with annotation source and better separation. 
 <!-- MR !341-->
