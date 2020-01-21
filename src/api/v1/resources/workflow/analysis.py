@@ -7,7 +7,7 @@ from api.util.util import request_json, authenticate, rest_filter, paginate
 from api.v1.resource import LogRequestResource
 
 from . import helpers
-from api.util import queries
+from datalayer import queries
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
 from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import (

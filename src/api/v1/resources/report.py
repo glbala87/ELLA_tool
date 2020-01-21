@@ -4,7 +4,7 @@ from io import BytesIO
 
 from api import ApiError
 from api.util.util import authenticate, logger
-from api.util import queries
+from datalayer import queries
 
 from api.v1.resource import LogRequestResource
 from vardb.export import export_sanger_variants

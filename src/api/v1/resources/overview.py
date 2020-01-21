@@ -6,12 +6,11 @@ from sqlalchemy import func, tuple_, or_, and_, select
 from sqlalchemy.orm import aliased, defer, joinedload
 from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, user as model_user
 
+from datalayer import AlleleFilter, AlleleDataLoader, queries
+
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
-from api.allelefilter import AlleleFilter
-from api.util import queries
 from api.util.util import authenticate, paginate
-from api.util.alleledataloader import AlleleDataLoader
 
 from api.config import config
 
@@ -506,7 +505,7 @@ def _categorize_allele_ids_findings(session, allele_ids):
     - with_findings:
         alleles that have valid alleleassessments and classification is in findings.
 
-    - with_findings:
+    - without_findings:
         alleles that have valid alleleassessments, but classification is not in findings.
 
     - missing_alleleassessments:

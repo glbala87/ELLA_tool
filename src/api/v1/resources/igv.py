@@ -15,7 +15,7 @@ from vardb.datamodel import sample, gene, allele, assessment, user as user_model
 
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate, request_json, logger
-from api.util.alleledataloader import AlleleDataLoader
+from datalayer import AlleleDataLoader
 
 log = logging.getLogger()
 
