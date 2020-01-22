@@ -94,26 +94,26 @@ const STATE = {
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-    },
-    app: {
-        config: {
-            frequencies: {
-                groups: {
-                    external: {
-                        FREQ_GROUP_W_CONSTRAINT: ['G'],
-                        FREQ_GROUP_WO_CONSTRAINT: ['G']
-                    }
-                }
-            },
-            filter: {
-                default_filter_config: {
-                    frequency: {
-                        num_thresholds: {
-                            FREQ_GROUP_W_CONSTRAINT: { G: 2000 }
+                    },
+                    filterConfig: {
+                        id: 1,
+                        filterconfig: {
+                            filters: [
+                                {
+                                    name: 'frequency',
+                                    config: {
+                                        groups: {
+                                            external: {
+                                                FREQ_GROUP_W_CONSTRAINT: ['G'],
+                                                FREQ_GROUP_WO_CONSTRAINT: ['G']
+                                            }
+                                        },
+                                        num_thresholds: {
+                                            FREQ_GROUP_W_CONSTRAINT: { G: 2000 }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }

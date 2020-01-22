@@ -228,7 +228,13 @@ class TestInheritanceModelFilter(object):
 
         # We need to recreate the annotation shadow tables,
         # since we want to use our test config
+        # Delete existing filterconfigs and usergroups to avoid errors
+        # when creating new shadow tables
+        session.execute("DELETE FROM usergroupfilterconfig")
+        session.execute("DELETE FROM filterconfig")
+        session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
+        session.commit()
 
     # First index: Fixed tuple of inheritances (list) for GENE1, GENE2, GENE3
     # Second index: List of alleles with gene and genotype

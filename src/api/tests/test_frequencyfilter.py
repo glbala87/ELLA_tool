@@ -13,7 +13,6 @@ from vardb.datamodel import allele, annotation, gene, annotationshadow, assessme
 # import logging
 # logging.getLogger('vardb.deposit.deposit_genepanel').setLevel(logging.CRITICAL)
 
-
 GLOBAL_CONFIG = {
     "frequencies": {
         "groups": {
@@ -23,7 +22,12 @@ GLOBAL_CONFIG = {
     }
 }
 
+
 COMMONESS_FILTER_CONFIG = {
+    "groups": {
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"]},
+        "internal": {"internalDB": ["AF"]},
+    },
     "thresholds": {
         "AD": {
             "external": {"hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001},
@@ -46,6 +50,10 @@ COMMONESS_FILTER_CONFIG = {
 }
 
 FILTER_ALLELES_FILTER_CONFIG = {
+    "groups": {
+        "external": {"ExAC": ["G", "FIN"], "1000g": ["G"]},
+        "internal": {"internalDB": ["AF"]},
+    },
     "thresholds": {
         "AD": {"external": 0.005, "internal": 0.05},
         "default": {"external": 0.3, "internal": 0.05},
@@ -177,6 +185,11 @@ class TestFrequencyFilter(object):
 
         # We need to recreate the annotation shadow tables,
         # since we want to use our test config
+        # Delete existing filterconfigs and usergroups to avoid errors
+        # when creating new shadow tables
+        session.execute("DELETE FROM usergroupfilterconfig")
+        session.execute("DELETE FROM filterconfig")
+        session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
         gp = create_genepanel()

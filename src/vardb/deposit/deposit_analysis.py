@@ -21,7 +21,9 @@ from collections import OrderedDict, defaultdict
 import jsonschema
 from sqlalchemy import tuple_
 from api.util import queries
+from api.config import config
 from vardb.util import DB, vcfiterator
+from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (
     AnalysisImporter,
     AnnotationImporter,
@@ -91,6 +93,8 @@ def import_filterconfigs(session, fc_configs):
             else:
                 result["created"] += 1
 
+            # Check that filterconfig is supported by available annotationshadowfrequency columns
+            annotationshadow.check_filterconfig(filterconfig, config)
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)
             session.flush()

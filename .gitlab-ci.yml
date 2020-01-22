@@ -1,252 +1,241 @@
 ---
 image: docker:latest
 services:
-  - docker:dind
+    - docker:dind
 
 variables:
-  IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  DOCKER_DRIVER: overlay2
-  BRANCH: $CI_COMMIT_REF_NAME
-  PIPELINE_ID: ella-$CI_PIPELINE_ID
-
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    DOCKER_DRIVER: overlay2
+    BRANCH: $CI_COMMIT_REF_NAME
+    PIPELINE_ID: ella-$CI_PIPELINE_ID
 
 stages:
-  - build
-  - formatting
-  - test
-  - e2e
-  - review
-  - release
+    - build
+    - formatting
+    - test
+    - e2e
+    - review
+    - release
 
 build:
-  stage: build
-  script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:latest | cat || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target production-build .
-    - docker push $IMAGE_NAME
-    - docker push $CI_REGISTRY_IMAGE:latest
+    stage: build
+    script:
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker pull $CI_REGISTRY_IMAGE:latest | cat || true
+        - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target production-build .
+        - docker push $IMAGE_NAME
+        - docker push $CI_REGISTRY_IMAGE:latest
 
 start_review:
-  stage: build
-  script:
-    - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    on_stop: stop_review
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-  # needs: [] # To put in a separate stage, and run without delay we need this: https://gitlab.com/gitlab-org/gitlab/issues/30631
-
+    stage: build
+    script:
+        - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+    environment:
+        name: review/$CI_BUILD_REF_SLUG
+        url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+        on_stop: stop_review
+    only:
+        - branches
+    except:
+        - master
+    tags:
+        - review
+    # needs: [] # To put in a separate stage, and run without delay we need this: https://gitlab.com/gitlab-org/gitlab/issues/30631
 
 # when: manual is also run upon branch deletion
 # Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
 stop_review:
-  stage: build
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
-  when: manual
-  environment:
-    name: review/$CI_BUILD_REF_SLUG
-    action: stop
-  only:
-    - branches
-  except:
-    - master
-  tags:
-    - review
-
+    stage: build
+    variables:
+        GIT_STRATEGY: none
+    script:
+        - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
+    when: manual
+    environment:
+        name: review/$CI_BUILD_REF_SLUG
+        action: stop
+    only:
+        - branches
+    except:
+        - master
+    tags:
+        - review
 
 .test-common:
-  stage: test
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
-  needs: ["build"]
+    stage: test
+    before_script:
+        - apk add --update make
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker pull $IMAGE_NAME | cat
+    needs: ['build']
 
 check_formatting:
-  extends: .test-common
-  stage: formatting
-  script:
-    - make test-formatting
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-formatting
+    extends: .test-common
+    stage: formatting
+    script:
+        - make test-formatting
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-formatting
 
 api:
-  extends: .test-common
-  script:
-    - make test-api
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-api
-
+    extends: .test-common
+    script:
+        - make test-api
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-api
 
 api_migration:
-  extends: .test-common
-  script:
-    - make test-api-migration
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-api-migration
-
+    extends: .test-common
+    script:
+        - make test-api-migration
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-api-migration
 
 js:
-  extends: .test-common
-  script:
-    - make test-js
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-js
-
+    extends: .test-common
+    script:
+        - make test-js
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-js
 
 python:
-  extends: .test-common
-  script:
-    - make test-python
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-common
-
+    extends: .test-common
+    script:
+        - make test-python
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-common
 
 cli:
-  extends: .test-common
-  script:
-    - make test-cli
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-cli
-
+    extends: .test-common
+    script:
+        - make test-cli
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-cli
 
 report:
-  extends: .test-common
-  script:
-    - make test-report
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-report
+    extends: .test-common
+    script:
+        - make test-report
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-report
 
 dependency_scanning:
-  only:
-    - tags
-    - dev
-    - master
-  stage: test
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
-    - docker run
-        --env DEP_SCAN_DISABLE_REMOTE_CHECKS="${DEP_SCAN_DISABLE_REMOTE_CHECKS:-false}"
-        --volume "$PWD:/code"
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$SP_VERSION" /code
-  artifacts:
-    reports:
-      dependency_scanning: gl-dependency-scanning-report.json
-
-
+    only:
+        - tags
+        - dev
+        - master
+    stage: test
+    image: docker:stable
+    variables:
+        DOCKER_DRIVER: overlay2
+    allow_failure: true
+    services:
+        - docker:stable-dind
+    script:
+        - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+        - docker run
+          --env DEP_SCAN_DISABLE_REMOTE_CHECKS="${DEP_SCAN_DISABLE_REMOTE_CHECKS:-false}"
+          --volume "$PWD:/code"
+          --volume /var/run/docker.sock:/var/run/docker.sock
+          "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$SP_VERSION" /code
+    artifacts:
+        reports:
+            dependency_scanning: gl-dependency-scanning-report.json
 
 .test_e2e:
-  stage: e2e
-  before_script:
-    - apk add --update make
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
-    - rm -rf errorShots
-  after_script:
-    - docker rm  -f -v ${PIPELINE_ID}-e2e
-  except:
-    - /^ui-.*$/
-    - /^ops-.*$/
-  artifacts:
-      paths:
-      - errorShots/*.png
-      name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
-      when: on_failure
-      expire_in: 2 weeks
-  variables:
-    BUILD: "false"
-  needs: ["build"]
-
+    stage: e2e
+    before_script:
+        - apk add --update make
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker pull $IMAGE_NAME | cat
+        - rm -rf errorShots
+    after_script:
+        - docker rm  -f -v ${PIPELINE_ID}-e2e
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    artifacts:
+        paths:
+            - errorShots/*.png
+        name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
+        when: on_failure
+        expire_in: 2 weeks
+    variables:
+        BUILD: 'false'
+    needs: ['build']
 
 ci_all_e2e_tests:
-  extends: .test-common
-  stage: e2e
-  script:
-    - make test-check-ci-e2e-tests
+    extends: .test-common
+    stage: e2e
+    script:
+        - make test-check-ci-e2e-tests
 
 import_analysis:
-  extends: .test_e2e
-  script: SPEC=import_analysis.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=import_analysis.js make test-e2e
 
 search_allele_and_analyses:
-  extends: .test_e2e
-  script: SPEC=search_alleles_and_analyses.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=search_alleles_and_analyses.js make test-e2e
 
 workflow_sample_classification:
-  extends: .test_e2e
-  script: SPEC=workflow_sample_classification.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_sample_classification.js make test-e2e
 
 workflow_sample_collisions:
-  extends: .test_e2e
-  script: SPEC=workflow_sample_collisions.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_sample_collisions.js make test-e2e
 
 workflow_sample_interpretation_rounds:
-  extends: .test_e2e
-  script: SPEC=workflow_sample_interpretation_rounds.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_sample_interpretation_rounds.js make test-e2e
 
 workflow_variant_acmg:
-  extends: .test_e2e
-  script: SPEC=workflow_variant_acmg.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_variant_acmg.js make test-e2e
 
 workflow_variant_classification:
-  extends: .test_e2e
-  script: SPEC=workflow_variant_classification.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_variant_classification.js make test-e2e
 
 workflow_variant_readonly:
-  extends: .test_e2e
-  script: SPEC=workflow_variant_readonly.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_variant_readonly.js make test-e2e
 
 workflow_variant_references:
-  extends: .test_e2e
-  script: SPEC=workflow_variant_references.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_variant_references.js make test-e2e
 
 workflow_not_saved_warnings:
-  extends: .test_e2e
-  script: SPEC=workflow_not_saved_warnings.js make test-e2e
+    extends: .test_e2e
+    script: SPEC=workflow_not_saved_warnings.js make test-e2e
 
 release:
-  stage: release
-  before_script:
-    - apk add --update make git
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker pull $IMAGE_NAME | cat
-  script:
-    - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
-  artifacts:
-    paths:
-    - ella-release-$CI_COMMIT_REF_NAME-*.tgz
-    name: ella-release-$CI_COMMIT_REF_NAME
+    stage: release
+    before_script:
+        - apk add --update make git
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker pull $IMAGE_NAME | cat
+    script:
+        - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
+    artifacts:
+        paths:
+            - ella-release-$CI_COMMIT_REF_NAME-*.tgz
+        name: ella-release-$CI_COMMIT_REF_NAME
+        when: on_success
+        expire_in: 1 mo
     when: on_success
-    expire_in: 1 mo
-  when: on_success
-  only:
-    - tags
+    only:
+        - tags

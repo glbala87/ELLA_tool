@@ -30,6 +30,24 @@
             ],
             "acmg": {
                 "frequency": {
+                    "groups": {
+                        "external": {
+                            "GNOMAD_GENOMES": [
+                                "G",
+                                "AFR",
+                                "AMR",
+                                "EAS",
+                                "FIN",
+                                "NFE",
+                                "OTH",
+                                "SAS"
+                            ],
+                            "GNOMAD_EXOMES": ["G", "AFR", "AMR", "EAS", "FIN", "NFE", "OTH", "SAS"]
+                        },
+                        "internal": {
+                            "inDB": ["OUSWES"]
+                        }
+                    },
                     "thresholds": {
                         "AD": {
                             "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
@@ -117,6 +135,31 @@
                         "prefilter": true
                     }
                 ]
+            },
+            "acmg": {
+                "frequency": {
+                    "groups": {
+                        "external": {
+                            "GNOMAD_GENOMES": ["G"],
+                            "GNOMAD_EXOMES": ["G"]
+                        },
+                        "internal": {
+                            "inDB": ["OUSWES"]
+                        }
+                    },
+                    "thresholds": {
+                        "AD": {
+                            "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        },
+                        "default": {
+                            "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        }
+                    }
+                },
+                "disease_mode": "ANY",
+                "last_exon_important": "LEI"
             }
         }
     },
@@ -131,6 +174,31 @@
         "config": {
             "overview": {
                 "views": ["analyses"]
+            },
+            "acmg": {
+                "frequency": {
+                    "groups": {
+                        "external": {
+                            "GNOMAD_GENOMES": ["G"],
+                            "GNOMAD_EXOMES": ["G"]
+                        },
+                        "internal": {
+                            "inDB": ["OUSWES"]
+                        }
+                    },
+                    "thresholds": {
+                        "AD": {
+                            "external": { "hi_freq_cutoff": 0.005, "lo_freq_cutoff": 0.001 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        },
+                        "default": {
+                            "external": { "hi_freq_cutoff": 0.01, "lo_freq_cutoff": 1.0 },
+                            "internal": { "hi_freq_cutoff": 0.05, "lo_freq_cutoff": 1.0 }
+                        }
+                    }
+                },
+                "disease_mode": "ANY",
+                "last_exon_important": "LEI"
             }
         }
     }

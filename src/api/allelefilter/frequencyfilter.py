@@ -13,6 +13,7 @@ class FrequencyFilter(object):
     def __init__(self, session: Session, config: Dict[str, Any]) -> None:
         self.session = session
         self.config = config
+        annotationshadow.check_db_consistency(self.session, self.config)
 
     @staticmethod
     def _get_freq_num_threshold_filter(
@@ -39,13 +40,12 @@ class FrequencyFilter(object):
 
     def _get_freq_threshold_filter(
         self,
+        frequency_groups,  # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
         thresholds: Dict[str, Dict[str, float]],
         num_thresholds: Dict[str, Dict[str, int]],
         threshold_func: Callable,
         combine_func: Callable,
     ) -> BooleanClauseList:
-        # frequency groups tells us what should go into e.g. 'external' and 'internal' groups
-        frequency_groups = self.config["frequencies"]["groups"]
 
         filters = list()
         for (
@@ -84,6 +84,7 @@ class FrequencyFilter(object):
         )
         if num_filter is not None:
             freq_key_filters.append(num_filter)
+
         freq_key_filters.append(
             getattr(annotationshadow.AnnotationShadowFrequency, freq_provider + "." + freq_key)
             >= thresholds["hi_freq_cutoff"]
@@ -245,15 +246,15 @@ class FrequencyFilter(object):
 
                     # Update overridden allele ids: This will not be filtered on AD or default
                     overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
-
                     gp_final_filter.append(
                         and_(
                             annotationshadow.AnnotationShadowFrequency.allele_id.in_(
                                 allele_ids_for_genes
                             ),
                             self._get_freq_threshold_filter(
+                                filter_config["groups"],
                                 gene_filter_config["thresholds"],
-                                gene_filter_config["num_thresholds"],
+                                gene_filter_config.get("num_thresholds", {}),
                                 threshold_func,
                                 combine_func,
                             ),
@@ -287,8 +288,9 @@ class FrequencyFilter(object):
                             allele_ids_for_genes
                         ),
                         self._get_freq_threshold_filter(
+                            filter_config["groups"],
                             filter_config["thresholds"]["AD"],
-                            filter_config["num_thresholds"],
+                            filter_config.get("num_thresholds", {}),
                             threshold_func,
                             combine_func,
                         ),
@@ -321,8 +323,9 @@ class FrequencyFilter(object):
                 and_(
                     annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
                     self._get_freq_threshold_filter(
+                        filter_config["groups"],
                         filter_config["thresholds"]["default"],
-                        filter_config["num_thresholds"],
+                        filter_config.get("num_thresholds", {}),
                         threshold_func,
                         combine_func,
                     ),
@@ -405,6 +408,9 @@ class FrequencyFilter(object):
             }
         }
         """
+        annotationshadow.check_db_consistency(
+            self.session, {"frequencies": filter_config}, subset=True
+        )
 
         # First get all genepanel object for the genepanels given in input
         genepanels = (
@@ -454,6 +460,7 @@ class FrequencyFilter(object):
                     )
                     .distinct()
                 )
+
                 result[gp_key] = [a[0] for a in allele_ids.all()]
 
         # Create final result structure.
