@@ -2,12 +2,10 @@ import processAnalyses from '../../../../common/helpers/processAnalyses'
 
 const SECTIONS = [
     'not_ready',
-    'not_started_with_findings',
-    'not_started_without_findings',
+    'not_started_all_classified',
     'not_started_missing_alleleassessments',
     'ongoing',
-    'marked_review_with_findings',
-    'marked_review_without_findings',
+    'marked_review_all_classified',
     'marked_review_missing_alleleassessments',
     'marked_medicalreview'
 ]
