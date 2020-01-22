@@ -1,0 +1,51 @@
+{
+    "definitions": {
+        "commentOnly": {
+            "type": "object",
+            "required": ["comment"],
+            "additionalProperties": false,
+            "properties": {
+                "comment": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["acmg", "external", "frequency", "reference", "prediction", "classification"],
+    "properties": {
+        "acmg": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["included", "suggested"],
+            "optional": ["suggested_classification"],
+            "properties": {
+                "included": {
+                    "type": "array"
+                },
+                "suggested": {
+                    "type": "array"
+                },
+                "suggested_classification": {
+                    "enum": [null, 1, 2, 3, 4, 5]
+                }
+            }
+        },
+        "external": {
+            "$ref": "#/definitions/commentOnly"
+        },
+        "frequency": {
+            "$ref": "#/definitions/commentOnly"
+        },
+        "reference": {
+            "$ref": "#/definitions/commentOnly"
+        },
+        "prediction": {
+            "$ref": "#/definitions/commentOnly"
+        },
+        "classification": {
+            "$ref": "#/definitions/commentOnly"
+        }
+    }
+}

@@ -7,11 +7,15 @@ require('core-js/fn/object/entries')
 
 let LoginPage = require('../pageobjects/loginPage')
 let SampleSelectionPage = require('../pageobjects/overview_samples')
+let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let AnalysisPage = require('../pageobjects/analysisPage')
+let AlleleSidebar = require('../pageobjects/alleleSidebar')
 
 let loginPage = new LoginPage()
 let analysesSelectionPage = new SampleSelectionPage()
+let alleleSectionBox = new AlleleSectionBox()
 let analysisPage = new AnalysisPage()
+let alleleSidebar = new AlleleSidebar()
 
 var failFast = require('jasmine-fail-fast')
 jasmine.getEnv().addReporter(failFast.init())
@@ -32,6 +36,9 @@ describe('Sample workflow', function() {
         loginPage.open()
         loginPage.selectSecondUser()
         analysesSelectionPage.selectTopPending()
-        analysisPage.collisionWarningBar.waitForExist()
+        alleleSidebar.selectUnclassifiedAlleleByIdx(3)
+        expect(alleleSectionBox.alleleWarningText).toEqual(
+            'This variant is currently being worked on by Henrik Ibsen in another analysis: brca_e2e_test01.HBOCUTV_v01.'
+        )
     })
 })

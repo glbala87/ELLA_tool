@@ -1,5 +1,5 @@
 import { Compute } from 'cerebral'
-import getAlleleState from '../../interpretation/computed/getAlleleState'
+import getAlleleReviewedStatus from '../../interpretation/computed/getAlleleReviewedStatus'
 
 export default (alleles) => {
     return Compute(alleles, (alleles, get) => {
@@ -8,10 +8,8 @@ export default (alleles) => {
             return result
         }
 
-        for (const alleleId of Object.keys(alleles)) {
-            const alleleState = get(getAlleleState(alleleId))
-            result[alleleId] =
-                alleleState && alleleState.workflow ? alleleState.workflow.reviewed : null
+        for (const [alleleId, allele] of Object.entries(alleles)) {
+            result[alleleId] = get(getAlleleReviewedStatus(allele))
         }
         return result
     })

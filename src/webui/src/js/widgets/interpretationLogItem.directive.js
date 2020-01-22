@@ -93,6 +93,31 @@ app.component('interpretationLogItem', {
                             classes.push('delete-mode')
                         }
                         return classes
+                    },
+                    getAlleleAssessmentMessage() {
+                        const reportText = $ctrl.message.allelereport.allele_id
+                            ? ' and variant report'
+                            : ''
+                        return `Updated classification${reportText} for `
+                    },
+                    getAlleleAssessmentClassification() {
+                        const classToText = (cl) => {
+                            const optionClass = $ctrl.config.classification.options.find(
+                                (o) => o.value === cl
+                            )
+                            return optionClass ? optionClass.name : cl
+                        }
+                        const fromText = $ctrl.message.alleleassessment.previous_classification
+                            ? `${classToText(
+                                  $ctrl.message.alleleassessment.previous_classification
+                              )} `
+                            : ''
+                        return `(${fromText}→ ${classToText(
+                            $ctrl.message.alleleassessment.classification
+                        )})`
+                    },
+                    getAlleleReportMessage() {
+                        return `Updated variant report for `
                     }
                 })
             }

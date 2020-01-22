@@ -8,6 +8,7 @@ import reuseAlleleAssessmentClicked from './interpretation/signals/reuseAlleleAs
 import prepareInterpretationState from './sequences/prepareInterpretationState'
 import finishConfirmationClicked from './modals/finishConfirmation/signals/finishConfirmationClicked'
 import copyInterpretationState from './actions/copyInterpretationState'
+import postFinalizeAllele from './interpretation/actions/postFinalizeAllele'
 import { testUiConfig, testSidebarOrderByNull } from '../../../fixtures/testData'
 
 const EMPTY_EVALUATION = {
@@ -45,6 +46,7 @@ describe('Handling of allele state', () => {
                     prepareInterpretationState,
                     reuseAlleleAssessmentClicked,
                     finishConfirmationClicked,
+                    postFinalizeAllele: [postFinalizeAllele, { success: [], error: [] }],
                     setReferenceAssessment: [setReferenceAssessment],
                     copyInterpretationState: [copyInterpretationState]
                 }
@@ -56,7 +58,7 @@ describe('Handling of allele state', () => {
 
     it('handles assessments/reports: no existing, new, new outdated and new with old', async () => {
         // We need to make sure all expects in the API mocks are called
-        expect.assertions(38)
+        expect.assertions(27)
 
         cerebral.setState('app.config', testUiConfig)
         cerebral.setState('app.config.classification.options', [
@@ -76,7 +78,7 @@ describe('Handling of allele state', () => {
         // AlleleAssessments
         // allele 1: no existing - Should be initialized for editing
         // allele 2: new existing - Should be reused
-        // allele 3: new existing, outdated - Should be reused
+        // allele 3: new existing, outdated - Should be copied into state, not reused
         // allele 4: new existing, with already old copied - Should be reused, previous data cleaned out
 
         // ReferenceAssessments
@@ -163,6 +165,10 @@ describe('Handling of allele state', () => {
                         user_state: {}
                     }
                 ]
+            },
+            selectedGenepanel: {
+                name: 'test',
+                version: 'v01'
             },
             interpretation: {
                 data: {
@@ -418,6 +424,7 @@ describe('Handling of allele state', () => {
             copiedFromId: 4
         })
 
+        // Allele 2 again
         // Reevaluate then reuse again
         result = await cerebral.runSignal('test.reuseAlleleAssessmentClicked', {
             alleleId: 2
@@ -487,88 +494,156 @@ describe('Handling of allele state', () => {
             return res.status(200)
         })
 
-        mock.post('/api/v1/workflows/alleles/1/actions/finalize/', (req, res) => {
+        mock.post('/api/v1/workflows/alleles/1/actions/finalizeallele/', (req, res) => {
+            const response = res
+                .status(200)
+                .header('Content-Type', 'application/json')
+                .body(
+                    JSON.stringify({
+                        alleleassessment: { id: 'dummy' },
+                        allelereport: { id: 'dummy' }
+                    })
+                )
             const body = JSON.parse(req.body())
-            expect(body.alleleassessments.length).toBe(4)
-            for (const alleleAssessment of body.alleleassessments) {
-                if (alleleAssessment.allele_id === 1) {
-                    expect(alleleAssessment.classification).toBe('1')
-                    expect(alleleAssessment.reuse).toBe(false)
-                }
-                if (alleleAssessment.allele_id === 2) {
-                    expect(alleleAssessment.classification).toBeUndefined()
-                    expect(alleleAssessment.evaluation).toBeUndefined()
-                    expect(alleleAssessment.reuse).toBe(true)
-                }
-                if (alleleAssessment.allele_id === 3) {
-                    expect(alleleAssessment.classification).toBe('3')
-                    expect(alleleAssessment.evaluation.case).toBe('NEW OUTDATED')
-                    expect(alleleAssessment.reuse).toBe(false)
-                }
-                if (alleleAssessment.allele_id === 4) {
-                    expect(alleleAssessment.classification).toBeUndefined()
-                    expect(alleleAssessment.evaluation).toBeUndefined()
-                    expect(alleleAssessment.reuse).toBe(true)
-                }
-            }
-
-            expect(body.referenceassessments).toEqual(
-                jasmine.arrayContaining([
-                    {
-                        reference_id: 1,
+            if (body.allele_id === 1) {
+                expect(body).toEqual({
+                    allele_id: 1,
+                    alleleassessment: {
                         allele_id: 1,
-                        id: 1
+                        attachment_ids: [],
+                        classification: '1',
+                        evaluation: {
+                            acmg: { included: [], suggested: [] },
+                            classification: { comment: '' },
+                            external: { comment: '' },
+                            frequency: { comment: '' },
+                            prediction: { comment: '' },
+                            reference: { comment: '' }
+                        },
+                        genepanel_name: 'test',
+                        genepanel_version: 'v01',
+                        reuse: false
                     },
-                    {
-                        reference_id: 2,
-                        allele_id: 1,
-                        id: 2
-                    },
-                    {
-                        reference_id: 3,
-                        allele_id: 1,
-                        evaluation: { key: 'USER CONTENT' }
-                    }
-                ])
-            )
-
-            expect(body.allelereports.length).toBe(4)
-            expect(body.allelereports).toEqual(
-                jasmine.arrayContaining([
-                    {
-                        allele_id: 1,
-                        reuse: false,
-                        evaluation: { comment: '' }
-                    },
-                    {
+                    allelereport: { allele_id: 1, evaluation: { comment: '' }, reuse: false },
+                    annotation_id: 1,
+                    custom_annotation_id: null,
+                    referenceassessments: [
+                        {
+                            allele_id: 1,
+                            genepanel_name: 'test',
+                            genepanel_version: 'v01',
+                            id: 2,
+                            reference_id: 2
+                        },
+                        {
+                            allele_id: 1,
+                            evaluation: { key: 'USER CONTENT' },
+                            genepanel_name: 'test',
+                            genepanel_version: 'v01',
+                            reference_id: 3
+                        },
+                        {
+                            allele_id: 1,
+                            genepanel_name: 'test',
+                            genepanel_version: 'v01',
+                            id: 1,
+                            reference_id: 1
+                        }
+                    ]
+                })
+                return response
+            } else if (body.allele_id === 2) {
+                expect(body).toEqual({
+                    allele_id: 2,
+                    alleleassessment: {
                         allele_id: 2,
-                        presented_allelereport_id: 2,
-                        reuse: false,
+                        genepanel_name: 'test',
+                        genepanel_version: 'v01',
+                        presented_alleleassessment_id: 2,
+                        reuse: true
+                    },
+                    allelereport: {
+                        allele_id: 2,
                         alleleassessment_id: 2,
-                        evaluation: { case: 'CHANGED' }
+                        evaluation: { case: 'CHANGED' },
+                        presented_allelereport_id: 2,
+                        reuse: false
                     },
-                    {
+                    annotation_id: 2,
+                    custom_annotation_id: null,
+                    referenceassessments: [
+                        {
+                            allele_id: 2,
+                            genepanel_name: 'test',
+                            genepanel_version: 'v01',
+                            id: 4,
+                            reference_id: 1
+                        }
+                    ]
+                })
+                return response
+            } else if (body.allele_id === 3) {
+                expect(body).toEqual({
+                    allele_id: 3,
+                    alleleassessment: {
                         allele_id: 3,
-                        presented_allelereport_id: 3,
-                        reuse: false, // State differs from existing
-                        alleleassessment_id: 3,
-                        evaluation: { key: 'SHOULD BE KEPT' }
+                        classification: '3',
+                        evaluation: {
+                            acmg: { included: [], suggested: [] },
+                            case: 'NEW OUTDATED',
+                            classification: { comment: '' },
+                            external: { comment: '' },
+                            frequency: { comment: '' },
+                            prediction: { comment: '' },
+                            reference: { comment: '' }
+                        },
+                        genepanel_name: 'test',
+                        genepanel_version: 'v01',
+                        reuse: false
                     },
-                    {
+                    allelereport: {
+                        allele_id: 3,
+                        alleleassessment_id: 3,
+                        evaluation: { key: 'SHOULD BE KEPT' },
+                        presented_allelereport_id: 3,
+                        reuse: false
+                    },
+                    annotation_id: 3,
+                    custom_annotation_id: null,
+                    referenceassessments: []
+                })
+                return response
+            } else if (body.allele_id === 4) {
+                expect(body).toEqual({
+                    allele_id: 4,
+                    alleleassessment: {
                         allele_id: 4,
+                        genepanel_name: 'test',
+                        genepanel_version: 'v01',
+                        presented_alleleassessment_id: 4,
+                        reuse: true
+                    },
+                    allelereport: {
+                        allele_id: 4,
+                        alleleassessment_id: 4,
                         presented_allelereport_id: 4,
-                        reuse: true,
-                        alleleassessment_id: 4
-                    }
-                ])
-            )
-            return res.status(200)
+                        reuse: true
+                    },
+                    annotation_id: 4,
+                    custom_annotation_id: null,
+                    referenceassessments: []
+                })
+                return response
+            }
         })
 
-        // Everything is checked in API mock
-        await cerebral.runSignal('test.finishConfirmationClicked', {
-            workflowStatus: 'Finalized'
-        })
+        // Rest is checked in API mocks
+
+        for (let alleleId of [1, 2, 3, 4]) {
+            await cerebral.runSignal('test.postFinalizeAllele', {
+                alleleId
+            })
+        }
     })
 
     it('migrates old state correctly', async () => {

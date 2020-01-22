@@ -234,7 +234,11 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
                 session.flush()
 
             aa = assessment.AlleleAssessment(
-                allele_id=a.id, classification="1", genepanel_name="HBOC", genepanel_version="v01"
+                user_id=1,
+                allele_id=a.id,
+                classification="1",
+                genepanel_name="HBOC",
+                genepanel_version="v01",
             )
             session.add(aa)
             session.commit()

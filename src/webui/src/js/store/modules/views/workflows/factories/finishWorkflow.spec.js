@@ -3,8 +3,8 @@ import { runAction } from 'cerebral/test'
 import finishWorkflow from './finishWorkflow'
 
 describe('finishWorkflow', function() {
-    it('prepares payload correctly', function() {
-        expect.assertions(5)
+    it('prepares payload correctly', async function() {
+        expect.assertions(1)
 
         const testState = {
             views: {
@@ -26,6 +26,7 @@ describe('finishWorkflow', function() {
                     interpretation: {
                         selectedId: 1,
                         state: {
+                            manuallyAddedAlleles: [3],
                             allele: {
                                 1: {
                                     allele_id: 1,
@@ -35,91 +36,41 @@ describe('finishWorkflow', function() {
                                     },
                                     allelereport: {
                                         id: 1,
-                                        reuse: true,
-                                        evaluation: { comment: 'Same' }
+                                        reuse: true
                                     },
-                                    referenceassessments: [
-                                        {
-                                            id: 1, // Backend uses id instead of reuse just to be inconsistent
-                                            reuse: true, // reuse flag is still set by frontend..
-                                            allele_id: 1,
-                                            reference_id: 1
-                                        },
-                                        {
-                                            allele_id: 1,
-                                            reference_id: 2,
-                                            reuse: false,
-                                            evaluation: { comment: 'New' }
-                                        }
-                                    ],
                                     analysis: {
-                                        comment: '',
                                         verification: null,
                                         notrelevant: null
                                     }
                                 },
                                 2: {
                                     allele_id: 2,
-                                    alleleassessment: {
-                                        id: 2,
-                                        reuse: false,
-                                        classification: '5',
-                                        evaluation: { test: 'comment' }
-                                    },
-                                    allelereport: {
-                                        evaluation: { comment: 'Different' }
-                                    },
-                                    referenceassessments: [
-                                        // We didn't evaluate reference id 1, so not present in state
-                                        {
-                                            allele_id: 2,
-                                            reference_id: 2,
-                                            reuse: false,
-                                            evaluation: { comment: 'New' }
-                                        }
-                                    ],
+                                    alleleassessment: {},
+                                    allelereport: {},
                                     analysis: {
-                                        comment: '',
-                                        verification: null,
+                                        verification: 'technical',
                                         notrelevant: null
                                     }
                                 },
                                 3: {
                                     allele_id: 3,
-                                    alleleassessment: {
-                                        id: 3,
-                                        classification: '4',
-                                        evaluation: { test: 'another comment' }
-                                    },
-                                    allelereport: {
-                                        evaluation: {}
-                                    },
-                                    referenceassessments: [
-                                        {
-                                            allele_id: 3,
-                                            reference_id: 1,
-                                            id: 3 // reusing
-                                        },
-                                        {
-                                            // Reference id 2 is not present in references for this allele
-                                            // -> should therefore not be included in payload
-                                            allele_id: 3,
-                                            reference_id: 2,
-                                            evaluation: {
-                                                comment: "Reference id doesn't exist"
-                                            }
-                                        }
-                                    ],
+                                    alleleassessment: {},
+                                    allelereport: {},
                                     analysis: {
-                                        comment: '',
                                         verification: null,
-                                        notrelevant: null
+                                        notrelevant: true
                                     }
                                 }
                             }
                         },
                         userState: {},
                         data: {
+                            filteredAlleleIds: {
+                                allele_ids: [1, 2],
+                                excluded_allele_ids: {
+                                    testFilter: [3]
+                                }
+                            },
                             alleles: {
                                 1: {
                                     id: 1,
@@ -127,13 +78,7 @@ describe('finishWorkflow', function() {
                                         id: 1
                                     },
                                     allele_report: {
-                                        id: 1,
-                                        evaluation: { comment: 'Same' }
-                                    },
-                                    reference_assessments: {
-                                        allele_id: 1,
-                                        reference_id: 1,
-                                        evaluation: { test: 'comment' }
+                                        id: 1
                                     },
                                     annotation: {
                                         annotation_id: 1,
@@ -147,35 +92,18 @@ describe('finishWorkflow', function() {
                                         id: 2
                                     },
                                     allele_report: {
-                                        id: 2,
-                                        evaluation: { comment: 'Not same' }
-                                    },
-                                    reference_assessments: {
-                                        id: 2,
-                                        allele_id: 1,
-                                        reference_id: 1,
-                                        evaluation: { test: 'comment' }
+                                        id: 2
                                     },
                                     annotation: {
                                         annotation_id: 2,
-                                        custom_annotation_id: 2,
-                                        references: [{ id: 1 }, { id: 2 }]
+                                        custom_annotation_id: 2
                                     }
                                 },
                                 3: {
                                     id: 3,
                                     annotation: {
-                                        annotation_id: 3,
-                                        references: [{ id: 1 }]
+                                        annotation_id: 3
                                     }
-                                }
-                            },
-                            references: {
-                                1: {
-                                    id: 1
-                                },
-                                2: {
-                                    id: 2
                                 }
                             }
                         }
@@ -185,125 +113,18 @@ describe('finishWorkflow', function() {
         }
         const http = {
             post(url, payload) {
-                // Annotation
-                expect(payload.annotations).toEqual([
-                    {
-                        allele_id: 1,
-                        annotation_id: 1
-                    },
-                    {
-                        allele_id: 2,
-                        annotation_id: 2
-                    },
-                    {
-                        allele_id: 3,
-                        annotation_id: 3
+                expect(payload).toEqual({
+                    annotation_ids: [1, 2, 3],
+                    custom_annotation_ids: [1, 2],
+                    alleleassessment_ids: [1, 2],
+                    allelereport_ids: [1, 2],
+                    allele_ids: [1, 2, 3],
+                    technical_allele_ids: [2],
+                    notrelevant_allele_ids: [3],
+                    excluded_allele_ids: {
+                        testFilter: [3]
                     }
-                ])
-
-                // Custom annotation
-                expect(payload.custom_annotations).toEqual([
-                    {
-                        allele_id: 1,
-                        custom_annotation_id: 1
-                    },
-                    {
-                        allele_id: 2,
-                        custom_annotation_id: 2
-                    }
-                ])
-
-                // Alleleassessments
-                expect(payload.alleleassessments).toEqual([
-                    {
-                        allele_id: 1,
-                        reuse: true,
-                        presented_alleleassessment_id: 1,
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 2,
-                        reuse: false,
-                        presented_alleleassessment_id: 2,
-                        evaluation: { test: 'comment' },
-                        classification: '5',
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 3,
-                        reuse: false,
-                        evaluation: { test: 'another comment' },
-                        classification: '4',
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    }
-                ])
-
-                // Allelereports
-                expect(payload.allelereports).toEqual([
-                    {
-                        allele_id: 1,
-                        reuse: true,
-                        presented_allelereport_id: 1,
-                        alleleassessment_id: 1,
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 2,
-                        reuse: false,
-                        presented_allelereport_id: 2,
-                        evaluation: { comment: 'Different' },
-                        alleleassessment_id: 2,
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 3,
-                        reuse: false,
-                        evaluation: {},
-                        analysis_id: 1
-                    }
-                ])
-
-                // Referenceassessments
-                expect(payload.referenceassessments).toEqual([
-                    {
-                        allele_id: 1,
-                        reference_id: 1,
-                        id: 1,
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 1,
-                        reference_id: 2,
-                        evaluation: { comment: 'New' },
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 2,
-                        reference_id: 2,
-                        evaluation: { comment: 'New' },
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    },
-                    {
-                        allele_id: 3,
-                        reference_id: 1,
-                        id: 3,
-                        genepanel_name: 'Test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1
-                    }
-                ])
+                })
 
                 return Promise.resolve({})
             }
@@ -312,14 +133,9 @@ describe('finishWorkflow', function() {
             success() {},
             error() {}
         }
-        return runAction(finishWorkflow('Finalized'), {
+        await runAction(finishWorkflow('Finalized'), {
             providers: { http, path },
             state: testState
         })
-            .then(() => {})
-            .catch((err) => {
-                console.error(err.message, err.stack)
-                expect(1).toBe(0)
-            })
     })
 })

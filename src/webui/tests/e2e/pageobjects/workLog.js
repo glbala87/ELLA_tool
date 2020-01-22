@@ -41,6 +41,7 @@ class WorkLog extends Page {
     }
 
     getLastMessage() {
+        util.elementIntoView(SELECTOR_LAST_MESSAGE_EDITOR)
         return $(SELECTOR_LAST_MESSAGE_EDITOR).getText()
     }
 }

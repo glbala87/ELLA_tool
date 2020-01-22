@@ -74,7 +74,9 @@ class TestAnalysisOverview(object):
     ):
 
         FIRST_ANALYSIS_ID = 1
-        wh = WorkflowHelper("analysis", FIRST_ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper(
+            "analysis", FIRST_ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+        )
 
         ##
         # Ongoing
@@ -361,6 +363,7 @@ class TestAnalysisOverview(object):
             )
 
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 classification=classification["value"],
                 allele_id=allele["id"],
                 genepanel_name=interpretation["genepanel_name"],
@@ -657,7 +660,7 @@ class TestAlleleOverview(object):
         # alleles only existing in this analysis should disappear
         ##
 
-        wh = WorkflowHelper("analysis", 4, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper("analysis", 4, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
         gp_allele_ids = get_allele_not_started(session)
@@ -687,7 +690,7 @@ class TestAlleleOverview(object):
         # Case 1:
         # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
         # with AlleleInterpretation 1 (allele id 1)
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -716,7 +719,7 @@ class TestAlleleOverview(object):
         # Case 2:
         # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
         # with AlleleInterpretation 2 (allele id 3)
-        wh = WorkflowHelper("allele", 3, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 3, "HBOCUTV", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -747,10 +750,10 @@ class TestAlleleOverview(object):
         # with AlleleInterpretation 3 (allele id 4)
         # We first start Analysis 1 to exclude it, since we want to test case when no analysis.
 
-        wh = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper("analysis", 1, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
-        wh = WorkflowHelper("allele", 4, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 4, "HBOC", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -798,6 +801,7 @@ class TestAlleleOverview(object):
         )
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification[
                 "value"
             ],  # Actual value doesn't matter as long as not outdated
@@ -836,6 +840,7 @@ class TestAlleleOverview(object):
         allele_id = ih.get_alleles("analysis", 3, interpretation_id, allele_ids).get_json()[0]["id"]
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
@@ -880,6 +885,7 @@ class TestAlleleOverview(object):
 
         timedelta = datetime.timedelta(days=with_finding_classification["outdated_after_days"] + 1)
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
@@ -928,9 +934,7 @@ class TestAlleleOverview(object):
             check_length=False,
         )
 
-        wh = WorkflowHelper(
-            "analysis", 1, genepanel=("HBOC", "v01"), filterconfig_id=FILTERCONFIG_ID
-        )
+        wh = WorkflowHelper("analysis", 1, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
@@ -970,7 +974,7 @@ class TestAlleleOverview(object):
         """
         test_database.refresh()
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
 
         # Ongoing
         interpretation = wh.start_interpretation("testuser1")
@@ -1030,8 +1034,8 @@ class TestAlleleOverview(object):
         ]
 
         # Start both analyses to remove them from the equation
-        whan1 = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
-        whan2 = WorkflowHelper("analysis", 2, filterconfig_id=FILTERCONFIG_ID)
+        whan1 = WorkflowHelper("analysis", 1, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID)
+        whan2 = WorkflowHelper("analysis", 2, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID)
         an1_interpretation = whan1.start_interpretation("testuser1")
         whan2.start_interpretation("testuser1")
 
@@ -1040,7 +1044,7 @@ class TestAlleleOverview(object):
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
         # Start AlleleInterpretation with different genepanel
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         interpretation = wh.start_interpretation("testuser1")
 
         # Check that the list is now empty
@@ -1065,14 +1069,14 @@ class TestAlleleOverview(object):
         ]
 
         ## 'marked_review'
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Comment", new_workflow_status="Review")
 
         allele_genepanels = get_allele_genepanels("marked_review")
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Comment", new_workflow_status="Review")
 
@@ -1081,14 +1085,14 @@ class TestAlleleOverview(object):
 
         # 'finalized'
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_finalize_round(interpretation, "Comment")
 
         allele_genepanels = get_allele_genepanels("finalized")
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         wh.reopen("testuser1")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_finalize_round(interpretation, "Comment")

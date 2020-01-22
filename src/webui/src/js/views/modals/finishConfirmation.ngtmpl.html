@@ -62,7 +62,7 @@
                 type="button"
                 ng-click="$ctrl.selectStatus('Finalized')"
             >
-                FINALISE
+                FINALIZE
             </button>
         </div>
 
@@ -74,7 +74,7 @@
             class="id-finalize-not-possible sb-notification"
             ng-if="$ctrl.getSelectedStatus() == 'Finalized' && !$ctrl.canFinalize.canFinalize"
         >
-            Finalise not possible:
+            Finalize not possible:
         </h4>
         <h4
             class="sb-notification"

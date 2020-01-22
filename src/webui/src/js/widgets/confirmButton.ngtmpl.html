@@ -1,0 +1,14 @@
+<button
+    class="bttn"
+    ng-class="{'active': $ctrl.needsConfirmation}"
+    ng-click="$ctrl.toggleConfirm()"
+    ng-disabled="$ctrl.ngDisabled"
+    ng-transclude
+></button
+><button
+    class="confirm-button-confirm"
+    ng-class="{'hidden': !$ctrl.needsConfirmation || $ctrl.ngDisabled}"
+    ng-click="$ctrl.confirm()"
+>
+    Confirm
+</button>

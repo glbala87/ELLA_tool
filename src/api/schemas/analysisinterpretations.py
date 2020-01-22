@@ -16,9 +16,7 @@ class AnalysisInterpretationSnapshotSchema(Schema):
             "annotation_id",
             "customannotation_id",
             "alleleassessment_id",
-            "presented_alleleassessment_id",
             "allelereport_id",
-            "presented_allelereport_id",
         )
 
 

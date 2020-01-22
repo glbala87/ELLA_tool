@@ -21,9 +21,7 @@ export default function(finishType) {
         const postType = TYPES[type]
         const id = state.get('views.workflows.id')
         const alleles = state.get('views.workflows.interpretation.data.alleles')
-        const references = state.get('views.workflows.interpretation.data.references')
         const currentState = state.get('views.workflows.interpretation.state')
-        const interpretation = resolve.value(getSelectedInterpretation)
         const alleleIds = resolve.value(getAlleleIdsFromInterpretation)
         const excludedAlleleIds = state.get(
             'views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids'
@@ -32,15 +30,11 @@ export default function(finishType) {
         try {
             const payload = prepareInterpretationPayload(
                 type,
-                id,
-                interpretation,
                 currentState,
                 alleles,
                 alleleIds,
-                excludedAlleleIds,
-                Object.values(references)
+                excludedAlleleIds
             )
-
             return http
                 .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
                 .then((response) => {

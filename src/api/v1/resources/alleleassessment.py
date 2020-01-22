@@ -2,7 +2,6 @@ from vardb.datamodel import assessment
 
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json, authenticate
-from api.util.assessmentcreator import AssessmentCreator
 from api.v1.resource import LogRequestResource
 
 

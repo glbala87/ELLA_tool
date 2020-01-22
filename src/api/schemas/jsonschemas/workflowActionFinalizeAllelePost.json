@@ -1,0 +1,119 @@
+{
+    "definitions": {
+        "reusedAlleleAssessment": {
+            "type": "object",
+            "required": ["reuse", "allele_id", "presented_alleleassessment_id"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": { "enum": [true] },
+                "allele_id": { "type": "integer" },
+                "presented_alleleassessment_id": { "type": "integer" }
+            }
+        },
+        "newAlleleAssessment": {
+            "type": "object",
+            "required": ["reuse", "evaluation", "attachment_ids", "classification", "allele_id"],
+            "optional": ["presented_alleleassessment_id"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": { "enum": [false] },
+                "reuseCheckedId": { "type": "integer" },
+                "allele_id": { "type": "integer" },
+                "attachment_ids": { "type": "array", "items": { "type": "integer" } },
+                "classification": { "enum": [null, "1", "2", "3", "4", "5", "U", "DR"] },
+                "evaluation": {
+                    "$ref": "file://alleleAssessmentEvaluation.json#"
+                },
+                "genepanel_name": { "type": "string" },
+                "genepanel_version": { "type": "string" },
+                "presented_alleleassessment_id": { "type": "integer" }
+            }
+        },
+        "reusedReferenceAssessment": {
+            "type": "object",
+            "required": ["id", "allele_id", "reference_id"],
+            "additionalProperties": false,
+            "properties": {
+                "id": { "type": "integer" },
+                "allele_id": { "type": "integer" },
+                "reference_id": { "type": "integer" }
+            }
+        },
+        "newReferenceAssessment": {
+            "type": "object",
+            "required": ["evaluation", "allele_id", "reference_id"],
+            "additionalProperties": false,
+            "properties": {
+                "evaluation": {
+                    "$ref": "file://referenceAssessmentEvaluation.json#"
+                },
+                "allele_id": { "type": "integer" },
+                "reference_id": { "type": "integer" },
+                "genepanel_name": { "type": "string" },
+                "genepanel_version": { "type": "string" }
+            }
+        },
+        "reusedAlleleReport": {
+            "type": "object",
+            "required": ["reuse", "allele_id", "presented_allelereport_id"],
+            "additionalProperties": false,
+            "properties": {
+                "reuse": { "enum": [true] },
+                "allele_id": { "type": "integer" },
+                "presented_allelereport_id": { "type": "integer" }
+            }
+        },
+        "newAlleleReport": {
+            "type": "object",
+            "required": ["reuse", "evaluation", "allele_id"],
+            "optional": ["presented_allelereport_id"],
+            "additionalProperties": false,
+            "properties": {
+                "evaluation": {
+                    "$ref": "file://alleleReportEvaluation.json#"
+                },
+                "allele_id": { "type": "integer" },
+                "presented_allelereport_id": { "type": "integer" },
+                "reuse": { "enum": [false] }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "allele_id",
+        "annotation_id",
+        "custom_annotation_id",
+        "alleleassessment",
+        "allelereport",
+        "referenceassessments"
+    ],
+    "properties": {
+        "allele_id": { "type": "integer" },
+        "annotation_id": { "type": "integer" },
+        "custom_annotation_id": { "oneOf": [{ "type": "null" }, { "type": "integer" }] },
+        "alleleassessment": {
+            "oneOf": [
+                { "$ref": "#/definitions/reusedAlleleAssessment" },
+                { "$ref": "#/definitions/newAlleleAssessment" }
+            ]
+        },
+        "referenceassessments": {
+            "type": "array",
+            "additionalItems": false,
+            "items": {
+                "oneOf": [
+                    { "$ref": "#/definitions/reusedReferenceAssessment" },
+                    { "$ref": "#/definitions/newReferenceAssessment" }
+                ]
+            }
+        },
+        "allelereport": {
+            "oneOf": [
+                { "$ref": "#/definitions/reusedAlleleReport" },
+                { "$ref": "#/definitions/newAlleleReport" }
+            ]
+        }
+    }
+}

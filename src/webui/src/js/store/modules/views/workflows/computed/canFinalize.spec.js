@@ -7,8 +7,8 @@ const defaultConfig = {
     workflowStatus: 'Review',
     status: 'Ongoing',
     requiredWorkflowStatus: ['Review'],
-    allowTechnical: false,
-    allowNotRelevant: false,
+    allowTechnical: true,
+    allowNotRelevant: true,
     allowUnclassified: false,
     numTechnical: 0,
     numNotRelevant: 0,
@@ -84,12 +84,16 @@ function createState(config) {
                 notrelevant: false
             },
             alleleassessment: {
-                classification: 1
+                reuse: true
             }
         }
         alleles[currentAlleleId] = {
             id: currentAlleleId,
-            formatted: { display: `TestClassified id ${currentAlleleId}` }
+            formatted: { display: `TestClassified id ${currentAlleleId}` },
+            allele_assessment: {
+                classification: '5',
+                seconds_since_update: 1
+            }
         }
     }
 
@@ -107,6 +111,45 @@ function createState(config) {
             allele_assessment: {
                 classification: '5',
                 seconds_since_update: 10 * 24 * 3600
+            }
+        }
+    }
+
+    for (let i = 0; i < config.numNotSubmitted; i++) {
+        currentAlleleId += 1
+        interpretation.state.allele[currentAlleleId] = {
+            analysis: {
+                verification: null,
+                notrelevant: false
+            },
+            alleleassessment: {
+                classification: '5'
+            }
+        }
+        alleles[currentAlleleId] = {
+            id: currentAlleleId,
+            formatted: { display: `TestNotSubmitted id ${currentAlleleId}` }
+        }
+    }
+
+    for (let i = 0; i < config.numNotSubmittedReused; i++) {
+        currentAlleleId += 1
+        interpretation.state.allele[currentAlleleId] = {
+            analysis: {
+                verification: null,
+                notrelevant: false
+            },
+            alleleassessment: {
+                reuse: false,
+                classification: '5'
+            }
+        }
+        alleles[currentAlleleId] = {
+            id: currentAlleleId,
+            formatted: { display: `TestNotSubmittedReused id ${currentAlleleId}` },
+            allele_assessment: {
+                classification: '5',
+                seconds_since_update: 1
             }
         }
     }
@@ -248,7 +291,9 @@ describe('canFinalize', function() {
         })
         expect(result).toEqual({
             canFinalize: false,
-            messages: ['Some variants are missing classifications: TestTechnical id 1']
+            messages: [
+                'Some variants are marked as technical, while this is disallowed in configuration.'
+            ]
         })
 
         state = createState({
@@ -276,7 +321,9 @@ describe('canFinalize', function() {
         })
         expect(result).toEqual({
             canFinalize: false,
-            messages: ['Some variants are missing classifications: TestNotRelevant id 1']
+            messages: [
+                'Some variants are marked as not relevant, while this is disallowed in configuration.'
+            ]
         })
 
         state = createState({
@@ -347,6 +394,36 @@ describe('canFinalize', function() {
         })
     })
 
+    it('check not submitted', function() {
+        let state = createState({
+            numNotSubmitted: 1
+        })
+        let result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: [
+                'Some variants have classifications that are not finalized: TestNotSubmitted id 1'
+            ]
+        })
+
+        state = createState({
+            numNotSubmittedReused: 1
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: [
+                'Some variants have classifications that are not finalized: TestNotSubmittedReused id 1'
+            ]
+        })
+    })
+
     it('check require classifications, various cases', function() {
         let state = createState({
             numUnclassified: 1,
@@ -401,6 +478,27 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: true,
             messages: []
+        })
+
+        state = createState({
+            numUnclassified: 1,
+            numClassified: 1,
+            numNotRelevant: 2,
+            numTechnical: 2,
+            allowUnclassified: true,
+            allowNotRelevant: false,
+            allowTechnical: false
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: [
+                'Some variants are marked as technical, while this is disallowed in configuration.',
+                'Some variants are marked as not relevant, while this is disallowed in configuration.'
+            ]
         })
     })
 

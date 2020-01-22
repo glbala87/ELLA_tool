@@ -744,8 +744,7 @@ workflow-buttons {
     }
 }
 
-.collision-warning section {
-    margin: 1.5rem;
+.allele-warning section {
     .titlebar,
     .titlebar > .sb-title-container,
     .sb-container {
@@ -786,22 +785,6 @@ workflow-buttons {
         &:hover::-webkit-scrollbar-thumb {
             background-color: $white-75;
         }
-    }
-}
-
-.allele-warning {
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    background-color: $red-95;
-    word-wrap: break-word;
-    font-size: 1.6rem;
-    font-family: $slim;
-    font-weight: 600;
-    color: white;
-    h3:not(:first-child) {
-        margin-top: 0.5rem;
     }
 }
 
@@ -1106,12 +1089,18 @@ nav.warning {
                 transition: background-color 0.4s;
                 cursor: pointer;
                 padding: 0;
-                &.reviewed {
-                    background-color: $blue-75;
+                &.reviewed,
+                &.finalized {
                     color: $white;
                     .class-amcg-container .classification-container .existing-classification {
                         color: $white-50;
                     }
+                }
+                &.reviewed {
+                    background-color: $blue-75;
+                }
+                &.finalized {
+                    background-color: $blue;
                 }
                 .class-amcg-container {
                     display: flex;
@@ -2127,5 +2116,23 @@ button.toast-close-button {
         display: inline-block;
         text-align: left !important;
         font-size: 0.8rem;
+    }
+}
+
+.confirm-button-confirm {
+    background-color: $green-50 !important;
+    margin-left: 0;
+    box-shadow: 0 0.3rem $black-05;
+
+    &:hover {
+        background-color: $green-75 !important;
+    }
+    &.hidden {
+        overflow: hidden;
+        width: 0;
+        padding-left: 0;
+        padding-right: 0;
+        border-left: 0;
+        border-right: 0;
     }
 }

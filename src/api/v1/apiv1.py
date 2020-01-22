@@ -211,6 +211,11 @@ class ApiV1(object):
         )
 
         self._add_resource(
+            r.workflow.allele.AlleleActionFinalizeAlleleResource,
+            "/api/v1/workflows/alleles/<int:allele_id>/actions/finalizeallele/",
+        )
+
+        self._add_resource(
             r.workflow.allele.AlleleActionOverrideResource,
             "/api/v1/workflows/alleles/<int:allele_id>/actions/override/",
         )
@@ -303,6 +308,11 @@ class ApiV1(object):
             r.workflow.analysis.AnalysisActionFinalizeResource,
             "/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/",
             "/api/v1/workflows/analyses/<int:analysis_id>/snapshots/",
+        )
+
+        self._add_resource(
+            r.workflow.analysis.AnalysisActionFinalizeAlleleResource,
+            "/api/v1/workflows/analyses/<int:analysis_id>/actions/finalizeallele/",
         )
 
         self._add_resource(
