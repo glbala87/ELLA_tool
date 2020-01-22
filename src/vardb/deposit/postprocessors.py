@@ -1,9 +1,9 @@
 import datetime
 import pytz
 from datalayer import SnapshotCreator
-from api.v1.resources.workflow import helpers
-from api.v1.resources.overview import categorize_analyses_by_findings
 from api import schemas
+from api.v1.resources.workflow import helpers
+from datalayer.workflowcategorization import categorize_analyses_by_findings
 from vardb.datamodel import workflow, annotation, assessment
 
 
@@ -53,44 +53,50 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             session, interpretation, filter_config_id
         )
 
-        allele_annotation_ids = (
-            session.query(annotation.Annotation.allele_id, annotation.Annotation.id)
+        annotation_ids = (
+            session.query(annotation.Annotation.id)
             .filter(
                 annotation.Annotation.date_superceeded.is_(None),
                 annotation.Annotation.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        alleleassessments = (
-            session.query(assessment.AlleleAssessment)
+        custom_annotation_ids = (
+            session.query(annotation.CustomAnnotation.id)
+            .filter(
+                annotation.CustomAnnotation.date_superceeded.is_(None),
+                annotation.CustomAnnotation.allele_id.in_(allele_ids),
+            )
+            .scalar_all()
+        )
+
+        alleleassessment_ids = (
+            session.query(assessment.AlleleAssessment.id)
             .filter(
                 assessment.AlleleAssessment.date_superceeded.is_(None),
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        allelereports = (
-            session.query(assessment.AlleleReport)
+        allelereport_ids = (
+            session.query(assessment.AlleleReport.id)
             .filter(
                 assessment.AlleleReport.date_superceeded.is_(None),
                 assessment.AlleleReport.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        annotation_data = [
-            {"allele_id": a.allele_id, "annotation_id": a.id} for a in allele_annotation_ids
-        ]
-
         SnapshotCreator(session).insert_from_data(
+            allele_ids,
             "analysis",
             interpretation,
-            annotation_data,
-            alleleassessments,
-            allelereports,
-            allele_ids=allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             excluded_allele_ids=excluded_allele_ids,
         )
 
