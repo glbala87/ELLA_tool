@@ -41,21 +41,14 @@ Option  | Explanation
 `OTHERS’ ANALYSES`  | Analyses currently being worked on by other users.
 `FINALIZED` | Analyses that have been analysed and marked as Finalized.
 
-#### Optional/alternative ANALYSES worklist sections
+#### Optional ANALYSES view
 
-Depending on configuration, some of the worklist sections may have been swapped by other alternatives. 
-
-Optional replacement for `INTERPRETATION`:
+Depending on configuration, you may see an alternative worklist in the ANALYSES view, where `INTERPRETATION` and `REVIEW` have been split in subcategories:
 
 Option  | Explanation
 :--- | :---
 `INTERPRETATION - ALL VARIANTS CLASSIFIED`  | Analyses ready for interpretation, but where all variants already have a valid classification.
 `INTERPRETATION - MISSING CLASSIFICATIONS` | Analyses ready for interpretation and where at least one variant is missing a valid classification (all analyses not in above section)
-
-Optional replacement for `REVIEW`:
-
-Option  | Explanation
-:--- | :---
 `REVIEW - ALL VARIANTS CLASSIFIED` | Analyses ready for review, but where all variants already have a valid classification.
 `REVIEW - MISSING CLASSIFICATIONS`  | Analyses ready for review and where at least one variant is missing a valid classification (all analyses not in above section).
 
