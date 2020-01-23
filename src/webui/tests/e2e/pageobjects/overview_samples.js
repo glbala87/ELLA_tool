@@ -12,6 +12,7 @@ const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classif
 const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
 const SELECTOR_NORMAL = '.id-analysis-findings-normal'
+const SELECTOR_OTHERS = '.id-analysis-others'
 const SELECTOR_FINDINGS = '.id-analysis-findings'
 
 //id-analysis-ours
@@ -120,6 +121,10 @@ class SampleSelection extends Page {
 
     selectFindings(number) {
         this.selectItemInSection(number, SELECTOR_FINDINGS)
+    }
+
+    selectOthers(number) {
+        this.selectItemInSection(number, SELECTOR_OTHERS)
     }
 
     selectTopPending() {

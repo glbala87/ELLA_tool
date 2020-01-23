@@ -17,7 +17,7 @@ describe('Search functionality', function() {
     })
     it('search for analyses', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         search.open()
         search.selectType('analyses')
         search.searchFreetext('brca')

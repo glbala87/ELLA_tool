@@ -26,7 +26,7 @@ describe('Read-only version of variant workflow ', function() {
 
     it('A pending variant that is started is editable', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
 
@@ -36,7 +36,7 @@ describe('Read-only version of variant workflow ', function() {
 
     it("others' ongoing work is read-only", function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandOthersSection()
         variantSelectionPage.selectOthers(1)
         expect(alleleSectionBox.classSelection.isEnabled()).toBe(false)
@@ -44,7 +44,7 @@ describe('Read-only version of variant workflow ', function() {
 
     it('own ongoing work is writeable', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.expandOwnSection()
         variantSelectionPage.selectOwn(1)
         expect(alleleSectionBox.isClass1()).toBe(true)
@@ -54,7 +54,7 @@ describe('Read-only version of variant workflow ', function() {
     it('others review is read-only until started', function() {
         // own classifies as class1 and sets to review
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.expandOwnSection()
         variantSelectionPage.selectOwn(1)
         alleleSectionBox.classifyAs2()
@@ -64,7 +64,7 @@ describe('Read-only version of variant workflow ', function() {
 
         // other user see a read-only
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectReview(1)
 
@@ -82,7 +82,7 @@ describe('Read-only version of variant workflow ', function() {
 
     it('finalized is read-only until reopened and review is started', function() {
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
 
@@ -105,7 +105,7 @@ describe('Read-only version of variant workflow ', function() {
 
     it('finalized is read-only, but report is editable', function() {
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
 
@@ -123,7 +123,7 @@ describe('Read-only version of variant workflow ', function() {
         analysisPage.modalFinishButton.click()
 
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
         alleleSectionBox.reportCommentElement.click()

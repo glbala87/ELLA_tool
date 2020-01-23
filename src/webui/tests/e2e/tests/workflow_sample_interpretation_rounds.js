@@ -38,7 +38,7 @@ describe('Sample workflow ', function() {
     it('classifies variants and sets to review', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectWithMissingAssessments(1)
         analysisPage.startButton.click()
@@ -63,7 +63,7 @@ describe('Sample workflow ', function() {
     it('reclassifies variants and sets to medical review', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectTopReview()
         analysisPage.startButton.click()
@@ -97,7 +97,7 @@ describe('Sample workflow ', function() {
     it('can change classfications from previous round and finalize', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         overview.open()
         overview.selectTopMedicalReview()
         analysisPage.startButton.click()
@@ -136,7 +136,7 @@ describe('Sample workflow ', function() {
         //  start a second analysis
         // brca_e2e_test02.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         overview.open()
         overview.selectWithMissingAssessments(1) // some variants assessed in another analysis
         analysisPage.startButton.click()
@@ -205,7 +205,7 @@ describe('Sample workflow ', function() {
 
         // given
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         overview.open()
 
         // when
@@ -265,7 +265,7 @@ describe('Sample workflow ', function() {
     it('can see a (single) interpretation round and see current official assessment', function() {
         // brca_e2e_test02.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectFinished(1)
 

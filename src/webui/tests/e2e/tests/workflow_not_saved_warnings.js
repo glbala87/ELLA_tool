@@ -27,7 +27,7 @@ describe('Sample workflow', function() {
     it('gives warning when user has unsaved work and tries to navigate away', function() {
         // sample 1
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         analysesSelectionPage.selectTopPending()
         analysisPage.startButton.click()
 
