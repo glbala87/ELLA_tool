@@ -3,24 +3,33 @@ import pytz
 from datalayer import SnapshotCreator
 from api import schemas
 from api.v1.resources.workflow import helpers
+from datalayer import AlleleDataLoader
 from datalayer.workflowcategorization import categorize_analyses_by_findings
-from vardb.datamodel import workflow, annotation, assessment
+from vardb.datamodel import workflow, annotation, assessment, allele
 
 
-def analysis_not_ready_findings(session, analysis, interpretation, filter_config_id):
+def analysis_not_ready_warnings(session, analysis, interpretation, filter_config_id):
     """
     Set analysis as 'Not ready' if it has warnings _or_
-    there are variants that needs work (verification etc)
+    there are variants that needs verification.
     """
-    aschema = schemas.AnalysisSchema()
-    dumped_analysis = aschema.dump(analysis).data
-    without_findings = bool(
-        categorize_analyses_by_findings(session, [dumped_analysis], filter_config_id)[
-            "without_findings"
-        ]
+    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+        session, interpretation, filter_config_id
     )
 
-    if analysis.warnings or not without_findings:
+    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+
+    loaded_alleles = AlleleDataLoader(session).from_objs(
+        alleles, analysis_id=interpretation.analysis_id
+    )
+
+    any_needs_verification = False
+    for l in loaded_alleles:
+        for s in l["samples"]:
+            if s["proband"] and s["genotype"]["needs_verification"]:
+                any_needs_verification = True
+
+    if analysis.warnings or any_needs_verification:
         interpretation.workflow_status = "Not ready"
 
 

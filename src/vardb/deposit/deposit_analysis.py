@@ -415,7 +415,7 @@ class DepositAnalysis(DepositFromVCF):
             "analyses": [
                 {
                     "pattern": "^.*",
-                    "postprocess": ["analysis_not_ready_findings"]
+                    "postprocess": ["analysis_not_ready_warnings"]
                 },
                 {
                     "pattern": "^SomePattern.*",
@@ -433,12 +433,12 @@ class DepositAnalysis(DepositFromVCF):
             )
 
             for method in deposit_usergroup_config["postprocess"]:
-                if method == "analysis_not_ready_findings":
+                if method == "analysis_not_ready_warnings":
                     from .postprocessors import (
-                        analysis_not_ready_findings,
+                        analysis_not_ready_warnings,
                     )  # FIXME: Has circular import, so must import here...
 
-                    analysis_not_ready_findings(
+                    analysis_not_ready_warnings(
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
 
@@ -460,7 +460,7 @@ class DepositAnalysis(DepositFromVCF):
             "analysis": [
                 {
                     "pattern": "^.*",
-                    "postprocess": ["analysis_not_ready_findings"],
+                    "postprocess": ["analysis_not_ready_warnings"],
                     "prefilter": True
                 },
                 {
