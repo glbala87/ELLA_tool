@@ -33,7 +33,7 @@ In the ANALYSES view, you may choose from one or more of the following:
 
 Option  | Explanation
 :--- | :---
-`NOT READY` | Imported analyses where a variant needs validation or regions are insufficiently covered. The variants in these samples should not be interpreted until validation/sequencing of missing regions has been performed.
+`NOT READY` | Analyses where a variant needs validation or are insufficiently covered. The variants in these samples should not be interpreted until validation/sequencing of missing regions has been performed.
 `YOUR ANALYSES` | Any unfinished analyses that you have started and saved, but not completed.
 `INTERPRETATION`  | Analyses that have not yet been opened by any user.
 `REVIEW`  | Analyses that have been interpreted by another user and marked for review.
