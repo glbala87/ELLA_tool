@@ -143,7 +143,8 @@ class ApiV1(object):
         )
 
         self._add_resource(
-            r.overview.OverviewAnalysisByFindingsResource, "/api/v1/overviews/analyses/by-findings/"
+            r.overview.OverviewAnalysisByClassifiedResource,
+            "/api/v1/overviews/analyses/by-classified/",
         )
 
         self._add_resource(r.overview.OverviewUserStatsResource, "/api/v1/overviews/userstats/")

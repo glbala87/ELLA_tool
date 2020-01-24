@@ -45,8 +45,8 @@ class TestAnalysisOverview(object):
     @pytest.mark.overviewanalysis(order=1)
     def test_initial_state(self, client):
 
-        # With-findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # By-classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
         assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
@@ -81,7 +81,7 @@ class TestAnalysisOverview(object):
 
         interpretation = wh.start_interpretation("testuser1")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -110,7 +110,7 @@ class TestAnalysisOverview(object):
             interpretation, "Interpretation comment", new_workflow_status="Interpretation"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -147,7 +147,7 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Not ready comment", new_workflow_status="Not ready")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -180,7 +180,7 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -216,7 +216,7 @@ class TestAnalysisOverview(object):
             interpretation, "Interpretation comment", new_workflow_status="Interpretation"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -255,7 +255,7 @@ class TestAnalysisOverview(object):
             interpretation, "Medical review comment", new_workflow_status="Medical review"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -289,7 +289,7 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser2")
         wh.perform_finalize_round(interpretation, "Finalize comment")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
@@ -369,7 +369,7 @@ class TestAnalysisOverview(object):
         ).count() == len(allele_ids)
 
         # Now check overview, one should be in all_classified
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 2
         assert len(r.get_json()["not_started_all_classified"]) == 1
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
@@ -394,7 +394,7 @@ class TestAnalysisOverview(object):
         session.commit()
 
         # Now check overview, none should be in all_classified
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
@@ -419,7 +419,7 @@ class TestAnalysisOverview(object):
         session.commit()
 
         # Now check overview, one should be in all_classified
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 2
         assert len(r.get_json()["not_started_all_classified"]) == 1
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
@@ -444,7 +444,7 @@ class TestAnalysisOverview(object):
         session.commit()
 
         # Now check overview, none should be in all_classified
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
         assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0

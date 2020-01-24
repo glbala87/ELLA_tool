@@ -508,7 +508,7 @@ class OverviewAnalysisResource(LogRequestResource):
         return get_categorized_analyses(session, user=user)
 
 
-class OverviewAnalysisByFindingsResource(LogRequestResource):
+class OverviewAnalysisByClassifiedResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
 

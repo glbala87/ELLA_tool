@@ -10,9 +10,9 @@ const SECTIONS = [
     'marked_medicalreview'
 ]
 
-export default function getOverviewAnalysesByFindings({ http, path, state }) {
+export default function getOverviewAnalysesByClassified({ http, path, state }) {
     return http
-        .get('overviews/analyses/by-findings/')
+        .get('overviews/analyses/by-classified/')
         .then((response) => {
             for (let section of SECTIONS) {
                 for (let item of response.result[section]) {

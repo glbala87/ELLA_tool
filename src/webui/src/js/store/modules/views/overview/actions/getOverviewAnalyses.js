@@ -8,7 +8,7 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
 
             if (props.section === 'analyses') {
                 keys.push('not_started')
-            } else if (props.section === 'analyses-by-findings') {
+            } else if (props.section === 'analyses-by-classified') {
                 keys.push.apply(['with_findings', 'without_findings', 'missing_alleleassessments'])
             }
 

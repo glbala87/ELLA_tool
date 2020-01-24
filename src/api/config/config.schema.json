@@ -162,7 +162,7 @@
                                         "enum": [
                                             "analyses",
                                             "variants",
-                                            "analyses-by-findings",
+                                            "analyses-by-classified",
                                             "import"
                                         ]
                                     }

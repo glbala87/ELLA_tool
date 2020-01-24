@@ -2,7 +2,7 @@ import { sequence, parallel } from 'cerebral'
 import { set, equals } from 'cerebral/operators'
 import { module, props } from 'cerebral/tags'
 import getOverviewAnalyses from '../actions/getOverviewAnalyses'
-import getOverviewAnalysesByFindings from '../actions/getOverviewAnalysesByFindings'
+import getOverviewAnalysesByClassified from '../actions/getOverviewAnalysesByClassified'
 import getOverviewAlleles from '../actions/getOverviewAlleles'
 import loadFinalized from '../sequences/loadFinalized'
 import progress from '../../../../common/factories/progress'
@@ -45,8 +45,8 @@ export default sequence('loadOverview', [
             ),
             loadImport
         ],
-        'analyses-by-findings': parallel('loadOverviewAnalysisByFindings', [
-            getOverviewAnalysesByFindings,
+        'analyses-by-classified': parallel('loadOverviewAnalysisByClassified', [
+            getOverviewAnalysesByClassified,
             {
                 success: [set(module`data.analyses`, props`result`)],
                 error: [toast('error', 'Failed to load analyses')]

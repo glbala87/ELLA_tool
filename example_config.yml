@@ -30,7 +30,7 @@ user:
         # Default user config
         # Is _shallow_ merged with usergroup's and user's config at runtime
         overview:
-            # Available: analyses, analyses-by-findings, variants, import
+            # Available: analyses, analyses-by-classified, variants, import
             views:
                 - analyses
                 - import
