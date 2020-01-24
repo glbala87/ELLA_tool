@@ -513,15 +513,17 @@ This rule set checks for homo-/hemizygous variants in genes defined with recessi
 
 #### Inherited mosaicism
 
-This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism. The following conditions must be met:
+This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism (excluding cases where the other parent has a normal genotype). The following conditions must be met:
 
-- Proband has variant.
-- Father or mother has given genotype and `allele_ratio` between given thresholds: 
-    - For autosomal or pseudo-autosomal regions: heterozygous, [0, 0.3]
+- Proband: 
+    - Has variant.
+    - Genotype is heterozygous or hemizygous (for X-linked regions). 
+- Either parent has an `allele_ratio` between given thresholds: 
+    - For autosomal or pseudo-autosomal regions: [0, 0.3]
     - For X-linked regions: 
-        - Heterozygous for mother, [0, 0.3]
-        - Homozygous for father, [0, 0.8]
-
+        - Mother: [0, 0.3]
+        - Father: [0, 0.8]
+- Other parent does not have an `allele_ratio` outside given thresholds (i.e., rule fails if the other parent has a normal genotype).
 
 ### Pre-filter (before import)
 

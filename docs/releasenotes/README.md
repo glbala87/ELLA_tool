@@ -73,6 +73,8 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 - Entries listed in the STUDIES & REFERENCES section are now shown with annotation source and better separation. 
 <!-- MR !341-->
 - `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
+<!-- MR !359-->
+- Added condition to the [Inherited mosaicism filter](/technical/filtering.html#inherited-mosaicism) to exclude cases where the other parent has a normal genotype. 
 <!-- MR !355 -->
 - ACMG criteria now have short descriptions available everywhere.
 <!-- MR !348 -->
