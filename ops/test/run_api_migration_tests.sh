@@ -19,7 +19,7 @@ then
 	# Run API test on migrated database
 	ella-cli database ci-migration-head -f
 	ella-cli database refresh -f
-	py.test --color=yes "/ella/src/api/" -s
+	py.test --color=yes --exitfirst "/ella/src/datalayer/" "/ella/src/api/" -s
 else
   ella-cli database ci-migration-head -f
   ella-cli database refresh -f

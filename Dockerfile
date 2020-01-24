@@ -78,11 +78,9 @@ RUN apt-get update && \
 
 
 # Add our requirements files
-COPY ./requirements.txt /dist/requirements.txt
-COPY ./requirements-test.txt  /dist/requirements-test.txt
+COPY --chown=ella-user:ella-user  ./requirements.txt /dist/requirements.txt
+COPY --chown=ella-user:ella-user ./requirements-test.txt  /dist/requirements-test.txt
 
-# Older docker doesn't support --chown
-RUN chown ella-user:ella-user /dist/*
 USER ella-user
 
 # Standalone python
@@ -94,23 +92,15 @@ RUN cd /dist && \
 ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
 
-COPY ./package.json /dist/package.json
-COPY ./yarn.lock /dist/yarn.lock
-
-USER root
-RUN chown ella-user:ella-user /dist/*
-USER ella-user
+COPY --chown=ella-user:ella-user ./package.json /dist/package.json
+COPY --chown=ella-user:ella-user ./yarn.lock /dist/yarn.lock
 
 RUN cd /dist &&  \
     yarn install --frozen-lockfile --non-interactive && \
     yarn cache clean
 
 # See .dockerignore for files that won't be copied
-COPY . /ella
-
-USER root
-RUN chown ella-user:ella-user -R /ella
-USER ella-user
+COPY --chown=ella-user:ella-user . /ella
 
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 

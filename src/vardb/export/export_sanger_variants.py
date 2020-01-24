@@ -9,11 +9,11 @@ from collections import defaultdict
 from sqlalchemy import or_, tuple_, func, text
 import xlsxwriter
 
-from api.util.alleledataloader import AlleleDataLoader
-from api.allelefilter import AlleleFilter
+from datalayer import AlleleDataLoader
+from datalayer import AlleleFilter
 from api.util.util import get_nested
 from vardb.datamodel import genotype, sample, allele, workflow
-from api.util import queries
+from datalayer import queries
 
 
 """

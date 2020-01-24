@@ -18,5 +18,3 @@ else
 fi
 
 echo "exits $BASH_SOURCE"
-
-

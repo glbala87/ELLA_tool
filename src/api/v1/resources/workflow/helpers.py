@@ -1,20 +1,22 @@
-from typing import DefaultDict, Dict, List, Set, Union, Type
+from typing import DefaultDict, List, Set, Union, Type
 import datetime
 import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_, or_, literal, func
+from sqlalchemy import tuple_, literal, func
 from sqlalchemy.orm import joinedload
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
 
 from api import schemas, ApiError, ConflictError
-from api.allelefilter.allelefilter import AlleleFilter
-from api.util.assessmentcreator import AssessmentCreator
-from api.util.allelereportcreator import AlleleReportCreator
-from api.util.snapshotcreator import SnapshotCreator
-from api.util.alleledataloader import AlleleDataLoader
-from api.util import queries
+from datalayer import (
+    AlleleFilter,
+    AlleleDataLoader,
+    AssessmentCreator,
+    AlleleReportCreator,
+    SnapshotCreator,
+    queries,
+)
 from api.util.util import get_nested
 
 

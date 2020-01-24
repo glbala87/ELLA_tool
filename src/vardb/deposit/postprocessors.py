@@ -1,7 +1,6 @@
 import datetime
 import pytz
-from api.util.interpretationdataloader import InterpretationDataLoader
-from api.util.snapshotcreator import SnapshotCreator
+from datalayer import SnapshotCreator
 from api.v1.resources.workflow import helpers
 from api.v1.resources.overview import categorize_analyses_by_findings
 from api import schemas

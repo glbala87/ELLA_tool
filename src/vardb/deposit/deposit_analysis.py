@@ -20,8 +20,8 @@ from collections import OrderedDict, defaultdict
 
 import jsonschema
 from sqlalchemy import tuple_
-from api.util import queries
 from api.config import config
+from datalayer import queries
 from vardb.util import DB, vcfiterator
 from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (

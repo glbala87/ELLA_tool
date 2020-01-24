@@ -12,7 +12,7 @@ ella-cli database make -f
 
 if [ "$1" = "" ]
 then
-	py.test --color=yes --exitfirst "/ella/src/api/" -s
+	py.test --color=yes --exitfirst "/ella/src/datalayer/" "/ella/src/api/" -s
 else
   $@
 fi
