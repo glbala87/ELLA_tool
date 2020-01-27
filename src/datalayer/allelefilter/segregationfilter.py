@@ -367,18 +367,22 @@ class SegregationFilter(object):
                     # We don't check the genotype for the parents,
                     # as in this case we care more about the ratio than the called result
                     or_(
-                        # Father mosaicism
+                        # Father mosaicism and mother not normal allele ratio
                         and_(
                             getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
                             getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
+                            <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
-                        # Mother mosaicism
+                        # Mother mosaicism and father not normal allele ratio
                         and_(
                             getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
                             getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
+                            <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
                     ),
@@ -396,19 +400,23 @@ class SegregationFilter(object):
                     getattr(genotype_with_allele_table.c, f"{proband_sample_id}_ar")
                     > NON_MOSAICISM_THRESHOLD,
                     or_(
-                        # Father mosaicism
+                        # Father mosaicism and mother not normal allele ratio
                         and_(
                             getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             > MOSAICISM_HOMOZYGOUS_THRESHOLD[0],
                             getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
                             <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1],
+                            getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
+                            <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
                         ),
-                        # Mother mosaicism
+                        # Mother mosaicism and father not normal allele ratio
                         and_(
                             getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             > MOSAICISM_HETEROZYGOUS_THRESHOLD[0],
                             getattr(genotype_with_allele_table.c, f"{mother_sample_id}_ar")
                             <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1],
+                            getattr(genotype_with_allele_table.c, f"{father_sample_id}_ar")
+                            <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1],
                         ),
                     ),
                 ),

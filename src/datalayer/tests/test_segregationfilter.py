@@ -1223,6 +1223,16 @@ class TestInheritanceFilter(object):
         "A", (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.0), fs("Reference", ar=0.3)), True
     )
     @example(
+        "A",
+        (ps("Heterozygous", ar=0.31), ms("Heterozygous", ar=0.5), fs("Reference", ar=0.3)),
+        False,
+    )
+    @example(
+        "A",
+        (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.3), fs("Heterozygous", ar=0.5)),
+        False,
+    )
+    @example(
         "A", (ps("Heterozygous", ar=0.3), ms("Reference", ar=0.0), fs("Reference", ar=0.3)), False
     )
     @example(
@@ -1250,6 +1260,14 @@ class TestInheritanceFilter(object):
     )
     @example(
         "X", (ps("Homozygous", ar=0.5), ms("Reference", ar=0.0), fs("Reference", ar=0.5)), True
+    )
+    @example(
+        "X",
+        (ps("Heterozygous", ar=0.5), ms("Heterozygous", ar=0.5), fs("Reference", ar=0.8)),
+        False,
+    )
+    @example(
+        "X", (ps("Heterozygous", ar=0.5), ms("Reference", ar=0.3), fs("Homozygous", ar=1.0)), False
     )
     @given(
         st.sampled_from(["A", "X"]),
@@ -1322,6 +1340,9 @@ class TestInheritanceFilter(object):
                 fs.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[0]
                 and fs.allele_ratio <= MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
             )
+            father_normal_ar = fs.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+            mother_normal_ar = ms.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
+
         else:
             proband_has_variant = ps.genotype in ["Heterozygous", "Homozygous"]
             mother_mosaicism = (
@@ -1332,13 +1353,18 @@ class TestInheritanceFilter(object):
                 fs.allele_ratio > MOSAICISM_HOMOZYGOUS_THRESHOLD[0]
                 and fs.allele_ratio <= MOSAICISM_HOMOZYGOUS_THRESHOLD[1]
             )
+            father_normal_ar = fs.allele_ratio > MOSAICISM_HOMOZYGOUS_THRESHOLD[1]
+            mother_normal_ar = ms.allele_ratio > MOSAICISM_HETEROZYGOUS_THRESHOLD[1]
 
         if (
             proband_has_variant
             and proband_not_mosacism
             and mother_has_coverage
             and father_has_coverage
-            and (mother_mosaicism or father_mosaicism)
+            and (
+                (mother_mosaicism and not father_normal_ar)
+                or (father_mosaicism and not mother_normal_ar)
+            )
         ):
             assert result_allele_ids == set([allele_id])
         else:
