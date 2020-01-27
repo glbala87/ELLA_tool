@@ -68,7 +68,7 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 <!-- MR !358 -->
 - Optional sections on the ANALYSES OVERVIEW page have been simplified, see [ANALYSIS worklist](/manual/choosing-sample-variant.html#optional-analyses-view). 
 <!-- MR !360 -->
-- Added variants that need verification for optional automatic sorting to NOT READY section on the ANALYSES OVERVIEW page (see [Deposit](/technical/import.html#deposit)).
+- Added analyses with variants that need verification for optional automatic sorting to NOT READY section on the ANALYSES OVERVIEW page (see [Deposit](/technical/import.html#deposit)).
 <!-- MR !356 -->
 - Added support for importing references with .RIS format from the [new PubMed webpage](https://pubmed.ncbi.nlm.nih.gov/).
 <!-- MR !347 -->
