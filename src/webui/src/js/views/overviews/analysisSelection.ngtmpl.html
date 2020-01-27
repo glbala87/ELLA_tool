@@ -49,7 +49,7 @@
     class="id-analysis-classified"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'allClassified')"
     collapsed="$ctrl.state.allClassified.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-classified'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses-by-classified'"
 >
     <maintitle>
         INTERPRETATION - ALL VARIANTS CLASSIFIED
@@ -72,7 +72,7 @@
     class="id-analysis-review-with-findings"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewAllClassified')"
     collapsed="$ctrl.state.reviewAllClassified.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-classified'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses-by-classified'"
 >
     <maintitle>
         PENDING REVIEW - ALL VARIANTS CLASSIFIED
@@ -97,7 +97,7 @@
     class="id-analysis-missing-classifications"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassifications')"
     collapsed="$ctrl.state.missingClassifications.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-classified'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses-by-classified'"
 >
     <maintitle>
         INTERPRETATION - MISSING CLASSIFICATIONS
@@ -123,7 +123,7 @@
     class="id-analysis-review-missing-classifications"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'reviewMissingClassifications')"
     collapsed="$ctrl.state.reviewMissingClassifications.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses-by-classified'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses-by-classified'"
 >
     <maintitle>
         PENDING REVIEW - MISSING CLASSIFICATIONS
@@ -149,7 +149,7 @@
     class="id-analysis-pending"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingAnalysis')"
     collapsed="$ctrl.state.pendingAnalysis.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection == 'analyses'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses'"
 >
     <maintitle>
         INTERPRETATION
@@ -170,7 +170,7 @@
     class="id-analysis-review"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'pendingReview')"
     collapsed="$ctrl.state.pendingReview.collapsed"
-    ng-if="$ctrl.analyses && $ctrl.selectedSection != 'analyses-by-classified'"
+    ng-if="$ctrl.analyses && $ctrl.selectedSection === 'analyses'"
 >
     <maintitle>
         PENDING REVIEW
