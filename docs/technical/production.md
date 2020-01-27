@@ -77,7 +77,7 @@ There are a few environment variables that should be set:
 | `ELLA_CONFIG`  | Application configuration. 	| path (e.g. `/config/ella_config.yml`) |
 | `IGV_DATA`  | Path to IGV resources. 	| path (e.g. `/data/igv_data`) |
 
-Additional environment variables can be utilized in the application configuration, see [Other app settings](#other-app-settings).
+Additional environment variables can be utilized in the [Application configuration](/technical/application.md).
 
 ## Start container
 
@@ -142,17 +142,6 @@ The references table in the database can be populated with PubMed IDs using a js
     ella-cli deposit references <path to references-YYMMDD.json>
     ```
 
-## Other app settings 
+## Configure ELLA
 
-Various settings related to setup of ELLA. These variables may be set as environment variables ... [TODO]. See `/example_config.yml` for examples.
-
-- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
-- Key: `app`
-
-Subkey	|	Explanation |   Values
-:---	|	:---    |	:---
-`links_to_clipboard`    |   Define if links should be copied to clipboard instead of opening a browser. |   Boolean 
-`non_production_warning`    |   Show warning (e.g. STAGING or TEST) when running a non-production environment.  |    String
-`annotation_service`    |   Define URL for annotation service. |    String (url)
-`attachment_storage`    |   Define path to attachment storage.  |   String (path)
-`max_upload_size`   |   Define max size of file uploads in bytes. |   Example: `52428800` (= 50 MB)
+See [Application configuration](/technical/application.md) for settings related to setup of the ELLA application, as well as [Configuration](/technical/configuration.md) for other options.

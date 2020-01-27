@@ -20,8 +20,6 @@ ella-cli deposit genepanel --folder <path to gene panel directory>
 
 Note that `<PanelName>_<version>.transcripts.csv` and `<PanelName>_<version>.phenotypes.csv` files are required.
 
-## Example
-
 See `src/vardb/testdata/clinicalGenePanels/` for example gene panels and naming conventions. 
 
 

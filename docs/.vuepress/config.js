@@ -101,6 +101,7 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/technical/configuration',
+                        '/technical/application',
                         '/technical/users',
                         '/technical/uioptions',
                         '/technical/annotation',
