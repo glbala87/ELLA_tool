@@ -21,7 +21,7 @@ const testUiConfig = {
         },
         user_config: {
             overview: {
-                views: ['variants', 'analyses-by-findings', 'import'],
+                views: ['variants', 'analyses-by-classified', 'import'],
                 show_variant_report: true
             },
             workflows: {

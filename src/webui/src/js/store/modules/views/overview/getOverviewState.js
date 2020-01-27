@@ -16,7 +16,7 @@ export let AVAILABLE_SECTIONS = {
             selectedPage: 1
         }
     },
-    'analyses-by-findings': {
+    'analyses-by-classified': {
         displayName: 'Analyses',
         selected: false,
         finalized: {

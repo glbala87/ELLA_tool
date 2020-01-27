@@ -2,19 +2,17 @@ import processAnalyses from '../../../../common/helpers/processAnalyses'
 
 const SECTIONS = [
     'not_ready',
-    'not_started_with_findings',
-    'not_started_without_findings',
+    'not_started_all_classified',
     'not_started_missing_alleleassessments',
     'ongoing',
-    'marked_review_with_findings',
-    'marked_review_without_findings',
+    'marked_review_all_classified',
     'marked_review_missing_alleleassessments',
     'marked_medicalreview'
 ]
 
-export default function getOverviewAnalysesByFindings({ http, path, state }) {
+export default function getOverviewAnalysesByClassified({ http, path, state }) {
     return http
-        .get('overviews/analyses/by-findings/')
+        .get('overviews/analyses/by-classified/')
         .then((response) => {
             for (let section of SECTIONS) {
                 for (let item of response.result[section]) {
