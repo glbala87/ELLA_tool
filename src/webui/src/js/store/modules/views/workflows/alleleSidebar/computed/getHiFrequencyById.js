@@ -71,7 +71,7 @@ function* frequencyGroupsGenerator(filterConfig) {
             (f) => f.name === 'frequency'
         )
         if (frequencyFilter) {
-            frequencyGroups = frequencyFilter.config.groups
+            frequencyGroups = frequencyFilter.config.groups || {}
             frequencyNumThresholds = frequencyFilter.config.num_thresholds || {}
         }
     }
