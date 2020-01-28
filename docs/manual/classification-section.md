@@ -122,7 +122,10 @@ As with suggested criteria, you are free to ignore the suggestion, and you must 
 
 If in ANALYSES mode, this moves the variant to CLASSIFIED VARIANTS in the variant side bar.
 
-Note that suggestions are only made for CLASS 1-5. 
+::: warning NOTES
+- Suggestions are only made for CLASS 1-5.
+- Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!
+:::
 
 ## Finalize variant
 
@@ -133,8 +136,8 @@ Once you have set a classification, you have the option to finalize the variant:
 Once a variant is finalized, the interpretation is made available to other users and will not generate [collision warnings](/manual/warnings.html#collision-warnings) if there are overlapping analyses. 
 
 ::: warning NOTES
-- Finalization of all new/updated classified variants is a requirement to finalize the analysis. This includes any classifications that were set using [QUICK mode](/manual/quick-classification.md).
+- Depending on configuration, finalization of all new/updated classified variants may be a requirement to finalize the analysis. This includes any classifications that were set using [QUICK mode](/manual/quick-classification.md).
 - Finalizing a variant should only be used when you consider the evaluation to be complete, i.e. no further review is needed. Depending on configuration, this option may therefore not be available except in review workflow steps.
-- If you are in VARIANTS view (e.g. searched for and opened a specific variant), you must also change the workflow step to `FINALIZED` via the `FINISH` button in the top bar before the variant interpretation is considered truly finalized and workflow warnings are removed.
+- If you are in VARIANTS view (e.g. searched for and opened a specific variant), you must also change the workflow step to `FINALIZED` via the `FINISH` button in the top bar before the variant interpretation is considered truly finalized and workflow collision warnings are removed.
 :::
 

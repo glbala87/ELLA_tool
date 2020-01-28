@@ -13,7 +13,7 @@ Variant warnings are triggered for certain conditions that require attention, an
 Annotation warnings include: 
 
 - Worse consequences found in other transcripts, e.g. intron variant in default transcript, exon variant in alternative transcript. See the PREDICTION section for further details.
-- Other variants are within 3 bp of the variant in the analysis (often indicative of technically challenging regions or that annotation should be manually verified).
+- Other variants are within 2 bp of the variant in the analysis (often indicative of technically challenging regions or that annotation should be manually verified).
 
 ## Collision warnings
 
