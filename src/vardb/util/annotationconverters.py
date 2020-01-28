@@ -77,6 +77,53 @@ HGVSC_DISTANCE_CHECK = [
 ]
 HGVSC_DISTANCE_CHECK_REGEX = re.compile("".join(HGVSC_DISTANCE_CHECK))
 
+import gzip
+from pathlib import Path
+
+this_dir = Path(__file__).parent.absolute()
+with gzip.open(this_dir / "hgnc_symbols_id.txt.gz", "rt") as hgnc_symbols:
+    hgnc_approved_symbol_id = {}
+    hgnc_previous_symbol_id = {}
+    hgnc_approved_id_symbol = {}
+    # hgnc_previous_id_symbol = {}
+    for l in hgnc_symbols:
+        if l.startswith("#"):
+            continue
+        symbol, hgnc_id, approved = l.strip().split("\t")
+        hgnc_id = int(hgnc_id)
+        if approved == "1":
+            assert symbol not in hgnc_approved_symbol_id
+            assert hgnc_id not in hgnc_approved_id_symbol
+            hgnc_approved_symbol_id[symbol] = hgnc_id
+            hgnc_approved_id_symbol[hgnc_id] = symbol
+        else:
+            assert symbol not in hgnc_previous_symbol_id
+            # assert hgnc_id not in hgnc_previous_id_symbol
+            hgnc_previous_symbol_id[symbol] = hgnc_id
+            # hgnc_previous_id_symbol[hgnc_id] = symbol
+
+with gzip.open(this_dir / "hgnc_ncbi_ensembl_geneids.txt.gz", "rt") as hgnc_ncbi_ensembl:
+    ncbi_ensembl_hgnc_id = {}
+    for l in hgnc_ncbi_ensembl:
+        if l.startswith("#"):
+            continue
+        lsplit = l.strip().split("\t")
+        lsplit = lsplit + [""] * (3 - len(lsplit))
+        # print(len(lsplit), lsplit)
+        hgnc_id, ensembl_gene, ncbi_gene = lsplit
+        hgnc_id = int(hgnc_id)
+        if ensembl_gene:
+            assert ensembl_gene not in ncbi_ensembl_hgnc_id
+            ncbi_ensembl_hgnc_id[ensembl_gene] = hgnc_id
+        if ncbi_gene:
+            assert ncbi_gene not in ncbi_ensembl_hgnc_id
+            ncbi_ensembl_hgnc_id[ncbi_gene] = hgnc_id
+        # print(ensembl_gene)
+        assert ensembl_gene == "" or ensembl_gene.startswith("ENSG")
+        assert ncbi_gene == "" or int(ncbi_gene)
+        # print(hgnc_id, ensembl_gene, ncbi_gene)
+# exit()
+
 
 def _map_hgnc_id(transcripts):
     symbol_hgnc_id = dict()
@@ -90,6 +137,20 @@ def _map_hgnc_id(transcripts):
                 )
             symbol_hgnc_id[t["symbol"]] = t["hgnc_id"]
     return symbol_hgnc_id
+
+
+def _map_hgnc_id_gene(transcripts):
+    gene_hgnc_id = dict()
+    for t in transcripts:
+        if t.get("hgnc_id") and isinstance(t.get("hgnc_id"), int):
+            if t["gene"] in gene_hgnc_id:
+                assert (
+                    gene_hgnc_id[t["symbol"]] == t["hgnc_id"]
+                ), "Got different HGNC ({} vs {}) id for same gene symbol ({})".format(
+                    t["hgnc_id"], gene_hgnc_id[t["symbol"]], t["symbol"]
+                )
+            gene_hgnc_id[t["symbol"]] = t["hgnc_id"]
+    return gene_hgnc_id
 
 
 def convert_csq(annotation):
@@ -205,6 +266,33 @@ def convert_csq(annotation):
 
         if "hgnc_id" in transcript_data:
             transcript_data["hgnc_id"] = int(transcript_data["hgnc_id"])
+        elif "Gene" in data and data["Gene"] in ncbi_ensembl_hgnc_id:
+            transcript_data["hgnc_id"] = ncbi_ensembl_hgnc_id[data["Gene"]]
+        elif "SYMBOL" in data and data["SYMBOL"] in hgnc_approved_symbol_id:
+            transcript_data["hgnc_id"] = hgnc_approved_symbol_id[data["SYMBOL"]]
+        else:
+            if data.get("SYMBOL_SOURCE") not in [
+                "Clone_based_vega_gene",
+                "Clone_based_ensembl_gene",
+            ]:
+                log.warning(
+                    "No HGNC id found for Feature: {}, SYMBOL: {}, SYMBOL_SOURCE: {}, Gene: {}. Skipping.".format(
+                        data.get("Feature", "N/A"),
+                        data.get("SYMBOL", "N/A"),
+                        data.get("SYMBOL_SOURCE", "N/A"),
+                        data.get("Gene", "N/A"),
+                    )
+                )
+            continue
+        assert "hgnc_id" in transcript_data and isinstance(transcript_data["hgnc_id"], int), str(
+            data
+        )
+
+        if "symbol" not in transcript_data:
+            transcript_data["symbol"] = hgnc_approved_id_symbol[transcript_data["hgnc_id"]]
+
+        if data.get("SYMBOL_SOURCE") == "RFAM":
+            print(transcript_data["hgnc_id"])
 
         # Only keep dbSNP data (e.g. rs123456789)
         if "dbsnp" in transcript_data:
@@ -256,9 +344,47 @@ def convert_csq(annotation):
     # we steal it from matching Ensembl transcript (by gene symbol)
     # Tested on 100k exome annotated variants, all RefSeq had corresponding match in Ensembl
     symbol_hgnc_id = _map_hgnc_id(transcripts)
-    for t in transcripts:
-        if not t.get("hgnc_id") and t.get("symbol") and t["symbol"] in symbol_hgnc_id:
-            t["hgnc_id"] = symbol_hgnc_id[t["symbol"]]
+    # for t in transcripts:
+    #     if not t.get("hgnc_id") and t.get("symbol") and t["symbol"] in symbol_hgnc_id:
+    #         t["hgnc_id"] = symbol_hgnc_id[t["symbol"]]
+    #     elif not t.get("hgnc_id") and t.get("symbol"):
+    #         t["hgnc_id"] = hgnc_approved_symbol_id.get(
+    #             t["symbol"], hgnc_previous_symbol_id.get(t["symbol"])
+    #         )
+    #     if not t.get("hgnc_id"):
+    #         import json
+
+    #         if t["transcript"].startswith("NM"):
+
+    #             print(json.dumps(annotation["CSQ"], indent=2))
+    #             print(t)
+    #         continue
+
+    #     if t.get("symbol"):
+    #         if not (t.get("hgnc_id") and t["hgnc_id"]):
+    #             log.warning("Missing HGNC ID for gene symbol {}".format(t["symbol"]))
+
+    #         vep_hgnc_id = t["hgnc_id"]
+    #         hgnc_id = hgnc_approved_symbol_id.get(
+    #             t["symbol"], hgnc_previous_symbol_id.get(t["symbol"])
+    #         )
+    #         assert (
+    #             hgnc_id is None or hgnc_id == vep_hgnc_id
+    #         ), "Mismatch between VEP provided HGNC id ({}) and HGNC provided id ({}) for symbol {}".format(
+    #             vep_hgnc_id, hgnc_id, t["symbol"]
+    #         )
+
+    #         if t["symbol"] not in hgnc_approved_symbol_id:
+    #             # Not approved symbol
+    #             if t["hgnc_id"] not in hgnc_approved_id_symbol:
+    #                 log.warning("HGNC ID {} has no approved symbol".format(t["hgnc_id"]))
+    #             else:
+    #                 approved_symbol = hgnc_approved_id_symbol[t["hgnc_id"]]
+    #                 log.warning(
+    #                     "VEP provided symbol {} for HGNC ID {}, approved symbol is {}".format(
+    #                         t["symbol"], t["hgnc_id"], approved_symbol
+    #                     )
+    #                 )
 
     return transcripts
 
