@@ -17,7 +17,7 @@ Annotation warnings include:
 
 ## Collision warnings
 
-If you open a variant that is also present in another ongoing analysis, and the variant is unfiltered, new or outdated, ELLA will display a collision warning: 
+If you open a variant that is also present in another ongoing analysis, and the variant is unfiltered and new or outdated, ELLA will display a collision warning: 
 
 <div style="text-indent: 4%;"><img src="./img/collision_warning.png"></div>
 

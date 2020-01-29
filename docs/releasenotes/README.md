@@ -8,7 +8,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.9
 
-Release date: 29.01.2020
+Release date: 31.01.2020
 
 ### Highlights
 
