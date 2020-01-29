@@ -66,7 +66,7 @@ class ExtendedQuery(Query):
         else:
             return explained
 
-    def temp_table(self, name, analyze=True):
+    def temp_table(self, name, analyze=True, index=None):
         """
         Creates a ON COMMIT DROP temporary table from query with provided name.
 
@@ -86,6 +86,10 @@ class ExtendedQuery(Query):
 
         if analyze:
             self.session.execute(text("ANALYZE {}".format(name)))
+
+        if index:
+            for i in index:
+                self.session.execute(text(f"CREATE INDEX idx_{prefix}_{i} ON {name} ({i})"))
 
         return table(name, *[c for c in self.subquery().columns])
 

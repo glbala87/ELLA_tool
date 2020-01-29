@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import TableClause
@@ -66,31 +66,26 @@ class RegionFilter(object):
         # Note: Exons and coding regions are transformed to closed intervals [start, end], rather than the half-open database representation [start, end)
         #
         # Returned temp table is of the form:
-        # ------------------------------------------------------------------------------
-        # | gene_id | chromosome | strand | cds_start | cds_end | exon_start | exon_end |
-        # ------------------------------------------------------------------------------
-        # | 329     | 1          | +      | 955552    | 990360  | 986832     | 987024   |
-        # | 329     | 1          | +      | 955552    | 990360  | 987107     | 987194   |
-        # | 329     | 1          | +      | 955552    | 990360  | 989132     | 989356   |
-        # | 329     | 1          | +      | 955552    | 990360  | 989827     | 989930   |
-        # | 329     | 1          | +      | 955552    | 990360  | 990203     | 991498   |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1270657    | 1271894  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273356    | 1273562  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273648    | 1273815  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1273901    | 1274032  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1274741    | 1274818  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1274961    | 1275028  |
-        # | 3084    | 1          | -      | 1271521   | 1284444 | 1275115    | 1275191  |
+        # -----------------------------------------------------------------------------------------------
+        # | gene_id | transcript_name | strand | cds_start | cds_end | exon_start | exon_end | allele_id |
+        # -----------------------------------------------------------------------------------------------
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 955502     | 955752   | 1         |
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 957580     | 957841   | 1         |
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 970656     | 970703   | 1         |
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 976044     | 976259   | 1         |
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 976552     | 976776   | 1         |
+        # | 329     | NM_198576.3     | +      | 955552    | 990360  | 976857     | 977081   | 1         |
 
         return (
             self.session.query(
                 gene.Transcript.gene_id,
-                gene.Transcript.chromosome,
+                gene.Transcript.transcript_name,
                 gene.Transcript.strand,
                 gene.Transcript.cds_start,
                 (gene.Transcript.cds_end - 1).label("cds_end"),
                 func.unnest(gene.Transcript.exon_starts).label("exon_start"),
                 (func.unnest(gene.Transcript.exon_ends) - 1).label("exon_end"),
+                allele.Allele.id.label("allele_id"),
             )
             .join(
                 gene.genepanel_transcript,
@@ -103,17 +98,22 @@ class RegionFilter(object):
                     == gp_key,
                 ),
             )
-            .filter(
-                allele.Allele.id.in_(allele_ids),
-                allele.Allele.chromosome == gene.Transcript.chromosome,
-                or_(
-                    and_(
-                        allele.Allele.start_position >= gene.Transcript.tx_start - max_padding,
-                        allele.Allele.start_position <= gene.Transcript.tx_end - 1 + max_padding,
-                    ),
-                    and_(
-                        allele.Allele.open_end_position > gene.Transcript.tx_start - max_padding,
-                        allele.Allele.open_end_position < gene.Transcript.tx_end + max_padding,
+            .join(
+                allele.Allele,
+                and_(
+                    allele.Allele.id.in_(allele_ids),
+                    allele.Allele.chromosome == gene.Transcript.chromosome,
+                    or_(
+                        and_(
+                            allele.Allele.start_position >= gene.Transcript.tx_start - max_padding,
+                            allele.Allele.start_position
+                            <= gene.Transcript.tx_end - 1 + max_padding,
+                        ),
+                        and_(
+                            allele.Allele.open_end_position
+                            > gene.Transcript.tx_start - max_padding,
+                            allele.Allele.open_end_position < gene.Transcript.tx_end + max_padding,
+                        ),
                     ),
                 ),
             )
@@ -213,7 +213,7 @@ class RegionFilter(object):
             )
 
             transcript_coding_regions = self.session.query(
-                genepanel_tx_regions.c.chromosome.label("chromosome"),
+                genepanel_tx_regions.c.transcript_name.label("transcript_name"),
                 coding_start.label("region_start"),
                 coding_end.label("region_end"),
             ).filter(
@@ -226,7 +226,7 @@ class RegionFilter(object):
             def _create_region(transcripts, region_start, region_end):
                 return (
                     self.session.query(
-                        transcripts.c.chromosome.label("chromosome"),
+                        transcripts.c.transcript_name.label("transcript_name"),
                         region_start.label("region_start"),
                         region_end.label("region_end"),
                     )
@@ -373,19 +373,14 @@ class RegionFilter(object):
             # |-------iii+          uuuuccccccccccccccii---------cccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
             # |          +--------------+------------+           +-------------+             +-----------+-------+        |
 
-            all_regions = (
-                transcript_coding_regions.union(
-                    splicing_region_upstream,
-                    splicing_region_downstream,
-                    utr_region_upstream,
-                    utr_region_downstream,
-                )
-                .subquery()
-                .alias("all_regions")
-            )
+            all_regions = transcript_coding_regions.union(
+                splicing_region_upstream,
+                splicing_region_downstream,
+                utr_region_upstream,
+                utr_region_downstream,
+            ).temp_table("all_regions", index=["transcript_name"])
 
             # Find allele ids within genomic region
-
             # In the database, insertions are stored with open_end_position=start_position + <length of insertion> + 1
             # This does not apply for region filtering, as we compare to the reference genome, where the insertion should have no length
             # TODO: Change datamodel to use open_end_position=start_position+1 for insertions
@@ -394,29 +389,50 @@ class RegionFilter(object):
                 else_=allele.Allele.open_end_position,
             )
 
-            allele_ids_in_genomic_region = self.session.query(allele.Allele.id).filter(
-                allele.Allele.id.in_(allele_ids),
-                allele.Allele.chromosome == all_regions.c.chromosome,
-                or_(
-                    # Contained within or overlapping region
-                    and_(
-                        allele.Allele.start_position >= all_regions.c.region_start,
-                        allele.Allele.start_position <= all_regions.c.region_end,
-                    ),
-                    and_(
-                        open_end_position > all_regions.c.region_start,
-                        open_end_position < all_regions.c.region_end,
-                    ),
-                    # Region contained within variant
-                    and_(
-                        allele.Allele.start_position <= all_regions.c.region_start,
-                        open_end_position >= all_regions.c.region_end,
-                    ),
-                ),
+            # We need to restrict comparison for each allele to happen on positions
+            # inside the transcript(s) (or else we could compare across same position on different chromosomes)
+            # (using transcript(s) rather than chromosome as key is a lot faster)
+            allele_transcripts = (
+                self.session.query(
+                    genepanel_tx_regions.c.allele_id, genepanel_tx_regions.c.transcript_name
+                )
+                .distinct()
+                .subquery()
             )
 
-            allele_ids_in_genomic_region = [a[0] for a in allele_ids_in_genomic_region]
-            allele_ids_outside_region = set(allele_ids) - set(allele_ids_in_genomic_region)
+            allele_ids_in_genomic_region = (
+                self.session.query(allele.Allele.id)
+                .join(allele_transcripts, allele_transcripts.c.allele_id == allele.Allele.id)
+                .join(
+                    all_regions,
+                    all_regions.c.transcript_name == allele_transcripts.c.transcript_name,
+                )
+                .filter(
+                    # The following filter should be redundant, since allele_transcripts is
+                    # already limited to allele_ids, but we'll keep it for extra safety
+                    allele.Allele.id.in_(allele_ids),
+                    or_(
+                        # Contained within or overlapping region
+                        and_(
+                            allele.Allele.start_position >= all_regions.c.region_start,
+                            allele.Allele.start_position <= all_regions.c.region_end,
+                        ),
+                        and_(
+                            open_end_position > all_regions.c.region_start,
+                            open_end_position < all_regions.c.region_end,
+                        ),
+                        # Region contained within variant
+                        and_(
+                            allele.Allele.start_position <= all_regions.c.region_start,
+                            open_end_position >= all_regions.c.region_end,
+                        ),
+                    ),
+                )
+            )
+
+            allele_ids_outside_region = set(allele_ids) - set(
+                allele_ids_in_genomic_region.scalar_all()
+            )
 
             # Discard the next filters if there are no variants left to filter on
             if not allele_ids_outside_region:
