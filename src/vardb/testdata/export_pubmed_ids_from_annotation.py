@@ -5,7 +5,7 @@ Exports all pubmed ids present in annotation in the database
 by running the annotation rows through AnnotationProcessor.
 """
 
-from api.util.annotationprocessor import AnnotationProcessor
+from datalayer.alleledataloader.annotationprocessor import AnnotationProcessor
 from vardb.datamodel import DB, annotation
 
 

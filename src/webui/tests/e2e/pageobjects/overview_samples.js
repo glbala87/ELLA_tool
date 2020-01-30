@@ -1,18 +1,16 @@
 var Page = require('./page')
 var util = require('./util')
 
-const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-findings'
+const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-classified'
 const SELECTOR_FINISHED = '.id-analysis-finished'
 const SELECTOR_EMPTY = '.id-analysis-assessments-none'
 const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-missing-classifications'
 const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING
-const SELECTOR_REVIEW_FINDINGS = '.id-analysis-review-with-findings'
-const SELECTOR_REVIEW_NORMAL = '.id-analysis-review-without-findings'
 const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications'
 const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
-const SELECTOR_NORMAL = '.id-analysis-findings-normal'
-const SELECTOR_FINDINGS = '.id-analysis-findings'
+const SELECTOR_OTHERS = '.id-analysis-others'
+const SELECTOR_CLASSIFIED = '.id-analysis-classified'
 
 //id-analysis-ours
 // id-analysis-others
@@ -37,11 +35,11 @@ class SampleSelection extends Page {
     get analysisList() {
         return util.element('analysis-list')
     }
-    get noFindingsSection() {
-        return util.element('.id-analysis-findings-none')
+    get noClassifiedSection() {
+        return util.element('.id-analysis-classified-none')
     }
-    get findingsSection() {
-        return util.element(SELECTOR_FINDINGS)
+    get classifiedSection() {
+        return util.element(SELECTOR_CLASSIFIED)
     }
     get emptySection() {
         return util.element(SELECTOR_EMPTY)
@@ -54,10 +52,6 @@ class SampleSelection extends Page {
     }
     get finishedSection() {
         return util.element(SELECTOR_FINISHED)
-    }
-
-    get normalSection() {
-        return util.element(SELECTOR_NORMAL)
     }
 
     expandPendingSection() {
@@ -99,11 +93,11 @@ class SampleSelection extends Page {
     }
 
     selectPending(number, name) {
-        let analysisWrapper = this.selectItemInSection(number, SELECTOR_PENDING)
+        this.selectItemInSection(number, SELECTOR_PENDING)
     }
 
     selectWithMissingAssessments(number, name) {
-        let analysisWrapper = this.selectItemInSection(number, SELECTOR_ASSESSMENTS_MISSING)
+        this.selectItemInSection(number, SELECTOR_ASSESSMENTS_MISSING)
     }
 
     selectReview(number) {
@@ -114,12 +108,16 @@ class SampleSelection extends Page {
         this.selectItemInSection(number, SELECTOR_MEDICALREVIEW)
     }
 
-    selectFindingsNormal(number) {
+    selectClassifiedNormal(number) {
         this.selectItemInSection(number, SELECTOR_NORMAL)
     }
 
-    selectFindings(number) {
-        this.selectItemInSection(number, SELECTOR_FINDINGS)
+    selectClassified(number) {
+        this.selectItemInSection(number, SELECTOR_CLASSIFIED)
+    }
+
+    selectOthers(number) {
+        this.selectItemInSection(number, SELECTOR_OTHERS)
     }
 
     selectTopPending() {

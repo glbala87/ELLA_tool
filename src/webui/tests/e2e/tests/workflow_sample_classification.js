@@ -50,7 +50,8 @@ const TITLE_REVIEW = ' • REVIEW'
 function setFinalizationRequirements(
     allow_technical = false,
     allow_notrelevant = false,
-    allow_unclassified = false
+    allow_unclassified = false,
+    workflow_status = ['Review', 'Medical review']
 ) {
     let result = browser.psql(`
         UPDATE "user" SET config =
@@ -58,7 +59,7 @@ function setFinalizationRequirements(
             "allow_technical": ${allow_technical ? 'true' : 'false'},
             "allow_notrelevant": ${allow_notrelevant ? 'true' : 'false'},
             "allow_unclassified": ${allow_unclassified ? 'true' : 'false'},
-            "workflow_status": ["Not ready", "Interpretation", "Review", "Medical review"]
+            "workflow_status": ${JSON.stringify(workflow_status)}
             } } } }' WHERE username IN ('testuser1', 'testuser2')
     `)
     expect(result).toEqual('UPDATE 2\n')
@@ -79,14 +80,14 @@ describe('Sample workflow', function() {
         // Modify user config to allow finalization with classifying all variants
 
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         browser.execute(`localStorage.clear()`) // Needs a proper URL, hence after login
         sampleSelectionPage.selectTopPending()
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
 
-        setFinalizationRequirements(true, true, true)
+        setFinalizationRequirements(true, true, true, ['Interpretation'])
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(true)
     })
@@ -160,12 +161,6 @@ describe('Sample workflow', function() {
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
-            // If last round, test that finalization should not be possible
-            // since we haven't classified all yet.
-            if (idx === 4) {
-                expect(analysisPage.getFinalizePossible()).toBe(false)
-            }
-
             // Move to next unclassified
             alleleSidebar.selectFirstUnclassified()
             selected_allele = alleleSidebar.getSelectedAllele()
@@ -229,6 +224,9 @@ describe('Sample workflow', function() {
             alleleSidebar.markClassifiedReview(selected_allele)
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
 
+            // Check that we cannot finalize, as we're only in "Interpretation" workflow status
+            expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
+
             expected_analysis_1_round_1[selected_allele] = {
                 reviewed: true,
                 references: {
@@ -270,8 +268,9 @@ describe('Sample workflow', function() {
             }
         }
 
-        // Make sure that we can finalize now
-        expect(analysisPage.getFinalizePossible()).toBe(true)
+        // Make sure that we still cannot finalize,
+        // even though all variants have a class (they're not finalized)
+        expect(analysisPage.getFinalizePossible()).toBe(false)
 
         console.log('Changing to the report page')
         analysisPage.selectSectionReport()
@@ -296,14 +295,14 @@ describe('Sample workflow', function() {
 
     it('shows the review comment on overview page', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         sampleSelectionPage.expandReviewSection()
         expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
     })
 
     it('keeps the classification from the previous round', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
@@ -314,6 +313,14 @@ describe('Sample workflow', function() {
         expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
         workLog.close()
 
+        // Finalize all classified variants (we're now in "Review" workflow status)
+        const numberOfClassified = alleleSidebar.countOfClassified()
+        for (let idx = 1; idx < numberOfClassified; idx++) {
+            alleleSidebar.selectClassifiedAlleleByIdx(idx)
+            alleleSectionBox.finalize()
+        }
+
+        expect(alleleSidebar.countOfUnclassified()).toBe(0)
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
@@ -321,7 +328,11 @@ describe('Sample workflow', function() {
 
     it('reuses classified variants from a different sample', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        // Allow finalization directly from Interpretation
+        setFinalizationRequirements(true, true, false, ['Interpretation'])
+        browser.refresh()
+        loginPage.open()
+        loginPage.loginAs('testuser1')
         sampleSelectionPage.selectTopPending()
 
         expect(analysisPage.title).toBe(SAMPLE_TWO + TITLE_INTERPRETATION)
@@ -340,18 +351,18 @@ describe('Sample workflow', function() {
         // Quickly classify two unclassified ones
         alleleSidebar.selectFirstUnclassified()
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
+        alleleSectionBox.finalize()
         alleleSidebar.selectFirstUnclassified()
         alleleSectionBox.classSelection.selectByVisibleText(`Class 1`)
+        alleleSectionBox.finalize()
 
-        // Check that the others are accepted by default
+        // Check that the others are reused by default
         for (let idx = 0; idx < overlapping_alleles.length; idx++) {
             alleleSidebar.selectClassifiedAllele(overlapping_alleles[idx])
             expect(alleleSidebar.getSelectedAlleleClassification().current).toEqual(
                 overlapping_classes[idx]
             )
-            expect(alleleSectionBox.classificationAcceptedBtn.getText()).toEqual(
-                BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION
-            )
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
         }
 
         // Finally check the data of all our selections.
@@ -376,9 +387,8 @@ describe('Sample workflow', function() {
 
         // start: make changes to classification on a variant that overlaps with the third sample:
         alleleSidebar.selectClassifiedAllele('c.581G>A')
-        alleleSectionBox.classificationAcceptedBtn.click()
-        //        let referenceTitle = alleleSectionBox.evaluateReference(1);
-        let referenceTitle = alleleSectionBox.reEvaluateReference(1)
+        alleleSectionBox.reevaluateBtn.click()
+        alleleSectionBox.reEvaluateReference(1)
         referenceEvalModal.setRelevance(2)
         referenceEvalModal.setComment('REFERENCE_EVAL_UPDATED')
         referenceEvalModal.saveBtn.scrollIntoView({ block: 'center' })
@@ -393,6 +403,7 @@ describe('Sample workflow', function() {
         alleleSectionBox.classSelection.selectByVisibleText('Class 5')
         analysisPage.addAttachment()
         expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2)
+        alleleSectionBox.finalize()
         // :end
 
         expected_analysis_2_round_1['c.581G>A'] = expected_analysis_1_round_1['c.581G>A']
@@ -421,8 +432,8 @@ describe('Sample workflow', function() {
 
     it('reuses the latest variant classification done in another sample', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
-        sampleSelectionPage.selectFindings(1)
+        loginPage.loginAs('testuser1')
+        sampleSelectionPage.selectClassified(1)
         checkAlleleClassification(expected_analysis_2_round_1)
     })
 })

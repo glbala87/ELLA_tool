@@ -8,7 +8,9 @@ import hasUnignoredReferences from '../store/modules/views/workflows/alleleSideb
 import isNonsenseById from '../store/modules/views/workflows/alleleSidebar/computed/isNonsenseById'
 import isMultipleSampleType from '../store/modules/views/workflows/alleleSidebar/computed/isMultipleSampleType'
 import getConsequenceById from '../store/modules/views/workflows/alleleSidebar/computed/getConsequenceById'
-import getHiFrequencyById from '../store/modules/views/workflows/alleleSidebar/computed/getHiFrequencyById'
+import getHiFrequencyById, {
+    getHiFrequencyDefinition
+} from '../store/modules/views/workflows/alleleSidebar/computed/getHiFrequencyById'
 import getQualById from '../store/modules/views/workflows/alleleSidebar/computed/getQualById'
 import getDepthById from '../store/modules/views/workflows/alleleSidebar/computed/getDepthById'
 import getAlleleRatioById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleRatioById'
@@ -73,6 +75,7 @@ app.component('alleleSidebarList', {
             alleleRatio: getAlleleRatioById(state`${props`allelesPath`}`),
             hiFreq: getHiFrequencyById(state`${props`allelesPath`}`, 'freq'),
             hiCount: getHiFrequencyById(state`${props`allelesPath`}`, 'count'),
+            hiFreqDef: getHiFrequencyDefinition,
             externalSummary: getExternalSummaryById(state`${props`allelesPath`}`),
             isNonsense: isNonsenseById(state`${props`allelesPath`}`),
             isMultipleSampleType,
@@ -299,6 +302,21 @@ app.component('alleleSidebarList', {
                         }
                         return '-'
                     },
+                    getHiFreqColumnTitle() {
+                        let title = ''
+                        for (let { provider, population, numThreshold } of $ctrl.hiFreqDef) {
+                            if (numThreshold) {
+                                title += `${provider}.${population} (number > ${numThreshold})\n`
+                            } else {
+                                title += `${provider}.${population}\n`
+                            }
+                        }
+                        if (title === '') {
+                            return 'No frequency filter configured'
+                        } else {
+                            return 'Highest frequency from:\n' + title
+                        }
+                    },
                     shadeGene(allele) {
                         return $ctrl.shadeMultipleInGene && $ctrl.isMultipleInGene[allele.id]
                     },
@@ -390,6 +408,17 @@ app.component('alleleSidebarList', {
                         // another alleleSidebarList to get the <td> width of the
                         // buttons...
                         return $ctrl.narrowComment || false
+                    },
+                    getReviewedTitle(alleleId) {
+                        if (!(alleleId in $ctrl.reviewed)) {
+                            return 'Mark reviewed'
+                        }
+                        if ($ctrl.reviewed[alleleId] === 'finalized') {
+                            return 'Finalized in this analysis'
+                        } else if ($ctrl.reviewed[alleleId] === 'reviewed') {
+                            return 'Marked reviewed'
+                        }
+                        return 'Mark reviewed'
                     }
                 })
             }

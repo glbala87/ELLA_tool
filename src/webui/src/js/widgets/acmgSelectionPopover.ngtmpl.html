@@ -1,81 +1,82 @@
-<section class="acmg-selection">
-    <acmg
-        class="id-staged-acmg-code"
-        code="$ctrl.stagedAcmgCode"
-        templates="$ctrl.getAcmgCommentTemplates()"
-        on-toggle="$ctrl.acmgPopover.addStagedAcmgCode()"
-        toggle-text="ADD"
-        comment-model="$ctrl.stagedAcmgCode.comment"
-        ng-if="$ctrl.stagedAcmgCode"
-        adjustable="true"
-        editable="true"
-        popover-placement="'bottom-left'"
-    >
-    </acmg>
-</section>
-<article class="id-acmg-selection-popover line-wrapper question centered">
-    <div class="left-basic"></div>
-    <div class="left-basic">
-        <h5 class="slim title"><b>Show: </b></h5>
-    </div>
-    <div class="right-basic">
-        <div class="bttn-set">
-            <label
-                tabindex="0"
-                class="bttn id-acmg-category"
-                ng-model="$ctrl.acmgPopover.selectedCategory"
-                uib-btn-radio="item"
-                ng-repeat="item in $ctrl.acmgPopover.categories"
-                >{{ item }}</label
+<div class="acmg-selection-popover">
+    <section>
+        <acmg
+            class="id-staged-acmg-code"
+            code="$ctrl.stagedAcmgCode"
+            templates="$ctrl.getAcmgCommentTemplates()"
+            on-toggle="$ctrl.acmgPopover.addStagedAcmgCode()"
+            toggle-text="ADD"
+            comment-model="$ctrl.stagedAcmgCode.comment"
+            ng-if="$ctrl.stagedAcmgCode"
+            adjustable="true"
+            editable="true"
+        >
+        </acmg>
+    </section>
+    <article class="id-acmg-selection-popover line-wrapper question centered">
+        <div class="left-basic"></div>
+        <div class="left-basic">
+            <h5 class="slim title"><b>Show: </b></h5>
+        </div>
+        <div class="right-basic">
+            <div class="bttn-set">
+                <label
+                    tabindex="0"
+                    class="bttn id-acmg-category"
+                    ng-model="$ctrl.acmgPopover.selectedCategory"
+                    uib-btn-radio="item"
+                    ng-repeat="item in $ctrl.acmgPopover.categories"
+                    >{{ item }}</label
+                >
+            </div>
+        </div>
+    </article>
+    <section class="acmg-selection">
+        <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Pathogenic'">
+            <div
+                class="acmg clickable"
+                ng-repeat="r in $ctrl.acmgCandidates.pathogenic"
+                ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
+                ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
             >
-        </div>
-    </div>
-</article>
-<section class="acmg-selection">
-    <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Pathogenic'">
-        <div
-            class="acmg clickable"
-            ng-repeat="r in $ctrl.acmgCandidates.pathogenic"
-            ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
-            ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
-        >
-            <section class="acmg-upper">
-                <h4 class="acmg-title">{{ r }}</h4>
-                <p class="right-item">
-                    {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
-                </p>
-            </section>
-        </div>
-    </aside>
+                <section class="acmg-upper">
+                    <h4 class="acmg-title">{{ r }}</h4>
+                    <p class="description">
+                        {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
+                    </p>
+                </section>
+            </div>
+        </aside>
 
-    <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Benign'">
-        <div
-            class="acmg clickable"
-            ng-repeat="r in $ctrl.acmgCandidates.benign"
-            ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
-            ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
-        >
-            <section class="acmg-upper">
-                <h4 class="acmg-title">{{ r }}</h4>
-                <p class="right-item">
-                    {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
-                </p>
-            </section>
-        </div>
-    </aside>
-    <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Other'">
-        <div
-            class="acmg clickable"
-            ng-repeat="r in $ctrl.acmgCandidates.other"
-            ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
-            ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
-        >
-            <section class="acmg-upper">
-                <h4 class="acmg-title">{{ r }}</h4>
-                <p class="right-item">
-                    {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
-                </p>
-            </section>
-        </div>
-    </aside>
-</section>
+        <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Benign'">
+            <div
+                class="acmg clickable"
+                ng-repeat="r in $ctrl.acmgCandidates.benign"
+                ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
+                ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
+            >
+                <section class="acmg-upper">
+                    <h4 class="acmg-title">{{ r }}</h4>
+                    <p class="description">
+                        {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
+                    </p>
+                </section>
+            </div>
+        </aside>
+        <aside ng-if="$ctrl.acmgPopover.selectedCategory === 'Other'">
+            <div
+                class="acmg clickable"
+                ng-repeat="r in $ctrl.acmgCandidates.other"
+                ng-class="$ctrl.acmgPopover.getAcmgClass(r)"
+                ng-click="$ctrl.acmgPopover.stageAcmgCode(r)"
+            >
+                <section class="acmg-upper">
+                    <h4 class="acmg-title">{{ r }}</h4>
+                    <p class="description">
+                        {{ $ctrl.acmgPopover.getExplanationForCode(r).short_criteria }}
+                    </p>
+                </section>
+            </div>
+        </aside>
+    </section>
+</div>

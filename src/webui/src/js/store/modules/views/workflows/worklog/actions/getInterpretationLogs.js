@@ -9,11 +9,7 @@ export default function getInterpretations({ http, path, state }) {
     return http
         .get(`workflows/${type}/${id}/logs/`)
         .then((response) => {
-            const result = {}
-            for (const r of response.result) {
-                result[r.id] = r
-            }
-            return path.success({ result })
+            return path.success({ result: response.result })
         })
         .catch((err) => {
             console.error(err)

@@ -31,27 +31,42 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(7)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAsU()
 
         expect(alleleSectionBox.getReferences().length).toEqual(4)
 
-        // add a reference
-        console.log(`adding references`)
+        // add a reference using XML format
+        console.log(`adding XML reference`)
         alleleSectionBox.addReferencesBtn.click()
         let referenceList = customAnnotationModal.referenceList()
-        const beforeCount = referenceList.length
+        let beforeCount = referenceList.length
         customAnnotationModal.pubMedBtn.click()
-        customAnnotationModal.xmlInputEditor.setValue(XML_PUBMED)
+        customAnnotationModal.rawInputEditor.setValue(XML_PUBMED)
         customAnnotationModal.addReferenceBtn.click()
-        const afterCount = customAnnotationModal.referenceList().length
+        let afterCount = customAnnotationModal.referenceList().length
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
         expect(alleleSectionBox.getReferences().length).toEqual(5)
+
+        // add a reference using RIS format
+        console.log(`adding RIS reference`)
+        alleleSectionBox.addReferencesBtn.click()
+        referenceList = customAnnotationModal.referenceList()
+        beforeCount = referenceList.length
+        customAnnotationModal.pubMedBtn.click()
+        customAnnotationModal.rawInputEditor.setValue(RIS_PUBMED)
+        customAnnotationModal.addReferenceBtn.click()
+        afterCount = customAnnotationModal.referenceList().length
+        expect(afterCount).toEqual(beforeCount + 1)
+        customAnnotationModal.saveBtn.click()
+        customAnnotationModal.waitForClose()
+
+        expect(alleleSectionBox.getReferences().length).toEqual(6)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
         analysisPage.finishButton.click()
@@ -61,12 +76,13 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('shows references added in review', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
-        expect(alleleSectionBox.getReferences().length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(6)
         analysisPage.startButton.click()
-        expect(alleleSectionBox.getReferences().length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(6)
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
@@ -74,10 +90,10 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
     it('shows references for completed interpretation ', function() {
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
-        expect(alleleSectionBox.getReferences().length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(6)
     })
 })
 
@@ -165,4 +181,38 @@ const XML_PUBMED = `
         </ArticleIdList>
     </PubmedData>
 </PubmedArticle>
+`
+
+const RIS_PUBMED = `
+TY  - JOUR
+DB  - PubMed
+AU  - Laera, Luna
+AU  - Punzi, Giuseppe
+AU  - Porcelli, Vito
+AU  - Gambacorta, Nicola
+AU  - Trisolini, Lucia
+AU  - Pierri, Ciro L
+AU  - De Grassi, Anna
+T1  - CRAT missense variants cause abnormal carnitine acetyltransferase function in an early-onset case of Leigh syndrome
+LA  - eng
+SN  - 1098-1004
+Y1  - 2020/01/
+ET  - 2019/09/23
+AB  - Leigh syndrome, or subacute necrotizing encephalomyelopathy, is one of the most severe pediatric disorders of the mitochondrial energy metabolism....
+SP  - 110
+EP  - 114
+VL  - 41
+IS  - 1
+AN  - 31448845
+UR  - https://www.ncbi.nlm.nih.gov/pubmed/31448845
+DO  - 10.1002/humu.23901
+U1  - 31448845[pmid]
+J2  - Hum Mutat
+JF  - Human mutation
+KW  - CRAT
+KW  - Leigh syndrome
+KW  - carnitine acetyltransferase
+KW  - mitochondrial encephalopathy
+CY  - United States
+ER  -
 `

@@ -39,12 +39,12 @@ describe(`ACMG`, function() {
 
     it('suggested codes and REQs are displayed when interpreting', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAs1()
         expectSuggestedFeatureIsShown()
-
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
@@ -54,52 +54,51 @@ describe(`ACMG`, function() {
         beforeAll(function() {
             // classify one variant as 'U'
             loginPage.open()
-            loginPage.selectFirstUser()
+            loginPage.loginAs('testuser1')
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
             alleleSectionBox.classifyAsU()
+            alleleSectionBox.finalize()
             analysisPage.finishButton.click()
             analysisPage.finalizeButton.click()
             analysisPage.modalFinishButton.click()
 
             // select the first we finished, class 1
             loginPage.open()
-            loginPage.selectSecondUser()
+            loginPage.loginAs('testuser2')
             variantSelectionPage.expandFinishedSection()
             variantSelectionPage.selectFinished(2)
             expect(alleleSectionBox.isClass1()).toBe(true)
         })
 
         it('hidden when seeing a finished interpretation', function() {
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsHidden()
         })
 
         it('are shown after opening a finished interpretation', function() {
             // reopen the interpretation
             analysisPage.startButton.click()
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsShown()
         })
 
         it('are shown after starting a finished interpretation', function() {
             // start the interpreation
-            expect(alleleSectionBox.classificationAcceptedToggleBtn).toBeDefined()
-            expect(alleleSectionBox.reusingClassification()).toBe(true)
+            expect(alleleSectionBox.reevaluateBtn.isDisplayed()).toBe(true)
             analysisPage.startButton.click()
-
             expectSuggestedFeatureIsShown()
         })
 
         it('are shown when a reclassification is started', function() {
             // start (re) classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click()
+            alleleSectionBox.reevaluateBtn.click()
 
-            expect(alleleSectionBox.reusingClassification()).toBe(false)
+            expect(alleleSectionBox.undoRevaluationBtn.isDisplayed()).toBe(true)
             expectSuggestedFeatureIsShown()
 
             // let's reuse the existing classification
-            alleleSectionBox.classificationAcceptedToggleBtn.click()
+            alleleSectionBox.undoReevaluation()
 
             expectSuggestedFeatureIsShown()
 

@@ -82,6 +82,7 @@ section.acmg-wrapper {
         margin-left: 2.6rem;
     }
     .left-item {
+        flex-grow: 1;
         display: flex;
         h4 {
             padding-right: 0.7rem;
@@ -92,6 +93,11 @@ section.acmg-wrapper {
             cursor: pointer;
             user-select: none;
         }
+    }
+    .description {
+        color: #333;
+        font-weight: 400;
+        padding-right: 0.7rem;
     }
     .right-item {
         padding-right: 0.7rem;
@@ -673,6 +679,61 @@ analysis-selection {
         }
         .sample-title {
             font-size: 1.5rem;
+        }
+    }
+}
+
+.reference-detail {
+    width: 100%;
+    min-height: 4rem;
+
+    .reference-title-container {
+        display: flex;
+        width: 100%;
+        flex-wrap: nowrap;
+        padding-right: 2rem;
+        font-size: 1.4rem;
+        align-items: flex-start;
+
+        .reference-title {
+            flex-grow: 1;
+            margin-right: 2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reference-desc {
+            padding-right: 2rem;
+            justify-self: flex-start;
+            white-space: nowrap;
+        }
+
+        .reference-controls {
+            justify-self: flex-start;
+            white-space: nowrap;
+        }
+    }
+}
+
+allele-info-references {
+    h3 {
+        margin-top: 1rem;
+    }
+
+    article {
+        margin-left: -1.3rem;
+        margin-right: -1.2rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        padding-left: 1.3rem;
+        padding-right: 1.2rem;
+
+        border: 0;
+        border-bottom: 0.3rem solid #8ca6ba;
+
+        &:last-child {
+            border-bottom: 0;
         }
     }
 }

@@ -90,6 +90,16 @@ function addCommands() {
         }
     })
 
+    browser.addCommand('setWysiwygValue', (editorSelector, editorWysiwygSelector, value) => {
+        // HACK: In Chrome/chromedriver 78 the focus logic of webdriver command 'clear element'
+        // changed, so our wysiwyg editor loses focus. This code splits setValue() into their
+        // individual commands and refocuses the editor in-between.
+        $(editorSelector).click()
+        const elemId = Object.values(browser.findElement('css selector', editorWysiwygSelector))[0]
+        browser.elementClear(elemId)
+        $(editorSelector).click()
+        $(editorWysiwygSelector).addValue(value)
+    })
     browser.addCommand('psql', psql)
     browser.addCommand('getClass', (selector) =>
         $(selector)

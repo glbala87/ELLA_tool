@@ -1,118 +1,57 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function prepareInterpretationPayload(
-    type,
-    id,
-    interpretation,
-    state,
-    alleles,
-    alleleIds,
-    excludedAlleleIds,
-    references
-) {
+export function compareAlleleReport(alleleState, allele) {
+    // Whether allelereport has changed in state compared to original
+    return (
+        alleleState.allelereport &&
+        allele.allele_report &&
+        angular.toJson(alleleState.allelereport.evaluation) ==
+            angular.toJson(allele.allele_report.evaluation)
+    )
+}
+
+export function prepareInterpretationPayload(type, state, alleles, alleleIds, excludedAlleleIds) {
     // Collect info about this interpretation.
-    let annotations = []
-    let custom_annotations = []
-    let alleleassessments = []
-    let referenceassessments = []
-    let allelereports = []
-    let attachments = []
-    let technical_allele_ids = []
-    let notrelevant_allele_ids = []
+    const annotation_ids = []
+    const custom_annotation_ids = []
+    const alleleassessment_ids = []
+    const allelereport_ids = []
+    const technical_allele_ids = []
+    const notrelevant_allele_ids = []
 
-    // collection annotation ids for the alleles:
-    for (let allele_state of Object.values(state.allele)) {
-        if (!allele_state.allele_id) {
-            throw Error('Missing mandatory property allele_id in allele state', allele_state)
+    // Collect presented data for snapshotting
+    // and data needed for verification in backend
+    for (let alleleState of Object.values(state.allele)) {
+        if (!alleleState.allele_id) {
+            throw Error('Missing mandatory property allele_id in allele state', alleleState)
         }
-        if (allele_state.allele_id in alleles) {
-            let allele = alleles[allele_state.allele_id]
-            annotations.push({
-                allele_id: allele.id,
-                annotation_id: allele.annotation.annotation_id
-            })
+        if (alleleState.allele_id in alleles) {
+            let allele = alleles[alleleState.allele_id]
+            annotation_ids.push(allele.annotation.annotation_id)
             if (allele.annotation.custom_annotation_id) {
-                custom_annotations.push({
-                    allele_id: allele.id,
-                    custom_annotation_id: allele.annotation.custom_annotation_id
-                })
+                custom_annotation_ids.push(allele.annotation.custom_annotation_id)
             }
-        }
-    }
-
-    for (let allele_state of Object.values(state.allele)) {
-        // Only include assessments/reports for alleles part of the supplied list.
-        // This is to avoid submitting assessments for alleles that have been
-        // removed from classification during interpretation process.
-
-        if (allele_state.allele_id in alleles) {
-            let allele = alleles[allele_state.allele_id]
-            // Only submit alleleassessment/allelereports/referenceassessments
-            // for alleles that are classified
-            if (
-                allele_state.alleleassessment &&
-                (allele_state.alleleassessment.classification ||
-                    allele_state.alleleassessment.reuse)
-            ) {
-                alleleassessments.push(
-                    _prepareAlleleAssessmentsPayload(
-                        allele,
-                        allele_state,
-                        type === 'analysis' ? id : null,
-                        interpretation.genepanel_name,
-                        interpretation.genepanel_version
-                    )
-                )
-
-                if (!allele_state.alleleassessment.reuse) {
-                    attachments.push({
-                        allele_id: allele_state.allele_id,
-                        attachment_ids: allele_state.alleleassessment.attachment_ids
-                    })
-                }
-
-                // Allele reports are submitted independently of alleleassessments
-                allelereports.push(
-                    _prepareAlleleReportPayload(
-                        allele,
-                        allele_state,
-                        type === 'analysis' ? id : null,
-                        allele.allele_assessment ? allele.allele_assessment.id : null
-                    )
-                )
-
-                // Get reference ids from allele, we only submit referenceassessments
-                // for references that are added (custom annotation or annotation)
-                const alleleReferences = _getAlleleReferences(allele, references)
-                referenceassessments = referenceassessments.concat(
-                    _prepareReferenceAssessmentsPayload(
-                        allele_state,
-                        alleleReferences,
-                        type === 'analysis' ? id : null,
-                        interpretation.genepanel_name,
-                        interpretation.genepanel_version
-                    )
-                )
+            if (allele.allele_assessment) {
+                alleleassessment_ids.push(allele.allele_assessment.id)
             }
-
-            if (allele_state.analysis.verification === 'technical') {
-                technical_allele_ids.push(allele_state.allele_id)
+            if (allele.allele_report) {
+                allelereport_ids.push(allele.allele_report.id)
             }
-
-            if (allele_state.analysis.notrelevant) {
-                notrelevant_allele_ids.push(allele_state.allele_id)
+            if (alleleState.analysis.verification === 'technical') {
+                technical_allele_ids.push(alleleState.allele_id)
+            }
+            if (alleleState.analysis.notrelevant) {
+                notrelevant_allele_ids.push(alleleState.allele_id)
             }
         }
     }
 
     const payload = {
-        annotations,
-        custom_annotations,
-        alleleassessments,
-        referenceassessments,
-        allelereports,
-        attachments,
+        annotation_ids,
+        custom_annotation_ids,
+        alleleassessment_ids,
+        allelereport_ids,
         allele_ids: alleleIds
     }
     if (type === 'analysis') {
@@ -125,51 +64,68 @@ export function prepareInterpretationPayload(
     return payload
 }
 
+export function prepareAlleleFinalizePayload(allele, alleleState, references) {
+    if (
+        !alleleState.alleleassessment ||
+        !(alleleState.alleleassessment.classification || alleleState.alleleassessment.reuse)
+    ) {
+        throw Error('Cannot finalize allele, no valid alleleassessment')
+    }
+
+    const payload = {
+        allele_id: allele.id,
+        annotation_id: allele.annotation.annotation_id,
+        custom_annotation_id: allele.annotation.custom_annotation_id || null
+    }
+
+    payload.alleleassessment = _prepareAlleleAssessmentPayload(allele, alleleState)
+
+    // Allele report is submitted independently of alleleassessment
+    payload.allelereport = _prepareAlleleReportPayload(
+        allele,
+        alleleState,
+        allele.allele_assessment ? allele.allele_assessment.id : null
+    )
+
+    // Get reference ids for allele, we only submit referenceassessments
+    // belonging to this allele
+    const alleleReferences = _getAlleleReferences(allele, references)
+    payload.referenceassessments = _prepareReferenceAssessmentsPayload(
+        alleleState,
+        alleleReferences
+    )
+
+    return payload
+}
+
 function _getAlleleReferences(allele, references) {
     const alleleReferenceIds = getReferencesIdsForAllele(allele)
     return findReferencesFromIds(references, alleleReferenceIds).references
 }
 
-function _prepareAlleleAssessmentsPayload(
-    allele,
-    allelestate,
-    analysis_id = null,
-    genepanel_name = null,
-    genepanel_version = null
-) {
-    let assessment_data = {
+function _prepareAlleleAssessmentPayload(allele, allelestate) {
+    const assessment_data = {
         allele_id: allele.id
-    }
-    if (analysis_id) {
-        assessment_data.analysis_id = analysis_id
-    }
-    if (genepanel_name && genepanel_version) {
-        assessment_data.genepanel_name = genepanel_name
-        assessment_data.genepanel_version = genepanel_version
     }
 
     if (allele.allele_assessment) {
         assessment_data.presented_alleleassessment_id = allele.allele_assessment.id
     }
+
     if (allelestate.alleleassessment.reuse) {
         assessment_data.reuse = true
     } else {
         Object.assign(assessment_data, {
             reuse: false,
             classification: allelestate.alleleassessment.classification,
-            evaluation: allelestate.alleleassessment.evaluation
+            evaluation: allelestate.alleleassessment.evaluation,
+            attachment_ids: allelestate.alleleassessment.attachment_ids
         })
     }
     return assessment_data
 }
 
-function _prepareReferenceAssessmentsPayload(
-    allelestate,
-    references,
-    analysis_id = null,
-    genepanel_name = null,
-    genepanel_version = null
-) {
+function _prepareReferenceAssessmentsPayload(allelestate, references) {
     let referenceassessments_data = []
     if ('referenceassessments' in allelestate) {
         // Iterate over all referenceassessments for this allele
@@ -182,14 +138,6 @@ function _prepareReferenceAssessmentsPayload(
             let ra = {
                 reference_id: referenceState.reference_id,
                 allele_id: referenceState.allele_id
-            }
-
-            if (analysis_id) {
-                ra.analysis_id = analysis_id
-            }
-            if (genepanel_name && genepanel_version) {
-                ra.genepanel_name = genepanel_name
-                ra.genepanel_version = genepanel_version
             }
 
             // If id is included, we're reusing an existing one.
@@ -205,20 +153,9 @@ function _prepareReferenceAssessmentsPayload(
     return referenceassessments_data
 }
 
-function _prepareAlleleReportPayload(
-    allele,
-    allelestate,
-    analysis_id = null,
-    alleleassessment_id = null
-) {
+function _prepareAlleleReportPayload(allele, alleleState) {
     let report_data = {
         allele_id: allele.id
-    }
-    if (analysis_id) {
-        report_data.analysis_id = analysis_id
-    }
-    if (alleleassessment_id) {
-        report_data.alleleassessment_id = alleleassessment_id
     }
 
     if (allele.allele_report) {
@@ -226,18 +163,13 @@ function _prepareAlleleReportPayload(
     }
 
     // possible reuse:
-    if (
-        allelestate.allelereport &&
-        allele.allele_report &&
-        angular.toJson(allelestate.allelereport.evaluation) ==
-            angular.toJson(allele.allele_report.evaluation)
-    ) {
+    if (compareAlleleReport(alleleState, allele)) {
         report_data.reuse = true
     } else {
         report_data.reuse = false
-        // Fill in fields expected by backend
+
         Object.assign(report_data, {
-            evaluation: allelestate.allelereport.evaluation
+            evaluation: alleleState.allelereport.evaluation
         })
     }
     return report_data

@@ -20,8 +20,10 @@ from collections import OrderedDict, defaultdict
 
 import jsonschema
 from sqlalchemy import tuple_
-from api.util import queries
+from api.config import config
+from datalayer import queries
 from vardb.util import DB, vcfiterator
+from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (
     AnalysisImporter,
     AnnotationImporter,
@@ -91,6 +93,8 @@ def import_filterconfigs(session, fc_configs):
             else:
                 result["created"] += 1
 
+            # Check that filterconfig is supported by available annotationshadowfrequency columns
+            annotationshadow.check_filterconfig(filterconfig, config)
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)
             session.flush()
@@ -411,7 +415,7 @@ class DepositAnalysis(DepositFromVCF):
             "analyses": [
                 {
                     "pattern": "^.*",
-                    "postprocess": ["analysis_not_ready_findings"]
+                    "postprocess": ["analysis_not_ready_warnings"]
                 },
                 {
                     "pattern": "^SomePattern.*",
@@ -429,12 +433,12 @@ class DepositAnalysis(DepositFromVCF):
             )
 
             for method in deposit_usergroup_config["postprocess"]:
-                if method == "analysis_not_ready_findings":
+                if method == "analysis_not_ready_warnings":
                     from .postprocessors import (
-                        analysis_not_ready_findings,
+                        analysis_not_ready_warnings,
                     )  # FIXME: Has circular import, so must import here...
 
-                    analysis_not_ready_findings(
+                    analysis_not_ready_warnings(
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
 
@@ -456,7 +460,7 @@ class DepositAnalysis(DepositFromVCF):
             "analysis": [
                 {
                     "pattern": "^.*",
-                    "postprocess": ["analysis_not_ready_findings"],
+                    "postprocess": ["analysis_not_ready_warnings"],
                     "prefilter": True
                 },
                 {
@@ -592,6 +596,5 @@ class DepositAnalysis(DepositFromVCF):
                 db_analysis_interpretation,
             )
 
-        log.info("All done, committing")
-        self.session.commit()
+        log.info("All done!")
         return db_analysis

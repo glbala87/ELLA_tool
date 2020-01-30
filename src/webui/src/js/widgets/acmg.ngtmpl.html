@@ -13,13 +13,10 @@
                 <div class="acmg-title-wrapper">
                     <h4
                         class="acmg-title clickable"
-                        uib-popover-template="vm.popover.templateUrl"
-                        popover-append-to-body="true"
-                        popover-title="{{
+                        tippy-popover="{{ vm.popover.templateUrl }}"
+                        tippy-popover-title="{{
                             vm.formatCode(vm.getCodeForDisplay().code) | noUnderscores
                         }}"
-                        popover-trigger="outsideClick"
-                        popover-placement="{{ vm.popoverPlacement }}"
                     >
                         {{ vm.formatCode(vm.getCodeForDisplay().code) | dropREQ | noUnderscores }}
                     </h4>
@@ -33,6 +30,7 @@
                     +
                 </h4>
             </div>
+            <h4 class="description">{{ vm.getShortCriteria() }}</h4>
             <h4 class="right-item" ng-if="vm.isMoreThanOne()">{{ vm.code.length }}x</h4>
             <button
                 class="right-item transparent"

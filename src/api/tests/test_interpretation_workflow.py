@@ -35,12 +35,14 @@ ALLELE_USERNAMES = ["testuser4", "testuser1", "testuser2"]
 
 @pytest.fixture(scope="module")
 def analysis_wh():
-    return WorkflowHelper("analysis", ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
+    return WorkflowHelper(
+        "analysis", ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+    )
 
 
 @pytest.fixture(scope="module")
 def allele_wh():
-    return WorkflowHelper("allele", ALLELE_ID, genepanel=("HBOCUTV", "v01"))
+    return WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v01")
 
 
 def update_user_config(session, username, user_config):
@@ -153,6 +155,7 @@ class TestOther(object):
 
         # Create dummy alleleassessment
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="1",
             evaluation={},
@@ -171,38 +174,32 @@ class TestOther(object):
         alleles = r.get_json()
 
         # Reuse alleleassessment
-        alleleassessments = [{"allele_id": 1, "reuse": True, "presented_alleleassessment_id": 1}]
+        alleleassessment = {"allele_id": 1, "reuse": True, "presented_alleleassessment_id": 1}
+        allelereport = {"allele_id": 1, "reuse": False, "evaluation": {"comment": "asdasd"}}
         # Create new referenceassessment
         referenceassessments = [
             {
                 "reference_id": 1,
                 "allele_id": 1,
-                "evaluation": {"some": "data"},
+                "evaluation": {"comment": "Something"},
                 "genepanel_name": "HBOC",
                 "genepanel_version": "v01",
             }
         ]
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
 
-        r = ih.finalize(
+        r = ih.finalize_allele(
             "allele",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
+            1,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
             referenceassessments,
-            allelereports,
-            attachments,
             "testuser1",
         )
         assert (
-            "Trying to create referenceassessment for allele, while not also creating alleleassessment"
+            "Trying to create referenceassessments for allele, while not also creating alleleassessment"
             in str(r.get_json()["message"])
         )
         assert r.status_code == 500
@@ -217,6 +214,7 @@ class TestOther(object):
 
         # Create dummy referenceassessment
         ra = assessment.ReferenceAssessment(
+            user_id=1,
             allele_id=1,
             reference_id=1,
             evaluation={},
@@ -229,6 +227,7 @@ class TestOther(object):
 
         # Will get id = 2
         ra = assessment.ReferenceAssessment(
+            user_id=1,
             allele_id=1,
             reference_id=1,
             evaluation={},
@@ -248,38 +247,27 @@ class TestOther(object):
         assert r.status_code == 200
         alleles = r.get_json()
 
-        # Reuse alleleassessment
-        alleleassessments = [
-            {
-                "allele_id": 1,
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-        ]
-        # Create new referenceassessment
-        referenceassessments = [{"id": 1, "reference_id": 1, "allele_id": 1}]  # outdated
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        # Create alleleassessment
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
+        # Create allelereport
+        allelereport = ih.allele_report_template(1)
 
-        r = ih.finalize(
+        # Reusing old referenceassessment
+        referenceassessments = [{"id": 1, "reference_id": 1, "allele_id": 1}]  # outdated
+
+        r = ih.finalize_allele(
             "allele",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
+            1,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
             referenceassessments,
-            allelereports,
-            attachments,
             "testuser1",
         )
         assert "Found no matching referenceassessment" in r.get_json()["message"]
+        assert r.status_code == 500
 
     @pytest.mark.ai(order=2)
     def test_reusing_superceded_alleleassessment(self, test_database, session):
@@ -291,6 +279,7 @@ class TestOther(object):
 
         # Create dummy alleleassessment
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="1",
             evaluation={},
@@ -303,6 +292,7 @@ class TestOther(object):
 
         # Will get id = 2
         aa = assessment.AlleleAssessment(
+            user_id=1,
             allele_id=1,
             classification="2",
             evaluation={},
@@ -321,32 +311,27 @@ class TestOther(object):
         assert r.status_code == 200
         alleles = r.get_json()
 
-        # Reuse alleleassessment
-        alleleassessments = [
-            {"allele_id": 1, "reuse": True, "presented_alleleassessment_id": 1}
-        ]  # Outdated
-
+        # Reuse outdated alleleassessment
+        alleleassessment = {"allele_id": 1, "reuse": True, "presented_alleleassessment_id": 1}
+        allelereport = ih.allele_report_template(1)
         referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
 
-        r = ih.finalize(
+        r = ih.finalize_allele(
             "allele",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
+            1,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
             referenceassessments,
-            allelereports,
-            attachments,
             "testuser1",
         )
-        assert "Found no matching alleleassessment" in r.get_json()["message"]
+        assert (
+            "'presented_alleleassessment_id': 1 does not match latest existing alleleassessment id: 2"
+            == r.get_json()["message"]
+        )
+        assert r.status_code == 500
 
 
 class TestFinalizationRequirements:
@@ -376,37 +361,45 @@ class TestFinalizationRequirements:
         assert r.status_code == 200
         alleles = r.get_json()
 
-        # Reuse alleleassessment
-        alleleassessments = [
-            {
-                "allele_id": 1,
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-        ]
+        # Create alleleassessment
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
         referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        allelereport = ih.allele_report_template(1)
 
+        # Check finalize allele
+        r = ih.finalize_allele(
+            "allele",
+            1,
+            1,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
+            referenceassessments,
+            "testuser1",
+        )
+        assert r.status_code == 500
+        assert (
+            "Cannot finalize: Interpretation's workflow status is in one of required ones"
+            in r.get_json()["message"]
+        )
+
+        # Check finalize workflow
         r = ih.finalize(
             "allele",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            [1],
+            [a["annotation"]["annotation_id"] for a in alleles],
+            [
+                a["annotation"]["custom_annotation_id"]
+                for a in alleles
+                if "custom_annotation_id" in a["annotation"]
+            ],
+            [],
+            [],
             "testuser1",
-            allele_ids=[1],
         )
+
         assert r.status_code == 500
         assert (
             "Cannot finalize: Interpretation's workflow status is in one of required ones"
@@ -418,10 +411,15 @@ class TestFinalizationRequirements:
             "allele",
             1,
             {
-                "annotations": annotations,
-                "custom_annotations": custom_annotations,
-                "alleleassessments": alleleassessments,
-                "allelereports": allelereports,
+                "allele_ids": [1],
+                "annotation_ids": [a["annotation"]["annotation_id"] for a in alleles],
+                "custom_annotation_ids": [
+                    a["annotation"]["custom_annotation_id"]
+                    for a in alleles
+                    if "custom_annotation_id" in a["annotation"]
+                ],
+                "alleleassessment_ids": [],
+                "allelereport_ids": [],
             },
             "testuser1",
         )
@@ -431,17 +429,34 @@ class TestFinalizationRequirements:
             "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
+        r = ih.finalize_allele(
+            "allele",
+            1,
+            1,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
+            referenceassessments,
+            "testuser1",
+        )
+        assert r.status_code == 200
+
+        alleleassessment_id = r.get_json()["alleleassessment"]["id"]
+
         r = ih.finalize(
             "allele",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            [1],
+            [a["annotation"]["annotation_id"] for a in alleles],
+            [
+                a["annotation"]["custom_annotation_id"]
+                for a in alleles
+                if "custom_annotation_id" in a["annotation"]
+            ],
+            [alleleassessment_id],
+            [],
             "testuser1",
-            allele_ids=[1],
         )
         assert r.status_code == 200
 
@@ -473,54 +488,38 @@ class TestFinalizationRequirements:
         assert r.status_code == 200
         alleles = r.get_json()
 
-        # Reuse alleleassessment
-        alleleassessments = [
-            {
-                "allele_id": a["id"],
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-            for a in alleles
-        ]
+        # Try finalizing a single allele
+        allele_id = alleles[0]["id"]
+        alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v01")
         referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        allelereport = ih.allele_report_template(allele_id)
 
-        r = ih.finalize(
+        r = ih.finalize_allele(
             "analysis",
-            1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
+            allele_id,
+            allele_id,
+            alleles[0]["annotation"]["annotation_id"],
+            alleles[0]["annotation"]["custom_annotation_id"],
+            alleleassessment,
+            allelereport,
             referenceassessments,
-            allelereports,
-            attachments,
             "testuser1",
-            allele_ids=filtered_allele_ids["allele_ids"],
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
         )
+        assert r.status_code == 500
         assert (
             "Cannot finalize: Interpretation's workflow status is in one of required ones"
             in r.get_json()["message"]
         )
 
-        # Send to review, and try again
+        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
+        allele_ids = [a["id"] for a in alleles]
+        # Send to medical review, and try again
         ih.mark_medicalreview(
             "analysis",
             1,
             ih.round_template(
-                annotations=annotations,
-                custom_annotations=custom_annotations,
-                alleleassessments=alleleassessments,
-                allelereports=allelereports,
-                allele_ids=filtered_allele_ids["allele_ids"],
+                allele_ids=allele_ids,
+                annotation_ids=annotation_ids,
                 excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             ),
             "testuser1",
@@ -530,19 +529,42 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
+        # Finalize allele
+        alleleassessment_ids = []
+        allelereport_ids = []
+        for allele in alleles:
+            alleleassessment = ih.allele_assessment_template(allele["id"], "HBOC", "v01")
+            allelereport = ih.allele_report_template(allele["id"])
+            referenceassessments = []
+            r = ih.finalize_allele(
+                "analysis",
+                1,
+                allele["id"],
+                allele["annotation"]["annotation_id"],
+                1 if allele["id"] == 1 else None,
+                alleleassessment,
+                allelereport,
+                referenceassessments,
+                "testuser1",
+            )
+            assert r.status_code == 200
+            response = r.get_json()
+            alleleassessment_ids.append(response["alleleassessment"]["id"])
+            allelereport_ids.append(response["allelereport"]["id"])
+
+        # Finalize workflow
         ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            [],
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_allele_ids["allele_ids"],
             excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
         )
+        assert r.status_code == 200
 
     @pytest.mark.ai(order=2)
     def test_allow_technical(self, test_database, session):
@@ -578,48 +600,48 @@ class TestFinalizationRequirements:
         assert r.status_code == 200
         alleles = r.get_json()
 
-        alleleassessments = [
-            {
-                "allele_id": a["id"],
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-            for a in alleles
-        ]
+        alleleassessment_ids = []
+        # Create assessment for all except first allele
+        for al in alleles[1:]:
+            aa = assessment.AlleleAssessment(
+                user_id=1,
+                allele_id=al["id"],
+                classification="1",
+                evaluation={},
+                genepanel_name="HBOC",
+                genepanel_version="v01",
+            )
+            session.add(aa)
+            session.commit()
+            alleleassessment_ids.append(aa.id)
 
         # Make one variant unclassified, but reported as technical
+        allele_ids = [a["id"] for a in alleles]
         notrelevant_allele_ids = []
-        technical_allele_ids = [alleleassessments[0]["allele_id"]]
-        alleleassessments = alleleassessments[1:]
-        referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        technical_allele_ids = [alleles[0]["id"]]
+        allelereport_ids = []
+        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
+        custom_annotation_ids = []
 
         # allow_technical is False, so it should fail
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_allele_ids["allele_ids"],
             excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_technical is set to false, but some allele ids are marked technical"
+        )
 
         # Allow technical and try again
         user_config = {
@@ -638,14 +660,12 @@ class TestFinalizationRequirements:
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_allele_ids["allele_ids"],
             excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
@@ -678,57 +698,56 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        filtered_alleles = ih.get_filtered_alleles(
+        filtered_allele_ids = ih.get_filtered_alleles(
             "analysis", 1, interpretation["id"], filterconfig_id=1
         ).get_json()
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_alleles["allele_ids"])
-
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
         assert r.status_code == 200
         alleles = r.get_json()
 
-        alleleassessments = [
-            {
-                "allele_id": a["id"],
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-            for a in alleles
-        ]
+        alleleassessment_ids = []
+        # Create assessment for all except first allele
+        for al in alleles[1:]:
+            aa = assessment.AlleleAssessment(
+                user_id=1,
+                allele_id=al["id"],
+                classification="1",
+                evaluation={},
+                genepanel_name="HBOC",
+                genepanel_version="v01",
+            )
+            session.add(aa)
+            session.commit()
+            alleleassessment_ids.append(aa.id)
 
         # Make one variant unclassified, but reported as not relevant
-        notrelevant_allele_ids = [alleleassessments[0]["allele_id"]]
+        allele_ids = [a["id"] for a in alleles]
+        notrelevant_allele_ids = [alleles[0]["id"]]
         technical_allele_ids = []
-        alleleassessments = alleleassessments[1:]
-        referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        allelereport_ids = []
+        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
+        custom_annotation_ids = []
 
         # allow_notrelevant is False, so it should fail
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_alleles["allele_ids"],
-            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_notrelevant is set to false, but some allele ids are marked not relevant"
+        )
 
         # Allow notrelevant and try again
         user_config = {
@@ -747,15 +766,13 @@ class TestFinalizationRequirements:
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_alleles["allele_ids"],
-            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -787,60 +804,58 @@ class TestFinalizationRequirements:
             "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
         )
 
-        filtered_alleles = ih.get_filtered_alleles(
+        filtered_allele_ids = ih.get_filtered_alleles(
             "analysis", 1, interpretation["id"], filterconfig_id=1
         ).get_json()
 
-        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_alleles["allele_ids"])
-
+        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
         assert r.status_code == 200
         alleles = r.get_json()
 
-        alleleassessments = [
-            {
-                "allele_id": a["id"],
-                "classification": "1",
-                "evaluation": {},
-                "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
-            }
-            for a in alleles
-        ]
+        alleleassessment_ids = []
+        # Create assessment for all except first allele
+        for al in alleles[1:]:
+            aa = assessment.AlleleAssessment(
+                user_id=1,
+                allele_id=al["id"],
+                classification="1",
+                evaluation={},
+                genepanel_name="HBOC",
+                genepanel_version="v01",
+            )
+            session.add(aa)
+            session.commit()
+            alleleassessment_ids.append(aa.id)
 
-        # Make two variants unclassified, one reported as technical and one not relevant
-        notrelevant_allele_ids = [alleleassessments[0]["allele_id"]]
-        technical_allele_ids = [alleleassessments[1]["allele_id"]]
-        alleleassessments = alleleassessments[2:]
-        referenceassessments = []
-        attachments = []
-        allelereports = []
-        annotations = [
-            {"allele_id": a["id"], "annotation_id": a["annotation"]["annotation_id"]}
-            for a in alleles
-        ]
-        custom_annotations = []
+        # Make one variant unclassified
+        allele_ids = [a["id"] for a in alleles]
+        notrelevant_allele_ids = []
+        technical_allele_ids = []
+        allelereport_ids = []
+        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
+        custom_annotation_ids = []
 
         # allow_unclassified is False, so it should fail
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_alleles["allele_ids"],
-            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
         assert r.status_code == 500
-        assert "Missing alleleassessments for allele ids 1,2" in r.get_json()["message"]
+        assert (
+            r.get_json()["message"]
+            == "allow_unclassified is set to false, but some allele ids are missing classification"
+        )
 
         # Allow unclassified and try again
-        # (allow_unclassified implies allow_technical and allow_notrelevant)
         user_config = {
             "workflows": {
                 "analysis": {
@@ -857,15 +872,13 @@ class TestFinalizationRequirements:
         r = ih.finalize(
             "analysis",
             1,
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+            allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             "testuser1",
-            allele_ids=filtered_alleles["allele_ids"],
-            excluded_allele_ids=filtered_alleles["excluded_allele_ids"],
+            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )

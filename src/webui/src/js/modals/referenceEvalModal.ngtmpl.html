@@ -38,14 +38,7 @@
 
     <contentwrapper>
         <p ng-if="vm.reference.abstract">
-            <a
-                class="clickable"
-                popover-title="Abstract"
-                popover-trigger="outsideClick"
-                uib-popover-template="'abstractPopover.ngtmpl.html'"
-                popover-placement="bottom-left"
-                popover-append-to-body="true"
-                class="faded-title"
+            <a class="clickable" tippy-popover="abstractPopover.ngtmpl.html" class="faded-title"
                 >Abstract</a
             >
         </p>
@@ -64,11 +57,9 @@
         <article class="line-wrapper question medium id-relevance">
             <div
                 class="left"
-                popover-title="Help"
-                popover-trigger="mouseenter"
-                uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
-                popover-placement="bottom-right"
-                popover-append-to-body="true"
+                tippy-trigger="mouseenter"
+                tippy-popover="referenceEvalHelpTextPopover.ngtmpl.html"
+                tippy-placement="right"
                 ng-repeat="source in ['relevance']"
                 class="faded-title"
             >
@@ -100,11 +91,9 @@
         >
             <div
                 class="left"
-                popover-title="Help"
-                popover-trigger="mouseenter"
-                uib-popover-template="'referenceEvalHelpTextPopover.ngtmpl.html'"
-                popover-placement="bottom-right"
-                popover-append-to-body="true"
+                tippy-trigger="mouseenter"
+                tippy-popover="referenceEvalHelpTextPopover.ngtmpl.html"
+                tippy-placement="right"
                 class="faded-title"
             >
                 <h5 class="slim title">

@@ -3,8 +3,9 @@
         {{ vm.getClassName() }} <span class="outdated" ng-if="vm.isOutdated()"> (Outdated)</span>
     </h2>
     <h5>
-        made by {{ vm.alleleassessment.user.full_name }} on
-        {{ vm.alleleassessment.date_created | date: 'yyyy-MM-dd' }} for
+        made by {{ vm.alleleassessment.user.user_group_name }} ({{
+            vm.alleleassessment.user.full_name
+        }}) on {{ vm.alleleassessment.date_created | date: 'yyyy-MM-dd' }} for
         {{ vm.alleleassessment.genepanel_name }}_{{ vm.alleleassessment.genepanel_version }}
     </h5>
     <h5 ng-if="vm.allelereport">

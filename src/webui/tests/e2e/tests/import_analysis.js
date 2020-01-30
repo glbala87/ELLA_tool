@@ -15,7 +15,7 @@ describe('Import functionality', function() {
     })
     it('import analysis from sample repository on custom gene panel', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
 
         importPage.open()
         importPage.selectImportSource('sample')

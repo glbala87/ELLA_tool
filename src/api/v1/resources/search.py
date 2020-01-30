@@ -15,8 +15,8 @@ from vardb.datamodel import (
 from api import schemas, ApiError
 
 from api.v1.resource import LogRequestResource
-from api.util.alleledataloader import AlleleDataLoader
-from api.util.queries import annotation_transcripts_genepanel
+from datalayer import AlleleDataLoader
+from datalayer.queries import annotation_transcripts_genepanel
 from api.util.util import authenticate
 
 from api.config import config

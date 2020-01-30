@@ -1,11 +1,5 @@
 <article class="attachment">
-    <div
-        uib-popover-template="$ctrl.getPopoverTemplate()"
-        popover-append-to-body="true"
-        popover-title="Attachment"
-        popover-trigger="outsideClick"
-        popover-placement="auto"
-    >
+    <div tippy-popover="{{ $ctrl.getPopoverTemplate() }}" tippy-popover-title="Attachment">
         <img
             class="attachmentthumbnail"
             ng-if="$ctrl.attachment.thumbnail !== null"
@@ -35,7 +29,7 @@
             </svg>
         </div>
     </div>
-    <section class="attachmentcontrollers" title="{{ $ctrl.attachment.filename }}">
+    <section class="attachmentcontrollers" tippy-title="{{ $ctrl.attachment.filename }}">
         <div class="downloadattachment">
             <a
                 href="/api/v1/attachments/{{ $ctrl.attachment.id }}"

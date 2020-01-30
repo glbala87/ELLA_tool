@@ -40,19 +40,23 @@ User example:
 
 See also `/src/vardb/testdata/users.json`
 
+::: warning NOTE
+For simplicity, `password` and `password_expiry` are provided in the testdata version of `users.json`. However, this should _not_ be done in production, as this may have undesired side effects. Instead, use the procedure [above](#users-and-passwords).
+:::
+
+
 ## User configuration
 
-Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/src/api/config/config.py` for examples. 
+Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/example_config.yml` for examples. 
 
-- File: `/src/api/config/config.py`
-- Key: `config.user`
-
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `user`
 
 ### Authentication: Passwords
 
 Requirements for valid password.
 
-- Key: `config.user.auth`
+- Key: `user.auth`
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
@@ -60,14 +64,14 @@ Subkey	|	Explanation |   Values
 `password_minimum_length`   |   Minimum length of valid password. |   [integer]
 `password_match_groups`   |   Character types in valid password. |   [regex]
 `password_match_groups_descr`   |   Descriptions for character types. |   [free text]
-`password_num_match_groups`   |   Number of characted types required for valid password.  |   [integer]
+`password_num_match_groups`   |   Number of character types required for valid password.  |   [integer]
 
 
 ### User interface, workflow and ACMG
 
 Settings related to user interface, workflow and ACMG rules. 
 
-- Key: `config.user.user_config`
+- Key: `user.user_config`
 
 See: 
 - [Overview](/technical/uioptions.html#overview-and-info-page) (subkey: `overview`)

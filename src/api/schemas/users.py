@@ -4,10 +4,20 @@ from api.schemas.genepanels import GenepanelSchema
 
 class UserSchema(Schema):
     class Meta:
-        fields = ("id", "username", "first_name", "last_name", "full_name", "abbrev_name", "active")
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "full_name",
+            "abbrev_name",
+            "active",
+            "user_group_name",
+        )
 
     full_name = fields.Method("get_full_name")
     abbrev_name = fields.Method("get_abbreviated_name")
+    user_group_name = fields.Method("get_user_group")
 
     def get_full_name(self, obj):
         return " ".join([obj.first_name, obj.last_name])
@@ -18,6 +28,9 @@ class UserSchema(Schema):
             + " "
             + obj.last_name.split()[-1]
         )
+
+    def get_user_group(self, obj):
+        return obj.group.name
 
 
 class UserGroupSchema(Schema):

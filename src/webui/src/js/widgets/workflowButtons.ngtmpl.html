@@ -1,5 +1,6 @@
 <button
     class="id-finish-analysis"
+    ng-disabled="!$ctrl.workflowLoaded"
     ng-if="$ctrl.showFinishBtn()"
     ng-click="$ctrl.showFinishConfirmationClicked()"
 >
@@ -7,6 +8,7 @@
 </button>
 <button
     class="id-start-analysis"
+    ng-disabled="!$ctrl.workflowLoaded"
     ng-if="$ctrl.showStartBtn()"
     ng-class="$ctrl.getStartBtnClass()"
     ng-click="$ctrl.startClickedWrapper()"

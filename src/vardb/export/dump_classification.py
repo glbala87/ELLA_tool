@@ -14,7 +14,7 @@ from openpyxl import Workbook
 from bs4 import BeautifulSoup
 
 from vardb.datamodel import DB, assessment, allele, sample, genotype
-from api.util import alleledataloader
+from datalayer import AlleleDataLoader
 
 KEY_ANALYSES = "analyses"
 
@@ -262,7 +262,7 @@ def dump_alleleassessments(session, filename, with_analysis_names):
         .filter(assessment.AlleleAssessment.date_superceeded.is_(None))
     )
 
-    adl = alleledataloader.AlleleDataLoader(session)
+    adl = AlleleDataLoader(session)
 
     # Write only: Constant memory usage
     workbook = Workbook(write_only=True)

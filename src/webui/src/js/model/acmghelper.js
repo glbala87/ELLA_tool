@@ -7,6 +7,9 @@ export class ACMGHelper {
      * @param {String} codeStr
      */
     static getCodeBase(codeStr) {
+        if (codeStr.startsWith('REQ')) {
+            return codeStr
+        }
         const codeParts = codeStr.split('x')
         if (codeParts.length > 2) {
             throw Error(`Too many 'x' present in ${codeStr}`)

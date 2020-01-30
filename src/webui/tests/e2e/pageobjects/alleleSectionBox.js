@@ -24,8 +24,6 @@ const SELECTOR_FREQ_GNOMAD_GENOMES = `allele-sectionbox contentbox[title="GNOMAD
 
 const SELECTOR_EXISTING_CLASSIFICATION =
     'allele-sectionbox contentbox.vardb .id-classification-name'
-const SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION = 'allele-sectionbox .id-accept-classification'
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 
 class AlleleSectionBox {
     get exacElement() {
@@ -62,8 +60,12 @@ class AlleleSectionBox {
     }
 
     setClassificationComment(text) {
-        this.classificationCommentElement.click()
-        $(SELECTOR_COMMENT_CLASSIFICATION_EDITOR).setValue(text)
+        util.elementIntoView(SELECTOR_COMMENT_CLASSIFICATION)
+        browser.setWysiwygValue(
+            SELECTOR_COMMENT_CLASSIFICATION,
+            SELECTOR_COMMENT_CLASSIFICATION_EDITOR,
+            text
+        )
     }
 
     get frequencyCommentElement() {
@@ -74,8 +76,8 @@ class AlleleSectionBox {
     }
 
     setFrequencyComment(text) {
-        this.frequencyCommentElement.click()
-        $(SELECTOR_COMMENT_FREQUENCY_EDITOR).setValue(text)
+        util.elementIntoView(SELECTOR_COMMENT_FREQUENCY)
+        browser.setWysiwygValue(SELECTOR_COMMENT_FREQUENCY, SELECTOR_COMMENT_FREQUENCY_EDITOR, text)
     }
 
     get externalCommentElement() {
@@ -86,8 +88,8 @@ class AlleleSectionBox {
     }
 
     setExternalComment(text) {
-        this.externalCommentElement.click()
-        $(SELECTOR_COMMENT_EXTERNAL_EDITOR).setValue(text)
+        util.elementIntoView(SELECTOR_COMMENT_EXTERNAL)
+        browser.setWysiwygValue(SELECTOR_COMMENT_EXTERNAL, SELECTOR_COMMENT_EXTERNAL_EDITOR, text)
     }
 
     get predictionCommentElement() {
@@ -98,8 +100,12 @@ class AlleleSectionBox {
     }
 
     setPredictionComment(text) {
-        this.predictionCommentElement.click()
-        $(SELECTOR_COMMENT_PREDICTION_EDITOR).setValue(text)
+        util.elementIntoView(SELECTOR_COMMENT_PREDICTION)
+        browser.setWysiwygValue(
+            SELECTOR_COMMENT_PREDICTION,
+            SELECTOR_COMMENT_PREDICTION_EDITOR,
+            text
+        )
     }
 
     get reportCommentElement() {
@@ -113,8 +119,8 @@ class AlleleSectionBox {
     }
 
     setReportComment(text) {
-        this.reportCommentElement.click()
-        $(SELECTOR_COMMENT_REPORT_EDITOR).setValue(text)
+        util.elementIntoView(SELECTOR_COMMENT_REPORT)
+        browser.setWysiwygValue(SELECTOR_COMMENT_REPORT, SELECTOR_COMMENT_REPORT_EDITOR, text)
     }
 
     get classSelection() {
@@ -132,22 +138,32 @@ class AlleleSectionBox {
     get addReferencesBtn() {
         return util.elementIntoView('allele-sectionbox button.id-add-references')
     }
-    get classificationAcceptedBtn() {
-        return util.elementIntoView('allele-sectionbox .id-accept-classification checked')
+    get reevaluateBtn() {
+        return util.elementIntoView('allele-sectionbox .id-reevaluate')
     }
-    get classificationAcceptedToggleBtn() {
-        return util.elementOrNull(SELECTOR_TOGGLE_ACCEPTED_CLASSIFICATION)
-    }
-
-    get existingClassificationButtonText() {
-        return this.classificationAcceptedToggleBtn.getText()
+    get undoRevaluationBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-reevaluate > button:first-of-type')
     }
 
-    reusingClassification() {
-        return (
-            this.existingClassificationButtonText.toLowerCase() ===
-            BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase()
-        )
+    get undoRevaluationConfirmBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-reevaluate > button:nth-of-type(2)')
+    }
+
+    get finalizeBtn() {
+        return util.elementIntoView('allele-sectionbox .id-finalize-button')
+    }
+
+    get alleleWarningText() {
+        return util.element('.allele-warning .sb-body').getText()
+    }
+
+    undoReevaluation() {
+        this.undoRevaluationBtn.click()
+        this.undoRevaluationConfirmBtn.click()
+    }
+
+    finalize() {
+        this.finalizeBtn.click()
     }
 
     _setClassification(index) {

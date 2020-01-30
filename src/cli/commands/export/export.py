@@ -5,7 +5,7 @@ import datetime
 
 from vardb.datamodel import DB, user, sample
 from vardb.export import export_sanger_variants, dump_classification
-from api.util import queries
+from datalayer import queries
 
 from cli.decorators import cli_logger, session
 

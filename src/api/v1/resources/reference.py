@@ -60,7 +60,7 @@ class ReferenceListResource(LogRequestResource):
             )
 
     @authenticate()
-    @request_json([], allowed=["xml", "manual"])
+    @request_json([], allowed=["raw", "manual"])
     def post(self, session, data=None, user=None):
         """
         Creates a new Reference from the input [Pubmed](http://www.ncbi.nlm.nih.gov/pubmed) XML.
@@ -92,10 +92,10 @@ class ReferenceListResource(LogRequestResource):
               $ref: '#/definitions/Reference'
             description: Created reference
         """
-        assert "xml" in data or "manual" in data
-        assert not ("xml" in data and "manual" in data)
-        if "xml" in data:
-            ref_data = PubMedParser().from_xml_string(data["xml"])
+        assert "raw" in data or "manual" in data
+        assert not ("raw" in data and "manual" in data)
+        if "raw" in data:
+            ref_data = PubMedParser().parse(data["raw"])
 
             reference = (
                 session.query(assessment.Reference)

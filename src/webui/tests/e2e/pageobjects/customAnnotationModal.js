@@ -19,11 +19,11 @@ class CustomAnnotationModal extends Page {
     get addReferenceBtn() {
         return $('.id-custom-annotation-modal .id-add-reference-button')
     }
-    get xmlInput() {
-        return $('.id-custom-annotation-modal .id-reference-xml')
+    get rawInput() {
+        return $('.id-custom-annotation-modal .id-reference-raw')
     }
-    get xmlInputEditor() {
-        return $('.id-custom-annotation-modal .id-reference-xml textarea')
+    get rawInputEditor() {
+        return $('.id-custom-annotation-modal .id-reference-raw textarea')
     }
 
     /**

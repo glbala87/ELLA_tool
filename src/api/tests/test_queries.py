@@ -1,5 +1,5 @@
 from sqlalchemy import tuple_
-from api.util import queries
+from datalayer import queries
 from vardb.datamodel import gene, allele, annotation
 
 

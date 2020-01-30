@@ -2,11 +2,9 @@
     <a
         class="list-item"
         ng-repeat="job in $ctrl.jobs"
-        popover-title="Import information"
-        uib-popover-template="'annotationjobPopover.ngtmpl.html'"
-        popover-placement="auto top"
-        popover-append-to-body="true"
-        popover-trigger="outsideClick"
+        tippy-popover-title="Import information"
+        tippy-popover="annotationjobPopover.ngtmpl.html"
+        tippy-placemant="top-start"
     >
         <div class="job-date">
             {{ job.date_submitted | date: 'yyyy-MM-dd HH:mm' }}

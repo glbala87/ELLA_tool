@@ -1,5 +1,5 @@
 <sectionbox
-    color="green"
+    color="blue"
     class="id-variants-your"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'yourVariants')"
     collapsed="$ctrl.state.yourVariants.collapsed"
@@ -17,6 +17,8 @@
         </h4>
     </contentwrapper>
 </sectionbox>
+
+<div class="spacer2"></div>
 
 <sectionbox
     color="green"
@@ -60,7 +62,7 @@
     </contentwrapper>
 </sectionbox>
 
-<div class="spacer"></div>
+<div class="spacer2"></div>
 
 <sectionbox
     color="blue"
@@ -89,7 +91,7 @@
     collapsed="$ctrl.state.finished.collapsed"
 >
     <maintitle>
-        FINALISED
+        FINALIZED
     </maintitle>
     <subtitle>
         {{ $ctrl.finalized.pagination.totalCount }}
@@ -113,7 +115,7 @@
             store-path="'views.overview.data.allelesFinalized.entries'"
         ></allele-list>
         <h4 class="sb-notification dim" ng-if="!$ctrl.finalized.entries.length">
-            No finalised variants
+            No finalized variants
         </h4>
     </contentwrapper>
 </sectionbox>

@@ -1,0 +1,502 @@
+{
+    "definitions": {
+        "sidebar": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["columns", "classification_options", "shade_multiple_in_gene"],
+            "optional": ["narrow_comment", "comment_type"],
+            "properties": {
+                "columns": {
+                    "type": "array",
+                    "additionalItems": false
+                },
+                "classification_options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["unclassified", "classified", "not_relevant", "technical"],
+                    "patternProperties": {
+                        ".*": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "comment_type": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["unclassified", "classified", "not_relevant", "technical"],
+                    "patternProperties": {
+                        ".*": {
+                            "enum": [null, "analysis", "evaluation"]
+                        }
+                    }
+                },
+                "shade_multiple_in_gene": {
+                    "type": "boolean"
+                },
+                "narrow_comment": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "app",
+        "user",
+        "analysis",
+        "frequencies",
+        "classification",
+        "report",
+        "transcripts",
+        "igv",
+        "import"
+    ],
+    "properties": {
+        "app": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "links_to_clipboard",
+                "non_production_warning",
+                "annotation_service",
+                "attachment_storage",
+                "max_upload_size"
+            ],
+            "properties": {
+                "links_to_clipboard": {
+                    "type": "boolean"
+                },
+                "non_production_warning": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "annotation_service": {
+                    "type": "string"
+                },
+                "attachment_storage": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "max_upload_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["auth", "user_config"],
+            "properties": {
+                "auth": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "password_expiry_days",
+                        "password_minimum_length",
+                        "password_match_groups",
+                        "password_match_groups_descr",
+                        "password_num_match_groups"
+                    ],
+                    "properties": {
+                        "password_expiry_days": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "password_minimum_length": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "password_match_groups": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "password_match_groups_descr": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "password_num_match_groups": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                },
+                "user_config": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["overview", "workflows", "interpretation"],
+                    "properties": {
+                        "overview": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["views"],
+                            "properties": {
+                                "views": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "analyses",
+                                            "variants",
+                                            "analyses-by-classified",
+                                            "import"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "workflows": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["allele", "analysis"],
+                            "properties": {
+                                "allele": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["finalize_requirements"],
+                                    "properties": {
+                                        "finalize_requirements": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": ["workflow_status"],
+                                            "properties": {
+                                                "workflow_status": {
+                                                    "type": "array",
+                                                    "additionalItems": false,
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": ["Interpretation", "Review"]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "analysis": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["finalize_requirements"],
+                                    "properties": {
+                                        "finalize_requirements": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "workflow_status",
+                                                "allow_notrelevant",
+                                                "allow_technical",
+                                                "allow_unclassified"
+                                            ],
+                                            "properties": {
+                                                "workflow_status": {
+                                                    "type": "array",
+                                                    "additionalItems": false,
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "Not ready",
+                                                            "Interpretation",
+                                                            "Review",
+                                                            "Medical review"
+                                                        ]
+                                                    }
+                                                },
+                                                "allow_notrelevant": {
+                                                    "type": "boolean"
+                                                },
+                                                "allow_technical": {
+                                                    "type": "boolean"
+                                                },
+                                                "allow_unclassified": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "interpretation": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["autoIgnoreReferencePubmedIds"],
+                            "properties": {
+                                "autoIgnoreReferencePubmedIds": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "analysis": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["priority", "sidebar"],
+            "properties": {
+                "priority": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["display"],
+                    "properties": {
+                        "display": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["1", "2", "3"],
+                            "properties": {
+                                "1": {
+                                    "type": "string"
+                                },
+                                "2": {
+                                    "type": "string"
+                                },
+                                "3": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "sidebar": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["full", "quick", "visual", "report", "list"],
+                    "patternProperties": {
+                        ".*": {
+                            "$ref": "#/definitions/sidebar"
+                        }
+                    }
+                }
+            }
+        },
+        "frequencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["groups", "view"],
+            "properties": {
+                "groups": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["external", "internal"],
+                    "properties": {
+                        "external": {
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "internal": {
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "view": {
+                    "type": "object",
+                    "required": [
+                        "groups",
+                        "precision",
+                        "scientific_threshold",
+                        "indications_threshold"
+                    ],
+                    "properties": {
+                        "groups": {
+                            "type": "object",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "array",
+                                    "additionalItems": false,
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "precision": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "scientific_threshold": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "indications_threshold": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    },
+                    "additionalProperties": {
+                        "type": "object",
+                        "patternProperties": {
+                            ".*": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "classification": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["gene_groups", "options"],
+            "properties": {
+                "gene_groups": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["MMR"],
+                    "properties": {
+                        "MMR": {
+                            "type": "array",
+                            "additionalItems": false,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "options": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["name", "value"],
+                        "optional": [
+                            "outdated_after_days",
+                            "include_report",
+                            "include_analysis_with_findings"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            },
+                            "outdated_after_days": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "include_report": {
+                                "type": "boolean"
+                            },
+                            "include_analysis_with_findings": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "report": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["classification_text"],
+            "properties": {
+                "classification_text": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["1", "2", "3", "4", "5"],
+                    "patternProperties": {
+                        ".*": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "transcripts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["inclusion_regex"],
+            "properties": {
+                "inclusion_regex": {
+                    "type": "string"
+                }
+            }
+        },
+        "igv": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["reference", "valid_resource_files"],
+            "properties": {
+                "reference": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["fastaURL", "cytobandURL"],
+                    "properties": {
+                        "fastaURL": {
+                            "type": "string"
+                        },
+                        "cytobandURL": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "valid_resource_files": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "import": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["automatic_deposit_with_sample_id", "preimport_script"],
+            "properties": {
+                "automatic_deposit_with_sample_id": {
+                    "type": "boolean"
+                },
+                "preimport_script": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

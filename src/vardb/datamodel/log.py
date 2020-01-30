@@ -14,7 +14,10 @@ class ResourceLog(Base):
     id = Column(Integer, primary_key=True)
     remote_addr = Column(INET, nullable=False)
     time = Column(
-        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.datetime.now(pytz.utc),
+        index=True,
     )
     duration = Column(Integer, nullable=False)
     usersession_id = Column(Integer, ForeignKey("usersession.id"))

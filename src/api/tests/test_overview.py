@@ -13,9 +13,8 @@ from vardb.datamodel import assessment, workflow, allele, sample, genotype
 from api.tests.workflow_helper import WorkflowHelper
 from api.tests import interpretation_helper as ih
 
-from api.allelefilter import AlleleFilter
+from datalayer import AlleleFilter, queries
 from api.config import config
-from api.util import queries
 
 FILTERCONFIG_ID = 1
 
@@ -46,14 +45,12 @@ class TestAnalysisOverview(object):
     @pytest.mark.overviewanalysis(order=1)
     def test_initial_state(self, client):
 
-        # With-findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # By-classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
 
@@ -74,7 +71,9 @@ class TestAnalysisOverview(object):
     ):
 
         FIRST_ANALYSIS_ID = 1
-        wh = WorkflowHelper("analysis", FIRST_ANALYSIS_ID, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper(
+            "analysis", FIRST_ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+        )
 
         ##
         # Ongoing
@@ -82,14 +81,12 @@ class TestAnalysisOverview(object):
 
         interpretation = wh.start_interpretation("testuser1")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 1
         assert len(r.get_json()["not_ready"]) == 0
@@ -113,14 +110,12 @@ class TestAnalysisOverview(object):
             interpretation, "Interpretation comment", new_workflow_status="Interpretation"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -152,14 +147,12 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Not ready comment", new_workflow_status="Not ready")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 1
@@ -187,14 +180,12 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 1
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -225,14 +216,12 @@ class TestAnalysisOverview(object):
             interpretation, "Interpretation comment", new_workflow_status="Interpretation"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 4
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -266,14 +255,12 @@ class TestAnalysisOverview(object):
             interpretation, "Medical review comment", new_workflow_status="Medical review"
         )
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 1
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -302,14 +289,12 @@ class TestAnalysisOverview(object):
         interpretation = wh.start_interpretation("testuser2")
         wh.perform_finalize_round(interpretation, "Finalize comment")
 
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
 
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -329,7 +314,7 @@ class TestAnalysisOverview(object):
         assert len(r.get_json()["not_ready"]) == 0
 
         ##
-        # Test with_findings, non-outdated
+        # Test all_classified, non-outdated
         ##
 
         SECOND_ANALYSIS_ID = 2
@@ -361,6 +346,7 @@ class TestAnalysisOverview(object):
             )
 
             aa = assessment.AlleleAssessment(
+                user_id=1,
                 classification=classification["value"],
                 allele_id=allele["id"],
                 genepanel_name=interpretation["genepanel_name"],
@@ -382,14 +368,12 @@ class TestAnalysisOverview(object):
             assessment.AlleleAssessment.date_superceeded.is_(None),
         ).count() == len(allele_ids)
 
-        # Now check overview, one should be in with_findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # Now check overview, one should be in all_classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 2
-        assert len(r.get_json()["not_started_with_findings"]) == 1
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 1
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -398,7 +382,7 @@ class TestAnalysisOverview(object):
         assert isinstance(r.get_json(), list) and len(r.get_json()) == 1
 
         ##
-        # Test with_findings, outdated
+        # Test all_classified, outdated
         ##
 
         # Make alleleassessment outdated
@@ -409,14 +393,12 @@ class TestAnalysisOverview(object):
         with_finding_alleleassessment.date_created = new_date_created
         session.commit()
 
-        # Now check overview, one should be in with_findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # Now check overview, none should be in all_classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -429,21 +411,19 @@ class TestAnalysisOverview(object):
         session.commit()
 
         ##
-        # Test without_findings, non-outdated
+        # Test all_classified, without findings, non-outdated
         ##
 
         # Change classification
         with_finding_alleleassessment.classification = without_finding_classification["value"]
         session.commit()
 
-        # Now check overview, one should be in with_findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # Now check overview, one should be in all_classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 2
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 1
+        assert len(r.get_json()["not_started_all_classified"]) == 1
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -452,7 +432,7 @@ class TestAnalysisOverview(object):
         assert isinstance(r.get_json(), list) and len(r.get_json()) == 1
 
         ##
-        # Test without_findings, outdated
+        # Test all_classified, outdated
         ##
 
         # Change classification
@@ -463,14 +443,12 @@ class TestAnalysisOverview(object):
         with_finding_alleleassessment.date_created = new_date_created
         session.commit()
 
-        # Now check overview, one should be in with_findings
-        r = client.get("/api/v1/overviews/analyses/by-findings/")
+        # Now check overview, none should be in all_classified
+        r = client.get("/api/v1/overviews/analyses/by-classified/")
         assert len(r.get_json()["not_started_missing_alleleassessments"]) == 3
-        assert len(r.get_json()["not_started_with_findings"]) == 0
-        assert len(r.get_json()["not_started_without_findings"]) == 0
+        assert len(r.get_json()["not_started_all_classified"]) == 0
         assert len(r.get_json()["marked_review_missing_alleleassessments"]) == 0
-        assert len(r.get_json()["marked_review_with_findings"]) == 0
-        assert len(r.get_json()["marked_review_without_findings"]) == 0
+        assert len(r.get_json()["marked_review_all_classified"]) == 0
         assert len(r.get_json()["marked_medicalreview"]) == 0
         assert len(r.get_json()["ongoing"]) == 0
         assert len(r.get_json()["not_ready"]) == 0
@@ -657,7 +635,7 @@ class TestAlleleOverview(object):
         # alleles only existing in this analysis should disappear
         ##
 
-        wh = WorkflowHelper("analysis", 4, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper("analysis", 4, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
         gp_allele_ids = get_allele_not_started(session)
@@ -687,7 +665,7 @@ class TestAlleleOverview(object):
         # Case 1:
         # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
         # with AlleleInterpretation 1 (allele id 1)
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -716,7 +694,7 @@ class TestAlleleOverview(object):
         # Case 2:
         # Analysis 1 (HBOC, v01) has overlapping alleleinterpretations
         # with AlleleInterpretation 2 (allele id 3)
-        wh = WorkflowHelper("allele", 3, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 3, "HBOCUTV", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -747,10 +725,10 @@ class TestAlleleOverview(object):
         # with AlleleInterpretation 3 (allele id 4)
         # We first start Analysis 1 to exclude it, since we want to test case when no analysis.
 
-        wh = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
+        wh = WorkflowHelper("analysis", 1, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         wh.start_interpretation("testuser1")
 
-        wh = WorkflowHelper("allele", 4, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 4, "HBOC", "v01")
         wh.start_interpretation("testuser1")
 
         not_started_gp_allele_ids = get_allele_not_started(session)
@@ -798,6 +776,7 @@ class TestAlleleOverview(object):
         )
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification[
                 "value"
             ],  # Actual value doesn't matter as long as not outdated
@@ -836,6 +815,7 @@ class TestAlleleOverview(object):
         allele_id = ih.get_alleles("analysis", 3, interpretation_id, allele_ids).get_json()[0]["id"]
 
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
@@ -880,6 +860,7 @@ class TestAlleleOverview(object):
 
         timedelta = datetime.timedelta(days=with_finding_classification["outdated_after_days"] + 1)
         aa = assessment.AlleleAssessment(
+            user_id=1,
             classification=with_finding_classification["value"],
             allele_id=allele_id,
             genepanel_name="HBOCUTV",
@@ -928,9 +909,7 @@ class TestAlleleOverview(object):
             check_length=False,
         )
 
-        wh = WorkflowHelper(
-            "analysis", 1, genepanel=("HBOC", "v01"), filterconfig_id=FILTERCONFIG_ID
-        )
+        wh = WorkflowHelper("analysis", 1, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID)
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
@@ -970,7 +949,7 @@ class TestAlleleOverview(object):
         """
         test_database.refresh()
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
 
         # Ongoing
         interpretation = wh.start_interpretation("testuser1")
@@ -1030,8 +1009,8 @@ class TestAlleleOverview(object):
         ]
 
         # Start both analyses to remove them from the equation
-        whan1 = WorkflowHelper("analysis", 1, filterconfig_id=FILTERCONFIG_ID)
-        whan2 = WorkflowHelper("analysis", 2, filterconfig_id=FILTERCONFIG_ID)
+        whan1 = WorkflowHelper("analysis", 1, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID)
+        whan2 = WorkflowHelper("analysis", 2, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID)
         an1_interpretation = whan1.start_interpretation("testuser1")
         whan2.start_interpretation("testuser1")
 
@@ -1040,7 +1019,7 @@ class TestAlleleOverview(object):
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
         # Start AlleleInterpretation with different genepanel
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         interpretation = wh.start_interpretation("testuser1")
 
         # Check that the list is now empty
@@ -1065,14 +1044,14 @@ class TestAlleleOverview(object):
         ]
 
         ## 'marked_review'
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Comment", new_workflow_status="Review")
 
         allele_genepanels = get_allele_genepanels("marked_review")
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_round(interpretation, "Comment", new_workflow_status="Review")
 
@@ -1081,14 +1060,14 @@ class TestAlleleOverview(object):
 
         # 'finalized'
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOC", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOC", "v01")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_finalize_round(interpretation, "Comment")
 
         allele_genepanels = get_allele_genepanels("finalized")
         assert allele_genepanels == [{"name": "HBOC", "version": "v01"}]
 
-        wh = WorkflowHelper("allele", 1, genepanel=("HBOCUTV", "v01"))
+        wh = WorkflowHelper("allele", 1, "HBOCUTV", "v01")
         wh.reopen("testuser1")
         interpretation = wh.start_interpretation("testuser1")
         wh.perform_finalize_round(interpretation, "Comment")

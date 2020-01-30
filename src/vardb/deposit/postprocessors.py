@@ -1,27 +1,35 @@
 import datetime
 import pytz
-from api.util.interpretationdataloader import InterpretationDataLoader
-from api.util.snapshotcreator import SnapshotCreator
-from api.v1.resources.workflow import helpers
-from api.v1.resources.overview import categorize_analyses_by_findings
+from datalayer import SnapshotCreator
 from api import schemas
-from vardb.datamodel import workflow, annotation, assessment
+from api.v1.resources.workflow import helpers
+from datalayer import AlleleDataLoader
+from datalayer.workflowcategorization import categorize_analyses_by_findings
+from vardb.datamodel import workflow, annotation, assessment, allele
 
 
-def analysis_not_ready_findings(session, analysis, interpretation, filter_config_id):
+def analysis_not_ready_warnings(session, analysis, interpretation, filter_config_id):
     """
     Set analysis as 'Not ready' if it has warnings _or_
-    there are variants that needs work (verification etc)
+    there are variants that needs verification.
     """
-    aschema = schemas.AnalysisSchema()
-    dumped_analysis = aschema.dump(analysis).data
-    without_findings = bool(
-        categorize_analyses_by_findings(session, [dumped_analysis], filter_config_id)[
-            "without_findings"
-        ]
+    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+        session, interpretation, filter_config_id
     )
 
-    if analysis.warnings or not without_findings:
+    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+
+    loaded_alleles = AlleleDataLoader(session).from_objs(
+        alleles, analysis_id=interpretation.analysis_id
+    )
+
+    any_needs_verification = False
+    for l in loaded_alleles:
+        for s in l["samples"]:
+            if s["proband"] and s["genotype"]["needs_verification"]:
+                any_needs_verification = True
+
+    if analysis.warnings or any_needs_verification:
         interpretation.workflow_status = "Not ready"
 
 
@@ -46,7 +54,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         # Log item must be created before finalization so that the dates are correct
         il = workflow.InterpretationLog(
             analysisinterpretation_id=interpretation.id,
-            message="Analysis had no findings at time of import. Automatically finalised by system.",
+            message="Analysis had no findings at time of import. Automatically finalized by system.",
         )
         session.add(il)
 
@@ -54,44 +62,50 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             session, interpretation, filter_config_id
         )
 
-        allele_annotation_ids = (
-            session.query(annotation.Annotation.allele_id, annotation.Annotation.id)
+        annotation_ids = (
+            session.query(annotation.Annotation.id)
             .filter(
                 annotation.Annotation.date_superceeded.is_(None),
                 annotation.Annotation.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        alleleassessments = (
-            session.query(assessment.AlleleAssessment)
+        custom_annotation_ids = (
+            session.query(annotation.CustomAnnotation.id)
+            .filter(
+                annotation.CustomAnnotation.date_superceeded.is_(None),
+                annotation.CustomAnnotation.allele_id.in_(allele_ids),
+            )
+            .scalar_all()
+        )
+
+        alleleassessment_ids = (
+            session.query(assessment.AlleleAssessment.id)
             .filter(
                 assessment.AlleleAssessment.date_superceeded.is_(None),
                 assessment.AlleleAssessment.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        allelereports = (
-            session.query(assessment.AlleleReport)
+        allelereport_ids = (
+            session.query(assessment.AlleleReport.id)
             .filter(
                 assessment.AlleleReport.date_superceeded.is_(None),
                 assessment.AlleleReport.allele_id.in_(allele_ids),
             )
-            .all()
+            .scalar_all()
         )
 
-        annotation_data = [
-            {"allele_id": a.allele_id, "annotation_id": a.id} for a in allele_annotation_ids
-        ]
-
         SnapshotCreator(session).insert_from_data(
+            allele_ids,
             "analysis",
             interpretation,
-            annotation_data,
-            alleleassessments,
-            allelereports,
-            allele_ids=allele_ids,
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             excluded_allele_ids=excluded_allele_ids,
         )
 

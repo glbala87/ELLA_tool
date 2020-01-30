@@ -5,14 +5,13 @@ sidebar: false
 <div style="text-align: center;padding-top: 50px;padding-bottom: 50px">
 	<img width="250px;" src="./logo_blue.svg">
 	<div style="font-size: 280%;">documentation</div>
-	<div style="font-size: 80%;">v1.8 | 30.10.2019</div>
+	<div style="font-size: 80%;">v1.9 | 31.01.2020</div>
 </div>
 
 ## Contents
 
-- [User interface](/manual/): Guide to the user interface.
-- [Concepts](/concepts/): In-depth explanation of select topics important for ELLA end-users.
-- [Technical documentation](/technical/): System setup and technical specification.
+- [User manual](/manual/): Guide to the user interface and workflows.
+- [Technical documentation](/technical/): System setup, configuration and technical specification.
 - [Release notes](/releasenotes/): Versions and changes.
 
 ## Support

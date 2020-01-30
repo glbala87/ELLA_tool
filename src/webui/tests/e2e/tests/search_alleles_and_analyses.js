@@ -17,7 +17,7 @@ describe('Search functionality', function() {
     })
     it('search for analyses', function() {
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         search.open()
         search.selectType('analyses')
         search.searchFreetext('brca')
@@ -47,6 +47,7 @@ describe('Search functionality', function() {
         search.selectFirstAllele()
         analysisPage.startButton.click()
         alleleSectionBox.classifyAs3()
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()

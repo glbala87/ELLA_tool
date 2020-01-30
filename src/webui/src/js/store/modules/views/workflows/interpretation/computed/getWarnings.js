@@ -1,47 +1,57 @@
 import { Compute } from 'cerebral'
-import getVerificationStatus from './getVerificationStatus'
-import getNotRelevant from './getNotRelevant'
-import getClassification from './getClassification'
+import { state } from 'cerebral/tags'
 
 export default (allele) => {
-    return Compute(allele, (allele, get) => {
-        if (!allele) {
-            return []
-        }
+    return Compute(
+        allele,
+        state`views.workflows.data.collisions`,
+        state`app.user`,
+        (allele, collisions, user, get) => {
+            if (!allele || !user) {
+                return []
+            }
 
-        let warnings = []
-        const verificationStatus = get(getVerificationStatus(allele.id))
-        const notRelevant = get(getNotRelevant(allele.id))
-        const classification = get(getClassification(allele))
-        // If not relevant or technical, and new classification
-        // give a warning
-        if (
-            (notRelevant || verificationStatus === 'technical') &&
-            ((classification.existing && !classification.reused) ||
-                (classification.current && !classification.existing))
-        ) {
-            let markedAs = ''
-            if (notRelevant) {
-                markedAs = "'Not relevant'"
+            let warnings = []
+            if (collisions) {
+                for (const c of collisions.filter((c) => c.allele_id === allele.id)) {
+                    const typeText =
+                        c.type === 'analysis'
+                            ? `in another analysis: ${c.analysis_name}`
+                            : 'in variant workflow'
+                    const unfinishedTypeText =
+                        c.type === 'analysis'
+                            ? `an analysis: ${c.analysis_name}`
+                            : 'a variant workflow'
+
+                    if (c.user) {
+                        warnings.push({
+                            warning: `This variant is currently being worked on by ${c.user.full_name} ${typeText}.`
+                        })
+                    } else {
+                        warnings.push({
+                            warning: `This variant is currently waiting in ${c.workflow_status.toUpperCase()} in ${unfinishedTypeText}.`
+                        })
+                    }
+                }
+
+                if (allele.warnings) {
+                    warnings = warnings.concat(
+                        Object.values(allele.warnings).map((w) => {
+                            return { warning: w }
+                        })
+                    )
+                }
+
+                if (
+                    allele.allele_assessment &&
+                    user.group.name != allele.allele_assessment.usergroup.name
+                ) {
+                    warnings.push({
+                        warning: `This variant's existing classification was performed by a different user group: ${allele.allele_assessment.usergroup.name}.`
+                    })
+                }
+                return warnings
             }
-            if (verificationStatus === 'technical') {
-                markedAs = "'Technical'"
-            }
-            const undoAction = classification.reused
-                ? `select 'UNDO REEVALUATION' `
-                : `choose 'SELECT CLASS' from the dropdown instead of an actual class`
-            const updatedText = classification.reused ? 'updated' : 'created'
-            warnings.push({
-                warning: `Variant is marked ${markedAs}, yet it's classification is set to be ${updatedText}. To prevent this, ${undoAction}.`
-            })
         }
-        if (allele.warnings) {
-            warnings = warnings.concat(
-                Object.values(allele.warnings).map((w) => {
-                    return { warning: w }
-                })
-            )
-        }
-        return warnings
-    })
+    )
 }

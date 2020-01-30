@@ -37,28 +37,6 @@ class AlleleAssessmentResource {
             }, reject)
         })
     }
-
-    createOrUpdateAlleleAssessment(aa) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(
-                `${this.base}/alleleassessments/`,
-                {},
-                { createOrUpdate: { method: 'POST', isArray: true } }
-            )
-            r.createOrUpdate(aa, resolve, reject)
-        })
-    }
-
-    createOrUpdateAlleleReport(ar) {
-        return new Promise((resolve, reject) => {
-            let r = this.resource(
-                `${this.base}/allelereports/`,
-                {},
-                { createOrUpdate: { method: 'POST', isArray: true } }
-            )
-            r.createOrUpdate(ar, resolve, reject)
-        })
-    }
 }
 
 export default AlleleAssessmentResource

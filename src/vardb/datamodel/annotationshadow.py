@@ -1,36 +1,38 @@
 from vardb.datamodel import Base
-from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, text, func
+from vardb.datamodel import sample, user
+from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, func, Table
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import mapper, class_mapper
+from sqlalchemy.orm.exc import UnmappedClassError
+from sqlalchemy.ext.declarative.api import _declarative_constructor
+from typing import Any
 
 from api.config import config as global_config
 
 
-class AnnotationShadowTranscript(Base):
-    __tablename__ = "annotationshadowtranscript"
-
-    id = Column(Integer, primary_key=True)
-    allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
-    hgnc_id = Column(Integer, index=True)
-    symbol = Column(String, index=True)
-    transcript = Column(String, index=True)
-    hgvsc = Column(String)
-    protein = Column(String)
-    hgvsp = Column(String)
-    consequences = Column(ARRAY(Text))
-    exon_distance = Column(Integer)
-    coding_region_distance = Column(Integer)
-
-    __table_args__ = (
-        Index(
-            "ix_annotationshadowtranscript_hgvsc",
-            func.lower(hgvsc),
-            postgresql_ops={"data": "text_pattern_ops"},
-        ),
-    )
+# Note: not subclassing Base, this is handled by explicitly mapping below
+class _AnnotationShadowTranscript(object):
+    def __init__(self, **kwargs):
+        "Allow instantiating using standard declarative notation"
+        _declarative_constructor(self, **kwargs)
 
 
-def iter_freq_groups(config):
-    frequency_groups = config["frequencies"]["groups"]
+# Set type Any. Mypy doesn't handle instrumented classes
+AnnotationShadowTranscript: Any = _AnnotationShadowTranscript
+
+
+# Note: not subclassing Base, this is handled in update_annotation_shadow_columns
+class _AnnotationShadowFrequency(object):
+    def __init__(self, **kwargs):
+        "Allow instantiating using standard declarative notation"
+        _declarative_constructor(self, **kwargs)
+
+
+# Set type Any. Mypy doesn't handle instrumented classes
+AnnotationShadowFrequency: Any = _AnnotationShadowFrequency
+
+
+def iter_freq_groups(frequency_groups):
     for freq_group in frequency_groups:
         for freq_provider, freq_keys in frequency_groups[
             freq_group
@@ -39,40 +41,92 @@ def iter_freq_groups(config):
                 yield freq_provider, freq_key
 
 
-class AnnotationShadowFrequency(Base):
-    __tablename__ = "annotationshadowfrequency"
-
-    id = Column(Integer, primary_key=True)
-    allele_id = Column(Integer, ForeignKey("allele.id"), index=True)
-
-
 # HACK: Done this way for integration testing purposes, where we want
 # the possibility to redefine the columns globally according to a test config.
 # This function lets you override the columns in this module's
 # AnnotationShadowFrequency instance.
 # See create_shadow_tables().
 def update_annotation_shadow_columns(config):
+    # Use columns from config to create mapping of AnnotationShadowFrequency
+    # Note: This function does not guarantee that the mapped class matches
+    # the table in the database.
+    try:
+        m = class_mapper(AnnotationShadowFrequency)
+        m.dispose()
+    except UnmappedClassError:
+        # Class is not mapped yet
+        pass
 
-    # Dynamically add frequency columns
-    for freq_provider, freq_key in iter_freq_groups(config):
-        freq_column_name = freq_provider + "." + freq_key
-        freq_num_column_name = freq_provider + "_num." + freq_key
+    if "annotationshadowfrequency" in Base.metadata.tables:
+        Base.metadata.remove(Base.metadata.tables["annotationshadowfrequency"])
+    annotationshadowfreqency = get_annotationshadowfrequency_table(config)
+    mapper(AnnotationShadowFrequency, annotationshadowfreqency)
+    AnnotationShadowFrequency.__table__ = annotationshadowfreqency
 
-        # Add frequency
-        if not hasattr(AnnotationShadowFrequency, freq_column_name):
-            setattr(AnnotationShadowFrequency, freq_column_name, Column(Float))
 
-        # Add frequency number, e.g. 'ExAC_num.SAS'
-        if not hasattr(AnnotationShadowFrequency, freq_num_column_name):
-            setattr(AnnotationShadowFrequency, freq_num_column_name, Column(Integer))
+def iter_config_columns(config):
+    for freq_provider, freq_key in iter_freq_groups(config["frequencies"]["groups"]):
+        yield freq_provider + "." + freq_key, Float
+        yield freq_provider + "_num." + freq_key, Integer
+
+
+def get_annotationshadowfrequency_table(config, name="annotationshadowfrequency"):
+    return Table(
+        name,
+        Base.metadata,
+        Column("id", Integer, primary_key=True),
+        Column("allele_id", ForeignKey("allele.id"), index=True),
+        *[Column(c[0], c[1]) for c in iter_config_columns(config)],
+    )
+
+
+def get_annotationshadowtranscript_table(name="annotationshadowtranscript"):
+    return Table(
+        name,
+        Base.metadata,
+        Column("id", Integer, primary_key=True),
+        Column("allele_id", Integer, ForeignKey("allele.id"), index=True),
+        Column("hgnc_id", Integer, index=True),
+        Column("symbol", String, index=True),
+        Column("transcript", String, index=True),
+        Column("hgvsc", String),
+        Column("protein", String),
+        Column("hgvsp", String),
+        Column("consequences", ARRAY(Text)),
+        Column("exon_distance", Integer),
+        Column("coding_region_distance", Integer),
+        Index(
+            "ix_{}_hgvsc".format(name),
+            func.lower(Column("hgvsc", String)),
+            postgresql_ops={"data": "text_pattern_ops"},
+        ),
+    )
 
 
 # By default, create using app global config
 # which is what we want in production
 update_annotation_shadow_columns(global_config)
+_annotationshadowtranscript_table = get_annotationshadowtranscript_table()
+mapper(AnnotationShadowTranscript, _annotationshadowtranscript_table)
+AnnotationShadowTranscript.__table__ = _annotationshadowtranscript_table
 
 
-def create_trigger_sql(config):
+def check_db_consistency(session, config, subset=False):
+    "Check that the config defines the same (or a subset) frequency shadow table as the current table in the database"
+    column_res = session.execute(
+        "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='annotationshadowfrequency';"
+    )
+    db_column_names = set([c[0] for c in column_res]) - set(["id", "allele_id"])
+
+    if subset:
+        assert set([c[0] for c in iter_config_columns(config)]) - set(db_column_names) == set()
+    else:
+        assert set([c[0] for c in iter_config_columns(config)]) == set(
+            db_column_names
+        ), "{}\n{}".format(db_column_names, set([c[0] for c in iter_config_columns(config)]))
+
+
+def create_trigger_sql(config, for_tmp=False):
     """
     Set up triggers to update annotationshadow tables upon
     changes (INSERT, UPDATE, or DELETE) to the annotation table.
@@ -81,7 +135,7 @@ def create_trigger_sql(config):
     """
     freq_insert_into = []
     freq_values = []
-    for freq_provider, freq_key in iter_freq_groups(config):
+    for freq_provider, freq_key in iter_freq_groups(config["frequencies"]["groups"]):
         freq_insert_into.append('"{}.{}"'.format(freq_provider, freq_key))
         freq_insert_into.append('"{}_num.{}"'.format(freq_provider, freq_key))
         freq_values.append(
@@ -94,13 +148,24 @@ def create_trigger_sql(config):
                 freq_provider, freq_key
             )
         )
+    frequency_insert_into = ",\n".join(freq_insert_into)
+    frequency_values = ",\n".join(freq_values)
 
-    return """
-    CREATE OR REPLACE FUNCTION insert_annotationshadowtranscript(allele_id INTEGER, annotations JSONB) RETURNS void
+    if not for_tmp:
+        annotationshadow = "annotationshadow"
+        annotationshadowtranscript = "annotationshadowtranscript"
+        annotationshadowfrequency = "annotationshadowfrequency"
+    else:
+        annotationshadow = "tmp_annotationshadow"
+        annotationshadowtranscript = "tmp_annotationshadowtranscript"
+        annotationshadowfrequency = "tmp_annotationshadowfrequency"
+
+    return f"""
+    CREATE OR REPLACE FUNCTION insert_{annotationshadowtranscript}(allele_id INTEGER, annotations JSONB) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            INSERT INTO annotationshadowtranscript
+            INSERT INTO {annotationshadowtranscript}
                 (
                     allele_id,
                     hgnc_id,
@@ -127,11 +192,11 @@ def create_trigger_sql(config):
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION insert_annotationshadowfrequency(allele_id INTEGER, annotations JSONB) RETURNS void
+    CREATE OR REPLACE FUNCTION insert_{annotationshadowfrequency}(allele_id INTEGER, annotations JSONB) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            INSERT INTO annotationshadowfrequency
+            INSERT INTO {annotationshadowfrequency}
                 (
                     allele_id,
                     {frequency_insert_into}
@@ -144,21 +209,21 @@ def create_trigger_sql(config):
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION delete_annotationshadow(al_id INTEGER) RETURNS void
+    CREATE OR REPLACE FUNCTION delete_{annotationshadow}(al_id INTEGER) RETURNS void
     LANGUAGE plpgsql
     AS $$
         BEGIN
-            DELETE FROM annotationshadowtranscript WHERE allele_id = al_id;
-            DELETE FROM annotationshadowfrequency WHERE allele_id = al_id;
+            DELETE FROM {annotationshadowtranscript} WHERE allele_id = al_id;
+            DELETE FROM {annotationshadowfrequency} WHERE allele_id = al_id;
         END;
     $$;
 
-    CREATE OR REPLACE FUNCTION annotation_to_annotationshadow() RETURNS TRIGGER AS $annotation_to_annotationshadow$
+    CREATE OR REPLACE FUNCTION annotation_to_{annotationshadow}() RETURNS TRIGGER AS $annotation_to_{annotationshadow}$
         BEGIN
             IF (TG_OP = 'INSERT') THEN
-                PERFORM delete_annotationshadow(NEW.allele_id);
-                PERFORM insert_annotationshadowtranscript(NEW.allele_id, NEW.annotations);
-                PERFORM insert_annotationshadowfrequency(NEW.allele_id, NEW.annotations);
+                PERFORM delete_{annotationshadow}(NEW.allele_id);
+                PERFORM insert_{annotationshadowtranscript}(NEW.allele_id, NEW.annotations);
+                PERFORM insert_{annotationshadowfrequency}(NEW.allele_id, NEW.annotations);
                 RETURN NEW;
             ELSIF (TG_OP = 'UPDATE') THEN
                 IF (
@@ -174,22 +239,117 @@ def create_trigger_sql(config):
                 RETURN OLD;
             END IF;
         END;
-    $annotation_to_annotationshadow$ LANGUAGE plpgsql;
+    $annotation_to_{annotationshadow}$ LANGUAGE plpgsql;
 
-    DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation;
-    CREATE TRIGGER annotation_to_annotationshadow
+    DROP TRIGGER IF EXISTS annotation_to_{annotationshadow} ON annotation;
+    CREATE TRIGGER annotation_to_{annotationshadow}
     BEFORE INSERT OR UPDATE OR DELETE ON annotation
-        FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadow();
-    """.format(
-        frequency_insert_into=",\n".join(freq_insert_into), frequency_values=",\n".join(freq_values)
+        FOR EACH ROW EXECUTE PROCEDURE annotation_to_{annotationshadow}();
+    """
+
+
+def check_filterconfig(filterconfig, config):
+    """Verify that the frequency groups to be used for frequency filtering are a subset of the
+    global frequency groups, used to build the annotationshadowfrequency table"""
+    for f in filterconfig["filters"]:
+        if f["name"] != "frequency":
+            continue
+
+        missing_freq_groups = set(iter_freq_groups(f["config"]["groups"])) - set(
+            iter_freq_groups(config["frequencies"]["groups"])
+        )
+        assert not missing_freq_groups, "Missing frequency group(s) in global config: {}".format(
+            missing_freq_groups
+        )
+
+
+def check_usergroup_config(usergroup, config):
+    """Verify that the ACMG frequency groups are a subset of the global frequency groups, used to
+     build the annotationshadowfrequency table"""
+    if usergroup.config is not None:
+        amcg_freq_config = usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {})
+        missing_freq_groups = set(iter_freq_groups(amcg_freq_config)) - set(
+            iter_freq_groups(config["frequencies"]["groups"])
+        )
+        assert not missing_freq_groups, "Missing frequency group(s) in global config: {}".format(
+            missing_freq_groups
+        )
+
+
+def check_filterconfig_and_acmg_groups(session, config):
+    "Check that the columns in annotationshadowfrequency allow for all active filterconfigs and ACMG configs"
+    filterconfigs = session.query(
+        sample.FilterConfig.id, sample.FilterConfig.name, sample.FilterConfig.filterconfig
+    ).filter(sample.FilterConfig.active.is_(True))
+    for id, name, fc in filterconfigs:
+        try:
+            check_filterconfig(fc, config)
+        except AssertionError:
+            raise AssertionError("Frequency group(s) used in filterconfig {} ({})".format(id, name))
+
+    usergroup_configs = session.query(user.UserGroup)
+
+    for usergroup in usergroup_configs:
+        try:
+            check_usergroup_config(usergroup, config)
+        except AssertionError:
+            raise AssertionError(
+                "Frequency group(s) used in the ACMG config for usergroup {} ({}).".format(
+                    usergroup.id, usergroup.name
+                )
+            )
+
+
+def create_tmp_shadow_tables(session, config):
+    """
+    Creates temporary shadow tables. Populate according to existing data
+    the annotation table.
+
+    This function might take some time, but creating them in temporary tables
+    avoids a lock on the shadow tables.
+
+    """
+    session.execute(create_trigger_sql(config, for_tmp=True))
+
+    conn = session.connection()
+    # Create annotationshadowtranscript in a temp table amd insert all data
+    tmp_annotationshadowtranscript = get_annotationshadowtranscript_table(
+        "tmp_annotationshadowtranscript"
+    )
+    tmp_annotationshadowtranscript.create(conn)
+    conn.execute(
+        "SELECT insert_tmp_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
     )
 
+    # Remove temporary table from metadata
+    Base.metadata.remove(tmp_annotationshadowtranscript)
 
-def create_shadow_tables(session, config, create_transcript=True, create_frequency=True):
+    # Create annotationshadowfrequency in a temp table amd insert all data
+    tmp_annotationshadowfrequency = get_annotationshadowfrequency_table(
+        config, name="tmp_annotationshadowfrequency"
+    )
+    tmp_annotationshadowfrequency.create(conn)
+    conn.execute(
+        "SELECT insert_tmp_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL;"
+    )
+
+    # Remove temporary table from metadata
+    Base.metadata.remove(tmp_annotationshadowfrequency)
+
+    # Map AnnotationShadowFrequency using the same config used to refresh the table
+    update_annotation_shadow_columns(config)
+
+    # Check that all filterconfigs and usergroups' ACMG-configuration are still valid,
+    # given the possible change in columns
+    check_filterconfig_and_acmg_groups(session, config)
+
+
+def create_shadow_tables(session, config, use_prepared_tmp_tables=False):
     """
-    Drops (if existing) and (re)creates the annotation shadow tables,
-    along with their triggers. After they're setup, the tables
-    are populated according to existing data in annotation table.
+    Optionally create temporary shadow tables (needs to be done if not done).
+
+    Drops existing tables, and renames temporary tables to their corresponding
+    permanent tables.
 
     Call this function whenever the shadow table definitions or
     frequency group config has changed, as the tables will need to be updated.
@@ -198,22 +358,55 @@ def create_shadow_tables(session, config, create_transcript=True, create_frequen
     as the rest of the incoming session (?). All actions might therefore not
     happen within one transaction.
     """
-    update_annotation_shadow_columns(config)
+    if use_prepared_tmp_tables:
+        # Check that tmp tables are available
+        res = session.execute("SELECT table_name FROM information_schema.tables")
+        table_names = set([r[0] for r in res.fetchall()])
+        assert (
+            set(["tmp_annotationshadowtranscript", "tmp_annotationshadowfrequency"]) - table_names
+            == set()
+        )
+    else:
+        create_tmp_shadow_tables(session, config)
 
-    if create_transcript:
-        AnnotationShadowTranscript.__table__.drop(session.connection(), checkfirst=True)
-        AnnotationShadowTranscript.__table__.create(session.connection())
-    if create_frequency:
-        AnnotationShadowFrequency.__table__.drop(session.connection(), checkfirst=True)
-        AnnotationShadowFrequency.__table__.create(session.connection())
+    def rename_tmp(table):
+        "Drop existing table, and rename tmp-table + indexes + constraints"
+
+        assert table in ["annotationshadowfrequency", "annotationshadowtranscript"]
+
+        # Drop existing table, rename tmp-table, and drop tmp-insert function
+        session.execute(
+            "DROP TABLE IF EXISTS {table};"
+            "ALTER TABLE tmp_{table} RENAME TO {table};"
+            "DROP FUNCTION IF EXISTS insert_tmp{table}".format(table=table)
+        )
+
+        # Rename indexes
+        for (index_name,) in session.execute(
+            "SELECT indexname FROM pg_catalog.pg_indexes WHERE tablename='{}'".format(table)
+        ):
+            new_index_name = index_name.replace("tmp_{}".format(table), table)
+            session.execute("ALTER INDEX {} RENAME TO {}".format(index_name, new_index_name))
+
+        # Rename constraints (excluding primary key, this is renamed with table)
+        for (constraint_name,) in session.execute(
+            "SELECT conname FROM pg_catalog.pg_constraint as r WHERE r.conrelid = '{}'::regclass AND contype != 'p'".format(
+                table
+            )
+        ):
+            new_constraint_name = constraint_name.replace("tmp_{}".format(table), table)
+            session.execute(
+                "ALTER TABLE {} RENAME CONSTRAINT {} TO {}".format(
+                    table, constraint_name, new_constraint_name
+                )
+            )
 
     session.execute(create_trigger_sql(config))
+    session.execute(
+        "DROP TRIGGER annotation_to_tmp_annotationshadow ON annotation;"
+        "DROP FUNCTION annotation_to_tmp_annotationshadow;"
+        "DROP FUNCTION delete_tmp_annotationshadow;"
+    )
 
-    if create_transcript:
-        session.execute(
-            "SELECT insert_annotationshadowtranscript(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
-        )
-    if create_frequency:
-        session.execute(
-            "SELECT insert_annotationshadowfrequency(allele_id, annotations) from annotation WHERE date_superceeded IS NULL"
-        )
+    rename_tmp("annotationshadowfrequency")
+    rename_tmp("annotationshadowtranscript")

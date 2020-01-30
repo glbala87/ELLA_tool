@@ -21,7 +21,7 @@ const testUiConfig = {
         },
         user_config: {
             overview: {
-                views: ['variants', 'analyses-by-findings', 'import'],
+                views: ['variants', 'analyses-by-classified', 'import'],
                 show_variant_report: true
             },
             workflows: {
@@ -159,33 +159,28 @@ const testUiConfig = {
             full: {
                 columns: [],
                 classification_options: [],
-                comment_options: [],
                 shade_multiple_in_gene: true
             },
             quick: {
                 columns: ['qual', 'dp', 'ratio', 'hi-freq', 'hi-count', 'external'],
                 classification_options: ['technical', 'notrelevant', 'classu', 'class2'],
-                comment_options: ['evaluation', 'analysis'],
                 narrow_comment: false,
                 shade_multiple_in_gene: true
             },
             visual: {
                 columns: ['qual', 'ratio'],
                 classification_options: ['technical'],
-                comment_options: ['analysis'],
                 narrow_comment: true,
                 shade_multiple_in_gene: true
             },
             report: {
                 columns: [],
                 classification_options: [],
-                comment_options: [],
                 shade_multiple_in_gene: true
             },
             list: {
                 columns: ['qual', 'dp', 'ratio', 'hi-freq', 'hi-count', 'external'],
                 classification_options: [],
-                comment_options: [],
                 shade_multiple_in_gene: false
             }
         }
@@ -257,55 +252,6 @@ const testUiConfig = {
                 OTH: 'OTH',
                 SAS: 'SA'
             }
-        }
-    },
-    filter: {
-        default_filter_config: {
-            region: {
-                splice_region: [-20, 6],
-                utr_region: [0, 0]
-            },
-            frequency: {
-                num_thresholds: {
-                    GNOMAD_GENOMES: {
-                        G: 5000,
-                        AFR: 5000,
-                        AMR: 5000,
-                        EAS: 5000,
-                        FIN: 5000,
-                        NFE: 5000,
-                        OTH: 5000,
-                        SAS: 5000
-                    },
-                    GNOMAD_EXOMES: {
-                        G: 5000,
-                        AFR: 5000,
-                        AMR: 5000,
-                        EAS: 5000,
-                        FIN: 5000,
-                        NFE: 5000,
-                        OTH: 5000,
-                        SAS: 5000
-                    }
-                },
-                thresholds: {
-                    AD: {
-                        external: 0.005,
-                        internal: 0.05
-                    },
-                    default: {
-                        external: 0.01,
-                        internal: 0.05
-                    }
-                }
-            },
-            inheritancemodel: {},
-            quality: {},
-            segregation: {},
-            external: {},
-            classification: {},
-            ppy: {},
-            consequence: {}
         }
     },
     classification: {

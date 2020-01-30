@@ -23,11 +23,9 @@
                 <h3
                     ng-if="$ctrl.currentView == 'workflows'"
                     class="full-title clickable white id-workflow-instance"
-                    uib-popover-template="'interpretationRoundsPopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Rounds"
-                    popover-trigger="outsideClick"
-                    popover-placement="bottom"
+                    tippy-popover="interpretationRoundsPopover.ngtmpl.html"
+                    tippy-popover-title="Rounds"
+                    tippy-placement="bottom"
                 >
                     <b>{{ $ctrl.title }}</b>
                 </h3>

@@ -6,6 +6,7 @@ import referenceAssessmentCommentChanged from './signals/referenceAssessmentComm
 import collapseAlleleSectionboxChanged from './signals/collapseAlleleSectionboxChanged'
 import collapseAllAlleleSectionboxClicked from './signals/collapseAllAlleleSectionboxChangedClicked'
 import acmgCodeChanged from './signals/acmgCodeChanged'
+import finalizeAlleleClicked from './signals/finalizeAlleleClicked'
 import reuseAlleleAssessmentClicked from './signals/reuseAlleleAssessmentClicked'
 import alleleReportCommentChanged from './signals/alleleReportCommentChanged'
 import reportCommentChanged from './signals/reportCommentChanged'
@@ -32,6 +33,7 @@ export default Module({
         collapseAllAlleleSectionboxClicked,
         collapseAlleleSectionboxChanged,
         acmgCodeChanged,
+        finalizeAlleleClicked,
         classificationChanged,
         evaluationCommentChanged,
         analysisCommentChanged,

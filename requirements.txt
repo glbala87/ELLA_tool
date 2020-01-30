@@ -10,7 +10,7 @@ Flask-Cors==3.0.7
 Flask-RESTful==0.3.7
 openpyxl==2.3.3
 XlsxWriter==1.1.2
-jsonschema==2.5.1
+jsonschema==3.2.0
 # strict-rfc3339 is used by jsonschema to validate dates (in schema: "format": "date-time"
 strict-rfc3339==0.7
 click==7.0

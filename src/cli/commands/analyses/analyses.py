@@ -1,7 +1,7 @@
 import click
 import logging
 
-from vardb.datamodel import DB, sample
+from vardb.datamodel import DB, sample, workflow
 from api.util.delete_analysis import delete_analysis
 from cli.decorators import cli_logger, session
 
@@ -26,9 +26,39 @@ def cmd_analysis_delete(logger, session, analysis_id):
 
     aname = session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).one()[0]
 
-    answer = input(
-        "Are you sure you want to delete analysis {}?\nType 'y' to confirm.\n".format(aname)
+    review_comment = (
+        session.query(workflow.InterpretationLog.review_comment)
+        .join(workflow.AnalysisInterpretation)
+        .filter(workflow.AnalysisInterpretation.analysis_id == analysis_id)
+        .filter(~workflow.InterpretationLog.review_comment.is_(None))
+        .order_by(workflow.InterpretationLog.date_created.desc())
+        .limit(1)
+        .one_or_none()
     )
+
+    if review_comment:
+        overview_comment = "overview comment '{}'".format(review_comment[0])
+    else:
+        overview_comment = "no overview comment"
+
+    workflow_status = (
+        session.query(
+            workflow.AnalysisInterpretation.status, workflow.AnalysisInterpretation.workflow_status
+        )
+        .filter(workflow.AnalysisInterpretation.analysis_id == analysis_id)
+        .order_by(workflow.AnalysisInterpretation.id.desc())
+        .limit(1)
+        .one()
+    )
+
+    workflow_status = "{} ({})".format(*workflow_status)
+
+    answer = input(
+        "Are you sure you want to delete analysis {} with {} in workflow status: {}\nType 'y' to confirm.\n".format(
+            aname, overview_comment, workflow_status
+        )
+    )
+
     if answer == "y":
         try:
             delete_analysis(session, analysis_id)

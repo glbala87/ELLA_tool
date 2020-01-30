@@ -145,6 +145,45 @@ input[type='range'] {
     color: $green !important;
 }
 
+// tippy
+.tippy-tooltip.la-theme {
+    background-color: $white-95;
+    border: 1px solid $black-05;
+    box-shadow: 0 0 20px 4px rgba(154, 161, 177, 0.15), 0 4px 80px -8px rgba(36, 40, 47, 0.25),
+        0 4px 4px -2px rgba(91, 94, 105, 0.15);
+    border-radius: 0;
+    color: $black-95;
+    font-family: $full;
+    font-size: 1.4rem;
+
+    &[data-placement^='top'] .tippy-arrow {
+        border-top-color: $white-95;
+    }
+    &[data-placement^='bottom'] .tippy-arrow {
+        border-bottom-color: $white-95;
+    }
+    &[data-placement^='left'] .tippy-arrow {
+        border-left-color: $white-95;
+    }
+    &[data-placement^='right'] .tippy-arrow {
+        border-right-color: $white-95;
+    }
+}
+
+.copy-text {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    &:hover {
+        color: $black-75;
+    }
+    &:before {
+        content: url('data:image/svg+xml; utf8, <svg id="i-clipboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 2 L12 6 20 6 20 2 12 2 Z M11 4 L6 4 6 30 26 30 26 4 21 4" /></svg>');
+        padding-right: 0.5rem;
+        margin-top: 0.5rem;
+    }
+}
+
 .non-production-warning {
     position: fixed;
     bottom: calc(50vh - 28rem);
@@ -307,7 +346,7 @@ p {
     font-weight: 300;
     font-size: 1.4rem;
     letter-spacing: -0.025rem;
-    color: $black;
+    color: #333;
 }
 
 // interpretation-button button { height: 100%; } // fixes a browser quirk - edit, seems to have gone away with some other changes
@@ -705,8 +744,7 @@ workflow-buttons {
     }
 }
 
-.collision-warning section {
-    margin: 1.5rem;
+.allele-warning section {
     .titlebar,
     .titlebar > .sb-title-container,
     .sb-container {
@@ -747,22 +785,6 @@ workflow-buttons {
         &:hover::-webkit-scrollbar-thumb {
             background-color: $white-75;
         }
-    }
-}
-
-.allele-warning {
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    background-color: $red-95;
-    word-wrap: break-word;
-    font-size: 1.6rem;
-    font-family: $slim;
-    font-weight: 600;
-    color: white;
-    h3:not(:first-child) {
-        margin-top: 0.5rem;
     }
 }
 
@@ -852,7 +874,7 @@ nav.warning {
         color: $blue-75;
         margin-top: 2rem;
         margin-bottom: 0;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.3rem;
     }
     h4.results-limit-header {
@@ -861,7 +883,7 @@ nav.warning {
         color: $black-50;
         margin-top: 0;
         margin-bottom: 1rem;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 1.25rem;
     }
     .element {
@@ -1067,12 +1089,18 @@ nav.warning {
                 transition: background-color 0.4s;
                 cursor: pointer;
                 padding: 0;
-                &.reviewed {
-                    background-color: $blue-75;
+                &.reviewed,
+                &.finalized {
                     color: $white;
                     .class-amcg-container .classification-container .existing-classification {
                         color: $white-50;
                     }
+                }
+                &.reviewed {
+                    background-color: $blue-75;
+                }
+                &.finalized {
+                    background-color: $blue;
                 }
                 .class-amcg-container {
                     display: flex;
@@ -1771,8 +1799,8 @@ button.toast-close-button {
     font-size: 1.4rem;
     font-weight: 400;
     display: flex;
+    height: 100%;
     flex-direction: column;
-    height: 88vh;
     h4 {
         text-transform: uppercase;
         font-weight: 600;
@@ -2088,5 +2116,23 @@ button.toast-close-button {
         display: inline-block;
         text-align: left !important;
         font-size: 0.8rem;
+    }
+}
+
+.confirm-button-confirm {
+    background-color: $green-50 !important;
+    margin-left: 0;
+    box-shadow: 0 0.3rem $black-05;
+
+    &:hover {
+        background-color: $green-75 !important;
+    }
+    &.hidden {
+        overflow: hidden;
+        width: 0;
+        padding-left: 0;
+        padding-right: 0;
+        border-left: 0;
+        border-right: 0;
     }
 }

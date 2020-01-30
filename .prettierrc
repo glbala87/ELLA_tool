@@ -28,6 +28,12 @@
             "options": {
                 "parser": "babel"
             }
+        },
+        {
+            "files": "*.yml",
+            "options": {
+                "parser": "yaml"
+            }
         }
     ]
 }

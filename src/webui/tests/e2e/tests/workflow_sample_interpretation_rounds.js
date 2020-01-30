@@ -38,7 +38,7 @@ describe('Sample workflow ', function() {
     it('classifies variants and sets to review', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectWithMissingAssessments(1)
         analysisPage.startButton.click()
@@ -63,7 +63,7 @@ describe('Sample workflow ', function() {
     it('reclassifies variants and sets to medical review', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectTopReview()
         analysisPage.startButton.click()
@@ -97,7 +97,7 @@ describe('Sample workflow ', function() {
     it('can change classfications from previous round and finalize', function() {
         // brca_e2e_test01.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectSecondUser()
+        loginPage.loginAs('testuser2')
         overview.open()
         overview.selectTopMedicalReview()
         analysisPage.startButton.click()
@@ -112,11 +112,15 @@ describe('Sample workflow ', function() {
 
         // All have Class 2 from previous round, now set to Class 3:
         for (let i = 1; i <= numberOfClassifiedBefore; i++) {
-            let allele_element = alleleSidebar.selectClassifiedAlleleByIdx(i)
-            let selected_allele = alleleSidebar.getSelectedAllele()
+            alleleSidebar.selectClassifiedAlleleByIdx(i)
+            const selectedAllele = alleleSidebar.getSelectedAllele()
             expect(alleleSidebar.getSelectedAlleleClassification().current).toBe('2')
             alleleSectionBox.classifyAs3()
-            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+            expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
+            alleleSectionBox.finalize()
+            alleleSectionBox.reevaluateBtn.waitForDisplayed()
+            expect(alleleSidebar.getSelectedAlleleClassification().current).toBe('3')
+            expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
         }
 
         // expect all to be (still) classified
@@ -132,7 +136,7 @@ describe('Sample workflow ', function() {
         //  start a second analysis
         // brca_e2e_test02.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         overview.open()
         overview.selectWithMissingAssessments(1) // some variants assessed in another analysis
         analysisPage.startButton.click()
@@ -155,26 +159,33 @@ describe('Sample workflow ', function() {
         // Classify all as U:
         for (let i = 1; i <= numberOfClassifiedBefore; i++) {
             alleleSidebar.selectFirstClassified() // who's first changes when unclassify/classify
-            let selected_allele = alleleSidebar.getSelectedAllele()
-            expect(alleleSectionBox.classificationAcceptedToggleBtn.getText().toLowerCase()).toBe(
-                BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION.toLowerCase(),
-                'Allele should be marked as reusing existing classification'
-            )
-            alleleSectionBox.classificationAcceptedBtn.click()
+            const selectedAllele = alleleSidebar.getSelectedAllele()
+            alleleSectionBox.reevaluateBtn.click()
             alleleSectionBox.classifyAsU()
             let classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('3')
             expect(classification.current).toBe('U')
-            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+            alleleSectionBox.finalize()
+            alleleSectionBox.reevaluateBtn.waitForDisplayed()
+            classification = alleleSidebar.getSelectedAlleleClassification()
+            expect(classification.existing).toBe('')
+            expect(classification.current).toBe('U')
+            expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
         }
 
         for (let i = 1; i <= numberOfUnclassifiedBefore; i++) {
             alleleSidebar.selectFirstUnclassified() // who's first changes as this is classified
-            let selected_allele = alleleSidebar.getSelectedAllele()
+            const selectedAllele = alleleSidebar.getSelectedAllele()
             alleleSectionBox.classifyAsU()
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification.current).toBe('U', 'Unclassified should now be class U')
-            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+            expect(classification.existing).toBe('')
+            expect(classification.current).toBe('U')
+            alleleSectionBox.finalize()
+            alleleSectionBox.reevaluateBtn.waitForDisplayed()
+            classification = alleleSidebar.getSelectedAlleleClassification()
+            expect(classification.existing).toBe('')
+            expect(classification.current).toBe('U')
+            expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
         }
 
         // expect all to be classified
@@ -194,7 +205,7 @@ describe('Sample workflow ', function() {
 
         // given
         loginPage.open()
-        loginPage.selectThirdUser()
+        loginPage.loginAs('testuser3')
         overview.open()
 
         // when
@@ -237,32 +248,24 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification.current).toBe('2', 'Class 2 for all alleles in second round')
-            expect(alleleSectionBox.hasExistingClassification()).toBe(
-                false,
-                'no alleles from round two' + ' had an existing classification'
-            )
+            expect(classification.current).toBe('2')
+            expect(alleleSectionBox.hasExistingClassification()).toBe(false)
         }
 
         analysisPage.chooseRound(3)
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification.current).toBe(
-                '3',
-                'Class 3 for all alleles in third (newest) round'
-            )
-            expect(alleleSectionBox.hasExistingClassification()).toBe(
-                false,
-                'no alleles from round three' + ' had an existing classification'
-            )
+            expect(classification.current).toBe('3')
+            expect(alleleSectionBox.hasExistingClassification()).toBe(true)
+            expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class 3')
         }
     })
 
     it('can see a (single) interpretation round and see current official assessment', function() {
         // brca_e2e_test02.HBOCUTV_v01
         loginPage.open()
-        loginPage.selectFirstUser()
+        loginPage.loginAs('testuser1')
         overview.open()
         overview.selectFinished(1)
 
@@ -276,25 +279,13 @@ describe('Sample workflow ', function() {
         expect(numberOfClassified).toBeGreaterThan(1)
 
         analysisPage.chooseRound(1)
-        // expect all to be U, with existing classificaiton of 3 for some
-        let numberOfAllelesWithExistingClassification = 0
+
+        // expect all to be U
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification.existing === '3' || classification.existing === '').toBe(true)
             expect(classification.current).toBe('U')
-            if (alleleSectionBox.hasExistingClassification()) {
-                expect(alleleSectionBox.getExistingClassificationClass()).toContain(
-                    'Class 3',
-                    'For variant with existing classification'
-                )
-                numberOfAllelesWithExistingClassification += 1
-            }
+            expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class U')
         }
-        expect(numberOfAllelesWithExistingClassification).toBeGreaterThan(
-            1,
-            'At least one of the alleles should ' +
-                'have had an existing classification at the time the current classification was done'
-        )
     })
 })

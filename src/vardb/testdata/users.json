@@ -54,7 +54,7 @@
         "group": "testgroup02",
         "config": {
             "overview": {
-                "views": ["variants", "analyses-by-findings"]
+                "views": ["variants", "analyses-by-classified"]
             }
         }
     },

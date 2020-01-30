@@ -5,13 +5,13 @@
             <span
                 ng-if="$ctrl.fromToday()"
                 class="time"
-                title="{{ $ctrl.message.date_created | date: 'yyyy-MM-dd HH:mm' }}"
+                tippy-title="{{ $ctrl.message.date_created | date: 'yyyy-MM-dd HH:mm' }}"
                 >{{ $ctrl.message.date_created | date: 'HH:mm' }}</span
             >
             <span
                 ng-if="!$ctrl.fromToday()"
                 class="time"
-                title="{{ $ctrl.message.date_created | date: 'yyyy-MM-dd HH:mm' }}"
+                tippy-title="{{ $ctrl.message.date_created | date: 'yyyy-MM-dd HH:mm' }}"
                 >{{ $ctrl.message.date_created | date: 'yyyy-MM-dd HH:mm' }}</span
             >
         </div>
@@ -65,6 +65,15 @@
             ng-model="$ctrl.getMessageModel().message"
         ></wysiwyg-editor>
     </div>
+    <div ng-if="$ctrl.message.alleleassessment.allele_id">
+        <span class="event">{{ $ctrl.getAlleleAssessmentMessage() }}</span
+        ><span ng-repeat="h in $ctrl.message.alleleassessment.hgvsc">{{ h }}</span>
+        <span class="event">{{ $ctrl.getAlleleAssessmentClassification() }}</span>
+    </div>
+    <div ng-if="!$ctrl.message.alleleassessment.allele_id && $ctrl.message.allelereport.allele_id">
+        <span class="event">{{ $ctrl.getAlleleReportMessage() }}</span
+        ><span ng-repeat="h in $ctrl.message.allelereport.hgvsc">{{ h }}</span>
+    </div>
     <div ng-if="$ctrl.message.warning_cleared === true">
         <span class="event">Warning cleared</span>
     </div>
@@ -84,7 +93,7 @@
     <div ng-if="$ctrl.message.finalized">
         <hr
             class="hr-text"
-            data-content="FINALISED ({{
+            data-content="FINALIZED ({{
                 $ctrl.message.date_last_update | date: 'yyyy-MM-dd HH:mm'
             }})"
         />

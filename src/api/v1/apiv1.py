@@ -143,7 +143,8 @@ class ApiV1(object):
         )
 
         self._add_resource(
-            r.overview.OverviewAnalysisByFindingsResource, "/api/v1/overviews/analyses/by-findings/"
+            r.overview.OverviewAnalysisByClassifiedResource,
+            "/api/v1/overviews/analyses/by-classified/",
         )
 
         self._add_resource(r.overview.OverviewUserStatsResource, "/api/v1/overviews/userstats/")
@@ -208,6 +209,11 @@ class ApiV1(object):
             r.workflow.allele.AlleleActionFinalizeResource,
             "/api/v1/workflows/alleles/<int:allele_id>/actions/finalize/",
             "/api/v1/workflows/alleles/<int:allele_id>/snapshots/",
+        )
+
+        self._add_resource(
+            r.workflow.allele.AlleleActionFinalizeAlleleResource,
+            "/api/v1/workflows/alleles/<int:allele_id>/actions/finalizeallele/",
         )
 
         self._add_resource(
@@ -303,6 +309,11 @@ class ApiV1(object):
             r.workflow.analysis.AnalysisActionFinalizeResource,
             "/api/v1/workflows/analyses/<int:analysis_id>/actions/finalize/",
             "/api/v1/workflows/analyses/<int:analysis_id>/snapshots/",
+        )
+
+        self._add_resource(
+            r.workflow.analysis.AnalysisActionFinalizeAlleleResource,
+            "/api/v1/workflows/analyses/<int:analysis_id>/actions/finalizeallele/",
         )
 
         self._add_resource(

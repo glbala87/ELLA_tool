@@ -73,18 +73,6 @@ $bar-colors: (
     }
 }
 
-h2 {
-    white-space: pre;
-    font-family: $slim;
-    font-weight: 400;
-    font-size: 1.8rem;
-    color: #333;
-}
-h5 {
-    font-weight: 400;
-    font-family: $slim;
-}
-
 $sb-titlebar-height: 3.8rem;
 .sectionbox {
     margin-bottom: 1.3rem;
@@ -121,7 +109,7 @@ $sb-titlebar-height: 3.8rem;
             .title {
                 font-family: $slim;
                 line-height: $sb-titlebar-height;
-                font-weight: 700;
+                font-weight: 600;
                 letter-spacing: 0.1rem;
                 font-size: 1.3rem;
                 text-transform: uppercase;
@@ -154,7 +142,7 @@ $sb-titlebar-height: 3.8rem;
                 padding-left: 1rem;
                 font-family: $slim;
                 line-height: $sb-titlebar-height;
-                font-weight: 700;
+                font-weight: 600;
                 letter-spacing: 0.1rem;
                 font-size: 1.3rem;
                 text-transform: uppercase;
@@ -249,11 +237,11 @@ contentwrapper {
     display: flex;
     height: calc(100% - 0.7rem);
     .max-width & .cb-body {
-        max-width: 100% !important;
+        max-width: calc(100% - 2.8rem) !important;
     }
     .cb-body {
         padding: 1.3rem;
-        width: 100%;
+        width: calc(100% - 2.8rem);
     }
     .cb.titlebar {
         height: auto;
@@ -276,7 +264,7 @@ contentwrapper {
             writing-mode: vertical-lr;
             width: 2.8rem;
             line-height: 2.8rem;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: 0.1rem;
             font-size: 1.3rem;
             text-transform: uppercase;
@@ -374,7 +362,7 @@ contentwrapper {
     @extend .sb-notification;
     font-family: $slim;
     color: $blue-75;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1.25rem;
     padding-top: 1.5rem;
     padding-bottom: 0.4rem;

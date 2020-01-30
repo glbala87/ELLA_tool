@@ -1,5 +1,5 @@
 <ul class="popover-list">
     <li ng-repeat="t in $ctrl.allele.annotation.transcripts track by t.transcript" ng-if="t.HGVSp">
-        {{ t.protein }}:{{ t.HGVSp }}
+        <copy-text text="{{ t.protein + '(' + t.symbol + '):' + t.HGVSp }}"></copy-text>
     </li>
 </ul>

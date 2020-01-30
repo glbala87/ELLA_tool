@@ -15,24 +15,32 @@
                 ng-repeat="control in $ctrl.section.controls"
                 ng-if="$ctrl.showControls()"
             >
-                <checkable-button
-                    class="id-accept-classification"
-                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment"
-                    check-model="$ctrl.isAlleleAssessmentReused"
-                    ng-click="$ctrl.reuseAlleleAssessmentClicked({alleleId: $ctrl.selectedAllele})"
-                    one-way="true"
+                <button
+                    class="id-finalize-button"
+                    ng-if="control == 'finalize' && $ctrl.showFinalize()"
+                    ng-disabled="!$ctrl.canFinalize()"
+                    ng-click="$ctrl.finalizeAllele()"
+                    title="{{ $ctrl.finalizeTitle() }}"
+                >
+                    {{ $ctrl.getFinalizeButtonText() }}
+                </button>
+
+                <confirm-button
+                    class="id-undo-reevaluate"
+                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment && !$ctrl.isAlleleAssessmentReused"
+                    confirm-action="$ctrl.reuseAlleleAssessment"
                     ng-disabled="$ctrl.readOnly"
                 >
-                    Undo re-evaluation <checked>Re-evaluate</checked>
-                </checkable-button>
+                    Undo re-evaluation
+                </confirm-button>
 
                 <button
-                    class="id-mark-class2"
-                    ng-if="control == 'toggle_class2'"
-                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.classificationChanged({alleleId: $ctrl.selectedAllele, classification: '2'})"
+                    class="id-reevaluate"
+                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleAssessment && $ctrl.isAlleleAssessmentReused"
+                    ng-click="$ctrl.reuseAlleleAssessment()"
+                    ng-disabled="$ctrl.readOnly"
                 >
-                    Mark class 2
+                    Re-evaluate
                 </button>
 
                 <button
@@ -94,7 +102,7 @@
                 <div
                     class="bttn-set"
                     ng-if="control == 'validation'"
-                    title="Externally verified (e.g. with Sanger)"
+                    tippy-title="Externally verified (e.g. with Sanger)"
                 >
                     <label
                         tabindex="0"
@@ -113,7 +121,7 @@
                 <div
                     class="bttn-set"
                     ng-if="control == 'not-relevant'"
-                    title="Regarded as not relevant for this analysis"
+                    tippy-title="Regarded as not relevant for this analysis"
                 >
                     <label
                         tabindex="0"

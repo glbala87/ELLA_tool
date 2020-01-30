@@ -7,7 +7,7 @@ from api import schemas, ApiError
 from api.config import config
 from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
 
-from api.util.alleledataloader import AlleleDataLoader
+from datalayer import AlleleDataLoader
 
 from api.v1.resource import LogRequestResource
 

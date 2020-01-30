@@ -14,12 +14,10 @@
             <h3 class="full-title">
                 <div class="allele_popup" isolate-click>
                     <span
-                        popover-trigger="outsideClick"
                         class="clickable"
-                        popover-append-to-body="true"
-                        uib-popover-template="'phenotypes_popover.ngtmpl.html'"
-                        popover-title="{{ t.symbol }}"
-                        popover-placement="bottom-left"
+                        tippy-popover="phenotypes_popover.ngtmpl.html"
+                        tippy-placement="bottom"
+                        tippy-popover-title="GENE INFO"
                     >
                         {{ t.symbol }} ({{ t.exon }})
                     </span>
@@ -38,12 +36,9 @@
                     <span
                         class="clickable"
                         item="t"
-                        popover-trigger="outsideClick"
-                        uib-popover-template="'cdnaPopover.ngtmpl.html'"
-                        popover-append-to-body="true"
-                        popover-title="HGVS cDNA"
-                        popover-class="popover-title-no-uppercase"
-                        popover-placement="bottom"
+                        tippy-popover="cdnaPopover.ngtmpl.html"
+                        tippy-placement="bottom"
+                        tippy-popover-title="HGVSc"
                     >
                         <i>{{ t.transcript }}:</i
                         ><b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
@@ -53,18 +48,18 @@
                         <span
                             class="genotype-display"
                             ng-repeat="gt in $ctrl.genotypeDisplay"
-                            title="{{ gt.title }}"
+                            tippy-title="{{ gt.title }}"
                         >
                             <span ng-if="$ctrl.genotypeDisplay.length > 1"
                                 >{{ gt.sample_label }}: </span
                             >{{ gt.display }}
                             <span
-                                title="Homozygous"
+                                tippy-title="Homozygous"
                                 class="tag red"
                                 ng-if="gt.sample_label == 'P' && gt.type == 'Homozygous'"
                                 >HOM</span
                             >
-                            <span title="Multiallelic" class="tag" ng-if="gt.multiallelic"
+                            <span tippy-title="Multiallelic" class="tag" ng-if="gt.multiallelic"
                                 >MUL</span
                             >
                         </span>
@@ -78,11 +73,9 @@
                 <div class="allele_popup" isolate-click>
                     <span
                         class="clickable"
-                        popover-trigger="outsideClick"
-                        popover-append-to-body="true"
-                        uib-popover-template="'proteinPopover.ngtmpl.html'"
-                        popover-title="HGVS protein"
-                        popover-placement="bottom"
+                        tippy-popover="proteinPopover.ngtmpl.html"
+                        tippy-placement="bottom"
+                        tippy-popover-title="PROTEIN"
                     >
                         <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
                             $ctrl.formatCodons(t.codons)
@@ -95,11 +88,9 @@
         <td>
             <h3 class="full-title">
                 <div
-                    popover-trigger="outsideClick"
-                    uib-popover-template="'alleleInfoConsequencePopover.ngtmpl.html'"
-                    popover-append-to-body="true"
-                    popover-title="Consequences"
-                    popover-placement="auto top"
+                    tippy-popover="alleleInfoConsequencePopover.ngtmpl.html"
+                    tippy-placement="bottom"
+                    tippy-popover-title="CONSEQUENCE"
                 >
                     <span class="clickable" ng-repeat="c in t.consequences">{{
                         c | noUnderscores

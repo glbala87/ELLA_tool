@@ -1,3 +1,4 @@
+from typing import Sequence, Optional
 import json
 from api.tests.util import FlaskClientProxy
 
@@ -10,45 +11,76 @@ uri_part = {"analysis": "analyses", "allele": "alleles"}
 ANALYSIS_WORKFLOW = "analysis"
 
 
-def finalize_template(
-    annotations,
-    custom_annotations,
-    alleleassessments,
-    referenceassessments,
-    allelereports,
-    attachments,
-    allele_ids,
-    excluded_allele_ids,
-    technical_allele_ids,
-    notrelevant_allele_ids,
+def finalize_allele_template(
+    allele_id: int,
+    annotation_id: int,
+    custom_annotation_id: Optional[int],
+    alleleassessment: dict,
+    allelereport: dict,
+    referenceassessments: Sequence[dict],
+):
+    data = {
+        "allele_id": allele_id,
+        "annotation_id": annotation_id,
+        "custom_annotation_id": custom_annotation_id,
+        "alleleassessment": alleleassessment,
+        "allelereport": allelereport,
+        "referenceassessments": referenceassessments,
+    }
+    return data
+
+
+def finalize_wf_allele_template(
+    annotation_ids: Sequence[int],
+    custom_annotation_ids: Sequence[int],
+    alleleassessment_ids: Sequence[int],
+    allelereport_ids: Sequence[int],
+    allele_ids: Sequence[int],
 ):
     return {
-        "annotations": annotations,
-        "custom_annotations": custom_annotations,
-        "alleleassessments": alleleassessments,
-        "referenceassessments": referenceassessments,
-        "allelereports": allelereports,
-        "attachments": attachments,
-        "technical_allele_ids": technical_allele_ids,
-        "notrelevant_allele_ids": notrelevant_allele_ids,
+        "annotation_ids": annotation_ids,
+        "custom_annotation_ids": custom_annotation_ids,
+        "alleleassessment_ids": alleleassessment_ids,
+        "allelereport_ids": allelereport_ids,
+        "allele_ids": allele_ids,
+    }
+
+
+def finalize_wf_analysis_template(
+    annotation_ids: Sequence[int],
+    custom_annotation_ids: Sequence[int],
+    alleleassessment_ids: Sequence[int],
+    allelereport_ids: Sequence[int],
+    allele_ids: Sequence[int],
+    excluded_allele_ids: dict,
+    technical_allele_ids: Sequence[int],
+    notrelevant_allele_ids: Sequence[int],
+):
+    return {
+        "annotation_ids": annotation_ids,
+        "custom_annotation_ids": custom_annotation_ids,
+        "alleleassessment_ids": alleleassessment_ids,
+        "allelereport_ids": allelereport_ids,
         "allele_ids": allele_ids,
         "excluded_allele_ids": excluded_allele_ids,
+        "technical_allele_ids": technical_allele_ids,
+        "notrelevant_allele_ids": notrelevant_allele_ids,
     }
 
 
 def round_template(
-    annotations=None,
-    custom_annotations=None,
-    alleleassessments=None,
-    allelereports=None,
+    annotation_ids=None,
+    custom_annotation_ids=None,
+    alleleassessment_ids=None,
+    allelereport_ids=None,
     allele_ids=None,
     excluded_allele_ids=None,
 ):
     return {
-        "annotations": annotations if annotations else [],
-        "custom_annotations": custom_annotations if custom_annotations else [],
-        "alleleassessments": alleleassessments if alleleassessments else [],
-        "allelereports": allelereports if allelereports else [],
+        "annotation_ids": annotation_ids if annotation_ids else [],
+        "custom_annotation_ids": custom_annotation_ids if custom_annotation_ids else [],
+        "alleleassessment_ids": alleleassessment_ids if alleleassessment_ids else [],
+        "allelereport_ids": allelereport_ids if allelereport_ids else [],
         "allele_ids": allele_ids,
         "excluded_allele_ids": excluded_allele_ids if excluded_allele_ids else {},
     }
@@ -62,78 +94,37 @@ def interpretation_template(interpretation):
     }
 
 
-def allele_assessment_template_for_variant_workflow(allele):
+def allele_assessment_template(allele_id, genepanel_name, genepanel_version):
     return {
-        "allele_id": allele["id"],
-        "evaluation": {"comment": "Original comment"},
+        "reuse": False,
+        "allele_id": allele_id,
+        "attachment_ids": [],
+        "evaluation": {
+            "acmg": {"included": [], "suggested": []},
+            "external": {"comment": "Original comment"},
+            "frequency": {"comment": "Original comment"},
+            "reference": {"comment": "Original comment"},
+            "prediction": {"comment": "Original comment"},
+            "classification": {"comment": "Original comment"},
+        },
         "classification": "5",
+        "genepanel_name": genepanel_name,
+        "genepanel_version": genepanel_version,
     }
 
 
-def allele_assessment_template(workflow_type, workflow_id, allele, extra):
-    base = {
-        "allele_id": allele["id"],
-        "attachments": [],
+def reference_assessment_template(allele_id, reference_id, genepanel_name, genepanel_version):
+    return {
+        "allele_id": allele_id,
+        "reference_id": reference_id,
         "evaluation": {"comment": "Original comment"},
-        "classification": "5",
-        "analysis_id": None,
-        "genepanel_name": None,
-        "genepanel_version": None,
+        "genepanel_name": genepanel_name,
+        "genepanel_version": genepanel_version,
     }
 
-    if workflow_type == ANALYSIS_WORKFLOW:
-        base["analysis_id"] = workflow_id
-        del base["genepanel_name"]
-        del base["genepanel_version"]
-    else:
-        del base["analysis_id"]
-        base["genepanel_name"] = extra["genepanel_name"]
-        base["genepanel_version"] = extra["genepanel_version"]
 
-    return base
-
-
-def reference_assessment_template(workflow_type, workflow_id, allele, reference, extra):
-    base = {
-        "allele_id": allele["id"],
-        "reference_id": reference["id"],
-        "evaluation": {"comment": "Original comment"},
-        "analysis_id": None,
-        "genepanel_name": None,
-        "genepanel_version": None,
-    }
-
-    if workflow_type == ANALYSIS_WORKFLOW:
-        base["analysis_id"] = workflow_id
-        del base["genepanel_name"]
-        del base["genepanel_version"]
-    else:
-        del base["analysis_id"]
-        base["genepanel_name"] = extra["genepanel_name"]
-        base["genepanel_version"] = extra["genepanel_version"]
-
-    return base
-
-
-def allele_report_template(workflow_type, workflow_id, allele, extra):
-    base = {
-        "allele_id": allele["id"],
-        "evaluation": {"comment": "Original comment"},
-        "analysis_id": None,
-        "genepanel_name": None,
-        "genepanel_version": None,
-    }
-
-    if workflow_type == ANALYSIS_WORKFLOW:
-        base["analysis_id"] = workflow_id
-        del base["genepanel_name"]
-        del base["genepanel_version"]
-    else:
-        del base["analysis_id"]
-        base["genepanel_name"] = extra["genepanel_name"]
-        base["genepanel_version"] = extra["genepanel_version"]
-
-    return base
+def allele_report_template(allele_id):
+    return {"reuse": False, "allele_id": allele_id, "evaluation": {"comment": "Original comment"}}
 
 
 def get_interpretation_id_of_last(workflow_type, workflow_id):
@@ -312,35 +303,67 @@ def reopen_analysis(workflow_type, workflow_id, username):
     return response
 
 
+def finalize_allele(
+    workflow_type,
+    workflow_id,
+    allele_id,
+    annotation_id,
+    custom_annotation_id,
+    alleleassessment,
+    allelereport,
+    referenceassessments,
+    username,
+):
+    response = api.post(
+        "/workflows/{}/{}/actions/finalizeallele/".format(uri_part[workflow_type], workflow_id),
+        finalize_allele_template(
+            allele_id,
+            annotation_id,
+            custom_annotation_id,
+            alleleassessment,
+            allelereport,
+            referenceassessments,
+        ),
+        username=username,
+    )
+    return response
+
+
 def finalize(
     workflow_type,
-    analysis_id,
-    annotations,
-    custom_annotations,
-    alleleassessments,
-    referenceassessments,
-    allelereports,
-    attachments,
+    workflow_id,
+    allele_ids,
+    annotation_ids,
+    custom_annotation_ids,
+    alleleassessment_ids,
+    allelereport_ids,
     username,
-    allele_ids=None,
     excluded_allele_ids=None,
     technical_allele_ids=None,
     notrelevant_allele_ids=None,
 ):
-    response = api.post(
-        "/workflows/{}/{}/actions/finalize/".format(uri_part[workflow_type], analysis_id),
-        finalize_template(
-            annotations,
-            custom_annotations,
-            alleleassessments,
-            referenceassessments,
-            allelereports,
-            attachments,
+    if workflow_type == "allele":
+        payload = finalize_wf_allele_template(
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
+            allele_ids,
+        )
+    else:
+        payload = finalize_wf_analysis_template(
+            annotation_ids,
+            custom_annotation_ids,
+            alleleassessment_ids,
+            allelereport_ids,
             allele_ids,
             excluded_allele_ids if excluded_allele_ids else {},
             technical_allele_ids if technical_allele_ids else [],
             notrelevant_allele_ids if notrelevant_allele_ids else [],
-        ),
+        )
+    response = api.post(
+        "/workflows/{}/{}/actions/finalize/".format(uri_part[workflow_type], workflow_id),
+        payload,
         username=username,
     )
     return response

@@ -1,11 +1,10 @@
 import click
-import logging
 import json
 
-from vardb.datamodel import DB, sample, user
+from vardb.datamodel import sample
 from vardb.deposit.deposit_analysis import import_filterconfigs
 from cli.decorators import cli_logger, session
-from api.util.queries import get_usergroup_filter_configs, get_valid_filter_configs
+from datalayer.queries import get_usergroup_filter_configs
 
 
 @click.group(help="Filter config management")
