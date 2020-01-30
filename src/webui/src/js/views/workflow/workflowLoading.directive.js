@@ -10,7 +10,7 @@ app.component('workflowLoading', {
     templateUrl: 'workflowLoading.ngtmpl.html',
     controller: connect(
         {
-            loadingText: state`views.workflows.loadingText`
+            loadingWorkflow: state`views.workflows.loadingWorkflow`
         },
         'WorkflowLoading',
         [

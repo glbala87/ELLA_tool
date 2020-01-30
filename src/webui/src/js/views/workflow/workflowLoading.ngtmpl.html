@@ -571,5 +571,23 @@
             </circle>
         </svg>
     </div>
-    <div class="loading-text">{{ $ctrl.loadingText }}</div>
+    <div class="loading-text">
+        <span ng-if="$ctrl.loadingWorkflow.filteringAlleles"
+            >Filtering
+            <text-counter
+                number="$ctrl.loadingWorkflow.filteringAlleles"
+                increment="8"
+            ></text-counter>
+            variants</span
+        >
+        <span ng-if="$ctrl.loadingWorkflow.loadingAlleles"
+            >Loading
+            <text-counter
+                number="$ctrl.loadingWorkflow.loadingAlleles"
+                increment="1"
+                delay="50"
+            ></text-counter>
+            variants</span
+        >
+    </div>
 </div>

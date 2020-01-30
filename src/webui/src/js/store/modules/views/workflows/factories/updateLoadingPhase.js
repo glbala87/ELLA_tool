@@ -12,26 +12,42 @@ export default function updateLoadingPhase(phase) {
 
         let showLoadingText = numTotalAlleles > 100 && workflowType === 'analysis'
         let loaded = false
-        let loadingText = ''
+        let loadingWorkflow = {
+            filteringAlleles: null,
+            loadingAlleles: null
+        }
 
         if (phase === 'start') {
-            loadingText = ''
+            loadingWorkflow = {
+                filteringAlleles: null,
+                loadingAlleles: null
+            }
         } else if (phase === 'filtering') {
             if (showLoadingText) {
-                loadingText = `Filtering ${numTotalAlleles} variants`
+                loadingWorkflow = {
+                    filteringAlleles: numTotalAlleles,
+                    loadingAlleles: null
+                }
             }
         } else if (phase === 'variants') {
             if (showLoadingText) {
                 const numVariants = resolve.value(getAlleleIdsFromInterpretation).length
-                loadingText = `Loading ${numVariants} variants`
+                loadingWorkflow = {
+                    filteringAlleles: null,
+                    loadingAlleles: numVariants
+                }
             }
         } else if (phase === 'done') {
+            loadingWorkflow = {
+                filteringAlleles: null,
+                loadingAlleles: null
+            }
             loaded = true
         } else {
             throw Error(`Invalid loading phase ${phase}`)
         }
 
         state.set(`views.workflows.loaded`, loaded)
-        state.set(`views.workflows.loadingText`, loadingText)
+        state.set(`views.workflows.loadingWorkflow`, loadingWorkflow)
     }
 }
