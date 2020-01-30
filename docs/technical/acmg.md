@@ -22,12 +22,14 @@ Rules for suggested ACMG criteria are defined in JSON format in:
 
 See `/src/rule_engine/README` for details.
 
-### Default values and thresholds
+### User group rules
 
-- File: `/src/api/config/config.py`
-- Key: `config.user.user_config.acmg`
+[User group](/technical/users.html#user-groups)-specific ACMG value rules. See `/src/vardb/testdata/usergroups.json` for examples. 
 
-The following subkeys define default thresholds and values that act as input for the ACMG rules engine. These settings are used if there are no override values defined per [user group](#user-group-overrides) or [gene](#gene-specific-overrides): 
+- File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
+- Key: `config.acmg` 
+
+The following subkeys define thresholds and values that act as input for the ACMG rules engine, for the given user group: 
 
 Subkey	|	Explanation	|	Values
 :---	|	:---	|	:---
@@ -36,21 +38,7 @@ Subkey	|	Explanation	|	Values
 `disease_mode`	|	Whether only missense (`MISS`) or loss of function (`LOF`) mutations, or both (`ANY`), are expected to cause disease.	|	`MISS` / `LOF` / `ANY` (default)
 `last_exon_important`	|	Whether the last exon is important (`LEI`) or not (`LENI`).	|	`LEI` (default) / `LENI`
 
-\* Similar to [filter frequency thresholds](/concepts/filtering.html#frequency-filter), with possibilities for separation of dataset groups and inheritance modes.
-
-### User group overrides
-
-[User group](/technical/users.html#user-groups)-specific ACMG value rules. See `/src/vardb/testdata/usergroups.json` for examples. 
-
-- File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
-- Key: `config.acmg` 
-
-These subkeys define shallow merge overrides of the defaults ([see above](#default-value-rules) for explanation), for the given user group: 
-
-- `frequency.thresholds`
-- `frequency.num_thresholds`
-- `disease_mode`
-- `last_exon_important`
+\* Similar to [filter frequency thresholds](/technical/filtering.html#frequency-filter), with possibilities for separation of dataset groups and inheritance modes.
 
 #### Gene-specific overrides
 
@@ -60,7 +48,7 @@ In addition, the subkey `comment` can be defined, specifying information relevan
 
 ## ACMG descriptions
 
-Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/concepts/acmg-rule-engine.html#req-requirements) (shown in UI popups) are given in: 
+Short (`short_criteria`) and long (`criteria`) descriptions and any `notes` for each ACMG criterion and [REQ](/manual/acmg-rule-engine.html#req-requirements) (shown in UI pop-ups) are given in: 
 
 - File: `/src/api/config/acmgconfig.py`
 - Key: `acmgconfig["explanation"]`
@@ -72,5 +60,7 @@ For REQs, you can also define which ACMG criteria the REQ relates to in this fil
 
 Sort order and time to outdated (how long an interpretation is considered valid) for clinical classifications is given in:
 
-- File: `/src/api/config/config.py` 
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment)) 
 - Key: `classification.options`
+
+See `/example_config.yml` for examples.

@@ -2,17 +2,17 @@
 title: Classification section
 ---
 
-# Classification section: Summarise and set ACMG criteria and classification
+# Classification section: Summarize and set ACMG criteria and classification
 
 [[toc]]
 
-This section is where you review the information from other sections, summarise your findings, add ACMG criteria and set a classification. In other words, for variants with no pre-existing interpretation, you should review the other sections first. 
+This section is where you review the information from other sections, summarize your findings, add ACMG criteria and set a classification. In other words, for variants with no pre-existing interpretation, you should review the other sections first. 
 
-## Evaluation and Report: Summarising comments
+## Summarizing comments: Evaluation and Report
 
 Unlike other sections, this section contains two main comment fields:
 
-  - EVALUATION: For summarising the evaluation of the consequence of the variant. This should be detailed enough for making an informed decision, but leaving the specifics to comments in respective sections.
+  - EVALUATION: For summarizing the evaluation of the consequence of the variant. This should be detailed enough for making an informed decision, but leaving the specifics to comments in respective sections.
   - REPORT: Comments relevant for clinical evaluation (automatically included in the final patient report). 
   ::: warning NOTE
   Comments made here will be visible for all patients where this variant shows up, and should be generalized, not patient-specific, as far as possible. For patient specific comments, use [fields on the REPORT page](/manual/report-page.html#comment-fields-indication-and-report).  
@@ -24,11 +24,11 @@ ELLA matches the variants in each new sample with existing variant interpretatio
 
 <div style="text-indent: 4%;"><img src="./img/existing_classification.png"></div>
 
-Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalised round of interpretation, ordered by date.
+Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalized round of interpretation, ordered by date.
 
 ### Interpretations that are still valid
 
-Previously finalised variant interpretations have a limited time period where they are still considered valid, and can be re-used without further evaluation. These variants are grouped with CLASSIFIED VARIANTS in the [side bar](/manual/side-bar.html#side-bar-sections). 
+Previously finalized variant interpretations have a limited time period where they are still considered valid, and can be re-used without further evaluation. These variants are grouped with CLASSIFIED VARIANTS in the [side bar](/manual/side-bar.html#side-bar-sections). 
 
 Variant interpretations that are still valid are shown with a green background and automatically accepted as if you had performed a regular interpretation, but without resetting the validity period. 
 
@@ -37,7 +37,7 @@ It is still possible to do a re-evaluation of these variants by clicking the `RE
 <div style="text-indent: 4%;"><img src="./img/reevaluate_btn.png"></div>
 
 ::: warning NOTE
-Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalise the variant, you must first reselect a class in the dropdown. 
+Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalize the variant, you must first reselect a class in the dropdown. 
 
 Changing the REPORT field only does not reset the validity period for a variant.
 :::
@@ -62,7 +62,7 @@ Each ACMG criterion can be added only once for a particular variant, irrespectiv
 
 ### Suggested ACMG criteria and requirements (REQ)
 
-ELLA automatically [suggests relevant ACMG criteria](/concepts/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
+ELLA automatically [suggests relevant ACMG criteria](/manual/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
 
 <div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
 
@@ -80,7 +80,7 @@ The suggestions may be somewhat imprecise and **you should always check that all
 
 #### REQ: requirements for ACMG criteria
 
-Where possible, some of the ACMG criteria have been split into separate ["requirements" (REQs)](/concepts/acmg-rule-engine.html#req-requirements) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
+Where possible, some of the ACMG criteria have been split into separate ["requirements" (REQs)](/manual/acmg-rule-engine.html#req-requirements) in ELLA. Each of these REQs is a necessary component for the ACMG criteria they belongs to. ELLA displays these REQs for information, which can be used as hints for additional criteria that may be relevant for the current variant. 
 
 REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
@@ -98,7 +98,7 @@ This brings up a side bar where you may modify strength, comment and add any ACM
 
 #### Other (non-ACMG) criteria
 
-In addition to the official ACMG criteria, you can also add the generic `OTHER` criterion. This can be used for criteria that are not described in the ACMG guidelines, but that are nonetheless important for the clinical classification. This includes, e.g., certain gene-specific criteria from the ENIGMA and InSiGHT guidelines. Note that these will not be used in calculation of the [suggested classfication](#set-variant-class).
+In addition to the official ACMG criteria, you can also add the generic `OTHER` criterion. This can be used for criteria that are not described in the ACMG guidelines, but that are nonetheless important for the clinical classification. This includes, e.g., certain gene-specific criteria from the ENIGMA and InSiGHT guidelines. Note that these will not be used in calculation of the [suggested classification](#set-variant-class).
 
 ## Modifying the strength of added criteria
 
@@ -108,11 +108,11 @@ To change the strength of a particular, added criterion, click either the `+` or
 
 ### Unweighted ACMG criterion 
 
-If you click the `-` sign all the way, the criterion will be marked as `NOT WEIGHTED`. This can be used when the evaluation of a criterion needs to be documented, but where the evidence does not support using it in the final classification. Any criteria added this way will not be used in the [suggested classfication](#set-variant-class). 
+If you click the `-` sign all the way, the criterion will be marked as `NOT WEIGHTED`. This can be used when the evaluation of a criterion needs to be documented, but where the evidence does not support using it in the final classification. Any criteria added this way will not be used in the [suggested classification](#set-variant-class). 
 
 ## Set variant class
 
-Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/concepts/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
+Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/manual/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
 
 <div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
 
@@ -122,8 +122,22 @@ As with suggested criteria, you are free to ignore the suggestion, and you must 
 
 If in ANALYSES mode, this moves the variant to CLASSIFIED VARIANTS in the variant side bar.
 
-Note that suggestions are only made for CLASS 1-5, not DRUG RESPONSE or CLASS U. The special option CLASS U should be used when you do not wish to perform any further evaluation of the variant, e.g. due to the variant being outside of usual inclusion criteria or if this is a consistent, recurring technical variant. 
-
-::: warning
-Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!
+::: warning NOTES
+- Suggestions are only made for CLASS 1-5.
+- Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!
 :::
+
+## Finalize variant
+
+Once you have set a classification, you have the option to finalize the variant: 
+
+<div style="text-indent: 4%;"><img src="./img/finalize_variant.png"></div>
+
+Once a variant is finalized, the interpretation is made available to other users and will not generate [collision warnings](/manual/warnings.html#collision-warnings) if there are overlapping analyses. 
+
+::: warning NOTES
+- Depending on configuration, finalization of all new/updated classified variants may be a requirement to finalize the analysis. This includes any classifications that were set using [QUICK mode](/manual/quick-classification.md).
+- Finalizing a variant should only be used when you consider the evaluation to be complete, i.e. no further review is needed. Depending on configuration, this option may therefore not be available except in review workflow steps.
+- If you are in VARIANTS view (e.g. searched for and opened a specific variant), you must also change the workflow step to `FINALIZED` via the `FINISH` button in the top bar before the variant interpretation is considered truly finalized and workflow collision warnings are removed.
+:::
+

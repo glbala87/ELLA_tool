@@ -9,8 +9,7 @@ module.exports = {
 
         nav: [
             { text: 'Home', link: '/' },
-            { text: 'User interface', link: '/manual/' },
-            { text: 'Concepts', link: '/concepts/' },
+            { text: 'User manual', link: '/manual/' },
             { text: 'Technical documentation', link: '/technical/' },
             { text: 'Release notes', link: '/releasenotes/' },
             { text: 'allel.es', link: 'http://allel.es' }
@@ -21,13 +20,13 @@ module.exports = {
         sidebar: {
             '/manual/': [
                 {
-                    title: 'User interface',
+                    title: 'User manual',
                     collapsable: false,
                     children: [
                         '/manual/'
                     ]
                 },
-                                {
+                {
                     title: 'OVERVIEW page',
                     collapsable: false,
                     children: [
@@ -55,7 +54,8 @@ module.exports = {
                         '/manual/evidence-sections',
                         '/manual/classification-section',
                         '/manual/quick-classification',
-                        '/manual/visual'
+                        '/manual/visual',
+                        '/manual/warnings'
                     ]
                 },
                 {
@@ -64,18 +64,15 @@ module.exports = {
                     children: [
                         '/manual/report-page'
                     ]
-                }
-            ],
-            '/concepts/': [
+                },
                 {
                     title: 'Concepts',
                     collapsable: false,
                     children: [
-                        '/concepts/',
-                        '/concepts/workflows',
-                        '/concepts/filtering',
-                        '/concepts/acmg-rule-engine',
-                        '/concepts/gene-panels'
+                        '/manual/concepts',
+                        '/manual/workflows',
+                        '/manual/acmg-rule-engine',
+                        '/manual/gene-panels'                        
                     ]
                 }
             ],
@@ -104,12 +101,14 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/technical/configuration',
+                        '/technical/application',
                         '/technical/users',
+                        '/technical/uioptions',
+                        '/technical/annotation',
                         '/technical/genepanels',
-                        '/technical/filtering',
-                        '/technical/acmg',
                         '/technical/import',
-                        '/technical/uioptions' 
+                        '/technical/filtering',
+                        '/technical/acmg'
                     ]
                 },
                 {

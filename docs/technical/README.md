@@ -4,11 +4,11 @@ title: Overview and introduction
 
 # Technical documentation: <br>Overview and introduction
 
-This page provides an introduction to the technical aspects of ELLA: 
+This page provides an introduction to the technical aspects of ELLA. 
 
 [[toc]]
 
-Detailed descriptions of various technical aspects of ELLA are found in these sections: 
+Detailed descriptions of various technical aspects of ELLA are found in these separate sections: 
 
 - [Setup](/technical/setup.md): How to deploy and setup a demo, production and/or development environment.
 - [Configuration](/technical/configuration.md): How to configure ELLA for your needs.

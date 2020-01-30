@@ -6,87 +6,87 @@ title: Latest release
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
-## Version 1.8.2
+## Version 1.9
 
-Release date: 02.12.2019
-
-### All changes
-
-<!-- MR !342 -->
-- Fixed bug where quality filtering did not work for multiple probands. 
-- Fixed bug where importing the same sample more than once caused a crash.
-<!-- MR!344 -->
-- Fixed bug causing several variants not to be filtered out as they should in the region filter.
-
-## Version 1.8.1
-
-Release date: 30.10.2019
-
-### All changes
-
-<!-- MR !339 -->
-- Fixed bug where users were not able to finalize analyses with reused allele assessments and auto-ignored references under "Pending evaluation".
-- Fixed bug where reference data was not reloaded when including a variant from filtered variants.
-
-## Version 1.8
-
-Release date: 30.10.2019
+Release date: 31.01.2020
 
 ### Highlights
 
-#### Add "other" and unweighted ACMG criteria
+This version adds changes to better support larger number of users and user groups using the same variant interpretation database. 
 
-Sometimes, criteria that don't match the ACMG guidelines are important for a variant interpretation, e.g. the ENIGMA criteria for the BRCA1/BRCA2 genes. ELLA now allows adding these to the interpretation as a generic `OTHER` criterion. The type and impact on the classification should be given in this criterion's comment field once added.
+#### Finalize variants in analyses
 
-In addition, users can often spend significant time evaluating an ACMG criterion for a particular interpretation, but in the end decide that the requirements are not met. ELLA now allows setting an added ACMG criterion as `NOT WEIGHTED`, so that comments related to this work can be properly recorded.
+The most important change in this version is the addition of a "finalize variant" function in analyses. This allows variant interpretations to be released for overlapping analyses (where the same variant is present in more than one non-finalized analysis workflow) as quickly as possible. This also means that workflow collision warnings are given per variant instead of per analysis, reducing the number of displayed warnings.
+
+With this change, each variant with a new/updated classification in an analysis needs to be finalized by pressing the new `FINALIZE` button in the CLASSIFICATION section before the analysis (sample) itself can be finalized:
 
 <div style="text-indent: 4%;">
-    <img src="./img/1-8-ACMG-other-unweighted.png">
+    <img src="./img/1-9-finalize-variant.png">
     <br>
     <div style="font-size: 80%;">
-        <strong>Figure: </strong>The new "other" criterion and unweighted option for ACMG criteria.
+        <strong>Figure: </strong>New button to finalize variant in analysis.
     </div>
     <br>
 </div>
 
-Note that neither "other" or unweighted ACMG criteria are counted in the calculation of suggested classification.
+Note that this also needs to be performed for any classification done in [QUICK mode](/manual/quick-classification.md), and that interpretations done in VARIANTS mode (stand-alone variants e.g. from search) still need to be finalized as before via the `FINISH` button in the top bar before the variant is considered truly finalized. 
 
-#### Filter improvements: Gene and allele ratio
+#### User group warnings
 
-The filter settings now allows using genes as a variable in rules for filters or exceptions. This allows conditioning any rule on the presence/absence of a gene, e.g. exclude certain genes from a particular filter.
+Finalizing variants means each variant interpretation will be tagged with the main responsible user and user group. This also allows showing a warning if the previous (finalized) variant interpretation was performed by a user from another user group than your own: 
 
-In addition, it is now also possible to use allele ratio (alternative allele reads/total reads) as a variable in the quality filter. In our experience, this gives a more powerful filter than using the `qual` variable, especially for high sequencing depths. A caveat is that mosaic variants may be missed, but this can be partially be circumvented by adding particular genes where mosaics are expected to a gene exclusion rule as described above.
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-user-group-warning.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New user group warning.
+    </div>
+    <br>
+</div>
 
+#### Copy text by mouse-click
+
+You can now more easily copy text from many pop-overs by clicking on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-popup.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New option to copy text directly by mouse-click in popups.
+    </div>
+    <br>
+</div>
 
 ### All changes
 
-<!-- MR !324 -->
-- [Added possibility for adding non-ACMG criteria](#acmg-add-other-and-unweighted-criteria).
-<!-- MR !324 -->
-- [Added possibility for setting ACMG criteria as unweighted](#acmg-add-other-and-unweighted-criteria).
-<!-- MR !327 -->
-- [Added possibility to filter out or rescue variants in specific genes](#filter-improvements-gene-and-allele-ratio).
-<!-- MR !331 -->
-- [Added possibility to use allele ratio in quality filter](#filter-improvements-gene-and-allele-ratio).
-<!-- MR !317 -->
-- Added possibility to configure irrelevant references to be automatically IGNORED; see [Technical documentation](/technical/uioptions.html#define-references-as-ignored) for details.
-<!-- MR !318 -->
-- Made controls FULL - QUICK - VISUAL and INDICATION comment field in the sidebar sticky to reduce need for scrolling when there are many variants.
-<!-- MR !318 -->
-- Made collision warnings below the top bar sticky and collapsible.
-<!-- MR !325 -->
-- Increased number of retrieved reference search results.
-<!-- MR !332 -->
-- Added "Documentation" link to all pages.
-<!-- MR !333-->
-- Added possibility to copy gene + transcripts from filtered results in GENE PANEL INFO.
-<!-- MR !333-->
-- Fixed bug that caused non-working filtering in GENE PANEL INFO if using wrong case.
-<!-- MR !320 -->
-- Fixed bug resulting in empty interpretation window when no variant was selected.
-<!-- MR !326 -->
-- Fixed bug causing no alerts when navigating away from interpretation view with unsaved work.
-<!-- MR !334 -->
-- Import jobs now show time of day when job was started, and time stamp when status of job last changed.
-<!-- MR !319 -->
-- Improved [Technical documentation](/technical/).
+<!-- MR !341 -->
+- [Finalize variant in analysis](#finalize-variants-in-analyses)
+<!-- MR !346 -->
+- [Display warning when variant was finalized by different group](#user-group-warnings)
+<!-- MR !350 -->
+- Mouse popovers and tooltips now use [tippy.js](https://atomiks.github.io/tippyjs/), with possibility for [copying text by mouse-click](#copy-text-by-mouse-click) (any text marked with a clipboard symbol).
+<!-- MR !358 -->
+- Optional sections on the ANALYSES OVERVIEW page have been simplified, see [ANALYSIS worklist](/manual/choosing-sample-variant.html#optional-analyses-view). 
+<!-- MR !360 -->
+- Added analyses with variants that need verification for optional automatic sorting to NOT READY section on the ANALYSES OVERVIEW page (see [Deposit](/technical/import.html#deposit)).
+<!-- MR !356 -->
+- Added support for importing references with .RIS format from the [new PubMed webpage](https://pubmed.ncbi.nlm.nih.gov/).
+<!-- MR !347 -->
+- Entries listed in the STUDIES & REFERENCES section are now shown with annotation source and better separation. 
+<!-- MR !341-->
+- `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
+<!-- MR !359-->
+- Added condition to the [Inherited mosaicism filter](/technical/filtering.html#inherited-mosaicism) to exclude cases where the other parent has a normal genotype. 
+<!-- MR !355 -->
+- ACMG criteria now have short descriptions available everywhere.
+<!-- MR !348 -->
+- All action buttons are now disabled until all data has been loaded when opening an analysis.
+<!-- MR !365 -->
+- Improve the performance of the region filter
+<!-- MR !349 -->
+- Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
+<!-- MR !354 -->
+- Fixed issue during import when re-importing previously deleted analyses.
+<!-- MR !351 -->
+- Changes to the documentation, including moving the "Concepts" section to the [User manual](/manual/concepts.md). 
+

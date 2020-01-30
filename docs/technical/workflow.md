@@ -8,7 +8,7 @@ Please contact developers for more details.
 
 [[toc]]
 
-ELLA uses the concept **workflow** to guide the users through the interpretation process. This section details the technical aspects of this concept. See [Concepts](/docs/concepts/workflows.md) for descriptions aimed at end users.
+ELLA uses the concept **workflow** to guide the users through the interpretation process. This section details the technical aspects of this concept. See [Concepts](/manual/workflows.md) for descriptions aimed at end users.
 
 ## Steps and rounds
 

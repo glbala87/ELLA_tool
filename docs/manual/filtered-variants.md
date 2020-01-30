@@ -22,7 +22,7 @@ The filter categories ("sub-filters" in the figure above) are defined in the con
 
 ## Filter rules
 
-Most filter rules may be configured to filter or "rescue" (exclude from filtering) variants, or a combination of both. See [Concepts](/concepts/filtering.html) for further details and how to configure the filters, or the [Technical documentation](/technical/filtering.html#general-filter-config) for technical details. 
+Most filter rules may be configured to filter or "rescue" (exclude from filtering) variants, or a combination of both. See [Technical documentation](/technical/filtering.html) for further details and [how to configure](/technical/filtering.html#available-filters-and-examples) the filters. 
 
 Current rules include and use:
 

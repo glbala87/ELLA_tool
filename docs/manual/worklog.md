@@ -8,7 +8,7 @@ Both the ANALYSES and VARIANTS workflows have their own work log, which can be a
 
 <div style="text-indent: 4%;"><img src="./img/work_log_btn.png"></div>
 
-If there are any messages since last time the workflow was finalised, the work log button will appear in purple, along with the current message count.
+If there are any messages since last time the workflow was finalized, the work log button will appear in purple, along with the current message count.
 
 Overview and example work log:
 
