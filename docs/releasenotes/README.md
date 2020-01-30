@@ -81,6 +81,8 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 - ACMG criteria now have short descriptions available everywhere.
 <!-- MR !348 -->
 - All action buttons are now disabled until all data has been loaded when opening an analysis.
+<!-- MR !365 -->
+- Improve the performance of the region filter
 <!-- MR !349 -->
 - Most configuration settings that were previously hard coded in `/src/api/config/config.py` have now been replaced by a dynamic configuration, set by the environment variable `ELLA_CONFIG`. See `/example_config.yml` for examples.
 <!-- MR !354 -->
