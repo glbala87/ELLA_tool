@@ -230,6 +230,7 @@ release:
         - docker pull $IMAGE_NAME | cat
     script:
         - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
+        - ops/gitlab_create_release.sh $CI_JOB_TOKEN $CI_COMMIT_REF_NAME
     artifacts:
         paths:
             - ella-release-$CI_COMMIT_REF_NAME-*.tgz
