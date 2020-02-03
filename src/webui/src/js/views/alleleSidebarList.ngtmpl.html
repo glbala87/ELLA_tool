@@ -377,7 +377,9 @@
                     tippy-popover="alleleSidebarFrequencyPopover.ngtmpl.html"
                     tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
-                    <span class="clickable">{{ $ctrl.hiCount[allele.id].maxValue || '-' }}</span>
+                    <span class="clickable">{{
+                        $ctrl.formatCountValue($ctrl.hiCount[allele.id])
+                    }}</span>
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('external')"
