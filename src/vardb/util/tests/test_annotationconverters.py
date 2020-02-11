@@ -1,6 +1,6 @@
 # coding=utf-8
-import unittest
 import pytest
+from itertools import permutations
 
 from .. import annotationconverters
 from .. import GNOMAD_EXOMES_RESULT_KEY, GNOMAD_EXOMES_ANNOTATION_KEY
@@ -218,11 +218,15 @@ class TestTranscriptAnnotation:
     def test_csq_transcripts(self):
         data = {
             "CSQ": [
-                {"Feature": "NM_000090.3", "Feature_type": "Transcript"},
-                {"Feature": "ENST123456", "Feature_type": "Transcript"},
-                {"Feature": "NM_000091.2", "Feature_type": "Transcript"},
-                {"Feature": "NOT_NM_OR_ENST__I_WILL_BE_FILTERED", "Feature_type": "Transcript"},
-                {"Feature": "NotTranscript", "Feature_type": "Other"},
+                {"Feature": "NM_000090.3", "HGNC_ID": 1100, "Feature_type": "Transcript"},
+                {"Feature": "ENST123456", "HGNC_ID": 1100, "Feature_type": "Transcript"},
+                {"Feature": "NM_000091.2", "HGNC_ID": 1100, "Feature_type": "Transcript"},
+                {
+                    "Feature": "NOT_NM_OR_ENST__I_WILL_BE_FILTERED",
+                    "HGNC_ID": 1100,
+                    "Feature_type": "Transcript",
+                },
+                {"Feature": "NotTranscript", "HGNC_ID": 1100, "Feature_type": "Other"},
             ]
         }
 
@@ -233,6 +237,104 @@ class TestTranscriptAnnotation:
         assert transcripts[0]["transcript"] == "ENST123456"
         assert transcripts[1]["transcript"] == "NM_000090.3"
         assert transcripts[2]["transcript"] == "NM_000091.2"
+
+        # Test HGNC ID fetching
+        data = {
+            "CSQ": [
+                {
+                    "Feature": "NM_000000.1",
+                    "Gene": "GENE_WITHOUT_HGNC_ID",
+                    "Feature_type": "Transcript",
+                },
+                {
+                    "Feature": "NM_000001.1",
+                    "SYMBOL": "BRCA1",
+                    "Feature_type": "Transcript",
+                },  # Will fetch HGNC id from symbol
+                {
+                    "Feature": "NM_000002.1",
+                    "Gene": "672",
+                    "Feature_type": "Transcript",
+                },  # Will fetch HGNC id from Gene (NCBI gene id 672 = BRCA1)
+                {
+                    "Feature": "NM_000003.1",
+                    "Gene": "ENSG00000139618",
+                    "Feature_type": "Transcript",
+                },  # Will fetch HGNC id from Gene (NCBI gene id ENSG00000139618 = BRCA2)
+            ]
+        }
+
+        transcripts = annotationconverters.convert_csq(data)
+        assert len(transcripts) == 3
+        assert transcripts[0]["transcript"] == "NM_000001.1"
+        assert transcripts[0]["symbol"] == "BRCA1"
+        assert transcripts[0]["hgnc_id"] == 1100
+        assert transcripts[1]["transcript"] == "NM_000002.1"
+        assert transcripts[1]["symbol"] == "BRCA1"
+        assert transcripts[1]["hgnc_id"] == 1100
+        assert transcripts[2]["transcript"] == "NM_000003.1"
+        assert transcripts[2]["symbol"] == "BRCA2"
+        assert transcripts[2]["hgnc_id"] == 1101
+
+        # Test RefSeq priority
+        data = {
+            "CSQ": [
+                {
+                    "Feature": "NM_000001.1",
+                    "SYMBOL": "RefSeq",
+                    "HGNC_ID": 1100,
+                    "Feature_type": "Transcript",
+                    "SOURCE": "RefSeq",
+                },
+                {
+                    "Feature": "NM_000001.1",
+                    "SYMBOL": "RefSeq_Interim_gff",
+                    "HGNC_ID": 1100,
+                    "Feature_type": "Transcript",
+                    "SOURCE": "RefSeq_Interim_gff",
+                },
+                {
+                    "Feature": "NM_000001.1",
+                    "SYMBOL": "RefSeq_gff",
+                    "HGNC_ID": 1100,
+                    "Feature_type": "Transcript",
+                    "SOURCE": "RefSeq_gff",
+                },
+                {
+                    "Feature": "NM_000002.1",
+                    "HGNC_ID": 1100,
+                    "Feature_type": "Transcript",
+                },  # Different transcript, should not affect priority
+            ]
+        }
+
+        # Order shouldn't matter, check all 4!=24 permutations
+        for p in permutations(data["CSQ"]):
+            transcripts = annotationconverters.convert_csq({"CSQ": p})
+            assert len(transcripts) == 2
+            assert transcripts[0]["transcript"] == "NM_000001.1"
+            assert transcripts[0]["symbol"] == "RefSeq_gff"
+            assert transcripts[1]["transcript"] == "NM_000002.1"
+
+        # Remove top priority source
+        data["CSQ"] = [tx_data for tx_data in data["CSQ"] if tx_data.get("SYMBOL") != "RefSeq_gff"]
+        assert len(data["CSQ"]) == 3
+        transcripts = annotationconverters.convert_csq(data)
+        assert len(transcripts) == 2
+        assert transcripts[0]["transcript"] == "NM_000001.1"
+        assert transcripts[0]["symbol"] == "RefSeq_Interim_gff"
+        assert transcripts[1]["transcript"] == "NM_000002.1"
+
+        # Remove second top priority source
+        data["CSQ"] = [
+            tx_data for tx_data in data["CSQ"] if tx_data.get("SYMBOL") != "RefSeq_Interim_gff"
+        ]
+        assert len(data["CSQ"]) == 2
+        transcripts = annotationconverters.convert_csq(data)
+        assert len(transcripts) == 2
+        assert transcripts[0]["transcript"] == "NM_000001.1"
+        assert transcripts[0]["symbol"] == "RefSeq"
+        assert transcripts[1]["transcript"] == "NM_000002.1"
 
     @pytest.mark.parametrize(
         "hgvsc,hgvsc_short,insertion",

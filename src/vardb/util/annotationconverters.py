@@ -3,6 +3,8 @@ import json
 import base64
 import jsonschema
 from collections import defaultdict
+import gzip
+from pathlib import Path
 
 import logging
 
@@ -47,6 +49,7 @@ CSQ_FIELDS = [
     ("Codons", "codons"),
     ("Feature", "transcript"),
     ("CANONICAL", "is_canonical"),
+    ("SOURCE", "source"),
 ]
 
 # Should match all possible valid HGVSc annotations (without transcript)
@@ -78,6 +81,44 @@ HGVSC_DISTANCE_CHECK = [
 HGVSC_DISTANCE_CHECK_REGEX = re.compile("".join(HGVSC_DISTANCE_CHECK))
 
 
+this_dir = Path(__file__).parent.absolute()
+with gzip.open(this_dir / "hgnc_symbols_id.txt.gz", "rt") as hgnc_symbols:
+    hgnc_approved_symbol_id = {}
+    hgnc_previous_symbol_id = {}
+    hgnc_approved_id_symbol = {}
+    for l in hgnc_symbols:
+        if l.startswith("#"):
+            continue
+        symbol, hgnc_id, approved = l.strip().split("\t")
+        hgnc_id = int(hgnc_id)
+        if approved == "1":
+            assert symbol not in hgnc_approved_symbol_id
+            assert hgnc_id not in hgnc_approved_id_symbol
+            hgnc_approved_symbol_id[symbol] = hgnc_id
+            hgnc_approved_id_symbol[hgnc_id] = symbol
+        else:
+            assert symbol not in hgnc_previous_symbol_id
+            hgnc_previous_symbol_id[symbol] = hgnc_id
+
+with gzip.open(this_dir / "hgnc_ncbi_ensembl_geneids.txt.gz", "rt") as hgnc_ncbi_ensembl:
+    ncbi_ensembl_hgnc_id = {}
+    for l in hgnc_ncbi_ensembl:
+        if l.startswith("#"):
+            continue
+        lsplit = l.strip().split("\t")
+        lsplit = lsplit + [""] * (3 - len(lsplit))
+        hgnc_id, ensembl_gene, ncbi_gene = lsplit
+        hgnc_id = int(hgnc_id)
+        if ensembl_gene:
+            assert ensembl_gene not in ncbi_ensembl_hgnc_id
+            ncbi_ensembl_hgnc_id[ensembl_gene] = hgnc_id
+        if ncbi_gene:
+            assert ncbi_gene not in ncbi_ensembl_hgnc_id
+            ncbi_ensembl_hgnc_id[ncbi_gene] = hgnc_id
+        assert ensembl_gene == "" or ensembl_gene.startswith("ENSG")
+        assert ncbi_gene == "" or int(ncbi_gene)
+
+
 def _map_hgnc_id(transcripts):
     symbol_hgnc_id = dict()
     for t in transcripts:
@@ -90,6 +131,20 @@ def _map_hgnc_id(transcripts):
                 )
             symbol_hgnc_id[t["symbol"]] = t["hgnc_id"]
     return symbol_hgnc_id
+
+
+def _map_hgnc_id_gene(transcripts):
+    gene_hgnc_id = dict()
+    for t in transcripts:
+        if t.get("hgnc_id") and isinstance(t.get("hgnc_id"), int):
+            if t["gene"] in gene_hgnc_id:
+                assert (
+                    gene_hgnc_id[t["symbol"]] == t["hgnc_id"]
+                ), "Got different HGNC ({} vs {}) id for same gene symbol ({})".format(
+                    t["hgnc_id"], gene_hgnc_id[t["symbol"]], t["symbol"]
+                )
+            gene_hgnc_id[t["symbol"]] = t["hgnc_id"]
+    return gene_hgnc_id
 
 
 def convert_csq(annotation):
@@ -191,6 +246,8 @@ def convert_csq(annotation):
     if "CSQ" not in annotation:
         return list()
 
+    refseq_priority = ["RefSeq_gff", "RefSeq_Interim_gff", "RefSeq"]
+
     transcripts = list()
     # Invert CSQ data to map to transcripts
     for data in annotation["CSQ"]:
@@ -205,6 +262,30 @@ def convert_csq(annotation):
 
         if "hgnc_id" in transcript_data:
             transcript_data["hgnc_id"] = int(transcript_data["hgnc_id"])
+        elif "Gene" in data and data["Gene"] in ncbi_ensembl_hgnc_id:
+            transcript_data["hgnc_id"] = ncbi_ensembl_hgnc_id[data["Gene"]]
+        elif "SYMBOL" in data and data["SYMBOL"] in hgnc_approved_symbol_id:
+            transcript_data["hgnc_id"] = hgnc_approved_symbol_id[data["SYMBOL"]]
+        else:
+            if data.get("SYMBOL_SOURCE") not in [
+                "Clone_based_vega_gene",
+                "Clone_based_ensembl_gene",
+            ]:
+                log.warning(
+                    "No HGNC id found for Feature: {}, SYMBOL: {}, SYMBOL_SOURCE: {}, Gene: {}. Skipping.".format(
+                        data.get("Feature", "N/A"),
+                        data.get("SYMBOL", "N/A"),
+                        data.get("SYMBOL_SOURCE", "N/A"),
+                        data.get("Gene", "N/A"),
+                    )
+                )
+            continue
+        assert "hgnc_id" in transcript_data and isinstance(transcript_data["hgnc_id"], int), str(
+            data
+        )
+
+        if "symbol" not in transcript_data:
+            transcript_data["symbol"] = hgnc_approved_id_symbol[transcript_data["hgnc_id"]]
 
         # Only keep dbSNP data (e.g. rs123456789)
         if "dbsnp" in transcript_data:
@@ -246,19 +327,46 @@ def convert_csq(annotation):
             transcript_data["consequences"] = sorted(transcript_data["consequences"])
         else:
             transcript_data["consequences"] = []
-        transcripts.append(transcript_data)
+
+        existing_tx_data = next(
+            (
+                tx_data
+                for tx_data in transcripts
+                if tx_data["transcript"] == transcript_data["transcript"]
+            ),
+            None,
+        )
+
+        if existing_tx_data:
+            assert (
+                "source" in existing_tx_data and "source" in transcript_data
+            ), "Unable to determine priority of transcript {}, as source is not defined".format(
+                transcript_data["transcript"]
+            )
+
+            existing_source = existing_tx_data["source"]
+            incoming_source = transcript_data["source"]
+            assert (
+                existing_source in refseq_priority and incoming_source in refseq_priority
+            ), "Transcript {} defined multiple times in annotation, but no priority defined for the sources {} and {}".format(
+                transcript_data["transcript"], existing_source, incoming_source
+            )
+
+            if refseq_priority.index(existing_source) > refseq_priority.index(incoming_source):
+                # Incoming has priority, replace existing
+                transcripts[transcripts.index(existing_tx_data)] = transcript_data
+            else:
+                # Existing has priority, discard incoming
+                continue
+        else:
+            transcripts.append(transcript_data)
+
+    # Remove no longer needed source
+    [tx.pop("source") for tx in transcripts if "source" in tx]
 
     # VEP output is not deterministic, but we need it to be so
     # we can compare correctly in database
     transcripts = sorted(transcripts, key=lambda x: x["transcript"])
-
-    # Hack: Since hgnc_id is not provided by VEP for Refseq,
-    # we steal it from matching Ensembl transcript (by gene symbol)
-    # Tested on 100k exome annotated variants, all RefSeq had corresponding match in Ensembl
-    symbol_hgnc_id = _map_hgnc_id(transcripts)
-    for t in transcripts:
-        if not t.get("hgnc_id") and t.get("symbol") and t["symbol"] in symbol_hgnc_id:
-            t["hgnc_id"] = symbol_hgnc_id[t["symbol"]]
 
     return transcripts
 
