@@ -403,6 +403,12 @@ def annotation_transcripts_genepanel(
         .subquery()
     )
 
+    # Column for version difference between annotation transcript and genepanel transcript
+    tx_version = literal_column(
+        "substring(split_part(transcript, '.', 2) FROM '^[0-9]+')::int"  # Fetch annotation transcript version: NM_00111.2 -> 2
+        + "- 0.5*(split_part(transcript, '.', 2) !~ '^[0-9]+$')::int"  # Reduce version by 0.5 if version is not an integer, e.g. NM_00111.2_dupl18
+    )
+
     # Join genepanel and annotation tables together, using transcript as key
     # and splitting out the version number of the transcript (if it has one)
     result = session.query(
@@ -417,9 +423,8 @@ def annotation_transcripts_genepanel(
         AnnotationShadowTranscript.hgvsc.label("annotation_hgvsc"),
         AnnotationShadowTranscript.hgvsp.label("annotation_hgvsp"),
     ).filter(
-        # Matches NM_12345dabla.1 with NM_12345.2
-        text("transcript_name like split_part(transcript, '.', 1) || '%'"),
-        genepanel_transcripts.c.gene_id == AnnotationShadowTranscript.hgnc_id,
+        # Matches e.g. NM_12345dabla.1 with NM_12345.2
+        text("transcript_name like split_part(transcript, '.', 1) || '%'")
     )
 
     if allele_ids is not None:
@@ -427,7 +432,27 @@ def annotation_transcripts_genepanel(
             AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
         )
 
-    result = result.distinct()
+    # Order and distinct:
+    # For each distinct allele, genepanel, gene and genepanel transcript, select either:
+    # - The annotation transcript that matches the genepanel transcript on version
+    # - Otherwise, select the latest available transcript version
+    result = result.order_by(
+        AnnotationShadowTranscript.allele_id,
+        genepanel_transcripts.c.name,
+        genepanel_transcripts.c.version,
+        genepanel_transcripts.c.gene_id,
+        genepanel_transcripts.c.transcript_name,
+        (genepanel_transcripts.c.transcript_name == AnnotationShadowTranscript.transcript).desc(),
+        tx_version.desc().nullslast(),
+    )
+
+    result = result.distinct(
+        AnnotationShadowTranscript.allele_id,
+        genepanel_transcripts.c.name,
+        genepanel_transcripts.c.version,
+        genepanel_transcripts.c.gene_id,
+        genepanel_transcripts.c.transcript_name,
+    )
 
     return result
 

@@ -193,9 +193,37 @@ def test_annotation_transcripts_genepanel(session, test_database):
         anno2 = create_annotation(annotations, allele=a2)
         session.add(anno2)
 
-        return a1, a2
+        a3 = allele.Allele(
+            genome_reference="GRCh37",
+            chromosome="1",
+            start_position=3,
+            open_end_position=4,
+            change_from="A",
+            change_to="T",
+            change_type="SNP",
+            vcf_pos=3,
+            vcf_ref="A",
+            vcf_alt="T",
+        )
 
-    a1, a2 = insert_data()
+        annotations = {
+            "transcripts": [
+                {"transcript": "NM_1.2"},
+                {"transcript": "NM_1.3"},
+                {"transcript": "NM_2.1"},
+                {"transcript": "NM_2.2"},
+                {"transcript": "NM_3.1_sometext"},
+                {"transcript": "NM_3.2"},
+                {"transcript": "NM_3.3_sometext"},
+                {"transcript": "NM_3"},
+            ]
+        }
+        anno3 = create_annotation(annotations, allele=a3)
+        session.add(anno3)
+
+        return a1, a2, a3
+
+    a1, a2, a3 = insert_data()
     session.flush()
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
@@ -213,21 +241,17 @@ def test_annotation_transcripts_genepanel(session, test_database):
     passes = [
         # allele_id, panel, annotation, genepanel
         (a1.id, "testpanel1", "v01", "NM_1.1", "NM_1.1"),
-        (a1.id, "testpanel1", "v01", "NM_1", "NM_1.1"),
         (a1.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
         (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
         (a2.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
         (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
         (a2.id, "testpanel2", "v01", "NM_3.1", "NM_3.1"),
-        (a2.id, "testpanel2", "v01", "NM_3", "NM_3.1"),
+        (a3.id, "testpanel1", "v01", "NM_1.3", "NM_1.1"),
+        (a3.id, "testpanel1", "v01", "NM_2.1", "NM_2.1"),
+        (a3.id, "testpanel2", "v01", "NM_2.1", "NM_2.1"),
+        (a3.id, "testpanel2", "v01", "NM_3.3_sometext", "NM_3.1"),
     ]
 
-    fails = ["NM_NOT_IN_PANEL.1", "NM_NOT_IN_PANEL"]  # Same transcript name fail on both alleles
-
-    for r in result:
-        if not r[3].startswith("NM_NOT"):
-            assert next((p for p in passes if r == p), None)
-        else:
-            assert r[3] in fails
+    assert set(result) == set(passes)
 
     session.rollback()
