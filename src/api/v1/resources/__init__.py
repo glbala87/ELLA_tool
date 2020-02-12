@@ -11,7 +11,6 @@ from . import customannotation
 from . import overview
 from . import reference
 from . import referenceassessment
-from . import report
 from . import search
 from . import user
 from . import genepanel
