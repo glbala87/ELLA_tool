@@ -424,7 +424,8 @@ def annotation_transcripts_genepanel(
         AnnotationShadowTranscript.hgvsp.label("annotation_hgvsp"),
     ).filter(
         # Matches e.g. NM_12345dabla.1 with NM_12345.2
-        text("transcript_name like split_part(transcript, '.', 1) || '%'")
+        text("transcript_name like split_part(transcript, '.', 1) || '%'"),
+        genepanel_transcripts.c.gene_id == AnnotationShadowTranscript.hgnc_id,
     )
 
     if allele_ids is not None:

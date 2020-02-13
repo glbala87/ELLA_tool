@@ -5,6 +5,7 @@ import jsonschema
 from collections import defaultdict
 import gzip
 from pathlib import Path
+from typing import Any
 
 import logging
 
@@ -83,9 +84,9 @@ HGVSC_DISTANCE_CHECK_REGEX = re.compile("".join(HGVSC_DISTANCE_CHECK))
 
 this_dir = Path(__file__).parent.absolute()
 with gzip.open(this_dir / "hgnc_symbols_id.txt.gz", "rt") as hgnc_symbols:
-    hgnc_approved_symbol_id = {}
-    hgnc_previous_symbol_id = {}
-    hgnc_approved_id_symbol = {}
+    hgnc_approved_symbol_id: Any = {}
+    hgnc_previous_symbol_id: Any = {}
+    hgnc_approved_id_symbol: Any = {}
     for l in hgnc_symbols:
         if l.startswith("#"):
             continue
@@ -101,7 +102,7 @@ with gzip.open(this_dir / "hgnc_symbols_id.txt.gz", "rt") as hgnc_symbols:
             hgnc_previous_symbol_id[symbol] = hgnc_id
 
 with gzip.open(this_dir / "hgnc_ncbi_ensembl_geneids.txt.gz", "rt") as hgnc_ncbi_ensembl:
-    ncbi_ensembl_hgnc_id = {}
+    ncbi_ensembl_hgnc_id: Any = {}
     for l in hgnc_ncbi_ensembl:
         if l.startswith("#"):
             continue

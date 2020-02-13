@@ -158,11 +158,11 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         annotations = {
             "transcripts": [
-                {"transcript": "NM_1.1"},  # In genepanel
-                {"transcript": "NM_1"},  # In genepanel, no version
-                {"transcript": "NM_2.2"},  # In genepanel, different version
-                {"transcript": "NM_NOT_IN_PANEL.1"},  # Not in genepanel
-                {"transcript": "NM_NOT_IN_PANEL"},  # Not in genepanel, no version
+                {"transcript": "NM_1.1", "hgnc_id": 1},  # In genepanel
+                {"transcript": "NM_1", "hgnc_id": 1},  # In genepanel, no version
+                {"transcript": "NM_2.2", "hgnc_id": 2},  # In genepanel, different version
+                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in genepanel
+                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in genepanel, no version
             ]
         }
         anno1 = create_annotation(annotations, allele=a1)
@@ -183,11 +183,11 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         annotations = {
             "transcripts": [
-                {"transcript": "NM_3.1"},  # In one genepanel
-                {"transcript": "NM_3"},  # In one genepanel, no version
-                {"transcript": "NM_2.2"},  # In two genepanels, different version
-                {"transcript": "NM_NOT_IN_PANEL.1"},  # Not in any genepanel
-                {"transcript": "NM_NOT_IN_PANEL"},  # Not in any genepanel, no version
+                {"transcript": "NM_3.1", "hgnc_id": 3},  # In one genepanel
+                {"transcript": "NM_3", "hgnc_id": 3},  # In one genepanel, no version
+                {"transcript": "NM_2.2", "hgnc_id": 2},  # In two genepanels, different version
+                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in any genepanel
+                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in any genepanel, no version
             ]
         }
         anno2 = create_annotation(annotations, allele=a2)
@@ -208,14 +208,14 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         annotations = {
             "transcripts": [
-                {"transcript": "NM_1.2"},
-                {"transcript": "NM_1.3"},
-                {"transcript": "NM_2.1"},
-                {"transcript": "NM_2.2"},
-                {"transcript": "NM_3.1_sometext"},
-                {"transcript": "NM_3.2"},
-                {"transcript": "NM_3.3_sometext"},
-                {"transcript": "NM_3"},
+                {"transcript": "NM_1.2", "hgnc_id": 1},
+                {"transcript": "NM_1.3", "hgnc_id": 1},
+                {"transcript": "NM_2.1", "hgnc_id": 2},
+                {"transcript": "NM_2.2", "hgnc_id": 2},
+                {"transcript": "NM_3.1_sometext", "hgnc_id": 3},
+                {"transcript": "NM_3.2", "hgnc_id": 3},
+                {"transcript": "NM_3.3_sometext", "hgnc_id": 3},
+                {"transcript": "NM_3", "hgnc_id": 3},
             ]
         }
         anno3 = create_annotation(annotations, allele=a3)

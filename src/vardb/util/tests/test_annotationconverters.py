@@ -354,6 +354,7 @@ class TestTranscriptAnnotation:
                     {
                         "Feature_type": "Transcript",
                         "Feature": transcript,
+                        "HGNC_ID": 1,
                         "HGVSc": transcript + ":" + hgvsc,
                     }
                 ]
