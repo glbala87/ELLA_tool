@@ -1,27 +1,17 @@
+from typing import Optional
 import copy
-from api.config import config
-from api.v1.resource import LogRequestResource
-from api.util.util import authenticate
+from fastapi import Depends, APIRouter
+from api.config import config as app_config, get_user_config
+
+from api.schemas.users import User
+from api.depends import get_current_user_optional
+
+router = APIRouter()
 
 
-class ConfigResource(LogRequestResource):
-    @authenticate(user_config=True, optional=True)
-    def get(self, session, user=None, user_config=None):
-        """
-        Returns application configuration.
-        ---
-        summary: Get config
-        tags:
-          - Config
-        responses:
-          200:
-            schema:
-                type: object
-            description: Config object
-        """
-
-        c = copy.deepcopy(config)
-        if user_config:
-            c["user"]["user_config"] = user_config
-
-        return c
+@router.get("/config")
+def config(user: Optional[User] = Depends(get_current_user_optional),):
+    c = copy.deepcopy(app_config)
+    if user:
+        c["user"]["user_config"] = get_user_config(app_config, user.group.config, user.config)
+    return c

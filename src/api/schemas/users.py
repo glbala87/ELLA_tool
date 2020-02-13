@@ -1,5 +1,20 @@
+from pydantic import BaseModel
 from marshmallow import Schema, fields
 from api.schemas.genepanels import GenepanelSchema
+
+
+class User(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    full_name: str
+    abbrev_name: str
+    active: bool
+    user_group_name: str
+
+    class Config:
+        orm_mode = True
 
 
 class UserSchema(Schema):

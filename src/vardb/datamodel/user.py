@@ -45,6 +45,22 @@ class User(Base):
     incorrect_logins = Column(Integer, default=0, nullable=False)
     config = Column(JSONMutableDict.as_mutable(JSONB), default={})
 
+    @property
+    def full_name(self):
+        return " ".join([self.first_name, self.last_name])
+
+    @property
+    def abbrev_name(self):
+        return (
+            " ".join([v[0] + "." for v in [self.first_name] + self.last_name.split()[:-1]])
+            + " "
+            + self.last_name.split()[-1]
+        )
+
+    @property
+    def user_group_name(self):
+        return self.group.name
+
 
 class UserGroup(Base):
     __tablename__ = "usergroup"

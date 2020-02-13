@@ -5,7 +5,7 @@ function getResults({ http, module, path, state }) {
     const config = state.get('app.config')
     let query = module.get('query')
     return http
-        .get(`search/?q=${encodeURIComponent(JSON.stringify(query))}`)
+        .get(`search?q=${encodeURIComponent(JSON.stringify(query))}`)
         .then((response) => {
             for (let item of response.result.alleles) {
                 processAlleles([item.allele], config)

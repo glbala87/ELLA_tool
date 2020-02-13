@@ -4,7 +4,7 @@ export default async function postLogin({ http, path, state }) {
         password: state.get('views.login.password')
     }
     try {
-        const response = await http.post('users/actions/login/', payload)
+        const response = await http.post('login', payload)
         return path.success(response)
     } catch (err) {
         console.error(err)

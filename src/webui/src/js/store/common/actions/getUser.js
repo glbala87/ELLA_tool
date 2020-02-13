@@ -1,6 +1,6 @@
 function getUser({ http, path }) {
     return http
-        .get(`users/currentuser/`)
+        .get(`users/currentuser`)
         .then((response) => {
             if (response.status === 200) {
                 return path.success(response)
