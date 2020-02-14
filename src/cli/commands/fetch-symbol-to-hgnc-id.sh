@@ -24,7 +24,7 @@ cut -f1 $PREVIOUS_SYMBOLS | sort -k1,1 | uniq -d > $DUPLICATED_PREVIOUS_SYMBOLS
 grep -v -w -f $DUPLICATED_PREVIOUS_SYMBOLS $PREVIOUS_SYMBOLS > $UNIQUE_PREVIOUS_SYMBOLS
 
 # Concatenate approved and previous symbols.
-(echo -e "##Generated on ${today}\n#Symbol\tHGNC_id\tApproved" && cat $APPROVED_SYMBOLS $UNIQUE_PREVIOUS_SYMBOLS | sort -k1,1 -k3r) | gzip -f > hgnc_symbols_id.txt.gz
+(echo -e "##Generated on ${today}\n#Symbol\tHGNC_id\tApproved" && cat $APPROVED_SYMBOLS $UNIQUE_PREVIOUS_SYMBOLS | sort -k1,1 -k3,3r) | gzip -f > hgnc_symbols_id.txt.gz
 
 
 curl --fail "https://www.genenames.org/cgi-bin/download/custom?col=gd_hgnc_id&col=gd_pub_ensembl_id&col=gd_pub_eg_id&status=Approved&status=Entry%20Withdrawn&hgnc_dbtag=on&order_by=gd_app_sym_sort&format=text&submit=submit" \

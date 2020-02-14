@@ -30,7 +30,6 @@ def get_hgnc_approved_symbol_maps():
     this_dir = Path(__file__).parent.absolute()
     with gzip.open(this_dir / "hgnc_symbols_id.txt.gz", "rt") as hgnc_symbols:
         hgnc_approved_symbol_id: Any = {}
-        hgnc_previous_symbol_id: Any = {}
         hgnc_approved_id_symbol: Any = {}
         for l in hgnc_symbols:
             if l.startswith("#"):
@@ -43,8 +42,10 @@ def get_hgnc_approved_symbol_maps():
                 hgnc_approved_symbol_id[symbol] = hgnc_id
                 hgnc_approved_id_symbol[hgnc_id] = symbol
             else:
-                assert symbol not in hgnc_previous_symbol_id
-                hgnc_previous_symbol_id[symbol] = hgnc_id
+                # This is a previously approved symbol for a HGNC id
+                # Discarding this for now, but can be used to map from old symbol
+                # to new symbol
+                pass
 
     return hgnc_approved_id_symbol, hgnc_approved_symbol_id
 
@@ -57,13 +58,13 @@ def get_hgnc_ncbi_ensembl_map():
             if l.startswith("#"):
                 continue
             lsplit = l.strip().split("\t")
-            lsplit = lsplit + [""] * (3 - len(lsplit))
+            lsplit.extend([""] * (3 - len(lsplit)))  # Make sure line has all three columns
             hgnc_id, ensembl_gene, ncbi_gene = lsplit
             hgnc_id = int(hgnc_id)
-            if ensembl_gene:
+            if ensembl_gene != "":
                 assert ensembl_gene not in ncbi_ensembl_hgnc_id
                 ncbi_ensembl_hgnc_id[ensembl_gene] = hgnc_id
-            if ncbi_gene:
+            if ncbi_gene != "":
                 assert ncbi_gene not in ncbi_ensembl_hgnc_id
                 ncbi_ensembl_hgnc_id[ncbi_gene] = hgnc_id
             assert ensembl_gene == "" or ensembl_gene.startswith("ENSG")
@@ -224,6 +225,8 @@ class ConvertCSQ(object):
         if "CSQ" not in annotation:
             return list()
 
+        # Prefer refseq annotations coming from the latest annotated RefSeq release (RefSeq_gff) over the
+        # RefSeq interim release (RefSeq_Interim_gff) and VEP default (RefSeq).
         refseq_priority = ["RefSeq_gff", "RefSeq_Interim_gff", "RefSeq"]
 
         transcripts = list()
@@ -248,7 +251,7 @@ class ConvertCSQ(object):
                 if data.get("SYMBOL_SOURCE") not in [
                     "Clone_based_vega_gene",
                     "Clone_based_ensembl_gene",
-                ]:
+                ]:  # Silently ignore these sources, to avoid cluttering the log
                     log.warning(
                         "No HGNC id found for Feature: {}, SYMBOL: {}, SYMBOL_SOURCE: {}, Gene: {}. Skipping.".format(
                             data.get("Feature", "N/A"),
@@ -308,6 +311,10 @@ class ConvertCSQ(object):
             else:
                 transcript_data["consequences"] = []
 
+            # Check if this transcript is already processed, and if so, check if this should be overwritten
+            # by incoming transcript_data based on refseq_priority. We do not want multiple annotations
+            # on the same transcript. Chances are that the annotations (HGVSc, HGVSp, consequences) are equal,
+            # but in a small percentage of cases the different sources can give different annotations.
             existing_tx_data = next(
                 (
                     tx_data
