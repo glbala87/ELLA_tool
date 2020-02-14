@@ -136,6 +136,7 @@ app.component('alleleSectionbox', {
             alleleReportCommentChanged: signal`views.workflows.interpretation.alleleReportCommentChanged`,
             analysisCommentChanged: signal`views.workflows.interpretation.analysisCommentChanged`,
             reuseAlleleAssessmentClicked: signal`views.workflows.interpretation.reuseAlleleAssessmentClicked`,
+            reuseAlleleReportClicked: signal`views.workflows.interpretation.reuseAlleleReportClicked`,
             removeAcmgClicked: signal`views.workflows.interpretation.removeAcmgClicked`,
             acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`,
             showExcludedReferencesClicked: signal`views.workflows.interpretation.showExcludedReferencesClicked`,
@@ -233,14 +234,17 @@ app.component('alleleSectionbox', {
                     reuseAlleleAssessment() {
                         $ctrl.reuseAlleleAssessmentClicked({ alleleId: $ctrl.selectedAllele })
                     },
+                    reuseAlleleReport() {
+                        $ctrl.reuseAlleleReportClicked({ alleleId: $ctrl.selectedAllele })
+                    },
                     finalizeAllele() {
                         $ctrl.finalizeAlleleClicked({ alleleId: $ctrl.selectedAllele })
                     },
                     getFinalizeButtonText() {
-                        // If only report will be updated, 'Update report'.
+                        // If only report will be updated, 'Submit report'.
                         // If both alleleassessment and report, 'Finalize'
                         if ($ctrl.isAlleleAssessmentReused) {
-                            return 'Update report'
+                            return 'Submit report'
                         }
                         return 'Finalize'
                     },

@@ -2,12 +2,12 @@ import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
 export function compareAlleleReport(alleleState, allele) {
-    // Whether allelereport has changed in state compared to original
-    return (
+    // Whether allelereport is equal in state compared to original
+    return Boolean(
         alleleState.allelereport &&
-        allele.allele_report &&
-        angular.toJson(alleleState.allelereport.evaluation) ==
-            angular.toJson(allele.allele_report.evaluation)
+            allele.allele_report &&
+            angular.toJson(alleleState.allelereport.evaluation) ==
+                angular.toJson(allele.allele_report.evaluation)
     )
 }
 

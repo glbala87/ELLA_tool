@@ -2,10 +2,14 @@ import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 
 export default (alleleId) => {
-    return Compute(alleleId, state`views.workflows.interpretation`, (alleleId, interpretation) => {
-        if (!interpretation || !interpretation.state || !interpretation.state.allele) {
-            return
+    return Compute(
+        alleleId,
+        state`views.workflows.interpretation.state.allele`,
+        (alleleId, interpretationStateAllele) => {
+            if (!interpretationStateAllele) {
+                return
+            }
+            return interpretationStateAllele[alleleId]
         }
-        return interpretation.state.allele[alleleId]
-    })
+    )
 }
