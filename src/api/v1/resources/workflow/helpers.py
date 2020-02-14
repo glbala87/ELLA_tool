@@ -555,6 +555,7 @@ def finalize_allele(
             .filter(
                 sample.Analysis.id == workflow_analysis_id, allele.Allele.id == data["allele_id"]
             )
+            .distinct()
             .count()
             == 1
         )
