@@ -160,8 +160,9 @@
             class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
             ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
             placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
-            ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment})"
-            ng-model="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
+            ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.modelSectionEvaluationComment})"
+            ng-model="$ctrl.modelSectionEvaluationComment"
+            ng-model-watch="$ctrl.alleleassessment.evaluation[$ctrl.section.alleleassessmentComment.name].comment"
             ng-if="$ctrl.section.alleleassessmentComment"
         ></wysiwyg-editor>
 
@@ -171,8 +172,9 @@
             class="control-comment id-comment-analysis"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.analysisComment.placeholder }}"
-            ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.alleleState.analysis.comment})"
-            ng-model="$ctrl.alleleState.analysis.comment"
+            ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.modelAnalysisComment})"
+            ng-model="$ctrl.modelAnalysisComment"
+            ng-model-watch="$ctrl.alleleState.analysis.comment"
             ng-if="$ctrl.section.analysisComment"
         ></wysiwyg-editor>
 
@@ -182,8 +184,9 @@
             class="control-comment id-comment-report"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.reportComment.placeholder }}"
-            ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.allelereport.evaluation.comment})"
-            ng-model="$ctrl.allelereport.evaluation.comment"
+            ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.modelAlleleReportComment})"
+            ng-model="$ctrl.modelAlleleReportComment"
+            ng-model-watch="$ctrl.allelereport.evaluation.comment"
             ng-if="$ctrl.section.reportComment"
         ></wysiwyg-editor>
 
