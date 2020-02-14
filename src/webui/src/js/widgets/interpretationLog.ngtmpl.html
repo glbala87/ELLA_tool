@@ -74,7 +74,7 @@
     <div class="messages">
         <div ng-repeat="messageId in $ctrl.messageIds track by messageId">
             <interpretation-log-item message-id="messageId"></interpretation-log-item>
-            <div ng-if="$last" scroll-into-view></div>
+            <div ng-if="$last" scroll-to scroll-position="view"></div>
         </div>
     </div>
     <div class="compose">

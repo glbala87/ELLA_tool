@@ -1,13 +1,16 @@
 import app from '../ng-decorators'
 
-app.directive('scrollIntoView', function() {
+app.directive('scrollTo', function() {
     return {
         restrict: 'A',
         link: (scope, elem, attrs) => {
             const getScrollFunc = (elem) => {
-                if (attrs.scrollFunction === 'scrollTo') {
+                if (attrs.scrollPosition === 'top') {
                     return () => elem.scrollTo({ top: 0, left: 0 })
+                } else if (attrs.scrollPosition === 'view') {
+                    return () => elem.scrollIntoView()
                 } else {
+                    // Default to scrollIntoView
                     return () => elem.scrollIntoView()
                 }
             }

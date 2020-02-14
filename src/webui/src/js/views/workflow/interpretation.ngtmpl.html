@@ -10,9 +10,9 @@
             class="container"
             ng-class="{'inner': $ctrl.showSidebar}"
             ng-style="{'max-height': 'calc(100vh - ' + $ctrl.offsetTop +'px)'}"
-            scroll-into-view
+            scroll-to
             scroll-on-change="{{ $ctrl.selectedAllele }}"
-            scroll-function="scrollTo"
+            scroll-position="top"
         >
             <div ng-switch-when="Info">
                 <analysis-info></analysis-info>
