@@ -6,6 +6,18 @@ title: Latest release
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.9.1
+
+Release date: [TBD]
+
+### All changes
+
+<!-- MR !371 -->
+- Added support for updated version of VEP (v98.3), including fixes for fetching latest HGNC symbol using RefSeq GFF files and choosing the correct transcript.
+<!-- MR !369 -->
+- Added auto-scroll to top in main window when switching between variants in ANALYSES view.
+
+
 ## Version 1.9
 
 Release date: 31.01.2020
