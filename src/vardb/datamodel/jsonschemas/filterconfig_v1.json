@@ -71,50 +71,23 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "external": {
-                                        "optional": ["GNOMAD_GENOMES", "GNOMAD_EXOMES"],
-                                        "additionalProperties": false,
-                                        "properties": {
-                                            "GNOMAD_GENOMES": {
+                                        "patternProperties": {
+                                            ".*": {
                                                 "type": "array",
                                                 "items": {
-                                                    "enum": [
-                                                        "G",
-                                                        "AFR",
-                                                        "AMR",
-                                                        "EAS",
-                                                        "FIN",
-                                                        "NFE",
-                                                        "OTH",
-                                                        "SAS"
-                                                    ]
-                                                }
-                                            },
-                                            "GNOMAD_EXOMES": {
-                                                "type": "array",
-                                                "items": {
-                                                    "enum": [
-                                                        "G",
-                                                        "AFR",
-                                                        "AMR",
-                                                        "EAS",
-                                                        "FIN",
-                                                        "NFE",
-                                                        "OTH",
-                                                        "SAS"
-                                                    ]
+                                                    "type": "string"
                                                 }
                                             }
                                         }
                                     },
                                     "internal": {
                                         "type": "object",
-                                        "optional": ["inDB"],
                                         "additionalProperties": false,
-                                        "properties": {
-                                            "inDB": {
+                                        "patternProperties": {
+                                            ".*": {
                                                 "type": "array",
                                                 "items": {
-                                                    "enum": ["OUSWES"]
+                                                    "type": "string"
                                                 }
                                             }
                                         }
@@ -123,79 +96,11 @@
                             },
                             "num_thresholds": {
                                 "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                    "GNOMAD_GENOMES": {
+                                "patternProperties": {
+                                    ".*": {
                                         "type": "object",
-                                        "additionalProperties": false,
-                                        "properties": {
-                                            "G": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "AFR": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "AMR": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "EAS": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "FIN": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "NFE": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "OTH": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "SAS": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            }
-                                        }
-                                    },
-                                    "GNOMAD_EXOMES": {
-                                        "type": "object",
-                                        "additionalProperties": false,
-                                        "properties": {
-                                            "G": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "AFR": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "AMR": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "EAS": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "FIN": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "NFE": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "OTH": {
-                                                "type": "integer",
-                                                "minimum": 0
-                                            },
-                                            "SAS": {
+                                        "patternProperties": {
+                                            ".*": {
                                                 "type": "integer",
                                                 "minimum": 0
                                             }
