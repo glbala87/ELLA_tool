@@ -1,0 +1,4 @@
+[flake8]
+extend-ignore = E501,W503,E203,E722,E266
+per-file-ignores = __init__.py:F401,src/vardb/datamodel/migration/alembic/versions/*:E402,F401,E266
+exclude = src/vardb/datamodel/migration/**
