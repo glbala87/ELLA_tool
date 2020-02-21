@@ -8,7 +8,6 @@ import os
 import sys
 import argparse
 import logging
-import json
 from sqlalchemy import and_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm

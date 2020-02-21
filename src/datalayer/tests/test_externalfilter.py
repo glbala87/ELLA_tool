@@ -1,4 +1,3 @@
-import pytest
 import operator
 import datetime
 import pytz

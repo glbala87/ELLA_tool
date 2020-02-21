@@ -1,12 +1,7 @@
-import copy
-
 from flask import request
 from vardb.datamodel import allele, gene
-from api import ApiError
-from api.config import config
 from datalayer import ACMGDataLoader
 from api.util.util import request_json, authenticate
-
 from api.v1.resource import LogRequestResource
 
 

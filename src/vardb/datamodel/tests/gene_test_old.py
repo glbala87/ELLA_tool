@@ -5,7 +5,7 @@
 See howToTestDB.py for explanation/comments on how to create tests with SQLAlchemy.
 Remember to CREATE DATABASE testvardb; before running this code.
 """
-
+raise NotImplementedError()
 import sys
 import unittest
 import operator

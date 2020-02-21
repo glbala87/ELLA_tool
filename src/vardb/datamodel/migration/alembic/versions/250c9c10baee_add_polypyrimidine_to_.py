@@ -26,7 +26,7 @@ def upgrade():
     # Update snapshot tables
     with update_enum(
         op, TABLE_NAMES, "filtered", "interpretationsnapshot_filtered", OLD_OPTIONS, NEW_OPTIONS
-    ) as tmp_tables:
+    ):
         # We don't need to convert enums, we're only adding new ones
         pass
 

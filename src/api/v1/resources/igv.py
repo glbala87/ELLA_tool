@@ -3,7 +3,6 @@ import mimetypes
 import json
 import logging
 from io import BytesIO
-from collections import OrderedDict
 
 from flask import request, Response, send_file
 from sqlalchemy import tuple_, func
@@ -14,7 +13,7 @@ from api.config import config
 from vardb.datamodel import sample, gene, allele, assessment, user as user_model
 
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, request_json, logger
+from api.util.util import authenticate, logger
 from datalayer import AlleleDataLoader
 
 log = logging.getLogger()

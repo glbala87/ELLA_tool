@@ -1,9 +1,9 @@
 from collections import defaultdict
 from flask import request
-from sqlalchemy import or_, text
+from sqlalchemy import text
 from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
 
-from api import schemas, ApiError
+from api import schemas
 from api.config import config
 from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
 

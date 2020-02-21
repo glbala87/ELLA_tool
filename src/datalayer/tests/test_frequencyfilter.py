@@ -2,11 +2,10 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-import copy
 import pytest
 
 from datalayer.allelefilter.frequencyfilter import FrequencyFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
+from vardb.datamodel import allele, annotation, gene, annotationshadow
 
 
 # prevent screen getting filled with output (useful when testing manually)

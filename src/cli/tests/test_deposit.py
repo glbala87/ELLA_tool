@@ -1,4 +1,3 @@
-import pytest
 import os
 from sqlalchemy import tuple_
 from vardb.datamodel import sample, assessment, gene, user

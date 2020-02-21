@@ -336,19 +336,19 @@ class TestAnalysisOverview(object):
             len(allele_ids) - 1
         )
         with_finding_alleleassessment = None
-        for allele, classification in zip(alleles, classifications):
+        for al, classification in zip(alleles, classifications):
 
             # Supercede the ones with existing classifications
             existing = (
                 session.query(assessment.AlleleAssessment)
-                .filter(assessment.AlleleAssessment.allele_id == allele["id"])
+                .filter(assessment.AlleleAssessment.allele_id == al["id"])
                 .one_or_none()
             )
 
             aa = assessment.AlleleAssessment(
                 user_id=1,
                 classification=classification["value"],
-                allele_id=allele["id"],
+                allele_id=al["id"],
                 genepanel_name=interpretation["genepanel_name"],
                 genepanel_version=interpretation["genepanel_version"],
                 previous_assessment_id=existing.id if existing else None,
@@ -808,7 +808,7 @@ class TestAlleleOverview(object):
         # Analysis 3 has no overlapping AlleleInterpretation
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
-        interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
+        ih.get_interpretation("analysis", 3, interpretation_id).get_json()
         allele_ids = ih.get_filtered_alleles(
             "analysis", 3, interpretation_id, filterconfig_id=FILTERCONFIG_ID
         ).get_json()["allele_ids"]
@@ -851,7 +851,7 @@ class TestAlleleOverview(object):
         test_database.refresh()
 
         interpretation_id = ih.get_interpretation_id_of_last("analysis", 3)
-        interpretation = ih.get_interpretation("analysis", 3, interpretation_id).get_json()
+        ih.get_interpretation("analysis", 3, interpretation_id).get_json()
         allele_ids = ih.get_filtered_alleles(
             "analysis", 3, interpretation_id, filterconfig_id=FILTERCONFIG_ID
         ).get_json()["allele_ids"]

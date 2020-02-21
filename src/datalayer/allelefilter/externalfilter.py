@@ -1,5 +1,5 @@
 import operator
-from typing import Any, Dict, List, Optional, Set, Union, Tuple
+from typing import Any, Dict, List, Set, Union, Tuple
 from sqlalchemy import and_, or_, literal_column, func
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression

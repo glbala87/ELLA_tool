@@ -37,11 +37,9 @@ def test_user_reset_password(test_database, session, run_command, username):
 def test_user_lock(session, username, run_command):
     result = run_command(["users", "lock", username])
     assert result.exit_code == 0
-    u = (
-        session.query(user.User)
-        .filter(user.User.username == username, user.User.active.is_(False))
-        .one()
-    )
+    session.query(user.User).filter(
+        user.User.username == username, user.User.active.is_(False)
+    ).one()
 
 
 def test_user_modify(session, run_command):

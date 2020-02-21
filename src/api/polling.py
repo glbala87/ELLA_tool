@@ -264,7 +264,7 @@ class AnnotationServiceInterface:
 
     def annotation_service_running(self):
         try:
-            k = urllib.request.urlopen(join(self.base, "status"))
+            urllib.request.urlopen(join(self.base, "status"))
             return {"running": True}, 200
         except (urllib.error.HTTPError, urllib.error.URLError):
             return {"running": False}, 200

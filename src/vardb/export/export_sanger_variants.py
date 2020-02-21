@@ -6,7 +6,7 @@ import re
 import itertools
 from os import path
 from collections import defaultdict
-from sqlalchemy import or_, tuple_, func, text
+from sqlalchemy import or_, tuple_
 import xlsxwriter
 
 from datalayer import AlleleDataLoader

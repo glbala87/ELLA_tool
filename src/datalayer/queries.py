@@ -1,8 +1,8 @@
 from typing import Sequence, Tuple
 import datetime
 import pytz
-from sqlalchemy import or_, and_, tuple_, func, text, literal_column
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene, annotation, user
+from sqlalchemy import or_, and_, tuple_, func, text
+from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
 from api.util import filterconfig_requirements

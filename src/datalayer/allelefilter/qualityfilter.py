@@ -1,6 +1,6 @@
 from vardb.datamodel import sample
 from datalayer.allelefilter.genotypetable import get_genotype_temp_table
-from sqlalchemy import and_, case
+from sqlalchemy import and_
 
 
 class QualityFilter(object):

@@ -87,7 +87,7 @@ class CustomAnnotationList(LogRequestResource):
             session.query(annotation.CustomAnnotation)
             .filter(
                 annotation.CustomAnnotation.allele_id == allele_id,
-                annotation.CustomAnnotation.date_superceeded == None,
+                annotation.CustomAnnotation.date_superceeded.is_(None),
             )
             .one_or_none()
         )

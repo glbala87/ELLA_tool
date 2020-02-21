@@ -1,10 +1,6 @@
-import datetime
-
 from vardb.datamodel import assessment
-
 from api import schemas
 from api.util.util import paginate, rest_filter, request_json, authenticate
-
 from api.v1.resource import LogRequestResource
 
 
@@ -163,7 +159,7 @@ class ReferenceAssessmentListResource(LogRequestResource):
             .filter(
                 assessment.ReferenceAssessment.allele_id == obj.allele_id,
                 assessment.ReferenceAssessment.reference_id == obj.reference_id,
-                assessment.ReferenceAssessment.date_superceeded == None,
+                assessment.ReferenceAssessment.date_superceeded.is_(None),
                 assessment.ReferenceAssessment.status == 0,
             )
             .one_or_none()

@@ -1,5 +1,4 @@
 from ..grc import ACMGClassifier2015, ClassificationResult
-from ..grm import GRM
 import unittest
 import re
 

@@ -5,7 +5,7 @@ Since it consists mostly of database queries, it's tested on a live database.
 import pytest
 
 from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
-from vardb.datamodel import allele, annotation, gene, assessment
+from vardb.datamodel import allele, gene
 
 import hypothesis as ht
 import hypothesis.strategies as st

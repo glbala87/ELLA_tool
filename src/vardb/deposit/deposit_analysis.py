@@ -7,38 +7,25 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
-import sys
 import re
-import argparse
-import json
 import logging
-import itertools
 import datetime
 import pytz
-from collections import OrderedDict, defaultdict
 
 
 import jsonschema
 from sqlalchemy import tuple_
 from api.config import config
 from datalayer import queries
-from vardb.util import DB, vcfiterator
+from vardb.util import vcfiterator
 from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (
-    AnalysisImporter,
-    AnnotationImporter,
-    SampleImporter,
-    GenotypeImporter,
-    AlleleImporter,
-    AnalysisInterpretationImporter,
     HGMDInfoProcessor,
     SplitToDictInfoProcessor,
-    AlleleInterpretationImporter,
-    batch_generator,
     get_allele_from_record,
 )
 
-from vardb.datamodel import sample, workflow, user, gene, assessment, allele
+from vardb.datamodel import sample, user, gene, assessment, allele
 from vardb.datamodel.jsonschemas import load_schema
 
 from .deposit_from_vcf import DepositFromVCF

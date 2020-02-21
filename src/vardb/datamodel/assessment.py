@@ -10,13 +10,16 @@ from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_searchable import SearchQueryMixin
 
 from vardb.datamodel import Base
-from vardb.datamodel import (
-    gene,
-    annotation,
-    user,
-    sample,
-    attachment,
+
+
+from vardb.datamodel import (  # noqa: F401
+    gene as _gene,
+    annotation as _annotation,
+    user as _user,
+    sample as _sample,
+    attachment as _attachment,
 )  # Needed, implicit imports used by sqlalchemy
+
 from vardb.util.mutjson import JSONMutableDict
 
 

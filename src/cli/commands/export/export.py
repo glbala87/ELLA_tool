@@ -3,7 +3,7 @@ import logging
 
 import datetime
 
-from vardb.datamodel import DB, user, sample
+from vardb.datamodel import user
 from vardb.export import export_sanger_variants, dump_classification
 from datalayer import queries
 

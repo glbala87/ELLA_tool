@@ -462,7 +462,7 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
             filter_status = {"G": value[0].split("|")}
         elif key.startswith("filter_"):
             pop = key.split("filter_")[1]
-            filter_status[pop] = re.split(",|\|", value)
+            filter_status[pop] = re.split(r",|\|", value)
         # Be careful if rearranging!
         elif key == "AC":
             count["G"] = extract_int_list(value)

@@ -7,10 +7,6 @@ import pytest
 from datalayer import AlleleFilter
 from vardb.datamodel import sample, jsonschema
 
-import hypothesis as ht
-import hypothesis.strategies as st
-
-
 FILTER_CONFIG_NUM = 0
 
 

@@ -1,5 +1,4 @@
 import click
-import logging
 import datetime
 
 from pubmed.pubmed_fetcher import PubMedFetcher

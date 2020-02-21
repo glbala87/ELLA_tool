@@ -11,14 +11,12 @@ import base64
 import logging
 import datetime
 import pytz
-import itertools
 from collections import defaultdict
-from sqlalchemy import tuple_, or_, and_
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import or_, and_
 
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
-from vardb.datamodel import annotation as annm, assessment as asm
+from vardb.datamodel import annotation as annm
 from vardb.util import vcfiterator, annotationconverters
 from vardb.deposit.vcfutil import vcfhelper
 from vardb.datamodel.user import User
@@ -94,9 +92,9 @@ def is_non_empty_text(input):
 
 
 def batch(iterable, n):
-    l = len(iterable)
-    for ndx in range(0, l, n):
-        yield iterable[ndx : min(ndx + n, l)]
+    N = len(iterable)
+    for ndx in range(0, N, n):
+        yield iterable[ndx : min(ndx + n, N)]
 
 
 def batch_generator(generator, n):
@@ -501,7 +499,7 @@ class GenotypeImporter(object):
                 assert (
                     record_sample["GT"] in self.types
                 ), "Not supported genotype {} for sample {}".format(
-                    record_sample["GT"], sample_name
+                    record_sample["GT"], sample.identifier
                 )
 
                 # If REF or POS is shifted, we can't trust the AD data.
@@ -620,7 +618,6 @@ class AssessmentImporter(object):
         assert (
             len(record["ALT"]) == 1
         ), "Only decomposed variants are supported. That is, only one ALT per line/record."
-        allele = record["ALT"][0]
 
         all_info = record["INFO"]["ALL"]
 
@@ -642,7 +639,6 @@ class AssessmentImporter(object):
                 {"comment": base64.b64decode(assessment_comment).decode("utf-8")}
             )
 
-        user = None
         username_raw = all_info.get(ASSESSMENT_USERNAME_FIELD)
         ass_info["username"] = username_raw
 

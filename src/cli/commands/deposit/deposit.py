@@ -1,14 +1,11 @@
 import os
-import logging
-import json
 import re
 from pathlib import Path
 import click
 
-from vardb.datamodel import DB, user, gene
+from vardb.datamodel import user, gene
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_references import import_references
-from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_genepanel import DepositGenepanel
@@ -17,7 +14,7 @@ from vardb.datamodel.analysis_config import AnalysisConfigData
 from cli.decorators import cli_logger, session
 
 VCF_FIELDS_RE = re.compile(
-    "(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf"
+    r"(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf"
 )
 
 

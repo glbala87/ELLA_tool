@@ -3,7 +3,7 @@ from sqlalchemy import or_
 import hypothesis as ht
 import hypothesis.strategies as st
 from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
-from datalayer.alleledataloader.alleledataloader import AlleleDataLoader, Warnings
+from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
 
 

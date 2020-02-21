@@ -5,16 +5,15 @@ import logging
 import time
 import datetime
 
+from flask import send_from_directory, request, g, make_response
+from flask_restful import Api
+from api import app, db
+from api.v1 import ApiV1
+from api.util.util import populate_g_user, populate_g_logging, log_request
 
 DEFAULT_STATIC_FILE = "index.html"
 REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-from flask import send_from_directory, request, g, make_response
-from flask_restful import Api, abort
-from api import app, db, ApiError
-from api.v1 import ApiV1
-from api.util.util import populate_g_user, populate_g_logging, log_request
 
 KEYWORD_DEVELOPER_MODE = "DEVELOP"
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))

@@ -10,7 +10,6 @@ from jsonschema import validate, Draft7Validator, RefResolver
 from flask import request, g, Response
 from api import app, db, ApiError
 from api.config import config, get_user_config
-from vardb.datamodel import user
 from vardb.datamodel.log import ResourceLog
 from api.util.useradmin import get_usersession_by_token
 

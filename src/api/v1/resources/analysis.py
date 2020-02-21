@@ -1,7 +1,6 @@
 from sqlalchemy import tuple_
-from vardb.datamodel import assessment, sample, genotype, workflow
-
-from api import schemas, ApiError
+from vardb.datamodel import sample
+from api import schemas
 from api.util.util import paginate, rest_filter, authenticate
 from api.v1.resource import LogRequestResource
 

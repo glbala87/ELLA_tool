@@ -23,10 +23,11 @@ def import_groups(session, groups, log=log.info):
             session.query(gene.Genepanel)
             .filter(
                 tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data["genepanels"]),
-                gene.Genepanel.official == True,
+                gene.Genepanel.official.is_(True),
             )
             .all()
         )
+        print(db_official_genepanels)
 
         if len(db_official_genepanels) != len(group_data["genepanels"]):
             not_found = set(tuple(gp) for gp in group_data["genepanels"]) - set(
@@ -50,7 +51,7 @@ def import_groups(session, groups, log=log.info):
         else:
             # Keep unofficial genepanels for group
             db_unofficial_genepanels = [
-                gp for gp in existing_group.genepanels if gp.official == False
+                gp for gp in existing_group.genepanels if gp.official is False
             ]
             group_data["genepanels"] = list(db_official_genepanels) + list(db_unofficial_genepanels)
             log("User group {} already exists, updating record...".format(group_data["name"]))
