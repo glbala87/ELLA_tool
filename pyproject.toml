@@ -1,2 +1,13 @@
 [tool.black]
 line-length = 100
+
+[tool.coverage.run]
+omit = [
+    "/dist/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

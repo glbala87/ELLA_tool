@@ -13,7 +13,7 @@ ella-cli database make -f
 
 if [ "$1" = "" ]
 then
-  py.test src --color=yes --ignore src/api --ignore src/cli --ignore src/datalayer
+  coverage run -a -m py.test src --color=yes --ignore src/api --ignore src/cli --ignore src/datalayer
 else
   $1
 fi

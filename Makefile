@@ -321,6 +321,7 @@ test-python:
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-common ops/test/run_python_tests.sh
+	docker cp $(CONTAINER_NAME)-common:/ella/.coverage .coverage-common
 	@docker rm -f $(CONTAINER_NAME)-common
 
 test-api:
@@ -337,6 +338,7 @@ test-api:
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
+	docker cp $(CONTAINER_NAME)-common:/ella/.coverage .coverage-api
 	@docker rm -f $(CONTAINER_NAME)-api
 
 test-api-migration:
@@ -350,8 +352,8 @@ test-api-migration:
 	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	  $(IMAGE_NAME) \
 	  supervisord -c /ella/ops/test/supervisor.cfg
-
 	docker exec $(CONTAINER_NAME)-api-migration ops/test/run_api_migration_tests.sh
+	docker cp $(CONTAINER_NAME)-api-migration:/ella/.coverage .coverage-api-migration
 	@docker rm -f $(CONTAINER_NAME)-api-migration
 
 test-cli:
@@ -366,6 +368,7 @@ test-cli:
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-cli ops/test/run_cli_tests.sh
+	docker cp $(CONTAINER_NAME)-cli:/ella/.coverage .coverage-cli
 	@docker rm -f $(CONTAINER_NAME)-cli
 
 test-report:
@@ -379,6 +382,7 @@ test-report:
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec -t $(CONTAINER_NAME)-report ops/test/run_report_tests.sh
+	docker cp $(CONTAINER_NAME)-report:/ella/.coverage .coverage-report
 	@docker rm -f $(CONTAINER_NAME)-report
 
 test-e2e:

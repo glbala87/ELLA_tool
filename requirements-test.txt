@@ -4,3 +4,4 @@ pytest-ordering==0.6
 hypothesis==3.84.5
 black==18.9b0
 mypy==0.650
+coverage==5.0.3

@@ -12,7 +12,7 @@ ella-cli database make -f
 
 if [ "$1" = "" ]
 then
-	py.test --color=yes --exitfirst "/ella/src/cli/" -s
+	coverage run -a -m py.test --color=yes --exitfirst "/ella/src/cli/" -s
 else
   $@
 fi

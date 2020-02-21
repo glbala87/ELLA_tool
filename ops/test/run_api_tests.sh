@@ -12,11 +12,9 @@ ella-cli database make -f
 
 if [ "$1" = "" ]
 then
-	py.test --color=yes --exitfirst "/ella/src/datalayer/" "/ella/src/api/" -s
+	coverage run -a -m py.test --color=yes --exitfirst "/ella/src/datalayer/" "/ella/src/api/" -s
 else
   $@
 fi
 
 echo "exits $BASH_SOURCE"
-
-
