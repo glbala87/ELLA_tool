@@ -13,9 +13,15 @@ stages:
     - build
     - formatting
     - test
+    - coverage
     - e2e
     - review
     - release
+
+cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+        - .coverage*
 
 build:
     stage: build
@@ -130,6 +136,20 @@ report:
         - make test-report
     after_script:
         - docker rm  -f -v ${PIPELINE_ID}-report
+
+coverage-report:
+    stage: coverage
+    before_script:
+        - apk add --update make
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker pull $IMAGE_NAME | cat
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        policy: pull
+        paths:
+            - .coverage*
+    coverage: '/^TOTAL.*\s+(\d+\%)$/'
+    script: make coverage-report
 
 dependency_scanning:
     only:

@@ -338,7 +338,7 @@ test-api:
 	  supervisord -c /ella/ops/test/supervisor.cfg
 
 	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
-	docker cp $(CONTAINER_NAME)-common:/ella/.coverage .coverage-api
+	docker cp $(CONTAINER_NAME)-api:/ella/.coverage .coverage-api
 	@docker rm -f $(CONTAINER_NAME)-api
 
 test-api-migration:
@@ -399,7 +399,6 @@ test-e2e:
 	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
-
 	docker exec -e SPEC=$(SPEC) -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
 
@@ -416,6 +415,19 @@ test-formatting:
 	  --user $(UID):$(GID) \
 	  $(IMAGE_NAME) \
 	  ops/test/run_formatting_tests.sh
+
+coverage-report:
+	docker run -d \
+	  --name $(CONTAINER_NAME)-coverage \
+	  --user $(UID):$(GID) \
+	  $(IMAGE_NAME) \
+	  sleep infinity
+	find . -name ".coverage-*" -exec docker cp {} ella-add-python-code-coverage-coverage:/ella/ \;
+	#docker cp ".coverage-*" $(CONTAINER_NAME)-coverage:/ella/
+	docker exec -t $(CONTAINER_NAME)-coverage ops/test/run_coverage_report.sh
+	@docker rm -f $(CONTAINER_NAME)-coverage
+
+
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
