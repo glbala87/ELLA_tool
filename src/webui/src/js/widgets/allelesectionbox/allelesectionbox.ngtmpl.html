@@ -27,7 +27,7 @@
 
                 <confirm-button
                     class="id-undo-report"
-                    ng-if="control == 'reuse_classification' && $ctrl.alleleReportUpdated"
+                    ng-if="control == 'reuse_classification' && $ctrl.hasExistingAlleleReport && $ctrl.isAlleleReportUpdated"
                     confirm-action="$ctrl.reuseAlleleReport"
                     ng-disabled="$ctrl.readOnly"
                     color="purple"

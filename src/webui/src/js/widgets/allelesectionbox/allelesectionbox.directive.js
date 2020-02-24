@@ -8,6 +8,8 @@ import hasExistingAlleleAssessment from '../../store/common/computes/hasExisting
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import getAlleleAssessment from '../../store/modules/views/workflows/interpretation/computed/getAlleleAssessment'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
+import hasExistingAlleleReport from '../../store/common/computes/hasExistingAlleleReport'
+import isAlleleReportUpdated from '../../store/modules/views/workflows/interpretation/computed/isAlleleReportUpdated'
 import getVerificationStatus from '../../store/modules/views/workflows/interpretation/computed/getVerificationStatus'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
@@ -23,7 +25,6 @@ import template from './allelesectionbox.ngtmpl.html'
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import canFinalizeAllele from '../../store/modules/views/workflows/computed/canFinalizeAllele'
 import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'
-import { compareAlleleReport } from '../../store/common/helpers/workflow'
 
 const getExcludedReferencesCount = Compute(
     state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
@@ -83,17 +84,6 @@ const classificationOptions = Compute(state`app.config`, (config) => {
     return [{ name: 'Select class', value: null }].concat(config.classification.options)
 })
 
-const alleleReportUpdated = Compute(
-    getAlleleState(state`views.workflows.selectedAllele`),
-    state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
-    (alleleState, allele) => {
-        if (!alleleState || !allele) {
-            return false
-        }
-        return !compareAlleleReport(alleleState, allele)
-    }
-)
-
 app.component('alleleSectionbox', {
     bindings: {
         sectionKey: '<'
@@ -106,7 +96,6 @@ app.component('alleleSectionbox', {
             readOnly: isReadOnly,
             section: getSection,
             config: state`app.config`,
-            alleleReportUpdated,
             canFinalizeSelectedAllele: canFinalizeAllele(state`views.workflows.selectedAllele`),
             commentTemplates: state`app.commentTemplates`,
             selectedAllele: state`views.workflows.selectedAllele`,
@@ -123,6 +112,10 @@ app.component('alleleSectionbox', {
             isAlleleAssessmentReused: isAlleleAssessmentReused(
                 state`views.workflows.selectedAllele`
             ),
+            hasExistingAlleleReport: hasExistingAlleleReport(
+                state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
+            ),
+            isAlleleReportUpdated: isAlleleReportUpdated(state`views.workflows.selectedAllele`),
             showExcludedReferences: state`views.workflows.interpretation.userState.allele.${state`views.workflows.selectedAllele`}.showExcludedReferences`,
             verificationStatus: getVerificationStatus(state`views.workflows.selectedAllele`),
             notRelevant: getNotRelevant(state`views.workflows.selectedAllele`),
@@ -251,14 +244,14 @@ app.component('alleleSectionbox', {
                     canFinalize() {
                         return Boolean(
                             $ctrl.canFinalizeSelectedAllele.canFinalize ||
-                                ($ctrl.isAlleleAssessmentReused && $ctrl.alleleReportUpdated)
+                                ($ctrl.isAlleleAssessmentReused && $ctrl.isAlleleReportUpdated)
                         )
                     },
                     showFinalize() {
                         if ($ctrl.readOnly) {
                             return false
                         }
-                        return $ctrl.isAlleleAssessmentReused ? $ctrl.alleleReportUpdated : true
+                        return $ctrl.isAlleleAssessmentReused ? $ctrl.isAlleleReportUpdated : true
                     },
                     finalizeTitle() {
                         return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
