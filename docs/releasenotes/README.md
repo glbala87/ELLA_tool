@@ -10,12 +10,26 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 Release date: [TBD]
 
+### Highlights
+
+This version adds some minor fixes to the finalize variant functionality introduced in version 1.9, as well as support for a new version of VEP. 
+
 ### All changes
 
+<!-- MR !375 -->
+- Disallow finalize for an analysis when there are unsaved changes in REPORT (CLASSIFICATION mode, user must push `SUBMIT REPORT` first).
+- Added button for undoing changes to REPORT (CLASSIFICATION mode).
+- Removed option to update REPORT in VARIANTS mode (temporary fix).
+<!-- MR !376 -->
+- Fixed issue where variants present in multiple proband samples within an analysis could not be finalized.
 <!-- MR !371 -->
-- Added support for updated version of VEP (v98.3), including fixes for fetching latest HGNC symbol using RefSeq GFF files and choosing the correct transcript.
+- Added support for updated version of VEP (v98.3), including fixes for fetching latest HGNC symbol using RefSeq GFF files, and choosing the correct transcript.
 <!-- MR !369 -->
 - Added auto-scroll to top in main window when switching between variants in ANALYSES view.
+<!-- MR !367 -->
+- Changed `HI FREQ` and `HI COUNT` in QUICK mode to display `0` instead of `-` when all sources report 0 frequency.
+<!-- MR !364 -->
+- Improved help text for RIS format import.
 
 
 ## Version 1.9
