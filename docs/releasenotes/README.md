@@ -19,7 +19,6 @@ This version adds some minor fixes to the finalize variant functionality introdu
 <!-- MR !375 -->
 - Disallow finalize for an analysis when there are unsaved changes in REPORT (CLASSIFICATION mode, user must push `SUBMIT REPORT` first).
 - Added button for undoing changes to REPORT (CLASSIFICATION mode).
-- Removed option to update REPORT in VARIANTS mode (temporary fix).
 <!-- MR !376 -->
 - Fixed issue where variants present in multiple proband samples within an analysis could not be finalized.
 <!-- MR !371 -->
