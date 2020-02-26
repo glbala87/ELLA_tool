@@ -12,7 +12,6 @@ let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let variantSelectionPage = new VariantSelectionPage()
@@ -21,8 +20,6 @@ let alleleSectionBox = new AlleleSectionBox()
 let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
-
-jasmine.getEnv().addReporter(failFast.init())
 
 const OUR_VARIANT = 'c.581G>A'
 

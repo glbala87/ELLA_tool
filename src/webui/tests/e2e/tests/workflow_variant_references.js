@@ -9,15 +9,12 @@ let VariantSelectionPage = require('../pageobjects/overview_variants')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
 let customAnnotationModal = new CustomAnnotationModal()
-
-jasmine.getEnv().addReporter(failFast.init())
 
 const OUR_VARIANT = 'c.581G>A'
 
@@ -50,7 +47,11 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
-
+        $('allele-sectionbox .id-references-box').scrollIntoView({ block: 'center' })
+        browser.pause(3000)
+        for (let l of browser.getLogs('browser')) {
+            console.log(JSON.stringify(l))
+        }
         expect(alleleSectionBox.getReferences().length).toEqual(5)
 
         // add a reference using RIS format
@@ -65,7 +66,6 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
-
         expect(alleleSectionBox.getReferences().length).toEqual(6)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')

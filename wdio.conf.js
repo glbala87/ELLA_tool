@@ -174,7 +174,9 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since some tests takes some time...
-        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval
+        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval,
+        stopSpecOnExpectationFailure: true,
+        failFast: true
     },
 
     //
@@ -276,7 +278,7 @@ exports.config = {
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
     afterTest: function(test) {
-        if (test.error !== undefined) {
+        if (test.failedExpectations.length) {
             // get current test title and clean it, to use it as file name
             const filename = encodeURIComponent(test.fullTitle.replace(/\s+/g, '-'))
             // build file path
