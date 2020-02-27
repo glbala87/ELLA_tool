@@ -37,6 +37,9 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
 
         // add a reference using XML format
         console.log(`adding XML reference`)
+        for (let x of alleleSectionBox.getReferences()) {
+            console.log(x.getText())
+        }
         alleleSectionBox.addReferencesBtn.click()
         let referenceList = customAnnotationModal.referenceList()
         let beforeCount = referenceList.length
@@ -49,8 +52,8 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         customAnnotationModal.waitForClose()
         $('allele-sectionbox .id-references-box').scrollIntoView({ block: 'center' })
         browser.pause(3000)
-        for (let l of browser.getLogs('browser')) {
-            console.log(JSON.stringify(l))
+        for (let x of alleleSectionBox.getReferences()) {
+            console.log(x.getText())
         }
         expect(alleleSectionBox.getReferences().length).toEqual(5)
 

@@ -137,7 +137,7 @@ class AppConfig {
 
         // Needed after upgrade to Angular >1.5,
         // since we haven't migrated to using $onInit()
-        $compileProvider.preAssignBindingsEnabled(true)
+        //$compileProvider.preAssignBindingsEnabled(true)
         $compileProvider.debugInfoEnabled(true)
         $compileProvider.commentDirectivesEnabled(true)
         $compileProvider.cssClassDirectivesEnabled(true)
