@@ -30,14 +30,23 @@ app.component('interpretation', {
             ($scope, $element) => {
                 const $ctrl = $scope.$ctrl
                 $ctrl.offsetTop = '0px'
-                // Offset top is dynamic because of collisionWarning and dynamic nav bar height.
+                // Offset top is dynamic due to changing nav bar height.
                 // Needs to be set correctly on max-height of child elements to make scrollbar correct.
                 $scope.$watch(
                     () => {
-                        return $element.prop('offsetTop')
+                        // The two variables that can change the navbar height are selected
+                        // component and selected allele
+                        return `${$ctrl.selectedComponent},${$ctrl.selectedAllele}`
                     },
-                    (newVal) => {
-                        $ctrl.offsetTop = newVal
+                    () => {
+                        // We need to wait until Angular/browser is done with it's digest/rendering
+                        // so that the UI is updated with new height
+                        // (yes, it's not pretty, but it works)
+                        setTimeout(() => {
+                            $scope.$applyAsync(() => {
+                                $ctrl.offsetTop = $element.prop('offsetTop')
+                            })
+                        }, 0)
                     }
                 )
             }
