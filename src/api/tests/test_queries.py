@@ -102,9 +102,24 @@ def test_annotation_transcripts_genepanel(session, test_database):
             exon_ends=[123, 321],
         )
 
-        t2 = gene.Transcript(
+        t21 = gene.Transcript(
             gene=g2,
             transcript_name="NM_2.1",
+            type="RefSeq",
+            genome_reference="123",
+            chromosome="123",
+            tx_start=123,
+            tx_end=123,
+            strand="+",
+            cds_start=123,
+            cds_end=123,
+            exon_starts=[123, 321],
+            exon_ends=[123, 321],
+        )
+
+        t22 = gene.Transcript(
+            gene=g2,
+            transcript_name="NM_2.2",
             type="RefSeq",
             genome_reference="123",
             chromosome="123",
@@ -133,13 +148,13 @@ def test_annotation_transcripts_genepanel(session, test_database):
         )
 
         genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
-        genepanel1.transcripts = [t1, t2]
+        genepanel1.transcripts = [t1, t21]
         genepanel1.phenotypes = []
         session.add(genepanel1)
 
         genepanel2 = gene.Genepanel(name="testpanel2", version="v01", genome_reference="GRCh37")
 
-        genepanel2.transcripts = [t2, t3]
+        genepanel2.transcripts = [t22, t3]
         genepanel1.phenotypes = []
         session.add(genepanel2)
 
@@ -160,7 +175,10 @@ def test_annotation_transcripts_genepanel(session, test_database):
             "transcripts": [
                 {"transcript": "NM_1.1", "hgnc_id": 1},  # In genepanel
                 {"transcript": "NM_1", "hgnc_id": 1},  # In genepanel, no version
-                {"transcript": "NM_2.2", "hgnc_id": 2},  # In genepanel, different version
+                {
+                    "transcript": "NM_2.2",
+                    "hgnc_id": 2,
+                },  # In two genepanels, different version in one
                 {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in genepanel
                 {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in genepanel, no version
             ]
@@ -185,7 +203,10 @@ def test_annotation_transcripts_genepanel(session, test_database):
             "transcripts": [
                 {"transcript": "NM_3.1", "hgnc_id": 3},  # In one genepanel
                 {"transcript": "NM_3", "hgnc_id": 3},  # In one genepanel, no version
-                {"transcript": "NM_2.2", "hgnc_id": 2},  # In two genepanels, different version
+                {
+                    "transcript": "NM_2.2",
+                    "hgnc_id": 2,
+                },  # In two genepanels, different version in one
                 {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in any genepanel
                 {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in any genepanel, no version
             ]
@@ -242,13 +263,13 @@ def test_annotation_transcripts_genepanel(session, test_database):
         # allele_id, panel, annotation, genepanel
         (a1.id, "testpanel1", "v01", "NM_1.1", "NM_1.1"),
         (a1.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
+        (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
         (a2.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
+        (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
         (a2.id, "testpanel2", "v01", "NM_3.1", "NM_3.1"),
         (a3.id, "testpanel1", "v01", "NM_1.3", "NM_1.1"),
         (a3.id, "testpanel1", "v01", "NM_2.1", "NM_2.1"),
-        (a3.id, "testpanel2", "v01", "NM_2.1", "NM_2.1"),
+        (a3.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
         (a3.id, "testpanel2", "v01", "NM_3.3_sometext", "NM_3.1"),
     ]
 
