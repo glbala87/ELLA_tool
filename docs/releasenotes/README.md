@@ -18,13 +18,19 @@ This version adds some minor fixes to the finalize variant functionality introdu
 
 <!-- MR !375 -->
 - Disallow finalize for an analysis when there are unsaved changes in REPORT (CLASSIFICATION mode, user must push `SUBMIT REPORT` first).
-- Added button for undoing changes to REPORT (CLASSIFICATION mode).
+- Added button for [undoing changes](/manual/classification-section.html#update-submit-report-only) to REPORT (CLASSIFICATION mode).
 <!-- MR !376 -->
 - Fixed issue where variants present in multiple proband samples within an analysis could not be finalized.
 <!-- MR !371 -->
-- Added support for updated version of VEP (v98.3), including fixes for fetching latest HGNC symbol using RefSeq GFF files, and choosing the correct transcript.
+- Added support for updated version of VEP (v98.3), including fixes for:
+    - Fetching latest HGNC symbol (using RefSeq GFF files).
+    - Choosing the correct RefSeq transcript version. If possible, the version specified in the gene panel is chosen, otherwise the latest available version is used.
 <!-- MR !369 -->
 - Added auto-scroll to top in main window when switching between variants in ANALYSES view.
+<!-- MR !378-->
+- Adjusted position of modals to allow viewing variant information in top bar when modal is open.
+<!-- MR !379 -->
+- Fixed an issue with wrong navbar height calculation causing extra scrollbars and wrong page height.
 <!-- MR !367 -->
 - Changed `HI FREQ` and `HI COUNT` in QUICK mode to display `0` instead of `-` when all sources report 0 frequency.
 <!-- MR !364 -->
