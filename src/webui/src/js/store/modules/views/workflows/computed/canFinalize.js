@@ -2,8 +2,8 @@ import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import getAlleleState from '../interpretation/computed/getAlleleState'
 import getClassification from '../interpretation/computed/getClassification'
+import isAlleleReportUpdated from '../interpretation/computed/isAlleleReportUpdated'
 import getSelectedInterpretation from './getSelectedInterpretation'
-import { compareAlleleReport } from '../../../../common/helpers/workflow'
 
 export default Compute(
     state`views.workflows.type`,
@@ -188,8 +188,7 @@ export default Compute(
                 if (!alleleState) {
                     throw Error(`Allele id ${allele.id} is not in interpretation state`)
                 }
-                console.log(compareAlleleReport(alleleState, allele))
-                return !compareAlleleReport(alleleState, allele)
+                return get(isAlleleReportUpdated(allele.id))
             })
 
             if (allelesNotSubmittedReportChanges.length) {
