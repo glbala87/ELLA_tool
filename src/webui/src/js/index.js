@@ -64,7 +64,7 @@ import './widgets/alleleinfo/alleleInfoVardb.directive'
 import './widgets/annotationimport/importSingle.directive'
 
 import './widgets/markdownIt.directive'
-import './widgets/scrollIntoView.directive'
+import './widgets/scrollTo.directive'
 import './widgets/copyText.directive'
 import './widgets/tippy.directive'
 import './widgets/alleleWarning.directive'
