@@ -1,3 +1,4 @@
+import angular from 'angular'
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import getAlleleState from './getAlleleState'
