@@ -1,3 +1,5 @@
+import mock from 'xhr-mock'
+import { http } from '../../../../index'
 import { runAction } from 'cerebral/test'
 
 import postFinalizeAllele from './postFinalizeAllele'
@@ -46,6 +48,9 @@ function createState(state, alleles) {
 }
 
 describe('postFinalizeAllele', function() {
+    beforeEach(() => mock.setup())
+    afterEach(() => mock.teardown())
+
     it('correct payload when new alleleassessment', async function() {
         expect.assertions(1)
 
@@ -90,52 +95,52 @@ describe('postFinalizeAllele', function() {
 
         const testState = createState(state, alleles)
 
-        const http = {
-            post(url, payload) {
-                expect(payload).toEqual({
-                    allele_id: 1,
-                    alleleassessment: {
-                        allele_id: 1,
-                        analysis_id: 1,
-                        attachment_ids: [1],
-                        classification: '1',
-                        evaluation: { comment: 'new' },
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
-                        reuse: false
-                    },
-                    allelereport: {
-                        allele_id: 1,
-                        analysis_id: 1,
-                        evaluation: { comment: 'new' },
-                        reuse: false
-                    },
-                    annotation_id: 1,
-                    custom_annotation_id: 1,
-                    referenceassessments: [
-                        {
-                            allele_id: 1,
-                            analysis_id: 1,
-                            evaluation: { comment: 'new' },
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
-                            reference_id: 1
-                        }
-                    ]
-                })
+        mock.error((err) => {
+            throw err
+        })
 
-                return Promise.resolve({
-                    result: {
+        mock.post('/api/v1/workflows/analyses/1/actions/finalizeallele/', (req, res) => {
+            const response = res
+                .status(200)
+                .header('Content-Type', 'application/json')
+                .body(
+                    JSON.stringify({
                         alleleassessment: {
                             id: 1
                         },
                         allelereport: {
                             id: 1
                         }
+                    })
+                )
+            const body = JSON.parse(req.body())
+            expect(body).toEqual({
+                allele_id: 1,
+                alleleassessment: {
+                    allele_id: 1,
+                    attachment_ids: [1],
+                    classification: '1',
+                    evaluation: { comment: 'new' },
+                    reuse: false
+                },
+                allelereport: {
+                    allele_id: 1,
+                    evaluation: { comment: 'new' },
+                    reuse: false
+                },
+                annotation_id: 1,
+                custom_annotation_id: 1,
+                referenceassessments: [
+                    {
+                        allele_id: 1,
+                        evaluation: { comment: 'new' },
+                        reference_id: 1
                     }
-                })
-            }
-        }
+                ]
+            })
+            return response
+        })
+
         const path = {
             success() {},
             error() {}
@@ -205,51 +210,51 @@ describe('postFinalizeAllele', function() {
 
         const testState = createState(state, alleles)
 
-        const http = {
-            post(url, payload) {
-                expect(payload).toEqual({
-                    allele_id: 1,
-                    annotation_id: 1,
-                    custom_annotation_id: 1,
-                    alleleassessment: {
-                        allele_id: 1,
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
-                        analysis_id: 1,
-                        reuse: true,
-                        presented_alleleassessment_id: 1
-                    },
-                    allelereport: {
-                        allele_id: 1,
-                        analysis_id: 1,
-                        alleleassessment_id: 1,
-                        presented_allelereport_id: 1,
-                        reuse: true
-                    },
-                    referenceassessments: [
-                        {
-                            reference_id: 1,
-                            allele_id: 1,
-                            analysis_id: 1,
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
-                            id: 1
-                        }
-                    ]
-                })
+        mock.error((err) => {
+            throw err
+        })
 
-                return Promise.resolve({
-                    result: {
-                        alleleassessment: {
-                            id: 1
-                        },
-                        allelereport: {
-                            id: 1
+        mock.post('/api/v1/workflows/analyses/1/actions/finalizeallele/', (req, res) => {
+            const response = res
+                .status(200)
+                .header('Content-Type', 'application/json')
+                .body(
+                    JSON.stringify({
+                        result: {
+                            alleleassessment: {
+                                id: 1
+                            },
+                            allelereport: {
+                                id: 1
+                            }
                         }
+                    })
+                )
+            const body = JSON.parse(req.body())
+            expect(body).toEqual({
+                allele_id: 1,
+                annotation_id: 1,
+                custom_annotation_id: 1,
+                alleleassessment: {
+                    allele_id: 1,
+                    reuse: true,
+                    presented_alleleassessment_id: 1
+                },
+                allelereport: {
+                    allele_id: 1,
+                    presented_allelereport_id: 1,
+                    reuse: true
+                },
+                referenceassessments: [
+                    {
+                        reference_id: 1,
+                        allele_id: 1,
+                        id: 1
                     }
-                })
-            }
-        }
+                ]
+            })
+            return response
+        })
         const path = {
             success() {},
             error() {}

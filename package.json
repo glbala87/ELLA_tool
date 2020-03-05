@@ -59,7 +59,7 @@
         "webpack-cli": "^3.1.0",
         "webpack-deadcode-plugin": "^0.1.7",
         "webpack-livereload-plugin": "^2.1.1",
-        "xhr-mock": "^2.3.2"
+        "xhr-mock": "^2.5.1"
     },
     "resolutions": {
         "merge": "1.2.1"
