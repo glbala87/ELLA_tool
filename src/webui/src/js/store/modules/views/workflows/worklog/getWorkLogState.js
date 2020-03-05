@@ -4,6 +4,6 @@ export default function getWorkLogState() {
         messageIds: null,
         messageCount: null,
         messages: null,
-        showMessagesOnly: false
+        showMessagesOnly: true
     }
 }
