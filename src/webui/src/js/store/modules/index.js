@@ -14,7 +14,7 @@ import {
 import onBeforeUnload from '../common/providers/onBeforeUnload'
 import toastProvider from '../common/providers/toastProvider'
 
-let http = HttpProvider({
+export let http = HttpProvider({
     baseUrl: '/api/v1/',
     headers: {
         'Content-Type': 'application/json; charset=UTF-8',

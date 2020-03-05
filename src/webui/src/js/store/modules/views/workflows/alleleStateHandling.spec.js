@@ -309,7 +309,7 @@ describe('Handling of allele state', () => {
                 orderBy: testSidebarOrderByNull
             }
         })
-        cerebral.runSignal('test.copyInterpretationState', {})
+        await cerebral.runSignal('test.copyInterpretationState', {})
         let result = await cerebral.runSignal('test.prepareInterpretationState', {})
         let state = result.state
 
@@ -490,6 +490,9 @@ describe('Handling of allele state', () => {
             'CHANGED'
         )
 
+        mock.error((err) => {
+            throw err
+        })
         mock.patch('/api/v1/workflows/alleles/1/interpretations/1/', (req, res) => {
             return res.status(200)
         })
@@ -520,8 +523,6 @@ describe('Handling of allele state', () => {
                             prediction: { comment: '' },
                             reference: { comment: '' }
                         },
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
                         reuse: false
                     },
                     allelereport: { allele_id: 1, evaluation: { comment: '' }, reuse: false },
@@ -530,22 +531,16 @@ describe('Handling of allele state', () => {
                     referenceassessments: [
                         {
                             allele_id: 1,
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
                             id: 2,
                             reference_id: 2
                         },
                         {
                             allele_id: 1,
                             evaluation: { key: 'USER CONTENT' },
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
                             reference_id: 3
                         },
                         {
                             allele_id: 1,
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
                             id: 1,
                             reference_id: 1
                         }
@@ -557,14 +552,11 @@ describe('Handling of allele state', () => {
                     allele_id: 2,
                     alleleassessment: {
                         allele_id: 2,
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
                         presented_alleleassessment_id: 2,
                         reuse: true
                     },
                     allelereport: {
                         allele_id: 2,
-                        alleleassessment_id: 2,
                         evaluation: { case: 'CHANGED' },
                         presented_allelereport_id: 2,
                         reuse: false
@@ -574,8 +566,6 @@ describe('Handling of allele state', () => {
                     referenceassessments: [
                         {
                             allele_id: 2,
-                            genepanel_name: 'test',
-                            genepanel_version: 'v01',
                             id: 4,
                             reference_id: 1
                         }
@@ -597,13 +587,11 @@ describe('Handling of allele state', () => {
                             prediction: { comment: '' },
                             reference: { comment: '' }
                         },
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
+                        presented_alleleassessment_id: 3,
                         reuse: false
                     },
                     allelereport: {
                         allele_id: 3,
-                        alleleassessment_id: 3,
                         evaluation: { key: 'SHOULD BE KEPT' },
                         presented_allelereport_id: 3,
                         reuse: false
@@ -618,14 +606,11 @@ describe('Handling of allele state', () => {
                     allele_id: 4,
                     alleleassessment: {
                         allele_id: 4,
-                        genepanel_name: 'test',
-                        genepanel_version: 'v01',
                         presented_alleleassessment_id: 4,
                         reuse: true
                     },
                     allelereport: {
                         allele_id: 4,
-                        alleleassessment_id: 4,
                         presented_allelereport_id: 4,
                         reuse: true
                     },
