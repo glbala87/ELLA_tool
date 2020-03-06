@@ -334,36 +334,6 @@ class TestFrequencyFilter(object):
             },
         )
 
-        # FIXME: This should be fixed by applying the highest thresholds for the genes available. Currently only using the gene override thresholds.
-        # # Should ideally be low_freq
-        # # GENE4 common for frequencies above 1e-12
-        # # AD low freq for frequencies below 0.005
-        # a1adg4 = create_allele_with_annotation(session, {
-        #     'frequencies': {
-        #         'ExAC': {
-        #             'freq': {
-        #                 'G': 0.00001  # Greater than GENE4 1e-12, less than AD default 0.005
-        #             },
-        #             'num': {
-        #                 'G': 9000  # Above 2000
-        #             }
-        #         }
-        #     },
-        #     'transcripts': [
-        #         {
-        #             'symbol': 'GENE4',
-        #             'transcript': 'NM_4.1',
-        #             'exon_distance': 0
-        #         },
-        #         {
-        #             'symbol': 'GENE1AD',
-        #             'hgnc_id': 100000,
-        #             'transcript': 'NM_1AD.1',
-        #             'exon_distance': 0
-        #         }
-        #     ]
-        # })
-
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
@@ -463,21 +433,12 @@ class TestFrequencyFilter(object):
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
-        allele_info = {
-            anum1.id: (anum1, anum1anno),
-            anum2.id: (anum2, anum2anno),
-            anum3.id: (anum3, anum3anno),
-            anum4.id: (anum4, anum4anno),
-        }
-        result = ff.get_commonness_groups(
-            {gp_key: list(allele_info.keys())}, COMMONESS_FILTER_CONFIG
-        )
+        allele_ids = [anum1.id, anum2.id, anum3.id, anum4.id]
+        result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
         assert set(result[gp_key]["num_threshold"]) == set([anum1.id])
 
         assert set(result[gp_key]["common"]) == set([anum2.id, anum3.id, anum4.id])
-
-        del allele_info
 
         ##
         # Test ordering
@@ -509,8 +470,8 @@ class TestFrequencyFilter(object):
 
         session.commit()
         gp_key = ("testpanel", "v01")
-        allele_info = [a2common.id]
-        result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
+        allele_ids = [a2common.id]
+        result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
         assert result[gp_key]["common"] == set([a2common.id])
         assert not result[gp_key]["less_common"]
@@ -540,8 +501,8 @@ class TestFrequencyFilter(object):
 
         session.commit()
         gp_key = ("testpanel", "v01")
-        allele_info = [a2less_common.id]
-        result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
+        allele_ids = [a2less_common.id]
+        result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
         assert not result[gp_key]["common"]
         assert result[gp_key]["less_common"] == set([a2less_common.id])
@@ -706,23 +667,22 @@ class TestFrequencyFilter(object):
             },
         )
 
+        # Test with no transcripts
+        pa5, pa5anno = create_allele_with_annotation(
+            session,
+            {
+                "frequencies": {"ExAC": {"freq": {"G": 0.5}, "num": {"G": 9000}}},
+                "transcripts": [],
+            },  # > 0.3
+        )
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
-        # allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id]
-        allele_info = {
-            pa1ad.id: (pa1ad, pa1adanno),
-            pa1ar.id: (pa1ar, pa1aranno),
-            pa1nogene.id: (pa1nogene, pa1nogeneanno),
-            pa2.id: (pa2, pa2anno),
-            pa3.id: (pa3, pa3anno),
-            pa4.id: (pa4, pa4anno),
-        }
+        allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id, pa5.id]
+        result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
 
-        result = ff.filter_alleles({gp_key: list(allele_info.keys())}, FILTER_ALLELES_FILTER_CONFIG)
-
-        assert result[gp_key] == set(allele_info.keys())
+        assert result[gp_key] == set(allele_ids)
 
         ##
         # Test negative cases
@@ -825,6 +785,15 @@ class TestFrequencyFilter(object):
                     }
                 ],
             },
+        )
+
+        # Test with no transcripts
+        na5, pa5anno = create_allele_with_annotation(
+            session,
+            {
+                "frequencies": {"ExAC": {"freq": {"G": 0.00001}, "num": {"G": 9000}}},
+                "transcripts": [],
+            },  # < 0.3
         )
 
         session.commit()
