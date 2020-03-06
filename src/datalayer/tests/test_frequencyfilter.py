@@ -788,7 +788,7 @@ class TestFrequencyFilter(object):
         )
 
         # Test with no transcripts
-        na5, pa5anno = create_allele_with_annotation(
+        na5, _ = create_allele_with_annotation(
             session,
             {
                 "frequencies": {"ExAC": {"freq": {"G": 0.00001}, "num": {"G": 9000}}},
@@ -800,7 +800,7 @@ class TestFrequencyFilter(object):
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
         gp_key = ("testpanel", "v01")
-        allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id]
+        allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id, na5.id]
         result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
 
         assert not result[gp_key]
