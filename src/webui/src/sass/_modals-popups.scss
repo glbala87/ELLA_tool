@@ -239,7 +239,7 @@ body.modal-open {
 }
 
 .acmg-selection-popover {
-    min-width: 40rem;
+    width: 45rem;
     padding: 0.2rem;
     display: flex;
     flex-direction: column;
@@ -250,7 +250,7 @@ body.modal-open {
 }
 
 .interpretationlog-popover {
-    min-width: 70rem;
+    width: 70rem;
     padding: 0.2rem;
     height: calc(100vh - #{$nav-bar-top-height} - 10rem);
     h3 {
