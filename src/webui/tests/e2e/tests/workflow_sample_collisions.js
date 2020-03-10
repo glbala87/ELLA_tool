@@ -51,6 +51,7 @@ describe('Sample workflow', function() {
         // Classify NM_000059.3:c.10G>T as 5
         alleleSectionBox.classifyAs5()
         alleleSectionBox.finalize()
+        browser.pause(500) // Wait for allele to be processed in backend
 
         browser.psql(`UPDATE alleleassessment SET usergroup_id = 2`)
         browser.refresh()
