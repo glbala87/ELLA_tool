@@ -399,7 +399,15 @@ describe('Sample workflow', function() {
         alleleSectionBox.setFrequencyComment('FREQUENCY_UPDATED')
         alleleSectionBox.setPredictionComment('PREDICTION_UPDATED')
         alleleSectionBox.setExternalComment('EXTERNAL_UPDATED')
+
+        // Test undo report functionality
         alleleSectionBox.setReportComment('REPORT_UPDATED')
+        alleleSectionBox.undoReportChanges()
+        expect(alleleSectionBox.reportComment).toEqual('REPORT_ROUND1 &~øæå')
+
+        // Update report for real
+        alleleSectionBox.setReportComment('REPORT_UPDATED')
+
         alleleSectionBox.classSelection.selectByVisibleText('Class 5')
         analysisPage.addAttachment()
         expect(alleleSectionBox.getNumberOfAttachments()).toEqual(2)

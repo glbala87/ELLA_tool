@@ -149,6 +149,14 @@ class AlleleSectionBox {
         return util.elementIntoView('allele-sectionbox .id-undo-reevaluate > button:nth-of-type(2)')
     }
 
+    get undoReportChangesBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-report > button:first-of-type')
+    }
+
+    get undoReportChangesConfirmBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-report > button:nth-of-type(2)')
+    }
+
     get finalizeBtn() {
         return util.elementIntoView('allele-sectionbox .id-finalize-button')
     }
@@ -160,6 +168,11 @@ class AlleleSectionBox {
     undoReevaluation() {
         this.undoRevaluationBtn.click()
         this.undoRevaluationConfirmBtn.click()
+    }
+
+    undoReportChanges() {
+        this.undoReportChangesBtn.click()
+        this.undoReportChangesConfirmBtn.click()
     }
 
     finalize() {

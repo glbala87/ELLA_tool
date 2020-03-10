@@ -14,6 +14,7 @@ import evaluationCommentChanged from './signals/evaluationCommentChanged'
 import classificationChanged from './signals/classificationChanged'
 import analysisCommentChanged from './signals/analysisCommentChanged'
 import ignoreReferenceClicked from './signals/ignoreReferenceClicked'
+import reuseAlleleReportClicked from './signals/reuseAlleleReportClicked'
 import removeAcmgClicked from './signals/removeAcmgClicked'
 import removeAttachmentClicked from './signals/removeAttachmentClicked'
 import showExcludedReferencesClicked from './signals/showExcludedReferencesClicked'
@@ -40,6 +41,7 @@ export default Module({
         ignoreReferenceClicked,
         alleleReportCommentChanged,
         reportCommentChanged,
+        reuseAlleleReportClicked,
         removeAcmgClicked,
         removeAttachmentClicked,
         reuseAlleleAssessmentClicked,

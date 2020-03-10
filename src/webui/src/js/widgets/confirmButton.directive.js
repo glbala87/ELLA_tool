@@ -6,6 +6,7 @@ import template from './confirmButton.ngtmpl.html'
 app.component('confirmButton', {
     bindings: {
         ngDisabled: '<?',
+        color: '@?',
         confirmAction: '<' // Function to call upon confirm
     },
     transclude: true,
@@ -22,6 +23,17 @@ app.component('confirmButton', {
                 },
                 confirm() {
                     $ctrl.confirmAction()
+                    $ctrl.needsConfirmation = false
+                },
+                getClasses() {
+                    const classes = []
+                    if ($ctrl.needsConfirmation) {
+                        classes.push('active')
+                    }
+                    if ($ctrl.color) {
+                        classes.push($ctrl.color)
+                    }
+                    return classes
                 }
             })
         }

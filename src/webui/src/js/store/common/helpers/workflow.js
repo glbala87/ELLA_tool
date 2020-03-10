@@ -1,16 +1,6 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function compareAlleleReport(alleleState, allele) {
-    // Whether allelereport has changed in state compared to original
-    return (
-        alleleState.allelereport &&
-        allele.allele_report &&
-        angular.toJson(alleleState.allelereport.evaluation) ==
-            angular.toJson(allele.allele_report.evaluation)
-    )
-}
-
 export function prepareInterpretationPayload(type, state, alleles, alleleIds, excludedAlleleIds) {
     // Collect info about this interpretation.
     const annotation_ids = []
@@ -163,7 +153,12 @@ function _prepareAlleleReportPayload(allele, alleleState) {
     }
 
     // possible reuse:
-    if (compareAlleleReport(alleleState, allele)) {
+    if (
+        alleleState.allelereport &&
+        allele.allele_report &&
+        angular.toJson(alleleState.allelereport.evaluation) ==
+            angular.toJson(allele.allele_report.evaluation)
+    ) {
         report_data.reuse = true
     } else {
         report_data.reuse = false

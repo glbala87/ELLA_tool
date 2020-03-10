@@ -2,6 +2,7 @@ import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import getAlleleState from '../interpretation/computed/getAlleleState'
 import getClassification from '../interpretation/computed/getClassification'
+import isAlleleReportUpdated from '../interpretation/computed/isAlleleReportUpdated'
 import getSelectedInterpretation from './getSelectedInterpretation'
 
 export default Compute(
@@ -142,33 +143,35 @@ export default Compute(
                 }
             }
 
-            // Check that no alleles have changes that are not finalized,
+            // Check that no alleles have classification changes that are not finalized,
             // this means the user should either discard the changes or submit them
             // This is a global, hard rule that's not configurable
-            const allelesNotSubmittedChanges = Object.values(alleles).filter((allele) => {
-                const alleleState = get(getAlleleState(allele.id))
-                if (!alleleState) {
-                    throw Error(`Allele id ${allele.id} is not in interpretation state`)
-                }
-                const classification = get(
-                    getClassification(
-                        state`views.workflows.interpretation.data.alleles.${allele.id}`
+            const allelesNotSubmittedClassificationChanges = Object.values(alleles).filter(
+                (allele) => {
+                    const alleleState = get(getAlleleState(allele.id))
+                    if (!alleleState) {
+                        throw Error(`Allele id ${allele.id} is not in interpretation state`)
+                    }
+                    const classification = get(
+                        getClassification(
+                            state`views.workflows.interpretation.data.alleles.${allele.id}`
+                        )
                     )
-                )
-                return (
-                    (classification.exisiting && !classification.reused) ||
-                    (!classification.exisiting && classification.current)
-                )
-            })
+                    return (
+                        (classification.exisiting && !classification.reused) ||
+                        (!classification.exisiting && classification.current)
+                    )
+                }
+            )
 
-            if (allelesNotSubmittedChanges.length) {
-                metRequirements.notSubmitted = false
-                if (allelesNotSubmittedChanges.length > 3) {
+            if (allelesNotSubmittedClassificationChanges.length) {
+                metRequirements.notSubmittedClassification = false
+                if (allelesNotSubmittedClassificationChanges.length > 3) {
                     result.messages.push(
-                        `${allelesNotSubmittedChanges.length} variants have classifications that are not finalized.`
+                        `${allelesNotSubmittedClassificationChanges.length} variants have classifications that are not finalized.`
                     )
                 } else {
-                    const variantText = allelesNotSubmittedChanges
+                    const variantText = allelesNotSubmittedClassificationChanges
                         .map((a) => a.formatted.display)
                         .join(', ')
                     result.messages.push(
@@ -176,7 +179,34 @@ export default Compute(
                     )
                 }
             } else {
-                metRequirements.notSubmitted = true
+                metRequirements.notSubmittedClassification = true
+            }
+
+            // Likewise, check that no alleles have report changes that are not finalized,
+            const allelesNotSubmittedReportChanges = Object.values(alleles).filter((allele) => {
+                const alleleState = get(getAlleleState(allele.id))
+                if (!alleleState) {
+                    throw Error(`Allele id ${allele.id} is not in interpretation state`)
+                }
+                return get(isAlleleReportUpdated(allele.id))
+            })
+
+            if (allelesNotSubmittedReportChanges.length) {
+                metRequirements.notSubmittedReport = false
+                if (allelesNotSubmittedReportChanges.length > 3) {
+                    result.messages.push(
+                        `${allelesNotSubmittedReportChanges.length} variants have reports that are not submitted.`
+                    )
+                } else {
+                    const variantText = allelesNotSubmittedReportChanges
+                        .map((a) => a.formatted.display)
+                        .join(', ')
+                    result.messages.push(
+                        `Some variants have reports that are not submitted: ${variantText}`
+                    )
+                }
+            } else {
+                metRequirements.notSubmittedReport = true
             }
         }
         result.canFinalize = Object.values(metRequirements).every((v) => v)

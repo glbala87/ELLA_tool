@@ -1,6 +1,6 @@
 <button
     class="bttn"
-    ng-class="{'active': $ctrl.needsConfirmation}"
+    ng-class="$ctrl.getClasses()"
     ng-click="$ctrl.toggleConfirm()"
     ng-disabled="$ctrl.ngDisabled"
     ng-transclude
