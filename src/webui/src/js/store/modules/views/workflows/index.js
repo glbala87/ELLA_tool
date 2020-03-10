@@ -5,7 +5,6 @@ import alleleSidebar from './alleleSidebar'
 import interpretation from './interpretation'
 import modals from './modals'
 import componentChanged from './signals/componentChanged'
-import copyAllAlamutClicked from './signals/copyAllAlamutClicked'
 import copySelectedAlamutClicked from './signals/copySelectedAlamutClicked'
 import loadInterpretationData from './signals/loadInterpretationData'
 import notRelevantChanged from './signals/notRelevantChanged'
@@ -35,7 +34,6 @@ export default Module({
         selectedGenepanelChanged,
         selectedInterpretationChanged,
         copySelectedAlamutClicked,
-        copyAllAlamutClicked,
         reassignWorkflowClicked,
         startClicked,
         loadInterpretationData,
