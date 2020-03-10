@@ -3,7 +3,7 @@ sidebar: false
 ---
 
 <div style="text-align: center;">
-	<div style="padding-top: 50px;">
+	<div style="padding-top: 7%;">
 		<img width="350px;" src="./ella-docs_blue.svg">
 	</div>
 	<br>

@@ -12,29 +12,53 @@ Release date: [TBD]
 
 ### Highlights
 
-This version adds some minor fixes to the finalize variant functionality introduced in version 1.9, as well as support for a new version of VEP. 
+This version adds bugfixes and improvements to the finalize variant functionality introduced in version 1.9, support for a new version of VEP, as well as several minor UI improvements. 
 
 ### All changes
 
+#### Finalize variant fixes and improvements
 <!-- MR !375 -->
-- Disallow finalize for an analysis when there are unsaved changes in REPORT (CLASSIFICATION mode, user must push `SUBMIT REPORT` first).
-- Added button for [undoing changes](/manual/classification-section.html#update-submit-report-only) to REPORT (CLASSIFICATION mode).
+- Disallow finalize for an analysis when there are unsaved changes in REPORT (CLASSIFICATION page, user must push `SUBMIT REPORT` first).
+- Added button for [undoing changes](/manual/classification-section.html#update-submit-report-only) to REPORT comment on CLASSIFICATION page.
 <!-- MR !376 -->
 - Fixed issue where variants present in multiple proband samples within an analysis could not be finalized.
+
+#### Support for new VEP version
 <!-- MR !371 -->
-- Added support for updated version of VEP (v98.3), including fixes for:
-    - Fetching latest HGNC symbol (using RefSeq GFF files).
-    - Choosing the correct RefSeq transcript version. If possible, the version specified in the gene panel is chosen, otherwise the latest available version is used.
+Added support for updated version of VEP (v98.3), including fixes for:
+- Fetching latest HGNC symbol (using RefSeq GFF files).
+- Choosing the correct RefSeq transcript version. If possible, the version specified in the gene panel is chosen, otherwise the latest available version is used.
+
+#### Other UI improvements and bugfixes 
 <!-- MR !369 -->
 - Added auto-scroll to top in main window when switching between variants in ANALYSES view.
-<!-- MR !378-->
-- Adjusted position of modals to allow viewing variant information in top bar when modal is open.
-<!-- MR !379 -->
-- Fixed an issue with wrong navbar height calculation causing extra scrollbars and wrong page height.
 <!-- MR !367 -->
 - Changed `HI FREQ` and `HI COUNT` in QUICK mode to display `0` instead of `-` when all sources report 0 frequency.
+<!-- MR !378-->
+- Adjusted position of modals to allow viewing variant information in top bar when modal is open.
+<!-- MR !387 -->
+- Removed `COPY ALL TO ALAMUT` button.
+<!-- MR !381 -->
+- Changed default view in WORKLOG to `MESSAGES ONLY`.
+<!-- MR !382 -->
+- Increased custom gene panel name character limit to 20.
+<!-- MR !385 -->
+- Increased height of batch filter box when creating custom gene panels.
+<!-- MR !384 -->
+- Adjusted delay for popovers.
 <!-- MR !364 -->
 - Improved help text for RIS format import.
+
+<!-- MR !386 -->
+- Fixed word wrap in popover comment fields (ACMG comment and WORKLOG).
+<!-- MR !379 -->
+- Fixed an issue with wrong navbar height calculation causing extra scrollbars and wrong page height.
+<!-- MR !383 -->
+- Fixed bug where variants with no transcripts were not filtered on frequency.
+
+
+
+
 
 
 ## Version 1.9
