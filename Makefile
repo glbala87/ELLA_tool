@@ -384,6 +384,7 @@ test-report:
 test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e
 	mkdir -p errorShots
+	chmod a+rwX errorShots
 	docker run -d --hostname e2e \
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \

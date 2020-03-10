@@ -9,7 +9,6 @@ const alleleSectionBox = new AlleleSectionBox()
 const search = new Search()
 
 var failFast = require('jasmine-fail-fast')
-jasmine.getEnv().addReporter(failFast.init())
 
 describe('Search functionality', function() {
     beforeAll(() => {

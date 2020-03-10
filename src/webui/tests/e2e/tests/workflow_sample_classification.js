@@ -23,7 +23,6 @@ let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let addExcludedAllelesModal = new AddExcludedAllelesModal()
@@ -34,8 +33,6 @@ let alleleSectionBox = new AlleleSectionBox()
 let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
-
-jasmine.getEnv().addReporter(failFast.init())
 
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01'
