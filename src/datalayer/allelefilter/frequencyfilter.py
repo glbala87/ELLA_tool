@@ -207,8 +207,8 @@ class FrequencyFilter(object):
 
             gp_final_filter = list()
 
-            # 1. Gene specific filters
-            overridden_allele_ids = set()
+            # 1. Gene specific thresholds
+            gene_specific_allele_ids = set()
             if per_gene_hgnc_ids:
 
                 # Optimization: adding filters for genes not present in our alleles
@@ -245,7 +245,7 @@ class FrequencyFilter(object):
                     )
 
                     # Update overridden allele ids: This will not be filtered on AD or default
-                    overridden_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
+                    gene_specific_allele_ids.update(set([a[0] for a in allele_ids_for_genes]))
                     gp_final_filter.append(
                         and_(
                             annotationshadow.AnnotationShadowFrequency.allele_id.in_(
@@ -261,31 +261,36 @@ class FrequencyFilter(object):
                         )
                     )
 
-            # 2. AD genes
+            # 2. AD gene thresholds
             ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
                 self.session, "AD", gp_key[0], gp_key[1]
             )
+            ad_gene_allele_ids = set()
             if ad_hgnc_ids:
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
                     ast_gp_alleles,
                 ]
 
-                if overridden_allele_ids:
+                if gene_specific_allele_ids:
                     ad_filters.append(
                         ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                            overridden_allele_ids
+                            gene_specific_allele_ids
                         )
                     )
 
-                allele_ids_for_genes = self.session.query(
-                    annotationshadow.AnnotationShadowTranscript.allele_id
-                ).filter(*ad_filters)
+                ad_gene_allele_ids.update(
+                    set(
+                        self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
+                        .filter(*ad_filters)
+                        .scalar_all()
+                    )
+                )
 
                 gp_final_filter.append(
                     and_(
                         annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                            allele_ids_for_genes
+                            ad_gene_allele_ids
                         ),
                         self._get_freq_threshold_filter(
                             filter_config["groups"],
@@ -297,31 +302,11 @@ class FrequencyFilter(object):
                     )
                 )
 
-            # 3. 'default' genes (all genes not in two above cases)
-            # Keep ad_genes as subquery, or else performance goes down the drain
-            # (as opposed to loading the symbols into backend and
-            # merging with override_genes -> up to 30x slower)
-            default_filters = [
-                ~annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(ad_hgnc_ids),
-                ast_gp_alleles,
-            ]
-
-            if overridden_allele_ids:
-                default_filters.append(
-                    ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                        overridden_allele_ids
-                    )
-                )
-
-            allele_ids_for_genes = (
-                self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
-                .filter(*default_filters)
-                .distinct()
-            )
-
+            # 3. 'default' thresholds (all allele_ids not in the two above cases)
+            default_allele_ids = set(allele_ids) - ad_gene_allele_ids - gene_specific_allele_ids
             gp_final_filter.append(
                 and_(
-                    annotationshadow.AnnotationShadowFrequency.allele_id.in_(allele_ids_for_genes),
+                    annotationshadow.AnnotationShadowFrequency.allele_id.in_(default_allele_ids),
                     self._get_freq_threshold_filter(
                         filter_config["groups"],
                         filter_config["thresholds"]["default"],
