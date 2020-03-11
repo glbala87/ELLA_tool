@@ -146,7 +146,7 @@ test_e2e:
         - apk add --update make
         - cat images/$CI_CACHE_IMAGE_FILE | docker load
         - rm -rf errorShots
-    script: PARALLEL_INSTANCES=6 make test-e2e
+    script: PARALLEL_INSTANCES=2 make test-e2e
     after_script:
         - docker rm  -f -v ${PIPELINE_ID}-e2e
     artifacts:
