@@ -400,13 +400,6 @@ test-e2e:
 	docker exec -e SPEC=$(SPEC) -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
 
-test-check-ci-e2e-tests:
-	docker run --rm \
-	  --name $(CONTAINER_NAME)-formatting \
-	  --user $(UID):$(GID) \
-	  $(IMAGE_NAME) \
-	  ops/test/check_ci_e2e_tests.sh
-
 test-formatting:
 	docker run --rm \
 	  --name $(CONTAINER_NAME)-formatting \

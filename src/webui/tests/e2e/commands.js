@@ -63,7 +63,7 @@ function waitForCerebral() {
 }
 
 function psql(sql) {
-    let result = spawnSync('psql', ['postgres', '-c', sql])
+    let result = spawnSync('psql', [process.env.DB_URL, '-c', sql])
     if (result.status != 0) {
         throw Error(result.stderr.toString('utf8'))
     }
@@ -71,23 +71,16 @@ function psql(sql) {
 }
 
 function addCommands() {
-    browser.addCommand('resetDb', (testset = 'e2e') => {
-        console.log(`Resetting database with '${testset}' (this can take a while...)`)
-        try {
-            execSync(`ella-cli database drop -f`, {
-                stdio: ['ignore', 'ignore', 'pipe']
-            })
-            execSync(`psql postgres < /ella/dbdump_${testset}.sql`, {
-                stdio: ['ignore', 'ignore', 'pipe']
-            })
-            console.log('Database reset from dump done!')
-        } catch (err) {
-            execSync(`make -C /ella dbreset TESTSET=${testset}`, {
-                stdio: ['ignore', 'ignore', 'pipe']
-            })
-            execSync(`pg_dump postgres > /ella/dbdump_${testset}.sql`)
-            console.log('Database reset done!')
-        }
+    browser.addCommand('resetDb', () => {
+        console.log(`Resetting database with 'e2e' (this can take a while...)`)
+        execSync(`ella-cli database drop -f`, {
+            stdio: ['ignore', 'ignore', 'pipe']
+        })
+
+        execSync(`psql ${process.env.DB_URL} < /ella/e2e-test-dump.sql`, {
+            stdio: ['ignore', 'ignore', 'pipe']
+        })
+        console.log('Database reset from dump done!')
     })
 
     browser.addCommand('setWysiwygValue', (editorSelector, editorWysiwygSelector, value) => {

@@ -25,6 +25,7 @@ RUN apt-get update && \
     iotop \
     htop \
     imagemagick \
+    parallel \
     ghostscript && \
     echo "Cleanup:" && \
     apt-get clean && \
