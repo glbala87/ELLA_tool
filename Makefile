@@ -22,7 +22,9 @@ API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
 DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
+PARALLEL_INSTANCES ?= 2
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
+
 
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
@@ -390,6 +392,7 @@ test-e2e:
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e BUILD=$(BUILD) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \

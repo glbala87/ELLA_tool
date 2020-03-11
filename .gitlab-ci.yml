@@ -23,7 +23,7 @@ build:
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
-        - docker build --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target production-build .
+        - docker build --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
         - docker push $CI_REGISTRY_IMAGE:ci-latest
         - mkdir -p images
         - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
@@ -146,7 +146,7 @@ test_e2e:
         - apk add --update make
         - cat images/$CI_CACHE_IMAGE_FILE | docker load
         - rm -rf errorShots
-    script: make test-e2e
+    script: PARALLEL_INSTANCES=6 make test-e2e
     after_script:
         - docker rm  -f -v ${PIPELINE_ID}-e2e
     artifacts:
