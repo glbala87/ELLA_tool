@@ -157,7 +157,7 @@ test_e2e:
         expire_in: 2 weeks
     needs: ['build']
     tags:
-        - do-large
+        - do-small
     cache:
         key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
         paths:
