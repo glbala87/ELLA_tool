@@ -152,6 +152,7 @@ test_e2e:
     artifacts:
         paths:
             - errorShots/
+            - logs/
         name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks

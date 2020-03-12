@@ -19,7 +19,7 @@ createdb ${TAG}
 psql "$DB_URL" < /ella/e2e-test-dump.sql > /dev/null
 
 # Start API
-{ DB_URL=$DB_URL API_PORT=$API_PORT ATTACHMENT_STORAGE=$ATTACHMENT_STORAGE SERVE_STATIC=true DEVELOP=true python -u src/api/main.py &> "/logs/api-$TAG"; } &
+{ DB_URL=$DB_URL API_PORT=$API_PORT ATTACHMENT_STORAGE=$ATTACHMENT_STORAGE SERVE_STATIC=true DEVELOP=true python -u src/api/main.py &> "/logs/api-$TAG.log"; } &
 
 # Start e2e tests
 { DB_URL=$DB_URL yarn wdio --colors --spec "${SPEC}" --baseUrl "localhost:$API_PORT" --host localhost --port 4444 --path / ; } &

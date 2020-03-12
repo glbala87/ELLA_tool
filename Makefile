@@ -387,10 +387,13 @@ test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e
 	mkdir -p errorShots
 	chmod a+rwX errorShots
+	mkdir -p logs
+	chmod a+rwX logs
 	docker run -d --hostname e2e \
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e PRODUCTION=false \
