@@ -393,7 +393,6 @@ test-e2e:
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
-	   -e BUILD=$(BUILD) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
