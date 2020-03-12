@@ -119,6 +119,9 @@ describe('Read-only version of variant workflow ', function() {
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
 
+        // Wait for finish to be done
+        variantSelectionPage.pendingSection.waitForExist()
+
         loginPage.open()
         loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
