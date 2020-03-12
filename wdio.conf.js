@@ -8,7 +8,13 @@ var debug = process.env.DEBUG
 var defaultCapabilities = [
     {
         'goog:chromeOptions': {
-            args: ['headless', 'disable-gpu', '--no-sandbox', '--window-size=1440,1080']
+            args: [
+                'headless',
+                'disable-gpu',
+                '--no-sandbox',
+                '--window-size=1440,1080',
+                '--disable-dev-shm-usage' // Important per Chrome/Chromedriver v75
+            ]
         },
         maxInstances: 1,
         browserName: 'chrome'
@@ -44,7 +50,7 @@ BEFORE_CNT = 0
 exports.config = {
     // debug: true causes a [DEP0062] DeprecationWarning
     // debug: debug,
-    execArgv: ['--inspect=0.0.0.0:9999'],
+    execArgv: debug ? ['--inspect=0.0.0.0:9999'] : [],
     //
     // ==================
     // Specify Test Files
@@ -54,6 +60,8 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
+
+    // For CI, see /ops/tests/run_e2e_tests.sh
     specs: process.env.SPEC
         ? [process.env.SPEC].map((x) => {
               try {
@@ -109,8 +117,6 @@ exports.config = {
     // the wdio-sync package. If you still want to run your tests in an async way
     // e.g. using promises you can set the sync option to false.
     sync: true,
-    //
-    // Level of logging verbosity: silent | verbose | command | data | result | error
     logLevel: 'silent',
     //
     // Enables colors for log output.
@@ -123,7 +129,7 @@ exports.config = {
     screenshotPath: './errorShots/',
     //
     // Default timeout for all waitFor* commands.
-    waitforTimeout: 10000,
+    waitforTimeout: 20000,
     waitForInterval: 100,
     //
     // Default timeout in milliseconds for request
@@ -174,7 +180,9 @@ exports.config = {
         //
         // Jasmine default timeout
         // We set this high, since some tests takes some time...
-        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval
+        defaultTimeoutInterval: debug ? 24 * 60 * 60 * 1000 : defaultTimeoutInterval,
+        stopSpecOnExpectationFailure: true,
+        failFast: true
     },
 
     //
@@ -276,7 +284,7 @@ exports.config = {
     //
     // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
     afterTest: function(test) {
-        if (test.error !== undefined) {
+        if (test.failedExpectations.length) {
             // get current test title and clean it, to use it as file name
             const filename = encodeURIComponent(test.fullTitle.replace(/\s+/g, '-'))
             // build file path

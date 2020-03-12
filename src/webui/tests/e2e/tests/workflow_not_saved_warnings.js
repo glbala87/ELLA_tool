@@ -17,7 +17,6 @@ const analysisPage = new AnalysisPage()
 const alleleSectionBox = new AlleleSectionBox()
 
 var failFast = require('jasmine-fail-fast')
-jasmine.getEnv().addReporter(failFast.init())
 
 describe('Sample workflow', function() {
     beforeAll(() => {

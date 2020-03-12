@@ -15,7 +15,6 @@ let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let checkAlleleClassification = require('../helpers/checkAlleleClassification')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let overview = new SampleSelection()
@@ -27,8 +26,6 @@ const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
 const TITLE_REVIEW = ' • REVIEW'
 const TITLE_MEDICAL_REVIEW = ' • MEDICAL REVIEW'
-
-jasmine.getEnv().addReporter(failFast.init())
 
 describe('Sample workflow ', function() {
     beforeAll(() => {

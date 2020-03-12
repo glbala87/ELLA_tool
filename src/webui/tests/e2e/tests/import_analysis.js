@@ -7,7 +7,6 @@ let loginPage = new LoginPage()
 let importPage = new Import()
 
 var failFast = require('jasmine-fail-fast')
-jasmine.getEnv().addReporter(failFast.init())
 
 describe('Import functionality', function() {
     beforeAll(() => {

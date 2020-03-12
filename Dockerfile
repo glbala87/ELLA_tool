@@ -1,5 +1,5 @@
-# aka debian:stretch
-FROM ubuntu:18.04 AS base
+# bionic = 18.04
+FROM ubuntu:bionic-20200219 AS base
 MAINTAINER OUS AMG <ella-support@medisin.uio.no>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -11,7 +11,6 @@ RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
 # Install as much as reasonable in one go to reduce image size
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     gettext-base \
     python3.7 \
@@ -26,6 +25,7 @@ RUN apt-get update && \
     iotop \
     htop \
     imagemagick \
+    parallel \
     ghostscript && \
     echo "Cleanup:" && \
     apt-get clean && \

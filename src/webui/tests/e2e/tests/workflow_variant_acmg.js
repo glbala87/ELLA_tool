@@ -13,14 +13,11 @@ let VariantSelectionPage = require('../pageobjects/overview_variants')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let acmg = require('../pageobjects/acmg')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
-
-jasmine.getEnv().addReporter(failFast.init())
 
 describe(`ACMG`, function() {
     beforeAll(() => {
