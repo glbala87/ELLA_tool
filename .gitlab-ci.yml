@@ -14,7 +14,6 @@ stages:
     - build
     - formatting
     - test
-    - e2e
     - review
     - release
 
@@ -73,6 +72,31 @@ check_formatting:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-formatting
     tags:
         - do-small
+
+e2e:
+    stage: test
+    before_script:
+        - apk add --update make
+        - cat images/$CI_CACHE_IMAGE_FILE | docker load
+        - rm -rf errorShots
+    script: PARALLEL_INSTANCES=2 make test-e2e
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
+    artifacts:
+        paths:
+            - errorShots/
+            - logs/
+        name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
+        when: on_failure
+        expire_in: 2 weeks
+    needs: ['build']
+    tags:
+        - do-small
+    cache:
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        paths:
+            - images/
+        policy: pull
 
 api:
     extends: .test-common
@@ -139,31 +163,6 @@ report:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
     tags:
         - do-small
-
-test_e2e:
-    stage: e2e
-    before_script:
-        - apk add --update make
-        - cat images/$CI_CACHE_IMAGE_FILE | docker load
-        - rm -rf errorShots
-    script: PARALLEL_INSTANCES=2 make test-e2e
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
-    artifacts:
-        paths:
-            - errorShots/
-            - logs/
-        name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
-        when: on_failure
-        expire_in: 2 weeks
-    needs: ['build']
-    tags:
-        - do-small
-    cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        paths:
-            - images/
-        policy: pull
 
 release:
     stage: release
