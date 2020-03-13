@@ -70,7 +70,7 @@ check_formatting:
     script:
         - make test-formatting
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-formatting
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-formatting
     tags:
         - do-small
 
@@ -82,7 +82,7 @@ api:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
     tags:
         - do-small
 
@@ -94,7 +94,7 @@ api_migration:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api-migration
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
     tags:
         - do-small
 
@@ -106,7 +106,7 @@ js:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-js
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
     tags:
         - do-small
 
@@ -118,7 +118,7 @@ python:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-common
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
     tags:
         - do-small
 
@@ -127,7 +127,7 @@ cli:
     script:
         - make test-cli
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-cli
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
     tags:
         - do-small
 
@@ -136,7 +136,7 @@ report:
     script:
         - make test-report
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-report
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
     tags:
         - do-small
 
@@ -148,7 +148,7 @@ test_e2e:
         - rm -rf errorShots
     script: PARALLEL_INSTANCES=2 make test-e2e
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-e2e
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
     artifacts:
         paths:
             - errorShots/
