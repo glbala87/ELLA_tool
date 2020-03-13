@@ -8,16 +8,15 @@ class LoginPage extends Page {
     }
 
     get login() {
-        return 'login'
+        return $('login')
     }
 
     loginAs(username) {
-        const login = $(this.login)
-        login.waitForExist()
+        this.login.waitForExist()
         $(`.id-username`).setValue(username)
         $(`.id-password`).setValue(PASSWORD)
         $(`.id-login-submit`).click()
-        login.waitForExist(undefined, true)
+        this.login.waitForExist(undefined, true)
     }
 }
 

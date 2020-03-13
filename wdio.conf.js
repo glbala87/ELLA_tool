@@ -117,7 +117,7 @@ exports.config = {
     // the wdio-sync package. If you still want to run your tests in an async way
     // e.g. using promises you can set the sync option to false.
     sync: true,
-    logLevel: 'silent',
+    logLevel: 'warn',
     //
     // Enables colors for log output.
     coloredLogs: true,
@@ -130,7 +130,6 @@ exports.config = {
     //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 20000,
-    waitForInterval: 100,
     //
     // Default timeout in milliseconds for request
     // if Selenium Grid doesn't send response

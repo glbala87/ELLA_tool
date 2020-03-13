@@ -14,7 +14,6 @@ stages:
     - build
     - formatting
     - test
-    - e2e
     - review
     - release
 
@@ -70,88 +69,23 @@ check_formatting:
     script:
         - make test-formatting
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-formatting
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-formatting
     tags:
         - do-small
 
-api:
-    extends: .test-common
-    script:
-        - make test-api
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api
-    tags:
-        - do-small
-
-api_migration:
-    extends: .test-common
-    script:
-        - make test-api-migration
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api-migration
-    tags:
-        - do-small
-
-js:
-    extends: .test-common
-    script:
-        - make test-js
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-js
-    tags:
-        - do-small
-
-python:
-    extends: .test-common
-    script:
-        - make test-python
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-common
-    tags:
-        - do-small
-
-cli:
-    extends: .test-common
-    script:
-        - make test-cli
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-cli
-    tags:
-        - do-small
-
-report:
-    extends: .test-common
-    script:
-        - make test-report
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-report
-    tags:
-        - do-small
-
-test_e2e:
-    stage: e2e
+e2e:
+    stage: test
     before_script:
         - apk add --update make
         - cat images/$CI_CACHE_IMAGE_FILE | docker load
         - rm -rf errorShots
     script: PARALLEL_INSTANCES=2 make test-e2e
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-e2e
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
     artifacts:
         paths:
             - errorShots/
+            - logs/
         name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks
@@ -163,6 +97,72 @@ test_e2e:
         paths:
             - images/
         policy: pull
+
+api:
+    extends: .test-common
+    script:
+        - make test-api
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
+    tags:
+        - do-small
+
+api_migration:
+    extends: .test-common
+    script:
+        - make test-api-migration
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
+    tags:
+        - do-small
+
+js:
+    extends: .test-common
+    script:
+        - make test-js
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
+    tags:
+        - do-small
+
+python:
+    extends: .test-common
+    script:
+        - make test-python
+    except:
+        - /^ui-.*$/
+        - /^ops-.*$/
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
+    tags:
+        - do-small
+
+cli:
+    extends: .test-common
+    script:
+        - make test-cli
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
+    tags:
+        - do-small
+
+report:
+    extends: .test-common
+    script:
+        - make test-report
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
+    tags:
+        - do-small
 
 release:
     stage: release

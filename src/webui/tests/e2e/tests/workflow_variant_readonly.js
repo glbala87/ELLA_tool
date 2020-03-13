@@ -115,9 +115,13 @@ describe('Read-only version of variant workflow ', function() {
         $('body').click() // a trick to unfocus the above report comment
 
         alleleSectionBox.setReportComment('report changed')
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
+
+        // Wait for finish to be done
+        variantSelectionPage.pendingSection.waitForExist()
 
         loginPage.open()
         loginPage.loginAs('testuser2')
