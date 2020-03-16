@@ -8,10 +8,16 @@ app.directive('scrollTo', function() {
                 if (attrs.scrollPosition === 'top') {
                     return () => elem.scrollTo({ top: 0, left: 0 })
                 } else if (attrs.scrollPosition === 'view') {
-                    return () => elem.scrollIntoView()
+                    return () =>
+                        elem.scrollIntoView({
+                            block: 'nearest'
+                        })
                 } else {
                     // Default to scrollIntoView
-                    return () => elem.scrollIntoView()
+                    return () =>
+                        elem.scrollIntoView({
+                            block: 'nearest'
+                        })
                 }
             }
             if (attrs.scrollOnChange !== undefined) {
