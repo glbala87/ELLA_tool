@@ -208,3 +208,70 @@ def test_check_and_import(session, test_database, init_dest):
 
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)
+
+
+def test_check_and_import_whitelist_include(session, test_database, init_dest):
+    aw = init(session)
+
+    test_database.refresh()
+    aw = AnalysisWatcher(session, watch_path, dest_path, whitelist=[f"^{analysis_sample}$"])
+
+    analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
+
+    aw.check_and_import()
+
+    db_genepanel = DepositFromVCF(session).get_genepanel(
+        analysis_config_data.gp_name, analysis_config_data.gp_version
+    )
+
+    analysis_stored = (
+        session.query(sm.Analysis)
+        .filter(
+            sm.Analysis.name == analysis_config_data.analysis_name,
+            sm.Analysis.genepanel == db_genepanel,
+        )
+        .all()
+    )
+
+    assert len(analysis_stored) == 1
+
+    files = os.listdir(watch_path)
+    assert len(files) == 1
+    assert files == [analysis_sample2]
+
+    os.system("rm -r {}".format(watch_path))
+
+    assert "Report" in str(analysis_stored[0].report)
+    assert "Warning" in str(analysis_stored[0].warnings)
+
+
+def test_check_and_import_whitelist_exclude(session, test_database, init_dest):
+    aw = init(session)
+
+    test_database.refresh()
+    aw = AnalysisWatcher(session, watch_path, dest_path, whitelist=["^NonExisting$"])
+
+    analysis_config_data = aw.extract_from_config(ready_data_path, analysis_sample)
+
+    aw.check_and_import()
+
+    db_genepanel = DepositFromVCF(session).get_genepanel(
+        analysis_config_data.gp_name, analysis_config_data.gp_version
+    )
+
+    analysis_stored = (
+        session.query(sm.Analysis)
+        .filter(
+            sm.Analysis.name == analysis_config_data.analysis_name,
+            sm.Analysis.genepanel == db_genepanel,
+        )
+        .all()
+    )
+
+    assert len(analysis_stored) == 0
+
+    files = os.listdir(watch_path)
+    assert len(files) == 2
+    assert set(files) == set([analysis_sample, analysis_sample2])
+
+    os.system("rm -r {}".format(watch_path))
