@@ -17,7 +17,6 @@ RUN apt-get update && \
     make \
     bash \
     libpq5 \
-    supervisor \
     less \
     nano \
     nginx-light \
