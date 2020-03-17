@@ -39,7 +39,6 @@ from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 POLL_INTERVAL = 30
 
 WATCH_PATH_ERROR = "Couldn't read from watch path {}, aborting..."
@@ -250,6 +249,11 @@ def start_polling(session, analyses_path, destination_path, whitelist=None):
 
 
 if __name__ == "__main__":
+
+    from applogger import setup_logger
+
+    setup_logger()
+
     parser = argparse.ArgumentParser(
         description="Watch a folder for new analyses to import into database."
     )

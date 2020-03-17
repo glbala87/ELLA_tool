@@ -411,7 +411,9 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
 
-    logging.basicConfig(level=logging.INFO)
+    from applogger import setup_logger
+
+    setup_logger()
 
     genepanel_name = args.genepanelName
     genepanel_version = args.genepanelVersion

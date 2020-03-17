@@ -39,4 +39,7 @@ cli_group.add_command(users)
 cli_group.add_command(filterconfigs)
 
 if __name__ == "__main__":
+    from applogger import setup_logger
+
+    setup_logger()
     cli_group(prog_name="ella-cli")
