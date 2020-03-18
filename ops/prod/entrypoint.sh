@@ -14,12 +14,12 @@ SUPERVISOR_PASSWORD=${SUPERVISOR_USERNAME:-alleles}
 # own environment substitutions.
 # Note: Set $SUPERVISOR_CONFIG to a writeable location
 SUPERVISOR_CONFIG=${SUPERVISOR_CONFIG:-${DIR}/supervisor.cfg}
-envsubst < supervisor-template.cfg | python -c '
+envsubst < ${DIR}/supervisor-template.cfg | python -c '
 import sys
 import os
 from configparser import ConfigParser
 config = ConfigParser(interpolation=None)
-config.readfp(sys.stdin)
+config.read_file(sys.stdin)
 
 # If SUPERVISOR_PORT is not specified, do not include [inet_http_server] in config
 if not "SUPERVISOR_PORT" in os.environ:
