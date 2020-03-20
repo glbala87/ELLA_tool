@@ -296,11 +296,14 @@ div.existing-classification-comments .tabular-row:last-child .wysiwygeditor {
 
 .general-list {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     .list-item {
         display: flex;
         padding-left: 1.2rem;
+        width: 100%;
     }
+    max-height: 40rem;
+    overflow: auto;
 }
 
 allele-selection {
