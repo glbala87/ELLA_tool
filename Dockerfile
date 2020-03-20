@@ -17,7 +17,6 @@ RUN apt-get update && \
     make \
     bash \
     libpq5 \
-    supervisor \
     less \
     nano \
     nginx-light \
@@ -88,6 +87,9 @@ RUN cd /dist && \
     WORKON_HOME="/dist" python3.7 -m venv ella-python && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements.txt && \
     /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt
+
+# Patch supervisor, so "Clear log" is not available from UI
+RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.7/site-packages/supervisor/web.py
 
 ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
