@@ -408,7 +408,10 @@ def polling(session):
 
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.INFO)
+    from applogger import setup_logger
+
+    setup_logger()
+
     from vardb.datamodel import DB
 
     db = DB()

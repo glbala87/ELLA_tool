@@ -7,8 +7,6 @@ import click
 from vardb.util import DB
 from vardb.datamodel import log
 
-logging.basicConfig(level=logging.INFO)
-
 
 class CliLogger(object):
     def __init__(self, ctx):

@@ -13,8 +13,6 @@ import datetime
 
 SPECIAL_TESTSET_SKIPPING_VCF = "empty"
 
-logging.basicConfig(level=logging.DEBUG)
-
 import vardb.datamodel
 from vardb.datamodel import DB, sample
 from vardb.deposit.deposit_genepanel import DepositGenepanel
@@ -257,6 +255,9 @@ class DepositTestdata(object):
 if __name__ == "__main__":
 
     import argparse
+    from applogger import setup_logger
+
+    setup_logger()
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

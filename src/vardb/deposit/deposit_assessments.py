@@ -23,7 +23,6 @@ from vardb.deposit.importers import (
     SplitToDictInfoProcessor,
 )
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
@@ -116,6 +115,11 @@ class DepositAssessments(object):
 def main(argv=None):
     """Example: ./deposit.py --vcf=./myvcf.vcf"""
     argv = argv or sys.argv[1:]
+
+    from applogger import setup_logger
+
+    setup_logger()
+
     parser = argparse.ArgumentParser(
         description="""Deposit variants and genotypes from a VCF file into varDB."""
     )

@@ -2,8 +2,6 @@ import re
 import logging
 from functools import reduce
 
-logging.basicConfig(level=logging.INFO)
-
 """
 GenAP Rule Classifier, GRC
 
@@ -215,7 +213,7 @@ class ACMGClassifier2015:
     """
     Returns True if criteria a has higher precedence than criteria b, else
     Returns False.
-    
+
     Input may be normal criterias like PS1, PM1 etc. or derived criterias
     like PMxPS1, PMxPVS1 etc. They must be preselected by criteria source (done
     in __accumulate_criteria__).
@@ -260,7 +258,7 @@ class ACMGClassifier2015:
     """
     Finding the base code from the derived code, if this is not a
     derived code, the same code is returned.
-    
+
     Derived codes are always written like this:
     [PVS/PS/PM/PP/BP/BS/BA]x[base]
     """
