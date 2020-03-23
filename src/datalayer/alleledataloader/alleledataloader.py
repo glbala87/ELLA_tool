@@ -189,7 +189,7 @@ class Warnings(object):
             # Worse consequence
             worst_consequence = al.get("annotation", {}).get("worst_consequence", [])
             filtered_transcripts = al.get("annotation", {}).get("filtered_transcripts", [])
-            if not set(worst_consequence) & set(filtered_transcripts):
+            if worst_consequence and not set(worst_consequence) & set(filtered_transcripts):
                 consequences = dict()
                 for w in worst_consequence:
                     transcript_data = next(
