@@ -5,8 +5,8 @@
     <div class="main-navbar-secondary">
         <workflowbar></workflowbar>
     </div>
-    <div class="main-allele-sidebar" ng-if="$ctrl.loaded">
-        <allele-sidebar ng-if="$ctrl.showSidebar"></allele-sidebar>
+    <div class="main-allele-sidebar" ng-if="$ctrl.loaded && $ctrl.showSidebar">
+        <allele-sidebar></allele-sidebar>
     </div>
     <div class="main-content" ng-if="$ctrl.loaded">
         <interpretation></interpretation>

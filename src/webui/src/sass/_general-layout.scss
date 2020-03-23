@@ -455,6 +455,7 @@ button {
         grid-area: allele-sidebar;
         overflow: auto;
         width: 100%;
+        border-right: 1px dotted $blue-25;
 
         // Workaround Firefox adding scrollbar to width
         @supports (-moz-appearance: none) {
@@ -582,7 +583,6 @@ button {
 }
 
 .interpretation-content {
-    border-left: 1px dotted $blue-25;
     padding: 2rem;
 }
 
