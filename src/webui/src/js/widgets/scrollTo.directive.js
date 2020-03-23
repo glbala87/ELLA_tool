@@ -6,23 +6,17 @@ app.directive('scrollTo', function() {
         link: (scope, elem, attrs) => {
             const getScrollFunc = (elem) => {
                 if (attrs.scrollPosition === 'top') {
-                    return () => elem.scrollTo({ top: 0, left: 0 })
+                    return () => elem.scrollIntoView(true)
                 } else if (attrs.scrollPosition === 'view') {
-                    return () =>
-                        elem.scrollIntoView({
-                            block: 'nearest'
-                        })
+                    return () => elem.scrollIntoView()
                 } else {
                     // Default to scrollIntoView
-                    return () =>
-                        elem.scrollIntoView({
-                            block: 'nearest'
-                        })
+                    return () => elem.scrollIntoView()
                 }
             }
             if (attrs.scrollOnChange !== undefined) {
                 attrs.$observe('scrollOnChange', () => {
-                    getScrollFunc(elem[0])()
+                    setTimeout(() => getScrollFunc(elem[0])())
                 })
             } else {
                 // Auto scroll upon creation

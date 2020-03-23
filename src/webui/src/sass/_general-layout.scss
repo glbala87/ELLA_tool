@@ -404,146 +404,252 @@ button {
     width: 100%;
 }
 
-.dashboard-navbar {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-}
-
 // APP-WIDE STYLE
-.main {
-    //display: flex;
-    width: 100%;
-    min-height: calc(100vh - 11rem);
-    height: 100%;
 
-    .sidenavbar {
-        color: $white-75;
-        width: 4rem;
-        background-color: $blue-50;
-        margin-right: 3rem;
-        font-family: $slim;
-        font-weight: 700;
-        letter-spacing: 0.1;
-        text-transform: uppercase;
-        position: fixed;
-        min-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-        .item-row {
+// Base layout
+.app {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    //
+    // Grid items
+    //
+
+    // Global
+    .main-navbar {
+        grid-area: navbar;
+    }
+    .main-navbar-secondary {
+        grid-area: navbar-secondary;
+    }
+    .main-content {
+        grid-area: content;
+        overflow-y: auto;
+    }
+
+    // Workflow specific
+    .main-workflow-loading {
+        grid-area: workflow-loading;
+        .loading {
+            height: 80vh;
             width: 100%;
-            transform: rotate(90deg);
             display: flex;
-            .item {
-                transform: rotate(180deg);
-                height: 4rem;
-                font-size: 2rem;
-                padding-left: 3rem;
-                padding-right: 3rem;
-                line-height: 4rem;
-                &.active {
-                    background-color: $blue-25;
-                }
-                &:hover {
-                    background-color: $blue-25;
-                    color: $white;
-                    cursor: pointer;
-                }
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            .loading-animation {
+                max-width: 20rem;
+            }
+            .loading-text {
+                font-family: $slim;
+                font-size: 2.8rem;
+                font-weight: 600;
+                letter-spacing: 0.075rem;
+                text-transform: uppercase;
+                color: $black-25;
             }
         }
     }
-    .container {
-        margin-left: 2rem;
-        padding-top: 2.5rem;
-        padding-right: 2rem;
-        padding-bottom: 2.5rem;
-        width: 100%;
+    .main-allele-sidebar {
+        grid-area: allele-sidebar;
         overflow: auto;
-        // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set in javascript
-        // max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height} - #{$nav-bar-bottom-buttons-height});
-    }
-    .container.with-sidenavbar {
-        margin-left: 9rem;
-    }
-    .container.inner {
-        max-width: 160rem;
         width: 100%;
-        padding-left: 3.9rem;
-        margin-left: 0;
-        margin-right: 0;
-        border-left: 1px dotted $blue-25;
-    }
+        border-right: 1px dotted $blue-25;
 
-    // View specific stuff
-    .logout-btn {
-        margin-left: auto;
-    }
-    .overviewcontainer {
-        display: flex;
-        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-        overflow: auto;
-    }
-
-    .dashboard {
-        max-height: calc(100vh - #{$nav-bar-top-height} - #{$nav-bar-secondary-height});
-        overflow: auto;
-        display: flex;
-        .full-title {
-            padding-left: 1.2rem;
-            font-size: 1.4rem;
-            font-weight: 300;
+        // Workaround Firefox adding scrollbar to width
+        @supports (-moz-appearance: none) {
+            margin-right: 2rem;
         }
-        .profile {
-            flex: 1;
-            justify-content: space-between;
-            flex-flow: row wrap;
-            align-items: stretch;
-            align-content: stretch;
-            width: 32%;
-            border: solid white 3px;
-            background-color: $green-05;
-            height: 100%;
-
-            .sb-title-container {
-                background-color: $green-25;
-            }
+        // Thin, blue scrollbar in Chrome
+        &::-webkit-scrollbar {
+            width: 0.8rem;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: $blue-25;
+        }
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: $blue-50;
         }
     }
 
-    .dashboard-activity {
-        flex: 1;
-        width: 100%;
-        border: solid white 3px;
+    // Overview specific
+    .main-overview-sidebar {
+        grid-area: overview-sidebar;
     }
 
-    .loading {
-        height: 80vh;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        .loading-animation {
-            max-width: 20rem;
+    //
+    // Grid layouts
+    //
+    .wrapper-workflow {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+        grid-template-columns: max-content 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            'navbar navbar'
+            'navbar-secondary navbar-secondary'
+            'allele-sidebar content';
+
+        &.workflow-loading {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto 1fr;
+            grid-template-areas:
+                'navbar'
+                'navbar-secondary'
+                'workflow-loading';
         }
-        .loading-text {
-            font-family: $slim;
-            font-size: 2.8rem;
-            font-weight: 600;
-            letter-spacing: 0.075rem;
-            text-transform: uppercase;
-            color: $black-25;
-        }
+    }
+
+    .wrapper-overview {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+        grid-template-columns: 4rem 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            'navbar navbar'
+            'navbar-secondary navbar-secondary'
+            'overview-sidebar content';
+    }
+
+    .wrapper-dashboard {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            'navbar'
+            'navbar-secondary'
+            'content';
+    }
+
+    .wrapper-login {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            'navbar'
+            'content';
     }
 }
-.app .search-area {
-    margin-left: 42rem;
-}
-.single-sample-analysis-container {
+
+.navbar-secondary {
     display: flex;
-    flex-direction: row;
+    background-color: $blue;
+    align-items: center;
+    justify-content: space-between;
+    background-color: $blue-50-on-white;
+    height: $nav-bar-secondary-height;
+    padding: 0 1.3rem;
+    section {
+        display: flex;
+        .dropdown {
+            margin-left: 1.4rem;
+        }
+    }
 }
+
+.navbar-bottom {
+    flex-direction: column;
+    z-index: 100;
+    background-color: $blue-25-on-white;
+    justify-content: space-between;
+    width: 100%;
+    padding-right: 1.3rem;
+    padding-left: 1.3rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    section {
+        margin-top: -0.05rem;
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        height: $nav-bar-bottom-buttons-height;
+        .dropdown {
+            margin-left: 1.4rem;
+        }
+    }
+    article {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        height: $allelebar-row-height;
+    }
+}
+
+.interpretation-content {
+    padding: 2rem;
+}
+
+.overview-content,
+.login-content {
+    padding: 2rem 4rem;
+}
+
+.overview-sidenavbar {
+    height: 100%;
+    color: $white-75;
+    background-color: $blue-50;
+    font-family: $slim;
+    font-weight: 700;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+    .item-row {
+        width: 100%;
+        transform: rotate(90deg);
+        display: flex;
+        .item {
+            transform: rotate(180deg);
+            font-size: 2rem;
+            padding-left: 3rem;
+            padding-right: 3rem;
+            line-height: 4rem;
+            &.active {
+                background-color: $blue-25;
+            }
+            &:hover {
+                background-color: $blue-25;
+                color: $white;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.logout-btn {
+    margin-left: auto;
+}
+
+.dashboard-content {
+    padding: 2rem 4rem;
+    display: flex;
+    .full-title {
+        padding-left: 1.2rem;
+        font-size: 1.4rem;
+        font-weight: 300;
+    }
+    .profile {
+        flex: 1;
+        justify-content: space-between;
+        flex-flow: row wrap;
+        align-items: stretch;
+        align-content: stretch;
+        width: 32%;
+        border: solid white 3px;
+        background-color: $green-05;
+        height: 100%;
+
+        .sb-title-container {
+            background-color: $green-25;
+        }
+    }
+}
+
 .full-width {
     width: 100%;
 }
@@ -624,23 +730,11 @@ button {
     }
 }
 
-.home-svg {
-    fill: $white-50;
-    margin-bottom: -0.4rem;
-    :hover {
-        fill: $white-75;
-    }
-}
-
 nav {
-    position: sticky;
     width: 100%;
     display: flex;
     flex-direction: column;
     z-index: 1000;
-    top: 0;
-    left: 0;
-    right: 0;
 
     .top {
         .right {
@@ -677,52 +771,6 @@ nav {
             text-transform: uppercase;
             font-size: 1.5rem;
             list-style: none;
-        }
-    }
-
-    .secondary {
-        display: flex;
-        background-color: $blue;
-        align-items: center;
-        justify-content: space-between;
-        background-color: $blue-50-on-white;
-        height: $nav-bar-secondary-height;
-        padding: 0 1.3rem;
-        section {
-            display: flex;
-            .dropdown {
-                margin-left: 1.4rem;
-            }
-        }
-    }
-
-    .bottom {
-        position: sticky;
-        flex-direction: column;
-        z-index: 100;
-        top: $nav-bar-top-height;
-        background-color: $blue-25-on-white;
-        justify-content: space-between;
-        width: 100%;
-        padding-right: 1.3rem;
-        padding-left: 1.3rem;
-        padding-top: 0.6rem;
-        padding-bottom: 0.6rem;
-        section {
-            margin-top: -0.05rem;
-            display: flex;
-            width: 100%;
-            justify-content: flex-end;
-            height: $nav-bar-bottom-buttons-height;
-            .dropdown {
-                margin-left: 1.4rem;
-            }
-        }
-        article {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            height: $allelebar-row-height;
         }
     }
 }
@@ -995,7 +1043,6 @@ nav.warning {
     }
     .nav-table {
         display: table;
-        width: 45rem;
         border-collapse: collapse;
     }
     .nav-row {
@@ -1003,7 +1050,6 @@ nav.warning {
         align-items: center;
         color: $black-60;
         background-color: inherit;
-        width: 45rem;
         font-family: $slim;
         font-size: 1.4rem;
         cursor: pointer;
@@ -1398,27 +1444,21 @@ nav.warning {
     opacity: 1;
 }
 .sidebar {
-    min-width: 45rem;
-    position: sticky;
     margin-left: 1.3rem;
-    margin-top: 2.5rem;
     padding-bottom: 4.5rem;
-    overflow: auto;
-    max-width: 100vw;
-    // IMPORTANT: max-height depends on the nav bar size (+ collision warning), and is dynamic. Therefore, it is set on parent element in javascript
-    max-height: inherit;
 
+    allele-sidebar-list:first-of-type > .allele-sidebar-list {
+        padding-top: 1rem;
+    }
     .controls {
         position: sticky;
         top: 0;
         background: white;
-        padding-bottom: 0.3rem;
-        border-bottom: 2px solid $blue-10;
-        box-shadow: 0 0 0 3px $white;
+        padding-top: 2rem;
         z-index: 1;
-        margin-bottom: 0.3rem;
 
         .control-comment {
+            padding-right: 1.5rem;
             max-width: 70rem;
             .wysiwygeditor {
                 max-height: 13rem;
@@ -1437,8 +1477,8 @@ nav.warning {
         }
         & .dropdown {
             &.filter-config-selection {
-                max-width: 15rem;
-                width: 15rem;
+                max-width: 14.5rem;
+                width: 14.5rem;
                 & > select {
                     text-overflow: ellipsis;
                     white-space: nowrap;
@@ -1458,15 +1498,6 @@ nav.warning {
         .add-excluded-button {
             margin-left: 0.5rem;
         }
-    }
-    &::-webkit-scrollbar {
-        width: 0.8rem;
-    }
-    &::-webkit-scrollbar-thumb {
-        background-color: $blue-25;
-    }
-    &:hover::-webkit-scrollbar-thumb {
-        background-color: $blue-50;
     }
     .spacer {
         height: 2rem;

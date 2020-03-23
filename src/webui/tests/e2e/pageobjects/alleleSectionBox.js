@@ -268,29 +268,22 @@ class AlleleSectionBox {
     }
 
     evaluateReference(index) {
-        let referenceSelector = `article:nth-child(${index}) .id-reference-pending-published`
+        let referenceSelector = `article:nth-of-type(${index}).id-reference-pending-published`
         let title = $(`${referenceSelector} .id-reference-title`).getText()
         $(`${referenceSelector} button.id-reference-evaluate`).click()
         return title
     }
 
     reEvaluateReference(index) {
-        let title = $(`.id-reference-evaluated-published .id-reference-title`).getText()
-        $(
-            `article:nth-child(${index}) .id-reference-evaluated-published button.id-reference-evaluate`
-        ).click()
+        // index is number in evaluated list, unpublished + published together
+        let title = $(`.id-reference-title`).getText()
+        $(`article:nth-of-type(${index}) button.id-reference-evaluate`).click()
         return title
     }
 
     getReferenceComment(index) {
-        const selector = `article:nth-child(${index}) .id-reference-evaluated-published .id-reference-comment`
+        const selector = `article:nth-of-type(${index}) .id-reference-comment`
         return $(selector).getText()
-    }
-
-    getReferenceRelevance(index) {
-        return $(
-            `allele-info-published-references article:nth-child(${index}) .id-reference-relevance p`
-        ).getText()
     }
 
     getExternalOtherAnnotation() {

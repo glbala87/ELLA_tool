@@ -1,6 +1,12 @@
-<div class="main">
-    <div class="overviewcontainer">
-        <div class="sidenavbar">
+<div class="wrapper-overview">
+    <div class="main-navbar">
+        <navbar></navbar>
+    </div>
+    <div class="main-navbar-secondary">
+        <overview-navbar></overview-navbar>
+    </div>
+    <div class="main-overview-sidebar">
+        <div class="overview-sidenavbar">
             <div class="item-row">
                 <div
                     ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey }}"
@@ -13,8 +19,9 @@
                 </div>
             </div>
         </div>
-
-        <div class="container with-sidenavbar">
+    </div>
+    <div class="main-content">
+        <div class="overview-content">
             <search></search>
             <div>
                 <analysis-selection
