@@ -26,7 +26,7 @@ This version adds bugfixes and improvements to the finalize variant functionalit
 #### Support for new VEP version
 <!-- MR !371 -->
 Added support for updated version of VEP (v98.3), including fixes for:
-- Fetching latest HGNC symbol (using RefSeq GFF files).
+- Fetching latest HGNC gene symbol.
 - Choosing the correct RefSeq transcript version. If possible, the version specified in the gene panel is chosen, otherwise the latest available version is used.
 
 #### Other UI improvements and bugfixes 
@@ -48,14 +48,14 @@ Added support for updated version of VEP (v98.3), including fixes for:
 - Adjusted delay for popovers.
 <!-- MR !364 -->
 - Improved help text for RIS format import.
-
 <!-- MR !386 -->
 - Fixed word wrap in popover comment fields (ACMG comment and WORKLOG).
-<!-- MR !379 -->
-- Fixed an issue with wrong navbar height calculation causing extra scrollbars and wrong page height.
+<!-- MR !379, !390, !395 -->
+- Fixed an issue causing wrong page height and extra scrollbars.
 <!-- MR !383 -->
 - Fixed bug where variants with no transcripts were not filtered on frequency.
-
+<!-- MR !394 -->
+- Fixed an issue where "Worse consequence" warning would show if no consequence was available.
 
 
 

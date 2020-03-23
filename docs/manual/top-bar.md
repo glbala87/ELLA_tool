@@ -13,7 +13,9 @@ The top bar contains information about the current user, selected variant, as we
 The view in VARIANTS workflow is almost the same but contains no sample-specific information.
 
 ::: warning NOTE
-If available, the RefSeq transcript version used in the HGVSc variant name in the top bar (NM_175629.2 in the example above) matches the version specified in the gene panel. If this version is not found, the newest version available in the annotation is used. 
+If available, the RefSeq transcript and version used in the HGVSc variant name in the top bar (NM_175629.2 in the example above) matches what is specified in the gene panel. However: 
+- If the same transcript version is not found, the newest version available in the annotation is used. 
+- If no matching transcript reference is found (regardless of version), all available transcripts are shown.
 :::
 
 ## Action buttons
