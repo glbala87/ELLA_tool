@@ -38,8 +38,19 @@ It is still possible to do a re-evaluation of these variants by clicking the `RE
 
 ::: warning NOTE
 Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalize the variant, you must first reselect a class in the dropdown. 
+:::
 
-Changing the REPORT field only does not reset the validity period for a variant.
+### Update/submit REPORT only
+
+Edits can be made to the REPORT field without resetting the validity period for a variant. To do this: 
+
+- Click the `START INTERPRETATION` button if you haven't already done so. For variants that are still valid, this makes the REPORT field writeable, whereas other fields/choices are kept read-only (to make a full re-evaluation with validity reset, click `RE-EVALUATE`).
+- Make your changes and push the `SUBMIT REPORT` button, or undo with the `UNDO REPORT CHANGES` button (followed by `CONFIRM`): 
+
+<div style="text-indent: 4%;"><img src="./img/update_report.png"></div>
+
+::: warning NOTES
+Finalization of an analysis or interpretation is not possible if there are unsaved changes to a REPORT field (you will get an error message if you try). To correct this, click the `SUBMIT REPORT` button or undo the changes you made.
 :::
 
 ### Interpretations that are outdated

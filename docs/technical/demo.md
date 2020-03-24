@@ -2,7 +2,7 @@
 
 To have a quick look at ELLA and how it works, you can easily bring up a demo instance if you have Docker installed. Simply run:
 
-```
+``` bash
 make demo
 ```
 
@@ -26,7 +26,7 @@ Group   |   Users   |   Access to
 
 To stop the demo instance, run:
 
-```
+``` bash
 make kill-demo
 ```
 

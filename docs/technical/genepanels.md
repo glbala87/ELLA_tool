@@ -14,7 +14,8 @@ A gene panel includes, among other things, the following:
 - A list of phenotypes, with associated inheritance pattern
 
 To add a new gene panel, run the following command:
-```
+
+``` bash
 ella-cli deposit genepanel --folder <path to gene panel directory>
 ```
 

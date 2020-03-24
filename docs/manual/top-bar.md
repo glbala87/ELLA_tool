@@ -12,6 +12,12 @@ The top bar contains information about the current user, selected variant, as we
 
 The view in VARIANTS workflow is almost the same but contains no sample-specific information.
 
+::: warning NOTE
+If available, the RefSeq transcript and version used in the HGVSc variant name in the top bar (NM_175629.2 in the example above) matches what is specified in the gene panel. However: 
+- If the same transcript version is not found, the newest version available in the annotation is used. 
+- If no matching transcript reference is found (regardless of version), all available transcripts are shown.
+:::
+
 ## Action buttons
 
 ### Global
@@ -19,7 +25,6 @@ The view in VARIANTS workflow is almost the same but contains no sample-specific
 Button  | Explanation | More information
 :---  | :---  | :---
 `GENE PANEL INFO` | Show information about the gene panel used in the current analysis. | [Gene panel info](/manual/info-page.html#gene-panel-info)
-`COPY ALL TO ALAMUT`  | Copy all variants in analysis to clipboard in Alamut format. | [Links](/manual/classification-page.html#links-to-the-web-and-alamut)
 `WORK LOG`  | System and user messages related to current analysis/interpretation. |  [Work log](/manual/worklog.md)
 `START` / <br>`FINISH`+`SAVE` | Start, save changes and finish an analysis or interpretation. | [Start](/manual/classification-page.html#start-an-analysis-or-interpretation); [Save/Finish](/manual/classification-page.html#save-and-finish)
 

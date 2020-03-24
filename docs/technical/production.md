@@ -11,7 +11,7 @@ For proper security, ELLA should be run in a walled garden with restricted exter
 :::
 
 ::: danger WARNING
-ELLA relies on a separate annotation service to annotate and import data. Our own service, `ella-anno`, is currently only available in our internal GitLab repository, due to large size of the annotation sources (about 30 GB). We are working on making the repository public (with artifacts in the cloud) in the near future, along with proper documentation and a simpler procedure for deployment together with ELLA. Until then, please contact <u>[ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F)</u> for details on how to configure your own production setup.
+ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data. Documentation for this service will be added in the near future. Until then, please contact [ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F) for details on how to configure your own production setup.
 :::
 
 ## Requirements
@@ -24,7 +24,7 @@ ELLA relies on a separate annotation service to annotate and import data. Our ow
 
 First build the docker image:
 
-```
+``` bash
 docker build -t {image_name} .
 ```
 
@@ -50,17 +50,17 @@ Example folder structure:
 
 ```
 /data/
-  attachments/ - Storage of user attachments
-  analyses/
-    incoming/  - New analyses for analysis watcher
-    imported/  - Analyses that are imported
-  igv-data/    - IGV resources, global and usergroup tracks.
-  fixtures/    - Any kind of configuration data that should be imported into the database. Examples:
-    users.json
-    usergroups.json
-    references.json
-    filterconfigs.json
-    genepanels/
+├── attachments/  # Storage of user attachments
+├── analyses/
+|  ├── incoming/  # New analyses for analysis watcher
+|  └── imported/  # Analyses that are imported
+├── igv-data/     # IGV resources, global and usergroup tracks.
+├── fixtures/     # Configuration data that should be imported into the database, e.g.:
+|  ├── users.json
+|  ├── usergroups.json
+|  ├── references.json
+|  ├── filterconfigs.json
+|  └── genepanels/
 
 ```
 
@@ -83,7 +83,7 @@ Additional environment variables can be utilized in the [Application configurati
 
 We can launch a new container like the following
 
-```
+``` bash
 docker run \
   --name {container_name} \
   -p 80:80 \
@@ -118,7 +118,7 @@ Provide the URI to the database using the `DB_URL` environment variable.
 
 Run the following command:
 
-```
+``` bash
 ella-cli database make-production
 ```
 
@@ -134,11 +134,11 @@ The references table in the database can be populated with PubMed IDs using a js
 
 1. Gather all the PubMed IDs you want to populate the database with in a line-separated file.
 2. Run this command to create a file named references-YYMMDD.json:<br>
-    ```
+    ``` bash
     ella-cli references fetch <path to file with PubMed ids>
     ```
 3. Create or update references in the database with this command:<br>
-    ```
+    ``` bash
     ella-cli deposit references <path to references-YYMMDD.json>
     ```
 
