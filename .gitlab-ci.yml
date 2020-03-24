@@ -5,6 +5,7 @@ services:
 
 variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
     DOCKER_DRIVER: overlay2
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
@@ -13,7 +14,6 @@ stages:
     - build
     - formatting
     - test
-    - e2e
     - review
     - release
 
@@ -21,53 +21,47 @@ build:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker pull $CI_REGISTRY_IMAGE:latest | cat || true
-        - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $IMAGE_NAME -t $CI_REGISTRY_IMAGE:latest --target production-build .
-        - docker push $IMAGE_NAME
-        - docker push $CI_REGISTRY_IMAGE:latest
+        - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
+        - docker build --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
+        - docker push $CI_REGISTRY_IMAGE:ci-latest
+        - mkdir -p images
+        - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
+    tags:
+        - do-small
+    cache:
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        paths:
+            - images/
+        policy: push
 
 start_review:
-    stage: build
+    stage: review
     script:
         - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
     environment:
         name: review/$CI_BUILD_REF_SLUG
         url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-        on_stop: stop_review
     only:
         - branches
     except:
         - master
     tags:
         - review
-    # needs: [] # To put in a separate stage, and run without delay we need this: https://gitlab.com/gitlab-org/gitlab/issues/30631
-
-# when: manual is also run upon branch deletion
-# Image name for removal (local/ella-${CI_BUILD_REF_NAME}.review.ousamg.io) is from Makefile
-stop_review:
-    stage: build
-    variables:
-        GIT_STRATEGY: none
-    script:
-        - docker rm -f ella-${CI_BUILD_REF_SLUG}.review.ousamg.io; docker rmi -f local/ella-${CI_BUILD_REF_SLUG}.review.ousamg.io;
-    when: manual
-    environment:
-        name: review/$CI_BUILD_REF_SLUG
-        action: stop
-    only:
-        - branches
-    except:
-        - master
-    tags:
-        - review
+    needs: []
 
 .test-common:
     stage: test
     before_script:
         - apk add --update make
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker pull $IMAGE_NAME | cat
+        - cat images/$CI_CACHE_IMAGE_FILE | docker load
     needs: ['build']
+    tags:
+        - do-small
+    cache:
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        paths:
+            - images/
+        policy: pull
 
 check_formatting:
     extends: .test-common
@@ -75,7 +69,34 @@ check_formatting:
     script:
         - make test-formatting
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-formatting
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-formatting
+    tags:
+        - do-small
+
+e2e:
+    stage: test
+    before_script:
+        - apk add --update make
+        - cat images/$CI_CACHE_IMAGE_FILE | docker load
+        - rm -rf errorShots
+    script: PARALLEL_INSTANCES=2 make test-e2e
+    after_script:
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
+    artifacts:
+        paths:
+            - errorShots/
+            - logs/
+        name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
+        when: on_failure
+        expire_in: 2 weeks
+    needs: ['build']
+    tags:
+        - do-small
+    cache:
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        paths:
+            - images/
+        policy: pull
 
 api:
     extends: .test-common
@@ -85,7 +106,9 @@ api:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
+    tags:
+        - do-small
 
 api_migration:
     extends: .test-common
@@ -95,7 +118,9 @@ api_migration:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-api-migration
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
+    tags:
+        - do-small
 
 js:
     extends: .test-common
@@ -105,7 +130,9 @@ js:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-js
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
+    tags:
+        - do-small
 
 python:
     extends: .test-common
@@ -115,112 +142,27 @@ python:
         - /^ui-.*$/
         - /^ops-.*$/
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-common
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
+    tags:
+        - do-small
 
 cli:
     extends: .test-common
     script:
         - make test-cli
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-cli
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
+    tags:
+        - do-small
 
 report:
     extends: .test-common
     script:
         - make test-report
     after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-report
-
-dependency_scanning:
-    only:
-        - tags
-        - dev
-        - master
-    stage: test
-    image: docker:stable
-    variables:
-        DOCKER_DRIVER: overlay2
-    allow_failure: true
-    services:
-        - docker:stable-dind
-    script:
-        - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
-        - docker run
-          --env DEP_SCAN_DISABLE_REMOTE_CHECKS="${DEP_SCAN_DISABLE_REMOTE_CHECKS:-false}"
-          --volume "$PWD:/code"
-          --volume /var/run/docker.sock:/var/run/docker.sock
-          "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$SP_VERSION" /code
-    artifacts:
-        reports:
-            dependency_scanning: gl-dependency-scanning-report.json
-
-.test_e2e:
-    stage: e2e
-    before_script:
-        - apk add --update make
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker pull $IMAGE_NAME | cat
-        - rm -rf errorShots
-    after_script:
-        - docker rm  -f -v ${PIPELINE_ID}-e2e
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    artifacts:
-        paths:
-            - errorShots/*.png
-        name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
-        when: on_failure
-        expire_in: 2 weeks
-    variables:
-        BUILD: 'false'
-    needs: ['build']
-
-ci_all_e2e_tests:
-    extends: .test-common
-    stage: e2e
-    script:
-        - make test-check-ci-e2e-tests
-
-import_analysis:
-    extends: .test_e2e
-    script: SPEC=import_analysis.js make test-e2e
-
-search_allele_and_analyses:
-    extends: .test_e2e
-    script: SPEC=search_alleles_and_analyses.js make test-e2e
-
-workflow_sample_classification:
-    extends: .test_e2e
-    script: SPEC=workflow_sample_classification.js make test-e2e
-
-workflow_sample_collisions:
-    extends: .test_e2e
-    script: SPEC=workflow_sample_collisions.js make test-e2e
-
-workflow_sample_interpretation_rounds:
-    extends: .test_e2e
-    script: SPEC=workflow_sample_interpretation_rounds.js make test-e2e
-
-workflow_variant_acmg:
-    extends: .test_e2e
-    script: SPEC=workflow_variant_acmg.js make test-e2e
-
-workflow_variant_classification:
-    extends: .test_e2e
-    script: SPEC=workflow_variant_classification.js make test-e2e
-
-workflow_variant_readonly:
-    extends: .test_e2e
-    script: SPEC=workflow_variant_readonly.js make test-e2e
-
-workflow_variant_references:
-    extends: .test_e2e
-    script: SPEC=workflow_variant_references.js make test-e2e
-
-workflow_not_saved_warnings:
-    extends: .test_e2e
-    script: SPEC=workflow_not_saved_warnings.js make test-e2e
+        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
+    tags:
+        - do-small
 
 release:
     stage: release
@@ -230,6 +172,7 @@ release:
         - docker pull $IMAGE_NAME | cat
     script:
         - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
+        - ops/gitlab_create_release.sh $CI_JOB_TOKEN $CI_COMMIT_REF_NAME
     artifacts:
         paths:
             - ella-release-$CI_COMMIT_REF_NAME-*.tgz
@@ -239,3 +182,5 @@ release:
     when: on_success
     only:
         - tags
+    tags:
+        - do-small

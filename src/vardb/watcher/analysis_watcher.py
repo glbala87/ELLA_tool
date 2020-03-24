@@ -26,19 +26,19 @@ Furthermore, the name must also match the 'name' key within the .analysis json f
 
 
 """
-
+from typing import Set, List, Pattern
 import os
 import logging
 import json
 import shutil
 import argparse
 import time
+import re
 from vardb.datamodel import DB
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.datamodel.analysis_config import AnalysisConfigData
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
 POLL_INTERVAL = 30
 
 WATCH_PATH_ERROR = "Couldn't read from watch path {}, aborting..."
@@ -56,10 +56,18 @@ PED_POSTFIX = ".ped"
 
 
 class AnalysisWatcher(object):
-    def __init__(self, session, watch_path, dest_path):
+    def __init__(self, session, watch_path, dest_path, whitelist=None):
         self.session = session
         self.watch_path = watch_path
         self.dest_path = dest_path
+        self.whitelist: List[Pattern] = []
+        if whitelist:
+            for w in whitelist:
+                log.info(f"Adding whitelist: {w}")
+                self.whitelist.append(re.compile(w))
+        self.processed: Set[str] = (
+            set()
+        )  # Keeping tracked of failed or ignored analyses to prevent log spamming
 
         if not self._check_watch_path_readable():
             raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))
@@ -188,6 +196,10 @@ class AnalysisWatcher(object):
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be
         # the analysis folder
         for analysis_dir in sorted(os.listdir(self.watch_path)):
+
+            if analysis_dir in self.processed:
+                continue
+
             try:
 
                 if not os.path.isdir(os.path.join(self.watch_path, analysis_dir)):
@@ -199,6 +211,13 @@ class AnalysisWatcher(object):
                     continue
 
                 analysis_config_data = self.extract_from_config(analysis_path, analysis_dir)
+                if self.whitelist:
+                    if not any(i.match(analysis_config_data.analysis_name) for i in self.whitelist):
+                        log.warning(
+                            f"{analysis_config_data.analysis_name} does not match any of the provided whitelists, ignoring..."
+                        )
+                        self.processed.add(analysis_dir)
+                        continue
 
                 # Import analysis
                 self.import_analysis(analysis_config_data)
@@ -217,22 +236,24 @@ class AnalysisWatcher(object):
 
             # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
             except Exception:
-                log.exception("An exception occured while import a new analysis. Skipping...")
+                log.exception("An exception occured while importing a new analysis. Skipping...")
                 self.session.rollback()
+                self.processed.add(analysis_dir)
 
 
-def start_polling(session, analyses_path, destination_path):
-    aw = AnalysisWatcher(session, analyses_path, destination_path)
+def start_polling(session, analyses_path, destination_path, whitelist=None):
+    aw = AnalysisWatcher(session, analyses_path, destination_path, whitelist=whitelist)
     while True:
-        try:
-            aw.check_and_import()
-        except Exception:
-            log.exception("An exception occurred while checking for new genepanels.")
-
+        aw.check_and_import()
         time.sleep(POLL_INTERVAL)
 
 
 if __name__ == "__main__":
+
+    from applogger import setup_logger
+
+    setup_logger()
+
     parser = argparse.ArgumentParser(
         description="Watch a folder for new analyses to import into database."
     )
@@ -245,6 +266,13 @@ if __name__ == "__main__":
         required=True,
         help="Destination path into which the processed data will be copied.",
     )
+    parser.add_argument(
+        "--whitelist",
+        dest="whitelist",
+        required=False,
+        nargs="+",
+        help="Regex expressions for whitelist of analysis names to import (multiple expressions supported)",
+    )
 
     args = parser.parse_args()
 
@@ -252,4 +280,4 @@ if __name__ == "__main__":
 
     db = DB()
     db.connect()
-    start_polling(db.session, args.analyses_path, args.dest)
+    start_polling(db.session, args.analyses_path, args.dest, whitelist=args.whitelist)

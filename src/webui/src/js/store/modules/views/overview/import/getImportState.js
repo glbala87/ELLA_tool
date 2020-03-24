@@ -1,7 +1,7 @@
 export function getAddedState() {
     return {
         selectedPage: 1,
-        perPage: 5,
+        perPage: 8,
         filter: '',
         addedGenepanel: {
             genes: {}, // Use object for fast lookup
@@ -17,8 +17,8 @@ export function getAddedState() {
 export function getCandidatesState() {
     return {
         selectedPage: 1,
-        perPage: 5,
         filter: '',
+        perPage: 8,
         filterBatch: '',
         filterBatchProcessed: false,
         filteredFlattened: null,

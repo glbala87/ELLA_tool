@@ -57,36 +57,42 @@ The following must be installed:
 - Chrome
 - Chromedriver
 
-The ELLA app and the test execution (wdio) can be either run locally on your host machine or inside Docker.
+The ELLA app and the test execution (wdio) can be either run locally on your host machine or inside Docker: 
 
-First start chromedriver on your host machine: `./chromedriver  --port=4444 --whitelisted-ips= --url-base ''`
+1. Start chromedriver on your host machine: 
+    ``` bash
+    ./chromedriver  --port=4444 --whitelisted-ips= --url-base ''
+    ```
+2. Start the tests: 
+    ``` bash
+    make e2e-test-local [options]
+    ```
 
-Then start the tests: `make e2e-test-local ..options..`
+This will connect to the locally running Chromedriver and run one or several test specs. You'll see a local chrome browser where a "ghost" will click and enter text.
 
-It will connect to the locally running Chromedriver and run one or several test specs.
-You'll see a local chrome browser where a "ghost" will click and enter text.
-
-You can put debug statements  (browser.debug())in your test spec to have the test execution stop and enter a REPL to interact with the
+You can put debug statements (`browser.debug()`) in your test spec to have the test execution stop and enter a REPL to interact with the
 browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
 
-The relevant options to the make command:
-- DEBUG=true (Will make the browser visible (as opposed to headless), and increase test timeouts)
-- CHROME_HOST=.. the IP address where chromedriver is running. This will start a Chrome browser.
-- Add SPEC="\<path to test>" to run only a single/few tests. They must given as src/webui/tests/e2e/tests/.. (comma separated if multiple).
-- APP_URL: url of the app to test, like <http://localhost:8001>. Make sure to use an ip/port that is accessible from within the container where the tests themselves are running.
-  If not defined, the app running inside container of the test execution is used.
+Relevant [`options`] for the `make` command:
+Option|Explanation
+:--|:--
+`DEBUG=true` | Will make the browser visible (as opposed to headless), and increase test timeouts
+`CHROME_HOST` | The IP address where the chromedriver is running. This will start a Chrome browser.
+`SPEC="\<path to test>"` | Add this to run only a single/few tests. They must given as `src/webui/tests/e2e/tests/..` (comma separated if multiple).
+`APP_URL` | URL of the app to test, e.g `http://localhost:8001`. Make sure to use an ip/port that is accessible from within the container where the tests themselves are running. If not defined, the app running inside container of the test execution is used.
 
+::: warning NOTE
 Maximize the Chrome window to reduce the number of 'element-not-clickable' errors.
+:::
 
 ##### Misc
 
-Best way to get and test selectors in Chrome is to use the `CSS Selector Helper for Chrome` extension.
-Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
+The best way to get and test selectors in Chrome is to use the [CSS Selector Helper for Chrome](https://chrome.google.com/webstore/detail/css-selector-helper-for-c/gddgceinofapfodcekopkjjelkbjodin) extension. Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests. It will present a REPL (webdriverio >= 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
+Use `browser.debug()` in a test file to pause the execution of the tests. This will present a REPL (webdriverio >= 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
 
-Hit 'Ctrl-c' in the REPL to continue the test run. See more on <http://webdriver.io/guide/usage/repl.html>
+Hit `Ctrl-C` in the REPL to continue the test run. See more on <http://webdriver.io/guide/usage/repl.html>
 
 More info at <http://webdriver.io/guide/testrunner/debugging.html>

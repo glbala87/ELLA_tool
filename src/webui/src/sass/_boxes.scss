@@ -7,6 +7,14 @@ $bar-colors: (
     red: $red
 );
 @each $name, $color in $bar-colors {
+    button.#{$name} {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.5) !important;
+        color: white !important;
+    }
+    button.#{$name}.active {
+        background-color: hsla(hue($color), saturation($color), lightness($color), 0.75) !important;
+        color: white !important;
+    }
     .sectionbox.#{$name},
     .contentbox.#{$name} {
         background-color: hsla(hue($color), saturation($color), lightness($color), 0.05);
@@ -20,7 +28,6 @@ $bar-colors: (
         background-color: hsla(hue($color), saturation($color), lightness($color), 0.5);
     }
     .#{$name} .sb-controls button,
-    button.#{$name},
     .#{$name} .sb-controls .dropdown,
     .#{$name} .sb-controls .bttn {
         background-color: hsla(hue($color), saturation($color), lightness($color), 0.5);

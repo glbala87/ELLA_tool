@@ -84,6 +84,9 @@ class VariantSelection extends Page {
         el.waitForExist()
         el.click()
         $('allele-list').waitForExist(undefined, true)
+        // Wait for workflow to fully load
+        $('.id-workflow-instance').waitForExist()
+        $('#nprogress').waitForExist(undefined, true)
         return el
     }
 

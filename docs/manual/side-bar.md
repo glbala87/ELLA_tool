@@ -66,7 +66,7 @@ If applicable, variants in the variant list are tagged with:
 
   - `O` Homozygous/hemizygous genotype.
 
-  - `Q` Quality issues. Same as [NEEDS VERIFICATION](/manual/evidence-sections.html#quality-information), except that indels are not marked unless there is other issues. Depending on actions in the [QUALITY section](/manual/evidence-sections.html#quality), this tag may be replaced by:
+  - `Q` Quality issues. Same as [NEEDS VERIFICATION](/manual/evidence-sections.html#warning-needs-verification), except that insertions/deletions are not marked unless there are other quality issues. Depending on actions in the [QUALITY section](/manual/evidence-sections.html#quality), this tag may be replaced by:
     
       - `V` Verified (green)
       - `T` Technical (red)

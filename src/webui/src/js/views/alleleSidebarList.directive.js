@@ -289,12 +289,18 @@ app.component('alleleSidebarList', {
                     getWarningsTitle(allele) {
                         return $ctrl.warnings[allele.id].map((w) => w.warning).join('\n')
                     },
+                    formatCountValue(hiCountData) {
+                        if (hiCountData.maxValue !== null) {
+                            return hiCountData.maxValue
+                        }
+                        return '-'
+                    },
                     formatFreqValue(hiFreqData) {
                         const value =
                             hiFreqData.maxMeetsThresholdValue !== null
                                 ? hiFreqData.maxMeetsThresholdValue
                                 : hiFreqData.maxValue
-                        if (value) {
+                        if (value !== null) {
                             const formatted = formatFreqValue(value, $ctrl.config)
                             return hiFreqData.maxMeetsThresholdValue !== null
                                 ? formatted

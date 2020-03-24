@@ -1,6 +1,17 @@
-<div class="main">
-    <div class="interpretation">
-        <interpretation ng-if="$ctrl.loaded"></interpretation>
-        <workflow-loading ng-if="!$ctrl.loaded"></workflow-loading>
+<div class="wrapper-workflow" ng-class="{'workflow-loading': !$ctrl.loaded}">
+    <div class="main-navbar">
+        <navbar></navbar>
+    </div>
+    <div class="main-navbar-secondary">
+        <workflowbar></workflowbar>
+    </div>
+    <div class="main-allele-sidebar" ng-if="$ctrl.loaded && $ctrl.showSidebar">
+        <allele-sidebar></allele-sidebar>
+    </div>
+    <div class="main-content" ng-if="$ctrl.loaded">
+        <interpretation></interpretation>
+    </div>
+    <div class="main-workflow-loading" ng-if="!$ctrl.loaded">
+        <workflow-loading></workflow-loading>
     </div>
 </div>

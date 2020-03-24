@@ -777,14 +777,7 @@ class AnnotationImporter(object):
     def __init__(self, session):
         self.session = session
         self.batch_items = list()
-
-    @staticmethod
-    def _compare_transcript(t1, t2):
-        # If RefSeq (NM_xxxx.1), ignore the versions.
-        # Otherwise, do normal comparison
-        if t1.startswith("NM_") and t2.startswith("NM_"):
-            return t1.startswith(t2.split(".")[0]) or t2.startswith(t1.split(".")[0])
-        return t1 == t2
+        self.csq_converter = annotationconverters.ConvertCSQ()
 
     def _extract_annotation_from_record(self, record, allele):
         """Given a record, return dict with annotation to be stored in db."""
@@ -799,7 +792,7 @@ class AnnotationImporter(object):
         frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 
-        transcripts = annotationconverters.convert_csq(merged_annotation)
+        transcripts = self.csq_converter(merged_annotation)
 
         external = dict()
         external.update(annotationconverters.convert_hgmd(merged_annotation))

@@ -33,13 +33,6 @@ VALID_STATIC_FILES = [
 log = app.logger
 
 
-@app.before_first_request
-def setup_logging():
-    if not app.debug:
-        log.addHandler(logging.StreamHandler())
-        log.setLevel(logging.INFO)
-
-
 @app.before_request
 def populate_request():
     g.request_start_time = time.time() * 1000.0

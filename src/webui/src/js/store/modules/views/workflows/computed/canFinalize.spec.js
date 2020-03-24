@@ -154,6 +154,53 @@ function createState(config) {
         }
     }
 
+    for (let i = 0; i < config.numUpdatedReportNoExisting; i++) {
+        currentAlleleId += 1
+        interpretation.state.allele[currentAlleleId] = {
+            analysis: {
+                verification: null,
+                notrelevant: false
+            },
+            alleleassessment: {},
+            allelereport: {
+                evaluation: { comment: 'UPDATED' }
+            }
+        }
+        alleles[currentAlleleId] = {
+            id: currentAlleleId,
+            formatted: { display: `TestUpdatedReportNoExisting id ${currentAlleleId}` }
+        }
+    }
+
+    for (let i = 0; i < config.numUpdatedReport; i++) {
+        currentAlleleId += 1
+        interpretation.state.allele[currentAlleleId] = {
+            analysis: {
+                verification: null,
+                notrelevant: false
+            },
+            alleleassessment: {
+                reuse: true
+            },
+            allelereport: {
+                evaluation: { comment: 'UPDATED' }
+            }
+        }
+        alleles[currentAlleleId] = {
+            id: currentAlleleId,
+            formatted: { display: `TestUpdatedReport id ${currentAlleleId}` },
+            allele_assessment: {
+                classification: '5',
+                seconds_since_update: 1
+            },
+            allele_report: {
+                evaluation: {
+                    comment: 'ORIGINAL'
+                }
+            }
+        }
+    }
+
     return {
         app: {
             config: {
@@ -394,7 +441,7 @@ describe('canFinalize', function() {
         })
     })
 
-    it('check not submitted', function() {
+    it('check not submitted classifications', function() {
         let state = createState({
             numNotSubmitted: 1
         })
@@ -421,6 +468,36 @@ describe('canFinalize', function() {
             messages: [
                 'Some variants have classifications that are not finalized: TestNotSubmittedReused id 1'
             ]
+        })
+    })
+
+    it('check not submitted variant reports', function() {
+        // If no existing assessment/report, no report warning should be given
+        let state = createState({
+            allowUnclassified: true,
+            numUpdatedReportNoExisting: 1
+        })
+        let result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: true,
+            messages: []
+        })
+
+        // If there is an assessment/report already, emit warning if report has changed
+        // in state, as it then hasn't been submitted
+        state = createState({
+            numUpdatedReport: 1
+        })
+        result = runCompute(canFinalize, {
+            state,
+            props: {}
+        })
+        expect(result).toEqual({
+            canFinalize: false,
+            messages: ['Some variants have reports that are not submitted: TestUpdatedReport id 1']
         })
     })
 

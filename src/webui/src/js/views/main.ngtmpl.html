@@ -1,23 +1,10 @@
-<login ng-if="$ctrl.views.current == 'login'"></login>
-
-<div class="app" ng-if="$ctrl.views.current != 'login'">
-    <navbar>
-        <overview-navbar ng-if="$ctrl.views.current == 'overview'"></overview-navbar>
-        <workflowbar ng-if="$ctrl.views.current == 'workflows'"></workflowbar>
-        <nav class="secondary" ng-if="$ctrl.views.current == 'dashboard'">
-            <div class="dashboard-navbar">
-                <button class="id-logout-btn logout-btn" ng-click="$ctrl.logoutClicked()">
-                    LOGOUT
-                </button>
-            </div>
-        </nav>
-    </navbar>
-
+<div class="app">
+    <!-- These sets their own grid items -->
+    <login ng-if="$ctrl.views.current == 'login'"></login>
     <overview ng-if="$ctrl.views.current == 'overview'"></overview>
-    <div ng-if="$ctrl.views.current == 'workflows'">
-        <workflow></workflow>
-    </div>
+    <workflow ng-if="$ctrl.views.current == 'workflows'"></workflow>
     <user-dashboard ng-if="$ctrl.views.current == 'dashboard'"></user-dashboard>
+
     <modal
         show-path="'views.workflows.modals.finishConfirmation.show'"
         outside-click-path="'views.workflows.modals.finishConfirmation.dismissClicked'"

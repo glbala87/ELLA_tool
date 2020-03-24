@@ -14,7 +14,7 @@ ELLA users and associated data are defined in the file `users.json`.
 
 To add new or update existing users, run the following command:
 
-```
+``` bash
 ella-cli users add_many <path to users.json>
 ```
 
@@ -91,7 +91,8 @@ A user group defines the configuration for different groups of users. This inclu
 See `/src/vardb/testdata/usergroups.json` for examples.
 
 To update the user groups, run the following command:
-```
+
+``` bash
 ella-cli users add_groups <path to usergroups.json>
 ```
 

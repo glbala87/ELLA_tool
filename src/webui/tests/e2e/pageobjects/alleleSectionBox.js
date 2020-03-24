@@ -149,6 +149,14 @@ class AlleleSectionBox {
         return util.elementIntoView('allele-sectionbox .id-undo-reevaluate > button:nth-of-type(2)')
     }
 
+    get undoReportChangesBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-report > button:first-of-type')
+    }
+
+    get undoReportChangesConfirmBtn() {
+        return util.elementIntoView('allele-sectionbox .id-undo-report > button:nth-of-type(2)')
+    }
+
     get finalizeBtn() {
         return util.elementIntoView('allele-sectionbox .id-finalize-button')
     }
@@ -160,6 +168,11 @@ class AlleleSectionBox {
     undoReevaluation() {
         this.undoRevaluationBtn.click()
         this.undoRevaluationConfirmBtn.click()
+    }
+
+    undoReportChanges() {
+        this.undoReportChangesBtn.click()
+        this.undoReportChangesConfirmBtn.click()
     }
 
     finalize() {
@@ -255,29 +268,22 @@ class AlleleSectionBox {
     }
 
     evaluateReference(index) {
-        let referenceSelector = `article:nth-child(${index}) .id-reference-pending-published`
+        let referenceSelector = `article:nth-of-type(${index}).id-reference-pending-published`
         let title = $(`${referenceSelector} .id-reference-title`).getText()
         $(`${referenceSelector} button.id-reference-evaluate`).click()
         return title
     }
 
     reEvaluateReference(index) {
-        let title = $(`.id-reference-evaluated-published .id-reference-title`).getText()
-        $(
-            `article:nth-child(${index}) .id-reference-evaluated-published button.id-reference-evaluate`
-        ).click()
+        // index is number in evaluated list, unpublished + published together
+        let title = $(`.id-reference-title`).getText()
+        $(`article:nth-of-type(${index}) button.id-reference-evaluate`).click()
         return title
     }
 
     getReferenceComment(index) {
-        const selector = `article:nth-child(${index}) .id-reference-evaluated-published .id-reference-comment`
+        const selector = `article:nth-of-type(${index}) .id-reference-comment`
         return $(selector).getText()
-    }
-
-    getReferenceRelevance(index) {
-        return $(
-            `allele-info-published-references article:nth-child(${index}) .id-reference-relevance p`
-        ).getText()
     }
 
     getExternalOtherAnnotation() {

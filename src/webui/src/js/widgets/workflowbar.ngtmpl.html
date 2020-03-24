@@ -1,4 +1,4 @@
-<div class="secondary" ng-if="$ctrl.workflowType === 'analysis'">
+<div class="navbar-secondary" ng-if="$ctrl.workflowType === 'analysis'">
     <div class="workflow-options">
         <div class="bttn-set">
             <label
@@ -22,9 +22,6 @@
         >
             Gene panel info
         </button>
-        <button ng-click="$ctrl.copyAllAlamutClicked()" ng-disabled="!$ctrl.workflowLoaded">
-            Copy all to alamut
-        </button>
         <div class="dropdown white" ng-if="$ctrl.showHistory()">
             <select
                 class="id-interpretationrounds-dropdown"
@@ -47,11 +44,7 @@
         <workflow-buttons readOnly="$ctrl.readOnly" start-when-reopen="false"></workflow-buttons>
     </section>
 </div>
-<div
-    class="bottom"
-    ng-class="{'has-secondary': $ctrl.workflowType == 'analysis'}"
-    ng-if="$ctrl.selectedAlleleId"
->
+<div class="navbar-bottom" ng-if="$ctrl.selectedAlleleId">
     <allelebar
         allele-path="'views.workflows.interpretation.data.alleles.' + $ctrl.selectedAlleleId"
         genepanel-path="'views.workflows.interpretation.data.genepanel'"

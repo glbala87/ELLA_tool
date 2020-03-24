@@ -1,47 +1,38 @@
-<div class="interpretation-container">
-    <article class="single-sample-analysis-container" ng-switch="$ctrl.selectedComponent">
-        <!-- Set max-height on allelesidebar and container. This must be done dynamically, since the navbar + collision warning is dynamic in size. -->
-        <allele-sidebar
-            ng-if="$ctrl.showSidebar"
-            ng-style="{'max-height': 'calc(100vh - ' + $ctrl.offsetTop +'px)'}"
-        ></allele-sidebar>
-
-        <section
-            class="container"
-            ng-class="{'inner': $ctrl.showSidebar}"
-            ng-style="{'max-height': 'calc(100vh - ' + $ctrl.offsetTop +'px)'}"
+<div
+    class="interpretation-content"
+    scroll-to
+    scroll-on-change="{{ $ctrl.selectedAllele }}"
+    scroll-position="top"
+>
+    <div ng-if="$ctrl.selectedComponent === 'Info'">
+        <analysis-info></analysis-info>
+    </div>
+    <div ng-if="$ctrl.selectedComponent === 'Classification'">
+        <div ng-if="$ctrl.selectedClassificationType === 'full'">
+            <div class="no-alleles" ng-if="!$ctrl.hasAlleles">
+                <h2>No variants to show for analysis.</h2>
+                <h4>
+                    Either there are no variants in this analysis or they all matched a filter
+                    criteria.
+                </h4>
+            </div>
+            <div class="no-alleles" ng-if="$ctrl.hasAlleles && !$ctrl.selectedAllele">
+                <h2>Please select variant in sidebar.</h2>
+            </div>
+            <allele-warning ng-if="$ctrl.hasAlleles"></allele-warning>
+            <allele-sectionbox
+                section-key="sectionKey"
+                ng-if="$ctrl.hasAlleles && $ctrl.selectedAllele"
+                ng-repeat="sectionKey in $ctrl.sectionKeys"
+            >
+            </allele-sectionbox>
+        </div>
+        <visualization
+            ng-if="$ctrl.selectedClassificationType === 'visual'"
+            ng-if="$ctrl.hasAlleles"
         >
-            <div ng-switch-when="Info">
-                <analysis-info></analysis-info>
-            </div>
-            <div ng-switch-when="Classification">
-                <div ng-if="$ctrl.selectedClassificationType === 'full'">
-                    <div class="no-alleles" ng-if="!$ctrl.hasAlleles">
-                        <h2>No variants to show for analysis.</h2>
-                        <h4>
-                            Either there are no variants in this analysis or they all matched a
-                            filter criteria.
-                        </h4>
-                    </div>
-                    <div class="no-alleles" ng-if="$ctrl.hasAlleles && !$ctrl.selectedAllele">
-                        <h2>Please select variant in sidebar.</h2>
-                    </div>
-                    <allele-warning ng-if="$ctrl.hasAlleles"></allele-warning>
-                    <allele-sectionbox
-                        section-key="sectionKey"
-                        ng-if="$ctrl.hasAlleles && $ctrl.selectedAllele"
-                        ng-repeat="sectionKey in $ctrl.sectionKeys"
-                    >
-                    </allele-sectionbox>
-                </div>
-                <visualization
-                    ng-if="$ctrl.selectedClassificationType === 'visual'"
-                    ng-if="$ctrl.hasAlleles"
-                >
-                </visualization>
-            </div>
+        </visualization>
+    </div>
 
-            <report-card ng-switch-when="Report"> </report-card>
-        </section>
-    </article>
+    <report-card ng-if="$ctrl.selectedComponent === 'Report'"> </report-card>
 </div>

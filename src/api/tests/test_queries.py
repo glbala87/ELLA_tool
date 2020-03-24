@@ -102,9 +102,24 @@ def test_annotation_transcripts_genepanel(session, test_database):
             exon_ends=[123, 321],
         )
 
-        t2 = gene.Transcript(
+        t21 = gene.Transcript(
             gene=g2,
             transcript_name="NM_2.1",
+            type="RefSeq",
+            genome_reference="123",
+            chromosome="123",
+            tx_start=123,
+            tx_end=123,
+            strand="+",
+            cds_start=123,
+            cds_end=123,
+            exon_starts=[123, 321],
+            exon_ends=[123, 321],
+        )
+
+        t22 = gene.Transcript(
+            gene=g2,
+            transcript_name="NM_2.2",
             type="RefSeq",
             genome_reference="123",
             chromosome="123",
@@ -133,13 +148,13 @@ def test_annotation_transcripts_genepanel(session, test_database):
         )
 
         genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
-        genepanel1.transcripts = [t1, t2]
+        genepanel1.transcripts = [t1, t21]
         genepanel1.phenotypes = []
         session.add(genepanel1)
 
         genepanel2 = gene.Genepanel(name="testpanel2", version="v01", genome_reference="GRCh37")
 
-        genepanel2.transcripts = [t2, t3]
+        genepanel2.transcripts = [t22, t3]
         genepanel1.phenotypes = []
         session.add(genepanel2)
 
@@ -158,11 +173,14 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         annotations = {
             "transcripts": [
-                {"transcript": "NM_1.1"},  # In genepanel
-                {"transcript": "NM_1"},  # In genepanel, no version
-                {"transcript": "NM_2.2"},  # In genepanel, different version
-                {"transcript": "NM_NOT_IN_PANEL.1"},  # Not in genepanel
-                {"transcript": "NM_NOT_IN_PANEL"},  # Not in genepanel, no version
+                {"transcript": "NM_1.1", "hgnc_id": 1},  # In genepanel
+                {"transcript": "NM_1", "hgnc_id": 1},  # In genepanel, no version
+                {
+                    "transcript": "NM_2.2",
+                    "hgnc_id": 2,
+                },  # In two genepanels, different version in one
+                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in genepanel
+                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in genepanel, no version
             ]
         }
         anno1 = create_annotation(annotations, allele=a1)
@@ -183,19 +201,50 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         annotations = {
             "transcripts": [
-                {"transcript": "NM_3.1"},  # In one genepanel
-                {"transcript": "NM_3"},  # In one genepanel, no version
-                {"transcript": "NM_2.2"},  # In two genepanels, different version
-                {"transcript": "NM_NOT_IN_PANEL.1"},  # Not in any genepanel
-                {"transcript": "NM_NOT_IN_PANEL"},  # Not in any genepanel, no version
+                {"transcript": "NM_3.1", "hgnc_id": 3},  # In one genepanel
+                {"transcript": "NM_3", "hgnc_id": 3},  # In one genepanel, no version
+                {
+                    "transcript": "NM_2.2",
+                    "hgnc_id": 2,
+                },  # In two genepanels, different version in one
+                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in any genepanel
+                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in any genepanel, no version
             ]
         }
         anno2 = create_annotation(annotations, allele=a2)
         session.add(anno2)
 
-        return a1, a2
+        a3 = allele.Allele(
+            genome_reference="GRCh37",
+            chromosome="1",
+            start_position=3,
+            open_end_position=4,
+            change_from="A",
+            change_to="T",
+            change_type="SNP",
+            vcf_pos=3,
+            vcf_ref="A",
+            vcf_alt="T",
+        )
 
-    a1, a2 = insert_data()
+        annotations = {
+            "transcripts": [
+                {"transcript": "NM_1.2", "hgnc_id": 1},
+                {"transcript": "NM_1.3", "hgnc_id": 1},
+                {"transcript": "NM_2.1", "hgnc_id": 2},
+                {"transcript": "NM_2.2", "hgnc_id": 2},
+                {"transcript": "NM_3.1_sometext", "hgnc_id": 3},
+                {"transcript": "NM_3.2", "hgnc_id": 3},
+                {"transcript": "NM_3.3_sometext", "hgnc_id": 3},
+                {"transcript": "NM_3", "hgnc_id": 3},
+            ]
+        }
+        anno3 = create_annotation(annotations, allele=a3)
+        session.add(anno3)
+
+        return a1, a2, a3
+
+    a1, a2, a3 = insert_data()
     session.flush()
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
@@ -213,21 +262,17 @@ def test_annotation_transcripts_genepanel(session, test_database):
     passes = [
         # allele_id, panel, annotation, genepanel
         (a1.id, "testpanel1", "v01", "NM_1.1", "NM_1.1"),
-        (a1.id, "testpanel1", "v01", "NM_1", "NM_1.1"),
         (a1.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
+        (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
         (a2.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.1"),
+        (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
         (a2.id, "testpanel2", "v01", "NM_3.1", "NM_3.1"),
-        (a2.id, "testpanel2", "v01", "NM_3", "NM_3.1"),
+        (a3.id, "testpanel1", "v01", "NM_1.3", "NM_1.1"),
+        (a3.id, "testpanel1", "v01", "NM_2.1", "NM_2.1"),
+        (a3.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
+        (a3.id, "testpanel2", "v01", "NM_3.3_sometext", "NM_3.1"),
     ]
 
-    fails = ["NM_NOT_IN_PANEL.1", "NM_NOT_IN_PANEL"]  # Same transcript name fail on both alleles
-
-    for r in result:
-        if not r[3].startswith("NM_NOT"):
-            assert next((p for p in passes if r == p), None)
-        else:
-            assert r[3] in fails
+    assert set(result) == set(passes)
 
     session.rollback()

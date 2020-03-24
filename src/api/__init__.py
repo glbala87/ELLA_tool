@@ -4,6 +4,9 @@ from werkzeug.exceptions import HTTPException
 
 from vardb.datamodel import DB
 
+from applogger import setup_logger
+
+setup_logger()
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)  # Sets REMOTE_ADDR from proxy headers etc

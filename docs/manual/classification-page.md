@@ -114,7 +114,7 @@ If you are in an offline environment, when you click one of these, instead of op
 
   - For web links, click on the link, then (as you get the message COPIED LINK TO CLIPBOARD) open a browser on your local computer and paste (Ctrl+V) the contents into the address bar, then hit Enter
 
-  - For Alamut, click either `COPY ALL TO ALAMUT` or `COPY VARIANT TO ALAMUT` in the top bar, then (as you get the message COPIED TEXT TO CLIPBOARD) paste (Ctrl+V) the contents in the "Go to:" input field at the top right of the Alamut main window:  
+  - For Alamut, click the `COPY VARIANT TO ALAMUT` in the top bar, then (as you get the message COPIED TEXT TO CLIPBOARD) paste (Ctrl+V) the contents in the "Go to:" input field at the top right of the Alamut main window:  
       
     <div style="text-indent: 4%;"><img src="./img/alamut.png"></div>
 

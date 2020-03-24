@@ -8,14 +8,11 @@ let LoginPage = require('../pageobjects/loginPage')
 let VariantSelectionPage = require('../pageobjects/overview_variants')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
-let failFast = require('jasmine-fail-fast')
 
 let loginPage = new LoginPage()
 let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
-
-jasmine.getEnv().addReporter(failFast.init())
 
 const OUR_VARIANT = 'c.581G>A'
 
@@ -118,9 +115,13 @@ describe('Read-only version of variant workflow ', function() {
         $('body').click() // a trick to unfocus the above report comment
 
         alleleSectionBox.setReportComment('report changed')
+        alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
+
+        // Wait for finish to be done
+        variantSelectionPage.pendingSection.waitForExist()
 
         loginPage.open()
         loginPage.loginAs('testuser2')

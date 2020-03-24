@@ -22,7 +22,9 @@ API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
 DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
 
 # e2e test:
+PARALLEL_INSTANCES ?= 2
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
+
 
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
@@ -384,12 +386,16 @@ test-report:
 test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e
 	mkdir -p errorShots
+	chmod a+rwX errorShots
+	mkdir -p logs
+	chmod a+rwX logs
 	docker run -d --hostname e2e \
 	   --name $(CONTAINER_NAME)-e2e \
 	   --user $(UID):$(GID) \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
+	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	   -e BUILD=$(BUILD) \
+	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
@@ -398,13 +404,6 @@ test-e2e:
 
 	docker exec -e SPEC=$(SPEC) -t $(CONTAINER_NAME)-e2e ops/test/run_e2e_tests.sh
 	@docker rm -f $(CONTAINER_NAME)-e2e
-
-test-check-ci-e2e-tests:
-	docker run --rm \
-	  --name $(CONTAINER_NAME)-formatting \
-	  --user $(UID):$(GID) \
-	  $(IMAGE_NAME) \
-	  ops/test/check_ci_e2e_tests.sh
 
 test-formatting:
 	docker run --rm \

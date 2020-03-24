@@ -43,7 +43,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
+    from applogger import setup_logger
+
+    setup_logger()
 
     filename = os.path.abspath(args.json_file)
     # Import argparse, add CLI for getting path to JSON file.

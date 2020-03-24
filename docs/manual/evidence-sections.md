@@ -17,7 +17,7 @@ The different sections presenting annotation evidence are described below, see t
 
 This section is for information and actions specific to the variant as observed in the current sample (analysis), and displays indicators of the quality of the variant calling (HTS data, ANALYSES mode only).
 
-::: warning Note
+::: warning NOTE
 This is the only section on this page that is specific to the sample (analysis), all other sections are tied to the variant interpretation, which is independent of samples. This also means that any comments you add here will be visible in this analysis only.
 :::
 
@@ -25,7 +25,7 @@ This is the only section on this page that is specific to the sample (analysis),
 
 Quality information is tied to a particular sample, and is therefore only available in ANALYSES mode. In addition, only information from HTS data is provided. The following quality parameters are shown (from the VCF file; see <https://software.broadinstitute.org/gatk/documentation/article.php?id=1268> for details):
 
-  - Filter: PASS if all filters have passed, otherwise list filters that failed
+  - Filter: `PASS` if all filters have passed, otherwise list filters that failed
 
   - Quality: Variant calling quality
     
@@ -41,7 +41,17 @@ Quality information is tied to a particular sample, and is therefore only availa
 
   - Ratio: Number of reads covering each allele, with ratio for variant allele/total
 
-Variants with quality issues are marked with NEEDS VERIFICATION in red in the QUALITY card. Note that indels are always marked, irrespective of other parameters.
+#### Warning: Needs verification 
+
+Variants with quality issues are marked with `NEEDS VERIFICATION` in red in the QUALITY card. This is based on [Nelson et al. 2015](http://hdl.handle.net/11299/176475) and is shown if _any_ of the following conditions are true: 
+
+- Not an SNP (e.g. insertion/deletion).
+- Filter not `PASS`
+- Quality ≤300
+- Depth ≤20
+- Allele ratio ≤0.9 if homozygous, ≤0.3 or ≥0.6 if heterozygous
+
+Note that only HTS data will trigger this warning, as no quality information is imported for Sanger data. 
 
 ### Mark as verified/technical/not relevant
 
@@ -55,7 +65,7 @@ In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFI
   
   - `NOT RELEVANT` means the variant should be disregarded in this analysis, e.g. due to a mismatch with the phenotype. This moves the variant to the NOT RELEVANT VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
   
-::: tip Note 
+::: tip TIP 
 Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalisation of the analysis.
 :::
 
@@ -65,13 +75,14 @@ This section displays population frequencies reported in external or internal da
 
 ### Included datasets
 
-  - gnomAD exomes and genomes: <http://gnomad.broadinstitute.org/>
-  - ExAC: <http://exac.broadinstitute.org/> (NB: partly deprecated, most samples are included in gnomAD)
-  - InDB: OUSWES, in-house frequency database for sequenced exomes.
-  - dbSNP: <https://www.ncbi.nlm.nih.gov/projects/SNP/>  
-	::: warning Note
-	Any SNP that has positional overlap with the current variant is reported, and therefore may not contain the exact same variant/allele. If you use this data, you should check the dbSNP entry to verify that it has the same variant as in your sample.
-	:::
+  - [GnomAD exomes and genomes](http://gnomad.broadinstitute.org/)
+  - [ExAC](http://exac.broadinstitute.org/) (NB: partly deprecated, most samples are included in gnomAD)
+  - InDB: In-house frequency database.
+  - [dbSNP](https://www.ncbi.nlm.nih.gov/projects/SNP/)  
+
+::: warning NOTE
+Any dbSNP entry that has positional overlap with the current variant is reported, and therefore may not contain the exact same variant/allele. If you use this data, you should check the dbSNP entry to verify that it has the same variant as in your sample.
+:::
 
 Variants with quality issues reported in gnomAD display a warning in the gnomAD cards.
 

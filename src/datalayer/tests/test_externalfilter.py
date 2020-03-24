@@ -138,7 +138,7 @@ def hgmd_strategy(draw):
     st.one_of(hgmd_strategy()),
     st.one_of(st.booleans()),
 )
-@ht.settings(deadline=500)
+@ht.settings(deadline=3000)
 def test_externalfilter(
     session,
     annotations,

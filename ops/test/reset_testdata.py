@@ -10,6 +10,10 @@ if __name__ == "__main__":
 
     import os
     import sys
+
+    from applogger import setup_logger
+
+    setup_logger()
     from vardb.util import DB
     from vardb.deposit.deposit_testdata import DepositTestdata
     from cli.commands.database.drop_db import drop_db
