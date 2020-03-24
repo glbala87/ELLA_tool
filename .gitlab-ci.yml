@@ -169,18 +169,17 @@ release:
     before_script:
         - apk add --update make git
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker pull $IMAGE_NAME | cat
     script:
         - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
-        - ops/gitlab_create_release.sh $CI_JOB_TOKEN $CI_COMMIT_REF_NAME
+        - docker build -t $IMAGE_NAME .
+        - docker push $IMAGE_NAME
     artifacts:
         paths:
-            - ella-release-$CI_COMMIT_REF_NAME-*.tgz
+            - ella-release-$CI_COMMIT_REF_NAME-dist.tgz
         name: ella-release-$CI_COMMIT_REF_NAME
         when: on_success
-        expire_in: 1 mo
-    when: on_success
     only:
         - tags
     tags:
         - do-small
+    needs: []

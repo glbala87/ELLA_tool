@@ -13,7 +13,7 @@ released_at=$(git tag -l --format="%(taggerdate:iso8601)" "${TAG}")
 
 echo "Creating payload..."
 payload=$(
-python - "${TAG}" "${release_notes}" "${released_at}" <<HERE
+python3 - "${TAG}" "${release_notes}" "${released_at}" <<HERE
 import sys
 import json
 
