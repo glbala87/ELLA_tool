@@ -204,6 +204,8 @@ review:
 		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 		-e PRODUCTION=false \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 		-e VIRTUAL_HOST=$(REVIEW_NAME) \
 		-e PORT=3114 \
 		--expose 3114 \
