@@ -14,6 +14,7 @@ import loadInterpretations from '../sequences/loadInterpretations'
 import showExitWarning from '../showExitWarning'
 import loadVisualization from '../visualization/sequences/loadVisualization'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
+import selectedAlleleChanged from '../sequences/selectedAlleleChanged'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
 
@@ -50,7 +51,9 @@ export default [
                                 loadInterpretationLogs,
                                 // Interpretation logs are needed in prepareComponents for analysis
                                 prepareComponents,
-                                prepareSelectedAllele
+                                prepareSelectedAllele,
+                                set(props`alleleId`, state`views.workflows.selectedAllele`),
+                                selectedAlleleChanged
                             ]
                         ])
                     ]
