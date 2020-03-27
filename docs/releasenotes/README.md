@@ -6,6 +6,17 @@ title: Latest release
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.10
+
+Release date: [TBD]
+
+### Highlights
+
+
+### All changes
+
+
+
 ## Version 1.9.1
 
 Release date: 26.03.2020

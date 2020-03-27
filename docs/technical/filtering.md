@@ -498,7 +498,7 @@ For the third rule, note this excerpt from the article:
 
 #### Homozygous recessive variant
 
-This rule set checks for homo-/hemizygous variants in genes defined with recessive inheritance. The following conditions must be met:
+This rule set checks for homo-/hemizygous variants. The following conditions must be met:
 
 - For autosomal or pseudo-autosomal regions:
     - Homozygous in the proband and any affected siblings.
