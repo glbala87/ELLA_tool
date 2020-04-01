@@ -198,6 +198,10 @@ review:
 		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
 		--user $(UID):$(GID) \
 		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 		-e PRODUCTION=false \
 		-e VIRTUAL_HOST=$(REVIEW_NAME) \
