@@ -292,8 +292,14 @@ transcripts:
     inclusion_regex: NM_.*
 igv:
     reference:
-        fastaURL: api/v1/igv/human_g1k_v37_decoy.fasta
-        cytobandURL: api/v1/igv/cytoBand.txt
+        # DEV_FASTA_URL and DEV_IGV_CYTOBAND are for igv to work in development/demo mode.
+        # In a production environment it is recommended to rely on local files only.
+        # (use "ella-cli igv-download $IGV_DATA" or download yourself and place in $IGV_DATA)
+        fastaURL: !env [DEV_IGV_FASTA, 'api/v1/igv/human_g1k_v37_decoy.fasta']
+        cytobandURL: !env [DEV_IGV_CYTOBAND, 'api/v1/igv/cytoBand.txt']
+
+    # Determines what local files should be available through the api/v1/igv/ resource
+    # The files should be placed in $IGV_DATA
     valid_resource_files:
         - cytoBand.txt
         - human_g1k_v37_decoy.fasta
