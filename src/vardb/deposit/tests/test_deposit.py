@@ -61,7 +61,15 @@ def prefilter_batch_strategy(draw, max_size=5):
             "POS": ALLELE_POS,
             "REF": "A",
             "ALT": ["T"],
-            "SAMPLES": {"TEST_SAMPLE": {"GT": draw(st.sampled_from(["0/1", "./.", "./1", "1/."]))}},
+            "SAMPLES": {
+                "TEST_SAMPLE": {
+                    "GT": draw(
+                        st.sampled_from(
+                            ["0/1", "./.", "./1", "1/.", "0|1", "1|0", ".|.", ".|1", "1|."]
+                        )
+                    )
+                }
+            },
             "INFO": {"ALL": {}},
         }
         has_freq = draw(st.booleans())
@@ -259,7 +267,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
         assert manually_curated_result == total_prefiltered_pos
 
     included = list()
-    proband_batch = [r for r in batch if r["SAMPLES"]["TEST_SAMPLE"]["GT"] != "./."]
+    proband_batch = [r for r in batch if r["SAMPLES"]["TEST_SAMPLE"]["GT"] not in ["./.", ".|."]]
     for idx, r in enumerate(proband_batch):
 
         if idx == 0:
@@ -275,7 +283,8 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
 
         nearby = abs(r["POS"] - prev_pos) <= 3 or abs(r["POS"] - next_pos) <= 3
         checks = {
-            "not_multiallelic": r["SAMPLES"]["TEST_SAMPLE"]["GT"] in ["0/1", "1/1"],
+            "not_multiallelic": r["SAMPLES"]["TEST_SAMPLE"]["GT"]
+            in ["0/1", "1/1", "1|0", "0|1", "1|1"],
             "hi_freq": (
                 "GNOMAD_GENOMES" in r["INFO"]["ALL"]
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
@@ -286,7 +295,6 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
         }
         if not all(checks.values()):
             included.append(r)
-
     assert included == total_prefiltered
     assert batch == total_batch
 

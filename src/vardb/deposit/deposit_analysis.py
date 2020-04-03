@@ -46,7 +46,7 @@ from .deposit_from_vcf import DepositFromVCF
 log = logging.getLogger(__name__)
 
 
-VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1"]
+VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1"]
 
 
 def import_filterconfigs(session, fc_configs):
@@ -194,7 +194,8 @@ class PrefilterBatchGenerator:
                 False,
             )
             checks = {
-                "non_multiallelic": r["SAMPLES"][self.proband_sample_name]["GT"] in ["0/1", "1/1"],
+                "non_multiallelic": r["SAMPLES"][self.proband_sample_name]["GT"]
+                in ["0/1", "1/1", "1|0", "0|1", "1|1"],
                 "hi_frequency": "GNOMAD_GENOMES" in r["INFO"]["ALL"]
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AN"] > 5000,
@@ -207,7 +208,6 @@ class PrefilterBatchGenerator:
             # the previous record also is imported
             if not checks["position_not_nearby"] and not self.previous_record_imported:
                 result_records.append(self.previous_record)
-
             if not all(checks.values()):
                 result_records.append(r)
                 self.previous_record_imported = True
@@ -334,10 +334,10 @@ class MultiAllelicBlockIterator(object):
                 if "." in sample_gt:
                     add_record_to_block = True
 
-                if sample_gt != "./.":
+                if sample_gt not in ["./.", ".|."]:
                     self.sample_has_coverage[sample_name] = True
 
-                if sample_gt in ["1/.", "./1"]:
+                if sample_gt in ["1/.", "./1", ".|1", "1|."]:
                     self.needs_secondallele[sample_name] = not self.needs_secondallele[sample_name]
 
             if add_record_to_block:
