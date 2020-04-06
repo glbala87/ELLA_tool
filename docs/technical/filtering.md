@@ -145,14 +145,14 @@ Since any given variant can be annotated with many different consequences, this 
 
 ##### Example
 
-This configuration will filter out variants that are annotated as either `synonymous_variant` or `stop_retained_variant`.
+This configuration will filter out variants that are annotated as either `synonymous_variant`, `stop_retained_variant` or `start_retained_variant`.
 
 ```json
 {
   "name": "consequence",
   "config": {
       "genepanel_only": false
-      "consequences": ["synonymous_variant", "stop_retained_variant"]
+      "consequences": ["synonymous_variant", "stop_retained_variant", "start_retained_variant"]
   }
 }
 ```

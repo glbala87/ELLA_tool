@@ -18,6 +18,7 @@ class GraTest(unittest.TestCase):
             "rule": {
                 "transcript.Consequence": {
                     "$in": [
+                        "start_retained_variant",
                         "stop_retained_variant",
                         "5_prime_UTR_variant",
                         "3_prime_UTR_variant",
