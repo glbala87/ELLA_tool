@@ -400,7 +400,10 @@ class GenotypeImporter(object):
             if "|" in record["SAMPLES"][sample]["GT"]:
                 phasing_removed = True
                 record["SAMPLES"][sample]["GT"] = (
-                    record["SAMPLES"][sample]["GT"].replace("|", "/").replace("1/0", "0/1")
+                    record["SAMPLES"][sample]["GT"]
+                    .replace("|", "/")
+                    .replace("1/0", "0/1")
+                    .replace("./0", "0/.")
                 )
         return phasing_removed
 
