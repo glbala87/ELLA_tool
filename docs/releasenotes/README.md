@@ -6,16 +6,20 @@ title: Latest release
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
-## Version 1.10
+## Version 1.9.2
 
 Release date: [TBD]
 
 ### Highlights
 
+Minor fixes. 
 
 ### All changes
 
-
+<!-- MR !399-->
+- Added conversion of phased data to unphased data on import.
+<!-- MR !400-->
+- Added VEP consequence `start_retained_variant` to rules.
 
 ## Version 1.9.1
 
