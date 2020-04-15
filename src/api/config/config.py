@@ -92,6 +92,7 @@ config.setdefault("transcripts", {})["consequences"] = [
     "splice_region_variant",
     "incomplete_terminal_codon_variant",
     "synonymous_variant",
+    "start_retained_variant",
     "stop_retained_variant",
     "coding_sequence_variant",
     "mature_miRNA_variant",
@@ -113,6 +114,7 @@ config.setdefault("transcripts", {})["consequences"] = [
     "feature_truncation",
     "intergenic_variant",
 ]
+
 
 config["annotation"] = {
     "clinvar": {
