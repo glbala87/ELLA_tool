@@ -163,6 +163,31 @@ def prefilter_batch_strategy(draw, max_size=5):
     1,
     [1, 10],
 )
+# Multiallelic
+@ht.example(
+    [
+        {
+            "CHROM": "1",
+            "POS": 1,
+            "REF": "A",
+            "ALT": ["T"],
+            "SAMPLES": {"TEST_SAMPLE": {"GT": ".|1"}},
+            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
+            "__HAS_CLASSIFICATION": False,
+        },
+        {
+            "CHROM": "1",
+            "POS": 10,
+            "REF": "A",
+            "ALT": ["T"],
+            "SAMPLES": {"TEST_SAMPLE": {"GT": "1|."}},
+            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
+            "__HAS_CLASSIFICATION": False,
+        },
+    ],
+    1,
+    [1, 10],
+)
 # Frequency
 @ht.example(
     [
@@ -348,7 +373,7 @@ def test_analysis_multiple(session, vcf_data):
     proband_variants = [v for v in meta["variants"] if "1" in v["samples"][0]["GT"]]
     no_coverage_samples = list()
     for idx, sample_name in enumerate(meta["sample_names"]):
-        if all(v["samples"][idx]["GT"] == "./." for v in meta["variants"]):
+        if all(tuple(v["samples"][idx]["GT"][::2]) == (".", ".") for v in meta["variants"]):
             no_coverage_samples.append(sample_name)
 
     # Start checking data
@@ -400,7 +425,7 @@ def test_analysis_multiple(session, vcf_data):
                 and a.chromosome == variant["chromosome"]
             )
             key = "allele"
-            if sample_data["PROBAND"]["GT"] == "./1":
+            if tuple(sample_data["PROBAND"]["GT"][::2]) == (".", "1"):
                 key = "secondallele"
 
             fixtures[key]["sample_data"] = sample_data
@@ -451,13 +476,13 @@ def test_analysis_multiple(session, vcf_data):
                 continue
             for sample_name, data in fixtures[key]["sample_data"].items():
                 gsd = fixtures[key]["genotypesampledata"][sample_name]
-                if data["GT"] == "1/1":
+                if tuple(data["GT"][::2]) == ("1", "1"):
                     gsd_type = "Homozygous"
-                elif data["GT"] in ["0/1", "1/.", "./1"]:
+                elif tuple(data["GT"][::2]) in [("0", "1"), ("1", "0"), ("1", "."), (".", "1")]:
                     gsd_type = "Heterozygous"
-                elif data["GT"] in ["0/0", "0/.", "./0"]:
+                elif tuple(data["GT"][::2]) in [("0", "0"), ("0", "."), (".", "0")]:
                     gsd_type = "Reference"
-                elif data["GT"] == "./.":
+                elif tuple(data["GT"][::2]) == (".", "."):
                     # Proband cannot be reference for it's own variants
                     assert sample_name != "PROBAND"
                     if sample_name in no_coverage_samples:
@@ -466,7 +491,16 @@ def test_analysis_multiple(session, vcf_data):
                         # 'Reference' doesn't mean vcf ref,
                         # but with regards to proband's variant
                         gsd_type = "Reference"
-                gsd_multiallelic = data["GT"] in ["./1", "1/.", "0/.", "./0"]
+                gsd_multiallelic = data["GT"] in [
+                    "./1",
+                    "1/.",
+                    "0/.",
+                    "./0",
+                    ".|1",
+                    "1|.",
+                    "0|.",
+                    ".|0",
+                ]
                 assert gsd.type == gsd_type
                 assert gsd.multiallelic == gsd_multiallelic
                 assert gsd.sequencing_depth == data["DP"]
