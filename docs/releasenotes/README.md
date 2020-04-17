@@ -8,11 +8,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.9.2
 
-Release date: [TBD]
-
-### Highlights
-
-Minor fixes. 
+Release date: 17.04.2020
 
 ### All changes
 
