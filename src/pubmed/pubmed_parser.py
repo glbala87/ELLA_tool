@@ -69,7 +69,11 @@ class PubMedParser(object):
 
         reference["abstract"] = pubmed_data.get("AB", "")
 
-        if reference_type == "Journal Article" or "Journal Article" in reference_type:
+        if not isinstance(reference_type, list):
+            reference_type = [reference_type]
+
+        reference_type = set(reference_type)
+        if reference_type & set(["Journal Article", "Congress", "Letter", "Editorial"]):
             reference["title"] = pubmed_data["TI"]
             journal = pubmed_data.get("TA")
             if not journal:
@@ -84,14 +88,14 @@ class PubMedParser(object):
                 issue="({})".format(issue) if issue else "",
                 page=page,
             )
-        elif reference_type == "Book Chapter" or "Book Chapter" in reference_type:
+        elif "Book Chapter" in reference_type:
             reference["title"] = pubmed_data["TI"]
             book_title = pubmed_data["BTI"]
             publisher = pubmed_data.get("PB")
             reference["journal"] = book_title
             if publisher:
                 reference["journal"] += f", {publisher}"
-        elif reference_type == "Book" or "Book" in reference_type:
+        elif "Book" in reference_type:
             reference["title"] = pubmed_data["BTI"]
             reference["journal"] = pubmed_data.get("PB", "")
         else:
