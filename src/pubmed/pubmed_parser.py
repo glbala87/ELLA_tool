@@ -1,6 +1,6 @@
+from typing import Dict, Union, Any
 import logging
 import re
-import os
 import xml.etree.ElementTree as ET
 
 """
@@ -35,27 +35,30 @@ class PubMedParser(object):
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
     def from_ris(self, pubmed_ris):
-        def find_ris(key, string, many=True, required=False):
-            pattern = r"^{}\s*-\s*(.*)$".format(key)
-            x = re.findall(pattern, string, re.M)
-            if required:
-                assert len(x) > 0, f"Did not find any values for {key}:\n{string}"
 
-            if many:
-                return x
+        pattern = r"([A-Z]+)\s*-\s*([\s\S]*?)(?=\n[A-Z]*\s*-|$)"
+        matches = re.findall(pattern, pubmed_ris)
+        pubmed_data: Dict[str, Any] = {}
+
+        for key, value in matches:
+            # Input is word wrapped, convert back to single-line.
+            value = re.sub(r"\n\s*", "", value)
+            # If multiple values, use list
+            if key in pubmed_data:
+                if isinstance(pubmed_data[key], list):
+                    pubmed_data[key].append(value)
+                else:
+                    pubmed_data[key] = [pubmed_data[key], value]
             else:
-                assert len(x) <= 1, f"Multiple values for {key}:\n{string}"
-                return x[0] if len(x) else None
+                pubmed_data[key] = value
 
-        reference_type = find_ris("TY", pubmed_ris, False)
+        reference_type = pubmed_data["PT"]
 
-        reference = {}
-        try:
-            reference["pubmed_id"] = int(find_ris("AN", pubmed_ris, False, True))
-        except (ValueError, AssertionError):
-            return
+        reference: Dict[str, Union[str, int]] = {}
 
-        authors = find_ris("AU", pubmed_ris, True, False)
+        reference["pubmed_id"] = int(pubmed_data["PMID"])
+
+        authors = pubmed_data.get("AU")
 
         if authors is None:
             reference["authors"] = "N/A"
@@ -64,37 +67,39 @@ class PubMedParser(object):
         else:
             reference["authors"] = " & ".join(authors)
 
-        reference["title"] = find_ris("T1", pubmed_ris, False, True)
+        reference["abstract"] = pubmed_data.get("AB", "")
 
-        reference["abstract"] = find_ris("AB", pubmed_ris, False, False)
-        if reference_type == "JOUR":
-            journal = find_ris("J2", pubmed_ris, False, True)
-            volume = find_ris("VL", pubmed_ris, False, False)
-            issue = find_ris("IS", pubmed_ris, False, False)
-            page_start = find_ris("SP", pubmed_ris, False, False)
-            page_end = find_ris("EP", pubmed_ris, False, False)
-            if page_start and page_end and len(page_start) == len(page_end):
-                page_end = page_end[len(os.path.commonprefix([page_start, page_end])) :]
+        if reference_type == "Journal Article" or "Journal Article" in reference_type:
+            reference["title"] = pubmed_data["TI"]
+            journal = pubmed_data.get("TA")
+            if not journal:
+                journal = pubmed_data["JT"]
+            volume = pubmed_data.get("VI", "")
+            issue = pubmed_data.get("IP", "")
+            page = pubmed_data.get("PG", "")
 
-            reference["journal"] = "{journal}: {volume}{issue}, {ps}{pe}".format(
+            reference["journal"] = "{journal}: {volume}{issue}, {page}".format(
                 journal=journal,
                 volume=volume if volume else "",
                 issue="({})".format(issue) if issue else "",
-                ps=page_start if page_start else "",
-                pe="-" + page_end if page_end else "",
+                page=page,
             )
-        elif reference_type == "CHAP":
-            book_title = find_ris("BT", pubmed_ris, False, True)
-            publisher = find_ris("PB", pubmed_ris, False, True)
-            reference["journal"] = f"{book_title}, {publisher}"
-        elif reference_type == "BOOK":
-            publisher = find_ris("PB", pubmed_ris, False, True)
-            reference["journal"] = publisher
+        elif reference_type == "Book Chapter" or "Book Chapter" in reference_type:
+            reference["title"] = pubmed_data["TI"]
+            book_title = pubmed_data["BTI"]
+            publisher = pubmed_data.get("PB")
+            reference["journal"] = book_title
+            if publisher:
+                reference["journal"] += f", {publisher}"
+        elif reference_type == "Book" or "Book" in reference_type:
+            reference["title"] = pubmed_data["BTI"]
+            reference["journal"] = pubmed_data.get("PB", "")
+        else:
+            raise RuntimeError(f"Unknown reference type {reference_type}")
 
         reference["journal"] = reference["journal"].rstrip(":, ")
-        year = find_ris("Y1", pubmed_ris, False, True)
-        reference["year"] = year.split("/", 1)[0]
-
+        year = pubmed_data["DP"]
+        reference["year"] = year.split(" ", 1)[0]
         return reference
 
     def parse_pubmed_article(self, pubmed_article):
