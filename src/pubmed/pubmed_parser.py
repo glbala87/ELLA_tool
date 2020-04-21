@@ -18,7 +18,7 @@ class PubMedParser(object):
         if self.is_pubmed_xml(data):
             return self.from_xml_string(data)
         else:
-            return self.from_ris(data)
+            return self.from_medline(data)
 
     def is_pubmed_xml(self, data):
         try:
@@ -34,10 +34,16 @@ class PubMedParser(object):
 
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
-    def from_ris(self, pubmed_ris):
+    def from_medline(self, medline_text):
 
+        # Regex pattern:
+        # Identify all keys - values, like "TI - Some text here"
+        # Text is word wrapped from PUBMED, so we need to match line breaks within
+        # a value. For that we use a non-greedy match-all ([\s\S]*?).
+        # The lookahead pattern (?=\n[A-Z]*\s*-|$) stop the match-all
+        # at either the next key, or at the end of the whole data string.
         pattern = r"([A-Z]+)\s*-\s*([\s\S]*?)(?=\n[A-Z]*\s*-|$)"
-        matches = re.findall(pattern, pubmed_ris)
+        matches = re.findall(pattern, medline_text)
         pubmed_data: Dict[str, Any] = {}
 
         for key, value in matches:
