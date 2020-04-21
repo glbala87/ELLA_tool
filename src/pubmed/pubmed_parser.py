@@ -73,7 +73,19 @@ class PubMedParser(object):
             reference_type = [reference_type]
 
         reference_type = set(reference_type)
-        if reference_type & set(["Journal Article", "Congress", "Letter", "Editorial"]):
+        if reference_type & set(
+            [
+                "Case Reports",
+                "Congress",
+                "Editorial",
+                "Introductory Journal Article",
+                "Journal Article",
+                "Letter",
+                "News",
+                "Published Erratum",
+                "Retraction of Publication",
+            ]
+        ):
             reference["title"] = pubmed_data["TI"]
             journal = pubmed_data.get("TA")
             if not journal:
