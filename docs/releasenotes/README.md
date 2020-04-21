@@ -8,7 +8,20 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.9.2
 
-Release date: 17.04.2020
+Release date: 23.04.2020
+
+### Highlights
+
+This release contains a few bug fixes and improvements. Notably, support for the new PubMed page was improved, changing the recommended import procedure to use the new `Save` option to download the necessary text file (see the [documentation](/manual/evidence-sections.html#add-studies) for further details): 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-9-2-PubMed-download.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>New recommended procedure for downloading PubMed references.
+    </div>
+    <br>
+</div>
 
 ### All changes
 
@@ -16,6 +29,9 @@ Release date: 17.04.2020
 - Added conversion of phased data to unphased data on import.
 <!-- MR !400-->
 - Added VEP consequence `start_retained_variant` to rules.
+<!-- MR !402-->
+- [Added support for PubMed/MEDLINE format in reference import](#highlights).
+
 
 ## Version 1.9.1
 
