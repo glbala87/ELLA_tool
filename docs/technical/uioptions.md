@@ -116,7 +116,7 @@ Workflow    |   Subkey	|	Explanation |   Values
 
 ### Define references as IGNORED
 
-Certain references retrieved from annotation sources such as ClinVar are generic and do not contain information relevant for any particular variant classification per se (an example is the [ACMG guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868)). These references can be set to be automatically [IGNORED](/manual/evidence-sections.html#reference-evaluation) in the reference evaluation module. 
+Certain references retrieved from annotation sources such as ClinVar are generic and do not contain information relevant for any particular variant classification per se (an example is the [ACMG guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868)). These references can be set to be automatically [IGNORED](/manual/evidence-sections.html#reference-evaluation) in the reference evaluation module. 
 
 This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. PubMed IDs to be ignored should be added in:
 
