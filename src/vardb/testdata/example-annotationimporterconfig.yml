@@ -1,0 +1,340 @@
+converters:
+    - converter: csq
+      converter_config:
+          source: CSQ
+      target: transcripts
+
+    - converter: clinvar
+      converter_config:
+          source: CLINVARJSON
+      target: external.CLINVAR
+
+    - converter: keyvalue
+      converter_config:
+          target_type: int
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_EXOMES__AC
+                target: frequencies.GNOMAD_EXOMES.count.G
+              - source: GNOMAD_EXOMES__AC_AFR
+                target: frequencies.GNOMAD_EXOMES.count.AFR
+              - source: GNOMAD_EXOMES__AC_AMR
+                target: frequencies.GNOMAD_EXOMES.count.AMR
+              - source: GNOMAD_EXOMES__AC_ASJ
+                target: frequencies.GNOMAD_EXOMES.count.ASJ
+              - source: GNOMAD_EXOMES__AC_EAS
+                target: frequencies.GNOMAD_EXOMES.count.EAS
+              - source: GNOMAD_EXOMES__AC_FIN
+                target: frequencies.GNOMAD_EXOMES.count.FIN
+              - source: GNOMAD_EXOMES__AC_NFE
+                target: frequencies.GNOMAD_EXOMES.count.NFE
+              - source: GNOMAD_EXOMES__AC_OTH
+                target: frequencies.GNOMAD_EXOMES.count.OTH
+              - source: GNOMAD_EXOMES__AC_SAS
+                target: frequencies.GNOMAD_EXOMES.count.SAS
+              - source: GNOMAD_EXOMES__AN
+                target: frequencies.GNOMAD_EXOMES.num.G
+              - source: GNOMAD_EXOMES__AN_AFR
+                target: frequencies.GNOMAD_EXOMES.num.AFR
+              - source: GNOMAD_EXOMES__AN_AMR
+                target: frequencies.GNOMAD_EXOMES.num.AMR
+              - source: GNOMAD_EXOMES__AN_ASJ
+                target: frequencies.GNOMAD_EXOMES.num.ASJ
+              - source: GNOMAD_EXOMES__AN_EAS
+                target: frequencies.GNOMAD_EXOMES.num.EAS
+              - source: GNOMAD_EXOMES__AN_FIN
+                target: frequencies.GNOMAD_EXOMES.num.FIN
+              - source: GNOMAD_EXOMES__AN_NFE
+                target: frequencies.GNOMAD_EXOMES.num.NFE
+              - source: GNOMAD_EXOMES__AN_OTH
+                target: frequencies.GNOMAD_EXOMES.num.OTH
+              - source: GNOMAD_EXOMES__AN_SAS
+                target: frequencies.GNOMAD_EXOMES.num.SAS
+              - source: GNOMAD_EXOMES__Hom
+                target: frequencies.GNOMAD_EXOMES.hom.G
+              - source: GNOMAD_EXOMES__Hom_AFR
+                target: frequencies.GNOMAD_EXOMES.hom.AFR
+              - source: GNOMAD_EXOMES__Hom_AMR
+                target: frequencies.GNOMAD_EXOMES.hom.AMR
+              - source: GNOMAD_EXOMES__Hom_ASJ
+                target: frequencies.GNOMAD_EXOMES.hom.ASJ
+              - source: GNOMAD_EXOMES__Hom_EAS
+                target: frequencies.GNOMAD_EXOMES.hom.EAS
+              - source: GNOMAD_EXOMES__Hom_FIN
+                target: frequencies.GNOMAD_EXOMES.hom.FIN
+              - source: GNOMAD_EXOMES__Hom_NFE
+                target: frequencies.GNOMAD_EXOMES.hom.NFE
+              - source: GNOMAD_EXOMES__Hom_OTH
+                target: frequencies.GNOMAD_EXOMES.hom.OTH
+              - source: GNOMAD_EXOMES__Hom_SAS
+                target: frequencies.GNOMAD_EXOMES.hom.SAS
+              - source: GNOMAD_EXOMES__Hemi
+                target: frequencies.GNOMAD_EXOMES.hemi.G
+              - source: GNOMAD_EXOMES__Hemi_AFR
+                target: frequencies.GNOMAD_EXOMES.hemi.AFR
+              - source: GNOMAD_EXOMES__Hemi_AMR
+                target: frequencies.GNOMAD_EXOMES.hemi.AMR
+              - source: GNOMAD_EXOMES__Hemi_ASJ
+                target: frequencies.GNOMAD_EXOMES.hemi.ASJ
+              - source: GNOMAD_EXOMES__Hemi_EAS
+                target: frequencies.GNOMAD_EXOMES.hemi.EAS
+              - source: GNOMAD_EXOMES__Hemi_FIN
+                target: frequencies.GNOMAD_EXOMES.hemi.FIN
+              - source: GNOMAD_EXOMES__Hemi_NFE
+                target: frequencies.GNOMAD_EXOMES.hemi.NFE
+              - source: GNOMAD_EXOMES__Hemi_OTH
+                target: frequencies.GNOMAD_EXOMES.hemi.OTH
+              - source: GNOMAD_EXOMES__Hemi_SAS
+                target: frequencies.GNOMAD_EXOMES.hemi.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: float
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_EXOMES__AF
+                target: frequencies.GNOMAD_EXOMES.freq.G
+              - source: GNOMAD_EXOMES__AF_AFR
+                target: frequencies.GNOMAD_EXOMES.freq.AFR
+              - source: GNOMAD_EXOMES__AF_AMR
+                target: frequencies.GNOMAD_EXOMES.freq.AMR
+              - source: GNOMAD_EXOMES__AF_ASJ
+                target: frequencies.GNOMAD_EXOMES.freq.ASJ
+              - source: GNOMAD_EXOMES__AF_EAS
+                target: frequencies.GNOMAD_EXOMES.freq.EAS
+              - source: GNOMAD_EXOMES__AF_FIN
+                target: frequencies.GNOMAD_EXOMES.freq.FIN
+              - source: GNOMAD_EXOMES__AF_NFE
+                target: frequencies.GNOMAD_EXOMES.freq.NFE
+              - source: GNOMAD_EXOMES__AF_OTH
+                target: frequencies.GNOMAD_EXOMES.freq.OTH
+              - source: GNOMAD_EXOMES__AF_SAS
+                target: frequencies.GNOMAD_EXOMES.freq.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: string
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_EXOMES__AS_FilterStatus
+                target: frequencies.GNOMAD_EXOMES.filter.G
+
+    - converter: keyvalue
+      converter_config:
+          target_type: int
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_GENOMES__AC
+                target: frequencies.GNOMAD_GENOMES.count.G
+              - source: GNOMAD_GENOMES__AC_AFR
+                target: frequencies.GNOMAD_GENOMES.count.AFR
+              - source: GNOMAD_GENOMES__AC_AMR
+                target: frequencies.GNOMAD_GENOMES.count.AMR
+              - source: GNOMAD_GENOMES__AC_ASJ
+                target: frequencies.GNOMAD_GENOMES.count.ASJ
+              - source: GNOMAD_GENOMES__AC_EAS
+                target: frequencies.GNOMAD_GENOMES.count.EAS
+              - source: GNOMAD_GENOMES__AC_FIN
+                target: frequencies.GNOMAD_GENOMES.count.FIN
+              - source: GNOMAD_GENOMES__AC_NFE
+                target: frequencies.GNOMAD_GENOMES.count.NFE
+              - source: GNOMAD_GENOMES__AC_OTH
+                target: frequencies.GNOMAD_GENOMES.count.OTH
+              - source: GNOMAD_GENOMES__AC_SAS
+                target: frequencies.GNOMAD_GENOMES.count.SAS
+              - source: GNOMAD_GENOMES__AN
+                target: frequencies.GNOMAD_GENOMES.num.G
+              - source: GNOMAD_GENOMES__AN_AFR
+                target: frequencies.GNOMAD_GENOMES.num.AFR
+              - source: GNOMAD_GENOMES__AN_AMR
+                target: frequencies.GNOMAD_GENOMES.num.AMR
+              - source: GNOMAD_GENOMES__AN_ASJ
+                target: frequencies.GNOMAD_GENOMES.num.ASJ
+              - source: GNOMAD_GENOMES__AN_EAS
+                target: frequencies.GNOMAD_GENOMES.num.EAS
+              - source: GNOMAD_GENOMES__AN_FIN
+                target: frequencies.GNOMAD_GENOMES.num.FIN
+              - source: GNOMAD_GENOMES__AN_NFE
+                target: frequencies.GNOMAD_GENOMES.num.NFE
+              - source: GNOMAD_GENOMES__AN_OTH
+                target: frequencies.GNOMAD_GENOMES.num.OTH
+              - source: GNOMAD_GENOMES__AN_SAS
+                target: frequencies.GNOMAD_GENOMES.num.SAS
+              - source: GNOMAD_GENOMES__Hom
+                target: frequencies.GNOMAD_GENOMES.hom.G
+              - source: GNOMAD_GENOMES__Hom_AFR
+                target: frequencies.GNOMAD_GENOMES.hom.AFR
+              - source: GNOMAD_GENOMES__Hom_AMR
+                target: frequencies.GNOMAD_GENOMES.hom.AMR
+              - source: GNOMAD_GENOMES__Hom_ASJ
+                target: frequencies.GNOMAD_GENOMES.hom.ASJ
+              - source: GNOMAD_GENOMES__Hom_EAS
+                target: frequencies.GNOMAD_GENOMES.hom.EAS
+              - source: GNOMAD_GENOMES__Hom_FIN
+                target: frequencies.GNOMAD_GENOMES.hom.FIN
+              - source: GNOMAD_GENOMES__Hom_NFE
+                target: frequencies.GNOMAD_GENOMES.hom.NFE
+              - source: GNOMAD_GENOMES__Hom_OTH
+                target: frequencies.GNOMAD_GENOMES.hom.OTH
+              - source: GNOMAD_GENOMES__Hom_SAS
+                target: frequencies.GNOMAD_GENOMES.hom.SAS
+              - source: GNOMAD_GENOMES__Hemi
+                target: frequencies.GNOMAD_GENOMES.hemi.G
+              - source: GNOMAD_GENOMES__Hemi_AFR
+                target: frequencies.GNOMAD_GENOMES.hemi.AFR
+              - source: GNOMAD_GENOMES__Hemi_AMR
+                target: frequencies.GNOMAD_GENOMES.hemi.AMR
+              - source: GNOMAD_GENOMES__Hemi_ASJ
+                target: frequencies.GNOMAD_GENOMES.hemi.ASJ
+              - source: GNOMAD_GENOMES__Hemi_EAS
+                target: frequencies.GNOMAD_GENOMES.hemi.EAS
+              - source: GNOMAD_GENOMES__Hemi_FIN
+                target: frequencies.GNOMAD_GENOMES.hemi.FIN
+              - source: GNOMAD_GENOMES__Hemi_NFE
+                target: frequencies.GNOMAD_GENOMES.hemi.NFE
+              - source: GNOMAD_GENOMES__Hemi_OTH
+                target: frequencies.GNOMAD_GENOMES.hemi.OTH
+              - source: GNOMAD_GENOMES__Hemi_SAS
+                target: frequencies.GNOMAD_GENOMES.hemi.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: float
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_GENOMES__AF
+                target: frequencies.GNOMAD_GENOMES.freq.G
+              - source: GNOMAD_GENOMES__AF_AFR
+                target: frequencies.GNOMAD_GENOMES.freq.AFR
+              - source: GNOMAD_GENOMES__AF_AMR
+                target: frequencies.GNOMAD_GENOMES.freq.AMR
+              - source: GNOMAD_GENOMES__AF_ASJ
+                target: frequencies.GNOMAD_GENOMES.freq.ASJ
+              - source: GNOMAD_GENOMES__AF_EAS
+                target: frequencies.GNOMAD_GENOMES.freq.EAS
+              - source: GNOMAD_GENOMES__AF_FIN
+                target: frequencies.GNOMAD_GENOMES.freq.FIN
+              - source: GNOMAD_GENOMES__AF_NFE
+                target: frequencies.GNOMAD_GENOMES.freq.NFE
+              - source: GNOMAD_GENOMES__AF_OTH
+                target: frequencies.GNOMAD_GENOMES.freq.OTH
+              - source: GNOMAD_GENOMES__AF_SAS
+                target: frequencies.GNOMAD_GENOMES.freq.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: int
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_GENOMES__AC
+                target: frequencies.GNOMAD_GENOMES.count.G
+              - source: GNOMAD_GENOMES__AC_AFR
+                target: frequencies.GNOMAD_GENOMES.count.AFR
+              - source: GNOMAD_GENOMES__AC_AMR
+                target: frequencies.GNOMAD_GENOMES.count.AMR
+              - source: GNOMAD_GENOMES__AC_ASJ
+                target: frequencies.GNOMAD_GENOMES.count.ASJ
+              - source: GNOMAD_GENOMES__AC_EAS
+                target: frequencies.GNOMAD_GENOMES.count.EAS
+              - source: GNOMAD_GENOMES__AC_FIN
+                target: frequencies.GNOMAD_GENOMES.count.FIN
+              - source: GNOMAD_GENOMES__AC_NFE
+                target: frequencies.GNOMAD_GENOMES.count.NFE
+              - source: GNOMAD_GENOMES__AC_OTH
+                target: frequencies.GNOMAD_GENOMES.count.OTH
+              - source: GNOMAD_GENOMES__AC_SAS
+                target: frequencies.GNOMAD_GENOMES.count.SAS
+              - source: GNOMAD_GENOMES__AN
+                target: frequencies.GNOMAD_GENOMES.num.G
+              - source: GNOMAD_GENOMES__AN_AFR
+                target: frequencies.GNOMAD_GENOMES.num.AFR
+              - source: GNOMAD_GENOMES__AN_AMR
+                target: frequencies.GNOMAD_GENOMES.num.AMR
+              - source: GNOMAD_GENOMES__AN_ASJ
+                target: frequencies.GNOMAD_GENOMES.num.ASJ
+              - source: GNOMAD_GENOMES__AN_EAS
+                target: frequencies.GNOMAD_GENOMES.num.EAS
+              - source: GNOMAD_GENOMES__AN_FIN
+                target: frequencies.GNOMAD_GENOMES.num.FIN
+              - source: GNOMAD_GENOMES__AN_NFE
+                target: frequencies.GNOMAD_GENOMES.num.NFE
+              - source: GNOMAD_GENOMES__AN_OTH
+                target: frequencies.GNOMAD_GENOMES.num.OTH
+              - source: GNOMAD_GENOMES__AN_SAS
+                target: frequencies.GNOMAD_GENOMES.num.SAS
+              - source: GNOMAD_GENOMES__Hom
+                target: frequencies.GNOMAD_GENOMES.hom.G
+              - source: GNOMAD_GENOMES__Hom_AFR
+                target: frequencies.GNOMAD_GENOMES.hom.AFR
+              - source: GNOMAD_GENOMES__Hom_AMR
+                target: frequencies.GNOMAD_GENOMES.hom.AMR
+              - source: GNOMAD_GENOMES__Hom_ASJ
+                target: frequencies.GNOMAD_GENOMES.hom.ASJ
+              - source: GNOMAD_GENOMES__Hom_EAS
+                target: frequencies.GNOMAD_GENOMES.hom.EAS
+              - source: GNOMAD_GENOMES__Hom_FIN
+                target: frequencies.GNOMAD_GENOMES.hom.FIN
+              - source: GNOMAD_GENOMES__Hom_NFE
+                target: frequencies.GNOMAD_GENOMES.hom.NFE
+              - source: GNOMAD_GENOMES__Hom_OTH
+                target: frequencies.GNOMAD_GENOMES.hom.OTH
+              - source: GNOMAD_GENOMES__Hom_SAS
+                target: frequencies.GNOMAD_GENOMES.hom.SAS
+              - source: GNOMAD_GENOMES__Hemi
+                target: frequencies.GNOMAD_GENOMES.hemi.G
+              - source: GNOMAD_GENOMES__Hemi_AFR
+                target: frequencies.GNOMAD_GENOMES.hemi.AFR
+              - source: GNOMAD_GENOMES__Hemi_AMR
+                target: frequencies.GNOMAD_GENOMES.hemi.AMR
+              - source: GNOMAD_GENOMES__Hemi_ASJ
+                target: frequencies.GNOMAD_GENOMES.hemi.ASJ
+              - source: GNOMAD_GENOMES__Hemi_EAS
+                target: frequencies.GNOMAD_GENOMES.hemi.EAS
+              - source: GNOMAD_GENOMES__Hemi_FIN
+                target: frequencies.GNOMAD_GENOMES.hemi.FIN
+              - source: GNOMAD_GENOMES__Hemi_NFE
+                target: frequencies.GNOMAD_GENOMES.hemi.NFE
+              - source: GNOMAD_GENOMES__Hemi_OTH
+                target: frequencies.GNOMAD_GENOMES.hemi.OTH
+              - source: GNOMAD_GENOMES__Hemi_SAS
+                target: frequencies.GNOMAD_GENOMES.hemi.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: float
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_GENOMES__AF
+                target: frequencies.GNOMAD_GENOMES.freq.G
+              - source: GNOMAD_GENOMES__AF_AFR
+                target: frequencies.GNOMAD_GENOMES.freq.AFR
+              - source: GNOMAD_GENOMES__AF_AMR
+                target: frequencies.GNOMAD_GENOMES.freq.AMR
+              - source: GNOMAD_GENOMES__AF_ASJ
+                target: frequencies.GNOMAD_GENOMES.freq.ASJ
+              - source: GNOMAD_GENOMES__AF_EAS
+                target: frequencies.GNOMAD_GENOMES.freq.EAS
+              - source: GNOMAD_GENOMES__AF_FIN
+                target: frequencies.GNOMAD_GENOMES.freq.FIN
+              - source: GNOMAD_GENOMES__AF_NFE
+                target: frequencies.GNOMAD_GENOMES.freq.NFE
+              - source: GNOMAD_GENOMES__AF_OTH
+                target: frequencies.GNOMAD_GENOMES.freq.OTH
+              - source: GNOMAD_GENOMES__AF_SAS
+                target: frequencies.GNOMAD_GENOMES.freq.SAS
+
+    - converter: keyvalue
+      converter_config:
+          target_type: string
+          target_type_throw: true
+          required: false
+          sources:
+              - source: GNOMAD_GENOMES__AS_FilterStatus
+                target: frequencies.GNOMAD_GENOMES.filter.G

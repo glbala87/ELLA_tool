@@ -7,10 +7,12 @@ Use one transaction for whole file, and prompts user before committing.
 Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
+import os
 import base64
 import logging
 import datetime
 import pytz
+import yaml
 from collections import defaultdict
 from sqlalchemy import or_, and_
 from os.path import commonprefix
@@ -18,11 +20,22 @@ from os.path import commonprefix
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
-from vardb.util import annotationconverters
 from vardb.datamodel.user import User
+
+from vardb.deposit.annotationconverters import VEPConverter, JSONConverter
 
 log = logging.getLogger(__name__)
 
+
+class Noop:
+    def __init__(self, config):
+        ...
+
+    def convert(self, annotation, annotations):
+        ...
+
+
+ANNOTATION_CONVERTERS = {"vep": VEPConverter, "json": JSONConverter, "keyvalue": Noop}
 
 ASSESSMENT_CLASS_FIELD = "CLASS"
 ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"
@@ -792,39 +805,51 @@ class AnnotationImporter(object):
     def __init__(self, session):
         self.session = session
         self.batch_items = list()
-        self.csq_converter = annotationconverters.ConvertCSQ()
+        self.converters = self._create_converters()
+
+    def _create_converters(self):
+        if "ELLA_IMPORT_CONFIG" not in os.environ:
+            raise RuntimeError("Missing required env: ELLA_IMPORT_CONFIG")
+        with open(os.environ["ELLA_IMPORT_CONFIG"]) as f:
+            import_config = yaml.safe_load(f)
+        converters = []
+        for converter in import_config["converters"]:
+            converters.append(ANNOTATION_CONVERTERS[converter["converter"]](converter["config"]))
+
+        return converters
 
     def _extract_annotation_from_record(self, record, allele):
         """Given a record, return dict with annotation to be stored in db."""
         # Deep merge 'ALL' annotation and allele specific annotation
         merged_annotation = record.annotation()
 
-        # # Convert the mess of input annotation into database annotation format
-        frequencies = dict()
-        frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
-        frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
-        frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
+        annotations = {}
+        for converter in self.converters:
+            converter.convert(merged_annotation, annotations)
+        # Convert the mess of input annotation into database annotation format
+        # frequencies = dict()
+        # frequencies.update(annotationconverters.exac_frequencies(merged_annotation))
+        # frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
+        # frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
+        # frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
+        # frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
+        #
+        # transcripts = self.csq_converter(merged_annotation)
+        #
+        # external = dict()
+        ## FIXME: external.update(annotationconverters.convert_hgmd(merged_annotation))
+        # external.update(annotationconverters.convert_clinvar(merged_annotation))
 
-        transcripts = self.csq_converter(
-            merged_annotation.get("CSQ"),
-            next((x for x in record.meta.get("INFO", []) if x.get("ID") == "CSQ"), None),
-        )
+        # references = annotationconverters.ConvertReferences().process(merged_annotation)
 
-        external = dict()
-        external.update(annotationconverters.convert_hgmd(merged_annotation))
-        external.update(annotationconverters.convert_clinvar(merged_annotation))
-
-        references = annotationconverters.ConvertReferences().process(
-            merged_annotation, record.meta
-        )
-
-        annotations = {
-            "frequencies": frequencies,
-            "external": external,
-            "prediction": {},
-            "transcripts": sorted(transcripts, key=lambda x: x["transcript"]),
-            "references": references,
-        }
+        # annotations = {
+        #    "frequencies": frequencies,
+        #    "external": external,
+        #    "prediction": {},
+        #    "transcripts": sorted(transcripts, key=lambda x: x["transcript"]),
+        #    "references": references,
+        # }
+        print(annotations)
         return annotations
 
     def add(self, record, allele_id):
