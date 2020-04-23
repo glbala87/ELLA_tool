@@ -5,26 +5,9 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/root.json",
     "type": "object",
-    "required": ["external", "frequencies", "references", "prediction", "transcripts"],
-    "additionalProperties": false,
+    "required": ["transcripts"],
+    "additionalProperties": true,
     "properties": {
-        "external": {
-            "type": "object",
-            "optional": ["CLINVAR", "HGMD"],
-            "additionalProperties": false,
-            "properties": {
-                "CLINVAR": {
-                    "$ref": "annotation/clinvar_v1.json"
-                },
-                "HGMD": {
-                    "$ref": "annotation/hgmd_v1.json"
-                }
-            }
-        },
-        "prediction": {
-            "type": "object",
-            "additionalProperties": false
-        },
         "transcripts": {
             "$ref": "annotation/transcripts_v1.json"
         },

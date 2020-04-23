@@ -12,6 +12,7 @@ BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/example_config.yml
+ELLA_IMPORT_CONFIG ?= /ella/example_import_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
 TESTSET ?= 'default'
@@ -337,6 +338,7 @@ dev:
 	  --name $(CONTAINER_NAME) \
 	  --hostname $(CONTAINER_NAME) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
 	  -e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
 	  -e OFFLINE_MODE="false" \
