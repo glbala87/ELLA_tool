@@ -61,7 +61,7 @@ Outdated variants are grouped with UNCLASSIFIED VARIANTS in the [side bar](/manu
 
 ## Review and add ACMG criteria 
 
-The ACMG criteria in ELLA are based on the official [ACMG 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868).
+The ACMG criteria in ELLA are based on the official [ACMG 2015 guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868).
 
 Before setting a variant classification, you should add relevant ACMG criteria to the variant interpretation. There are two main ways of doing this, from [suggested criteria](/manual/classification-section.html#suggested-acmg-criteria-and-requirements-req) or [manually](/manual/classification-section.html#add-acmg-criteria-manually), explained below. A third option is available for a few selected criteria in the [Quick classification mode](/manual/quick-classification.md).
 
@@ -79,7 +79,7 @@ ELLA automatically [suggests relevant ACMG criteria](/manual/acmg-rule-engine.ht
 
 The specific requirements for each criterion are available by clicking on the label. The resulting pop-up also contains (where applicable):
 
-  - Notes: From official [ACMG 2015 guidelines](https://www.ncbi.nlm.nih.gov/pubmed/25741868)
+  - Notes: From official [ACMG 2015 guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868)
   - Local adjustments: Notes specific to your own setup
   - Match: What triggered the suggestion (this is still in development and may be somewhat cryptic or not available)
 

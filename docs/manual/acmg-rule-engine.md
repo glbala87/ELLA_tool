@@ -8,7 +8,7 @@ title: ACMG rules engine
 
 ## Generating suggestions
 
-ELLA suggests ACMG criteria and classifications based on the official guidelines described in [Richards et al. 2015](https://www.ncbi.nlm.nih.gov/pubmed/25741868). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirements (REQs), prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
+ELLA suggests ACMG criteria and classifications based on the official guidelines described in [Richards et al. 2015](https://pubmed.ncbi.nlm.nih.gov/25741868). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirements (REQs), prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
 
 Note that these suggestions do not remove the need for expert judgement: The suggestions generated for both ACMG criteria and variant classifications need to be verified and may be overridden, and you may also add ACMG criteria manually. **Figure 1** below gives an overview of this process:
 
