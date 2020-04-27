@@ -8,7 +8,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.9.2
 
-Release date: 23.04.2020
+Release date: 27.04.2020
 
 ### Highlights
 
