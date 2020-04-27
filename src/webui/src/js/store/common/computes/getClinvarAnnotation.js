@@ -22,7 +22,7 @@ function sort(item) {
 
 export default function(allele) {
     return Compute(allele, state`app.config`, (allele, config) => {
-        if (!allele || !('CLINVAR' in allele.annotation.external)) {
+        if (!allele || !(allele.annotation.external && 'CLINVAR' in allele.annotation.external)) {
             return {}
         }
         const revText = allele.annotation.external.CLINVAR['variant_description']
@@ -32,6 +32,7 @@ export default function(allele) {
             revstars: config.annotation.clinvar.clinical_significance_status[revText],
             items: []
         }
+
         for (let idx = 0; idx < allele.annotation.external.CLINVAR['items'].length; idx++) {
             let unformatted = allele.annotation.external.CLINVAR['items'][idx]
 
