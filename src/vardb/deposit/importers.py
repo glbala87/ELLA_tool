@@ -22,7 +22,7 @@ from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow
 from vardb.datamodel import annotation as annm
 from vardb.datamodel.user import User
 
-from vardb.deposit.annotationconverters import VEPConverter, JSONConverter
+from vardb.deposit.annotationconverters import VEPConverter, JSONConverter, KeyValueConverter
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class Noop:
         ...
 
 
-ANNOTATION_CONVERTERS = {"vep": VEPConverter, "json": JSONConverter, "keyvalue": Noop}
+ANNOTATION_CONVERTERS = {"vep": VEPConverter, "json": JSONConverter, "keyvalue": KeyValueConverter}
 
 ASSESSMENT_CLASS_FIELD = "CLASS"
 ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"

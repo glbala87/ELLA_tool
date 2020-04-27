@@ -1,19 +1,6 @@
 {
     "definitions": {
         "count": {
-            "optional": [
-                "G",
-                "AFR",
-                "AMR",
-                "ASJ",
-                "EAS",
-                "FIN",
-                "NFE",
-                "OTH",
-                "SAS",
-                "Male",
-                "Female"
-            ],
             "additionalProperties": false,
             "patternProperties": {
                 "[a-zA-Z]*": {
@@ -23,19 +10,6 @@
             }
         },
         "freq": {
-            "optional": [
-                "G",
-                "AFR",
-                "AMR",
-                "ASJ",
-                "EAS",
-                "FIN",
-                "NFE",
-                "OTH",
-                "SAS",
-                "Male",
-                "Female"
-            ],
             "additionalProperties": false,
             "patternProperties": {
                 "[a-zA-Z]*": {
@@ -49,8 +23,8 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/root.json",
     "type": "object",
-    "required": ["count", "filter"],
-    "optional": ["hemi", "hom", "freq"],
+    "required": ["freq"],
+    "optional": ["hemi", "hom", "count", "num"],
     "additionalProperties": false,
     "properties": {
         "count": {
@@ -70,8 +44,8 @@
         },
         "filter": {
             "additionalProperties": false,
-            "properties": {
-                "G": {
+            "patternProperties": {
+                "[a-zA-Z]+": {
                     "type": "array",
                     "items": {
                         "type": "string"
