@@ -226,6 +226,10 @@ The resulting dialogue lets you add studies in one of three ways:
 
   - SEARCH: Search the internal database for studies that have already been added but not connected to the current variant, then click ADD next to a positive search result.
   
-  - PUBMED: Add reference data as provided by PubMed in .RIS or .XML (legacy) format - see instructions in the pop-up.
+  - PUBMED: Add reference data from PubMed. To add a reference: 
+    - On the PubMed page for that reference, download the details with `Save` - "Format: PubMed" and `Create file`: 
+    <div style="text-indent: 4%;"><img src="./img/PubMed_download.png"></div>
+    
+    - Open the file that is downloaded, copy the entire contents and paste it into the `RAW PUBMED DATA` field in ELLA. 
   
   - MANUAL: Add studies manually, either PUBLISHED or UNPUBLISHED (e.g., in-house) studies. Fields marked with a \* are mandatory.
