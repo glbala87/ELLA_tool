@@ -181,35 +181,89 @@ const XML_PUBMED = `
 `
 
 const RIS_PUBMED = `
-TY  - JOUR
-DB  - PubMed
-AU  - Laera, Luna
-AU  - Punzi, Giuseppe
-AU  - Porcelli, Vito
-AU  - Gambacorta, Nicola
-AU  - Trisolini, Lucia
-AU  - Pierri, Ciro L
-AU  - De Grassi, Anna
-T1  - CRAT missense variants cause abnormal carnitine acetyltransferase function in an early-onset case of Leigh syndrome
+PMID- 31448845
+OWN - NLM
+STAT- In-Data-Review
+LR  - 20191224
+IS  - 1098-1004 (Electronic)
+IS  - 1059-7794 (Linking)
+VI  - 41
+IP  - 1
+DP  - 2020 Jan
+TI  - CRAT missense variants cause abnormal carnitine acetyltransferase function in an
+      early-onset case of Leigh syndrome.
+PG  - 110-114
+LID - 10.1002/humu.23901 [doi]
+AB  - Leigh syndrome, or subacute necrotizing encephalomyelopathy, is one of the most
+      severe pediatric disorders of the mitochondrial energy metabolism. By performing
+      whole-exome sequencing in a girl affected by Leigh syndrome and her parents, we
+      identified two heterozygous missense variants (p.Tyr110Cys and p.Val569Met) in the
+      carnitine acetyltransferase (CRAT) gene, encoding an enzyme involved in the control
+      of mitochondrial short-chain acyl-CoA concentrations. Biochemical assays revealed
+      carnitine acetyltransferase deficiency in the proband-derived fibroblasts.
+      Functional analyses of recombinant-purified CRAT proteins demonstrated that both
+      missense variants, located in the acyl-group binding site of the enzyme, severely
+      impair its catalytic function toward acetyl-CoA, and the p.Val569Met variant also
+      toward propionyl-CoA and octanoyl-CoA. Although a single recessive variant in CRAT
+      has been recently associated with neurodegeneration with brain iron accumulation
+      (NBIA), this study reports the first kinetic analysis of naturally occurring CRAT
+      variants and demonstrates the genetic basis of carnitine acetyltransferase
+      deficiency in a case of mitochondrial encephalopathy.
+CI  - © 2019 Wiley Periodicals, Inc.
+FAU - Laera, Luna
+AU  - Laera L
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - Punzi, Giuseppe
+AU  - Punzi G
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - Porcelli, Vito
+AU  - Porcelli V
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - Gambacorta, Nicola
+AU  - Gambacorta N
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - Trisolini, Lucia
+AU  - Trisolini L
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - Pierri, Ciro L
+AU  - Pierri CL
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
+FAU - De Grassi, Anna
+AU  - De Grassi A
+AUID- ORCID: 0000-0001-7273-4263
+AD  - Department of Biosciences, Biotechnology and Biopharmaceutics, University of Bari,
+      Bari, Italy.
 LA  - eng
-SN  - 1098-1004
-Y1  - 2020/01/
-ET  - 2019/09/23
-AB  - Leigh syndrome, or subacute necrotizing encephalomyelopathy, is one of the most severe pediatric disorders of the mitochondrial energy metabolism....
-SP  - 110
-EP  - 114
-VL  - 41
-IS  - 1
-AN  - 31448845
-UR  - https://www.ncbi.nlm.nih.gov/pubmed/31448845
-DO  - 10.1002/humu.23901
-U1  - 31448845[pmid]
-J2  - Hum Mutat
-JF  - Human mutation
-KW  - CRAT
-KW  - Leigh syndrome
-KW  - carnitine acetyltransferase
-KW  - mitochondrial encephalopathy
-CY  - United States
-ER  -
+GR  - MITOCON, Italian Association for the study and the cure of mitochondrial disorders/
+GR  - MIUR, Italian Ministry of Education and Research/
+PT  - Journal Article
+DEP - 20190923
+PL  - United States
+TA  - Hum Mutat
+JT  - Human mutation
+JID - 9215429
+SB  - IM
+OTO - NOTNLM
+OT  - CRAT
+OT  - Leigh syndrome
+OT  - carnitine acetyltransferase
+OT  - mitochondrial encephalopathy
+EDAT- 2019/08/27 06:00
+MHDA- 2019/08/27 06:00
+CRDT- 2019/08/27 06:00
+PHST- 2018/12/07 00:00 [received]
+PHST- 2019/07/19 00:00 [revised]
+PHST- 2019/08/20 00:00 [accepted]
+PHST- 2019/08/27 06:00 [pubmed]
+PHST- 2019/08/27 06:00 [medline]
+PHST- 2019/08/27 06:00 [entrez]
+AID - 10.1002/humu.23901 [doi]
+PST - ppublish
+SO  - Hum Mutat. 2020 Jan;41(1):110-114. doi: 10.1002/humu.23901. Epub 2019 Sep 23.
 `
