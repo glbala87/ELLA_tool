@@ -125,6 +125,7 @@
                                     "transcript_amplification",
                                     "incomplete_terminal_codon_variant",
                                     "synonymous_variant",
+                                    "start_retained_variant",
                                     "stop_retained_variant",
                                     "coding_sequence_variant"
                                 ]
@@ -288,6 +289,7 @@
                                     "transcript_amplification",
                                     "incomplete_terminal_codon_variant",
                                     "synonymous_variant",
+                                    "start_retained_variant",
                                     "stop_retained_variant",
                                     "coding_sequence_variant"
                                 ]
@@ -298,7 +300,11 @@
                 {
                     "name": "consequence",
                     "config": {
-                        "consequences": ["synonymous_variant", "stop_retained_variant"]
+                        "consequences": [
+                            "synonymous_variant",
+                            "stop_retained_variant",
+                            "start_retained_variant"
+                        ]
                     },
                     "exceptions": [
                         {
@@ -588,7 +594,11 @@
                 {
                     "name": "consequence",
                     "config": {
-                        "consequences": ["synonymous_variant", "stop_retained_variant"]
+                        "consequences": [
+                            "synonymous_variant",
+                            "stop_retained_variant",
+                            "start_retained_variant"
+                        ]
                     },
                     "exceptions": [
                         {

@@ -449,8 +449,8 @@ def block_strategy(draw, samples):
     """
 
     # Genotypes that say something and are not just 'fillers'
-    genotypes = ["0/1", "1/1", "0/0", "./."]
-    multiallelic_genotypes = genotypes + ["1/.", "./1"]
+    genotypes = ["0/1", "1/1", "0/0", "./.", "0|1", "1|0", "0|0", ".|."]
+    multiallelic_genotypes = genotypes + ["1/.", "./1", "1|.", ".|1"]
     block = list()
 
     # Track whether the genotype for each sample.
@@ -469,46 +469,59 @@ def block_strategy(draw, samples):
                 if block_size == 1:
                     gt = draw(st.sampled_from(genotypes))
                 else:
-                    gt = draw(st.sampled_from(genotypes + ["1/."]))
+                    gt = draw(st.sampled_from(genotypes + ["1/.", "1|."]))
             else:
                 # Multiallelic case
                 # This is rather complex, we need to check what genotype
                 # we picked for this sample and insert sensible
                 # filler genotypes for the rest of the block
+
                 if block_size > 1:
-                    sample_gt = sample_genotype[sample]
+                    sample_gt = tuple(sample_genotype[sample][::2])
+                    phasing = sample_genotype[sample][1]
                     # Block as been started and last round -> finish it
-                    if sample_gt == "1/." and idx == block_size - 1:
-                        gt = "./1"
+                    if sample_gt == ("1", ".") and idx == block_size - 1:
+                        gt = (".", "1")
                     # Block has been started, not last round ->
                     # random pick of finishing it or null data
-                    elif sample_gt == "1/." and idx != block_size - 1:
+                    elif sample_gt == ("1", ".") and idx != block_size - 1:
                         # We cannot risk ending all samples with './1'
                         # when we're not on the record in the block
                         # since one sample needs to end the block
-                        if len([a for a in list(sample_genotype.values()) if a == "1/."]) > 1:
-                            gt = draw(st.sampled_from(["./1", "./."]))
+                        if (
+                            len(
+                                [
+                                    a
+                                    for a in list(sample_genotype.values())
+                                    if tuple(a[::2]) == ("1", ".")
+                                ]
+                            )
+                            > 1
+                        ):
+                            gt = draw(st.sampled_from([(".", "1"), (".", ".")]))
                         else:
-                            gt = "./."
+                            gt = (".", ".")
                     # Already ended, cannot have more variants
-                    elif sample_gt == "./1":
-                        gt = "./."
+                    elif sample_gt == (".", "1"):
+                        gt = (".", ".")
                     # Heterozygous variant, will not have others (they are other positions)
-                    elif sample_gt == "0/1":
-                        gt = "0/."
-                    elif sample_gt == "1/1":
-                        gt = "./."
-                    elif sample_gt == "0/0":
-                        gt = "0/0"
+                    elif sample_gt in [("0", "1"), ("1", "0")]:
+                        gt = ("0", ".")
+                    elif sample_gt == ("1", "1"):
+                        gt = (".", ".")
+                    elif sample_gt == ("0", "0"):
+                        gt = ("0", "0")
                     # If no coverage on initial draw, keep giving no coverage
-                    elif sample_gt == "./.":
-                        gt = "./."
+                    elif sample_gt == (".", "."):
+                        gt = (".", ".")
                     else:
                         assert False, "Shouldn't happen: {}".format(sample_gt)
 
+                    gt = phasing.join(gt)
+
             if gt in multiallelic_genotypes:
                 # Don't overwrite original genotype with './.
-                if sample not in sample_genotype or gt != "./.":
+                if sample not in sample_genotype or tuple(gt[::2]) != (".", "."):
                     sample_genotype[sample] = gt
 
             # Draw from a limited pool to avoid too many combinations
@@ -547,43 +560,6 @@ def block_strategy(draw, samples):
     #    print([sa['GT'] for sa in b])
 
     return block
-
-
-@st.composite
-def variants_strategy(draw, num_variants, pos_gap):
-    """
-    Generates num_variants variants for a single sample.
-    """
-    variants = list()
-    NORMAL_GENOTYPES = ["0/1", "1/1"]
-    MULTIALLELIC_GENOTYPES = ["0/1", "1/1", "1/."]
-    current_pos = 10000
-    multiallelic_missing_stop = False  # True if '1/.' has been insterted and missing './1'
-    for idx in range(num_variants):
-        current_pos += draw(st.integers(1, pos_gap))
-
-        # If less than two variants left, we cannot draw multiallelic options
-        if num_variants < 2 or num_variants - idx < 2:
-            gt = draw(st.sampled_from(NORMAL_GENOTYPES))
-        else:
-            gt = draw(st.sampled_from(MULTIALLELIC_GENOTYPES))
-        # Override if necessary
-        if multiallelic_missing_stop:
-            gt = "./1"
-            multiallelic_missing_stop = False
-        if gt == "1/.":
-            multiallelic_missing_stop = True
-
-        variant = {
-            "chromosome": "12",
-            "pos": current_pos,
-            "ref": "A",
-            "alt": "T",
-            "annotation": {},
-            "samples": [s(gt, "0,100", 100, 99, "12,0,110")],
-        }
-        variants.append(variant)
-    return variants
 
 
 @st.composite

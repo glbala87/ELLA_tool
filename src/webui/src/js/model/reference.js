@@ -19,7 +19,7 @@ export class Reference {
     }
 
     getPubmedUrl() {
-        return this.pubmed_id ? `http://www.ncbi.nlm.nih.gov/pubmed/${this.pubmed_id}` : undefined
+        return this.pubmed_id ? `https://pubmed.ncbi.nlm.nih.gov/${this.pubmed_id}` : undefined
     }
 }
 

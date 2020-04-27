@@ -8,7 +8,7 @@ export default function processReferences(references) {
 function getUrls(reference) {
     const urls = {}
     if (reference.pubmed_id) {
-        urls.pubmed = `http://www.ncbi.nlm.nih.gov/pubmed/${reference.pubmed_id}`
+        urls.pubmed = `https://pubmed.ncbi.nlm.nih.gov/${reference.pubmed_id}`
     }
     return urls
 }

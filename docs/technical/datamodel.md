@@ -62,7 +62,7 @@ An allele has:
 
 The annotation contains information about a *single* allele's population frequencies, predicted effects and various other data from external databases. Annotation can change often, and whenever it is updated, the previous annotation is archived. There is therefore only one current annotation for each allele. However, the current annotation points to previous ones to keep track of historic annotations.
 
-ELLA relies on a separate annotation service to annotate data. Our own service, `ella-anno`, is scheduled for public release soon; see [Production](/technical/production.md). The annotation has:
+ELLA relies on a separate annotation service to annotate data. [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data; see [Production](/technical/production.md) and the [separate documentation](http://allel.es/anno-docs). The annotation has:
 
 - The actual annotation data (json)
 - Link to an allele

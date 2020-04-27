@@ -394,6 +394,19 @@ class GenotypeImporter(object):
         gt1, gt2 = record["GT"].split("/", 1)
         return gt1 == gt2 == "1"
 
+    def remove_phasing(self, record):
+        phasing_removed = False
+        for sample in record["SAMPLES"]:
+            if "|" in record["SAMPLES"][sample]["GT"]:
+                phasing_removed = True
+                record["SAMPLES"][sample]["GT"] = (
+                    record["SAMPLES"][sample]["GT"]
+                    .replace("|", "/")
+                    .replace("1/0", "0/1")
+                    .replace("./0", "0/.")
+                )
+        return phasing_removed
+
     def add(
         self,
         records,
@@ -408,8 +421,12 @@ class GenotypeImporter(object):
         while we add genotypesampledata records for all samples (connected to the proband sample's genotype).
         See datamodel for more information.
 
-        :note: Phasing is not supported.
+        :note: Phasing will be ignored.
         """
+
+        phasing_removed = any([self.remove_phasing(record) for record in records])
+        if phasing_removed:
+            log.warning("Phased data detected. Phasing will be ignored.")
 
         proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
 

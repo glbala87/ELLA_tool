@@ -11,7 +11,7 @@ For proper security, ELLA should be run in a walled garden with restricted exter
 :::
 
 ::: danger WARNING
-ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data. Documentation for this service will be added in the near future. Until then, please contact [ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F) for details on how to configure your own production setup.
+ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data. The [documentation for this service](http://allel.es/anno-docs) is work in progress, please contact [ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F) for details on how to configure your own production setup.
 :::
 
 ## Requirements

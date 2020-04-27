@@ -60,7 +60,9 @@ rules = [
     {
         "code": "REQ_no_aa_change",
         "rule": {
-            "transcript.consequences": {"$in": ["stop_retained_variant", "synonymous_variant"]}
+            "transcript.consequences": {
+                "$in": ["stop_retained_variant", "start_retained_variant", "synonymous_variant"]
+            }
         },
     },
     {"code": "REQ_no_MSI", "rule": {"refassessment.*.ref_msi": "no_msi"}},

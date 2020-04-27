@@ -145,14 +145,14 @@ Since any given variant can be annotated with many different consequences, this 
 
 ##### Example
 
-This configuration will filter out variants that are annotated as either `synonymous_variant` or `stop_retained_variant`.
+This configuration will filter out variants that are annotated as either `synonymous_variant`, `stop_retained_variant` or `start_retained_variant`.
 
 ```json
 {
   "name": "consequence",
   "config": {
       "genepanel_only": false
-      "consequences": ["synonymous_variant", "stop_retained_variant"]
+      "consequences": ["synonymous_variant", "stop_retained_variant", "start_retained_variant"]
   }
 }
 ```
@@ -498,7 +498,7 @@ For the third rule, note this excerpt from the article:
 
 #### Homozygous recessive variant
 
-This rule set checks for homo-/hemizygous variants in genes defined with recessive inheritance. The following conditions must be met:
+This rule set checks for homo-/hemizygous variants. The following conditions must be met:
 
 - For autosomal or pseudo-autosomal regions:
     - Homozygous in the proband and any affected siblings.
