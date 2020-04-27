@@ -73,7 +73,7 @@ export default function(allele, group) {
             fields: fields
         }
 
-        if (!(group in config.frequencies.view.groups)) {
+        if (!allele.annotation.frequencies || !(group in config.frequencies.view.groups)) {
             return data
         }
 

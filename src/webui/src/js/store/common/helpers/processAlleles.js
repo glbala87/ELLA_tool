@@ -33,8 +33,9 @@ function getUrls(allele) {
     }
 
     if (
-        'GNOMAD_EXOMES' in allele.annotation.frequencies ||
-        'GNOMAD_GENOMES' in allele.annotation.frequencies
+        allele.annotation.frequencies &&
+        ('GNOMAD_EXOMES' in allele.annotation.frequencies ||
+            'GNOMAD_GENOMES' in allele.annotation.frequencies)
     ) {
         urls.gnomad = `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`
     } else {
@@ -43,7 +44,11 @@ function getUrls(allele) {
         }-${allele.vcf_pos - 10}-${allele.open_end_position + 10}`
     }
 
-    if ('HGMD' in allele.annotation.external && 'acc_num' in allele.annotation.external.HGMD) {
+    if (
+        allele.annotation.external &&
+        'HGMD' in allele.annotation.external &&
+        'acc_num' in allele.annotation.external.HGMD
+    ) {
         urls.hgmd = `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=${allele.annotation.external.HGMD.acc_num}`
     } else {
         const gene_symbols = allele.annotation.transcripts
@@ -56,7 +61,7 @@ function getUrls(allele) {
         }
     }
 
-    if ('CLINVAR' in allele.annotation.external) {
+    if (allele.annotation.external && 'CLINVAR' in allele.annotation.external) {
         urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/variation/${allele.annotation.external.CLINVAR.variant_id}`
     } else {
         urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/?term=${

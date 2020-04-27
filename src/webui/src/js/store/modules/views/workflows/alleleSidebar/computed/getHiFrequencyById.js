@@ -15,35 +15,40 @@ export default function getHiFrequencyById(alleles, key) {
             for (let [alleleId, allele] of Object.entries(alleles)) {
                 let maxMeetsThresholdValue = null
                 let maxValue = null
-                const annotationFrequencies = allele.annotation.frequencies
-                for (let { provider, population, numThreshold } of frequencyGroupsGenerator(
-                    currentFilterConfig
-                ))
-                    if (
-                        provider in annotationFrequencies &&
-                        key in annotationFrequencies[provider] &&
-                        population in annotationFrequencies[provider][key]
-                    ) {
-                        // For frequency, check that 'num' is higher than required in config
-                        // If provider is not in config, assume it's good
-                        // (since it would be in filtering)
-                        let meetsNumThreshold = !(key === 'freq' && numThreshold)
-                        if (key === 'freq' && numThreshold) {
-                            meetsNumThreshold =
-                                annotationFrequencies[provider]['num'][population] > numThreshold
-                        }
-
-                        const newValue = annotationFrequencies[provider][key][population]
-                        if (newValue > maxValue || maxValue === null) {
-                            maxValue = newValue
-                        }
+                if (allele.annotation.frequencies) {
+                    const annotationFrequencies = allele.annotation.frequencies
+                    for (let { provider, population, numThreshold } of frequencyGroupsGenerator(
+                        currentFilterConfig
+                    )) {
                         if (
-                            meetsNumThreshold &&
-                            (newValue > maxMeetsThresholdValue || maxMeetsThresholdValue === null)
+                            provider in annotationFrequencies &&
+                            key in annotationFrequencies[provider] &&
+                            population in annotationFrequencies[provider][key]
                         ) {
-                            maxMeetsThresholdValue = newValue
+                            // For frequency, check that 'num' is higher than required in config
+                            // If provider is not in config, assume it's good
+                            // (since it would be in filtering)
+                            let meetsNumThreshold = !(key === 'freq' && numThreshold)
+                            if (key === 'freq' && numThreshold) {
+                                meetsNumThreshold =
+                                    annotationFrequencies[provider]['num'][population] >
+                                    numThreshold
+                            }
+
+                            const newValue = annotationFrequencies[provider][key][population]
+                            if (newValue > maxValue || maxValue === null) {
+                                maxValue = newValue
+                            }
+                            if (
+                                meetsNumThreshold &&
+                                (newValue > maxMeetsThresholdValue ||
+                                    maxMeetsThresholdValue === null)
+                            ) {
+                                maxMeetsThresholdValue = newValue
+                            }
                         }
                     }
+                }
                 result[alleleId] = {
                     maxMeetsThresholdValue,
                     maxValue
