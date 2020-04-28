@@ -69,7 +69,7 @@ def create_allele(data=None):
             data["change_from"] = ""
             data["change_to"] = data["vcf_alt"][1:]
             data["change_type"] = "ins"
-            data["open_end_position"] = data["start_position"] + len(data["change_to"])
+            data["open_end_position"] = data["start_position"] + 1
         else:
             data["change_from"] = data["vcf_ref"]
             data["change_to"] = data["vcf_alt"]
@@ -89,12 +89,10 @@ def create_allele(data=None):
             )
         )
 
-    if data["change_type"] == "SNP":
+    if data["change_type"] in ["SNP", "ins"]:
         data["open_end_position"] = data["start_position"] + 1
     elif data["change_type"] == "del":
         data["open_end_position"] = data["start_position"] + len(data["change_from"])
-    elif data["change_type"] == "ins":
-        data["open_end_position"] = data["start_position"] + len(data["change_to"])
     elif data["change_type"] == "indel":
         data["open_end_position"] = data["start_position"] + max(
             [len(data["change_from"]), len(data["change_to"])]

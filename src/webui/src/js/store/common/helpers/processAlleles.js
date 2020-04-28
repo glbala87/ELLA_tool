@@ -103,7 +103,7 @@ function getFormatted(allele, config, genepanel) {
         formatted.hgvsg = `g.${start + 1}_${end}del`
     } else if (allele.change_type === 'ins') {
         // ins: g.32912008_3291209insCGT
-        formatted.hgvsg = `g.${start}_${start + 1}ins${allele.change_to}`
+        formatted.hgvsg = `g.${start}_${end}ins${allele.change_to}`
     } else if (allele.change_type === 'indel') {
         // delins: g.32912008_32912011delinsGGG
         formatted.hgvsg = `g.${start + 1}_${end}delins${allele.change_to}`
@@ -117,23 +117,17 @@ function getFormatted(allele, config, genepanel) {
     // genomic position
     //
     if (allele.change_type === 'SNP') {
-        formatted.genomicPosition = `${allele.chromosome}:${allele.start_position + 1}`
+        formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
     } else if (allele.change_type === 'del') {
         if (allele.change_from.length > 1) {
-            formatted.genomicPosition = `${allele.chromosome}:${allele.start_position + 1}-${
-                allele.open_end_position
-            }`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
         } else {
-            formatted.genomicPosition = `${allele.chromosome}:${allele.start_position + 1}`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
         }
     } else if (allele.change_type === 'ins') {
-        formatted.genomicPosition = `${allele.chromosome}:${
-            allele.start_position
-        }-${allele.start_position + 1}`
+        formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${start + 2}`
     } else {
-        formatted.genomicPosition = `${allele.chromosome}:${allele.start_position + 1}-${
-            allele.open_end_position
-        }`
+        formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
     }
 
     //

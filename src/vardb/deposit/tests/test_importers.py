@@ -60,7 +60,7 @@ class TestAlleleImporter:
         assert al["genome_reference"] == ref_genome
         assert al["chromosome"] == "X"
         assert al["start_position"] == 41226488
-        assert al["open_end_position"] == 41226491
+        assert al["open_end_position"] == 41226489
         assert al["change_from"] == ""
         assert al["change_to"] == "GCT"
         assert al["change_type"] == "ins"
