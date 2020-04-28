@@ -921,7 +921,11 @@ class AlleleImporter(object):
             record["REF"], alt
         )
         start_pos = vcfhelper.get_start_position(record["POS"], start_offset, change_type)
-        end_pos = vcfhelper.get_end_position(record["POS"], start_offset, allele_length)
+
+        # Insertions have no span in the reference genome, therefore we ignore allele_length in this case
+        end_pos = vcfhelper.get_end_position(
+            record["POS"], start_offset, allele_length if change_type != "ins" else 1
+        )
 
         vcf_pos = record["POS"]
         vcf_ref = record["REF"]
