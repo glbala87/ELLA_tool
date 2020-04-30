@@ -1,4 +1,4 @@
-from typing import List, Optional, Set, Dict
+from typing import List, Optional, Set, Dict, Any
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BooleanClauseList, BinaryExpression
 from sqlalchemy.sql.schema import Table
@@ -836,7 +836,9 @@ class SegregationFilter(object):
 
         return siblings_samples
 
-    def get_segregation_results(self, analysis_allele_ids: Dict[int, List[int]]):
+    def get_segregation_results(
+        self, analysis_allele_ids: Dict[int, List[int]], filter_config: Dict[str, Any]
+    ) -> Dict[int, Dict[str, Set[int]]]:
 
         result: Dict[int, Dict[str, Set[int]]] = dict()
         for analysis_id, allele_ids in analysis_allele_ids.items():
@@ -870,52 +872,75 @@ class SegregationFilter(object):
                 genotypesampledata_extras={"ar": "allele_ratio", "gl": "genotype_likelihood"},
             )
 
-            result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
-                genotype_table, father_sample.id, mother_sample.id
-            )
+            if filter_config["no_coverage_parents"]["enable"]:
+                result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
+                    genotype_table, father_sample.id, mother_sample.id
+                )
+            else:
+                result[analysis_id]["no_coverage_parents"] = set()
 
-            result[analysis_id]["denovo"] = self.denovo(
-                genotype_table, proband_sample.id, father_sample.id, mother_sample.id
-            )
+            if filter_config["denovo"]["enable"]:
+                result[analysis_id]["denovo"] = self.denovo(
+                    genotype_table, proband_sample.id, father_sample.id, mother_sample.id
+                )
+            else:
+                result[analysis_id]["denovo"] = set()
 
-            result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
-                genotype_table, proband_sample.id, father_sample.id, mother_sample.id
-            )
+            if filter_config["inherited_mosaicism"]["enable"]:
+                result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
+                    genotype_table, proband_sample.id, father_sample.id, mother_sample.id
+                )
+            else:
+                result[analysis_id]["inherited_mosaicism"] = set()
 
-            result[analysis_id]["compound_heterozygous"] = self.compound_heterozygous(
-                genotype_table,
-                proband_sample.id,
-                father_sample.id,
-                mother_sample.id,
-                affected_sibling_sample_ids=affected_sibling_sample_ids,
-                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
-            )
+            if filter_config["compound_heterozygous"]["enable"]:
+                result[analysis_id]["compound_heterozygous"] = self.compound_heterozygous(
+                    genotype_table,
+                    proband_sample.id,
+                    father_sample.id,
+                    mother_sample.id,
+                    affected_sibling_sample_ids=affected_sibling_sample_ids,
+                    unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
+                )
+            else:
+                result[analysis_id]["compound_heterozygous"] = set()
 
-            result[analysis_id][
-                "autosomal_recessive_homozygous"
-            ] = self.autosomal_recessive_homozygous(
-                genotype_table,
-                proband_sample.id,
-                father_sample.id,
-                mother_sample.id,
-                affected_sibling_sample_ids=affected_sibling_sample_ids,
-                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
-            )
+            if filter_config["recessive_homozygous"]["enable"]:
+                result[analysis_id][
+                    "autosomal_recessive_homozygous"
+                ] = self.autosomal_recessive_homozygous(
+                    genotype_table,
+                    proband_sample.id,
+                    father_sample.id,
+                    mother_sample.id,
+                    affected_sibling_sample_ids=affected_sibling_sample_ids,
+                    unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
+                )
 
-            result[analysis_id]["xlinked_recessive_homozygous"] = self.xlinked_recessive_homozygous(
-                genotype_table,
-                proband_sample.id,
-                father_sample.id,
-                mother_sample.id,
-                affected_sibling_sample_ids=affected_sibling_sample_ids,
-                unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
-            )
+                result[analysis_id][
+                    "xlinked_recessive_homozygous"
+                ] = self.xlinked_recessive_homozygous(
+                    genotype_table,
+                    proband_sample.id,
+                    father_sample.id,
+                    mother_sample.id,
+                    affected_sibling_sample_ids=affected_sibling_sample_ids,
+                    unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
+                )
 
-            result[analysis_id][
-                "homozygous_unaffected_siblings"
-            ] = self.homozygous_unaffected_siblings(
-                genotype_table, proband_sample.id, unaffected_sibling_sample_ids
-            )
+                result[analysis_id][
+                    "homozygous_unaffected_siblings"
+                ] = self.homozygous_unaffected_siblings(
+                    genotype_table, proband_sample.id, unaffected_sibling_sample_ids
+                )
+            else:
+                result[analysis_id].update(
+                    {
+                        "autosomal_recessive_homozygous": set(),
+                        "xlinked_recessive_homozygous": set(),
+                        "homozygous_unaffected_siblings": set(),
+                    }
+                )
 
         return result
 
@@ -923,10 +948,9 @@ class SegregationFilter(object):
         """
         Returns allele_ids that can be filtered _out_ from an analysis.
         """
+        segregation_results = self.get_segregation_results(analysis_allele_ids, filter_config)
 
-        segregation_results = self.get_segregation_results(analysis_allele_ids)
-
-        result = dict()
+        result: Dict[int, Set[int]] = dict()
         for analysis_id, allele_ids in analysis_allele_ids.items():
             if analysis_id not in segregation_results:
                 result[analysis_id] = set()
