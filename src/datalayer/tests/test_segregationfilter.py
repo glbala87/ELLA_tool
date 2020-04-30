@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import pytest
 import uuid
 
@@ -1369,3 +1369,89 @@ class TestInheritanceFilter(object):
             assert result_allele_ids == set([allele_id])
         else:
             assert result_allele_ids == set()
+
+    def test_filter_alleles(self, session):
+
+        sf = SegregationFilter(session, GLOBAL_CONFIG)
+
+        # Various mocks
+
+        Sample = namedtuple("Sample", ["id", "father_id", "mother_id"])
+        sf.get_family_ids = lambda a: [1]
+        sf.get_proband_sample = lambda a, b: Sample(1, 2, 3)
+        sf.get_father_sample = lambda a: Sample(2, None, None)
+        sf.get_mother_sample = lambda a: Sample(3, None, None)
+        sf.get_siblings_samples = lambda a, affected: [Sample(4, 2, 3)]
+        sf.get_family_sample_ids = lambda a, b: [1]
+
+        NO_COVERAGE_PARENTS = 1
+        DENOVO = 2
+        INHERITED_MOSAICISM = 3
+        COMPOUND_HETEROZYGOUS = 4
+        AUTOSOMAL_RECESSIVE_HOMOZYGOUS = 5
+        XLINKED_RECESSIVE_HOMOZYGOUS = 6
+        HOMOZYGOUS_UNAFFECTED_SIBLINGS = 7
+
+        sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
+        sf.denovo = lambda a, b, c, d: set([DENOVO])
+        sf.inherited_mosaicism = lambda a, b, c, d: set([INHERITED_MOSAICISM])
+        sf.compound_heterozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [COMPOUND_HETEROZYGOUS]
+        )
+        sf.autosomal_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [AUTOSOMAL_RECESSIVE_HOMOZYGOUS]
+        )
+        sf.xlinked_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [XLINKED_RECESSIVE_HOMOZYGOUS]
+        )
+        sf.homozygous_unaffected_siblings = lambda a, b, c: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])
+
+        ## Start tests
+        all_allele_ids = set(
+            [
+                NO_COVERAGE_PARENTS,
+                DENOVO,
+                INHERITED_MOSAICISM,
+                COMPOUND_HETEROZYGOUS,
+                AUTOSOMAL_RECESSIVE_HOMOZYGOUS,
+                XLINKED_RECESSIVE_HOMOZYGOUS,
+                HOMOZYGOUS_UNAFFECTED_SIBLINGS,
+            ]
+        )
+
+        # All enabled
+        filter_config = {
+            "no_coverage_parents": {"enable": True},
+            "denovo": {"enable": True},
+            "inherited_mosaicism": {"enable": True},
+            "compound_heterozygous": {"enable": True},
+            "recessive_homozygous": {"enable": True},
+        }
+
+        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
+        assert result == {1: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
+
+        # All disabled
+        filter_config = {
+            "no_coverage_parents": {"enable": False},
+            "denovo": {"enable": False},
+            "inherited_mosaicism": {"enable": False},
+            "compound_heterozygous": {"enable": False},
+            "recessive_homozygous": {"enable": False},
+        }
+
+        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
+        assert result == {1: all_allele_ids}
+
+        # All enabled, has_parents = False
+        filter_config = {
+            "no_coverage_parents": {"enable": True},
+            "denovo": {"enable": True},
+            "inherited_mosaicism": {"enable": True},
+            "compound_heterozygous": {"enable": True},
+            "recessive_homozygous": {"enable": True},
+        }
+
+        sf.get_proband_sample = lambda a, b: Sample(1, None, None)
+        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
+        assert result == {1: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
