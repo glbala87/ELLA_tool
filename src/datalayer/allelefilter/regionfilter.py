@@ -218,8 +218,8 @@ class RegionFilter(object):
                 coding_end.label("region_end"),
             ).filter(
                 # Exclude exons outside the coding region
-                genepanel_tx_regions.c.exon_start < genepanel_tx_regions.c.cds_end,
-                genepanel_tx_regions.c.exon_end > genepanel_tx_regions.c.cds_start,
+                genepanel_tx_regions.c.exon_start <= genepanel_tx_regions.c.cds_end,
+                genepanel_tx_regions.c.exon_end >= genepanel_tx_regions.c.cds_start,
             )
 
             # Regions with applied padding
@@ -233,7 +233,7 @@ class RegionFilter(object):
                     .join(tmp_gene_padding, tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id)
                     # Only include valid regions. region_start will be greater than region_end when padding == 0 .
                     # Example: [cds_end + 1, cds_end + padding]
-                    .filter(region_end > region_start)
+                    .filter(region_end >= region_start)
                     .distinct()
                 )
 
