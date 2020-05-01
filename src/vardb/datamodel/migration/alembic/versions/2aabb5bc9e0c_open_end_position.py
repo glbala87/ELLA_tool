@@ -20,7 +20,9 @@ def upgrade():
     conn = op.get_bind()
 
     conn.execute(
-        sa.sql.text("UPDATE allele SET open_end_position=start_position+1 WHERE change_type='ins';")
+        sa.sql.text(
+            "UPDATE allele SET open_end_position=start_position, start_position=start_position-1 WHERE change_type='ins';"
+        )
     )
 
 

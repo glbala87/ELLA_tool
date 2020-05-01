@@ -16,9 +16,7 @@ def compare_alleles(ref, alt):
     changeFrom/changeTo is empty string if ins/del respectively,
     for indels changeFrom is what is deleted and changeTo is what is inserted.
     """
-    # If it's a simple SNV, don't remap anything
-    if len(ref) == 1 and len(alt) == 1:
-        return 0, 1, "SNP", ref, alt
+    assert ref != alt
     assert len(ref) >= 1 and len(alt) >= 1
     offset = 0
     # strip off identical suffixes
@@ -34,14 +32,17 @@ def compare_alleles(ref, alt):
         changeType = "SNP"
     elif len(ref) == 0:
         changeType = "ins"
+        offset -= 1
     elif len(alt) == 0:
         changeType = "del"
-    else:
+    elif len(ref) and len(alt):
         changeType = "indel"
+    else:
+        raise ValueError("Unexpected ref/alt combination: ref={}, alt={}".format(ref, alt))
     return offset, max(len(ref), len(alt)), changeType, ref, alt
 
 
-def get_start_position(vcfPos, startOffset, changeType):  # changeType not used.
+def get_start_position(vcfPos, startOffset):  # changeType not used.
     """Return start position for allele.
 
     Convert 1-based vcfPos to 0-based and add startOffset."""

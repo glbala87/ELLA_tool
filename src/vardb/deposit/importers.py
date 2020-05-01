@@ -920,7 +920,7 @@ class AlleleImporter(object):
         start_offset, allele_length, change_type, change_from, change_to = vcfhelper.compare_alleles(
             record["REF"], alt
         )
-        start_pos = vcfhelper.get_start_position(record["POS"], start_offset, change_type)
+        start_pos = vcfhelper.get_start_position(record["POS"], start_offset)
 
         # Insertions have no span in the reference genome, therefore we ignore allele_length in this case
         end_pos = vcfhelper.get_end_position(
