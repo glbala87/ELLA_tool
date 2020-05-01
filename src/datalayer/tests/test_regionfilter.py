@@ -88,6 +88,7 @@ def create_genepanel(genepanel_config):
     g3 = gene.Gene(hgnc_id=int(4e6), hgnc_symbol="GENE3")
     g4 = gene.Gene(hgnc_id=int(5e6), hgnc_symbol="GENE4")
     g5 = gene.Gene(hgnc_id=int(6e6), hgnc_symbol="GENE5")
+    g6 = gene.Gene(hgnc_id=int(6e7), hgnc_symbol="GENE6")
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
@@ -179,13 +180,28 @@ def create_genepanel(genepanel_config):
         exon_ends=[5160, 5260, 5360, 5460],
     )
 
+    t6_reverse = gene.Transcript(
+        gene=g6,
+        transcript_name="NM_6.1",
+        type="RefSeq",
+        genome_reference="",
+        chromosome="6",
+        tx_start=6000,
+        tx_end=6500,
+        strand="-",
+        cds_start=6259,
+        cds_end=6401,
+        exon_starts=[6100, 6200, 6300, 6400],
+        exon_ends=[6160, 6260, 6360, 6460],
+    )
+
     p1 = gene.Phenotype(gene=g1_ad, inheritance="AD", description="P1")
 
     p2 = gene.Phenotype(gene=g1_ar, inheritance="AD,AR", description="P2")
 
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse]
+    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse, t6_reverse]
     genepanel.phenotypes = [p1, p2]
     return genepanel
 
@@ -233,10 +249,17 @@ class TestRegionFilter(object):
     @ht.example(("5", 5460, 5461), False)  # Splice region variant (+1) on reverse transcript
     @ht.example(("5", 5459, 5460), True)  # First variant in non-coding exon on reverse transcript
     @ht.example(("5", 5359, 5460), False)  # First variant in coding exon on reverse transcript
+    @ht.example(
+        ("6", 6259, 6260), False
+    )  # TODO: This should not be filtered out (first base in coding region)
+    @ht.example(
+        ("6", 6400, 6401), False
+    )  # TODO: This should not be filtered out (last base in coding region)
     @ht.given(
         st.one_of(
             allele_positions("1", 800, 1700),  # t1, positive strand
             allele_positions("5", 4800, 5700),  # t5, negative strand
+            allele_positions("6", 5800, 6700),  # t6, negative strand
         ),
         st.just(None),
     )
