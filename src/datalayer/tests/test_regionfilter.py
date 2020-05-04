@@ -504,7 +504,7 @@ def create_transcript(draw):
 
     return gene.Transcript(
         gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
-        transcript_name="NM_1AD.1",
+        transcript_name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -521,7 +521,7 @@ def create_transcript(draw):
 def default_transcript(**kwargs):
     tx = gene.Transcript(
         gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
-        transcript_name="NM_1AD.1",
+        transcript_name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
