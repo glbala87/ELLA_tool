@@ -627,7 +627,7 @@ def test_regions(
     session.rollback()
 
     max_padding = max(abs(x) for x in (*splice_region, *utr_region))
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v02", genome_reference="GRCh37")
 
     genepanel.transcripts = [transcript]
     genepanel.phenotypes = []
@@ -654,7 +654,7 @@ def test_regions(
     ]
 
     genepanel_tx_regions = rf.create_genepanel_transcripts_table(
-        ("testpanel", "v01"), [allele.id], max_padding
+        ("testpanel", "v02"), [allele.id], max_padding
     )
     # Check that transcript is included (on basis of allele)
     assert session.query(genepanel_tx_regions).count() == len(transcript.exon_starts)
