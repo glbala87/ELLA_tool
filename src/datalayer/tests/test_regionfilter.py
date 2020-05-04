@@ -457,3 +457,311 @@ class TestRegionFilter(object):
         result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
         assert result[gp_key] == set([na1.id])
+
+
+@st.composite
+def create_transcript(draw):
+    """Create a semi-plausible transcript"""
+    tx_start = draw(st.integers(min_value=1000, max_value=2000))
+    tx_end = draw(st.integers(min_value=3000, max_value=4000))
+
+    # Create exons
+    num_exons = draw(st.integers(min_value=1, max_value=7))
+    exons = draw(
+        st.lists(
+            st.integers(min_value=tx_start, max_value=tx_end),
+            min_size=2 * num_exons,
+            max_size=2 * num_exons,
+            unique=True,
+        )
+    )
+    # Sort exons like:
+    # [exon_start1, exon_end1, exon_start2, exon_end2, ...]
+    exons = list(sorted(exons))
+
+    # Fetch exon starts and exon ends
+    exon_starts = exons[::2]
+    exon_ends = exons[1::2]
+
+    # Choose exons containing cds_start and cds_end
+    cds_exons = draw(
+        st.lists(st.integers(min_value=0, max_value=num_exons - 1), min_size=2, max_size=2)
+    )
+    cds_start_exon, cds_end_exon = tuple(sorted(cds_exons))
+
+    # Generate cds_start and cds_end within given exons
+    cds_start = draw(
+        st.integers(min_value=exon_starts[cds_start_exon], max_value=exon_ends[cds_start_exon] - 1)
+    )
+    cds_end = draw(
+        st.integers(min_value=exon_starts[cds_end_exon] + 1, max_value=exon_ends[cds_end_exon])
+    )
+
+    # Since cds_start_exon could be equal to cds_end_exon, we add a check that the coding region actually has a span
+    ht.assume(cds_end > cds_start)
+
+    reversed = draw(st.booleans())
+
+    return gene.Transcript(
+        gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
+        transcript_name="NM_1AD.1",
+        type="RefSeq",
+        genome_reference="",
+        chromosome="1",
+        tx_start=tx_start,
+        tx_end=tx_end,
+        strand="-" if reversed else "+",
+        cds_start=cds_start,
+        cds_end=cds_end,
+        exon_starts=exon_starts,
+        exon_ends=exon_ends,
+    )
+
+
+def default_transcript(**kwargs):
+    tx = gene.Transcript(
+        gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
+        transcript_name="NM_1AD.1",
+        type="RefSeq",
+        genome_reference="",
+        chromosome="1",
+        tx_start=1000,
+        tx_end=4000,
+        strand="+",
+        cds_start=1100,
+        cds_end=2900,
+        exon_starts=[500, 1050, 1700, 2300, 2800, 3500],
+        exon_ends=[800, 1150, 2000, 2500, 2990, 3700],
+    )
+
+    for k, v in kwargs.items():
+        setattr(tx, k, v)
+    return tx
+
+
+@ht.example(
+    default_transcript(),
+    0,
+    (0, 0),
+    (0, 0),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(),
+        "utr_regions": set(),
+    },
+)
+@ht.example(
+    default_transcript(),
+    0,
+    (-1, 0),
+    (-1, 0),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(
+            [(499, 499), (1049, 1049), (1699, 1699), (2299, 2299), (2799, 2799), (3499, 3499)]
+        ),
+        "utr_regions": set([(1099, 1099)]),
+    },
+)
+@ht.example(
+    default_transcript(),
+    0,
+    (0, 2),
+    (0, 1),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(
+            [(800, 801), (1150, 1151), (2000, 2001), (2500, 2501), (2990, 2991), (3700, 3701)]
+        ),
+        "utr_regions": set([(2900, 2900)]),
+    },
+)
+# Reverse strand transcripts
+@ht.example(
+    default_transcript(strand="-"),
+    0,
+    (0, 0),
+    (0, 0),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(),
+        "utr_regions": set(),
+    },
+)
+@ht.example(
+    default_transcript(strand="-"),
+    0,
+    (-1, 0),
+    (-1, 0),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(
+            [(800, 800), (1150, 1150), (2000, 2000), (2500, 2500), (2990, 2990), (3700, 3700)]
+        ),
+        "utr_regions": set([(2900, 2900)]),
+    },
+)
+@ht.example(
+    default_transcript(strand="-"),
+    0,
+    (0, 2),
+    (0, 1),
+    {
+        "coding_regions": set([(1100, 1149), (1700, 1999), (2300, 2499), (2800, 2899)]),
+        "splice_regions": set(
+            [(498, 499), (1048, 1049), (1698, 1699), (2298, 2299), (2798, 2799), (3498, 3499)]
+        ),
+        "utr_regions": set([(1099, 1099)]),
+    },
+)
+@ht.given(
+    st.one_of(create_transcript()),
+    st.integers(min_value=0),
+    st.tuples(st.integers(min_value=-20, max_value=0), st.integers(min_value=0, max_value=20)),
+    st.tuples(st.integers(min_value=-20, max_value=0), st.integers(min_value=0, max_value=20)),
+    st.just(None),
+)
+def test_regions(
+    session, transcript, allele_offset, splice_region, utr_region, manually_curated_result
+):
+    session.rollback()
+
+    max_padding = max(abs(x) for x in (*splice_region, *utr_region))
+    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+
+    genepanel.transcripts = [transcript]
+    genepanel.phenotypes = []
+
+    # Add one allele within transcript (+ padding)
+    allele_offset = allele_offset % (transcript.tx_end - 1 - transcript.tx_start + 2 * max_padding)
+    allele = create_allele(
+        {
+            "start_position": transcript.tx_start - max_padding + allele_offset,
+            "open_end_position": transcript.tx_start + allele_offset + 1,
+        }
+    )
+    session.add(allele)
+    session.add(genepanel)
+    session.flush()
+
+    rf = RegionFilter(session, None)
+    tmp_gene_padding = rf.create_gene_padding_table(
+        [transcript.gene_id], {"splice_region": splice_region, "utr_region": utr_region}
+    )
+
+    assert session.query(*tmp_gene_padding.c).all() == [
+        (transcript.gene_id, splice_region[0], splice_region[1], utr_region[0], utr_region[1])
+    ]
+
+    genepanel_tx_regions = rf.create_genepanel_transcripts_table(
+        ("testpanel", "v01"), [allele.id], max_padding
+    )
+    # Check that transcript is included (on basis of allele)
+    assert session.query(genepanel_tx_regions).count() == len(transcript.exon_starts)
+
+    # Get the different regions from RegionFilter
+    def get_region_tuples(regions):
+        return session.query(regions.c.region_start, regions.c.region_end).all()
+
+    coding_regions = get_region_tuples(rf.get_coding_regions(genepanel_tx_regions).subquery())
+    splice_regions = get_region_tuples(
+        rf.get_splice_regions(genepanel_tx_regions, tmp_gene_padding).subquery()
+    )
+    utr_regions = get_region_tuples(
+        rf.get_utr_regions(genepanel_tx_regions, tmp_gene_padding).subquery()
+    )
+
+    if manually_curated_result is not None:
+        assert manually_curated_result["coding_regions"] == set(coding_regions)
+        assert manually_curated_result["splice_regions"] == set(splice_regions)
+        assert manually_curated_result["utr_regions"] == set(utr_regions)
+
+    # Work with positive numbers in the test code
+    utr_region = [abs(x) for x in utr_region]
+    splice_region = [abs(x) for x in splice_region]
+
+    # Reverse utr_region/splice_region if transcript is reversed
+    if transcript.strand == "-":
+        utr_region = utr_region[::-1]
+        splice_region = splice_region[::-1]
+
+    # Check coding regions
+    expected_coding_regions = []
+    for exon_start, exon_end in zip(transcript.exon_starts, transcript.exon_ends):
+        # Work with closed intervals
+        exon_end -= 1
+        cds_end = transcript.cds_end - 1
+
+        if exon_end < transcript.cds_start:
+            # Exon lies before coding region
+            continue
+        elif exon_start > cds_end:
+            # Exon lies after coding region
+            continue
+
+        if transcript.cds_start > exon_start:
+            region_start = transcript.cds_start
+        else:
+            region_start = exon_start
+
+        if cds_end < exon_end:
+            region_end = cds_end
+        else:
+            region_end = exon_end
+
+        expected_coding_regions.append((region_start, region_end))
+
+    assert set(expected_coding_regions) == set(coding_regions)
+
+    # Check utr regions
+    expected_utr_regions = []
+    if utr_region[0] != 0:
+        expected_utr_regions.append(
+            (
+                transcript.cds_start
+                - utr_region[0],  # cds_start is closed, no need to subtract one
+                transcript.cds_start - 1,  # Exclude cds_start
+            )
+        )
+    if utr_region[1] != 0:
+        # Exclude cds_end (cds_end is open_ended, but interval should be closed)
+        expected_utr_regions.append(
+            (
+                transcript.cds_end,  # Subtract one to close interval, add one to exclude cds_end (cds_end == cds_end - 1 + 1)
+                transcript.cds_end - 1 + utr_region[1],  # Subtract one to close interval
+            )
+        )
+
+    # Check length of regions compared with config (add one since cds_start/cds_end is excluded)
+    for region in utr_regions:
+        assert (region[1] - region[0] + 1) in utr_region
+
+    # Check that regions are the same
+    assert set(expected_utr_regions) == set(utr_regions)
+
+    # Check splice regions
+    expected_splice_regions = []
+    if splice_region[0] != 0:
+        for exon_start in transcript.exon_starts:
+            expected_splice_regions.append(
+                (
+                    exon_start - splice_region[0],  # exon_start is closed, no need to subtract one
+                    exon_start - 1,  # Exclude exon_start
+                )
+            )
+    if splice_region[1] != 0:
+        for exon_end in transcript.exon_ends:
+            # Exclude exon_end (exon_end is open_ended, but interval should be closed)
+            expected_splice_regions.append(
+                (
+                    exon_end,  # Subtract one to close interval, add one to exclude exon_end (exon_end == exon_end - 1 + 1)
+                    exon_end - 1 + splice_region[1],  # Subtract one to close interval
+                )
+            )
+
+    # Check length of regions compared with config (add one since exon_start/exon_end is excluded)
+    for region in splice_regions:
+        assert (region[1] - region[0] + 1) in splice_region
+
+    # Check that regions are the same
+    assert set(expected_splice_regions) == set(splice_regions)
