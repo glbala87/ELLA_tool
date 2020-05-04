@@ -4,28 +4,24 @@ export let AVAILABLE_SECTIONS = {
     // All possible sections
     variants: {
         displayName: 'Variants',
-        selected: false,
         finalized: {
             selectedPage: 1
         }
     },
     analyses: {
         displayName: 'Analyses',
-        selected: false,
         finalized: {
             selectedPage: 1
         }
     },
     'analyses-by-classified': {
         displayName: 'Analyses',
-        selected: false,
         finalized: {
             selectedPage: 1
         }
     },
     import: {
-        displayName: 'Import',
-        selected: false
+        displayName: 'Import'
     }
 }
 
@@ -33,7 +29,9 @@ export default function getOverviewState() {
     return {
         sectionKeys: [], // Decided by user's config
         sections: {},
-        state: {},
+        state: {
+            selectedSection: null
+        },
         data: {
             alleles: null,
             allelesFinalized: null,

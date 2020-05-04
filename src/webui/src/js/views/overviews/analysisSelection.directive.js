@@ -1,7 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import selectedSection from '../../store/modules/views/overview/computed/selectedSection'
 import template from './analysisSelection.ngtmpl.html'
 
 app.component('analysisSelection', {
@@ -10,8 +9,8 @@ app.component('analysisSelection', {
         {
             analyses: state`views.overview.data.analyses`,
             finalized: state`views.overview.data.analysesFinalized`,
-            state: state`views.overview.state.${selectedSection}`,
-            selectedSection: selectedSection,
+            state: state`views.overview.state.${state`views.overview.state.selectedSection`}`,
+            selectedSection: state`views.overview.state.selectedSection`,
             finalizedPageChanged: signal`views.overview.finalizedPageChanged`,
             collapseChanged: signal`views.overview.collapseChanged`
         },

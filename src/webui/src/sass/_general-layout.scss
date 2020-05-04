@@ -603,6 +603,9 @@ button {
         width: 100%;
         transform: rotate(90deg);
         display: flex;
+        a {
+            border: 0;
+        }
         .item {
             transform: rotate(180deg);
             font-size: 2rem;

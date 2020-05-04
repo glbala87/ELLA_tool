@@ -10,9 +10,9 @@ export default function redirectToSection({ props, state, route }) {
     }
     // If not, check if we have previously selected section
     if (sections) {
-        let selected = Object.entries(sections).find((s) => s[1].selected)
+        let selected = state.get('views.overview.state.selectedSection')
         if (selected) {
-            route.redirect(`/overview/${selected[0]}`)
+            route.redirect(`/overview/${selected}`)
             return
         }
     }
