@@ -249,12 +249,8 @@ class TestRegionFilter(object):
     @ht.example(("5", 5460, 5461), False)  # Splice region variant (+1) on reverse transcript
     @ht.example(("5", 5459, 5460), True)  # First variant in non-coding exon on reverse transcript
     @ht.example(("5", 5359, 5460), False)  # First variant in coding exon on reverse transcript
-    @ht.example(
-        ("6", 6259, 6260), False
-    )  # TODO: This should not be filtered out (first base in coding region)
-    @ht.example(
-        ("6", 6400, 6401), False
-    )  # TODO: This should not be filtered out (last base in coding region)
+    @ht.example(("6", 6259, 6260), False)  # First base in coding region)
+    @ht.example(("6", 6400, 6401), False)  # Last base in coding region
     @ht.given(
         st.one_of(
             allele_positions("1", 800, 1700),  # t1, positive strand
