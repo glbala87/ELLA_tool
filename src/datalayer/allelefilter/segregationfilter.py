@@ -857,12 +857,14 @@ class SegregationFilter(object):
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
             father_sample = self.get_father_sample(proband_sample)
             mother_sample = self.get_mother_sample(proband_sample)
-            affected_sibling_sample_ids = self.get_siblings_samples(proband_sample, affected=True)
-            unaffected_sibling_sample_ids = self.get_siblings_samples(
-                proband_sample, affected=False
-            )
-            affected_sibling_sample_ids = [s.id for s in affected_sibling_sample_ids]
-            unaffected_sibling_sample_ids = [s.id for s in unaffected_sibling_sample_ids]
+            affected_sibling_samples = self.get_siblings_samples(proband_sample, affected=True)
+            unaffected_sibling_samples = self.get_siblings_samples(proband_sample, affected=False)
+
+            proband_sample_id = proband_sample.id
+            father_sample_id = father_sample.id if father_sample else None
+            mother_sample_id = mother_sample.id if mother_sample else None
+            affected_sibling_sample_ids = [s.id for s in affected_sibling_samples]
+            unaffected_sibling_sample_ids = [s.id for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
             genotype_table = get_genotype_temp_table(
@@ -874,21 +876,21 @@ class SegregationFilter(object):
 
             if filter_config["no_coverage_parents"]["enable"]:
                 result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
-                    genotype_table, father_sample.id, mother_sample.id
+                    genotype_table, father_sample_id, mother_sample_id
                 )
             else:
                 result[analysis_id]["no_coverage_parents"] = set()
 
             if filter_config["denovo"]["enable"]:
                 result[analysis_id]["denovo"] = self.denovo(
-                    genotype_table, proband_sample.id, father_sample.id, mother_sample.id
+                    genotype_table, proband_sample_id, father_sample_id, mother_sample_id
                 )
             else:
                 result[analysis_id]["denovo"] = set()
 
             if filter_config["inherited_mosaicism"]["enable"]:
                 result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
-                    genotype_table, proband_sample.id, father_sample.id, mother_sample.id
+                    genotype_table, proband_sample_id, father_sample_id, mother_sample_id
                 )
             else:
                 result[analysis_id]["inherited_mosaicism"] = set()
@@ -896,9 +898,9 @@ class SegregationFilter(object):
             if filter_config["compound_heterozygous"]["enable"]:
                 result[analysis_id]["compound_heterozygous"] = self.compound_heterozygous(
                     genotype_table,
-                    proband_sample.id,
-                    father_sample.id,
-                    mother_sample.id,
+                    proband_sample_id,
+                    father_sample_id,
+                    mother_sample_id,
                     affected_sibling_sample_ids=affected_sibling_sample_ids,
                     unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
                 )
@@ -910,9 +912,9 @@ class SegregationFilter(object):
                     "autosomal_recessive_homozygous"
                 ] = self.autosomal_recessive_homozygous(
                     genotype_table,
-                    proband_sample.id,
-                    father_sample.id,
-                    mother_sample.id,
+                    proband_sample_id,
+                    father_sample_id,
+                    mother_sample_id,
                     affected_sibling_sample_ids=affected_sibling_sample_ids,
                     unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
                 )
@@ -921,9 +923,9 @@ class SegregationFilter(object):
                     "xlinked_recessive_homozygous"
                 ] = self.xlinked_recessive_homozygous(
                     genotype_table,
-                    proband_sample.id,
-                    father_sample.id,
-                    mother_sample.id,
+                    proband_sample_id,
+                    father_sample_id,
+                    mother_sample_id,
                     affected_sibling_sample_ids=affected_sibling_sample_ids,
                     unaffected_sibling_sample_ids=unaffected_sibling_sample_ids,
                 )
@@ -931,7 +933,7 @@ class SegregationFilter(object):
                 result[analysis_id][
                     "homozygous_unaffected_siblings"
                 ] = self.homozygous_unaffected_siblings(
-                    genotype_table, proband_sample.id, unaffected_sibling_sample_ids
+                    genotype_table, proband_sample_id, unaffected_sibling_sample_ids
                 )
             else:
                 result[analysis_id].update(
@@ -941,7 +943,6 @@ class SegregationFilter(object):
                         "homozygous_unaffected_siblings": set(),
                     }
                 )
-
         return result
 
     def filter_alleles(self, analysis_allele_ids, filter_config):
