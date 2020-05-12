@@ -298,7 +298,7 @@ class AlleleDataLoader(object):
     def _get_segregation_results(self, allele_ids, analysis_id):
         # These are for tags and de novo p-value,
         # so we hard code what we require
-        # TODO: If segregation filter_config starts accepting dynamic values,
+        # TODO: If segregation filter_config starts expanding it's configuration,
         # we need to use actual filter_config here
         filter_config = {
             "no_coverage_parents": {"enable": False},
