@@ -20,6 +20,15 @@ from datalayer.allelefilter.segregationfilter import (
 GLOBAL_CONFIG = {"transcripts": {"inclusion_regex": "NM_.*"}}
 
 
+ALL_CATEGORIES = [
+    "no_coverage_parents",
+    "denovo",
+    "inherited_mosaicism",
+    "compound_heterozygous",
+    "recessive_homozygous",
+]
+
+
 class Sample:
 
     name = None
@@ -1370,7 +1379,10 @@ class TestInheritanceFilter(object):
         else:
             assert result_allele_ids == set()
 
-    def test_filter_alleles(self, session):
+    @given(st.lists(st.sampled_from(ALL_CATEGORIES), unique=True), st.booleans())
+    def test_filter_alleles(self, session, categories, has_parents):
+
+        session.rollback()
 
         sf = SegregationFilter(session, GLOBAL_CONFIG)
 
@@ -1378,9 +1390,11 @@ class TestInheritanceFilter(object):
 
         Sample = namedtuple("Sample", ["id", "father_id", "mother_id"])
         sf.get_family_ids = lambda a: [1]
-        sf.get_proband_sample = lambda a, b: Sample(1, 2, 3)
-        sf.get_father_sample = lambda a: Sample(2, None, None)
-        sf.get_mother_sample = lambda a: Sample(3, None, None)
+        sf.get_proband_sample = lambda a, b: Sample(
+            1, 2 if has_parents else None, 3 if has_parents else None
+        )
+        sf.get_father_sample = lambda a: Sample(2, None, None) if has_parents else None
+        sf.get_mother_sample = lambda a: Sample(3, None, None) if has_parents else None
         sf.get_siblings_samples = lambda a, affected: [Sample(4, 2, 3)]
         sf.get_family_sample_ids = lambda a, b: [1]
 
@@ -1419,39 +1433,28 @@ class TestInheritanceFilter(object):
             ]
         )
 
-        # All enabled
-        filter_config = {
-            "no_coverage_parents": {"enable": True},
-            "denovo": {"enable": True},
-            "inherited_mosaicism": {"enable": True},
-            "compound_heterozygous": {"enable": True},
-            "recessive_homozygous": {"enable": True},
+        categories_remove_allele_ids = {
+            "no_coverage_parents": set([NO_COVERAGE_PARENTS]) if has_parents else set(),
+            "denovo": set([DENOVO]) if has_parents else set(),
+            "inherited_mosaicism": set([INHERITED_MOSAICISM]) if has_parents else set(),
+            "compound_heterozygous": set([COMPOUND_HETEROZYGOUS] if has_parents else set()),
+            "recessive_homozygous": set(
+                [AUTOSOMAL_RECESSIVE_HOMOZYGOUS, XLINKED_RECESSIVE_HOMOZYGOUS]
+            )
+            if has_parents
+            else set(),
         }
+        categories_add_allele_ids = {"recessive_homozygous": set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
+
+        filter_config = {}
+        expected_result = all_allele_ids if has_parents else set()
+        for c in ALL_CATEGORIES:
+            filter_config[c] = {"enable": c in categories}
+            if c in categories:
+                # For each enabled category, don't filter out alleles
+                # from that category
+                expected_result -= categories_remove_allele_ids[c]
+                expected_result |= categories_add_allele_ids.get(c, set())
 
         result = sf.filter_alleles({1: all_allele_ids}, filter_config)
-        assert result == {1: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
-
-        # All disabled
-        filter_config = {
-            "no_coverage_parents": {"enable": False},
-            "denovo": {"enable": False},
-            "inherited_mosaicism": {"enable": False},
-            "compound_heterozygous": {"enable": False},
-            "recessive_homozygous": {"enable": False},
-        }
-
-        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
-        assert result == {1: all_allele_ids}
-
-        # All enabled, has_parents = False
-        filter_config = {
-            "no_coverage_parents": {"enable": True},
-            "denovo": {"enable": True},
-            "inherited_mosaicism": {"enable": True},
-            "compound_heterozygous": {"enable": True},
-            "recessive_homozygous": {"enable": True},
-        }
-
-        sf.get_proband_sample = lambda a, b: Sample(1, None, None)
-        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
-        assert result == {1: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
+        assert result == {1: expected_result}
