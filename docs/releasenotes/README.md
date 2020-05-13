@@ -4,7 +4,74 @@ title: Latest release
 
 # Release notes: Latest releases
 
+|Major versions|Minor versions|
+|:--|:--|
+[v1.10](#version-1-9)|
+[v1.9](#version-1-9)|[v1.9.1](#version-1-9-1), [v1.9.2](#version-1-9-2)
+
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+
+## Version 1.10
+
+Release date: 20.05.2020
+
+### Highlights
+
+This release brings a new filter function for the ANALYSES OVERVIEW page, 
+added configurability and fixes for the variant filters, as well as a new version of IGV (visualization). 
+
+<!-- NO MR YET -->
+#### Improved ANALYSES OVERVIEW page
+
+A new filter feature was added to the ANALYSES OVERVIEW page to quickly locate subsets of analyses. You can filter by these parameters: 
+
+- Analysis name
+- Date (ranges up to current date)
+- Show only 
+    - HTS/Sanger
+    - Priorities Normal/High/Urgent
+    - Analyses with comments
+
+Any combination of these filters is allowed.
+
+#### Added configurability of variant filters
+
+All criteria in the [segregation filter](/technical/filtering.html#segregation-filter) can now be enabled/disabled separately, allowing for increased flexibility. 
+<!-- [TODO: pending if MR !368 is merged into this release]
+In addition, the [quality filter](/technical/filtering.html#quality-filter) can now use the vcf `FILTER` status (`PASS`/...) as a criterion. 
+-->
+
+### All changes
+
+<!-- MR !409; also updated filtering.md --> 
+- [Added configuration for segregation filter](#added-configurability-of-variant-filters).
+
+<!-- MR !368 TODO: update filtering.md/evaluate if this should be included in release-->
+- [Added possibility for using vcf `FILTER` status in quality filter](#added-configurability-of-variant-filters).
+
+<!-- MR !411 -->
+- Fixed a bug causing incorrect filtering for regions with 1 base.
+
+<!-- MR !407 --> 
+- Fixed a bug causing wrong open-end position for insertions.
+
+<!-- MR !397 TODO: Update visual.md-->  
+- Upgraded IGV to version 2.5.4, with several minor improvements.
+
+<!-- MR !410 -->  
+- Open the previously selected overview page when returning from search.
+ 
+<!-- MR !412 --> 
+- Fixed a bug causing a wide sidebar with long indication comments.
+
+<!-- MR !370 -->
+- Removed `VARIANT REPORT` button from OVERVIEW.
+
+<!-- MR !377 Add flake8: no release note necessary -->
+
+
+
 
 ## Version 1.9.2
 

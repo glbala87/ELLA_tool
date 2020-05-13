@@ -323,7 +323,7 @@ The inheritance model filter filters out or rescues alleles that are not consist
 ::: warning NOTE
 This filter is intended for single samples only and _does not use family information_.
 
-By design, only genes specified in the gene panel are checked. This means that if variant A is located in GENE1 and GENE2, and variant B is located in GENE2 and GENE3, but only GENE1 and GENE3 are in the gene panel, both variant A and B would be filtered out, even though they are compound heterozygous candidates for GENE2.
+By design, only genes specified in the gene panel are checked. This means that if variant `A` is located in `GENE1` and `GENE2`, and variant `B` is located in `GENE2` and `GENE3`, but only `GENE1` and `GENE3` are in the gene panel, both variant `A` and `B` would be filtered out, even though they are compound heterozygous candidates for `GENE2`.
 :::
 
 #### Configuration
@@ -445,20 +445,45 @@ This configuration will filter out:
 
 ### Segregation filter
 
-The segregation filter uses family data to filter out any variants that do **NOT** meet any of the following criteria:
+The segregation filter uses family data to filter out any variants that do **NOT** meet either of the following criteria (when enabled):
 
-- [De novo variant](#de-novo-variant)
-- [Compound heterozygous candidate](#compound-heterozygous-candidate)
-- [Homozygous recessive variant](#homozygous-recessive-variant) 
-- [Inherited mosaicism](#inherited-mosaicism)
-- Either parent is missing a genotype
+- [No coverage in parents](#no-coverage-in-parents) (`no_coverage_parents`)
+- [De novo variant](#de-novo-variant) (`denovo`)
+- [Inherited mosaicism](#inherited-mosaicism) (`inherited_mosaicism`)
+- [Compound heterozygous candidate](#compound-heterozygous-candidate) (`compound_heterozygous`)
+- [Homozygous recessive variant](#homozygous-recessive-variant) (`recessive_homozygous`)
 
-This filter has no regular configuration, although some settings may be adjusted in the source code.
+See the links for further details.
 
 ::: warning NOTES
 - This filter is not suitable as an exception filter.
 - For the purposes below, variants in the pseudo-autosomal X-chromosome regions PAR1 and PAR2 (X:60001-2699520 and X:154931044-155260560 on GRCh37) are treated as autosomal, _not_ X-linked.
 :::
+
+#### Configuration
+
+Individual criteria (see [above](#segregation-filter)) may be either enabled (`true`) or disabled (`false`). 
+
+##### Example
+
+This configuration will filter out any variant that does *not* match any of the possible criteria given above, except "Inherited mosaicism":
+
+```json
+{
+    "name": "segregation",
+    "config": {
+        "no_coverage_parents": { "enable": true },
+        "denovo": { "enable": true },
+        "inherited_mosaicism": { "enable": false },
+        "compound_heterozygous": { "enable": true },
+        "recessive_homozygous": { "enable": true }
+    },
+}
+```
+
+#### No coverage in parents
+
+If enabled, variants where either parental genotype is missing (no variant call/coverage) will not be filtered out. This is useful if you want to keep variants with uncertain de novo status, for instance.
 
 #### De novo variant
 
@@ -480,37 +505,6 @@ Designating a variant as de novo is based on rules given in [Vigeland et al. (20
 If a male trio member is reported as heterozygous for an X-linked variant, the variant will be filtered out.
 :::
 
-#### Compound heterozygous candidate
-
-Variants are designated as compound heterozygous candidates based on the rule set from [Kamphans et al. (2013)](https://doi.org/10.1371/journal.pone.0070151): 
-
-1. A variant has to be in a heterozygous state in all affected individuals.
-2. A variant must not occur in a homozygous state in any of the unaffected individuals.
-3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
-4. A gene must have two or more heterozygous variants in each of the affected individuals.
-5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
-
-::: warning NOTE
-For the third rule, note this excerpt from the article:
-
-"[This rule] is applicable only if we assume that no de novo mutations occurred. The number of de novo mutations is estimated to be below five per exome per generation, thus, the likelihood that an individual is compound heterozygous and at least one of these mutations arose de novo is low. If more than one family member is affected, de novo mutations are even orders of magnitudes less likely as a recessive disease cause. On the other hand, excluding these variants from the further analysis helps to remove many sequencing artifacts."
-::: 
-
-#### Homozygous recessive variant
-
-This rule set checks for homo-/hemizygous variants. The following conditions must be met:
-
-- For autosomal or pseudo-autosomal regions:
-    - Homozygous in the proband and any affected siblings.
-    - Heterozygous in both parents.
-    - Not homozygous in unaffected siblings.
-- For X-linked regions: 
-    - Homo-/hemizygous in the proband and any affected siblings (note: for girls this requires a de novo, but still valid case).
-    - Heterozygous in mother.
-    - Not present in father.
-    - Not homo-/hemizygous in unaffected siblings
-
-
 #### Inherited mosaicism
 
 This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism (excluding cases where the other parent has a normal genotype). The following conditions must be met:
@@ -524,6 +518,39 @@ This rule set checks whether a variant is inherited from a parent with possible 
         - Mother: [0, 0.3]
         - Father: [0, 0.8]
 - Other parent does not have an `allele_ratio` outside given thresholds (i.e., rule fails if the other parent has a normal genotype).
+
+#### Compound heterozygous candidate
+
+Variants are designated as compound heterozygous candidates based on the rule set from [Kamphans et al. (2013)](https://doi.org/10.1371/journal.pone.0070151): 
+
+1. A variant has to be in a heterozygous state in all affected individuals.
+2. A variant must not occur in a homozygous state in any of the unaffected individuals.
+3. A variant that is heterozygous in an affected child must be heterozygous in exactly one of the parents.
+4. A gene must have two or more heterozygous variants in each of the affected individuals.
+5. There must be at least one variant transmitted from the paternal side and one transmitted from the maternal side.
+
+::: warning NOTE
+For the third rule, note this excerpt from the article:
+
+*"[This rule] is applicable only if we assume that no de novo mutations occurred. The number of de novo mutations is estimated to be below five per exome per generation, thus, the likelihood that an individual is compound heterozygous and at least one of these mutations arose de novo is low. If more than one family member is affected, de novo mutations are even orders of magnitudes less likely as a recessive disease cause. On the other hand, excluding these variants from the further analysis helps to remove many sequencing artifacts."*
+::: 
+
+#### Homozygous recessive variant
+
+This rule set checks for homo-/hemizygous variants. The following conditions must be met, assuming parental genotypes are available: 
+
+- For autosomal or pseudo-autosomal regions:
+	- Homozygous in the proband and any affected siblings.
+	- Heterozygous in both parents.
+	- Not homozygous in unaffected siblings.
+
+- For X-linked regions:
+	- Homo-/hemizygous in the proband and any affected siblings (note: for girls this requires a de novo, but still valid case).
+	- Heterozygous in mother.
+	- Not present in father.
+	- Not homo-/hemizygous in unaffected siblings
+	
+When parental genotypes are *not* available, only the rule "Not homo-/hemizygous in unaffected siblings" is applicable.
 
 ### Pre-filter (before import)
 
