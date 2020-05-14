@@ -1,5 +1,5 @@
 import { parallel, sequence } from 'cerebral'
-import { set } from 'cerebral/operators'
+import { set, when } from 'cerebral/operators'
 import { props, state, string } from 'cerebral/tags'
 import { enableOnBeforeUnload } from '../../../../common/factories/onBeforeUnload'
 import progress from '../../../../common/factories/progress'
@@ -52,8 +52,14 @@ export default [
                                 // Interpretation logs are needed in prepareComponents for analysis
                                 prepareComponents,
                                 prepareSelectedAllele,
-                                set(props`alleleId`, state`views.workflows.selectedAllele`),
-                                selectedAlleleChanged
+                                when(state`views.workflows.selectedAllele`),
+                                {
+                                    true: [
+                                        set(props`alleleId`, state`views.workflows.selectedAllele`),
+                                        selectedAlleleChanged
+                                    ],
+                                    false: []
+                                }
                             ]
                         ])
                     ]
