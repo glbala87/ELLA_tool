@@ -120,6 +120,200 @@ class RegionFilter(object):
             .temp_table("tmp_region_filter_internal_genepanel_regions")
         )
 
+    def get_coding_regions(self, genepanel_tx_regions):
+        # Coding regions
+        # The coding regions may start within an exon, and we truncate the exons where this is the case
+        # For example, if an exon is defined by positions [10,20], but cds_start is 15, we include the region [15,20]
+        # |          +--------------+------------+           +-------------+             +-----------+-------+        |
+        # |----------+              cccccccccccccc-----------ccccccccccccccc-------------ccccccccccccc       +--------|
+        # |          +--------------+------------+           +-------------+             +-----------+-------+        |
+        coding_start = case(
+            [
+                (
+                    genepanel_tx_regions.c.cds_start > genepanel_tx_regions.c.exon_start,
+                    genepanel_tx_regions.c.cds_start,
+                )
+            ],
+            else_=genepanel_tx_regions.c.exon_start,
+        )
+
+        coding_end = case(
+            [
+                (
+                    genepanel_tx_regions.c.cds_end < genepanel_tx_regions.c.exon_end,
+                    genepanel_tx_regions.c.cds_end,
+                )
+            ],
+            else_=genepanel_tx_regions.c.exon_end,
+        )
+
+        transcript_coding_regions = self.session.query(
+            genepanel_tx_regions.c.transcript_name.label("transcript_name"),
+            coding_start.label("region_start"),
+            coding_end.label("region_end"),
+        ).filter(
+            # Exclude exons outside the coding region
+            genepanel_tx_regions.c.exon_start <= genepanel_tx_regions.c.cds_end,
+            genepanel_tx_regions.c.exon_end >= genepanel_tx_regions.c.cds_start,
+        )
+
+        return transcript_coding_regions
+
+    # Regions with applied padding
+    def _create_padded_regions(self, transcripts, region_start, region_end, tmp_gene_padding):
+        return (
+            self.session.query(
+                transcripts.c.transcript_name.label("transcript_name"),
+                region_start.label("region_start"),
+                region_end.label("region_end"),
+            )
+            .join(tmp_gene_padding, tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id)
+            # Only include valid regions. region_start will be greater than region_end when padding == 0 .
+            # Example: [cds_end + 1, cds_end + padding]
+            .filter(region_end >= region_start)
+            .distinct()
+        )
+
+    def get_splice_regions(self, genepanel_tx_regions, tmp_gene_padding):
+        # Splicing upstream
+        # Include region upstream of the exon (not including exon starts or ends)
+
+        # Transcript on positive strand:
+        # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+        # |-------iii+              |            +--------iii+                 +----------iii+           |       +--------|
+        # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+        # Transcript on reverse strand:
+        # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+        # |----------+              |            +iii--------+                 +iii----------+           |       +iii-----|
+        # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
+
+        # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start-1]
+        # Downstream region for reverse strand transcript is [exon_end+1, exon_end-exon_upstream]
+        # Note: exon_upstream is a *negative* number
+
+        splicing_upstream_start = case(
+            [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_end + 1)],
+            else_=genepanel_tx_regions.c.exon_start + tmp_gene_padding.c.exon_upstream,
+        )
+
+        splicing_upstream_end = case(
+            [
+                (
+                    genepanel_tx_regions.c.strand == "-",
+                    genepanel_tx_regions.c.exon_end - tmp_gene_padding.c.exon_upstream,
+                )
+            ],
+            else_=genepanel_tx_regions.c.exon_start - 1,
+        )
+
+        splicing_region_upstream = self._create_padded_regions(
+            genepanel_tx_regions, splicing_upstream_start, splicing_upstream_end, tmp_gene_padding
+        )
+
+        # Splicing downstream
+        # Include region downstream of the exon (not including exon starts or ends)
+        # Transcript on positive strand:
+        # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+        # |----------+              |            +ii---------+                +ii-----------+           |       +ii------|
+        # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+        # Transcript on reverse strand:
+        # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+        # |--------ii+              |            +---------ii+                +-----------ii+           |       +--------|
+        # |          +--------------+------------+           +----------------+             +-----------+-------+        |
+
+        # Downstream region for positive strand transcript is [exon_end+1, exon_end+exon_downstream]
+        # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start-1]
+        splicing_downstream_start = case(
+            [
+                (
+                    genepanel_tx_regions.c.strand == "-",
+                    genepanel_tx_regions.c.exon_start - tmp_gene_padding.c.exon_downstream,
+                )
+            ],
+            else_=genepanel_tx_regions.c.exon_end + 1,
+        )
+
+        splicing_downstream_end = case(
+            [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_start - 1)],
+            else_=genepanel_tx_regions.c.exon_end + tmp_gene_padding.c.exon_downstream,
+        )
+
+        splicing_region_downstream = self._create_padded_regions(
+            genepanel_tx_regions,
+            splicing_downstream_start,
+            splicing_downstream_end,
+            tmp_gene_padding,
+        )
+
+        return splicing_region_upstream.union(splicing_region_downstream)
+
+    def get_utr_regions(self, genepanel_tx_regions, tmp_gene_padding):
+        # UTR upstream
+        # Do not include cds_start or cds_end, as these are not in the UTR
+        # Transcript on positive strand:
+        # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+        # |----------+          uuuu|            +-----------+               +-------------+           |       +--------|
+        # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+        # Transcript on reverse strand:
+        # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+        # |----------+              |            +-----------+               +-------------+           |uuuu   +--------|
+        # |          +--------------+------------+           +---------------+             +-----------+-------+        |
+
+        # UTR upstream region for positive strand transcript is [cds_start-1, cds_start+coding_region_upstream]
+        # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end+1]
+        # Note: coding_region_upstream is a *negative* number
+        utr_upstream_start = case(
+            [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_end + 1)],
+            else_=genepanel_tx_regions.c.cds_start + tmp_gene_padding.c.coding_region_upstream,
+        )
+
+        utr_upstream_end = case(
+            [
+                (
+                    genepanel_tx_regions.c.strand == "-",
+                    genepanel_tx_regions.c.cds_end - tmp_gene_padding.c.coding_region_upstream,
+                )
+            ],
+            else_=genepanel_tx_regions.c.cds_start - 1,
+        )
+
+        utr_region_upstream = self._create_padded_regions(
+            genepanel_tx_regions, utr_upstream_start, utr_upstream_end, tmp_gene_padding
+        )
+
+        # UTR downstream
+        # Do not include cds_start or cds_end, as these are not in the UTR
+        # Transcript on positive strand:
+        # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+        # |----------+              |            +-----------+              +-------------+           |uuuu   +--------|
+        # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+        # Transcript on reverse strand:
+        # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+        # |----------+          uuuu|            +-----------+              +-------------+           |       +--------|
+        # |          +--------------+------------+           +--------------+             +-----------+-------+        |
+
+        # UTR downstream region for positive strand transcript is [cds_end+1, cds_end+coding_region_downstream]
+        # UTR downstream region for reverse strand transcript is [cds_start-coding_region_downstream, cds_start-1]
+        utr_downstream_start = case(
+            [
+                (
+                    genepanel_tx_regions.c.strand == "-",
+                    genepanel_tx_regions.c.cds_start - tmp_gene_padding.c.coding_region_downstream,
+                )
+            ],
+            else_=genepanel_tx_regions.c.cds_end + 1,
+        )
+
+        utr_downstream_end = case(
+            [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_start - 1)],
+            else_=genepanel_tx_regions.c.cds_end + tmp_gene_padding.c.coding_region_downstream,
+        )
+        utr_region_downstream = self._create_padded_regions(
+            genepanel_tx_regions, utr_downstream_start, utr_downstream_end, tmp_gene_padding
+        )
+
+        return utr_region_upstream.union(utr_region_downstream)
+
     def filter_alleles(
         self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
     ) -> Dict[Tuple[str, str], Set[int]]:
@@ -181,204 +375,16 @@ class RegionFilter(object):
 
             # Create queries for
             # - Coding regions
-            # - Upstream splice region
-            # - Downstream splice region
-            # - Upstream UTR region
-            # - Downstream UTR region
+            # - Splice regions
+            # - UTR regions
 
-            # Coding regions
-            # The coding regions may start within an exon, and we truncate the exons where this is the case
-            # For example, if an exon is defined by positions [10,20], but cds_start is 15, we include the region [15,20]
-            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
-            # |----------+              cccccccccccccc-----------ccccccccccccccc-------------ccccccccccccc       +--------|
-            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
-            coding_start = case(
-                [
-                    (
-                        genepanel_tx_regions.c.cds_start > genepanel_tx_regions.c.exon_start,
-                        genepanel_tx_regions.c.cds_start,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.exon_start,
+            transcript_coding_regions = self.get_coding_regions(genepanel_tx_regions)
+            splicing_regions = self.get_splice_regions(genepanel_tx_regions, tmp_gene_padding)
+            utr_regions = self.get_utr_regions(genepanel_tx_regions, tmp_gene_padding)
+
+            all_regions = transcript_coding_regions.union(splicing_regions, utr_regions).temp_table(
+                "all_regions", index=["transcript_name"]
             )
-
-            coding_end = case(
-                [
-                    (
-                        genepanel_tx_regions.c.cds_end < genepanel_tx_regions.c.exon_end,
-                        genepanel_tx_regions.c.cds_end,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.exon_end,
-            )
-
-            transcript_coding_regions = self.session.query(
-                genepanel_tx_regions.c.transcript_name.label("transcript_name"),
-                coding_start.label("region_start"),
-                coding_end.label("region_end"),
-            ).filter(
-                # Exclude exons outside the coding region
-                genepanel_tx_regions.c.exon_start < genepanel_tx_regions.c.cds_end,
-                genepanel_tx_regions.c.exon_end > genepanel_tx_regions.c.cds_start,
-            )
-
-            # Regions with applied padding
-            def _create_region(transcripts, region_start, region_end):
-                return (
-                    self.session.query(
-                        transcripts.c.transcript_name.label("transcript_name"),
-                        region_start.label("region_start"),
-                        region_end.label("region_end"),
-                    )
-                    .join(tmp_gene_padding, tmp_gene_padding.c.hgnc_id == transcripts.c.gene_id)
-                    # Only include valid regions. region_start will be greater than region_end when padding == 0 .
-                    # Example: [cds_end + 1, cds_end + padding]
-                    .filter(region_end > region_start)
-                    .distinct()
-                )
-
-            # Splicing upstream
-            # Include region upstream of the exon (not including exon starts or ends)
-
-            # Transcript on positive strand:
-            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
-            # |-------iii+              |            +--------iii+                 +----------iii+           |       +--------|
-            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
-            # Transcript on reverse strand:
-            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
-            # |----------+              |            +iii--------+                 +iii----------+           |       +iii-----|
-            # |          +--------------+------------+           +-----------------+             +-----------+-------+        |
-
-            # Upstream region for positive strand transcript is [exon_start+exon_upstream, exon_start-1]
-            # Downstream region for reverse strand transcript is [exon_end+1, exon_end-exon_upstream]
-            # Note: exon_upstream is a *negative* number
-            splicing_upstream_start = case(
-                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_end + 1)],
-                else_=genepanel_tx_regions.c.exon_start + tmp_gene_padding.c.exon_upstream,
-            )
-
-            splicing_upstream_end = case(
-                [
-                    (
-                        genepanel_tx_regions.c.strand == "-",
-                        genepanel_tx_regions.c.exon_end - tmp_gene_padding.c.exon_upstream,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.exon_start - 1,
-            )
-
-            splicing_region_upstream = _create_region(
-                genepanel_tx_regions, splicing_upstream_start, splicing_upstream_end
-            )
-
-            # Splicing downstream
-            # Include region downstream of the exon (not including exon starts or ends)
-            # Transcript on positive strand:
-            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
-            # |----------+              |            +ii---------+                +ii-----------+           |       +ii------|
-            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
-            # Transcript on reverse strand:
-            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
-            # |--------ii+              |            +---------ii+                +-----------ii+           |       +--------|
-            # |          +--------------+------------+           +----------------+             +-----------+-------+        |
-
-            # Downstream region for positive strand transcript is [exon_end+1, exon_end+exon_downstream]
-            # Downstream region for reverse strand transcript is [exon_start-exon_downstream, exon_start-1]
-            splicing_downstream_start = case(
-                [
-                    (
-                        genepanel_tx_regions.c.strand == "-",
-                        genepanel_tx_regions.c.exon_start - tmp_gene_padding.c.exon_downstream,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.exon_end + 1,
-            )
-
-            splicing_downstream_end = case(
-                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.exon_start - 1)],
-                else_=genepanel_tx_regions.c.exon_end + tmp_gene_padding.c.exon_downstream,
-            )
-
-            splicing_region_downstream = _create_region(
-                genepanel_tx_regions, splicing_downstream_start, splicing_downstream_end
-            )
-
-            # UTR upstream
-            # Do not include cds_start or cds_end, as these are not in the UTR
-            # Transcript on positive strand:
-            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
-            # |----------+          uuuu|            +-----------+               +-------------+           |       +--------|
-            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
-            # Transcript on reverse strand:
-            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
-            # |----------+              |            +-----------+               +-------------+           |uuuu   +--------|
-            # |          +--------------+------------+           +---------------+             +-----------+-------+        |
-
-            # UTR upstream region for positive strand transcript is [cds_start-1, cds_start+coding_region_upstream]
-            # UTR upstream region for reverse strand transcript is [cds_end-coding_region_upstream, cds_end+1]
-            # Note: coding_region_upstream is a *negative* number
-            utr_upstream_start = case(
-                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_end + 1)],
-                else_=genepanel_tx_regions.c.cds_start + tmp_gene_padding.c.coding_region_upstream,
-            )
-
-            utr_upstream_end = case(
-                [
-                    (
-                        genepanel_tx_regions.c.strand == "-",
-                        genepanel_tx_regions.c.cds_end - tmp_gene_padding.c.coding_region_upstream,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.cds_start - 1,
-            )
-
-            utr_region_upstream = _create_region(
-                genepanel_tx_regions, utr_upstream_start, utr_upstream_end
-            )
-
-            # UTR downstream
-            # Do not include cds_start or cds_end, as these are not in the UTR
-            # Transcript on positive strand:
-            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
-            # |----------+              |            +-----------+              +-------------+           |uuuu   +--------|
-            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
-            # Transcript on reverse strand:
-            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
-            # |----------+          uuuu|            +-----------+              +-------------+           |       +--------|
-            # |          +--------------+------------+           +--------------+             +-----------+-------+        |
-
-            # UTR downstream region for positive strand transcript is [cds_end+1, cds_end+coding_region_downstream]
-            # UTR downstream region for reverse strand transcript is [cds_start-coding_region_downstream, cds_start-1]
-            utr_downstream_start = case(
-                [
-                    (
-                        genepanel_tx_regions.c.strand == "-",
-                        genepanel_tx_regions.c.cds_start
-                        - tmp_gene_padding.c.coding_region_downstream,
-                    )
-                ],
-                else_=genepanel_tx_regions.c.cds_end + 1,
-            )
-
-            utr_downstream_end = case(
-                [(genepanel_tx_regions.c.strand == "-", genepanel_tx_regions.c.cds_start - 1)],
-                else_=genepanel_tx_regions.c.cds_end + tmp_gene_padding.c.coding_region_downstream,
-            )
-            utr_region_downstream = _create_region(
-                genepanel_tx_regions, utr_downstream_start, utr_downstream_end
-            )
-
-            # Union all regions together
-            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
-            # |-------iii+          uuuuccccccccccccccii---------cccccccccccccccii--------iiicccccccccccccuuuu   +ii------|
-            # |          +--------------+------------+           +-------------+             +-----------+-------+        |
-
-            all_regions = transcript_coding_regions.union(
-                splicing_region_upstream,
-                splicing_region_downstream,
-                utr_region_upstream,
-                utr_region_downstream,
-            ).temp_table("all_regions", index=["transcript_name"])
 
             # Find allele ids within genomic region
             # In the database, insertions are stored with open_end_position=start_position + <length of insertion> + 1
@@ -515,11 +521,6 @@ class RegionFilter(object):
 
             allele_ids_in_hgvsc_region = set([a[0] for a in allele_ids_in_hgvsc_region])
             allele_ids_outside_region -= allele_ids_in_hgvsc_region
-
-            # Discard the next filter if there are no variants left to filter on
-            if not allele_ids_outside_region:
-                region_filtered[gp_key] = set()
-                continue
 
             region_filtered[gp_key] = allele_ids_outside_region
 
