@@ -2,7 +2,7 @@
 """
 Script for creating all tables in a vardb database.
 """
-from vardb.datamodel import *
+from vardb.datamodel import *  # noqa: F403
 from vardb.datamodel.annotationshadow import create_shadow_tables, create_tmp_shadow_tables
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
 from sqlalchemy.orm import configure_mappers
@@ -12,7 +12,7 @@ from api.config import config
 def make_db(db):
 
     configure_mappers()
-    Base.metadata.create_all(db.engine)
+    Base.metadata.create_all(db.engine)  # noqa: F405
 
     refresh(db)
 

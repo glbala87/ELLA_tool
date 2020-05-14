@@ -3,9 +3,8 @@
 import datetime
 import logging
 import time
-from os import path, mkdir
+from os import path
 from collections import defaultdict, OrderedDict
-import argparse
 import pytz
 from sqlalchemy.orm import subqueryload, joinedload
 from openpyxl.writer.write_only import WriteOnlyCell
@@ -13,7 +12,7 @@ from openpyxl.styles import Font
 from openpyxl import Workbook
 from bs4 import BeautifulSoup
 
-from vardb.datamodel import DB, assessment, allele, sample, genotype
+from vardb.datamodel import assessment, allele, sample, genotype
 from datalayer import AlleleDataLoader
 
 KEY_ANALYSES = "analyses"

@@ -6,7 +6,7 @@ import copy
 import pytest
 
 from datalayer.allelefilter.regionfilter import RegionFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
+from vardb.datamodel import allele, annotation, gene
 
 import hypothesis as ht
 import hypothesis.strategies as st

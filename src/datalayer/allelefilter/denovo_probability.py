@@ -103,17 +103,17 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
     for fi, _pl_f in enumerate(pl_f):
         for mi, _pl_m in enumerate(pl_m):
             for ci, _pl_c in enumerate(pl_c):
-                l = (
+                lh = (
                     fa_prior[fi]
                     + mo_prior[mi]
                     + log_transmission_matrix(fi, mi, ci)
                     - (_pl_f + _pl_m + _pl_c) / 10
                 )
-                sum_liks += pow(10, l)
+                sum_liks += pow(10, lh)
 
     # Compute likelihood of the given denovo mode
     f, m, c = denovo_mode
-    l = pow(
+    lh = pow(
         10,
         fa_prior[f]
         + mo_prior[m]
@@ -122,4 +122,4 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
     )
 
     # Normalize likelihood to probability
-    return l / sum_liks
+    return lh / sum_liks

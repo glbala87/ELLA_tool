@@ -11,10 +11,7 @@ import glob
 import re
 import datetime
 
-SPECIAL_TESTSET_SKIPPING_VCF = "empty"
-
-import vardb.datamodel
-from vardb.datamodel import DB, sample
+from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
@@ -24,6 +21,10 @@ from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.watcher.analysis_watcher import AnalysisConfigData
 
 from vardb.util import vcfiterator
+
+SPECIAL_TESTSET_SKIPPING_VCF = "empty"
+
+logging.basicConfig(level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
 

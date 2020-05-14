@@ -1,6 +1,6 @@
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, DateTime, Enum, Sequence, ForeignKeyConstraint
+from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKeyConstraint
 from sqlalchemy import ForeignKey
 from sqlalchemy.schema import CheckConstraint
 from sqlalchemy.orm import relationship

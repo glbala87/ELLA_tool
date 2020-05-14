@@ -6,7 +6,7 @@ then running all migrations until current head.
 For CI and other testing purposes.
 """
 from vardb.util import DB
-from vardb.datamodel.migration.migration_base import *  # Yes, use '*'
+from vardb.datamodel.migration.migration_base import *  # noqa: F403 # Yes, use '*'
 from .migration_db import migration_downgrade, migration_upgrade
 
 
@@ -17,7 +17,7 @@ def ci_migration_db_remake():
     # Drop all tables, including alembic one...
     db.engine.execute("DROP SCHEMA public CASCADE")
     db.engine.execute("CREATE SCHEMA public")
-    Base.metadata.create_all(db.engine)
+    Base.metadata.create_all(db.engine)  # noqa: F405
 
 
 def ci_migration_upgrade_downgrade():
@@ -34,4 +34,4 @@ def make_migration_base_db():
 
     db = DB()
     db.connect()
-    Base.metadata.create_all(db.engine)
+    Base.metadata.create_all(db.engine)  # noqa: F405

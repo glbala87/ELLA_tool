@@ -63,7 +63,7 @@ class AttachmentResource(LogRequestResource):
                 # Use imagemagick to convert image. Request a thumbnail with a width of 300.
                 cmd = "convert {ifile}[0] -thumbnail 300 -gravity center -background white -quality 90 -extent 300x300 jpeg:{ofile}"
                 subprocess.check_call(cmd.format(ifile=path, ofile=thumbnail_path), shell=True)
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 pass
 
         # Create database object

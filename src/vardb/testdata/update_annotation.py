@@ -1,16 +1,10 @@
-##reference=file:///tsd/p22/data/colossus/vcpipe/vcpipe-bundle/genomic/gatkBundle_2.5/human_g1k_v37_decoy.fasta
-##source=SelectVariants
-##VEP=v79 cache=/tsd/p22/data/colossus/vcpipe/vcpipe-bundle/funcAnnot/VEP/cache/homo_sapiens_merged/79_GRCh37 db=.
-##SnpEffVersion="4.0e (build 2014-09-13), by Pablo Cingolani"
-##SnpEffCmd="SnpEff  GRCh37.74 -noStats vep_processed.vcf "
-
 import argparse
 import os
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import json
-import re
 import subprocess
-from IPython import embed
 
 TO_STRIP = ["##INFO", "##GATKCommandLine", "##reference", "##VEP", "##source", "##VEP", "##SnpEff"]
 ANNOTATION_SERVICE_URL = "http://localhost:6000"

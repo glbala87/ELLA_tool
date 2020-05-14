@@ -1,5 +1,4 @@
 import re
-import logging
 from functools import reduce
 
 """
@@ -282,7 +281,7 @@ class ACMGClassifier2015:
         except IndexError:
             existing_code = None
 
-        if existing_code == None:
+        if existing_code is None:
             return [target_code]
         elif self._has_higher_precedence(target_code, existing_code):
             return [target_code]

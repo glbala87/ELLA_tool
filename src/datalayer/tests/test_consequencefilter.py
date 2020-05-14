@@ -2,11 +2,10 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-import copy
 import pytest
 
 from datalayer.allelefilter.consequencefilter import ConsequenceFilter
-from vardb.datamodel import allele, annotation, gene, annotationshadow, assessment
+from vardb.datamodel import allele, annotation, gene, annotationshadow
 
 import hypothesis as ht
 import hypothesis.strategies as st
