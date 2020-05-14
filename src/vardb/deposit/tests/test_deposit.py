@@ -7,7 +7,7 @@ import hypothesis as ht
 from hypothesis import strategies as st
 from sqlalchemy import or_
 from vardb.deposit.deposit_analysis import DepositAnalysis, PrefilterBatchGenerator
-from vardb.datamodel.analysis_config import AnalysisConfigData
+from vardb.deposit.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele, assessment
 from .vcftestgenerator import vcf_family_strategy, create_vcf
 
