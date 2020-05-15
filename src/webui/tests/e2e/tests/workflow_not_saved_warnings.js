@@ -32,15 +32,14 @@ describe('Sample workflow', function() {
 
         // Check both types of warnings
         // No changes -> no warning should be shown
-        analysesSelectionPage.open()
-        browser.back()
+        analysesSelectionPage.selectOurs(1)
 
         // Make sure loading is done before proceeding
         browser.pause(500)
         $('#nprogress').waitForExist(undefined, true)
 
         analysisPage.overviewLink.click()
-        browser.back()
+        analysesSelectionPage.selectOurs(1)
 
         browser.pause(500)
         $('#nprogress').waitForExist(undefined, true)
@@ -72,7 +71,7 @@ describe('Sample workflow', function() {
         $('#nprogress').waitForExist(undefined, true)
 
         analysisPage.overviewLink.click()
-        browser.back()
+        analysesSelectionPage.selectOurs(1)
 
         browser.pause(500)
         $('#nprogress').waitForExist(undefined, true)
