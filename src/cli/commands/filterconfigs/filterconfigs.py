@@ -2,10 +2,10 @@ import click
 import json
 
 from vardb.datamodel import sample, user
-from vardb.deposit.deposit_analysis import import_filterconfigs
+from vardb.deposit.deposit_filterconfigs import deposit_filterconfigs
 from cli.decorators import cli_logger, session
 from datalayer.queries import get_usergroup_filter_configs
-from sqlalchemy import literal_column, literal, case
+from sqlalchemy import literal, case
 from api.util.util import query_print_table
 
 
@@ -24,7 +24,7 @@ def cmd_analysis_updatefilterconfig(logger, session, filterconfig):
     """
 
     filterconfigs = json.load(filterconfig)
-    result = import_filterconfigs(session, filterconfigs)
+    result = deposit_filterconfigs(session, filterconfigs)
     changed = case(
         [
             (sample.FilterConfig.id.in_(result["fc_created"]), literal("Filterconfig created")),
