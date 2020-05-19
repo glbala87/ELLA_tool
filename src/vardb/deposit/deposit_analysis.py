@@ -37,7 +37,7 @@ VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|
 
 
 def import_filterconfigs(session, fc_configs):
-    result = {"updated": 0, "created": 0, "not_updated": 0}
+    result = {"fc_updated": [], "fc_created": [], "ugfc_created": [], "ugfc_updated": []}
     filter_config_schema = load_schema("filterconfig_base.json")
 
     for fc_config in fc_configs:
@@ -56,14 +56,17 @@ def import_filterconfigs(session, fc_configs):
             .one_or_none()
         )
 
-        if existing and fc["filterconfig"] == existing.filterconfig:
+        if (
+            existing
+            and fc["filterconfig"] == existing.filterconfig
+            and fc["requirements"] == existing.requirements
+        ):
             if not existing.active:
                 log.warning(
                     "Filter config {} exists with same configuration, but is set as inactive. Will not be updated.".format(
                         existing
                     )
                 )
-            result["not_updated"] += 1
             fc_obj = existing
         else:
             if existing:
@@ -76,15 +79,16 @@ def import_filterconfigs(session, fc_configs):
                 existing.date_superceeded = datetime.datetime.now(pytz.utc)
                 fc["previous_filterconfig_id"] = existing.id
                 existing.active = False
-                result["updated"] += 1
-            else:
-                result["created"] += 1
 
             # Check that filterconfig is supported by available annotationshadowfrequency columns
             annotationshadow.check_filterconfig(filterconfig, config)
             fc_obj = sample.FilterConfig(**fc)
             session.add(fc_obj)
             session.flush()
+            if existing:
+                result["fc_updated"].append(fc_obj.id)
+            else:
+                result["fc_created"].append(fc_obj.id)
 
         for usergroup in fc_config["usergroups"]:
 
@@ -117,8 +121,12 @@ def import_filterconfigs(session, fc_configs):
                     )
                 )
                 existing_ugfc.order = usergroup["order"]
+                result["ugfc_updated"].append(existing_ugfc.id)
             elif not existing_ugfc:
-                session.add(sample.UserGroupFilterConfig(**ugfc))
+                ugfc_obj = sample.UserGroupFilterConfig(**ugfc)
+                session.add(ugfc_obj)
+                session.flush()
+                result["ugfc_created"].append(ugfc_obj.id)
 
     return result
 
