@@ -101,7 +101,7 @@ def build_allele_from_record(record, ref_genome):
         assert len(ref) > 1 or len(alt) > 1
         change_type = "indel"
         start_position = pos
-        open_end_position = pos + max(len(ref), len(alt))
+        open_end_position = pos + len(ref)
     elif len(ref) < len(alt):
         assert ref == ""
         change_type = "ins"

@@ -25,6 +25,12 @@ def upgrade():
         )
     )
 
+    conn.execute(
+        sa.sql.text(
+            "UPDATE allele SET open_end_position=start_position+length(change_from) WHERE change_type='indel';"
+        )
+    )
+
 
 def downgrade():
     raise NotImplementedError("Downgrade not possible")

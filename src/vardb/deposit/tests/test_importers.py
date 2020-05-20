@@ -76,7 +76,7 @@ def sequence(draw):
         "chromosome": "14",
         "change_type": "indel",
         "start_position": 41226487,
-        "open_end_position": 41226491,
+        "open_end_position": 41226488,
         "change_from": "C",
         "change_to": "AGCT",
     },
@@ -148,7 +148,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
             {
                 "change_type": "indel",
                 "start_position": pos - 1,
-                "open_end_position": pos - 1 + max(len(ref), len(alt)),
+                "open_end_position": pos - 1 + len(ref),
                 "change_from": ref,
                 "change_to": alt,
             }
