@@ -29,10 +29,15 @@ def positions(draw):
     return chrom, pos, ref, alt
 
 
+@st.composite
+def sequence(draw):
+    return draw(st.text(alphabet=["A", "C", "G", "T"], min_size=1, max_size=5))
+
+
 # Genotype import is tested as part of test_deposit
 
 
-ht.example(
+@ht.example(
     ("17", 41226488, "C", "A"),  # Normal SNP
     {
         "chromosome": "17",
@@ -43,7 +48,7 @@ ht.example(
         "change_to": "A",
     },
 )
-ht.example(
+@ht.example(
     ("11", 41226488, "C", "CGCT"),  # Three base insertion
     {
         "chromosome": "11",
@@ -54,8 +59,6 @@ ht.example(
         "change_to": "GCT",
     },
 )
-
-
 @ht.example(
     ("X", 41226488, "AATT", "A"),  # Three base deletion
     {
@@ -101,13 +104,118 @@ ht.example(
     },
 )
 @ht.given(st.one_of(positions()), st.just(None))
-def test_dabla(session, positions, manually_curated_result):
+def test_allele_from_record(session, positions, manually_curated_result):
 
     chrom, pos, ref, alt = positions
 
-    allele_importer = deposit.AlleleImporter(session, ref_genome="GRCh37")
-    allele_importer.add(
-        {
+    record = {
+        "ALT": [alt],
+        "CHROM": chrom,
+        "POS": pos,
+        "REF": ref,
+        "FILTER": ".",
+        "ID": "H186",
+        "INFO": {},
+        "QUAL": ".",
+        "SAMPLES": {"H01": {"GT": "0/1"}},
+    }
+
+    al = deposit.build_allele_from_record(record, ref_genome="GRCh37")
+    if manually_curated_result:
+        for k, v in manually_curated_result.items():
+            assert al[k] == v
+
+    expected_result = {
+        "genome_reference": "GRCh37",
+        "chromosome": chrom,
+        "vcf_pos": pos,
+        "vcf_ref": ref,
+        "vcf_alt": alt,
+    }
+
+    if len(ref) == len(alt) == 1:
+        expected_result.update(
+            {
+                "change_type": "SNP",
+                "start_position": pos - 1,
+                "open_end_position": pos,
+                "change_from": ref,
+                "change_to": alt,
+            }
+        )
+    elif len(ref) >= 1 and len(alt) >= 1 and alt[0] != ref[0]:
+        expected_result.update(
+            {
+                "change_type": "indel",
+                "start_position": pos - 1,
+                "open_end_position": pos - 1 + max(len(ref), len(alt)),
+                "change_from": ref,
+                "change_to": alt,
+            }
+        )
+    elif len(ref) < len(alt):
+        expected_result.update(
+            {
+                "change_type": "ins",
+                "start_position": pos - 1,
+                "open_end_position": pos,
+                "change_from": "",
+                "change_to": alt[1:],
+            }
+        )
+    elif len(ref) > len(alt):
+        expected_result.update(
+            {
+                "change_type": "del",
+                "start_position": pos,
+                "open_end_position": pos + len(ref) - 1,
+                "change_from": ref[1:],
+                "change_to": "",
+            }
+        )
+    else:
+        raise ValueError()
+
+    assert al == expected_result
+
+
+# SNP
+@ht.example(("1", 123, "T", "C"), [("1", 122, "CTCC", "CCCC")], None)
+@ht.example(("1", 123, "A", "T"), [("1", 121, "AAAT", "AATT")], None)
+@ht.example(("1", 123, "T", "TT"), [("1", 122, "AT", "ATT")], None)
+# ins
+@ht.example(("1", 123, "T", "TA"), [("1", 122, "CTCC", "CTACC")], None)
+@ht.example(("1", 123, "T", "TT"), [("1", 122, "CTT", "CTTT")], None)
+# del
+@ht.example(("1", 123, "CT", "C"), [("1", 123, "CTCC", "CCC")], None)
+@ht.example(("1", 123, "TCAG", "T"), [("1", 123, "TCAGCAGCAG", "TCAGCAG")], None)
+# indel
+@ht.example(("1", 123, "CT", "AG"), [("1", 121, "AACT", "AAAG")], None)
+@ht.example(
+    ("1", 123, "C", "AG"), [("1", 123, "CAAA", "AGAAA"), ("1", 121, "AGCAAA", "AGAGAAA")], None
+)
+@ht.example(("1", 123, "C", "AG"), [("1", 123, "CAAA", "AGAAA")], None)
+@ht.given(
+    st.one_of(positions()),
+    st.just(None),
+    st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=5),
+)
+def test_equivalent_vcf_representations(standard, equivalent, padding):
+    if equivalent is None:
+        equivalent = []
+    if padding is not None:
+        chrom, pos, ref, alt = standard
+        for prefix, suffix in padding:
+            N = len(prefix)
+            equivalent.append((chrom, pos - N, prefix + ref + suffix, prefix + alt + suffix))
+
+    positions = [standard] + equivalent
+
+    assert len(positions) > 1
+    items = []
+    for position in positions:
+        chrom, pos, ref, alt = position
+        record = {
             "ALT": [alt],
             "CHROM": chrom,
             "POS": pos,
@@ -118,44 +226,12 @@ def test_dabla(session, positions, manually_curated_result):
             "QUAL": ".",
             "SAMPLES": {"H01": {"GT": "0/1"}},
         }
-    )
+        item = deposit.build_allele_from_record(record, ref_genome="dabla")
+        item.pop("vcf_pos")
+        item.pop("vcf_ref")
+        item.pop("vcf_alt")
+        items.append(item)
 
-    al = allele_importer.process()[0]
-    if manually_curated_result:
-        for k, v in manually_curated_result.items():
-            assert al[k] == v
-
-    if len(ref) == len(alt) == 1:
-        change_type = "SNP"
-        start_position = pos - 1
-        end_position = pos
-        change_from = ref
-        change_to = alt
-    elif len(ref) >= 1 and len(alt) >= 1 and alt[0] != ref[0]:
-        start_position = pos - 1
-        end_position = pos - 1 + max(len(ref), len(alt))
-        change_type = "indel"
-        change_from = ref
-        change_to = alt
-    elif len(ref) < len(alt):
-        start_position = pos - 1
-        end_position = pos
-        change_type = "ins"
-        change_from = ""
-        change_to = alt[1:]
-    elif len(ref) > len(alt):
-        start_position = pos
-        end_position = pos + len(ref) - 1
-        change_type = "del"
-        change_from = ref[1:]
-        change_to = ""
-    else:
-        raise ValueError()
-
-    assert al["genome_reference"] == "GRCh37"
-    assert al["chromosome"] == chrom
-    assert al["start_position"] == start_position
-    assert al["open_end_position"] == end_position
-    assert al["change_from"] == change_from
-    assert al["change_to"] == change_to
-    assert al["change_type"] == change_type
+    standard_item = items.pop(0)
+    for x in items:
+        assert x == standard_item
