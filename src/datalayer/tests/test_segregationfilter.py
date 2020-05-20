@@ -1379,7 +1379,7 @@ class TestInheritanceFilter(object):
         else:
             assert result_allele_ids == set()
 
-    @given(st.lists(st.sampled_from(ALL_CATEGORIES), unique=True), st.booleans())
+    @ht.given(st.lists(st.sampled_from(ALL_CATEGORIES), unique=True), st.booleans())
     def test_filter_alleles(self, session, categories, has_parents):
 
         session.rollback()
