@@ -17,6 +17,8 @@ export default function processAlleles(alleles, config, genepanel = null) {
         allele.formatted = getFormatted(allele, config, genepanel)
         allele.links = getLinks(allele, genepanel)
     }
+
+    return alleles
 }
 
 function getUrls(allele) {
@@ -94,41 +96,37 @@ function getFormatted(allele, config, genepanel) {
     // Database is 0-based, hgvsg uses 1-based index
     let start = allele.start_position
     let end = allele.open_end_position
-
-    if (allele.change_type === 'SNP') {
-        // snp: g.66285951C>Tdel:
-        formatted.hgvsg = `g.${start + 1}${allele.change_from}>${allele.change_to}`
-    } else if (allele.change_type === 'del') {
-        // del: g.32912008_32912011del
-        formatted.hgvsg = `g.${start + 1}_${end}del`
-    } else if (allele.change_type === 'ins') {
-        // ins: g.32912008_3291209insCGT
-        formatted.hgvsg = `g.${start}_${end}ins${allele.change_to}`
-    } else if (allele.change_type === 'indel') {
-        // delins: g.32912008_32912011delinsGGG
-        formatted.hgvsg = `g.${start + 1}_${end}delins${allele.change_to}`
-    } else {
-        // edge case, shouldn't happen, but this is valid format as well
-        formatted.hgvsg = `g.${start + 1}`
+    switch (allele.change_type) {
+        case 'SNP':
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
+            formatted.hgvsg = `g.${start + 1}${allele.change_from}>${allele.change_to}`
+            break
+        case 'del':
+            if (start + 1 === end) {
+                formatted.hgvsg = `g.${start + 1}del`
+                formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
+            } else {
+                formatted.hgvsg = `g.${start + 1}_${end}del`
+                formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            }
+            break
+        case 'indel':
+            if (start + 1 === end) {
+                formatted.hgvsg = `g.${start + 1}delins${allele.change_to}`
+                formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
+            } else {
+                formatted.hgvsg = `g.${start + 1}_${end}delins${allele.change_to}`
+                formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            }
+            break
+        case 'ins':
+            formatted.hgvsg = `g.${start + 1}_${end + 1}ins${allele.change_to}`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end + 1}`
+            break
+        default:
+            throw Error(`Unsupported change type detected (${allele.id}): ${allele.change_type}`)
     }
     formatted.alamut = `Chr${allele.chromosome}(${allele.genome_reference}):${formatted.hgvsg}`
-
-    //
-    // genomic position
-    //
-    if (allele.change_type === 'SNP') {
-        formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
-    } else if (allele.change_type === 'del') {
-        if (allele.change_from.length > 1) {
-            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
-        } else {
-            formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
-        }
-    } else if (allele.change_type === 'ins') {
-        formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${start + 2}`
-    } else {
-        formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
-    }
 
     //
     // hgvsc
