@@ -1,1 +1,42 @@
+<<<<<<< Updated upstream
 <nav class="navbar-secondary"></nav>
+=======
+<nav class="navbar-secondary">
+    <section style="margin-left: auto; margin-top: 0.8rem; margin-right: 1rem;">
+        <label for="technology">Technology:</label>
+        <select id="technology" multiple>
+            <option value="hts">HTS</option>
+            <option value="sanger">Sanger</option></select
+        >
+        <label for="analysis">Analysis:</label>
+        <input
+            type="text"
+            id="analysis"
+            ng-model="$ctrl.modelAnalysisName"
+            ng-model-watch="$ctrl.overviewFilter.analysisName"
+            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelAnalysisName})"
+        />
+        <label for="date">Date Range</label>
+        <select id="date" class=".dropdown">
+            <option value="1d">&lt; 1 day</option>
+            <option value="3d">&lt; 3 days</option>
+            <option value="7d">&lt; 1 week</option>
+            <option value="1m">&lt; 1 month</option>
+            <option value="3m">&lt; 3 months</option>
+            <option value="10y">&ge; 3 months</option>
+        </select>
+        <label for="priority">Priority</label>
+        <select id="priority" multiple>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+        </select>
+        <!-- <a
+            ng-if="$ctrl.showVariantReport"
+            href="/api/v1/reports/non-started-analyses-variants/"
+            target="_self"
+            ><button>Variant report</button></a
+        > -->
+    </section>
+</nav>
+>>>>>>> Stashed changes
