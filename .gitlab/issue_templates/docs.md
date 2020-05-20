@@ -7,4 +7,4 @@ Remember:
 
 --- DELETE ME ---
 
- /label ~Documentation
+/label ~"type::docs"
