@@ -53,15 +53,15 @@ function getSortFunctions(
             return Math.min(...consequence_indices)
         },
         segregation: (allele) => {
-            if (allele.tags.includes('inherited_mosaicism')) {
+            if (allele.tags.includes('denovo')) {
                 return 0
-            } else if (allele.tags.includes('denovo')) {
-                return 1
             } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
-                return 2
+                return 1
             } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
-                return 3
+                return 2
             } else if (allele.tags.includes('compound_heterozygous')) {
+                return 3
+            } else if (allele.tags.includes('inherited_mosaicism')) {
                 return 4
             } else {
                 return 5
