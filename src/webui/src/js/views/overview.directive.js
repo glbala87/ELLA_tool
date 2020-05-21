@@ -10,9 +10,18 @@ app.component('overview', {
         {
             sectionKeys: state`views.overview.sectionKeys`,
             sections: state`views.overview.sections`,
-            loading: state`views.overview.loading`,
-            sectionChanged: signal`views.overview.sectionChanged`
+            selectedSection: state`views.overview.state.selectedSection`,
+            loading: state`views.overview.loading`
         },
-        'Overview'
+        'Overview',
+        [
+            '$scope',
+            ($scope) => {
+                const $ctrl = $scope.$ctrl
+                Object.assign($ctrl, {
+                    isSelected: (section) => section === $ctrl.selectedSection
+                })
+            }
+        ]
     )
 })

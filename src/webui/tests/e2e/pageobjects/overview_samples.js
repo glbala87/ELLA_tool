@@ -9,6 +9,7 @@ const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING
 const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications'
 const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
+const SELECTOR_OURS = '.id-analysis-ours'
 const SELECTOR_OTHERS = '.id-analysis-others'
 const SELECTOR_CLASSIFIED = '.id-analysis-classified'
 
@@ -121,6 +122,10 @@ class SampleSelection extends Page {
 
     selectOthers(number) {
         this.selectItemInSection(number, SELECTOR_OTHERS)
+    }
+
+    selectOurs(number) {
+        this.selectItemInSection(number, SELECTOR_OURS)
     }
 
     selectTopPending() {

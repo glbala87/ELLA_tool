@@ -10,9 +10,7 @@ const UPDATE_SECTIONS = ['analyses', 'variants', 'analyses-by-classified']
 export default [
     ({ state }) => {
         // Get name of selected section
-        const section = Object.entries(state.get('views.overview.sections')).filter(
-            (e) => e[1].selected
-        )[0][0]
+        const section = state.get('views.overview.state.selectedSection')
         if (UPDATE_SECTIONS.includes(section)) {
             return { section }
         }
