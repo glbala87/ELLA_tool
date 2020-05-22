@@ -6,7 +6,7 @@ title: Latest release
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.10](#version-1-9)|
+[v1.10](#version-1-10)|
 [v1.9](#version-1-9)|[v1.9.1](#version-1-9-1), [v1.9.2](#version-1-9-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
@@ -14,7 +14,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.10
 
-Release date: 20.05.2020
+Release date: 27.05.2020
 
 ### Highlights
 
@@ -64,6 +64,9 @@ In addition, the [quality filter](/technical/filtering.html#quality-filter) can 
  
 <!-- MR !412 --> 
 - Fixed a bug causing a wide sidebar with long indication comments.
+
+<!-- MR !418 -->
+- Fixed a bug causing missing word wrap in comment fields.
 
 <!-- MR !370 -->
 - Removed `VARIANT REPORT` button from OVERVIEW.
