@@ -1,6 +1,10 @@
-## Description
+## Background
 
-[Describe bug, steps to reproduce and and suggested solution, if possible]
+[Describe bug and steps to reproduce]
+
+## Implementation
+
+[Describe suggested solution]
 
 --- DELETE ME ---
 

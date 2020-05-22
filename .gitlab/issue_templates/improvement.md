@@ -1,6 +1,10 @@
-## Description
+## Background
 
-[Describe improvement and problem it solves]
+[Describe context/problem and justification for improvement]
+
+## Implementation
+
+[Describe suggested solution]
 
 --- DELETE ME ---
 
