@@ -42,7 +42,7 @@ KEY_ANNOTATIONS = "annotations"
 
 SEGREGATION_TAGS = [
     "denovo",
-    "inherited_mosaicism",
+    "parental_mosaicism",
     "compound_heterozygous",
     "autosomal_recessive_homozygous",
     "xlinked_recessive_homozygous",
@@ -303,7 +303,7 @@ class AlleleDataLoader(object):
         filter_config = {
             "no_coverage_parents": {"enable": False},
             "denovo": {"enable": True},
-            "inherited_mosaicism": {"enable": True},
+            "parental_mosaicism": {"enable": True},
             "compound_heterozygous": {"enable": True},
             "recessive_homozygous": {"enable": True},
         }

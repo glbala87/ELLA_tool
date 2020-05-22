@@ -61,7 +61,7 @@ function getSortFunctions(
                 return 2
             } else if (allele.tags.includes('compound_heterozygous')) {
                 return 3
-            } else if (allele.tags.includes('inherited_mosaicism')) {
+            } else if (allele.tags.includes('parental_mosaicism')) {
                 return 4
             } else {
                 return 5

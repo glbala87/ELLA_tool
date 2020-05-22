@@ -23,7 +23,7 @@ GLOBAL_CONFIG = {"transcripts": {"inclusion_regex": "NM_.*"}}
 ALL_CATEGORIES = [
     "no_coverage_parents",
     "denovo",
-    "inherited_mosaicism",
+    "parental_mosaicism",
     "compound_heterozygous",
     "recessive_homozygous",
 ]
@@ -1288,7 +1288,7 @@ class TestInheritanceFilter(object):
         st.just(None),
     )
     @ht.settings(deadline=None)
-    def test_inherited_mosaicism(self, session, a_or_x, entry, manually_curated_result):
+    def test_parental_mosaicism(self, session, a_or_x, entry, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
 
@@ -1310,7 +1310,7 @@ class TestInheritanceFilter(object):
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
 
-        result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).inherited_mosaicism(
+        result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).parental_mosaicism(
             genotype_table, sample_names["proband"], sample_names["father"], sample_names["mother"]
         )
 
@@ -1336,7 +1336,7 @@ class TestInheritanceFilter(object):
         #     - Proband has variant
         #     - Father or mother has allele_ratio between given (mother: heterozygous, father: homozygous) thresholds
 
-        proband_not_mosacism = ps.allele_ratio > NON_MOSAICISM_THRESHOLD
+        proband_not_mosaicism = ps.allele_ratio > NON_MOSAICISM_THRESHOLD
         mother_has_coverage = ms.genotype not in ["No coverage", None]
         father_has_coverage = fs.genotype not in ["No coverage", None]
         if a_or_x == "A":
@@ -1367,7 +1367,7 @@ class TestInheritanceFilter(object):
 
         if (
             proband_has_variant
-            and proband_not_mosacism
+            and proband_not_mosaicism
             and mother_has_coverage
             and father_has_coverage
             and (
@@ -1400,7 +1400,7 @@ class TestInheritanceFilter(object):
 
         NO_COVERAGE_PARENTS = 1
         DENOVO = 2
-        INHERITED_MOSAICISM = 3
+        PARENTAL_MOSAICISM = 3
         COMPOUND_HETEROZYGOUS = 4
         AUTOSOMAL_RECESSIVE_HOMOZYGOUS = 5
         XLINKED_RECESSIVE_HOMOZYGOUS = 6
@@ -1408,7 +1408,7 @@ class TestInheritanceFilter(object):
 
         sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
         sf.denovo = lambda a, b, c, d: set([DENOVO])
-        sf.inherited_mosaicism = lambda a, b, c, d: set([INHERITED_MOSAICISM])
+        sf.parental_mosaicism = lambda a, b, c, d: set([PARENTAL_MOSAICISM])
         sf.compound_heterozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
             [COMPOUND_HETEROZYGOUS]
         )
@@ -1425,7 +1425,7 @@ class TestInheritanceFilter(object):
             [
                 NO_COVERAGE_PARENTS,
                 DENOVO,
-                INHERITED_MOSAICISM,
+                PARENTAL_MOSAICISM,
                 COMPOUND_HETEROZYGOUS,
                 AUTOSOMAL_RECESSIVE_HOMOZYGOUS,
                 XLINKED_RECESSIVE_HOMOZYGOUS,
@@ -1436,7 +1436,7 @@ class TestInheritanceFilter(object):
         categories_remove_allele_ids = {
             "no_coverage_parents": set([NO_COVERAGE_PARENTS]) if has_parents else set(),
             "denovo": set([DENOVO]) if has_parents else set(),
-            "inherited_mosaicism": set([INHERITED_MOSAICISM]) if has_parents else set(),
+            "parental_mosaicism": set([PARENTAL_MOSAICISM]) if has_parents else set(),
             "compound_heterozygous": set([COMPOUND_HETEROZYGOUS] if has_parents else set()),
             "recessive_homozygous": set(
                 [AUTOSOMAL_RECESSIVE_HOMOZYGOUS, XLINKED_RECESSIVE_HOMOZYGOUS]

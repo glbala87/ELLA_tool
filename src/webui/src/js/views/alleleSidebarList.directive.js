@@ -96,7 +96,7 @@ app.component('alleleSidebarList', {
             '$scope',
             function($scope) {
                 const SEGREGATION_TAGS = [
-                    ['inherited_mosaicism', 'Inherited mosaicism'],
+                    ['parental_mosaicism', 'Parental mosaicism'],
                     ['denovo', 'De novo'],
                     ['compound_heterozygous', 'Compound heterozygous'],
                     ['autosomal_recessive_homozygous', 'Autosomal recessive homozygous'],
@@ -262,8 +262,7 @@ app.component('alleleSidebarList', {
                     },
                     getSegregationTag(allele) {
                         const types = []
-                        // Inherited mosaicism takes precedence if tags include both types
-                        if (allele.tags.includes('inherited_mosaicism')) {
+                        if (allele.tags.includes('parental_mosaicism')) {
                             types.push('M')
                         }
                         if (allele.tags.includes('denovo')) {
