@@ -39,22 +39,14 @@ export default function updateMessages({ state }) {
 
     messages.sort(thenBy((m) => m.date_last_update || m.date_created))
 
-    // Get count of user messages since last finalized
-    let messageCount = 0
-    for (const m of messages) {
-        if (m.message) {
-            messageCount += 1
-        }
-        if (m.finalized) {
-            messageCount = 0
-        }
-    }
-
+    const messageCount = messages.reduce((p, c) => (c.message ? p + 1 : p), 0)
     state.set('views.workflows.worklog.messageCount', messageCount)
+
     state.set(
         'views.workflows.worklog.messageIds',
         messages.filter((m) => (showMessagesOnly ? Boolean(m.message) : true)).map((m) => m.id)
     )
+
     const mappedMessages = {}
     for (const m of messages) {
         mappedMessages[m.id] = m
