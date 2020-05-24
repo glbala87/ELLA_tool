@@ -426,6 +426,23 @@
                                 "type": "number",
                                 "minimum": 0,
                                 "maximum": 1
+                            },
+                            "filter_status": {
+                                "type": "object",
+                                "required": ["pattern"],
+                                "optional": ["inverse", "filter_empty"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "pattern": {
+                                        "type": "string"
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    },
+                                    "filter_empty": {
+                                        "type": "boolean"
+                                    }
+                                }
                             }
                         }
                     }
