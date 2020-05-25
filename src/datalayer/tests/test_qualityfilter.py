@@ -1,32 +1,9 @@
 from datalayer.allelefilter.qualityfilter import QualityFilter
-from vardb.datamodel import sample, allele, genotype
+from vardb.datamodel import sample, genotype
+from conftest import create_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
-
-allele_start = 1300
-
-
-def create_allele(data=None):
-    global allele_start
-    allele_start += 1
-    default_allele_data = {
-        "chromosome": "1",
-        "start_position": allele_start,
-        "open_end_position": allele_start + 1,
-        "change_from": "A",
-        "change_to": "T",
-        "change_type": "SNP",
-        "vcf_pos": allele_start + 1,
-        "vcf_ref": "A",
-        "vcf_alt": "T",
-    }
-    if data:
-        for k in data:
-            default_allele_data[k] = data[k]
-    data = default_allele_data
-
-    return allele.Allele(genome_reference="GRCh37", **data)
 
 
 def add_data(session, gt_data):

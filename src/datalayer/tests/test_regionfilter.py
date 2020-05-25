@@ -6,7 +6,8 @@ import copy
 import pytest
 
 from datalayer.allelefilter.regionfilter import RegionFilter
-from vardb.datamodel import allele, annotation, gene
+from vardb.datamodel import gene
+from conftest import create_allele_with_annotation, create_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -25,58 +26,6 @@ def allele_positions(draw, chromosome, start, end):
     start_position = draw(st.integers(min_value=start, max_value=end))
     end_position = draw(st.integers(min_value=start_position + 1, max_value=start_position + 50))
     return (chromosome, start_position, end_position)
-
-
-allele_start = 1300
-
-
-def create_allele(data=None):
-    global allele_start
-    allele_start += 1
-    default_allele_data = {
-        "chromosome": "1",
-        "start_position": allele_start,
-        "open_end_position": allele_start + 1,
-        "change_from": "A",
-        "change_to": "T",
-        "change_type": "SNP",
-        "vcf_pos": allele_start + 1,
-        "vcf_ref": "A",
-        "vcf_alt": "T",
-    }
-    if data:
-        for k in data:
-            default_allele_data[k] = data[k]
-    data = default_allele_data
-
-    return allele.Allele(genome_reference="GRCh37", **data)
-
-
-def create_annotation(annotations, allele=None):
-    annotations.setdefault("external", {})
-    annotations.setdefault("frequencies", {})
-    annotations.setdefault("prediction", {})
-    annotations.setdefault("references", [])
-    annotations.setdefault("transcripts", [])
-    for t in annotations["transcripts"]:
-        t.setdefault("consequences", [])
-        t.setdefault("transcript", "NONE_DEFINED")
-        t.setdefault("strand", 1)
-        t.setdefault("is_canonical", True)
-        t.setdefault("in_last_exon", "no")
-    return annotation.Annotation(annotations=annotations, allele=allele)
-
-
-def create_allele_with_annotation(session, annotations=None, allele_data=None):
-    al = create_allele(data=allele_data)
-    session.add(al)
-    if annotations is not None:
-        an = create_annotation(annotations, allele=al)
-        session.add(an)
-    else:
-        an = None
-
-    return al, an
 
 
 def create_genepanel(genepanel_config):
@@ -267,16 +216,12 @@ class TestRegionFilter(object):
         session.rollback()
 
         chromosome, start_position, open_end_position = positions
-        al, _ = create_allele_with_annotation(
-            session,
-            None,
-            {
-                "chromosome": chromosome,
-                "start_position": start_position,
-                "open_end_position": open_end_position,
-            },
-        )
-
+        # al, _ = create_allele_with_annotation(session, None)
+        al = create_allele()
+        al.chromosome = chromosome
+        al.start_position = start_position
+        al.open_end_position = open_end_position
+        session.add(al)
         session.flush()
 
         allele_ids = [al.id]
@@ -364,7 +309,7 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"chromosome": "HGSVC"},
+            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with exon_distance +5
@@ -381,7 +326,7 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"chromosome": "HGSVC"},
+            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with coding_region_distance -12
@@ -398,7 +343,7 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"chromosome": "HGSVC"},
+            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with coding_region_distance +20
@@ -415,7 +360,7 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"chromosome": "HGSVC"},
+            {"CHROM": "HGSVC"},
         )
 
         na1, _ = create_allele_with_annotation(
@@ -431,10 +376,10 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"chromosome": "HGSVC"},
+            {"CHROM": "HGSVC"},
         )
 
-        session.commit()
+        session.flush()
 
         gp_key = ("testpanel", "v01")
         allele_ids = [a1.id, a2.id, a3.id, a4.id, na1.id]
@@ -629,14 +574,11 @@ def test_regions(
     genepanel.phenotypes = []
 
     # Add one allele within transcript (+ padding)
+    al = create_allele()
     allele_offset = allele_offset % (transcript.tx_end - 1 - transcript.tx_start + 2 * max_padding)
-    allele = create_allele(
-        {
-            "start_position": transcript.tx_start - max_padding + allele_offset,
-            "open_end_position": transcript.tx_start + allele_offset + 1,
-        }
-    )
-    session.add(allele)
+    al.start_position = transcript.tx_start - max_padding + allele_offset
+    al.open_end_position = transcript.tx_start + allele_offset + 1
+    session.add(al)
     session.add(genepanel)
     session.flush()
 
@@ -650,7 +592,7 @@ def test_regions(
     ]
 
     genepanel_tx_regions = rf.create_genepanel_transcripts_table(
-        ("testpanel", "v02"), [allele.id], max_padding
+        ("testpanel", "v02"), [al.id], max_padding
     )
     # Check that transcript is included (on basis of allele)
     assert session.query(genepanel_tx_regions).count() == len(transcript.exon_starts)
