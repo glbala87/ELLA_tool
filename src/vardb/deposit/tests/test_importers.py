@@ -31,7 +31,7 @@ def positions(draw):
 
 @st.composite
 def sequence(draw):
-    return draw(st.text(alphabet=["A", "C", "G", "T"], min_size=1, max_size=5))
+    return draw(st.text(alphabet=["A", "C", "G", "T"], min_size=1, max_size=4))
 
 
 # Genotype import is tested as part of test_deposit
@@ -198,7 +198,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
 @ht.given(
     st.one_of(positions()),
     st.just(None),
-    st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=5),
+    st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=4),
 )
 def test_equivalent_vcf_representations(standard, equivalent, padding):
     if equivalent is None:
