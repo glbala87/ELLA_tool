@@ -296,8 +296,19 @@ class AlleleDataLoader(object):
         self.segregation_filter = SegregationFilter(session, config)
 
     def _get_segregation_results(self, allele_ids, analysis_id):
+        # These are for tags and de novo p-value,
+        # so we hard code what we require
+        # TODO: If segregation filter_config starts expanding it's configuration,
+        # we need to use actual filter_config here
+        filter_config = {
+            "no_coverage_parents": {"enable": False},
+            "denovo": {"enable": True},
+            "inherited_mosaicism": {"enable": True},
+            "compound_heterozygous": {"enable": True},
+            "recessive_homozygous": {"enable": True},
+        }
         segregation_results = self.segregation_filter.get_segregation_results(
-            {analysis_id: allele_ids}
+            {analysis_id: allele_ids}, filter_config
         )
         return segregation_results.get(analysis_id)
 
