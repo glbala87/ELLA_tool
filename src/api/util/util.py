@@ -78,12 +78,15 @@ def dict_merge(destination, src):
             destination[k] = src[k]
 
 
-def query_print_table(sa_query):
+def query_print_table(sa_query, print_function=None):
     """
     Prints SQLAlchemy query as table to terminal.
 
     Used for debugging and adding examples to code comments.
     """
+    if print_function is None:
+        print_function = print
+
     column_names = [e["name"] for e in sa_query.column_descriptions]
     data = sa_query.all()
     column_width = {k: len(k) for k in column_names}
@@ -93,18 +96,19 @@ def query_print_table(sa_query):
             if cell_len > column_width[name]:
                 column_width[name] = cell_len
 
-    h_divider = "-" * (sum(column_width.values()) + len(column_width) * 3)
+    h_divider = "-" * (sum(column_width.values()) + len(column_width) * 3 - 1)
 
-    print(h_divider)
+    print_function("┌" + h_divider + "┐")
     row_format = "| "
     for name in column_names:
         row_format += "{:<" + str(column_width[name]) + "} | "
 
-    print(row_format.format(*column_names))
+    print_function(row_format.format(*column_names))
 
-    print(h_divider)
+    print_function("|" + h_divider + "|")
     for r in data:
-        print(row_format.format(*[str(ri) for ri in r]))
+        print_function(row_format.format(*[str(ri) for ri in r]))
+    print_function("└" + h_divider + "┘")
 
 
 def error(msg, code):

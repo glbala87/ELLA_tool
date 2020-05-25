@@ -16,8 +16,9 @@ from vardb.deposit.deposit_genepanel import DepositGenepanel
 from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
 from vardb.deposit.deposit_users import import_users, import_groups
-from vardb.deposit.deposit_analysis import DepositAnalysis, import_filterconfigs
+from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_filterconfigs import deposit_filterconfigs
 from vardb.watcher.analysis_watcher import AnalysisConfigData
 
 from vardb.util import vcfiterator
@@ -138,7 +139,7 @@ class DepositTestdata(object):
 
         with open(os.path.join(SCRIPT_DIR, FILTERCONFIGS)) as f:
             filter_configs = json.load(f)
-            import_filterconfigs(self.session, filter_configs)
+            deposit_filterconfigs(self.session, filter_configs)
             log.info("Added {} filter configs".format(len(filter_configs)))
 
     def deposit_analyses(self, test_set=None):

@@ -9,16 +9,11 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 
 import re
 import logging
-import datetime
-import pytz
 
 
-import jsonschema
 from sqlalchemy import tuple_
-from api.config import config
 from datalayer import queries
 from vardb.util import vcfiterator
-from vardb.datamodel import annotationshadow
 from vardb.deposit.importers import (
     HGMDInfoProcessor,
     SplitToDictInfoProcessor,
@@ -26,7 +21,6 @@ from vardb.deposit.importers import (
 )
 
 from vardb.datamodel import sample, user, gene, assessment, allele
-from vardb.datamodel.jsonschemas import load_schema
 
 from .deposit_from_vcf import DepositFromVCF
 
@@ -34,93 +28,6 @@ log = logging.getLogger(__name__)
 
 
 VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1"]
-
-
-def import_filterconfigs(session, fc_configs):
-    result = {"updated": 0, "created": 0, "not_updated": 0}
-    filter_config_schema = load_schema("filterconfig_base.json")
-
-    for fc_config in fc_configs:
-        jsonschema.validate(fc_config, filter_config_schema)
-        filterconfig = fc_config["filterconfig"]
-        name = fc_config["name"]
-        requirements = fc_config["requirements"]
-        fc = {"name": name, "filterconfig": filterconfig, "requirements": requirements}
-
-        existing = (
-            session.query(sample.FilterConfig)
-            .filter(
-                sample.FilterConfig.name == fc["name"],
-                sample.FilterConfig.date_superceeded.is_(None),
-            )
-            .one_or_none()
-        )
-
-        if existing and fc["filterconfig"] == existing.filterconfig:
-            if not existing.active:
-                log.warning(
-                    "Filter config {} exists with same configuration, but is set as inactive. Will not be updated.".format(
-                        existing
-                    )
-                )
-            result["not_updated"] += 1
-            fc_obj = existing
-        else:
-            if existing:
-                if not existing.active:
-                    log.warning(
-                        "Filter config {} already set as inactive. Will be set as superceeded.".format(
-                            existing
-                        )
-                    )
-                existing.date_superceeded = datetime.datetime.now(pytz.utc)
-                fc["previous_filterconfig_id"] = existing.id
-                existing.active = False
-                result["updated"] += 1
-            else:
-                result["created"] += 1
-
-            # Check that filterconfig is supported by available annotationshadowfrequency columns
-            annotationshadow.check_filterconfig(filterconfig, config)
-            fc_obj = sample.FilterConfig(**fc)
-            session.add(fc_obj)
-            session.flush()
-
-        for usergroup in fc_config["usergroups"]:
-
-            usergroup_name = usergroup["name"]
-            usergroup_id = (
-                session.query(user.UserGroup.id)
-                .filter(user.UserGroup.name == usergroup_name)
-                .scalar()
-            )
-
-            ugfc = {
-                "usergroup_id": usergroup_id,
-                "filterconfig_id": fc_obj.id,
-                "order": usergroup["order"],
-            }
-
-            existing_ugfc = (
-                session.query(sample.UserGroupFilterConfig)
-                .filter(
-                    sample.UserGroupFilterConfig.usergroup_id == usergroup_id,
-                    sample.UserGroupFilterConfig.filterconfig_id == fc_obj.id,
-                )
-                .one_or_none()
-            )
-
-            if existing_ugfc and existing_ugfc.order != usergroup["order"]:
-                log.info(
-                    "Updating order of filterconfig {} for usergroup {} from {} to {}".format(
-                        fc_obj, usergroup_name, existing_ugfc.order, usergroup["order"]
-                    )
-                )
-                existing_ugfc.order = usergroup["order"]
-            elif not existing_ugfc:
-                session.add(sample.UserGroupFilterConfig(**ugfc))
-
-    return result
 
 
 class PrefilterBatchGenerator:
