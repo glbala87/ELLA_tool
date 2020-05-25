@@ -1,10 +1,18 @@
-<<<<<<< Updated upstream
-<nav class="navbar-secondary"></nav>
-=======
 <nav class="navbar-secondary">
-    <section style="margin-left: auto; margin-top: 0.8rem; margin-right: 1rem;">
+    <section style="margin-left: auto; margin-top: 0.8rem; margin-right: auto;">
+        <span
+            style="font-family: Source Sans Pro, sans-serif; line-height: 3.8rem; font-weight: 600; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;"
+        >
+            Filter Analyses:
+        </span>
         <label for="technology">Technology:</label>
-        <select id="technology" multiple>
+        <select
+            id="technology"
+            multiple
+            ng-model="$ctrl.modelTechnology"
+            ng-model-watch="$ctrl.overviewFilter.technology"
+            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelTechnology})"
+        >
             <option value="hts">HTS</option>
             <option value="sanger">Sanger</option></select
         >
@@ -12,12 +20,22 @@
         <input
             type="text"
             id="analysis"
-            ng-model="$ctrl.modelAnalysisName"
+            ng-model="$ctrl.filter.analysisName"
             ng-model-watch="$ctrl.overviewFilter.analysisName"
             ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelAnalysisName})"
         />
         <label for="date">Date Range</label>
-        <select id="date" class=".dropdown">
+        <select
+            id="date"
+            style="position: relative;
+            height: 50%;
+            top:0rem;
+            border-style: solid;
+            border-width: 0 0 2px 0;"
+            ng-model="$ctrl.modelDateRange"
+            ng-model-watch="$ctrl.overviewFilter.dateRange"
+            ng-change="$ctrl.updateFilter({dateRange: $ctrl.modelDateRange})"
+        >
             <option value="1d">&lt; 1 day</option>
             <option value="3d">&lt; 3 days</option>
             <option value="7d">&lt; 1 week</option>
@@ -26,17 +44,16 @@
             <option value="10y">&ge; 3 months</option>
         </select>
         <label for="priority">Priority</label>
-        <select id="priority" multiple>
+        <select
+            id="priority"
+            multiple
+            ng-model="$ctrl.modelPriority"
+            ng-model-watch="$ctrl.overviewFilter.priority"
+            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelPriority})"
+        >
             <option value="normal">Normal</option>
             <option value="high">High</option>
             <option value="urgent">Urgent</option>
         </select>
-        <!-- <a
-            ng-if="$ctrl.showVariantReport"
-            href="/api/v1/reports/non-started-analyses-variants/"
-            target="_self"
-            ><button>Variant report</button></a
-        > -->
     </section>
 </nav>
->>>>>>> Stashed changes
