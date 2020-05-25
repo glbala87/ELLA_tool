@@ -5,24 +5,33 @@
         >
             Filter Analyses:
         </span>
-        <label for="technology">Technology:</label>
-        <select
-            id="technology"
-            multiple
-            ng-model="$ctrl.modelTechnology"
-            ng-model-watch="$ctrl.overviewFilter.technology"
-            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelTechnology})"
+
+        <label
+            tabindex="0"
+            class="bttn"
+            uib-btn-checkbox="'user'"
+            ng-model="$ctrl.modelTechnologyHTS"
+            ng-model-watch="$ctrl.technologyHTS"
+            ng-change="$ctrl.updateFilter({filter: {technology: {'HTS': $ctrl.modelTechnologyHTS}}})"
+            >HTS</label
         >
-            <option value="hts">HTS</option>
-            <option value="sanger">Sanger</option></select
+        <label
+            tabindex="0"
+            class="bttn"
+            uib-btn-checkbox="'user'"
+            ng-model="$ctrl.modelTechnologySanger"
+            ng-model-watch="$ctrl.technologySanger"
+            ng-change="$ctrl.updateFilter({filter: {technology: {'Sanger': $ctrl.modelTechnologySanger}}})"
+            >Sanger</label
         >
+
         <label for="analysis">Analysis:</label>
         <input
             type="text"
             id="analysis"
-            ng-model="$ctrl.filter.analysisName"
+            ng-model="$ctrl.modelAnalysisName"
             ng-model-watch="$ctrl.overviewFilter.analysisName"
-            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelAnalysisName})"
+            ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
         />
         <label for="date">Date Range</label>
         <select
@@ -34,26 +43,58 @@
             border-width: 0 0 2px 0;"
             ng-model="$ctrl.modelDateRange"
             ng-model-watch="$ctrl.overviewFilter.dateRange"
-            ng-change="$ctrl.updateFilter({dateRange: $ctrl.modelDateRange})"
+            ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
         >
-            <option value="1d">&lt; 1 day</option>
-            <option value="3d">&lt; 3 days</option>
-            <option value="7d">&lt; 1 week</option>
-            <option value="1m">&lt; 1 month</option>
-            <option value="3m">&lt; 3 months</option>
-            <option value="10y">&ge; 3 months</option>
+            <option value="1:d">&lt; 1 day</option>
+            <option value="3:d">&lt; 3 days</option>
+            <option value="7:d">&lt; 1 week</option>
+            <option value="1:m">&lt; 1 month</option>
+            <option value="3:m">&lt; 3 months</option>
+            <option value="-3:m">&ge; 3 months</option>
         </select>
-        <label for="priority">Priority</label>
-        <select
+        <div class="btn-group">
+            <label
+                tabindex="0"
+                class="bttn btn-primary"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.Normal"
+                ng-model-watch="$ctrl.priorityNormal"
+                ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
+                >Normal</label
+            >
+        </div>
+        <div class="btn-group">
+            <label
+                tabindex="0"
+                class="bttn btn-primary"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.High"
+                ng-model-watch="$ctrl.priorityHigh"
+                ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
+                >High</label
+            >
+        </div>
+        <div id="priority-filter" class="btn-group">
+            <label
+                tabindex="0"
+                class="bttn btn-primary"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.Urgent"
+                ng-model-watch="$ctrl.priorityUrgent"
+                ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
+                >Urgent</label
+            >
+        </div>
+        <!-- <select
             id="priority"
             multiple
             ng-model="$ctrl.modelPriority"
             ng-model-watch="$ctrl.overviewFilter.priority"
-            ng-change="$ctrl.updateFilter({analysisName: $ctrl.modelPriority})"
+            ng-change="$ctrl.updateFilter({filter: {priority: $ctrl.modelPriority}})"
         >
             <option value="normal">Normal</option>
             <option value="high">High</option>
             <option value="urgent">Urgent</option>
-        </select>
+        </select> -->
     </section>
 </nav>

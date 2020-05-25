@@ -19,6 +19,15 @@ export let AVAILABLE_SECTIONS = {
     }
 }
 
+export let DEFAULT_FILTER = {
+    analysisName: null,
+    technology: null,
+    dateRange: null,
+    priorityNormal: null,
+    priorityHigh: null,
+    priorityUrgent: null
+}
+
 export default function getOverviewState() {
     return {
         sectionKeys: [], // Decided by user's config
@@ -26,6 +35,8 @@ export default function getOverviewState() {
         state: {
             selectedSection: null
         },
+        filter: Object.assign({}, DEFAULT_FILTER),
+        filteredAnalyses: null,
         data: {
             alleles: null,
             allelesFinalized: null,
