@@ -7,7 +7,7 @@ from os.path import commonprefix
 @st.composite
 def positions(draw):
     def commonsuffix(strs):
-        return commonprefix([s[::-1] for s in strs])
+        return commonprefix([s[::-1] for s in strs])[::-1]
 
     chrom = draw(st.sampled_from(["1", "2", "X"]))
 

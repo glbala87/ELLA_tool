@@ -32,7 +32,7 @@ REPORT_FIELD = "REPORT_COMMENT"
 
 
 def commonsuffix(v):
-    return commonprefix([x[::-1] for x in v])
+    return commonprefix([x[::-1] for x in v])[::-1]
 
 
 def ordered(obj):
