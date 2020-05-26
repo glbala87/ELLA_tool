@@ -71,24 +71,64 @@ def get_allele_from_record(record, alleles):
 
 
 def build_allele_from_record(record, ref_genome):
-    "Build database representation of alleles from a vcf record"
+    """Build database representation of alleles from a vcf record
+
+    Examples (record["POS"] - record["REF"] - record["ALT"][0]):
+    (showing only the non-trivial part of the returned dictionary)
+
+    123-A-G -> {
+        "start_position": 122,
+        "open_end_position": 123,
+        "change_type": "SNP",
+        "change_from": "A",
+        "change_to": "G",
+    }
+
+    123-AC-A -> {
+        "start_position": 123,
+        "open_end_position": 124,
+        "change_type": "del",
+        "change_from": "C",
+        "change_to": "",
+    }
+
+    123-A-AC -> {
+        "start_position": 122,
+        "open_end_position": 123,
+        "change_type": "ins",
+        "change_from": "",
+        "change_to": "C",
+    }
+
+    123-GAGA-AC -> {
+        "start_position": 122,
+        "open_end_position": 126,
+        "change_type": "indel",
+        "change_from": "GAGA",
+        "change_to": "AC",
+    }
+
+    """
     assert (
         len(record["ALT"]) == 1
     ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
     vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
 
-    # Convert to zero-based position
     ref = str(vcf_ref)
     alt = str(vcf_alt)
+
+    # Convert to zero-based position
     pos = vcf_pos - 1
 
     # Remove common suffix
+    # (with ref, alt = ("AGAA", "ACAA") change to ref, alt = ("AG", "AC"))
     N_suffix = len(commonsuffix([ref, alt]))
     if N_suffix > 0:
         ref, alt = ref[:-N_suffix], alt[:-N_suffix]
 
     # Remove common prefix and offset position
+    # (with pos, ref, alt = (123, "AG", "AC") change to pos, ref, alt = (124, "G", "C"))
     N_prefix = len(commonprefix([ref, alt]))
     ref, alt = ref[N_prefix:], alt[N_prefix:]
     pos += N_prefix
@@ -105,8 +145,8 @@ def build_allele_from_record(record, ref_genome):
     elif len(ref) < len(alt):
         assert ref == ""
         change_type = "ins"
-        # An insertion is offset 1 because of same prefix,
-        # but the insertion is done between the reference allele and the subsequent allele
+        # An insertion is shifted one base 1 because of same prefix above,
+        # but the insertion is done between the reference allele (at pos-1) and the subsequent allele (at pos)
         start_position = pos - 1
         # Insertions have no span in the reference genome
         open_end_position = pos
