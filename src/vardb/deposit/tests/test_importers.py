@@ -180,34 +180,28 @@ def test_allele_from_record(session, positions, manually_curated_result):
 
 
 # SNP
-@ht.example(("1", 123, "T", "C"), [("1", 122, "CTCC", "CCCC")], None)
-@ht.example(("1", 123, "A", "T"), [("1", 121, "AAAT", "AATT")], None)
-@ht.example(("1", 123, "T", "TT"), [("1", 122, "AT", "ATT")], None)
+@ht.example(("1", 123, "T", "C"), [("C", "CC")])  # => ("1", 122, "CTCC", "CCCC")
+@ht.example(("1", 123, "A", "T"), [("AA", "T")])  # => ("1", 121, "AAAT", "AATT")
+@ht.example(("1", 123, "T", "TT"), [("A", "")])  # => ("1", 122, "AT", "ATT")
 # ins
-@ht.example(("1", 123, "T", "TA"), [("1", 122, "CTCC", "CTACC")], None)
-@ht.example(("1", 123, "T", "TT"), [("1", 122, "CTT", "CTTT")], None)
+@ht.example(("1", 123, "T", "TA"), [("C", "CC")])  # => ("1", 122, "CTCC", "CTACC")
+@ht.example(("1", 123, "T", "TT"), [("C", "T")])  # => ("1", 122, "CTT", "CTTT")
 # del
-@ht.example(("1", 123, "CT", "C"), [("1", 123, "CTCC", "CCC")], None)
-@ht.example(("1", 123, "TCAG", "T"), [("1", 123, "TCAGCAGCAG", "TCAGCAG")], None)
+@ht.example(("1", 123, "CT", "C"), [("", "CC")])  # => ("1", 123, "CTCC", "CCC")
+@ht.example(("1", 123, "TCAG", "T"), [("", "CAGCAG")])  # => ("1", 123, "TCAGCAGCAG", "TCAGCAG")
 # indel
-@ht.example(("1", 123, "CT", "AG"), [("1", 121, "AACT", "AAAG")], None)
-@ht.example(
-    ("1", 123, "C", "AG"), [("1", 123, "CAAA", "AGAAA"), ("1", 121, "AGCAAA", "AGAGAAA")], None
-)
-@ht.example(("1", 123, "C", "AG"), [("1", 123, "CAAA", "AGAAA")], None)
+@ht.example(("1", 123, "CT", "AG"), [("AA", "")])  # => ("1", 121, "AACT", "AAAG")
+@ht.example(("1", 123, "C", "AG"), [("", "AA")])  # => ("1", 123, "CAAA", "AGAAA")
+@ht.example(("1", 123, "C", "AG"), [("AG", "AA")])  # => ("1", 121, "AGCAAA", "AGAGAAA")
 @ht.given(
-    st.one_of(positions()),
-    st.just(None),
-    st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=4),
+    st.one_of(positions()), st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=4)
 )
-def test_equivalent_vcf_representations(standard, equivalent, padding):
-    if equivalent is None:
-        equivalent = []
-    if padding is not None:
-        chrom, pos, ref, alt = standard
-        for prefix, suffix in padding:
-            N = len(prefix)
-            equivalent.append((chrom, pos - N, prefix + ref + suffix, prefix + alt + suffix))
+def test_equivalent_vcf_representations(standard, padding):
+    chrom, pos, ref, alt = standard
+    equivalent = []
+    for prefix, suffix in padding:
+        N = len(prefix)
+        equivalent.append((chrom, pos - N, prefix + ref + suffix, prefix + alt + suffix))
 
     positions = [standard] + equivalent
 
