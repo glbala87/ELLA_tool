@@ -52,49 +52,32 @@
             <option value="lt:-3:m">&lt; 3 months</option>
             <option value="ge:-3:m">&ge; 3 months</option>
         </select>
-        <div class="btn-group">
-            <label
-                tabindex="0"
-                class="bttn btn-primary"
-                uib-btn-checkbox
-                ng-model="$ctrl.modelPriority.Normal"
-                ng-model-watch="$ctrl.priorityNormal"
-                ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
-                >Normal</label
-            >
-        </div>
-        <div class="btn-group">
-            <label
-                tabindex="0"
-                class="bttn btn-primary"
-                uib-btn-checkbox
-                ng-model="$ctrl.modelPriority.High"
-                ng-model-watch="$ctrl.priorityHigh"
-                ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
-                >High</label
-            >
-        </div>
-        <div id="priority-filter" class="btn-group">
-            <label
-                tabindex="0"
-                class="bttn btn-primary"
-                uib-btn-checkbox
-                ng-model="$ctrl.modelPriority.Urgent"
-                ng-model-watch="$ctrl.priorityUrgent"
-                ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
-                >Urgent</label
-            >
-        </div>
-        <!-- <select
-            id="priority"
-            multiple
-            ng-model="$ctrl.modelPriority"
-            ng-model-watch="$ctrl.overviewFilter.priority"
-            ng-change="$ctrl.updateFilter({filter: {priority: $ctrl.modelPriority}})"
+        <label
+            tabindex="0"
+            class="bttn btn-primary"
+            uib-btn-checkbox
+            ng-model="$ctrl.modelPriority.Normal"
+            ng-model-watch="$ctrl.priorityNormal"
+            ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
+            >Normal</label
         >
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-        </select> -->
+        <label
+            tabindex="0"
+            class="bttn btn-primary"
+            uib-btn-checkbox
+            ng-model="$ctrl.modelPriority.High"
+            ng-model-watch="$ctrl.priorityHigh"
+            ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
+            >High</label
+        >
+        <label
+            tabindex="0"
+            class="bttn btn-primary"
+            uib-btn-checkbox
+            ng-model="$ctrl.modelPriority.Urgent"
+            ng-model-watch="$ctrl.priorityUrgent"
+            ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
+            >Urgent</label
+        >
     </section>
 </nav>
