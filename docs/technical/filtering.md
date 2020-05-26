@@ -102,7 +102,7 @@ A set of filters are implemented in ELLA, and are described below. The modularit
 - [Segregation filter](#segregation-filter)
 - [Pre-filter (before import)](#pre-filter-before-import)
 
-See also `/src/vardb/testdata/filterconfigs.json` for examples of a complete setup. The schema is located in `/src/vardb/datamodel/jsonschemas/filterconfig_v1.json`.
+See also `/src/vardb/testdata/filterconfigs.json` for examples of a complete setup. The schema is located in `/src/vardb/datamodel/jsonschemas/filterconfig_v2.json`.
 
 ### Classification filter
 
@@ -379,32 +379,61 @@ This configuration will filter out the specified polypyrimidine changes in the r
 
 ### Quality filter
 
-The quality filter filters out alleles with a low quality, either using the VCF _QUAL_ field or the allele ratio. The latter is calculated in ELLA as alternative allele reads/total reads (presented as "Ratio" in the Quality card). 
+The quality filter filters out alleles with a low quality, using the Filter status or Quality fields from the VCF, or the allele ratio. The latter is calculated in ELLA as alternative allele reads/total reads (presented as **Ratio** in the Quality card). 
 
-::: warning NOTE
-Due to filtering _below_ a certain threshold, this filter is not suitable for exceptions.
-
-Also note that although a skewed allele ratio is most often indicative of technical artifacts, it may also indicate _somatic mosaicism_. This variable should therefore not be used in patients where mosaicism is suspected. 
+::: warning NOTES
+- Due to filtering _below_ a certain threshold, the **Quality** or **Allele ratio** parameters are not suitable for use in exceptions.
+- The meaning of a particular **Quality** value is dependent on the particular variant calling pipeline, and thresholds should therefore be used with caution if importing results from multiple setups.
+- Although a skewed **Allele ratio** is most often indicative of technical artifacts, it may also indicate _somatic mosaicism_. This variable should therefore not be used in patients where mosaicism is suspected. 
 :::
 
 #### Configuration
 
-- **Quality** (`qual`): Set threshold value (integer).
-- **Allele ratio** (`allele_ratio`): Set threshold value (0-1).
+- **Filter status** (`filter_status`): Filter based on values in the VCF `FILTER` field.
+
+    - **Pattern** (`pattern`): Regex pattern to look for (e.g. `PASS`, `.*VQSRTranche.`). 
+    - **Filter empty** (`filter_empty`): Filter out if value is empty (default `False`).
+    - **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`).
+
+- **Quality** (`qual`): Set threshold value (integer) for the VCF `QUAL` field, below which a variant should be filtered.
+
+- **Allele ratio** (`allele_ratio`): Set threshold value (0-1), below which a variant should be filtered.
+
+
 
 ##### Example
 
-This configuration will filter out any variant with _QUAL_ <100 AND allele ratio <0.25:
+This configuration will filter out any variant with `QUAL` <100 AND allele ratio <0.25 AND `FILTER` is NOT `PASS`:
 
 ```json
 {
     "name": "quality",
     "config": {
         "qual": 100,
-        "allele_ratio": 0.25
+        "allele_ratio": 0.25,
+        "filter_status" : {
+            "pattern": "PASS",
+            "inverse": True,
+        }
     }
 }
 ```
+
+This configuration will filter out any variant that has empty `FILTER` status or `VQSRTrancheSNP` with any value (e.g. `VQSRTrancheSNP99.00to99.90`):
+
+```json
+{
+    "name": "quality",
+    "config": {
+        "filter_status" : {
+            "pattern": ".*VQSRTranche.*",
+            "filter_empty": True,
+        }
+    }
+}
+
+```
+
 
 ### Region filter
 
@@ -449,7 +478,7 @@ The segregation filter uses family data to filter out any variants that do **NOT
 
 - [No coverage in parents](#no-coverage-in-parents) (`no_coverage_parents`)
 - [De novo variant](#de-novo-variant) (`denovo`)
-- [Inherited mosaicism](#inherited-mosaicism) (`inherited_mosaicism`)
+- [Parental mosaicism](#parental-mosaicism) (`parental_mosaicism`)
 - [Compound heterozygous candidate](#compound-heterozygous-candidate) (`compound_heterozygous`)
 - [Homozygous recessive variant](#homozygous-recessive-variant) (`recessive_homozygous`)
 
@@ -466,7 +495,7 @@ Individual criteria (see [above](#segregation-filter)) may be either enabled (`t
 
 ##### Example
 
-This configuration will filter out any variant that does *not* match any of the possible criteria given above, except "Inherited mosaicism":
+This configuration will filter out any variant that does *not* match any of the possible criteria given above, except "Parental mosaicism":
 
 ```json
 {
@@ -474,7 +503,7 @@ This configuration will filter out any variant that does *not* match any of the 
     "config": {
         "no_coverage_parents": { "enable": true },
         "denovo": { "enable": true },
-        "inherited_mosaicism": { "enable": false },
+        "parental_mosaicism": { "enable": false },
         "compound_heterozygous": { "enable": true },
         "recessive_homozygous": { "enable": true }
     },
@@ -505,7 +534,7 @@ Designating a variant as de novo is based on rules given in [Vigeland et al. (20
 If a male trio member is reported as heterozygous for an X-linked variant, the variant will be filtered out.
 :::
 
-#### Inherited mosaicism
+#### Parental mosaicism
 
 This rule set checks whether a variant is inherited from a parent with possible allelic mosaicism (excluding cases where the other parent has a normal genotype). The following conditions must be met:
 

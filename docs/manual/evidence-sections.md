@@ -43,15 +43,12 @@ Quality information is tied to a particular sample, and is therefore only availa
 
 #### Warning: Needs verification 
 
-Variants with quality issues are marked with `NEEDS VERIFICATION` in red in the QUALITY card. This is based on [Nelson et al. 2015](http://hdl.handle.net/11299/176475) and is shown if _any_ of the following conditions are true: 
+HTS variants with quality issues are marked with `NEEDS VERIFICATION` in red in the QUALITY card. This is shown if _any_ of the following conditions are true: 
 
 - Not an SNP (e.g. insertion/deletion).
 - Filter not `PASS`
-- Quality ≤300
 - Depth ≤20
 - Allele ratio ≤0.9 if homozygous, ≤0.3 or ≥0.6 if heterozygous
-
-Note that only HTS data will trigger this warning, as no quality information is imported for Sanger data. 
 
 ### Mark as verified/technical/not relevant
 
@@ -59,14 +56,14 @@ In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFI
 
 <div style="text-indent: 4%;"><img src="./img/verified_btn.png"></div>
 
-  - `VERIFIED` means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green “V” tag in the “Q” column of the [side bar](/manual/side-bar.html#variant-tags).
+  - `VERIFIED` means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green `V` tag in the "Q" column of the [side bar](/manual/side-bar.html#variant-tags).
 
-  - `TECHNICAL` means the variant is a false variant call in this sample (analysis). This adds a red “T” tag in the “Q” column of the [side bar](/manual/side-bar.html#variant-tags) and moves the variant to the TECHNICAL VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
+  - `TECHNICAL` means the variant is a false variant call in this sample (analysis). This adds a red `T` tag in the "Q" column of the [side bar](/manual/side-bar.html#variant-tags) and moves the variant to the TECHNICAL VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
   
   - `NOT RELEVANT` means the variant should be disregarded in this analysis, e.g. due to a mismatch with the phenotype. This moves the variant to the NOT RELEVANT VARIANTS [side bar section](/manual/side-bar.html#side-bar-sections).
   
 ::: tip TIP 
-Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalisation of the analysis.
+Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalization of the analysis.
 :::
 
 ## Frequency
@@ -151,8 +148,8 @@ This section shows annotation from external databases, currently including HGMD 
 
 ### Included databases
 
-  - HGMD Pro: <https://portal.biobase-international.com/hgmd/pro/>
-  - ClinVar: <http://www.ncbi.nlm.nih.gov/clinvar/>
+  - [HGMD Pro](https://portal.biobase-international.com/hgmd/pro/)
+  - [ClinVar](http://www.ncbi.nlm.nih.gov/clinvar/)
 
 ### Add data from other external databases
 
@@ -193,13 +190,13 @@ Recurring, generic or otherwise irrelevant references from the annotation can au
 
 When a choice/evaluation already has been made, the `EVALUATE` button changes to `RE-EVALUATE`.
 
-The STUDIES-COMMENTS field at the top should be used for summarising findings and comments from the individual reference evaluation forms: 
+The STUDIES-COMMENTS field at the top should be used for summarizing findings and comments from the individual reference evaluation forms: 
 
 #### Reference evaluation form
 
 The `EVALUATE` button will bring up the reference evaluation form. Help text for the different options provided here is available by holding the mouse cursor over the header/question. 
 
-The options in the form are meant as a guide, and you should always make a comment (at the bottom of the form) summarising any points from the reference that will be important for the classification of the variant. This comment is also visible in the reference list and can be directly edited here once an evaluation has been performed. 
+The options in the form are meant as a guide, and you should always make a comment (at the bottom of the form) summarizing any points from the reference that will be important for the classification of the variant. This comment is also visible in the reference list and can be directly edited here once an evaluation has been performed. 
 
 #### Section cards
 
