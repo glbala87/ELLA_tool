@@ -45,12 +45,12 @@
             ng-model-watch="$ctrl.overviewFilter.dateRange"
             ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
         >
-            <option value="1:d">&lt; 1 day</option>
-            <option value="3:d">&lt; 3 days</option>
-            <option value="7:d">&lt; 1 week</option>
-            <option value="1:m">&lt; 1 month</option>
-            <option value="3:m">&lt; 3 months</option>
-            <option value="-3:m">&ge; 3 months</option>
+            <option value="lt:-1:d">&lt; 1 day</option>
+            <option value="lt:-3:d">&lt; 3 days</option>
+            <option value="lt:-7:d">&lt; 1 week</option>
+            <option value="lt:-1:m">&lt; 1 month</option>
+            <option value="lt:-3:m">&lt; 3 months</option>
+            <option value="ge:-3:m">&ge; 3 months</option>
         </select>
         <div class="btn-group">
             <label
