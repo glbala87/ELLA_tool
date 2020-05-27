@@ -39,7 +39,7 @@ Any combination of these filters is allowed.
 
 ## Version 1.10
 
-Release date: 28.05.2020
+Release date: 03.06.2020
 
 ### Highlights
 
@@ -71,6 +71,8 @@ All criteria in the [segregation filter](/technical/filtering.html#segregation-f
 - Fixed a bug causing wrong open-end position for insertions.
 <!-- MR !411 -->
 - Fixed a bug causing incorrect filtering for regions with 1 base.
+<!-- MR !421 --> 
+- Fixed a bug causing incorrect rescue of variants annotated with non-standard terms in the ClinVar database.
 <!-- MR !412 --> 
 - Fixed a bug causing a wide sidebar with long indication comments.
 <!-- MR !418 -->
