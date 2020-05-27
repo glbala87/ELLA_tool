@@ -4,7 +4,8 @@ and that they are populated correctly.
 """
 import pytest
 
-from vardb.datamodel import allele, annotation, annotationshadow
+from vardb.datamodel import annotationshadow
+from conftest import create_allele_with_annotation
 
 
 GLOBAL_CONFIG = {
@@ -29,50 +30,6 @@ def get_freq_num_column_names():
     for provider, key in annotationshadow.iter_freq_groups(GLOBAL_CONFIG["frequencies"]["groups"]):
         names.append("{}_num.{}".format(provider, key))
     return names
-
-
-allele_start = 0
-
-
-def create_allele():
-    global allele_start
-    allele_start += 1
-    return allele.Allele(
-        genome_reference="GRCh37",
-        chromosome="1",
-        start_position=allele_start,
-        open_end_position=allele_start + 1,
-        change_from="A",
-        change_to="T",
-        change_type="SNP",
-        vcf_pos=allele_start + 1,
-        vcf_ref="A",
-        vcf_alt="T",
-    )
-
-
-def create_annotation(annotations, allele=None):
-    annotations.setdefault("external", {})
-    annotations.setdefault("frequencies", {})
-    annotations.setdefault("prediction", {})
-    annotations.setdefault("references", [])
-    annotations.setdefault("transcripts", [])
-    for t in annotations["transcripts"]:
-        t.setdefault("consequences", [])
-        t.setdefault("transcript", "NONE_DEFINED")
-        t.setdefault("strand", 1)
-        t.setdefault("is_canonical", True)
-        t.setdefault("in_last_exon", "no")
-
-    return annotation.Annotation(annotations=annotations, allele=allele)
-
-
-def create_allele_with_annotation(session, annotations):
-    al = create_allele()
-    an = create_annotation(annotations, allele=al)
-    session.add(al)
-    session.add(an)
-    return al, an
 
 
 class TestAnnotationShadow(object):

@@ -358,12 +358,32 @@ class ConvertCSQ(object):
         return transcripts
 
 
+_HGMD_SUBSTITUTE = [
+    (re.compile(r"@#EQ"), "="),
+    (re.compile(r"@#CM"), ","),
+    (re.compile(r"@#SC"), ";"),
+    (re.compile(r"@#SP"), " "),
+    (re.compile(r"@#TA"), "\t"),
+]
+
+
 def convert_hgmd(annotation):
     HGMD_FIELDS = ["acc_num", "codon", "disease", "tag"]
     if "HGMD" not in annotation:
         return dict()
 
-    data = {k: annotation["HGMD"][k] for k in HGMD_FIELDS if k in annotation["HGMD"]}
+    def translate_to_original(x):
+        if not isinstance(x, str):
+            return x
+        for regexp, substitution in _HGMD_SUBSTITUTE:
+            x = regexp.sub(substitution, x)
+        return x
+
+    data = {
+        k: translate_to_original(annotation["HGMD"][k])
+        for k in HGMD_FIELDS
+        if k in annotation["HGMD"]
+    }
     return {"HGMD": data}
 
 

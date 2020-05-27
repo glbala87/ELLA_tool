@@ -13,12 +13,12 @@ import datetime
 import pytz
 from collections import defaultdict
 from sqlalchemy import or_, and_
+from os.path import commonprefix
 
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
 from vardb.util import vcfiterator, annotationconverters
-from vardb.deposit.vcfutil import vcfhelper
 from vardb.datamodel.user import User
 
 log = logging.getLogger(__name__)
@@ -29,6 +29,10 @@ ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"
 ASSESSMENT_DATE_FIELD = "DATE"
 ASSESSMENT_USERNAME_FIELD = "USERNAME"
 REPORT_FIELD = "REPORT_COMMENT"
+
+
+def commonsuffix(v):
+    return commonprefix([x[::-1] for x in v])[::-1]
 
 
 def ordered(obj):
@@ -64,6 +68,110 @@ def get_allele_from_record(record, alleles):
         ):
             return allele
     return None
+
+
+def build_allele_from_record(record, ref_genome):
+    """Build database representation of alleles from a vcf record
+
+    Examples (record["POS"] - record["REF"] - record["ALT"][0]):
+    (showing only the non-trivial part of the returned dictionary)
+
+    123-A-G -> {
+        "start_position": 122,
+        "open_end_position": 123,
+        "change_type": "SNP",
+        "change_from": "A",
+        "change_to": "G",
+    }
+
+    123-AC-A -> {
+        "start_position": 123,
+        "open_end_position": 124,
+        "change_type": "del",
+        "change_from": "C",
+        "change_to": "",
+    }
+
+    123-A-AC -> {
+        "start_position": 122,
+        "open_end_position": 123,
+        "change_type": "ins",
+        "change_from": "",
+        "change_to": "C",
+    }
+
+    123-GAGA-AC -> {
+        "start_position": 122,
+        "open_end_position": 126,
+        "change_type": "indel",
+        "change_from": "GAGA",
+        "change_to": "AC",
+    }
+
+    """
+    assert (
+        len(record["ALT"]) == 1
+    ), "Only decomposed variants are supported. That is, only one ALT per line/record."
+
+    vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
+
+    ref = str(vcf_ref)
+    alt = str(vcf_alt)
+
+    # Convert to zero-based position
+    pos = vcf_pos - 1
+
+    # Remove common suffix
+    # (with ref, alt = ("AGAA", "ACAA") change to ref, alt = ("AG", "AC"))
+    N_suffix = len(commonsuffix([ref, alt]))
+    if N_suffix > 0:
+        ref, alt = ref[:-N_suffix], alt[:-N_suffix]
+
+    # Remove common prefix and offset position
+    # (with pos, ref, alt = (123, "AG", "AC") change to pos, ref, alt = (124, "G", "C"))
+    N_prefix = len(commonprefix([ref, alt]))
+    ref, alt = ref[N_prefix:], alt[N_prefix:]
+    pos += N_prefix
+
+    if len(ref) == len(alt) == 1:
+        change_type = "SNP"
+        start_position = pos
+        open_end_position = pos + 1
+    elif len(ref) >= 1 and len(alt) >= 1:
+        assert len(ref) > 1 or len(alt) > 1
+        change_type = "indel"
+        start_position = pos
+        open_end_position = pos + len(ref)
+    elif len(ref) < len(alt):
+        assert ref == ""
+        change_type = "ins"
+        # An insertion is shifted one base 1 because of same prefix above,
+        # but the insertion is done between the reference allele (at pos-1) and the subsequent allele (at pos)
+        start_position = pos - 1
+        # Insertions have no span in the reference genome
+        open_end_position = pos
+    elif len(ref) > len(alt):
+        assert alt == ""
+        change_type = "del"
+        start_position = pos
+        open_end_position = pos + len(ref)
+    else:
+        raise ValueError("Unable to determine allele from ref/alt={}/{}".format(ref, alt))
+
+    allele = {
+        "genome_reference": ref_genome,
+        "chromosome": record["CHROM"],
+        "start_position": start_position,
+        "open_end_position": open_end_position,
+        "change_type": change_type,
+        "change_from": ref,
+        "change_to": alt,
+        "vcf_pos": vcf_pos,
+        "vcf_ref": vcf_ref,
+        "vcf_alt": vcf_alt,
+    }
+
+    return allele
 
 
 def deepmerge(source, destination):
@@ -725,7 +833,6 @@ class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
                 node = new_node
         # Insert value on inner node (dict)
         if isinstance(value, str):
-            value = vcfhelper.translate_to_original(value)
             node[k] = func(value)
         else:
             node[k] = value
@@ -755,10 +862,7 @@ class HGMDInfoProcessor(SplitToDictInfoProcessor):
             return True
 
     def _parseExtraRef(self, value):
-        entries = [
-            dict(list(zip(self.fields, [vcfhelper.translate_to_original(e) for e in v.split("|")])))
-            for v in value.split(",")
-        ]
+        entries = [dict(list(zip(self.fields, v.split("|")))) for v in value.split(",")]
         for e in entries:
             for t in ["pmid"]:
                 if e.get(t):
@@ -912,33 +1016,7 @@ class AlleleImporter(object):
         Adds a new record to internal batch
         """
 
-        assert (
-            len(record["ALT"]) == 1
-        ), "Only decomposed variants are supported. That is, only one ALT per line/record."
-
-        alt = record["ALT"][0]
-        start_offset, allele_length, change_type, change_from, change_to = vcfhelper.compare_alleles(
-            record["REF"], alt
-        )
-        start_pos = vcfhelper.get_start_position(record["POS"], start_offset, change_type)
-        end_pos = vcfhelper.get_end_position(record["POS"], start_offset, allele_length)
-
-        vcf_pos = record["POS"]
-        vcf_ref = record["REF"]
-        vcf_alt = alt
-
-        item = {
-            "genome_reference": self.ref_genome,
-            "chromosome": record["CHROM"],
-            "start_position": start_pos,
-            "open_end_position": end_pos,
-            "change_from": change_from,
-            "change_to": change_to,
-            "change_type": change_type,
-            "vcf_pos": vcf_pos,
-            "vcf_ref": vcf_ref,
-            "vcf_alt": vcf_alt,
-        }
+        item = build_allele_from_record(record, self.ref_genome)
         self.batch_items.append(item)
 
         self.counter["nAltAlleles"] += 1

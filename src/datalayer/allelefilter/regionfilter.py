@@ -387,14 +387,6 @@ class RegionFilter(object):
             )
 
             # Find allele ids within genomic region
-            # In the database, insertions are stored with open_end_position=start_position + <length of insertion> + 1
-            # This does not apply for region filtering, as we compare to the reference genome, where the insertion should have no length
-            # TODO: Change datamodel to use open_end_position=start_position+1 for insertions
-            open_end_position = case(
-                [(allele.Allele.change_type == "ins", allele.Allele.start_position + 1)],
-                else_=allele.Allele.open_end_position,
-            )
-
             # We need to restrict comparison for each allele to happen on positions
             # inside the transcript(s) (or else we could compare across same position on different chromosomes)
             # (using transcript(s) rather than chromosome as key is a lot faster)
@@ -424,13 +416,13 @@ class RegionFilter(object):
                             allele.Allele.start_position <= all_regions.c.region_end,
                         ),
                         and_(
-                            open_end_position > all_regions.c.region_start,
-                            open_end_position < all_regions.c.region_end,
+                            allele.Allele.open_end_position > all_regions.c.region_start,
+                            allele.Allele.open_end_position < all_regions.c.region_end,
                         ),
                         # Region contained within variant
                         and_(
                             allele.Allele.start_position <= all_regions.c.region_start,
-                            open_end_position >= all_regions.c.region_end,
+                            allele.Allele.open_end_position >= all_regions.c.region_end,
                         ),
                     ),
                 )
