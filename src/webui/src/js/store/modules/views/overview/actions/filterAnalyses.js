@@ -7,11 +7,18 @@ export default function filterAnalyses({ state }) {
     } else {
         const filteredAnalyses = {}
         const nameMatch = new RegExp(`.*${filter.analysisName}.*`, 'i')
+        // allow using * as an alias for regex .
+        const commentMatch = new RegExp(
+            `.*${filter.reviewComment == '*' ? '.' : filter.reviewComment}.*`,
+            'i'
+        )
 
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
                 return (
                     (!filter.analysisName || nameMatch.test(a.name)) &&
+                    (!filter.reviewComment ||
+                        (a.review_comment && commentMatch.test(a.review_comment))) &&
                     (!filter.technology ||
                         (!filter.technology.Sanger && !filter.technology.HTS) ||
                         (filter.technology.Sanger && a.technology == 'Sanger') ||

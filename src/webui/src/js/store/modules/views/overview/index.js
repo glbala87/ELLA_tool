@@ -2,6 +2,7 @@ import { Module } from 'cerebral'
 
 import sectionChanged from './signals/sectionChanged'
 import updateFilter from './signals/updateFilter'
+import clearFilter from './signals/clearFilter'
 import { initApp, authenticate } from '../../../common/factories'
 import importModule from './import'
 import changeView from '../factories/changeView'
@@ -29,6 +30,7 @@ export default Module({
         updateOverviewTriggered,
         routedWithSection: routedWithSectionSequence,
         routed: routedSequence,
-        updateFilter
+        updateFilter,
+        clearFilter
     }
 })

@@ -12,7 +12,7 @@
             uib-btn-checkbox="'user'"
             ng-model="$ctrl.modelTechnologyHTS"
             ng-model-watch="$ctrl.technologyHTS"
-            ng-change="$ctrl.updateFilter({filter: {technology: {'HTS': $ctrl.modelTechnologyHTS}}})"
+            ng-change="$ctrl.updateFilter({filter: {technologyHTS: $ctrl.modelTechnologyHTS}})"
             >HTS</label
         >
         <label
@@ -21,7 +21,7 @@
             uib-btn-checkbox="'user'"
             ng-model="$ctrl.modelTechnologySanger"
             ng-model-watch="$ctrl.technologySanger"
-            ng-change="$ctrl.updateFilter({filter: {technology: {'Sanger': $ctrl.modelTechnologySanger}}})"
+            ng-change="$ctrl.updateFilter({filter: {technologySanger: $ctrl.modelTechnologySanger}})"
             >Sanger</label
         >
 
@@ -33,6 +33,16 @@
             ng-model-watch="$ctrl.overviewFilter.analysisName"
             ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
         />
+
+        <label for="comment">Comment:</label>
+        <input
+            type="text"
+            id="comment"
+            ng-model="$ctrl.modelReviewComment"
+            ng-model-watch="$ctrl.overviewFilter.reviewComment"
+            ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
+        />
+
         <label for="date">Date Range</label>
         <select
             id="date"
@@ -79,5 +89,6 @@
             ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
             >Urgent</label
         >
+        <button ng-click="$ctrl.clearFilter()">reset filter</button>
     </section>
 </nav>

@@ -21,11 +21,13 @@ export let AVAILABLE_SECTIONS = {
 
 export let DEFAULT_FILTER = {
     analysisName: null,
-    technology: null,
+    reviewComment: null,
     dateRange: null,
-    priorityNormal: null,
-    priorityHigh: null,
-    priorityUrgent: null
+    technologyHTS: false,
+    technologySanger: false,
+    priorityNormal: false,
+    priorityHigh: false,
+    priorityUrgent: false
 }
 
 export default function getOverviewState() {

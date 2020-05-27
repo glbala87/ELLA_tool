@@ -9,20 +9,14 @@ app.component('overviewNavbar', {
     controller: connect(
         {
             overviewFilter: state`views.overview.filter`,
-            technologyHTS: state`views.overview.filter.technology.HTS`,
-            technologySanger: state`views.overview.filter.technology.Sanger`,
-            priorityNormal: state`views.overview.filter.priority.normal`,
-            priorityHigh: state`views.overview.filter.priority.high`,
-            priorityUrget: state`views.overview.filter.priority.urgent`,
+            technologyHTS: state`views.overview.filter.technologyHTS`,
+            technologySanger: state`views.overview.filter.technologySanger`,
+            priorityNormal: state`views.overview.filter.priorityNormal`,
+            priorityHigh: state`views.overview.filter.priorityHigh`,
+            priorityUrgent: state`views.overview.filter.priorityUrgent`,
             updateFilter: signal`views.overview.updateFilter`,
             clearFilter: signal`views.overview.clearFilter`
         },
-        'OverviewNavbar'[
-            ('$scope',
-            ($scope) => {
-                const $ctrl = $scope.$ctrl
-                Object.assign($ctrl, {})
-            })
-        ]
+        'OverviewNavbar'
     )
 })
