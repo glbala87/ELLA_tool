@@ -161,10 +161,13 @@ def filter_config(draw):
     [[{"genotype_allele_ratio": 0.0, "variant_quality": 99}]], {"allele_ratio": 0.25}, []
 )  # Should not filter out alleles with AR==0.0
 @ht.example(
+    [[{"filter_status": "."}], [{"filter_status": None}]], {"filter_status": {"pattern": "\\."}}, []
+)  # Should not filter out alleles with filter_status None or '.' (implicit)
+@ht.example(
     [[{"filter_status": "."}], [{"filter_status": None}]],
     {"filter_status": {"pattern": "\\.", "filter_empty": False}},
     [],
-)  # Should not filter out alleles with filter_status None or '.', unless specified
+)  # Should not filter out alleles with filter_status None or '.' (explicit)
 @ht.example(
     [[{"filter_status": "."}], [{"filter_status": None}]],
     {"filter_status": {"pattern": "PASS", "filter_empty": True}},
@@ -217,6 +220,16 @@ def filter_config(draw):
 )  # Should filter when all samples fulfill the criteria for the genotype
 @ht.example(
     [[{"filter_status": "VQSRTrancheSNP99.00to99.90"}]],
+    {"filter_status": {"pattern": ".*VQSRTranche.*"}},
+    [0],
+)  # Should filter when only sample fulfill the criteria for the genotype
+@ht.example(
+    [
+        [
+            {"filter_status": "VQSRTrancheSNP99.00to99.90"},
+            {"filter_status": "VQSRTrancheSNP99.00to99.90"},
+        ]
+    ],
     {"filter_status": {"pattern": ".*VQSRTranche.*"}},
     [0],
 )  # Should filter when all samples fulfill the criteria for the genotype
