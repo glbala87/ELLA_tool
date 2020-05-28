@@ -41,6 +41,10 @@ Quality information is tied to a particular sample, and is therefore only availa
 
   - Ratio: Number of reads covering each allele, with ratio for variant allele/total
 
+#### De novo variants 
+
+In addition to the above, for de novo variants (marked with a `D` [tag in the sidebar](/manual/side-bar.html#variant-tags)), a P(de novo) value (0-1) is shown for the proband, indicating the posterior probability that the de novo call is true. For details, see [Vigeland et al. 2016](https://doi.org/10.1093/bioinformatics/btw046). 
+
 #### Warning: Needs verification 
 
 HTS variants with quality issues are marked with `NEEDS VERIFICATION` in red in the QUALITY card. This is shown if _any_ of the following conditions are true: 
