@@ -302,7 +302,7 @@ class SegregationFilter(object):
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
         return denovo_result
 
-    def inherited_mosaicism(
+    def parental_mosaicism(
         self,
         genotype_table: Table,
         proband_sample_id: int,
@@ -310,7 +310,7 @@ class SegregationFilter(object):
         mother_sample_id: int,
     ) -> Set[int]:
         """
-        Inherited mosaicism
+        Parental mosaicism
 
         Checks whether there are variants that is inherited from a parent with possible mosasicm.
 
@@ -343,7 +343,7 @@ class SegregationFilter(object):
         )
         x_minus_par_filter = self.get_x_minus_par_filter(genotype_with_allele_table)
 
-        inherited_mosacism_allele_ids = self.session.query(
+        parental_mosaicism_allele_ids = self.session.query(
             genotype_with_allele_table.c.allele_id
         ).filter(
             # Exclude no coverage
@@ -388,7 +388,7 @@ class SegregationFilter(object):
                     ),
                 ),
                 # X-linked
-                # Treat father mosacism different than mothers
+                # Treat father mosaicism different than mothers
                 and_(
                     x_minus_par_filter,
                     or_(
@@ -423,8 +423,8 @@ class SegregationFilter(object):
             ),
         )
 
-        inherited_mosaicism_result = set([a[0] for a in inherited_mosacism_allele_ids.all()])
-        return inherited_mosaicism_result
+        parental_mosaicism_result = set([a[0] for a in parental_mosaicism_allele_ids.all()])
+        return parental_mosaicism_result
 
     def autosomal_recessive_homozygous(
         self,
@@ -888,12 +888,12 @@ class SegregationFilter(object):
             else:
                 result[analysis_id]["denovo"] = set()
 
-            if filter_config["inherited_mosaicism"]["enable"]:
-                result[analysis_id]["inherited_mosaicism"] = self.inherited_mosaicism(
+            if filter_config["parental_mosaicism"]["enable"]:
+                result[analysis_id]["parental_mosaicism"] = self.parental_mosaicism(
                     genotype_table, proband_sample_id, father_sample_id, mother_sample_id
                 )
             else:
-                result[analysis_id]["inherited_mosaicism"] = set()
+                result[analysis_id]["parental_mosaicism"] = set()
 
             if filter_config["compound_heterozygous"]["enable"]:
                 result[analysis_id]["compound_heterozygous"] = self.compound_heterozygous(
@@ -967,7 +967,7 @@ class SegregationFilter(object):
             if has_parents:
                 non_filtered = (
                     segregation_results[analysis_id]["denovo"]
-                    | segregation_results[analysis_id]["inherited_mosaicism"]
+                    | segregation_results[analysis_id]["parental_mosaicism"]
                     | segregation_results[analysis_id]["compound_heterozygous"]
                     | segregation_results[analysis_id]["autosomal_recessive_homozygous"]
                     | segregation_results[analysis_id]["xlinked_recessive_homozygous"]

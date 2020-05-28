@@ -736,7 +736,7 @@
                     "config": {
                         "no_coverage_parents": { "enable": true },
                         "denovo": { "enable": true },
-                        "inherited_mosaicism": { "enable": true },
+                        "parental_mosaicism": { "enable": true },
                         "compound_heterozygous": { "enable": true },
                         "recessive_homozygous": { "enable": true }
                     },

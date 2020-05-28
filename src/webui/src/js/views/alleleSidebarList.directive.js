@@ -96,7 +96,7 @@ app.component('alleleSidebarList', {
             '$scope',
             function($scope) {
                 const SEGREGATION_TAGS = [
-                    ['inherited_mosaicism', 'Inherited mosaicism'],
+                    ['parental_mosaicism', 'Parental mosaicism'],
                     ['denovo', 'De novo'],
                     ['compound_heterozygous', 'Compound heterozygous'],
                     ['autosomal_recessive_homozygous', 'Autosomal recessive homozygous'],
@@ -261,21 +261,26 @@ app.component('alleleSidebarList', {
                         return $ctrl.hasUnignoredReferences[allele.id]
                     },
                     getSegregationTag(allele) {
-                        // Inherited mosaicism takes precedence if tags include both types
-                        if (allele.tags.includes('inherited_mosaicism')) {
-                            return 'M'
-                        } else if (allele.tags.includes('denovo')) {
-                            return 'D'
-                        } else if (allele.tags.includes('autosomal_recessive_homozygous')) {
-                            return 'A'
-                        } else if (allele.tags.includes('xlinked_recessive_homozygous')) {
-                            return 'X'
-                        } else if (allele.tags.includes('compound_heterozygous')) {
-                            return 'C'
+                        const types = []
+                        if (allele.tags.includes('parental_mosaicism')) {
+                            types.push('M')
                         }
+                        if (allele.tags.includes('denovo')) {
+                            types.push('D')
+                        }
+                        if (allele.tags.includes('autosomal_recessive_homozygous')) {
+                            types.push('A')
+                        }
+                        if (allele.tags.includes('xlinked_recessive_homozygous')) {
+                            types.push('X')
+                        }
+                        if (allele.tags.includes('compound_heterozygous')) {
+                            types.push('C')
+                        }
+                        return types.join('')
                     },
                     getSegregationTitle(allele) {
-                        let title = []
+                        const title = []
                         for (const tag of SEGREGATION_TAGS) {
                             if (allele.tags.includes(tag[0])) {
                                 title.push(tag[1])

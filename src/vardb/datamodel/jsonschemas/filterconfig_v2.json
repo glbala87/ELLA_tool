@@ -443,7 +443,7 @@
                         "required": [
                             "no_coverage_parents",
                             "denovo",
-                            "inherited_mosaicism",
+                            "parental_mosaicism",
                             "compound_heterozygous",
                             "recessive_homozygous"
                         ],
@@ -462,7 +462,7 @@
                                     "enable": { "type": "boolean" }
                                 }
                             },
-                            "inherited_mosaicism": {
+                            "parental_mosaicism": {
                                 "required": ["enable"],
                                 "additionalProperties": false,
                                 "properties": {
