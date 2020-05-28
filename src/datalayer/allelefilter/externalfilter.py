@@ -28,10 +28,7 @@ CLINVAR_CLINSIG_GROUPS = {
         "likely pathogenic - adrenal pheochromocytoma",
         "probable-pathogenic",
         "probably pathogenic",
-        "likely pathogenic",
         "pathogenic variant for bardet-biedl syndrome",
-        "pathogenic",
-        "pathologic",
     ],
     "uncertain": ["uncertain", "variant of unknown significance", "uncertain significance"],
     "benign": [
