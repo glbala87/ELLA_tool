@@ -2305,7 +2305,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -2819,7 +2818,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -2992,7 +2990,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -3266,7 +3263,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true

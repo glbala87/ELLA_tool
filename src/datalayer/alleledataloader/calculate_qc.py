@@ -37,14 +37,11 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
     # (all of the following will need to be True for needs_verification to be False)
     # - SNP variant
     # - PASS filter
-    # - QUAL above threshold
     # - DP above threshold
     # - allele_ratio within threshold (hom/het)
     needs_verification_checks = {
         "snp": allele_data["change_type"] == "SNP",
         "pass": genotype_data["filter_status"] == "PASS",
-        "qual": genotype_data["variant_quality"] is not None
-        and genotype_data["variant_quality"] > 300,
         "dp": genotype_data["sequencing_depth"] is not None
         and genotype_data["sequencing_depth"] > 20,
     }
