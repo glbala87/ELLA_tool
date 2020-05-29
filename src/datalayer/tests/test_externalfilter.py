@@ -1,7 +1,7 @@
 import operator
 import datetime
 import pytz
-from datalayer.allelefilter.externalfilter import ExternalFilter
+from datalayer.allelefilter.externalfilter import ExternalFilter, CLINVAR_CLINSIG_GROUPS
 from api.config.config import config
 from vardb.datamodel import annotation
 from conftest import create_annotation
@@ -19,7 +19,7 @@ OPERATORS = {
 
 
 def create_external_annotation(
-    allele_id, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
+    draw, allele_id, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
 ):
     external_annotation = {}
 
@@ -45,19 +45,45 @@ def create_external_annotation(
         "last_evaluated": "",
     }
 
+    def clinvar_clinsig_random_casing(draw, group):
+        clnsig = draw(st.sampled_from(CLINVAR_CLINSIG_GROUPS[group]))
+        uppercase_slices = draw(st.lists(st.integers(min_value=0, max_value=len(clnsig) - 1)))
+        clnsig = "".join(
+            [
+                clnsig[i].upper() if i in uppercase_slices else clnsig[i].lower()
+                for i in range(len(clnsig))
+            ]
+        )
+        return clnsig
+
     for n in range(num_benign):
         item = dict(item_base)
-        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Benign"})
+        item.update(
+            {
+                "rcv": "SCVXXXXXXXX",
+                "clinical_significance_descr": clinvar_clinsig_random_casing(draw, "benign"),
+            }
+        )
         external_annotation["CLINVAR"]["items"].append(item)
 
     for n in range(num_uncertain):
         item = dict(item_base)
-        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Uncertain significance"})
+        item.update(
+            {
+                "rcv": "SCVXXXXXXXX",
+                "clinical_significance_descr": clinvar_clinsig_random_casing(draw, "uncertain"),
+            }
+        )
         external_annotation["CLINVAR"]["items"].append(item)
 
     for n in range(num_pathogenic):
         item = dict(item_base)
-        item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "Pathogenic"})
+        item.update(
+            {
+                "rcv": "SCVXXXXXXXX",
+                "clinical_significance_descr": clinvar_clinsig_random_casing(draw, "pathogenic"),
+            }
+        )
         external_annotation["CLINVAR"]["items"].append(item)
 
     if hgmd_tag:
@@ -94,7 +120,7 @@ def annotations(draw):
         )
         annotation_objs.append(
             create_external_annotation(
-                i, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
+                draw, i, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
             )
         )
 
@@ -185,7 +211,6 @@ def test_externalfilter(
         clinvar_result = []
         for ann in anno_dicts:
             allele_id = ann["allele_id"]
-
             if clinvar_stars:
                 op, count = clinvar_stars
                 if not OPERATORS[op](ann["num_stars"], count):

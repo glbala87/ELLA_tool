@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pushd /ella
+
 COLOROFF='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
