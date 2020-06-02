@@ -11,7 +11,6 @@ import Router from './router'
 import './modals/alleleAssessmentHistoryModal.service'
 import './modals/customAnnotationModal.service'
 import './modals/referenceEvalModal.service'
-import './modals/igvModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resources are therefore still in use
 import './services/resources/alleleAssessmentResource.service'
