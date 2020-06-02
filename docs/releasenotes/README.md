@@ -39,7 +39,7 @@ Any combination of these filters is allowed.
 
 ## Version 1.10
 
-Release date: 03.06.2020
+Release date: 09.06.2020
 
 ### Highlights
 

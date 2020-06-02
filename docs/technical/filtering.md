@@ -391,7 +391,7 @@ The quality filter filters out alleles with a low quality, using the Filter stat
 
 - **Filter status** (`filter_status`): Filter based on values in the VCF `FILTER` field.
 
-    - **Pattern** (`pattern`): Regex pattern to look for (e.g. `PASS`, `.*VQSRTranche.`). 
+    - **Pattern** (`pattern`): Regex pattern to look for (e.g. `PASS`, `.*VQSRTranche.*`). 
     - **Filter empty** (`filter_empty`): Filter out if value is empty (default `False`).
     - **Inverse** (`inverse`): Apply to alleles **NOT** fulfilling the given criteria (default `False`).
 
