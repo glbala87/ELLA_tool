@@ -4,7 +4,81 @@ title: Latest release
 
 # Release notes: Latest releases
 
+|Major versions|Minor versions|
+|:--|:--|
+[v1.10](#version-1-10)|
+[v1.9](#version-1-9)|[v1.9.1](#version-1-9-1), [v1.9.2](#version-1-9-2)
+
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+<!-- 
+## Version 1.11
+
+Release date: [TBD]
+
+### Highlights
+
+This release brings a new filter function for the ANALYSES OVERVIEW page.
+
+#### Improved ANALYSES OVERVIEW page
+
+A new filter feature was added to the ANALYSES OVERVIEW page to quickly locate subsets of analyses. You can filter by these parameters: 
+
+- Analysis name
+- Date (ranges up to current date)
+- Show only 
+    - HTS/Sanger
+    - Priorities Normal/High/Urgent
+    - Analyses with comments
+
+Any combination of these filters is allowed.
+
+### All changes
+
+-->
+
+## Version 1.10
+
+Release date: 09.06.2020
+
+### Highlights
+
+This release brings improvements to the variant filters, a new version of IGV for Visual mode, as well as several smaller improvements and fixes. 
+
+#### Improved variant filters
+
+All criteria in the [segregation filter](/technical/filtering.html#segregation-filter) can now be enabled/disabled separately, allowing for increased flexibility. In addition, the [quality filter](/technical/filtering.html#quality-filter) can now use the VCF `FILTER` status (`PASS`/...) as a parameter. 
+
+### All changes
+
+<!-- MR !409; also updated filtering.md --> 
+- [Added configuration for segregation filter](#improved-variant-filters).
+<!-- MR !416; also updated filtering.md -->
+- Renamed "Inherited mosaicism" to "[Parental mosaicism](/technical/filtering.html#parental-mosaicism)"; The associated [`M` tag](/manual/side-bar.html#variant-tags) can now appear together with other Segregation tags in the sidebar if multiple conditions are true.
+<!-- MR !368; also updated filtering.md -->
+- [Added possibility for using VCF `FILTER` status in quality filter](#improved-variant-filters).
+<!-- MR !417; also updated evidence-sections.md -->
+- Removed `QUAL`≤300 as a criterion for the [NEEDS VERIFICATION warning](/manual/evidence-sections.html#warning-needs-verification) and the [`Q` tag](/manual/side-bar.html#variant-tags).
+<!-- MR !397 -->  
+- Upgraded IGV (in Visual mode) to version 2.5.4, with several minor improvements.
+<!-- MR !419; also updated top-bar.md -->
+- The number shown on the `WORK LOG` button now includes a count of all user added messages, including from previously finalized analysis rounds.
+<!-- MR !370 -->
+- Removed `VARIANT REPORT` button from OVERVIEW.
+<!-- MR !410 -->  
+- Open the previously selected overview page when returning from search.
+<!-- MR !407 --> 
+- Fixed a bug causing wrong open-end position for insertions.
+<!-- MR !411 -->
+- Fixed a bug causing incorrect filtering for regions with 1 base.
+<!-- MR !421 --> 
+- Fixed a bug causing incorrect rescue of variants annotated with non-standard terms in the ClinVar database.
+<!-- MR !412 --> 
+- Fixed a bug causing a wide sidebar with long indication comments.
+<!-- MR !418 -->
+- Fixed a bug causing missing word wrap in comment fields.
+<!-- MR !377 Add flake8: no release note necessary -->
+
 
 ## Version 1.9.2
 
@@ -66,7 +140,7 @@ Added support for updated version of VEP (v98.3), including fixes for:
 <!-- MR !387 -->
 - Removed `COPY ALL TO ALAMUT` button.
 <!-- MR !381 -->
-- Changed default view in WORKLOG to `MESSAGES ONLY`.
+- Changed default view in `WORK LOG` to `MESSAGES ONLY`.
 <!-- MR !382 -->
 - Increased custom gene panel name character limit to 20.
 <!-- MR !385 -->
@@ -76,16 +150,13 @@ Added support for updated version of VEP (v98.3), including fixes for:
 <!-- MR !364 -->
 - Improved help text for RIS format import.
 <!-- MR !386 -->
-- Fixed word wrap in popover comment fields (ACMG comment and WORKLOG).
+- Fixed word wrap in popover comment fields (ACMG comment and `WORK LOG`).
 <!-- MR !379, !390, !395 -->
 - Fixed an issue causing wrong page height and extra scrollbars.
 <!-- MR !383 -->
 - Fixed bug where variants with no transcripts were not filtered on frequency.
 <!-- MR !394 -->
 - Fixed an issue where "Worse consequence" warning would show if no consequence was available.
-
-
-
 
 
 ## Version 1.9
@@ -158,7 +229,7 @@ You can now more easily copy text from many pop-overs by clicking on the text. L
 <!-- MR !341-->
 - `MARK CLASS 2` button has been removed from the FREQUENCY section (CLASSIFICATION page).
 <!-- MR !359-->
-- Added condition to the [Inherited mosaicism filter](/technical/filtering.html#inherited-mosaicism) to exclude cases where the other parent has a normal genotype. 
+- Added condition to the [Inherited mosaicism filter](/technical/filtering.html#parental-mosaicism) to exclude cases where the other parent has a normal genotype. 
 <!-- MR !355 -->
 - ACMG criteria now have short descriptions available everywhere.
 <!-- MR !348 -->

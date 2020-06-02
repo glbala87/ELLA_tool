@@ -62,11 +62,11 @@ If applicable, variants in the variant list are tagged with:
       - `A` Autosomal recessive homozygous
       - `X` X-linked recessive
       - `C` Compound heterozygous
-      - `M` Inherited mosaicism
+      - `M` Parental mosaicism (may also occur in combination with other Segregation tags)
 
   - `O` Homozygous/hemizygous genotype.
 
-  - `Q` Quality issues. Same as [NEEDS VERIFICATION](/manual/evidence-sections.html#warning-needs-verification), except that insertions/deletions are not marked unless there are other quality issues. Depending on actions in the [QUALITY section](/manual/evidence-sections.html#quality), this tag may be replaced by:
+  - `Q` Quality issues. Uses the same criteria that trigger the [NEEDS VERIFICATION warning](/manual/evidence-sections.html#warning-needs-verification), except that insertions/deletions are not marked unless there are other quality issues. Depending on actions in the [QUALITY section](/manual/evidence-sections.html#quality), this tag may be replaced by:
     
       - `V` Verified (green)
       - `T` Technical (red)
@@ -78,7 +78,11 @@ If applicable, variants in the variant list are tagged with:
   - Shaded background: More than one variant in the same gene (in current sample).
 
 
-::: tip
+::: warning NOTE
+Presence of the `M` tag (parental mosaicism) often indicate quality issues rather than a parent actually being mosaic. E.g. `MD` indicates some uncertainty of the de novo status (`D`), as one or both parents have some evidence for the alternative allele (but not enough reads to be called heterozygous).
+:::
+
+::: tip TIP
 Hold the mouse cursor over a tag to see the full label.
 :::
 

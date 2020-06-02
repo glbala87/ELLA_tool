@@ -25,7 +25,7 @@ If available, the RefSeq transcript and version used in the HGVSc variant name i
 Button  | Explanation | More information
 :---  | :---  | :---
 `GENE PANEL INFO` | Show information about the gene panel used in the current analysis. | [Gene panel info](/manual/info-page.html#gene-panel-info)
-`WORK LOG`  | System and user messages related to current analysis/interpretation. |  [Work log](/manual/worklog.md)
+`WORK LOG`  | System and user messages related to current analysis/interpretation. The number of user added messages is shown in parentheses. |  [Work log](/manual/worklog.md)
 `START` / <br>`FINISH`+`SAVE` | Start, save changes and finish an analysis or interpretation. | [Start](/manual/classification-page.html#start-an-analysis-or-interpretation); [Save/Finish](/manual/classification-page.html#save-and-finish)
 
 
