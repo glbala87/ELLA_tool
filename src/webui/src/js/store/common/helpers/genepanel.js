@@ -1,30 +1,18 @@
-function _filterCollectionByGene(collection, geneSymbol) {
-    if (collection) {
-        return collection.filter((entry) => entry.gene.hgnc_symbol === geneSymbol)
-    } else {
-        return null
-    }
-}
-
-export function phenotypesBy(geneSymbol, genepanel) {
-    return _filterCollectionByGene(genepanel.phenotypes, geneSymbol)
-}
-
-export function transcriptsBy(geneSymbol, genepanel) {
-    return _filterCollectionByGene(genepanel.transcripts, geneSymbol)
-}
-
-export function getInheritanceCodes(geneSymbol, genepanel) {
-    let phenotypes = phenotypesBy(geneSymbol, genepanel)
+export function getInheritanceCodes(hgncId, genepanel, hgncSymbolFallback) {
+    const phenotypes = genepanel.phenotypes.filter(
+        (p) => p.gene.hgnc_id === hgncId || p.gene.hgnc_symbol === hgncSymbolFallback
+    )
     if (phenotypes) {
-        let codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
-        let uniqueCodes = new Set(codes)
-        return Array.from(uniqueCodes.values())
-            .sort()
-            .join('/')
+        const codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
+        const uniqueCodes = new Set(codes)
+        return Array.from(uniqueCodes.values()).sort()
     } else {
-        return ''
+        return []
     }
+}
+
+export function formatInheritance(hgncId, genepanel, hgncSymbolFallback) {
+    return getInheritanceCodes(hgncId, genepanel, hgncSymbolFallback).join('/')
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
@@ -40,26 +28,10 @@ export function findGeneConfigOverride(hgncId, acmgConfig) {
  * @param  {String} geneSymbol Gene symbol
  * @return {String}            Entry ID like 113705
  */
-export function getOmimEntryId(geneSymbol, genepanel) {
-    let transcripts = transcriptsBy(geneSymbol, genepanel)
+export function getOmimEntryId(hgncId, genepanel, hgncSymbolFallback) {
+    const transcripts = genepanel.transcripts.filter(
+        (p) => p.gene.hgnc_id === hgncId || p.gene.hgnc_symbol === hgncSymbolFallback
+    )
     // all have the same gene and thus omim entry
     return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : ''
-}
-
-export function formatInheritance(genepanel, acmgConfig, geneSymbol, hgncId) {
-    let config = findGeneConfigOverride(hgncId, acmgConfig)
-    if (config && 'inheritance' in config) {
-        return config['inheritance']
-    }
-
-    let phenotypes = phenotypesBy(geneSymbol, genepanel)
-    if (phenotypes) {
-        let codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
-        let uniqueCodes = new Set(codes)
-        return Array.from(uniqueCodes.values())
-            .sort()
-            .join('/')
-    } else {
-        return ''
-    }
 }
