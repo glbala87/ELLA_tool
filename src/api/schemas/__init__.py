@@ -13,6 +13,8 @@ from .alleleassessments import (
     AlleleAssessmentOverviewSchema,
     AlleleAssessmentInputSchema,
 )
+from .geneassessments import GeneAssessmentSchema
+
 from .allelereports import AlleleReportSchema
 from .users import UserSchema, UserFullSchema
 from .classifications import ClassificationSchema, RuleSchema

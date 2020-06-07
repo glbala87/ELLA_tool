@@ -185,7 +185,9 @@ def get_alleles(
     return AlleleDataLoader(session).from_objs(alleles, **kwargs)
 
 
-def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
+def load_genepanel_for_allele_ids(
+    session, allele_ids, gp_name, gp_version, include_geneassessments=True
+):
     """
     Loads genepanel data using input allele_ids as filter
     for what transcripts and phenotypes to include.
@@ -226,9 +228,22 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         )
     )
 
+    geneassessments = (
+        session.query(assessment.GeneAssessment)
+        .filter(
+            assessment.GeneAssessment.gene_id
+            == annotation_transcripts_genepanel.c.genepanel_hgnc_id,
+            assessment.GeneAssessment.date_superceeded.is_(None),
+        )
+        .all()
+    )
+
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data["transcripts"] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
     genepanel_data["phenotypes"] = schemas.PhenotypeFullSchema().dump(phenotypes, many=True).data
+    genepanel_data["geneassessments"] = (
+        schemas.GeneAssessmentSchema().dump(geneassessments, many=True).data
+    )
     return genepanel_data
 
 
