@@ -3,7 +3,9 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import getGenepanelValuesForGene from '../store/common/computes/getGenepanelValuesForGene'
+import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import template from './geneInformation.ngtmpl.html'
+import getGeneAssessment from '../store/modules/views/workflows/interpretation/computed/getGeneAssessment'
 
 const geneComment = Compute(props`hgncId`, state`views.workflows.data`, (hgncId, data) => {
     console.log(hgncId)
@@ -18,11 +20,17 @@ app.component('geneInformation', {
     controller: connect(
         {
             config: state`app.config`,
+            isReadOnly,
             genepanelValues: getGenepanelValuesForGene(
                 props`hgncId`,
                 state`views.workflows.interpretation.data.genepanel`,
                 props`hgncSymbol`
-            )
+            ),
+            geneAssessment: getGeneAssessment(props`hgncId`),
+            userGeneAssessment: state`views.workflows.interpretation.userState.geneassessment.${props`hgncId`}`,
+            geneAssessmentChanged: signal`views.workflows.interpretation.geneAssessmentChanged`,
+            undoGeneAssessmentClicked: signal`views.workflows.interpretation.undoGeneAssessmentClicked`,
+            updateGeneAssessmentClicked: signal`views.workflows.interpretation.updateGeneAssessmentClicked`
         },
         'GeneInformation',
         [
@@ -51,27 +59,44 @@ app.component('geneInformation', {
                         return `${$ctrl.genepanelValues.freqCutoffs.value.internal.lo_freq_cutoff}/${$ctrl.genepanelValues.freqCutoffs.value.internal.hi_freq_cutoff}`
                     },
                     getGeneCommentModel() {
-                        if ($ctrl.geneCommentEditable) {
-                            return $ctrl.editedGeneComment
-                        }
-                        return $ctrl.message
+                        return $ctrl.userGeneAssessment
+                            ? $ctrl.userGeneAssessment.evaluation
+                            : $ctrl.geneAssessment.evaluation
+                    },
+                    isCommmentEditable() {
+                        // If there's a userGeneAssessment, it's per definition
+                        // editable
+                        return Boolean($ctrl.userGeneAssessment) && !$ctrl.isReadOnly
                     },
                     editClicked() {
-                        $ctrl.mode = 'edit'
-                        $ctrl.editedMessage = Object.assign({}, $ctrl.message)
-                    },
-                    editConfirmed() {
-                        $ctrl.editMessageClicked({
-                            interpretationLog: {
-                                id: $ctrl.message.originalId,
-                                message: $ctrl.editedMessage.message
-                            }
+                        if (!$ctrl.hgncId) {
+                            throw Error("Missing property 'hgncId'")
+                        }
+                        const copiedGeneAssessment = JSON.parse(
+                            JSON.stringify($ctrl.geneAssessment)
+                        )
+                        $ctrl.geneAssessmentChanged({
+                            hgncId: $ctrl.hgncId,
+                            geneAssessment: copiedGeneAssessment
                         })
-                        $ctrl.mode = 'normal'
                     },
-                    editAborted() {
-                        $ctrl.mode = 'normal'
-                        $ctrl.editedMessage = null
+                    geneCommentChanged() {
+                        $ctrl.geneAssessmentChanged({
+                            hgncId: $ctrl.hgncId,
+                            geneAssessment: $ctrl.userGeneAssessment
+                        })
+                    },
+                    undoGeneAssessment() {
+                        $ctrl.undoGeneAssessmentClicked({ hgncId: $ctrl.hgncId })
+                    },
+                    isGeneCommentChanged() {
+                        if ($ctrl.geneAssessment && $ctrl.userGeneAssessment) {
+                            return (
+                                $ctrl.geneAssessment.evaluation.comment !==
+                                $ctrl.userGeneAssessment.evaluation.comment
+                            )
+                        }
+                        return false
                     }
                 })
             }

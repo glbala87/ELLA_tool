@@ -7,7 +7,7 @@
 ></button
 ><button
     class="confirm-button-confirm"
-    ng-class="{'hidden': !$ctrl.needsConfirmation || $ctrl.ngDisabled}"
+    ng-class="$ctrl.getConfirmClasses()"
     ng-click="$ctrl.confirm()"
 >
     Confirm

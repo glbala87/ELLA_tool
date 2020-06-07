@@ -41,35 +41,36 @@
         </li>
     </ul>
     <h4 class="section-title">Gene information:</h4>
-    <wysiwyg-editor
-        class="control-comment"
-        ng-disabled="$ctrl.geneCommentEditable"
-        ng-model="$ctrl.test"
-    ></wysiwyg-editor>
-    <div>
-        <button
-            class="blue"
-            ng-if="!$ctrl.geneCommentEditable"
-            ng-click="$ctrl.toggleGeneCommentEdit()"
-        >
-            EDIT
-        </button>
-        <confirm-button
-            class="id-update-comment"
-            ng-if="$ctrl.geneCommentEditable"
-            confirm-action="$ctrl.resetGeneComment"
-            ng-disabled="$ctrl.readOnly"
-            color="blue"
-            confirm-color="red"
-        >
-            Undo
-        </confirm-button>
-        <button
-            class="blue"
-            ng-if="$ctrl.geneCommentEditable"
-            ng-click="$ctrl.updateGeneCommentEdit()"
-        >
-            Update comment
-        </button>
+    <div class="comment-container">
+        <wysiwyg-editor
+            class="comment-editor"
+            ng-disabled="!$ctrl.isCommmentEditable()"
+            ng-model="$ctrl.getGeneCommentModel().comment"
+            ng-change="$ctrl.geneCommentChanged()"
+        ></wysiwyg-editor>
+        <div class="comment-controls" ng-if="!$ctrl.isReadOnly">
+            <button class="blue" ng-if="!$ctrl.isCommmentEditable()" ng-click="$ctrl.editClicked()">
+                EDIT
+            </button>
+            <confirm-button
+                class="id-undo-gene-assessment"
+                ng-if="$ctrl.isCommmentEditable()"
+                confirm-action="$ctrl.undoGeneAssessment"
+                ng-disabled="$ctrl.readOnly"
+                color="blue"
+                confirm-color="red"
+            >
+                Undo
+            </confirm-button>
+            <button
+                class="purple"
+                class="id-update-gene-assessment"
+                ng-if="$ctrl.isCommmentEditable()"
+                ng-click="$ctrl.updateGeneAssessmentClicked({geneAssessment: $ctrl.userGeneAssessment})"
+                ng-disabled="!$ctrl.isGeneCommentChanged()"
+            >
+                Update
+            </button>
+        </div>
     </div>
 </div>

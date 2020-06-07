@@ -2006,6 +2006,25 @@ button.toast-close-button {
     }
 }
 
+.gene-information {
+    .comment-container {
+        display: flex;
+        padding: 0.5rem;
+        flex-direction: column;
+
+        .comment-editor {
+
+        }
+        .comment-controls {
+            display: flex;
+            width: auto;
+            margin-top: 0.5rem;
+            justify-content: flex-end;
+
+        }
+    }
+}
+
 .new-fade {
     opacity: 0;
 }
@@ -2158,12 +2177,21 @@ button.toast-close-button {
 }
 
 .confirm-button-confirm {
-    background-color: $green-50 !important;
     margin-left: 0;
     box-shadow: 0 0.3rem $black-05;
+    color: $white-95 !important;
 
-    &:hover {
-        background-color: $green-75 !important;
+    &.confirm-green {
+        background-color: $green-50 !important;
+        &:hover {
+            background-color: $green-75 !important;
+        }
+    }
+    &.confirm-red {
+        background-color: $red-50 !important;
+        &:hover {
+            background-color: $red-75 !important;
+        }
     }
     &.hidden {
         overflow: hidden;
