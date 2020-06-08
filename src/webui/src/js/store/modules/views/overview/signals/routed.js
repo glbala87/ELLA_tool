@@ -7,6 +7,7 @@ import interval from '../../../../common/factories/interval'
 import loadOverview from '../sequences/loadOverview'
 import setSections from '../actions/setSections'
 import checkAndSelectValidSection from '../actions/checkAndSelectValidSection'
+import saveOverviewState from '../actions/saveOverviewState'
 
 const UPDATE_OVERVIEW_INTERVAL = 180
 
@@ -25,6 +26,7 @@ export default sequence('routed', [
                 UPDATE_OVERVIEW_INTERVAL * 1000,
                 false
             ),
+            saveOverviewState, // Store selected section
             loadOverview
         ],
         invalid: [redirectToSection]

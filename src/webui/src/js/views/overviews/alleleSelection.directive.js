@@ -1,7 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import selectedSection from '../../store/modules/views/overview/computed/selectedSection'
 import template from './alleleSelection.ngtmpl.html'
 
 app.component('alleleSelection', {
@@ -11,7 +10,7 @@ app.component('alleleSelection', {
             alleles: state`views.overview.data.alleles`,
             finalized: state`views.overview.data.allelesFinalized`,
             state: state`views.overview.state.variants`,
-            selectedSection: selectedSection,
+            selectedSection: state`views.overview.state.selectedSection`,
             finalizedPageChanged: signal`views.overview.finalizedPageChanged`,
             collapseChanged: signal`views.overview.collapseChanged`
         },

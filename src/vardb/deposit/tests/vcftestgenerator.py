@@ -574,7 +574,6 @@ def pedigree_strategy(draw, sample_names):
     if len(sample_names) == 1:
         return None, {sample_names[0]: {"affected": "2", "proband": "1", "sex": None}}
 
-    proband_sample = sample_names[0]
     father_sample = None
     mother_sample = None
     if len(sample_names) > 1:

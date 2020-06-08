@@ -1,6 +1,5 @@
 import { Module } from 'cerebral'
 
-import sectionChanged from './signals/sectionChanged'
 import { initApp, authenticate } from '../../../common/factories'
 import importModule from './import'
 import changeView from '../factories/changeView'
@@ -10,10 +9,11 @@ import updateOverviewTriggered from './signals/updateOverviewTriggered'
 import finalizedPageChanged from './signals/finalizedPageChanged'
 import redirectToSection from './actions/redirectToSection'
 import setSections from './actions/setSections'
+import loadOverviewState from './actions/loadOverviewState'
 
 const routedWithSectionSequence = initApp(authenticate([changeView('overview'), routed]))
 const routedSequence = initApp(
-    authenticate([changeView('overview'), setSections, redirectToSection])
+    authenticate([changeView('overview'), setSections, loadOverviewState, redirectToSection])
 )
 
 export default Module({
@@ -24,7 +24,6 @@ export default Module({
     signals: {
         collapseChanged,
         finalizedPageChanged,
-        sectionChanged,
         updateOverviewTriggered,
         routedWithSection: routedWithSectionSequence,
         routed: routedSequence

@@ -72,4 +72,4 @@ from vardb.datamodel import (
     workflow,
     log,
     jsonschema,
-)
+)  # noqa: E402

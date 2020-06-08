@@ -9,7 +9,6 @@ import sqlalchemy as sa
 from sqlalchemy.sql import table, column
 from sqlalchemy.dialects import postgresql
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 
 
 GenepanelTranscript = table(

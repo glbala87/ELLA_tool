@@ -3,8 +3,9 @@ from sqlalchemy import or_
 import hypothesis as ht
 import hypothesis.strategies as st
 from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
-from datalayer.alleledataloader.alleledataloader import AlleleDataLoader, Warnings
+from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
+from conftest import create_allele
 
 
 def test_get_formatted_genotypes(test_database, session):
@@ -188,21 +189,6 @@ def create_sample(analysis_id):
     )
 
 
-def create_allele(start, end):
-    return allele.Allele(
-        genome_reference="GRCh37",
-        chromosome="1",
-        start_position=start,
-        open_end_position=end,
-        change_from="A",
-        change_to="T",
-        change_type="SNP",
-        vcf_pos=start + 1,
-        vcf_ref="A",
-        vcf_alt="T",
-    )
-
-
 def add_genotype(session, allele_id, sample_id):
     gt = genotype.Genotype(allele_id=allele_id, sample_id=sample_id)
     session.add(gt)
@@ -238,7 +224,9 @@ def test_nearby_warning(session, allele_positions):
     alleles = []
 
     for i, (start, end, load) in enumerate(allele_positions):
-        a = create_allele(start, end)
+        a = create_allele()
+        a.start_position = start
+        a.open_end_position = end
         session.add(a)
         session.flush()
 

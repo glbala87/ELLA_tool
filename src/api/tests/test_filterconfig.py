@@ -171,11 +171,11 @@ def test_filterconfig_requirements(session, client, filterconfigs):
             expected_fc_ids.append(fc.id)
         else:
             # Check that requirements satisfy a trio analysis
-            if fc.requirements[0]["params"].get("is_trio") == False:
+            if fc.requirements[0]["params"].get("is_trio") is False:
                 continue
-            if fc.requirements[0]["params"].get("is_family") == False:
+            if fc.requirements[0]["params"].get("is_family") is False:
                 continue
-            if fc.requirements[0]["params"].get("is_single") == True:
+            if fc.requirements[0]["params"].get("is_single") is True:
                 continue
             if fc.requirements[0]["params"].get("name"):
                 continue
@@ -201,11 +201,11 @@ def test_filterconfig_requirements(session, client, filterconfigs):
             expected_fc_ids.append(fc.id)
         else:
             # Check that requirements satisfy the single analysis
-            if fc.requirements[0]["params"].get("is_trio") == True:
+            if fc.requirements[0]["params"].get("is_trio") is True:
                 continue
-            if fc.requirements[0]["params"].get("is_family") == True:
+            if fc.requirements[0]["params"].get("is_family") is True:
                 continue
-            if fc.requirements[0]["params"].get("is_single") == False:
+            if fc.requirements[0]["params"].get("is_single") is False:
                 continue
             expected_fc_ids.append(fc.id)
 

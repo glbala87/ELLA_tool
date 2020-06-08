@@ -1,13 +1,13 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import pytest
 import uuid
 
-from hypothesis import given, example, settings, reproduce_failure, assume, HealthCheck
+import hypothesis as ht
 import hypothesis.strategies as st
 
-from sqlalchemy import Table, Column, Boolean, Integer, Enum, Float
+from sqlalchemy import Table, Column, Integer, Enum, Float
 from sqlalchemy.schema import CreateTable
-from vardb.datamodel import allele, annotation, gene, annotationshadow, Base
+from vardb.datamodel import allele, annotationshadow, Base
 from datalayer.allelefilter.segregationfilter import (
     SegregationFilter,
     PAR1_START,
@@ -18,6 +18,15 @@ from datalayer.allelefilter.segregationfilter import (
 
 
 GLOBAL_CONFIG = {"transcripts": {"inclusion_regex": "NM_.*"}}
+
+
+ALL_CATEGORIES = [
+    "no_coverage_parents",
+    "denovo",
+    "parental_mosaicism",
+    "compound_heterozygous",
+    "recessive_homozygous",
+]
 
 
 class Sample:
@@ -167,7 +176,7 @@ def sample_strategy(
         unaffected_siblings_sex = [draw(sex_strategy) for _ in range(unaffected_siblings_num)]
 
     # If only proband, don't bother to run tests
-    assume(
+    ht.assume(
         any(
             [
                 include_father,
@@ -229,7 +238,7 @@ def compound_heterozygous_strategy(draw):
         unaffected_siblings_num = draw(st.integers(min_value=0, max_value=2))
 
     # If only proband, don't bother to run tests
-    assume(
+    ht.assume(
         any(
             [
                 include_father,
@@ -268,8 +277,8 @@ def compound_heterozygous_strategy(draw):
     # while still allowing all possible cases to be generated
     if r.random() > 0.05:
         is_multiple_gene = next((k for k, v in per_gene.items() if len(v) > 2), None)
-        assume(is_multiple_gene)
-        assume(include_father and include_mother)
+        ht.assume(is_multiple_gene)
+        ht.assume(include_father and include_mother)
         proband_heterozygous = next(
             (
                 e
@@ -297,7 +306,7 @@ def compound_heterozygous_strategy(draw):
             ),
             None,
         )
-        assume(
+        ht.assume(
             proband_heterozygous
             and father_heterozygous
             and mother_heterozygous
@@ -406,79 +415,79 @@ class TestInheritanceFilter(object):
         test_database.refresh()
 
     # All denovo positive cases
-    @example(
+    @ht.example(
         (10001, "1", 1, 2), (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")), True
     )  # AD denovo
-    @example(
+    @ht.example(
         (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")), True
     )  # AD denovo
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         True,
     )  # AD denovo
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference")),
         True,
     )  # AD denovo
-    @example(  # X-linked female
+    @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous"), fs("Reference"), ms("Reference")),
         True,
     )
-    @example(  # X-linked female
+    @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Reference")),
         True,
     )
-    @example(  # X-linked female
+    @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Heterozygous")),
         True,
     )
-    @example(  # X-linked male
+    @ht.example(  # X-linked male
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         True,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         True,
     )
     # Denovo negative examples
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("No coverage")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Homozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("No coverage"), ms("Heterozygous")),
         False,
     )
-    @given(
+    @ht.given(
         allele_strategy,
         sample_strategy(
             include_father=True,
@@ -488,7 +497,7 @@ class TestInheritanceFilter(object):
         ),
         st.just(None),
     )
-    @settings(deadline=None)
+    @ht.settings(deadline=None)
     def test_denovo(self, session, allele_data, entry, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
 
@@ -564,7 +573,7 @@ class TestInheritanceFilter(object):
                 else:
                     assert set(result_allele_ids) == set([])
 
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -585,7 +594,7 @@ class TestInheritanceFilter(object):
         ],
         [1, 2],
     )
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -602,7 +611,7 @@ class TestInheritanceFilter(object):
         ],
         [0, 1],
     )
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -623,7 +632,7 @@ class TestInheritanceFilter(object):
         ],
         [],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Homozygous"), fs("Reference"), ms("Reference"))},
             {
@@ -641,7 +650,7 @@ class TestInheritanceFilter(object):
         ],
         [],
     )
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -664,7 +673,7 @@ class TestInheritanceFilter(object):
         ],
         [0, 1],
     )
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -687,7 +696,7 @@ class TestInheritanceFilter(object):
         ],
         [],
     )
-    @example(
+    @ht.example(
         [
             {
                 "gene": "GENE1",
@@ -710,28 +719,28 @@ class TestInheritanceFilter(object):
         ],
         [0, 1],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), uss("Homozygous"))},
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), uss("Homozygous"))},
         ],
         [],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), ass("Heterozygous"))},
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), ass("Heterozygous"))},
         ],
         [0, 1],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), ass("Heterozygous"))},
             {"gene": "GENE2", "genotypes": (ps("Heterozygous"), ass("Heterozygous"))},
         ],
         [],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), uss("Heterozygous"))},
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), uss("Reference"))},
@@ -740,15 +749,15 @@ class TestInheritanceFilter(object):
         ],
         [0, 1, 2, 3],
     )
-    @example(
+    @ht.example(
         [
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), ass("Reference"))},
             {"gene": "GENE1", "genotypes": (ps("Heterozygous"), ass("Heterozygous"))},
         ],
         [],
     )
-    @given(compound_heterozygous_strategy(), st.just(None))
-    @settings(deadline=None, suppress_health_check=[HealthCheck.filter_too_much])
+    @ht.given(compound_heterozygous_strategy(), st.just(None))
+    @ht.settings(deadline=None, suppress_health_check=[ht.HealthCheck.filter_too_much])
     def test_compound_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
@@ -877,84 +886,84 @@ class TestInheritanceFilter(object):
         assert result_allele_ids == final_candidates
 
     # Outside PAR
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Reference", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         False,
     )
     # Inside PAR
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         True,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Heterozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Reference", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous"), ass("Homozygous")),
         True,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous"), ass("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous"), uss("Homozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous"), uss("Heterozygous")),
         True,
     )
-    @given(allele_strategy, sample_strategy(), st.just(None))
-    @settings(deadline=None)
+    @ht.given(allele_strategy, sample_strategy(), st.just(None))
+    @ht.settings(deadline=None)
     def test_autosomal_recessive_homozygous(
         self, session, allele_data, entry, manually_curated_result
     ):
@@ -1023,83 +1032,83 @@ class TestInheritanceFilter(object):
         else:
             assert set(result_allele_ids) == set([])
 
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         True,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Reference", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Heterozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Reference", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous"), uss("Heterozygous")),
         True,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous"), uss("Homozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous"), ass("Heterozygous")),
         False,
     )
-    @example(
+    @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous"), ass("Homozygous")),
         True,
     )
-    @given(allele_strategy, sample_strategy(), st.just(None))
-    @settings(deadline=None)
+    @ht.given(allele_strategy, sample_strategy(), st.just(None))
+    @ht.settings(deadline=None)
     def test_xlinked_recessive_homozygous(
         self, session, allele_data, entry, manually_curated_result
     ):
@@ -1169,11 +1178,11 @@ class TestInheritanceFilter(object):
         else:
             assert set(result_allele_ids) == set([])
 
-    @example((ps("Homozygous", sex="Male"), uss("Homozygous")))
-    @example((ps("Homozygous", sex="Male"), uss("Heterozygous")))
-    @example((ps("Heterozygous", sex="Male"), uss("Heterozygous")))
-    @given(sample_strategy(include_father=False, include_mother=False, affected_siblings_num=0))
-    @settings(deadline=None)
+    @ht.example((ps("Homozygous", sex="Male"), uss("Homozygous")))
+    @ht.example((ps("Homozygous", sex="Male"), uss("Heterozygous")))
+    @ht.example((ps("Heterozygous", sex="Male"), uss("Heterozygous")))
+    @ht.given(sample_strategy(include_father=False, include_mother=False, affected_siblings_num=0))
+    @ht.settings(deadline=None)
     def test_homozygous_unaffected_siblings(self, session, entry):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
@@ -1203,73 +1212,73 @@ class TestInheritanceFilter(object):
             assert result_allele_ids == set([])
 
     # Autosomal
-    @example(
+    @ht.example(
         "A", (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.3), fs("Reference", ar=0.0)), True
     )
-    @example(
+    @ht.example(
         "A", (ps("Heterozygous", ar=0.3), ms("Reference", ar=0.3), fs("Reference", ar=0.0)), False
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.31), ms("No coverage", ar=0.3), fs("Reference", ar=0.0)),
         False,
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.3), ms("Heterozygous", ar=0.3), fs("Reference", ar=0.0)),
         False,
     )
-    @example(
+    @ht.example(
         "A", (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.0), fs("Reference", ar=0.3)), True
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.31), ms("Heterozygous", ar=0.5), fs("Reference", ar=0.3)),
         False,
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.3), fs("Heterozygous", ar=0.5)),
         False,
     )
-    @example(
+    @ht.example(
         "A", (ps("Heterozygous", ar=0.3), ms("Reference", ar=0.0), fs("Reference", ar=0.3)), False
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.31), ms("Reference", ar=0.0), fs("No coverage", ar=0.3)),
         False,
     )
-    @example(
+    @ht.example(
         "A",
         (ps("Heterozygous", ar=0.3), ms("Reference", ar=0.0), fs("Heterozygous", ar=0.3)),
         False,
     )
-    @example(
+    @ht.example(
         "A", (ps("Reference", ar=0.8), ms("Reference", ar=0.3), fs("Reference", ar=0.0)), False
     )
     # X-linked (proband sex is not considered)
-    @example(
+    @ht.example(
         "X", (ps("Heterozygous", ar=0.5), ms("Reference", ar=0.3), fs("Reference", ar=0.0)), True
     )
-    @example(
+    @ht.example(
         "X", (ps("Homozygous", ar=0.5), ms("Reference", ar=0.3), fs("Reference", ar=0.0)), True
     )
-    @example(
+    @ht.example(
         "X", (ps("Heterozygous", ar=0.5), ms("Reference", ar=0.0), fs("Reference", ar=0.8)), True
     )
-    @example(
+    @ht.example(
         "X", (ps("Homozygous", ar=0.5), ms("Reference", ar=0.0), fs("Reference", ar=0.5)), True
     )
-    @example(
+    @ht.example(
         "X",
         (ps("Heterozygous", ar=0.5), ms("Heterozygous", ar=0.5), fs("Reference", ar=0.8)),
         False,
     )
-    @example(
+    @ht.example(
         "X", (ps("Heterozygous", ar=0.5), ms("Reference", ar=0.3), fs("Homozygous", ar=1.0)), False
     )
-    @given(
+    @ht.given(
         st.sampled_from(["A", "X"]),
         sample_strategy(
             include_father=True,
@@ -1278,8 +1287,8 @@ class TestInheritanceFilter(object):
         ),
         st.just(None),
     )
-    @settings(deadline=None)
-    def test_inherited_mosaicism(self, session, a_or_x, entry, manually_curated_result):
+    @ht.settings(deadline=None)
+    def test_parental_mosaicism(self, session, a_or_x, entry, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
 
@@ -1301,7 +1310,7 @@ class TestInheritanceFilter(object):
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
 
-        result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).inherited_mosaicism(
+        result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).parental_mosaicism(
             genotype_table, sample_names["proband"], sample_names["father"], sample_names["mother"]
         )
 
@@ -1327,7 +1336,7 @@ class TestInheritanceFilter(object):
         #     - Proband has variant
         #     - Father or mother has allele_ratio between given (mother: heterozygous, father: homozygous) thresholds
 
-        proband_not_mosacism = ps.allele_ratio > NON_MOSAICISM_THRESHOLD
+        proband_not_mosaicism = ps.allele_ratio > NON_MOSAICISM_THRESHOLD
         mother_has_coverage = ms.genotype not in ["No coverage", None]
         father_has_coverage = fs.genotype not in ["No coverage", None]
         if a_or_x == "A":
@@ -1358,7 +1367,7 @@ class TestInheritanceFilter(object):
 
         if (
             proband_has_variant
-            and proband_not_mosacism
+            and proband_not_mosaicism
             and mother_has_coverage
             and father_has_coverage
             and (
@@ -1369,3 +1378,83 @@ class TestInheritanceFilter(object):
             assert result_allele_ids == set([allele_id])
         else:
             assert result_allele_ids == set()
+
+    @ht.given(st.lists(st.sampled_from(ALL_CATEGORIES), unique=True), st.booleans())
+    def test_filter_alleles(self, session, categories, has_parents):
+
+        session.rollback()
+
+        sf = SegregationFilter(session, GLOBAL_CONFIG)
+
+        # Various mocks
+
+        Sample = namedtuple("Sample", ["id", "father_id", "mother_id"])
+        sf.get_family_ids = lambda a: [1]
+        sf.get_proband_sample = lambda a, b: Sample(
+            1, 2 if has_parents else None, 3 if has_parents else None
+        )
+        sf.get_father_sample = lambda a: Sample(2, None, None) if has_parents else None
+        sf.get_mother_sample = lambda a: Sample(3, None, None) if has_parents else None
+        sf.get_siblings_samples = lambda a, affected: [Sample(4, 2, 3)]
+        sf.get_family_sample_ids = lambda a, b: [1]
+
+        NO_COVERAGE_PARENTS = 1
+        DENOVO = 2
+        PARENTAL_MOSAICISM = 3
+        COMPOUND_HETEROZYGOUS = 4
+        AUTOSOMAL_RECESSIVE_HOMOZYGOUS = 5
+        XLINKED_RECESSIVE_HOMOZYGOUS = 6
+        HOMOZYGOUS_UNAFFECTED_SIBLINGS = 7
+
+        sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
+        sf.denovo = lambda a, b, c, d: set([DENOVO])
+        sf.parental_mosaicism = lambda a, b, c, d: set([PARENTAL_MOSAICISM])
+        sf.compound_heterozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [COMPOUND_HETEROZYGOUS]
+        )
+        sf.autosomal_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [AUTOSOMAL_RECESSIVE_HOMOZYGOUS]
+        )
+        sf.xlinked_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+            [XLINKED_RECESSIVE_HOMOZYGOUS]
+        )
+        sf.homozygous_unaffected_siblings = lambda a, b, c: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])
+
+        ## Start tests
+        all_allele_ids = set(
+            [
+                NO_COVERAGE_PARENTS,
+                DENOVO,
+                PARENTAL_MOSAICISM,
+                COMPOUND_HETEROZYGOUS,
+                AUTOSOMAL_RECESSIVE_HOMOZYGOUS,
+                XLINKED_RECESSIVE_HOMOZYGOUS,
+                HOMOZYGOUS_UNAFFECTED_SIBLINGS,
+            ]
+        )
+
+        categories_remove_allele_ids = {
+            "no_coverage_parents": set([NO_COVERAGE_PARENTS]) if has_parents else set(),
+            "denovo": set([DENOVO]) if has_parents else set(),
+            "parental_mosaicism": set([PARENTAL_MOSAICISM]) if has_parents else set(),
+            "compound_heterozygous": set([COMPOUND_HETEROZYGOUS] if has_parents else set()),
+            "recessive_homozygous": set(
+                [AUTOSOMAL_RECESSIVE_HOMOZYGOUS, XLINKED_RECESSIVE_HOMOZYGOUS]
+            )
+            if has_parents
+            else set(),
+        }
+        categories_add_allele_ids = {"recessive_homozygous": set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
+
+        filter_config = {}
+        expected_result = all_allele_ids if has_parents else set()
+        for c in ALL_CATEGORIES:
+            filter_config[c] = {"enable": c in categories}
+            if c in categories:
+                # For each enabled category, don't filter out alleles
+                # from that category
+                expected_result -= categories_remove_allele_ids[c]
+                expected_result |= categories_add_allele_ids.get(c, set())
+
+        result = sf.filter_alleles({1: all_allele_ids}, filter_config)
+        assert result == {1: expected_result}

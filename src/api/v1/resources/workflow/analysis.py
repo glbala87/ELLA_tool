@@ -10,10 +10,7 @@ from . import helpers
 from datalayer import queries
 from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
 from vardb.datamodel.sample import Analysis
-from api.schemas.analysisinterpretations import (
-    AnalysisInterpretationSnapshotSchema,
-    AnalysisInterpretationSchema,
-)
+from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 from api.schemas.filterconfigs import FilterConfigSchema
 
 

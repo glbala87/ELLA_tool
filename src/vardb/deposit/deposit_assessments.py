@@ -72,7 +72,7 @@ class DepositAssessments(object):
         vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
         vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
-        db_genepanel = self.get_genepanel(genepanel_name, genepanel_version)
+        self.get_genepanel(genepanel_name, genepanel_version)
 
         for record in vi.iter():
             # Import alleles for this record (regardless if it's in our specified sample set or not)
@@ -87,7 +87,7 @@ class DepositAssessments(object):
 
             # Import assessment for these alleles
             self.assessment_importer.add(record, allele["id"], genepanel_name, genepanel_version)
-            db_assessments = self.assessment_importer.process()
+            self.assessment_importer.process()
 
             self.counter["nVariantsInFile"] += 1
 

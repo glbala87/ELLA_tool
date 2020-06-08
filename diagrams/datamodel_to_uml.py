@@ -1,5 +1,4 @@
 import sadisplay
-import os
 from vardb.datamodel import allele, sample, genotype
 from vardb.datamodel import annotation, assessment
 from vardb.datamodel import gene, workflow, user

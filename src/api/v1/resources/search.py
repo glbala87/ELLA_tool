@@ -1,18 +1,17 @@
 import re
 import json
 from flask import request
-from sqlalchemy import tuple_, or_, and_, select, text, func
+from sqlalchemy import tuple_, or_, select, text, func
 from vardb.datamodel import (
     sample,
     assessment,
     allele,
     gene,
-    genotype,
     workflow,
     annotationshadow,
     user as user_model,
 )
-from api import schemas, ApiError
+from api import schemas
 
 from api.v1.resource import LogRequestResource
 from datalayer import AlleleDataLoader

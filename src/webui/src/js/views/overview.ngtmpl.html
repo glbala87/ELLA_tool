@@ -8,15 +8,15 @@
     <div class="main-overview-sidebar">
         <div class="overview-sidenavbar">
             <div class="item-row">
-                <div
-                    ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey }}"
-                    class="item"
-                    ng-repeat="sectionKey in $ctrl.sectionKeys"
-                    ng-class="{'active': $ctrl.sections[sectionKey].selected}"
-                    ng-click="$ctrl.sectionChanged({section: sectionKey})"
-                >
-                    {{ $ctrl.sections[sectionKey].displayName }}
-                </div>
+                <a href="/overview/{{ sectionKey }}" ng-repeat="sectionKey in $ctrl.sectionKeys">
+                    <div
+                        ng-attr-id="{{ 'id-overview-sidenav-' + sectionKey }}"
+                        class="item"
+                        ng-class="{'active': sectionKey === $ctrl.selectedSection}"
+                    >
+                        {{ $ctrl.sections[sectionKey].displayName }}
+                    </div>
+                </a>
             </div>
         </div>
     </div>
@@ -25,10 +25,10 @@
             <search></search>
             <div>
                 <analysis-selection
-                    ng-if="$ctrl.sections.analyses.selected || $ctrl.sections['analyses-by-classified'].selected"
+                    ng-if="$ctrl.isSelected('analyses') || $ctrl.isSelected('analyses-by-classified')"
                 ></analysis-selection>
-                <allele-selection ng-if="$ctrl.sections.variants.selected"></allele-selection>
-                <import ng-if="$ctrl.sections.import.selected"></import>
+                <allele-selection ng-if="$ctrl.isSelected('variants')"></allele-selection>
+                <import ng-if="$ctrl.isSelected('import')"></import>
             </div>
         </div>
     </div>

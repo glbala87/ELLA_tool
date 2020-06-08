@@ -1,15 +1,13 @@
 """varDB datamodel classes for Gene and Transcript"""
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime, Index, text, func
+from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime, Index, func
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import ForeignKeyConstraint, UniqueConstraint
 
 from vardb.datamodel import Base
-from vardb.util.mutjson import JSONMutableDict
 
 
 class Gene(Base):

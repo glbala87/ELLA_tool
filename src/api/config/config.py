@@ -3,7 +3,6 @@
 import os
 import json
 import jsonschema
-import copy
 import yaml
 
 from .acmgconfig import acmgconfig

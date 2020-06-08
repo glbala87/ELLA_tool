@@ -1,4 +1,3 @@
-import pytest
 from vardb.deposit import postprocessors
 from vardb.datamodel import allele, sample, genotype, workflow, assessment
 

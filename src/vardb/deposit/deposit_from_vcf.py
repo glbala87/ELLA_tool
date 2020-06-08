@@ -8,19 +8,13 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
 
-import sys
-import argparse
-import json
 import logging
 from collections import defaultdict
 
 from sqlalchemy import and_
 import sqlalchemy.orm.exc
 
-from api.config import config
-import vardb.datamodel
 from vardb.datamodel import gene
-from vardb.util import vcfiterator
 from vardb.deposit.importers import (
     AnalysisImporter,
     AnnotationImporter,
@@ -28,8 +22,6 @@ from vardb.deposit.importers import (
     GenotypeImporter,
     AlleleImporter,
     AnalysisInterpretationImporter,
-    HGMDInfoProcessor,
-    SplitToDictInfoProcessor,
     AlleleInterpretationImporter,
     get_allele_from_record,
 )

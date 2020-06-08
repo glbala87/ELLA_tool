@@ -14,8 +14,7 @@ app.component('navbar', {
             user: state`app.user`,
             broadcast: state`app.broadcast`,
             currentView: state`views.current`,
-            title: state`app.navbar.title`,
-            currentView: state`views.current`
+            title: state`app.navbar.title`
         },
         'Navbar'
     )

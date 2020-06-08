@@ -1,5 +1,5 @@
 import click
-from vardb.datamodel import DB, broadcast as broadcast_model
+from vardb.datamodel import broadcast as broadcast_model
 from cli.decorators import cli_logger, session
 
 

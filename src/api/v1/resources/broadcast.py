@@ -3,17 +3,10 @@ import uuid
 import datetime
 import pytz
 from vardb.datamodel import user as user_model, broadcast
-
-from api import schemas, ApiError
-
 from api.v1.resource import LogRequestResource
-
-# from flask import Response, make_response, redirect, request
 from api.util.util import authenticate
 
-
 log = logging.getLogger(__name__)
-
 
 PASSWORD_NOTICE_DAYS = 7
 

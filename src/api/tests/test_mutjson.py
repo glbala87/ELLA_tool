@@ -1,6 +1,4 @@
-from vardb.util import DB
 from vardb.datamodel import annotation
-import pytest
 
 
 def test_mutable_json(session):

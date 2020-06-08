@@ -85,12 +85,6 @@ $sb-titlebar-height: 3.8rem;
     margin-bottom: 1.3rem;
     display: flex;
     flex-direction: column;
-    h5 {
-        padding-right: 2.6rem;
-        margin: 0.2rem 0;
-        white-space: pre;
-    }
-    h5,
     p {
         font-size: 1.4rem;
         color: #333;
@@ -243,6 +237,13 @@ contentwrapper {
     margin: 0.35rem;
     display: flex;
     height: calc(100% - 0.7rem);
+    h5 {
+        padding-right: 2.6rem;
+        margin: 0.2rem 0;
+        white-space: pre;
+        font-size: 1.4rem;
+        color: #333;
+    }
     .max-width & .cb-body {
         max-width: calc(100% - 2.8rem) !important;
     }

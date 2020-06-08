@@ -4,7 +4,7 @@ import datetime
 import pytz
 from sqlalchemy import Column, Integer, DateTime, Enum, String, Boolean
 from sqlalchemy import ForeignKey, ForeignKeyConstraint, UniqueConstraint, Index
-from sqlalchemy.orm import relationship, deferred
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declared_attr
 

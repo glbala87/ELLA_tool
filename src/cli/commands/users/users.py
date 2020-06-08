@@ -15,7 +15,6 @@ from api.util.useradmin import (
     generate_password,
     add_user,
 )
-from vardb.datamodel import DB
 from vardb.datamodel import user
 from vardb.deposit.deposit_users import import_groups
 

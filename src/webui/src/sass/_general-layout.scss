@@ -603,6 +603,9 @@ button {
         width: 100%;
         transform: rotate(90deg);
         display: flex;
+        a {
+            border: 0;
+        }
         .item {
             transform: rotate(180deg);
             font-size: 2rem;
@@ -1459,7 +1462,7 @@ nav.warning {
 
         .control-comment {
             padding-right: 1.5rem;
-            max-width: 70rem;
+            max-width: 49rem;
             .wysiwygeditor {
                 max-height: 13rem;
                 overflow: auto;

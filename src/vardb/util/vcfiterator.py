@@ -38,10 +38,10 @@ class Util(object):
         """
 
         def inner(x):
-            l = [conv_func(i) for i in x.split(",", split_max)]
-            if len(l) == 1 and extract_single:
-                l = l[0]
-            return l
+            lst = [conv_func(i) for i in x.split(",", split_max)]
+            if len(lst) == 1 and extract_single:
+                lst = lst[0]
+            return lst
 
         return inner
 
@@ -86,7 +86,11 @@ class BaseInfoProcessor(abc.ABC):
     def getConvertFunction(self, meta, key):
         # Search for meta item
         f = next((m for m in meta["INFO"] if m["ID"] == key), None)
-        func = lambda x: x
+
+        def identity(x):
+            return x
+
+        func = identity
         if f:
             parse_func = str
             if f["Type"] == "Integer":
@@ -96,7 +100,7 @@ class BaseInfoProcessor(abc.ABC):
             elif f["Type"] == "Flag":
                 parse_func = bool
             elif f["Type"] == "String":
-                parse_func = lambda x: x
+                parse_func = identity
 
             number = f["Number"]
 
@@ -139,8 +143,6 @@ class VEPInfoProcessor(BaseInfoProcessor):
             "EAS_MAF": self._parseMAF,
             "SAS_MAF": self._parseMAF,
             "GMAF": self._parseMAF,
-            "EAS_MAF": self._parseMAF,
-            "SAS_MAF": self._parseMAF,
             "Consequence": lambda x: [i for i in x.split("&")],
             "Existing_variation": lambda x: [i for i in x.split("&")],
             "DISTANCE": int,
@@ -179,7 +181,7 @@ class VEPInfoProcessor(BaseInfoProcessor):
             {
                 k: self.converters.get(k, lambda x: x)(v)
                 for k, v in zip(self.fields, t.split("|"))
-                if v is not ""
+                if v != ""
             }
             for t in transcripts
         ]
@@ -239,7 +241,7 @@ class SnpEffInfoProcessor(BaseInfoProcessor):
             {
                 k: self.converters.get(k, lambda x: x)(v)
                 for k, v in zip(self.fields, self._parseFormat(t))
-                if v is not ""
+                if v != ""
             }
             for t in transcripts
         ]
@@ -335,7 +337,7 @@ class HeaderParser(object):
                 meta[key].append(value)
             elif line.startswith("#"):
                 line = line.replace("#", "")
-                header = re.split("\s+", line)
+                header = re.split(r"\s+", line)
                 # header = line.split('\t')
                 # header =
             else:
@@ -427,7 +429,7 @@ class DataParser(object):
         del data["FORMAT"]
 
     def _parseData(self, line):
-        data = {k: v for k, v in zip(self.header, re.split("\s+", line))}
+        data = {k: v for k, v in zip(self.header, re.split(r"\s+", line))}
 
         # Split by alleles
         data["ALT"] = data["ALT"].split(",")

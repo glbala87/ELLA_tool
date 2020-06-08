@@ -3,64 +3,13 @@ Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
 
-from datalayer.allelefilter.genefilter import GeneFilter
-from vardb.datamodel import allele, annotation, gene
-
 import pytest
 import hypothesis as ht
 import hypothesis.strategies as st
 
-
-allele_start = 1300
-
-
-def create_allele(data=None):
-    global allele_start
-    allele_start += 1
-    default_allele_data = {
-        "chromosome": "1",
-        "start_position": allele_start,
-        "open_end_position": allele_start + 1,
-        "change_from": "A",
-        "change_to": "T",
-        "change_type": "SNP",
-        "vcf_pos": allele_start + 1,
-        "vcf_ref": "A",
-        "vcf_alt": "T",
-    }
-    if data:
-        for k in data:
-            default_allele_data[k] = data[k]
-    data = default_allele_data
-
-    return allele.Allele(genome_reference="GRCh37", **data)
-
-
-def create_annotation(annotations, allele=None):
-    annotations.setdefault("external", {})
-    annotations.setdefault("frequencies", {})
-    annotations.setdefault("prediction", {})
-    annotations.setdefault("references", [])
-    annotations.setdefault("transcripts", [])
-    for t in annotations["transcripts"]:
-        t.setdefault("consequences", [])
-        t.setdefault("transcript", "NONE_DEFINED")
-        t.setdefault("strand", 1)
-        t.setdefault("is_canonical", True)
-        t.setdefault("in_last_exon", "no")
-    return annotation.Annotation(annotations=annotations, allele=allele)
-
-
-def create_allele_with_annotation(session, annotations=None, allele_data=None):
-    al = create_allele(data=allele_data)
-    session.add(al)
-    if annotations is not None:
-        an = create_annotation(annotations, allele=al)
-        session.add(an)
-    else:
-        an = None
-
-    return al, an
+from datalayer.allelefilter.genefilter import GeneFilter
+from vardb.datamodel import gene
+from conftest import create_allele_with_annotation
 
 
 def create_genepanel(hgnc_ids_transcripts):

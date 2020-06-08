@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pushd /ella
+
 COLOROFF='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -43,5 +45,21 @@ then
 else
     echo -e "\n${GREEN}### prettier: SUCCESS ###${COLOROFF}\n"
 fi
+
+
+# Run prettier
+
+echo -e "\n${LIGHTGREEN}### Running flake8 ###${COLOROFF}\n"
+
+flake8 || EXIT_CODE=4
+if [ "$EXIT_CODE" == "4" ]
+then
+    echo -e "\n${RED}### flake8: FAILED ###${COLOROFF}\n"
+else
+    echo -e "\n${GREEN}### flake8: SUCCESS ###${COLOROFF}\n"
+fi
+
+
+
 
 exit $EXIT_CODE

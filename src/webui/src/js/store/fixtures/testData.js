@@ -21,8 +21,7 @@ const testUiConfig = {
         },
         user_config: {
             overview: {
-                views: ['variants', 'analyses-by-classified', 'import'],
-                show_variant_report: true
+                views: ['variants', 'analyses-by-classified', 'import']
             },
             workflows: {
                 allele: {
@@ -2306,7 +2305,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -2820,7 +2818,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -2993,7 +2990,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true
@@ -3267,7 +3263,6 @@ const testAlleleState = {
                     needs_verification_checks: {
                         snp: true,
                         pass: true,
-                        qual: true,
                         dp: true,
                         allele_ratio: true,
                         hts: true

@@ -5,7 +5,8 @@ Since it consists mostly of database queries, it's tested on a live database.
 import pytest
 
 from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
-from vardb.datamodel import allele, annotation, gene, assessment
+from vardb.datamodel import gene
+from conftest import create_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -33,74 +34,6 @@ def allele_positions(draw, chromosome, start, end):
         ht.assume(len(vcf_alt) == 1 and len(vcf_ref) == 1)
 
     return (chromosome, start_position, vcf_ref, vcf_alt)
-
-
-allele_start = 1300
-
-
-def create_allele(data=None):
-    global allele_start
-    allele_start += 1
-    default_allele_data = {
-        "chromosome": "1",
-        "start_position": allele_start,
-        "vcf_pos": allele_start + 1,
-        "vcf_ref": "A",
-        "vcf_alt": "T",
-    }
-    if data:
-        for k in data:
-            assert k not in ["change_from", "change_to"], "Use vcf_ref and vcf_alt to set allele"
-            default_allele_data[k] = data[k]
-    data = default_allele_data
-
-    if len(data["vcf_ref"]) == len(data["vcf_alt"]) == 1:
-        data["change_from"] = data["vcf_ref"]
-        data["change_to"] = data["vcf_alt"]
-        data["change_type"] = "SNP"
-        data["open_end_position"] = data["start_position"] + 1
-    elif len(data["vcf_ref"]) > len(data["vcf_alt"]) and len(data["vcf_alt"]) == 1:
-        data["change_from"] = data["vcf_ref"][1:]
-        data["change_to"] = ""
-        data["change_type"] = "del"
-        data["open_end_position"] = data["start_position"] + len(data["change_from"])
-    elif len(data["vcf_ref"]) < len(data["vcf_alt"]) and len(data["vcf_ref"]) == 1:
-        if data["vcf_ref"][0] == data["vcf_alt"][0]:
-            data["change_from"] = ""
-            data["change_to"] = data["vcf_alt"][1:]
-            data["change_type"] = "ins"
-            data["open_end_position"] = data["start_position"] + len(data["change_to"])
-        else:
-            data["change_from"] = data["vcf_ref"]
-            data["change_to"] = data["vcf_alt"]
-            data["change_type"] = "indel"
-            data["open_end_position"] = data["start_position"] + max(
-                [len(data["change_from"]), len(data["change_to"])]
-            )
-    elif len(data["vcf_ref"]) > 1 and len(data["vcf_alt"]) > 1:
-        assert data["vcf_ref"][0] != data["vcf_alt"][0]
-        data["change_from"] = data["vcf_ref"]
-        data["change_to"] = data["vcf_alt"]
-        data["change_type"] = "indel"
-    else:
-        raise ValueError(
-            "Unable to determine change type from vcf_ref ({}) and vcf_alt ({})".format(
-                data["vcf_ref"], data["vcf_alt"]
-            )
-        )
-
-    if data["change_type"] == "SNP":
-        data["open_end_position"] = data["start_position"] + 1
-    elif data["change_type"] == "del":
-        data["open_end_position"] = data["start_position"] + len(data["change_from"])
-    elif data["change_type"] == "ins":
-        data["open_end_position"] = data["start_position"] + len(data["change_to"])
-    elif data["change_type"] == "indel":
-        data["open_end_position"] = data["start_position"] + max(
-            [len(data["change_from"]), len(data["change_to"])]
-        )
-
-    return allele.Allele(genome_reference="GRCh37", **data)
 
 
 def create_genepanel(genepanel_config):
@@ -156,17 +89,17 @@ class TestPolypyrimidineTractFilter(object):
         session.commit()
 
     @pytest.mark.aa(order=1)
-    @ht.example(("1", 1290, "C", "T"), True)
-    @ht.example(("1", 1290, "G", "T"), False)
-    @ht.example(("1", 1280, "AC", "A"), False)
-    @ht.example(("1", 1280, "CT", "C"), True)
-    @ht.example(("1", 1397, "C", "T"), True)
-    @ht.example(("2", 2363, "AG", "A"), True)
-    @ht.example(("2", 2363, "A", "G"), True)
-    @ht.example(("2", 2363, "G", "A"), True)
-    @ht.example(("2", 2297, "C", "T"), False)
-    @ht.example(("2", 2370, "C", "T"), False)
-    @ht.example(("2", 2370, "AAG", "A"), True)
+    @ht.example(("1", 1291, "C", "T"), True)
+    @ht.example(("1", 1291, "G", "T"), False)
+    @ht.example(("1", 1281, "AC", "A"), False)
+    @ht.example(("1", 1281, "CT", "C"), True)
+    @ht.example(("1", 1398, "C", "T"), True)
+    @ht.example(("2", 2364, "AG", "A"), True)
+    @ht.example(("2", 2364, "A", "G"), True)
+    @ht.example(("2", 2364, "G", "A"), True)
+    @ht.example(("2", 2298, "C", "T"), False)
+    @ht.example(("2", 2371, "C", "T"), False)
+    @ht.example(("2", 2371, "AAG", "A"), True)
     @ht.given(
         st.one_of(
             # Fill up with positions that are close to ppy regions, to get
@@ -197,14 +130,10 @@ class TestPolypyrimidineTractFilter(object):
         """
         Tests both using manually curated test and parallell implementation in Python.
         """
-        chromosome, start_position, vcf_ref, vcf_alt = positions
+        session.rollback()
+        chromosome, vcf_position, vcf_ref, vcf_alt = positions
         al = create_allele(
-            {
-                "chromosome": chromosome,
-                "start_position": start_position,
-                "vcf_ref": vcf_ref,
-                "vcf_alt": vcf_alt,
-            }
+            {"CHROM": chromosome, "POS": vcf_position, "REF": vcf_ref, "ALT": [vcf_alt]}
         )
         session.add(al)
 

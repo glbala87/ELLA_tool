@@ -52,7 +52,6 @@ def import_references(session, filename):
                 .filter(assessment.Reference.pubmed_id.in_(pmids))
                 .all()
             )
-            existing_pmids = [ref.pubmed_id for ref in existing_references]
 
             for reference in reference_batch:
                 existing_reference = next(

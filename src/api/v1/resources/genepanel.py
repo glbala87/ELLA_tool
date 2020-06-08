@@ -1,7 +1,5 @@
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
-from sqlalchemy.sql import label, case, cast
-from sqlalchemy.orm import joinedload, aliased
-from flask import request
+from sqlalchemy.sql import case, cast
 from vardb.datamodel import gene
 
 from api.util.util import paginate, rest_filter, authenticate, request_json

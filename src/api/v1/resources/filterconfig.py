@@ -1,8 +1,8 @@
-from api import schemas, ApiError
+from api import schemas
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
 from vardb.datamodel.sample import FilterConfig, UserGroupFilterConfig
-from vardb.datamodel.user import User, UserGroup
+from vardb.datamodel.user import User
 
 
 class FilterconfigResource(LogRequestResource):

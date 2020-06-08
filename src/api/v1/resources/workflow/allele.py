@@ -4,10 +4,8 @@ from sqlalchemy import tuple_
 from api import ApiError
 from api.util.util import request_json, authenticate
 from api.v1.resource import LogRequestResource
-
-from datalayer import queries
-from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
 from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
+from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
 
 from . import helpers
 

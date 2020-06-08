@@ -1,7 +1,6 @@
 import click
-import logging
 
-from vardb.datamodel import DB, sample, workflow
+from vardb.datamodel import sample, workflow
 from api.util.delete_analysis import delete_analysis
 from cli.decorators import cli_logger, session
 

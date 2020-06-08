@@ -1,6 +1,5 @@
 import base64
 import tempfile
-import flask
 from vardb.datamodel import attachment
 
 # Base 64 representation of a png with the ella logo

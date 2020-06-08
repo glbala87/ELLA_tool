@@ -7,7 +7,6 @@ DEFAULT_ALLELE = {"vcf_ref": "G", "vcf_alt": "A", "change_type": "SNP"}
 
 DEFAULT_GENOTYPE = {
     "sequencing_depth": 400,
-    "variant_quality": 900,
     "multiallelic": False,
     "filter_status": "PASS",
     "allele_depth": {"A": 100, "REF": 100},
@@ -57,7 +56,6 @@ def test_allele_ratio_correct_calculations(allele, genotype):
 def test_needs_verification_checks_no_data(allele, genotype):
     allele["change_type"] = None
     genotype["allele_depth"] = None
-    genotype["variant_quality"] = None
     genotype["sequencing_depth"] = None
     genotype["filter_status"] = None
 
@@ -65,7 +63,6 @@ def test_needs_verification_checks_no_data(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is False
     assert needs_verification_checks["pass"] is False
-    assert needs_verification_checks["qual"] is False
     assert needs_verification_checks["dp"] is False
     assert needs_verification_checks["allele_ratio"] is False
     assert needs_verification_checks["hts"] is True
@@ -79,7 +76,6 @@ def test_needs_verification_positive(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Heterozygous"
     genotype["allele_depth"] = {"A": 70, "REF": 50}
-    genotype["variant_quality"] = 301
     genotype["sequencing_depth"] = 21
     genotype["filter_status"] = "PASS"
 
@@ -87,7 +83,6 @@ def test_needs_verification_positive(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is True
     assert needs_verification_checks["pass"] is True
-    assert needs_verification_checks["qual"] is True
     assert needs_verification_checks["dp"] is True
     assert needs_verification_checks["allele_ratio"] is True
     assert needs_verification_checks["hts"] is True
@@ -98,7 +93,6 @@ def test_needs_verification_positive(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Homozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 10}
-    genotype["variant_quality"] = 301
     genotype["sequencing_depth"] = 21
     genotype["filter_status"] = "PASS"
 
@@ -106,7 +100,6 @@ def test_needs_verification_positive(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is True
     assert needs_verification_checks["pass"] is True
-    assert needs_verification_checks["qual"] is True
     assert needs_verification_checks["dp"] is True
     assert needs_verification_checks["allele_ratio"] is True
     assert needs_verification_checks["hts"] is True
@@ -118,7 +111,6 @@ def test_needs_verification_hts_negative(allele, genotype):
     # Fail all checks, but sample type is Sanger
     allele["change_type"] = None
     genotype["allele_depth"] = None
-    genotype["variant_quality"] = None
     genotype["sequencing_depth"] = None
     genotype["filter_status"] = None
 
@@ -126,7 +118,6 @@ def test_needs_verification_hts_negative(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is False
     assert needs_verification_checks["pass"] is False
-    assert needs_verification_checks["qual"] is False
     assert needs_verification_checks["dp"] is False
     assert needs_verification_checks["allele_ratio"] is False
     assert needs_verification_checks["hts"] is False
@@ -140,7 +131,6 @@ def test_needs_verification_negative(allele, genotype):
     allele["change_type"] = "indel"
     genotype["type"] = "Heterozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 1}
-    genotype["variant_quality"] = 300
     genotype["sequencing_depth"] = 20
     genotype["filter_status"] = "FAIL"
 
@@ -148,7 +138,6 @@ def test_needs_verification_negative(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is False
     assert needs_verification_checks["pass"] is False
-    assert needs_verification_checks["qual"] is False
     assert needs_verification_checks["dp"] is False
     assert needs_verification_checks["allele_ratio"] is False
     assert needs_verification_checks["hts"] is True
@@ -159,7 +148,6 @@ def test_needs_verification_negative(allele, genotype):
     allele["change_type"] = "del"
     genotype["type"] = "Homozygous"
     genotype["allele_depth"] = {"A": 50, "REF": 50}
-    genotype["variant_quality"] = 0
     genotype["sequencing_depth"] = 0
     genotype["filter_status"] = "something"
 
@@ -167,7 +155,6 @@ def test_needs_verification_negative(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is False
     assert needs_verification_checks["pass"] is False
-    assert needs_verification_checks["qual"] is False
     assert needs_verification_checks["dp"] is False
     assert needs_verification_checks["allele_ratio"] is False
     assert needs_verification_checks["hts"] is True
@@ -178,7 +165,6 @@ def test_needs_verification_negative(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Homozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 10}
-    genotype["variant_quality"] = 301
     genotype["sequencing_depth"] = 20  # Fail
     genotype["filter_status"] = "PASS"
 
@@ -186,7 +172,6 @@ def test_needs_verification_negative(allele, genotype):
     needs_verification_checks = result["needs_verification_checks"]
     assert needs_verification_checks["snp"] is True
     assert needs_verification_checks["pass"] is True
-    assert needs_verification_checks["qual"] is True
     assert needs_verification_checks["dp"] is False
     assert needs_verification_checks["allele_ratio"] is True
     assert needs_verification_checks["hts"] is True

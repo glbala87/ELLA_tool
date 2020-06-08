@@ -1,5 +1,5 @@
 import operator
-from typing import Any, Dict, List, Optional, Set, Union, Tuple
+from typing import Any, Dict, List, Set, Union, Tuple
 from sqlalchemy import and_, or_, literal_column, func
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression
@@ -16,6 +16,34 @@ OPERATORS = {
 }
 
 HGMD_TAGS = set([None, "FP", "DM", "DFP", "R", "DP", "DM?"])
+
+
+CLINVAR_CLINSIG_GROUPS = {
+    "pathogenic": [
+        "pathogenic",
+        "likely pathogenic",
+        "pathologic",
+        "suspected pathogenic",
+        "likely pathogenic - adrenal bilateral pheochromocy",
+        "likely pathogenic - adrenal pheochromocytoma",
+        "probable-pathogenic",
+        "probably pathogenic",
+        "pathogenic variant for bardet-biedl syndrome",
+    ],
+    "uncertain": ["uncertain", "variant of unknown significance", "uncertain significance"],
+    "benign": [
+        "benign",
+        "suspected benign",
+        "probable-non-pathogenic",
+        "probably not pathogenic",
+        "likely benign",
+    ],
+}
+
+# Ensure everything is lowercase
+CLINVAR_CLINSIG_GROUPS = {
+    k.lower(): [x.lower() for x in v] for k, v in CLINVAR_CLINSIG_GROUPS.items()
+}
 
 
 class ExternalFilter(object):
@@ -95,9 +123,9 @@ class ExternalFilter(object):
             .subquery()
         )
 
-        def count_matches(pattern):
+        def count_matches(category):
             return func.count(clinvar_clinsigs.c.clinsig).filter(
-                clinvar_clinsigs.c.clinsig.op("ILIKE")(pattern)
+                func.lower(clinvar_clinsigs.c.clinsig).in_(CLINVAR_CLINSIG_GROUPS[category])
             )
 
         # Count the number of Pathogenic/Likely pathogenic, Uncertain significance, and Benign/Likely benign
@@ -105,9 +133,7 @@ class ExternalFilter(object):
         clinsig_counts = (
             self.session.query(
                 clinvar_clinsigs.c.allele_id,
-                count_matches("%pathogenic%").label("pathogenic"),
-                count_matches("%uncertain%").label("uncertain"),
-                count_matches("%benign%").label("benign"),
+                *[count_matches(category).label(category) for category in CLINVAR_CLINSIG_GROUPS]
             )
             .group_by(clinvar_clinsigs.c.allele_id)
             .order_by(clinvar_clinsigs.c.allele_id)

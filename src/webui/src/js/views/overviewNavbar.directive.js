@@ -7,9 +7,7 @@ import template from './overviewNavbar.ngtmpl.html'
 app.component('overviewNavbar', {
     templateUrl: 'overviewNavbar.ngtmpl.html',
     controller: connect(
-        {
-            showVariantReport: state`app.config.user.user_config.overview.show_variant_report`
-        },
+        {},
         'OverviewNavbar'
     )
 })

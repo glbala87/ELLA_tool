@@ -1,6 +1,5 @@
 import os
 import json
-import jsonref
 import re
 import jsonschema
 from vardb.util.db import DB
