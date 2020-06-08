@@ -19,10 +19,9 @@ export default function filterAnalyses({ state }) {
                     (!filter.analysisName || nameMatch.test(a.name)) &&
                     (!filter.reviewComment ||
                         (a.review_comment && commentMatch.test(a.review_comment))) &&
-                    (!filter.technology ||
-                        (!filter.technology.Sanger && !filter.technology.HTS) ||
-                        (filter.technology.Sanger && a.technology == 'Sanger') ||
-                        (filter.technology.HTS && a.technology == 'HTS')) &&
+                    ((!filter.technologySanger && !filter.technologyHTS) ||
+                        (filter.technologySanger && a.technology == 'Sanger') ||
+                        (filter.technologyHTS && a.technology == 'HTS')) &&
                     ((!filter.priorityNormal && !filter.priorityHigh && !filter.priorityUrgent) ||
                         (filter.priorityNormal && a.priority == 1) ||
                         (filter.priorityHigh && a.priorty == 2) ||
