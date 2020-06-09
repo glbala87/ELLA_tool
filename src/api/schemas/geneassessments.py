@@ -15,6 +15,8 @@ class GeneAssessmentSchema(Schema):
             "date_created",
             "date_superceeded",
             "gene_id",
+            "genepanel_name",
+            "genepanel_version",
             "analysis_id",
             "previous_assessment_id",
             "user_id",
