@@ -216,7 +216,7 @@ class GenepanelResource(LogRequestResource):
             g["transcripts"].sort(key=lambda x: x["transcript_name"])
             g["phenotypes"].sort(key=lambda x: x["inheritance"])
 
-        result = {"name": name, "version": version, "genes": genes}
+        result = {"name": name, "version": version, "genes": result_genes}
         return result
 
 
