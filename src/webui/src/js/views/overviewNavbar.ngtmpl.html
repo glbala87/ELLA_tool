@@ -1,4 +1,4 @@
-<nav class="navbar-secondary">
+<nav class="id-overview-filter-analysis-name navbar-secondary">
     <section style="margin-left: auto; margin-top: 0.8rem; margin-right: auto;">
         <span
             style="font-family: Source Sans Pro, sans-serif; line-height: 3.8rem; font-weight: 600; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;"
@@ -8,9 +8,8 @@
 
         <label
             tabindex="0"
-            class="bttn"
+            class="id-overview-filter-technology-hts bttn"
             uib-btn-checkbox="'user'"
-            ng-attr-id="id-overview-filter-technology-hts"
             ng-model="$ctrl.modelTechnologyHTS"
             ng-model-watch="$ctrl.technologyHTS"
             ng-change="$ctrl.updateFilter({filter: {technologyHTS: $ctrl.modelTechnologyHTS}})"
@@ -18,9 +17,8 @@
         >
         <label
             tabindex="0"
-            class="bttn"
+            class="id-overview-filter-technology-sanger bttn"
             uib-btn-checkbox="'user'"
-            ng-attr-id="id-overview-filter-technology-sanger"
             ng-model="$ctrl.modelTechnologySanger"
             ng-model-watch="$ctrl.technologySanger"
             ng-change="$ctrl.updateFilter({filter: {technologySanger: $ctrl.modelTechnologySanger}})"
@@ -31,7 +29,6 @@
         <input
             type="text"
             id="analysis"
-            ng-attr-id="id-overview-filter-analysis-name"
             ng-model="$ctrl.modelAnalysisName"
             ng-model-watch="$ctrl.overviewFilter.analysisName"
             ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
@@ -41,7 +38,7 @@
         <input
             type="text"
             id="comment"
-            ng-attr-id="id-overview-filter-review-comment"
+            class="id-overview-filter-review-comment"
             ng-model="$ctrl.modelReviewComment"
             ng-model-watch="$ctrl.overviewFilter.reviewComment"
             ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
@@ -55,7 +52,7 @@
             top:0rem;
             border-style: solid;
             border-width: 0 0 2px 0;"
-            ng-attr-id="id-overview-filter-date-range"
+            class="id-overview-filter-date-range"
             ng-model="$ctrl.modelDateRange"
             ng-model-watch="$ctrl.overviewFilter.dateRange"
             ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
@@ -69,9 +66,8 @@
         </select>
         <label
             tabindex="0"
-            class="bttn btn-primary"
+            class="id-overview-filter-priority-normal bttn btn-primary"
             uib-btn-checkbox
-            ng-attr-id="id-overview-filter-priority-normal"
             ng-model="$ctrl.modelPriority.Normal"
             ng-model-watch="$ctrl.priorityNormal"
             ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
@@ -79,9 +75,8 @@
         >
         <label
             tabindex="0"
-            class="bttn btn-primary"
+            class="id-overview-filter-priority-high bttn btn-primary"
             uib-btn-checkbox
-            ng-attr-id="id-overview-filter-priority-high"
             ng-model="$ctrl.modelPriority.High"
             ng-model-watch="$ctrl.priorityHigh"
             ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
@@ -89,14 +84,13 @@
         >
         <label
             tabindex="0"
-            class="bttn btn-primary"
+            class="id-overview-filter-priority-urgent bttn btn-primary"
             uib-btn-checkbox
-            ng-attr-id="id-overview-filter-priority-urgent"
             ng-model="$ctrl.modelPriority.Urgent"
             ng-model-watch="$ctrl.priorityUrgent"
             ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
             >Urgent</label
         >
-        <button ng-click="$ctrl.clearFilter()">reset filter</button>
+        <button class="id-clear-filter" ng-click="$ctrl.clearFilter()">reset filter</button>
     </section>
 </nav>
