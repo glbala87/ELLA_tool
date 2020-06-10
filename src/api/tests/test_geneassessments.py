@@ -1,4 +1,3 @@
-
 def check_geneassessment(result, payload, previous_assessment_id=None):
     assert result["gene_id"] == payload["gene_id"]
     assert result["evaluation"] == payload["evaluation"]
@@ -47,12 +46,12 @@ def test_create_assessment(session, client, test_database):
     r = client.post("/api/v1/geneassessments/", ASSESSMENT2)
     assert r.status_code == 200
     ga2 = r.get_json()
-    check_geneassessment(ga2, ASSESSMENT2, previous_assessment_id=ga1['id'])
+    check_geneassessment(ga2, ASSESSMENT2, previous_assessment_id=ga1["id"])
 
     r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01/?allele_ids=1")
     gp = r.get_json()
     assert len(gp["geneassessments"]) == 1
-    check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1['id'])
+    check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1["id"])
 
     # Insert new geneassessment, with wrong presented id (should fail)
     ASSESSMENT3 = {
@@ -74,4 +73,4 @@ def test_create_assessment(session, client, test_database):
     r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01/?allele_ids=1")
     gp = r.get_json()
     assert len(gp["geneassessments"]) == 1
-    check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1['id'])
+    check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1["id"])

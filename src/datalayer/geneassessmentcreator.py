@@ -1,11 +1,10 @@
 import datetime
 import pytz
-from typing import Dict, Optional
+from typing import Dict
 from vardb.datamodel import assessment, sample
 
 
 from vardb.datamodel.assessment import GeneAssessment
-from api.schemas import GeneAssessmentSchema
 from api import ApiError
 
 import logging
