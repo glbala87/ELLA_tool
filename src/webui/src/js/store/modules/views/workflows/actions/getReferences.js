@@ -23,7 +23,7 @@ function getReferences({ http, path, state }) {
     return Promise.all([refById, refByPmid])
         .then((args) => {
             let [refId, refByPmid] = args
-            references = refId.result.concat(refByPmid.result)
+            references = new Set(refId.result.concat(refByPmid.result))
         })
         .then((response) => {
             processReferences(references)
