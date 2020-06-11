@@ -5,7 +5,7 @@
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
-                "views": ["variants", "analyses-by-classified", "import"]
+                "views": ["variants", "analyses", "import"]
             },
             "comment_templates": [
                 {

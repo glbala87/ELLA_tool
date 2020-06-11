@@ -23,20 +23,18 @@
 <sectionbox
     color="green"
     class="id-variants-pending"
-    on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'missingClassification')"
-    collapsed="$ctrl.state.missingClassification.collapsed"
+    on-collapse="$ctrl.collapseChangedWrapper(collapsed, 'interpretation')"
+    collapsed="$ctrl.state.interpretation.collapsed"
 >
     <maintitle>
-        PENDING CLASSIFICATION
+        INTERPRETATION
     </maintitle>
     <subtitle>
-        {{ $ctrl.alleles.missing_alleleassessment.length }}
+        {{ $ctrl.alleles.not_started.length }}
     </subtitle>
     <contentwrapper>
-        <allele-list
-            store-path="'views.overview.data.alleles.missing_alleleassessment'"
-        ></allele-list>
-        <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.missing_alleleassessment.length">
+        <allele-list store-path="'views.overview.data.alleles.not_started'"></allele-list>
+        <h4 class="sb-notification dim" ng-if="!$ctrl.alleles.not_started.length">
             No pending variants
         </h4>
     </contentwrapper>

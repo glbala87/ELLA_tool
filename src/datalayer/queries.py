@@ -225,19 +225,8 @@ def workflow_alleles_ongoing(session):
 
 def workflow_alleles_for_genepanels(session, genepanels):
     """
-    Get all allele_ids connected to given genepanels.
-
-    They are either connected via an analysis or via an alleleinterpretation.
+    Get all allele_ids for allele workflow connected to given genepanels.
     """
-    analysis_ids = workflow_analyses_for_genepanels(session, genepanels)
-
-    allele_ids_for_analyses = (
-        session.query(allele.Allele.id)
-        .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
-        .filter(sample.Analysis.id.in_(analysis_ids))
-        .distinct()
-    )
-
     allele_ids_for_alleleinterpretation = (
         session.query(workflow.AlleleInterpretation.allele_id)
         .filter(
@@ -249,12 +238,7 @@ def workflow_alleles_for_genepanels(session, genepanels):
         .distinct()
     )
 
-    return session.query(allele.Allele.id).filter(
-        or_(
-            allele.Allele.id.in_(allele_ids_for_analyses),
-            allele.Allele.id.in_(allele_ids_for_alleleinterpretation),
-        )
-    )
+    return allele_ids_for_alleleinterpretation
 
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):

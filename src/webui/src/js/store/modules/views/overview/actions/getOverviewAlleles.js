@@ -6,7 +6,7 @@ function getOverviewAlleles({ state, http, path }) {
         .get('overviews/alleles/')
         .then((response) => {
             let data = response.result
-            for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
+            for (let key of ['marked_review', 'not_started', 'ongoing']) {
                 for (let item of data[key]) {
                     processAlleles([item.allele], config, item.genepanel)
                 }
