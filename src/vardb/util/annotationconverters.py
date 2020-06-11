@@ -679,6 +679,7 @@ class ConvertReferences(object):
         )
 
         pubmeds = clinvarjson.get("pubmeds", [])
+        pubmeds += clinvarjson.get("pubmed_ids", [])
         pubmeds = dict(list(zip(pubmeds, [""] * len(pubmeds))))  # Return as dict (empty values)
 
         return pubmeds
