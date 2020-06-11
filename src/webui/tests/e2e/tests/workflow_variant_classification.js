@@ -111,8 +111,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
                 },
                 evaluation:
                     'EVALUATION_ROUND1\nExample template\nExample one\nExample two\nExample three',
-                frequency:
-                    'FREQUENCY_ROUND1\nvan der Hout AH et al. (2006) Hum. Mutat.: 27(7), 654-66.',
+                frequency: 'FREQUENCY_ROUND1\nXiong HY et al. (2015) Science: 347(6218), 1254806.',
                 prediction: 'PREDICTION_ROUND1',
                 external: 'EXTERNAL_ROUND1',
                 report: 'REPORT_ROUND1',

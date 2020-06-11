@@ -1,20 +1,14 @@
 var Page = require('./page')
 var util = require('./util')
 
-const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-classified'
+const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses'
 const SELECTOR_FINISHED = '.id-analysis-finished'
 const SELECTOR_EMPTY = '.id-analysis-assessments-none'
-const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-missing-classifications'
-const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING
-const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications'
-const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING
+const SELECTOR_PENDING = '.id-analysis-pending'
+const SELECTOR_REVIEW = '.id-analysis-review'
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
 const SELECTOR_OURS = '.id-analysis-ours'
 const SELECTOR_OTHERS = '.id-analysis-others'
-const SELECTOR_CLASSIFIED = '.id-analysis-classified'
-
-//id-analysis-ours
-// id-analysis-others
 
 const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
 
@@ -35,12 +29,6 @@ class SampleSelection extends Page {
 
     get analysisList() {
         return util.element('analysis-list')
-    }
-    get noClassifiedSection() {
-        return util.element('.id-analysis-classified-none')
-    }
-    get classifiedSection() {
-        return util.element(SELECTOR_CLASSIFIED)
     }
     get emptySection() {
         return util.element(SELECTOR_EMPTY)
@@ -100,24 +88,12 @@ class SampleSelection extends Page {
         this.selectItemInSection(number, SELECTOR_PENDING)
     }
 
-    selectWithMissingAssessments(number, name) {
-        this.selectItemInSection(number, SELECTOR_ASSESSMENTS_MISSING)
-    }
-
     selectReview(number) {
         this.selectItemInSection(number, SELECTOR_REVIEW)
     }
 
     selectMedicalReview(number) {
         this.selectItemInSection(number, SELECTOR_MEDICALREVIEW)
-    }
-
-    selectClassifiedNormal(number) {
-        this.selectItemInSection(number, SELECTOR_NORMAL)
-    }
-
-    selectClassified(number) {
-        this.selectItemInSection(number, SELECTOR_CLASSIFIED)
     }
 
     selectOthers(number) {
