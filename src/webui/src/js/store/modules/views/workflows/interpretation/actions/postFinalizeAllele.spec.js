@@ -195,11 +195,13 @@ describe('postFinalizeAllele', function() {
                     id: 1,
                     evaluation: { comment: 'Same' }
                 },
-                reference_assessments: {
-                    allele_id: 1,
-                    reference_id: 1,
-                    evaluation: { test: 'comment' }
-                },
+                reference_assessments: [
+                    {
+                        allele_id: 1,
+                        reference_id: 1,
+                        evaluation: { test: 'comment' }
+                    }
+                ],
                 annotation: {
                     annotation_id: 1,
                     custom_annotation_id: 1,
