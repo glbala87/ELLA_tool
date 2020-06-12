@@ -15,18 +15,27 @@ export default function filterAnalyses({ state }) {
 
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
+                const analysisDate = new Date(a.date_requested) || new Date(a.date_deposited)
+                // if there are multiple samples, look only at the (first) proband
+                // NOTE: will crash if proband / single do not have sample_type set. should we catch this somehow?
+                const analysisTechnology =
+                    a.samples.length == 1
+                        ? a.samples[0].sample_type
+                        : a.samples.filter((s) => {
+                              return s.proband && s.proband === true
+                          })[0].sample_type
                 return (
                     (!filter.analysisName || nameMatch.test(a.name)) &&
                     (!filter.reviewComment ||
                         (a.review_comment && commentMatch.test(a.review_comment))) &&
                     ((!filter.technologySanger && !filter.technologyHTS) ||
-                        (filter.technologySanger && a.technology == 'Sanger') ||
-                        (filter.technologyHTS && a.technology == 'HTS')) &&
+                        (filter.technologySanger && analysisTechnology == 'Sanger') ||
+                        (filter.technologyHTS && analysisTechnology == 'HTS')) &&
                     ((!filter.priorityNormal && !filter.priorityHigh && !filter.priorityUrgent) ||
                         (filter.priorityNormal && a.priority == 1) ||
                         (filter.priorityHigh && a.priorty == 2) ||
                         (filter.priorityUrgent && a.priority == 3)) &&
-                    (!filter.dateRange || withinRange(filter.dateRange, new Date(a.date_requested)))
+                    (!filter.dateRange || withinRange(filter.dateRange, analysisDate))
                 )
             })
         }

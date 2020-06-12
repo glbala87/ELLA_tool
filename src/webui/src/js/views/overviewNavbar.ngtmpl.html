@@ -1,4 +1,4 @@
-<nav class="id-overview-filter-analysis-name navbar-secondary">
+<nav class="navbar-secondary">
     <section style="margin-left: auto; margin-top: 0.8rem; margin-right: auto;">
         <span
             style="font-family: Source Sans Pro, sans-serif; line-height: 3.8rem; font-weight: 600; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;"
@@ -29,6 +29,7 @@
         <input
             type="text"
             id="analysis"
+            class="id-overview-filter-analysis-name"
             ng-model="$ctrl.modelAnalysisName"
             ng-model-watch="$ctrl.overviewFilter.analysisName"
             ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
