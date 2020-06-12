@@ -1,40 +1,7 @@
-"""
-Integration/unit test for the AlleleFilter module.
-Since it consists mostly of database queries, it's tested on a live database.
-"""
 import pytest
-import datetime
-import pytz
-import itertools
-from collections import defaultdict
-from sqlalchemy import or_, and_
-
-from vardb.datamodel import assessment, workflow, allele, sample, genotype
 from api.tests.workflow_helper import WorkflowHelper
-from api.tests import interpretation_helper as ih
-
-from datalayer import AlleleFilter, queries
-from api.config import config
 
 FILTERCONFIG_ID = 1
-
-
-@pytest.fixture
-def with_finding_classification():
-    return next(
-        o
-        for o in config["classification"]["options"]
-        if o.get("include_analysis_with_findings") and o.get("outdated_after_days")
-    )
-
-
-@pytest.fixture
-def without_finding_classification():
-    return next(
-        o
-        for o in config["classification"]["options"]
-        if not o.get("include_analysis_with_findings") and o.get("outdated_after_days")
-    )
 
 
 class TestAnalysisOverview(object):

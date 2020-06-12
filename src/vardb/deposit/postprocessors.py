@@ -1,7 +1,7 @@
 import datetime
 import pytz
 from datalayer import SnapshotCreator, queries
-from vardb.datamodel import workflow, assessment, allele
+from vardb.datamodel import workflow, assessment, allele, annotation
 from api.v1.resources.workflow import helpers
 from datalayer import AlleleDataLoader
 from api.config import config
