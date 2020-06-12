@@ -1,9 +1,4 @@
 <div class="gene-information">
-    {{ $ctrl.genepanelValuesForGene }}
-    <h4 class="section-title id_inheritance">
-        HGNC ID:
-    </h4>
-    <copy-text text="{{ $ctrl.hgncId }}"></copy-text>
     <h4 class="section-title">
         Links:
     </h4>
@@ -16,10 +11,10 @@
     <h4 class="section-title id_inheritance">
         Inheritance:
     </h4>
-    {{ $ctrl.genepanelValues.inheritance }}
+    {{ $ctrl.genepanelValues[$ctrl.hgncId].inheritance }}
     <h4 class="section-title">Phenotypes</h4>
     <ul class="popover-list indented">
-        <li ng-repeat="ph in $ctrl.genepanelValues.phenotypes">
+        <li ng-repeat="ph in $ctrl.genepanelValues[$ctrl.hgncId].phenotypes">
             {{ ph.description }} ({{ ph.inheritance }})
         </li>
     </ul>
@@ -28,19 +23,23 @@
         <li>
             External:
             {{ $ctrl.getFrequencyExternal() }}
-            <span style="color: red;" ng-if="$ctrl.genepanelValues.freqCutoffs.overridden"
+            <span
+                style="color: red;"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.overridden"
                 >(overridden)</span
             >
         </li>
         <li>
             Internal:
             {{ $ctrl.getFrequencyInternal() }}
-            <span style="color: red;" ng-if="$ctrl.genepanelValues.freqCutoffs.overridden"
+            <span
+                style="color: red;"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.overridden"
                 >(overridden)</span
             >
         </li>
     </ul>
-    <h4 class="section-title">Gene information:</h4>
+    <h4 class="section-title gene-information-title">Gene information:</h4>
     <div class="comment-container">
         <wysiwyg-editor
             class="comment-editor"

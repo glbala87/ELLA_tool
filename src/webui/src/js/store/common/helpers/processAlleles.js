@@ -158,7 +158,7 @@ function getFormatted(allele, genepanel) {
     //
     if (genepanel) {
         let inheritance = allele.annotation.filtered.map((a) => {
-            return formatInheritance(a.hgnc_id, genepanel, a.symbol)
+            return formatInheritance(a.hgnc_id, genepanel)
         })
         formatted.inheritance = inheritance.join(' | ')
     }

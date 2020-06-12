@@ -2,14 +2,10 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getGenepanelValuesForGene from '../store/common/computes/getGenepanelValuesForGene'
+import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import template from './geneInformation.ngtmpl.html'
 import getGeneAssessment from '../store/modules/views/workflows/interpretation/computed/getGeneAssessment'
-
-const geneComment = Compute(props`hgncId`, state`views.workflows.data`, (hgncId, data) => {
-    console.log(hgncId)
-})
 
 app.component('geneInformation', {
     bindings: {
@@ -21,10 +17,8 @@ app.component('geneInformation', {
         {
             config: state`app.config`,
             isReadOnly,
-            genepanelValues: getGenepanelValuesForGene(
-                props`hgncId`,
-                state`views.workflows.interpretation.data.genepanel`,
-                props`hgncSymbol`
+            genepanelValues: getGenepanelValues(
+                state`views.workflows.interpretation.data.genepanel`
             ),
             geneAssessment: getGeneAssessment(props`hgncId`),
             userGeneAssessment: state`views.workflows.interpretation.userState.geneassessment.${props`hgncId`}`,
@@ -44,7 +38,7 @@ app.component('geneInformation', {
                         $ctrl.geneCommentEditable = !$ctrl.geneCommentEditable
                     },
                     getOmimLink() {
-                        const entryId = $ctrl.genepanelValues.omimEntryId
+                        const entryId = $ctrl.genepanelValues[$ctrl.hgncId].omimEntryId
                         return entryId
                             ? `https://www.omim.org/entry/${entryId}`
                             : `https://www.omim.org/search/?search=${$ctrl.hgncSymbol}`
@@ -53,10 +47,22 @@ app.component('geneInformation', {
                         return `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
                     },
                     getFrequencyExternal() {
-                        return `${$ctrl.genepanelValues.freqCutoffs.value.external.lo_freq_cutoff}/${$ctrl.genepanelValues.freqCutoffs.value.external.hi_freq_cutoff}`
+                        const loCutoff =
+                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                .lo_freq_cutoff
+                        const hiCutoff =
+                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                .hi_freq_cutoff
+                        return `${loCutoff}/${hiCutoff}`
                     },
                     getFrequencyInternal() {
-                        return `${$ctrl.genepanelValues.freqCutoffs.value.internal.lo_freq_cutoff}/${$ctrl.genepanelValues.freqCutoffs.value.internal.hi_freq_cutoff}`
+                        const loCutoff =
+                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                .lo_freq_cutoff
+                        const hiCutoff =
+                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                .hi_freq_cutoff
+                        return `${loCutoff}/${hiCutoff}`
                     },
                     getGeneCommentModel() {
                         return $ctrl.userGeneAssessment

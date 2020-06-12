@@ -8,57 +8,51 @@ import {
 
 /**
  * Calculates various genepanel information for every gene
- * found in the filtered transcripts for given allele.
+ * found in the gene panel.
  * Returns an object with values per gene.
  * @param {state} genepanel Genepanel tag
  * @param {state} allele Allele tag
  */
-export default (hgncId, genepanel, hgncSymbolFallback) => {
-    return Compute(
-        hgncId,
-        genepanel,
-        state`app.config.user.user_config.acmg`,
-        hgncSymbolFallback,
+export default (genepanel) => {
+    return Compute(genepanel, state`app.config.user.user_config.acmg`, (genepanel, acmgConfig) => {
+        const result = {}
 
-        (hgncId, genepanel, acmgConfig, hgncSymbolFallback) => {
-            const result = {}
+        const uniqueHgncIds = new Set(genepanel.transcripts.map((t) => t.gene.hgnc_id))
+        for (let hgncId of uniqueHgncIds) {
+            result[hgncId] = {}
 
             const props = ['last_exon_important', 'disease_mode']
             const geneConfigOverride = findGeneConfigOverride(hgncId, acmgConfig)
             for (let p of props) {
-                result[p] = {
+                result[hgncId][p] = {
                     value: p in geneConfigOverride ? geneConfigOverride[p] : acmgConfig[p],
                     overridden: p in geneConfigOverride
                 }
             }
-
-            result.inheritance = formatInheritance(hgncId, genepanel, hgncSymbolFallback)
+            result[hgncId].inheritance = formatInheritance(hgncId, genepanel)
 
             // If 'frequency' is defined for the gene, use that.
             // Otherwise, use the default given the inheritance key
             if ('frequency' in geneConfigOverride) {
-                result.freqCutoffs = {
+                result[hgncId].freqCutoffs = {
                     value: geneConfigOverride.frequency.thresholds,
                     overridden: true
                 }
             } else {
-                result.freqCutoffs = {
+                result[hgncId].freqCutoffs = {
                     value:
-                        result.inheritance === 'AD'
+                        result[hgncId].inheritance === 'AD'
                             ? acmgConfig.frequency.thresholds['AD']
                             : acmgConfig.frequency.thresholds['default'],
                     overridden: false
                 }
             }
 
-            if ('comment' in geneConfigOverride) {
-                result.comment = geneConfigOverride['comment']
-            }
-            result.omimEntryId = getOmimEntryId(hgncId, genepanel, hgncSymbolFallback)
-            result.phenotypes = genepanel.phenotypes.filter(
-                (p) => p.gene.hgnc_id === hgncId || p.gene.hgnc_symbol === hgncSymbolFallback
+            result[hgncId].omimEntryId = getOmimEntryId(hgncId, genepanel)
+            result[hgncId].phenotypes = genepanel.phenotypes.filter(
+                (p) => p.gene.hgnc_id === hgncId
             )
-            return result
         }
-    )
+        return result
+    })
 }

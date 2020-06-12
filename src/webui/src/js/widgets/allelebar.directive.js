@@ -2,6 +2,7 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
+import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 
 import template from './allelebar.ngtmpl.html'
 import genePopover from './allelebar/genePopover.ngtmpl.html'
@@ -63,6 +64,7 @@ app.component('allelebar', {
         {
             allele: state`${props`allelePath`}`,
             genepanel: state`${props`genepanelPath`}`,
+            genepanelValues: getGenepanelValues(state`${props`genepanelPath`}`),
             genotypeDisplay
         },
         'AlleleBar',
