@@ -169,23 +169,6 @@ def workflow_analyses_for_genepanels(session, genepanels):
     )
 
 
-def allele_ids_not_started_analyses(session):
-    """
-    Get all allele_ids for 'Not started' analyses in either
-    'Not ready' or 'Interpretation' workflow status.
-    """
-    return (
-        session.query(allele.Allele.id)
-        .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
-        .filter(
-            or_(
-                sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session)),
-                sample.Analysis.id.in_(workflow_analyses_notready_not_started(session)),
-            )
-        )
-    )
-
-
 def workflow_alleles_finalized(session):
     return workflow_by_status(
         session,
@@ -239,6 +222,17 @@ def workflow_alleles_for_genepanels(session, genepanels):
     )
 
     return allele_ids_for_alleleinterpretation
+
+
+def analysis_ids_for_user(session, user):
+    # Restrict analyses to analyses matching this user's group's genepanels
+    analysis_ids_for_user = session.query(sample.Analysis.id)
+    if user is not None:
+        analyses_for_genepanels = workflow_analyses_for_genepanels(session, user.group.genepanels)
+        analysis_ids_for_user = analysis_ids_for_user.filter(
+            sample.Analysis.id.in_(analyses_for_genepanels)
+        )
+    return analysis_ids_for_user
 
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):

@@ -1,14 +1,14 @@
 from typing import Dict, Any, DefaultDict, Tuple, Set
 from collections import defaultdict
 from sqlalchemy import func, tuple_, and_
-from sqlalchemy.orm import defer
+from sqlalchemy.orm import defer, joinedload
 from vardb.datamodel import sample, workflow, allele, genotype, gene
 
 from datalayer import AlleleDataLoader, queries
 from datalayer.workflowcategorization import (
     get_categorized_analyses,
     get_categorized_alleles,
-    get_finalized_analyses,
+    get_finalized_analysis_ids,
 )
 from api import schemas
 from api.v1.resource import LogRequestResource
@@ -112,6 +112,44 @@ def load_alleles(session, allele_id_genepanel):
             )
 
     return final_alleles
+
+
+def load_analyses(session, analysis_ids, user):
+    aschema = schemas.AnalysisSchema()
+
+    user_analysis_ids = queries.analysis_ids_for_user(session, user=user)
+
+    analyses = (
+        session.query(sample.Analysis)
+        .options(joinedload(sample.Analysis.interpretations).defer("state").defer("user_state"))
+        .filter(sample.Analysis.id.in_(user_analysis_ids), sample.Analysis.id.in_(analysis_ids))
+        .all()
+    )
+    # FIXME: many=True is broken when some fields (date_requested) are None
+    loaded_analyses = [aschema.dump(a).data for a in analyses]
+
+    # Load in priority, warning_cleared and review_comment
+    analysis_ids = [a.id for a in analyses]
+    priorities = queries.workflow_analyses_priority(session, analysis_ids).all()
+    review_comments = queries.workflow_analyses_review_comment(session, analysis_ids).all()
+    warnings_cleared = queries.workflow_analyses_warning_cleared(session, analysis_ids).all()
+
+    for analysis in loaded_analyses:
+        priority = next((p.priority for p in priorities if p.analysis_id == analysis["id"]), 1)
+        analysis["priority"] = priority
+        review_comment = next(
+            (rc.review_comment for rc in review_comments if rc.analysis_id == analysis["id"]), None
+        )
+        if review_comment:
+            analysis["review_comment"] = review_comment
+        warning_cleared = next(
+            (wc.warning_cleared for wc in warnings_cleared if wc.analysis_id == analysis["id"]),
+            None,
+        )
+        if warning_cleared:
+            analysis["warning_cleared"] = warning_cleared
+
+    return loaded_analyses
 
 
 def get_analysis_gp_allele_ids(
@@ -280,13 +318,24 @@ class OverviewAnalysisFinalizedResource(LogRequestResource):
     @authenticate()
     @paginate
     def get(self, session, user=None, page=None, per_page=None):
-        return get_finalized_analyses(session, user=user, page=page, per_page=per_page)
+        finalized_analysis_ids, count = get_finalized_analysis_ids(
+            session, user=user, page=page, per_page=per_page
+        )
+        loaded_analyses = load_analyses(session, finalized_analysis_ids, user)
+
+        return loaded_analyses, count
 
 
 class OverviewAnalysisResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
-        return get_categorized_analyses(session, user=user)
+        categorized_analysis_ids = get_categorized_analyses(session, user=user)
+
+        result = {}
+        for key, analysis_ids in categorized_analysis_ids.items():
+            result[key] = load_analyses(session, analysis_ids, user)
+
+        return result
 
 
 class OverviewUserStatsResource(LogRequestResource):
