@@ -11,12 +11,7 @@ LivereloadWebpackPlugin.prototype.done = function done(stats) {
 
     const fileHashes = {}
     for (let file of Object.keys(stats.compilation.assets)) {
-        try {
-            fileHashes[file] = md5File.sync(stats.compilation.assets[file].existsAt)
-        } catch (e) {
-            console.error(`err procesing ${file}`)
-            throw e
-        }
+        fileHashes[file] = md5File.sync(stats.compilation.assets[file].existsAt)
     }
 
     const toInclude = Object.keys(fileHashes).filter((file) => {
