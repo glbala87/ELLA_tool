@@ -47,14 +47,14 @@ def analysis_tag_all_classified(session, analysis, interpretation, filter_config
 
     allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
 
-    # Get alleles with missing or outdated alleleassessments
+    # Get alleles with valid alleleassessments
     allele_ids_with_alleleasssessment = (
         session.query(assessment.AlleleAssessment.allele_id)
         .filter(
             assessment.AlleleAssessment.allele_id.in_(allele_ids),
             *queries.valid_alleleassessments_filter(session)
         )
-        .all()
+        .scalar_all()
     )
 
     if not allele_ids:
@@ -65,11 +65,6 @@ def analysis_tag_all_classified(session, analysis, interpretation, filter_config
     elif not set(allele_ids) - set(allele_ids_with_alleleasssessment):
         il = workflow.InterpretationLog(
             analysisinterpretation_id=interpretation.id, review_comment="ALL CLASSIFIED"
-        )
-        session.add(il)
-    else:
-        il = workflow.InterpretationLog(
-            analysisinterpretation_id=interpretation.id, review_comment="MISSING CLASSIFICATIONS"
         )
         session.add(il)
 
@@ -86,13 +81,12 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         session, interpretation, filter_config_id
     )
 
-    # Get classifications from config that is defined as a 'finding'
+    # Get classifications from config that is defined as not being a finding
     classification_options = config["classification"]["options"]
     classification_wo_findings = [
         o["value"] for o in classification_options if not o.get("include_analysis_with_findings")
     ]
 
-    # Get alleles with an alleleasssment having any of those 'findings'
     allele_ids_without_findings = (
         session.query(assessment.AlleleAssessment.allele_id)
         .filter(
@@ -100,7 +94,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             assessment.AlleleAssessment.classification.in_(classification_wo_findings),
             *queries.valid_alleleassessments_filter(session)
         )
-        .all()
+        .scalar_all()
     )
 
     # This implicitly also checks for any missing alleleassessments via allele_ids_without_findings

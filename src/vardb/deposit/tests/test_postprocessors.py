@@ -1,5 +1,6 @@
 from vardb.deposit import postprocessors
 from vardb.datamodel import allele, sample, genotype, workflow, assessment
+from api.v1.resources.workflow import helpers
 
 
 class TestPostprocessors:
@@ -95,8 +96,8 @@ class TestPostprocessors:
 
         assert interpretation.finalized is None
 
-        # Create alleleassesments for all alleles in database
-        allele_ids = session.query(allele.Allele.id).all()
+        # Create alleleassesments for all non-filtered alleles
+        allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
 
         for allele_id in allele_ids:
             aa = assessment.AlleleAssessment(
@@ -123,3 +124,71 @@ class TestPostprocessors:
             session, analysis, interpretation, filter_config_id
         )
         assert interpretation.finalized is True
+
+    def test_analysis_tag_all_classified(self, session, test_database):
+
+        test_database.refresh()
+
+        # Use analysis id 2
+        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == 2).one()
+
+        interpretation = (
+            session.query(workflow.AnalysisInterpretation)
+            .filter(workflow.AnalysisInterpretation.analysis_id == analysis.id)
+            .one()
+        )
+
+        filter_config_id = 1
+        allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
+
+        #
+        # Test ALL CLASSIFIED
+        #
+        for allele_id in allele_ids:
+            aa = assessment.AlleleAssessment(
+                allele_id=allele_id,
+                genepanel_name="HBOC",
+                genepanel_version="v01",
+                classification="5",
+                user_id=1,
+                usergroup_id=1,
+            )
+            session.add(aa)
+
+        session.flush()
+
+        # Clear out any existing data
+        session.execute("DELETE FROM interpretationlog")
+
+        postprocessors.analysis_tag_all_classified(
+            session, analysis, interpretation, filter_config_id
+        )
+        # Check that overview comment is added correctly
+        il = (
+            session.query(workflow.InterpretationLog)
+            .filter(workflow.InterpretationLog.analysisinterpretation_id == interpretation.id)
+            .one()
+        )
+        assert il.analysisinterpretation_id == interpretation.id
+        assert il.review_comment == "ALL CLASSIFIED"
+        session.delete(il)
+        session.flush()
+
+        #
+        # Test NO VARIANTS
+        #
+
+        # Delete all non-filtered variants from analysis
+        to_delete_allele_ids = ",".join([str(a) for a in allele_ids])
+        session.execute(f"DELETE FROM genotype WHERE allele_id IN ({to_delete_allele_ids})")
+        postprocessors.analysis_tag_all_classified(
+            session, analysis, interpretation, filter_config_id
+        )
+        # Check that overview comment is added correctly
+        il = (
+            session.query(workflow.InterpretationLog)
+            .filter(workflow.InterpretationLog.analysisinterpretation_id == interpretation.id)
+            .one()
+        )
+        assert il.analysisinterpretation_id == interpretation.id
+        assert il.review_comment == "NO VARIANTS"
