@@ -1,6 +1,5 @@
 import { Module } from 'cerebral'
 
-import sectionChanged from './signals/sectionChanged'
 import updateFilter from './signals/updateFilter'
 import clearFilter from './signals/clearFilter'
 import { initApp, authenticate } from '../../../common/factories'
