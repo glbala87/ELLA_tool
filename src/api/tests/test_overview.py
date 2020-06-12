@@ -23,9 +23,7 @@ class TestAnalysisOverview(object):
         assert isinstance(r.get_json(), list) and len(r.get_json()) == 0
 
     @pytest.mark.overviewanalysis(order=2)
-    def test_changes(
-        self, client, session, with_finding_classification, without_finding_classification
-    ):
+    def test_changes(self, client, session):
 
         FIRST_ANALYSIS_ID = 1
         wh = WorkflowHelper(
