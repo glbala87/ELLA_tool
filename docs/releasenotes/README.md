@@ -6,7 +6,7 @@ title: Latest release
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.10](#version-1-10)|
+[v1.10](#version-1-10)|[1.10.1](#version-1-10-1)
 [v1.9](#version-1-9)|[v1.9.1](#version-1-9-1), [v1.9.2](#version-1-9-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
@@ -36,6 +36,23 @@ Any combination of these filters is allowed.
 ### All changes
 
 -->
+## Version 1.10.1
+
+Release data: 15.06.2020
+
+### Highlights
+
+This release fixes a few bugs bugs related to references and reference assessments.
+
+### All changes
+<!-- MR !424 -->
+- Fixed a bug where existing reference assessments would not show if no longer part of annotation
+
+<!-- MR !427 -->
+- Fixed a bug where ClinVar references would not be recognized during import of ClinVar annotation
+
+<!-- MR !428 -->
+- Fixed a bug where HGMD reference comments would display un-translated character sequences
 
 ## Version 1.10
 
