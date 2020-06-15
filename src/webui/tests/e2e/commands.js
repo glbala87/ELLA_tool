@@ -90,6 +90,7 @@ function addCommands() {
         $(editorSelector).click()
         const elemId = Object.values(browser.findElement('css selector', editorWysiwygSelector))[0]
         browser.elementClear(elemId)
+        browser.pause(50)
         $(editorSelector).click()
         $(editorWysiwygSelector).addValue(value)
     })

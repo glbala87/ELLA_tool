@@ -42,13 +42,17 @@
     <h4 class="section-title gene-information-title">Gene information:</h4>
     <div class="comment-container">
         <wysiwyg-editor
-            class="comment-editor"
+            class="id-comment-gene-assessment comment-editor"
             ng-disabled="!$ctrl.isCommmentEditable()"
             ng-model="$ctrl.getGeneCommentModel().comment"
             ng-change="$ctrl.geneCommentChanged()"
         ></wysiwyg-editor>
         <div class="comment-controls" ng-if="!$ctrl.isReadOnly">
-            <button class="blue" ng-if="!$ctrl.isCommmentEditable()" ng-click="$ctrl.editClicked()">
+            <button
+                class="id-edit-gene-assessment blue"
+                ng-if="!$ctrl.isCommmentEditable()"
+                ng-click="$ctrl.editClicked()"
+            >
                 EDIT
             </button>
             <confirm-button
@@ -62,8 +66,7 @@
                 Undo
             </confirm-button>
             <button
-                class="purple"
-                class="id-update-gene-assessment"
+                class="purple id-update-gene-assessment"
                 ng-if="$ctrl.isCommmentEditable()"
                 ng-click="$ctrl.updateGeneAssessmentClicked({geneAssessment: $ctrl.userGeneAssessment})"
                 ng-disabled="!$ctrl.isGeneCommentChanged()"
