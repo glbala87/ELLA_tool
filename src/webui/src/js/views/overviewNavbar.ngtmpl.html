@@ -1,13 +1,40 @@
 <nav class="navbar-secondary">
-    <section style="margin-left: auto; margin-top: 0.8rem; margin-right: auto;">
-        <span
-            style="font-family: Source Sans Pro, sans-serif; line-height: 3.8rem; font-weight: 600; letter-spacing: 0.1rem; font-size: 1.3rem; text-transform: uppercase; white-space: nowrap;"
+    <section class="filter-grid">
+        <label class="filter-label" for="analysis">Analysis name:</label>
+        <input
+            id="analysis"
+            class="id-overview-filter-analysis-name filter-field"
+            ng-model="$ctrl.modelAnalysisName"
+            ng-model-watch="$ctrl.overviewFilter.analysisName"
+            ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
+        />
+
+        <label class="filter-label" for="comment">Comment:</label>
+        <input
+            id="comment"
+            class="id-overview-filter-review-comment filter-field"
+            ng-model="$ctrl.modelReviewComment"
+            ng-model-watch="$ctrl.overviewFilter.reviewComment"
+            ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
+        />
+
+        <label class="filter-label" for="date">Request Date:</label>
+        <select
+            id="date"
+            class="id-overview-filter-date-range filter-field"
+            ng-model="$ctrl.modelDateRange"
+            ng-model-watch="$ctrl.overviewFilter.dateRange"
+            ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
         >
-            Filter Analyses:
-        </span>
+            <option value="lt:-1:d">&lt; 1 day ago</option>
+            <option value="lt:-3:d">&lt; 3 days ago</option>
+            <option value="lt:-7:d">&lt; 1 week ago</option>
+            <option value="lt:-1:m">&lt; 1 month ago</option>
+            <option value="lt:-3:m">&lt; 3 months ago</option>
+            <option value="ge:-3:m">&ge; 3 months ago</option>
+        </select>
 
         <label
-            tabindex="0"
             class="id-overview-filter-technology-hts bttn"
             uib-btn-checkbox="'user'"
             ng-model="$ctrl.modelTechnologyHTS"
@@ -16,7 +43,6 @@
             >HTS</label
         >
         <label
-            tabindex="0"
             class="id-overview-filter-technology-sanger bttn"
             uib-btn-checkbox="'user'"
             ng-model="$ctrl.modelTechnologySanger"
@@ -25,49 +51,8 @@
             >Sanger</label
         >
 
-        <label for="analysis">Analysis:</label>
-        <input
-            type="text"
-            id="analysis"
-            class="id-overview-filter-analysis-name"
-            ng-model="$ctrl.modelAnalysisName"
-            ng-model-watch="$ctrl.overviewFilter.analysisName"
-            ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
-        />
-
-        <label for="comment">Comment:</label>
-        <input
-            type="text"
-            id="comment"
-            class="id-overview-filter-review-comment"
-            ng-model="$ctrl.modelReviewComment"
-            ng-model-watch="$ctrl.overviewFilter.reviewComment"
-            ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
-        />
-
-        <label for="date">Date Range</label>
-        <select
-            id="date"
-            style="position: relative;
-            height: 50%;
-            top:0rem;
-            border-style: solid;
-            border-width: 0 0 2px 0;"
-            class="id-overview-filter-date-range"
-            ng-model="$ctrl.modelDateRange"
-            ng-model-watch="$ctrl.overviewFilter.dateRange"
-            ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
-        >
-            <option value="lt:-1:d">&lt; 1 day</option>
-            <option value="lt:-3:d">&lt; 3 days</option>
-            <option value="lt:-7:d">&lt; 1 week</option>
-            <option value="lt:-1:m">&lt; 1 month</option>
-            <option value="lt:-3:m">&lt; 3 months</option>
-            <option value="ge:-3:m">&ge; 3 months</option>
-        </select>
         <label
-            tabindex="0"
-            class="id-overview-filter-priority-normal bttn btn-primary"
+            class="id-overview-filter-priority-normal bttn"
             uib-btn-checkbox
             ng-model="$ctrl.modelPriority.Normal"
             ng-model-watch="$ctrl.priorityNormal"
@@ -75,8 +60,7 @@
             >Normal</label
         >
         <label
-            tabindex="0"
-            class="id-overview-filter-priority-high bttn btn-primary"
+            class="id-overview-filter-priority-high bttn"
             uib-btn-checkbox
             ng-model="$ctrl.modelPriority.High"
             ng-model-watch="$ctrl.priorityHigh"
@@ -84,14 +68,14 @@
             >High</label
         >
         <label
-            tabindex="0"
-            class="id-overview-filter-priority-urgent bttn btn-primary"
+            class="id-overview-filter-priority-urgent bttn"
             uib-btn-checkbox
             ng-model="$ctrl.modelPriority.Urgent"
             ng-model-watch="$ctrl.priorityUrgent"
             ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
             >Urgent</label
         >
+
         <button class="id-clear-filter" ng-click="$ctrl.clearFilter()">reset filter</button>
     </section>
 </nav>

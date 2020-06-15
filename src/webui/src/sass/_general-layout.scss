@@ -582,6 +582,31 @@ button {
     }
 }
 
+.filter-grid {
+    display: grid;
+    margin-left: auto;
+    margin-top: 0.8rem;
+    margin-right: auto;
+}
+
+.filter-label {
+    font-family: $slim;
+    font-weight: 600;
+    letter-spacing: 0.1rem;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 0.5rem;
+}
+
+.filter-field {
+    vertical-align: middle;
+    border-style: solid;
+    border-width: 0 0 2px 0;
+    padding: 0.5rem 0.5rem;
+}
+
 .interpretation-content {
     padding: 2rem;
 }
