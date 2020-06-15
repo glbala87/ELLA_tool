@@ -30,7 +30,8 @@ def load_alleles(session, allele_id_genepanel):
             'allele': {...allele data...},
             'date_created': '<dateisoformat>',
             'priority': <int>,
-            'interpretations': [{...interpretation_data...}, ...]
+            'review_comment': <str>,
+            'interpretations': [{...interpretation_data...}, ...],
         },
         ...
     ]
@@ -38,8 +39,11 @@ def load_alleles(session, allele_id_genepanel):
 
     # Preload all alleles
     all_allele_ids = [a[0] for a in allele_id_genepanel]
-    alleles_by_id = session.query(allele.Allele).filter(allele.Allele.id.in_(all_allele_ids)).all()
-    alleles_by_id = {a.id: a for a in alleles_by_id}
+    alleles_by_id = dict(
+        session.query(allele.Allele.id, allele.Allele)
+        .filter(allele.Allele.id.in_(all_allele_ids))
+        .all()
+    )
 
     # Preload interpretations for each allele
     interpretations = (
@@ -59,12 +63,10 @@ def load_alleles(session, allele_id_genepanel):
     )
 
     # Load highest priority for each allele.
-    allele_allele_ids_priority = queries.workflow_allele_priority(session).all()
-    priority_by_allele_id = {k: v for k, v in allele_allele_ids_priority}
+    priority_by_allele_id = dict(queries.workflow_allele_priority(session).all())
 
     # Load review comments
-    allele_ids_review_comment = queries.workflow_allele_review_comment(session).all()
-    review_comment_by_allele_id = {a.allele_id: a.review_comment for a in allele_ids_review_comment}
+    review_comment_by_allele_id = dict(queries.workflow_allele_review_comment(session).all())
 
     # Set structures/loaders
     final_alleles = list()
@@ -115,9 +117,24 @@ def load_alleles(session, allele_id_genepanel):
 
 
 def load_analyses(session, analysis_ids, user):
+    """
+    Loads in analysis data for all analysis ids given in input.
+    Analyses are further restricted to the access for the provided user.
+
+
+    Returns [
+        {
+            <AnalysisSchema> +
+            "review_comment": <str>,
+            "priority": <int>,
+            "warning_cleared": <bool>
+        },
+        ...
+    ]
+    """
     aschema = schemas.AnalysisSchema()
 
-    user_analysis_ids = queries.analysis_ids_for_user(session, user=user)
+    user_analysis_ids = queries.analysis_ids_for_user(session, user)
 
     analyses = (
         session.query(sample.Analysis)

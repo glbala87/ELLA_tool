@@ -226,12 +226,9 @@ def workflow_alleles_for_genepanels(session, genepanels):
 
 def analysis_ids_for_user(session, user):
     # Restrict analyses to analyses matching this user's group's genepanels
-    analysis_ids_for_user = session.query(sample.Analysis.id)
-    if user is not None:
-        analyses_for_genepanels = workflow_analyses_for_genepanels(session, user.group.genepanels)
-        analysis_ids_for_user = analysis_ids_for_user.filter(
-            sample.Analysis.id.in_(analyses_for_genepanels)
-        )
+    analysis_ids_for_user = session.query(sample.Analysis.id).filter(
+        sample.Analysis.id.in_(workflow_analyses_for_genepanels(session, user.group.genepanels))
+    )
     return analysis_ids_for_user
 
 

@@ -140,7 +140,7 @@ class TestPostprocessors:
 
         filter_config_id = 1
         allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
-
+        assert allele_ids
         #
         # Test ALL CLASSIFIED
         #
