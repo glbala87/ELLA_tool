@@ -10,9 +10,7 @@ export default function filterAnalyses({ state }) {
         const filteredAnalyses = {}
         // allow using * as an alias for regex .+
         const nameMatch = filterToRegex(filter.analysisName)
-        console.log(`nameMatch raw: '${filter.analysisName}', regexp: '${nameMatch}'`)
         const commentMatch = filterToRegex(filter.reviewComment)
-        console.log(`commentMatch raw: '${filter.reviewComment}', regexp: '${commentMatch}'`)
 
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
@@ -93,7 +91,7 @@ function createDate(days, months) {
 
 function filterToRegex(searchString) {
     // Users are not expected to know regex even though that what we're using under the hood.
-    // Instead, allow using * as wildcard and escape using `.`
+    // Instead, allow using * as wildcard and treat . as a string
     if (searchString == null) {
         return new RegExp('.*')
     } else {
