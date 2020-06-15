@@ -12,6 +12,17 @@ export function getReferencesIdsForAllele(allele) {
             ids.push(obj)
         }
     }
+
+    // References migth drop from annotation, even though a reference assessment is already performed.
+    // Make sure these references are added to allele references
+    if (allele.reference_assessments) {
+        for (let ra of allele.reference_assessments) {
+            ids.push({
+                id: ra.reference_id
+            })
+        }
+    }
+
     return ids
 }
 
@@ -32,6 +43,10 @@ export function findReferencesFromIds(references, ids) {
                     (id && r.id === id)
                 )
             })
+            // Avoid duplicated references in result
+            if (result.references.includes(reference)) {
+                continue
+            }
             if (reference) {
                 result.references.push(reference)
             } else {
