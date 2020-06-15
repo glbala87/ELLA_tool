@@ -2,13 +2,8 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "additionalProperties": false,
-    "required": ["gene_id", "evaluation"],
-    "optional": [
-        "presented_geneassessment_id",
-        "analysis_id",
-        "genepanel_name",
-        "genepanel_version"
-    ],
+    "required": ["gene_id", "evaluation", "genepanel_name", "genepanel_version"],
+    "optional": ["presented_geneassessment_id", "analysis_id"],
     "properties": {
         "gene_id": { "type": "integer" },
         "genepanel_name": { "type": "string" },
