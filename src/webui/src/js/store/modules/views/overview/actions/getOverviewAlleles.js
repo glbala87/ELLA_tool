@@ -28,6 +28,7 @@ function getOverviewAlleles({ state, http, path }) {
             return path.success(response)
         })
         .catch((response) => {
+            console.error(response)
             return path.error(response)
         })
 }

@@ -1,4 +1,7 @@
 export function getInheritanceCodes(hgncId, genepanel) {
+    if (!genepanel.phenotypes) {
+        return null
+    }
     const phenotypes = genepanel.phenotypes.filter((p) => p.gene.hgnc_id === hgncId)
     if (phenotypes) {
         const codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
@@ -10,7 +13,7 @@ export function getInheritanceCodes(hgncId, genepanel) {
 }
 
 export function formatInheritance(hgncId, genepanel) {
-    return getInheritanceCodes(hgncId, genepanel).join('/')
+    return (getInheritanceCodes(hgncId, genepanel) || ['']).join('/')
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
