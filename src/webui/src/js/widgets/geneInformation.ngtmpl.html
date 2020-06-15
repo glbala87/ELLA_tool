@@ -40,7 +40,7 @@
         </li>
     </ul>
     <h4 class="section-title gene-information-title">Gene information:</h4>
-    <div class="comment-container">
+    <div class="comment-container" ng-if="$ctrl.hgncId">
         <wysiwyg-editor
             class="id-comment-gene-assessment comment-editor"
             ng-disabled="!$ctrl.isCommmentEditable()"

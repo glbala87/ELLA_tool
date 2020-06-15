@@ -38,31 +38,39 @@ app.component('geneInformation', {
                         $ctrl.geneCommentEditable = !$ctrl.geneCommentEditable
                     },
                     getOmimLink() {
-                        const entryId = $ctrl.genepanelValues[$ctrl.hgncId].omimEntryId
-                        return entryId
-                            ? `https://www.omim.org/entry/${entryId}`
-                            : `https://www.omim.org/search/?search=${$ctrl.hgncSymbol}`
+                        if ($ctrl.hgncId in $ctrl.genepanelValues) {
+                            const entryId = $ctrl.genepanelValues[$ctrl.hgncId].omimEntryId
+                            return entryId
+                                ? `https://www.omim.org/entry/${entryId}`
+                                : `https://www.omim.org/search/?search=${$ctrl.hgncSymbol}`
+                        }
                     },
                     getHgmdLink() {
                         return `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
                     },
                     getFrequencyExternal() {
-                        const loCutoff =
-                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
-                                .lo_freq_cutoff
-                        const hiCutoff =
-                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
-                                .hi_freq_cutoff
-                        return `${loCutoff}/${hiCutoff}`
+                        if ($ctrl.hgncId in $ctrl.genepanelValues) {
+                            const loCutoff =
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                    .lo_freq_cutoff
+                            const hiCutoff =
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                    .hi_freq_cutoff
+                            return `${loCutoff}/${hiCutoff}`
+                        }
+                        return 'N/A'
                     },
                     getFrequencyInternal() {
-                        const loCutoff =
-                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
-                                .lo_freq_cutoff
-                        const hiCutoff =
-                            $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
-                                .hi_freq_cutoff
-                        return `${loCutoff}/${hiCutoff}`
+                        if ($ctrl.hgncId in $ctrl.genepanelValues) {
+                            const loCutoff =
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                    .lo_freq_cutoff
+                            const hiCutoff =
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                    .hi_freq_cutoff
+                            return `${loCutoff}/${hiCutoff}`
+                        }
+                        return 'N/A'
                     },
                     getGeneCommentModel() {
                         return $ctrl.userGeneAssessment
