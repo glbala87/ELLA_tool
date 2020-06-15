@@ -6,7 +6,7 @@ title: Latest release
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.10](#version-1-10)|
+[v1.10](#version-1-10)|[1.10.1](#version-1-10-1)
 [v1.9](#version-1-9)|[v1.9.1](#version-1-9-1), [v1.9.2](#version-1-9-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
