@@ -1,3 +1,5 @@
+import { search } from 'angular-animate'
+
 export default function filterAnalyses({ state }) {
     const analyses = state.get('views.overview.data.analyses')
     const filter = state.get('views.overview.filter')
@@ -6,12 +8,11 @@ export default function filterAnalyses({ state }) {
         state.set('views.overview.filteredAnalyses', analyses)
     } else {
         const filteredAnalyses = {}
-        const nameMatch = new RegExp(`.*${filter.analysisName}.*`, 'i')
-        // allow using * as an alias for regex .
-        const commentMatch = new RegExp(
-            `.*${filter.reviewComment == '*' ? '.' : filter.reviewComment}.*`,
-            'i'
-        )
+        // allow using * as an alias for regex .+
+        const nameMatch = filterToRegex(filter.analysisName)
+        console.log(`nameMatch raw: '${filter.analysisName}', regexp: '${nameMatch}'`)
+        const commentMatch = filterToRegex(filter.reviewComment)
+        console.log(`commentMatch raw: '${filter.reviewComment}', regexp: '${commentMatch}'`)
 
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
@@ -88,4 +89,14 @@ function createDate(days, months) {
         date.setDate(date.getDate() - 1)
     }
     return date
+}
+
+function filterToRegex(searchString) {
+    // Users are not expected to know regex even though that what we're using under the hood.
+    // Instead, allow using * as wildcard and escape using `.`
+    if (searchString == null) {
+        return new RegExp('.*')
+    } else {
+        return new RegExp(`${searchString.replace('.', '\\.').replace('*', '.+')}`)
+    }
 }
