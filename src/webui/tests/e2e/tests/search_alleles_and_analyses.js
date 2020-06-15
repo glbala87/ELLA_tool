@@ -128,33 +128,22 @@ describe('Search functionality', function() {
         )
         console.log(`Finished updating analyses for filter test`)
 
-        // remove when function is moved to the end
-        loginPage.open()
-        loginPage.loginAs('testuser1')
+        // check initial data is as expected
         analysesSelectionPage.open()
-
-        // start with 3
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
-        console.log('passed initial check')
-
         // check name filter
         analysesSelectionPage.filterAnalysisName('test02')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
-        console.log('passed name filter')
 
         // check clear filter
         analysesSelectionPage.filterClear()
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
-        console.log('passed clear check')
-        // browser.debug()
 
         // test multiple priorities
         analysesSelectionPage.filterPriority('urgent')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(0)
-        console.log('passed urgent check')
         analysesSelectionPage.filterPriority('normal')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
-        console.log('passed urgent+normal check')
 
         // test review comment
         analysesSelectionPage.filterClear()
@@ -164,7 +153,6 @@ describe('Search functionality', function() {
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
         analysesSelectionPage.filterReviewComment('TESLA')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(0)
-        console.log('passed review comment check')
 
         // test tech
         analysesSelectionPage.filterClear()
@@ -175,7 +163,6 @@ describe('Search functionality', function() {
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
         analysesSelectionPage.filterTechnolgy('HTS')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
-        console.log('passed tech check')
 
         // test dateRange
         analysesSelectionPage.filterClear()
