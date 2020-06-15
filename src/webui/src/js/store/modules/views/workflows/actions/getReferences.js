@@ -1,4 +1,5 @@
 import processReferences from '../../../../common/helpers/processReferences'
+import { getReferencesIdsForAllele } from '../../../../common/helpers/reference'
 
 function getReferences({ http, path, state }) {
     let alleles = state.get('views.workflows.interpretation.data.alleles')
@@ -6,7 +7,7 @@ function getReferences({ http, path, state }) {
     let ids = []
     let pubmedIds = []
     for (let allele of Object.values(alleles)) {
-        for (let ref of allele.annotation.references) {
+        for (let ref of getReferencesIdsForAllele(allele)) {
             if (ref.id) {
                 ids.push(ref.id)
             } else if (ref.pubmed_id) {
