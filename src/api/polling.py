@@ -156,8 +156,8 @@ class AnnotationJobsInterface:
         job = self.get_with_id(id)
         mode = job.mode
         with tempfile.TemporaryDirectory() as folder:
-            vcf_file = Path(folder.name) / "{}.vcf".format(job.id)
-            analysis_file = Path(folder.name) / "{}.analysis".format(job.id)
+            vcf_file = Path(folder) / "{}.vcf".format(job.id)
+            analysis_file = Path(folder) / "{}.analysis".format(job.id)
             with open(vcf_file, "w") as vcf, open(analysis_file, "w") as af:
                 vcf.write(annotated_vcf)
                 vcf.flush()

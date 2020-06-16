@@ -130,7 +130,7 @@ class AnalysisWatcher(object):
                 if not self.is_ready(analysis_path):
                     continue
 
-                analysis_config_data = AnalysisConfigData.init_from_folder(analysis_path)
+                analysis_config_data = AnalysisConfigData(analysis_path)
 
                 if self.whitelist:
                     if not any(i.match(analysis_config_data["name"]) for i in self.whitelist):
@@ -147,13 +147,11 @@ class AnalysisWatcher(object):
                 self.session.flush()
 
                 # Move analysis dir to destination path.
-                shutil.move(analysis_path, self.dest_path)
+                shutil.move(str(analysis_path), str(self.dest_path))
 
                 # All is apparantly good, let's commit!
                 self.session.commit()
-                log.info(
-                    "Analysis {} successfully imported!".format(analysis_config_data.analysis_name)
-                )
+                log.info("Analysis {} successfully imported!".format(analysis_config_data["name"]))
 
             # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
             except Exception:
