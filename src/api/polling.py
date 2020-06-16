@@ -11,11 +11,9 @@ from urllib.parse import urlencode
 import os
 import binascii
 import subprocess
-from io import StringIO
 import tempfile
 from os.path import join
 from pathlib import Path
-import tempfile
 import pytz
 from sqlalchemy.exc import OperationalError
 
@@ -157,52 +155,44 @@ class AnnotationJobsInterface:
     def deposit(self, id, annotated_vcf):
         job = self.get_with_id(id)
         mode = job.mode
-        f = tempfile.NamedTemporaryFile()
-        f.write(annotated_vcf)
-        f.flush()
-        # fd = StringIO()
-        # fd.write(annotated_vcf)
-        # fd.flush()
-        # fd.seek(0)
+        with tempfile.TemporaryDirectory() as folder:
+            vcf_file = Path(folder.name) / "{}.vcf".format(job.id)
+            analysis_file = Path(folder.name) / "{}.analysis".format(job.id)
+            with open(vcf_file, "w") as vcf, open(analysis_file, "w") as af:
+                vcf.write(annotated_vcf)
+                vcf.flush()
 
-        gp_name = job.genepanel_name
-        gp_version = job.genepanel_version
+                gp_name = job.genepanel_name
+                gp_version = job.genepanel_version
 
-        if mode == "Analysis":
-            analysis_name = job.properties["analysis_name"]
-            append = job.properties["create_or_append"] != "Create"
-            if not append:
-                analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
+                if mode == "Analysis":
+                    analysis_name = job.properties["analysis_name"]
+                    append = job.properties["create_or_append"] != "Create"
+                    if not append:
+                        analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
-            with tempfile.TemporaryDirectory() as folder:
-                vcf_file = Path(folder.name / "{}.vcf".format(job.id))
-                with open(vcf_file, "w") as vcf:
-                    vcf.write(annotated_vcf)
+                        af_data = {
+                            "name": analysis_name,
+                            "genepanel_name": job.genepanel_name,
+                            "genepanel_version": job.genepanel_version,
+                            "priority": job.properties.get("priority", 1),
+                            "data": [
+                                {"vcf": vcf_file, "technology": job.properties["sample_type"]}
+                            ],
+                        }
 
-                af_data = {
-                    "name": analysis_name,
-                    "genepanel_name": job.genepanel_name,
-                    "genepanel_version": job.genepanel_version,
-                    "priority": job.properties.get("priority", 1),
-                    "data": [{"vcf": vcf_file, "technology": job.properties["sample_type"]}],
-                }
+                        json.dump(af_data, af)
+                        af.flush()
 
-                analysis_file = Path(folder.name / "{}.analysis".format(job.id))
-                with open(analysis_file, "w") as af:
-                    json.dump(af_data, af)
+                        acd = AnalysisConfigData(analysis_file)
+                        da = DepositAnalysis(self.session)
+                        da.import_vcf(acd, append=append)
 
-                acd = AnalysisConfigData(analysis_file)
-                da = DepositAnalysis(self.session)
-                da.import_vcf(acd, append=append)
-
-        elif mode in ["Variants", "Single variant"]:
-
-            deposit = DepositAlleles(self.session)
-            deposit.import_vcf(fd, gp_name, gp_version)
-        else:
-            f.close()
-            raise RuntimeError("Unknown mode: %s" % mode)
-        f.close()
+                elif mode in ["Variants", "Single variant"]:
+                    deposit = DepositAlleles(self.session)
+                    deposit.import_vcf(vcf_file, gp_name, gp_version)
+                else:
+                    raise RuntimeError("Unknown mode: %s" % mode)
 
     def delete(self, job):
         self.session.delete(job)

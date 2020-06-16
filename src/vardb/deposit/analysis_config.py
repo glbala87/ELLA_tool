@@ -98,8 +98,8 @@ class AnalysisConfigData(dict):
         if folder_or_file.is_dir():
             self._root = folder_or_file
             self._init_from_folder(folder_or_file)
-            self["warnings"] = self._load_file(self._root / "warnings.txt")
-            self["report"] = self._load_file(self._root / "report.txt")
+            self["warnings"] = self.__load_file(self._root / "warnings.txt")
+            self["report"] = self.__load_file(self._root / "report.txt")
         elif folder_or_file.is_file():
             self._root = folder_or_file.parent
             if folder_or_file.suffix == ".vcf":
@@ -108,8 +108,8 @@ class AnalysisConfigData(dict):
                 self["report"] = None
             elif folder_or_file.suffix == ".analysis":
                 self._init_from_analysis_file(folder_or_file)
-                self["warnings"] = self._load_file(self._root / "warnings.txt")
-                self["report"] = self._load_file(self._root / "report.txt")
+                self["warnings"] = self.__load_file(self._root / "warnings.txt")
+                self["report"] = self.__load_file(self._root / "report.txt")
             else:
                 raise ValueError(
                     "Unable to create AnalysisConfigData from input {}".format(folder_or_file)
@@ -119,15 +119,15 @@ class AnalysisConfigData(dict):
                 "Unable to create AnalysisConfigData from input {}".format(folder_or_file)
             )
 
-        self._absolute_filepaths()
-        self._apply_defaults()
-        self._check_schema()
+        self.__absolute_filepaths()
+        self.__apply_defaults()
+        self.__check_schema()
 
-    def _check_schema(self):
+    def __check_schema(self):
         schema = json.loads(AnalysisConfigData.SCHEMA)
         jsonschema.validate(self, schema, format_checker=jsonschema.FormatChecker())
 
-    def _apply_defaults(self):
+    def __apply_defaults(self):
         for k, v in AnalysisConfigData.DEFAULTS.items():
             self.setdefault(k, v)
 
@@ -135,18 +135,15 @@ class AnalysisConfigData(dict):
             for k, v in AnalysisConfigData.DATA_DEFAULTS.items():
                 d.setdefault(k, v)
 
-    def _absolute_filepaths(self):
+    def __absolute_filepaths(self):
         for v in self["data"]:
-            if not Path(v["vcf"]).is_absolute():
-                v["vcf"] = str(self._root / v["vcf"])
-            assert Path(v["vcf"]).is_file(), "Unable to find file at {}".format(v["vcf"])
-            if "ped" in v and not Path(v["ped"]).is_absolute():
-                v["ped"] = str(self._root / v["ped"])
+            for key in ["vcf", "ped"]:
+                if key in v:
+                    if not Path(v[key]).is_absolute():
+                        v[key] = str(self._root / v[key])
+                    assert Path(v[key]).is_file(), "Unable to find file at {}".format(v[key])
 
-            if "ped" in v:
-                assert Path(v["ped"]).is_file(), "Unable to find file at {}".format(v["ped"])
-
-    def _load_file(self, path):
+    def __load_file(self, path):
         if path.is_file():
             with open(path, "r") as f:
                 return f.read()
@@ -162,7 +159,8 @@ class AnalysisConfigData(dict):
             "genepanel_version": legacy["params"]["genepanel"].split("_")[1],
             "data": [{"vcf": filename.stem + ".vcf"}],
         }
-        if Path(filename.stem + ".ped").is_file():
+
+        if filename.absolute().with_suffix(".ped").is_file():
             d["data"][0]["ped"] = filename.stem + ".ped"
 
         if "priority" in legacy:
