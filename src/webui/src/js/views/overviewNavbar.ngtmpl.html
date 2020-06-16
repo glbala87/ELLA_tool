@@ -1,7 +1,8 @@
 <nav class="navbar-secondary">
     <section class="filter-grid">
-        <label class="filter-label" for="analysis">Analysis name:</label>
         <input
+            title="Analysis name filter e.g., excap123"
+            placeholder="analysis name"
             id="analysis"
             class="id-overview-filter-analysis-name filter-field"
             ng-model="$ctrl.modelAnalysisName"
@@ -9,8 +10,12 @@
             ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
         />
 
-        <label class="filter-label" for="comment">Comment:</label>
+        <!-- why doesn't grid-gap work? -->
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+
         <input
+            title="Comment text filter e.g., reanalyse"
+            placeholder="comment text"
             id="comment"
             class="id-overview-filter-review-comment filter-field"
             ng-model="$ctrl.modelReviewComment"
@@ -18,21 +23,25 @@
             ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
         />
 
-        <label class="filter-label" for="date">Request Date:</label>
-        <select
-            id="date"
-            class="id-overview-filter-date-range filter-field"
-            ng-model="$ctrl.modelDateRange"
-            ng-model-watch="$ctrl.overviewFilter.dateRange"
-            ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
-        >
-            <option value="lt:-1:d">&lt; 1 day ago</option>
-            <option value="lt:-3:d">&lt; 3 days ago</option>
-            <option value="lt:-7:d">&lt; 1 week ago</option>
-            <option value="lt:-1:m">&lt; 1 month ago</option>
-            <option value="lt:-3:m">&lt; 3 months ago</option>
-            <option value="ge:-3:m">&ge; 3 months ago</option>
-        </select>
+        <div class="dropdown">
+            <select
+                id="date"
+                class="id-overview-filter-date-range filter-field"
+                ng-model="$ctrl.modelDateRange"
+                ng-model-watch="$ctrl.overviewFilter.dateRange"
+                ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
+            >
+                <option value="" hidden>Request date</option>
+                <option value="lt:-1:d">&lt; 1 day ago</option>
+                <option value="lt:-3:d">&lt; 3 days ago</option>
+                <option value="lt:-7:d">&lt; 1 week ago</option>
+                <option value="lt:-1:m">&lt; 1 month ago</option>
+                <option value="lt:-3:m">&lt; 3 months ago</option>
+                <option value="ge:-3:m">&ge; 3 months ago</option>
+            </select>
+        </div>
+
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
 
         <label
             class="id-overview-filter-technology-hts bttn"
