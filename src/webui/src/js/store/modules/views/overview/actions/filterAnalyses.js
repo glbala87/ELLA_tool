@@ -15,21 +15,16 @@ export default function filterAnalyses({ state }) {
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
                 const analysisDate = new Date(a.date_requested) || new Date(a.date_deposited)
-                // if there are multiple samples, look only at the (first) proband
-                // NOTE: will crash if proband / single do not have sample_type set. should we catch this somehow?
-                const analysisTechnology =
-                    a.samples.length == 1
-                        ? a.samples[0].sample_type
-                        : a.samples.filter((s) => {
-                              return s.proband && s.proband === true
-                          })[0].sample_type
+                // if there are multiple samples, check if any contain the given technology
+                const analysisTechnologies = a.samples.map((s) => s.sample_type)
+
                 return (
                     (!filter.analysisName || nameMatch.test(a.name)) &&
                     (!filter.reviewComment ||
                         (a.review_comment && commentMatch.test(a.review_comment))) &&
                     ((!filter.technologySanger && !filter.technologyHTS) ||
-                        (filter.technologySanger && analysisTechnology == 'Sanger') ||
-                        (filter.technologyHTS && analysisTechnology == 'HTS')) &&
+                        (filter.technologySanger && analysisTechnologies.includes('Sanger')) ||
+                        (filter.technologyHTS && analysisTechnologies.includes('HTS'))) &&
                     ((!filter.priorityNormal && !filter.priorityHigh && !filter.priorityUrgent) ||
                         (filter.priorityNormal && a.priority == 1) ||
                         (filter.priorityHigh && a.priorty == 2) ||
@@ -56,13 +51,13 @@ function withinRange(filter, date) {
     }
 
     // only using lt, ge now, but might as well support others
-    if (op == 'lt') {
+    if (op === 'lt') {
         return filterDate < date
-    } else if (op == 'le') {
+    } else if (op === 'le') {
         return filterDate <= date
-    } else if (op == 'gt') {
+    } else if (op === 'gt') {
         return filterDate > date
-    } else if (op == 'ge') {
+    } else if (op === 'ge') {
         return filterDate >= date
     } else {
         throw new SyntaxError(`Invalid operation in filter string: ${filter}`)
@@ -92,7 +87,7 @@ function createDate(days, months) {
 function filterToRegex(searchString) {
     // Users are not expected to know regex even though that what we're using under the hood.
     // Instead, allow using * as wildcard and treat . as a string
-    if (searchString == null) {
+    if (searchString === null) {
         return new RegExp('.*')
     } else {
         return new RegExp(`${searchString.replace('.', '\\.').replace('*', '.+')}`)

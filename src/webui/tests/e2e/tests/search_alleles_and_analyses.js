@@ -140,10 +140,12 @@ describe('Search functionality', function() {
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
 
         // test multiple priorities
-        analysesSelectionPage.filterPriority('urgent')
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(0)
-        analysesSelectionPage.filterPriority('normal')
+        analysesSelectionPage.toggleFilterPriority('normal')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        analysesSelectionPage.toggleFilterPriority('urgent')
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        analysesSelectionPage.toggleFilterPriority('normal')
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(0)
 
         // test review comment
         analysesSelectionPage.filterClear()
@@ -157,11 +159,11 @@ describe('Search functionality', function() {
         // test tech
         analysesSelectionPage.filterClear()
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
-        analysesSelectionPage.filterTechnolgy('HTS')
+        analysesSelectionPage.toggleFilterTechnology('HTS')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(2)
-        analysesSelectionPage.filterTechnolgy('Sanger')
+        analysesSelectionPage.toggleFilterTechnology('Sanger')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
-        analysesSelectionPage.filterTechnolgy('HTS')
+        analysesSelectionPage.toggleFilterTechnology('HTS')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
 
         // test dateRange

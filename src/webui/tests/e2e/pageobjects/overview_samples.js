@@ -44,7 +44,7 @@ class SampleSelection extends Page {
         $('.id-overview-filter-review-comment').setValue(commentText)
     }
 
-    filterTechnolgy(technologyType) {
+    toggleFilterTechnology(technologyType) {
         if (FILTER_TECHNOLOGIES.indexOf(technologyType) > -1) {
             $(`.id-overview-filter-technology-${technologyType.toLowerCase()}`).click()
         } else {
@@ -52,7 +52,7 @@ class SampleSelection extends Page {
         }
     }
 
-    filterPriority(priorityLevel) {
+    toggleFilterPriority(priorityLevel) {
         if (PRIORITY_LEVELS.indexOf(priorityLevel) > -1) {
             $(`.id-overview-filter-priority-${priorityLevel}`).click()
         } else {
