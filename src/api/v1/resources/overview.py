@@ -116,7 +116,7 @@ def load_alleles(session, allele_id_genepanel):
     return final_alleles
 
 
-def load_analyses(session, analysis_ids, user):
+def load_analyses(session, analysis_ids, user, keep_input_order=False):
     """
     Loads in analysis data for all analysis ids given in input.
     Analyses are further restricted to the access for the provided user.
@@ -140,13 +140,18 @@ def load_analyses(session, analysis_ids, user):
         session.query(sample.Analysis)
         .options(joinedload(sample.Analysis.interpretations).defer("state").defer("user_state"))
         .filter(sample.Analysis.id.in_(user_analysis_ids), sample.Analysis.id.in_(analysis_ids))
-        .order_by(
+    )
+
+    if not keep_input_order:
+        analyses = analyses.order_by(
             func.coalesce(sample.Analysis.date_requested, sample.Analysis.date_deposited).desc()
         )
-        .all()
-    )
+
     # FIXME: many=True is broken when some fields (date_requested) are None
     loaded_analyses = [aschema.dump(a).data for a in analyses]
+    if keep_input_order:
+        print(analysis_ids)
+        loaded_analyses.sort(key=lambda x: analysis_ids.index(x["id"]))
 
     # Load in priority, warning_cleared and review_comment
     analysis_ids = [a.id for a in analyses]
@@ -341,7 +346,9 @@ class OverviewAnalysisFinalizedResource(LogRequestResource):
         finalized_analysis_ids, count = get_finalized_analysis_ids(
             session, user=user, page=page, per_page=per_page
         )
-        loaded_analyses = load_analyses(session, finalized_analysis_ids, user)
+        loaded_analyses = load_analyses(
+            session, finalized_analysis_ids.scalar_all(), user, keep_input_order=True
+        )
 
         return loaded_analyses, count
 

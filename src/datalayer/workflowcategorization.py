@@ -82,13 +82,4 @@ def get_finalized_analysis_ids(session, user=None, page=None, per_page=None):
         end = page * per_page
         finalized_analyses = finalized_analyses.slice(start, end)
 
-    finalized_analyses = finalized_analyses.subquery()
-
-    return (
-        (
-            session.query(sample.Analysis.id)
-            .filter(sample.Analysis.id.in_(finalized_analyses))
-            .distinct()
-        ),
-        count,
-    )
+    return (finalized_analyses.distinct(), count)
