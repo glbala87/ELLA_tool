@@ -552,6 +552,18 @@ button {
             margin-left: 1.4rem;
         }
     }
+
+    // Invert color of active button since navbar has opposite color scheme.
+    .bttn-set {
+        label.bttn {
+            background-color: $white-75;
+            color: $black-75;
+            &.active {
+                background-color: $blue-75;
+                color: $white;
+            }
+        }
+    }
 }
 
 .navbar-bottom {
@@ -582,30 +594,31 @@ button {
     }
 }
 
-.filter-grid {
-    display: grid;
-    margin-left: auto;
-    margin-top: 0.8rem;
-    margin-right: auto;
-}
+.overview-filter {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
 
-.filter-label {
-    font-family: $slim;
-    font-weight: 600;
-    letter-spacing: 0.1rem;
-    font-size: 1.2rem;
-    text-transform: uppercase;
-    vertical-align: middle;
-    white-space: nowrap;
-    padding: 0.5rem;
-}
+    .filter-input {
+        width: 18rem;
+        margin-right: 3rem;
+    }
 
-.filter-field {
-    vertical-align: middle;
-    background-color: $white-75;
-    border-style: solid;
-    border-width: 0 0 2px 0;
-    padding: 0.5rem 0.5rem;
+    .filter-date {
+        width: 16rem;
+    }
+
+    .filter-technology, .filter-priority {
+        margin-left: 3rem;
+    }
+
+    .filter-clear {
+        margin-left: 3rem;
+    }
+
 }
 
 .interpretation-content {
@@ -810,18 +823,8 @@ workflow-buttons {
 }
 .workflow-options {
     display: flex;
-    // Invert color of active button since navbar has opposite color scheme.
     .bttn-set {
         margin-right: 2rem;
-        background-color: $white;
-        label.bttn {
-            background-color: $blue-75;
-            color: $white;
-            &.active {
-                background-color: $white;
-                color: $black-75;
-            }
-        }
     }
 }
 

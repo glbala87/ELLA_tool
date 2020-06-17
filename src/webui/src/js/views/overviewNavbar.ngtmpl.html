@@ -1,23 +1,20 @@
 <nav class="navbar-secondary">
-    <section class="filter-grid">
+    <section class="overview-filter">
         <input
             title="Analysis name filter e.g., excap123"
-            placeholder="analysis name"
+            placeholder="ANALYSIS NAME"
             id="analysis"
-            class="id-overview-filter-analysis-name filter-field"
+            class="id-overview-filter-analysis-name filter-input"
             ng-model="$ctrl.modelAnalysisName"
             ng-model-watch="$ctrl.overviewFilter.analysisName"
             ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
         />
 
-        <!-- why doesn't grid-gap work? -->
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
-
         <input
             title="Comment text filter e.g., reanalyse"
-            placeholder="comment text"
+            placeholder="COMMENT TEXT"
             id="comment"
-            class="id-overview-filter-review-comment filter-field"
+            class="id-overview-filter-review-comment filter-input"
             ng-model="$ctrl.modelReviewComment"
             ng-model-watch="$ctrl.overviewFilter.reviewComment"
             ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
@@ -26,7 +23,7 @@
         <div class="dropdown">
             <select
                 id="date"
-                class="id-overview-filter-date-range filter-field"
+                class="id-overview-filter-date-range filter-date"
                 ng-model="$ctrl.modelDateRange"
                 ng-model-watch="$ctrl.overviewFilter.dateRange"
                 ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
@@ -41,50 +38,54 @@
             </select>
         </div>
 
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        <div class="filter-technology bttn-set">
+            <label
+                class="id-overview-filter-technology-hts bttn"
+                uib-btn-checkbox="'user'"
+                ng-model="$ctrl.modelTechnologyHTS"
+                ng-model-watch="$ctrl.technologyHTS"
+                ng-change="$ctrl.updateFilter({filter: {technologyHTS: $ctrl.modelTechnologyHTS}})"
+                >HTS</label
+            >
+            <label
+                class="id-overview-filter-technology-sanger bttn"
+                uib-btn-checkbox="'user'"
+                ng-model="$ctrl.modelTechnologySanger"
+                ng-model-watch="$ctrl.technologySanger"
+                ng-change="$ctrl.updateFilter({filter: {technologySanger: $ctrl.modelTechnologySanger}})"
+                >Sanger</label
+            >
+        </div>
 
-        <label
-            class="id-overview-filter-technology-hts bttn"
-            uib-btn-checkbox="'user'"
-            ng-model="$ctrl.modelTechnologyHTS"
-            ng-model-watch="$ctrl.technologyHTS"
-            ng-change="$ctrl.updateFilter({filter: {technologyHTS: $ctrl.modelTechnologyHTS}})"
-            >HTS</label
-        >
-        <label
-            class="id-overview-filter-technology-sanger bttn"
-            uib-btn-checkbox="'user'"
-            ng-model="$ctrl.modelTechnologySanger"
-            ng-model-watch="$ctrl.technologySanger"
-            ng-change="$ctrl.updateFilter({filter: {technologySanger: $ctrl.modelTechnologySanger}})"
-            >Sanger</label
-        >
+        <div class="filter-priority bttn-set">
+            <label
+                class="id-overview-filter-priority-normal bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.Normal"
+                ng-model-watch="$ctrl.priorityNormal"
+                ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
+                >Normal</label
+            >
+            <label
+                class="id-overview-filter-priority-high bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.High"
+                ng-model-watch="$ctrl.priorityHigh"
+                ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
+                >High</label
+            >
+            <label
+                class="id-overview-filter-priority-urgent bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriority.Urgent"
+                ng-model-watch="$ctrl.priorityUrgent"
+                ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
+                >Urgent</label
+            >
+        </div>
 
-        <label
-            class="id-overview-filter-priority-normal bttn"
-            uib-btn-checkbox
-            ng-model="$ctrl.modelPriority.Normal"
-            ng-model-watch="$ctrl.priorityNormal"
-            ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriority.Normal}})"
-            >Normal</label
-        >
-        <label
-            class="id-overview-filter-priority-high bttn"
-            uib-btn-checkbox
-            ng-model="$ctrl.modelPriority.High"
-            ng-model-watch="$ctrl.priorityHigh"
-            ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriority.High}})"
-            >High</label
-        >
-        <label
-            class="id-overview-filter-priority-urgent bttn"
-            uib-btn-checkbox
-            ng-model="$ctrl.modelPriority.Urgent"
-            ng-model-watch="$ctrl.priorityUrgent"
-            ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriority.Urgent}})"
-            >Urgent</label
-        >
-
-        <button class="id-clear-filter" ng-click="$ctrl.clearFilter()">reset filter</button>
+        <button class="id-clear-filter filter-clear" ng-click="$ctrl.clearFilter()">
+            Reset filter
+        </button>
     </section>
 </nav>
