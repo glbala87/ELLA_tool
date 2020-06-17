@@ -412,8 +412,11 @@ class DepositAnalysis(DepositFromVCF):
                 self.session.query(sample.Analysis)
                 .filter(
                     sample.Analysis.name == analysis_config_data["name"],
-                    sample.Analysis.genepanel_name == analysis_config_data["genepanel_name"],
-                    sample.Analysis.genepanel_version == analysis_config_data["genepanel_version"],
+                    tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version)
+                    == (
+                        analysis_config_data["genepanel_name"],
+                        analysis_config_data["genepanel_version"],
+                    ),
                 )
                 .one()
             )
@@ -440,10 +443,7 @@ class DepositAnalysis(DepositFromVCF):
 
             log.info("Importing {}".format(db_analysis.name))
             db_samples = self.sample_importer.process(
-                vcf_sample_names,
-                db_analysis,
-                sample_type=data["technology"],
-                ped_file=data.get("ped"),
+                vcf_sample_names, db_analysis, sample_type=data["technology"], ped_file=data["ped"]
             )
 
             if deposit_usergroup_config:

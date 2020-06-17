@@ -64,7 +64,7 @@ class AnalysisConfigData(dict):
             },
             "date_requested": {
                 "type": "string",
-                "format": "date-time"
+                "pattern": "[0-9]{4}-[0-1][0-9]-[0-3][0-9]"
             },
             "report": {
                 "$oneOf": [

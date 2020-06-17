@@ -8,6 +8,7 @@ import sys
 import logging
 import json
 import re
+import datetime
 
 from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
@@ -160,6 +161,9 @@ class DepositTestdata(object):
                 continue
             try:
                 acd = AnalysisConfigData(analysis_path)
+                acd["warnings"] = WARNINGS_EXAMPLE if acd["genepanel_name"] == "HBOC" else None
+                acd["report"] = REPORT_EXAMPLE
+                acd["date_requested"] = datetime.datetime.now().strftime("%Y-%m-%d")
                 da = DepositAnalysis(self.session)
                 da.import_vcf(acd)
 
