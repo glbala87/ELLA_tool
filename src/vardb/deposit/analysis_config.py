@@ -25,7 +25,14 @@ class AnalysisConfigData(dict):
                         "type": "string"
                     },
                     "ped": {
-                        "type": "string"
+                        "$oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "technology": {
                         "type": "string"
@@ -88,40 +95,44 @@ class AnalysisConfigData(dict):
         }
     }
     """
-    DEFAULTS = {"priority": 1}
-    DATA_DEFAULTS = {"technology": "HTS"}
+    DEFAULTS = {"priority": 1, "report": None, "warnings": None, "data": []}
+    DATA_DEFAULTS = {"technology": "HTS", "ped": None}
 
     def __init__(self, folder_or_file):
+        super().__init__()
+        if folder_or_file is None:
+            # No data provided: apply defaults only
+            self.__apply_defaults()
+            return
+
         folder_or_file = Path(folder_or_file).absolute()
         assert folder_or_file.exists()
-        super().__init__()
         if folder_or_file.is_dir():
             self._root = folder_or_file
             self._init_from_folder(folder_or_file)
             self["warnings"] = self.__load_file(self._root / "warnings.txt")
             self["report"] = self.__load_file(self._root / "report.txt")
-        elif folder_or_file.is_file():
+        elif folder_or_file.is_file() and folder_or_file.suffix == ".vcf":
             self._root = folder_or_file.parent
-            if folder_or_file.suffix == ".vcf":
-                self._init_from_vcf(folder_or_file)
-                self["warnings"] = None
-                self["report"] = None
-            elif folder_or_file.suffix == ".analysis":
-                self._init_from_analysis_file(folder_or_file)
-                self["warnings"] = self.__load_file(self._root / "warnings.txt")
-                self["report"] = self.__load_file(self._root / "report.txt")
-            else:
-                raise ValueError(
-                    "Unable to create AnalysisConfigData from input {}".format(folder_or_file)
-                )
+            self._init_from_vcf(folder_or_file)
+        elif folder_or_file.is_file() and folder_or_file.suffix == ".analysis":
+            self._root = folder_or_file.parent
+            self._init_from_analysis_file(folder_or_file)
+            self["warnings"] = self.__load_file(self._root / "warnings.txt")
+            self["report"] = self.__load_file(self._root / "report.txt")
         else:
             raise ValueError(
                 "Unable to create AnalysisConfigData from input {}".format(folder_or_file)
             )
 
+    def update(self, d):
+        super().update(d)
         self.__absolute_filepaths()
         self.__apply_defaults()
         self.__check_schema()
+
+    def __setitem__(self, k, v):
+        self.update({k: v})
 
     def __check_schema(self):
         schema = json.loads(AnalysisConfigData.SCHEMA)
@@ -138,7 +149,7 @@ class AnalysisConfigData(dict):
     def __absolute_filepaths(self):
         for v in self["data"]:
             for key in ["vcf", "ped"]:
-                if key in v:
+                if key in v and v[key] is not None:
                     if not Path(v[key]).is_absolute():
                         v[key] = str(self._root / v[key])
                     assert Path(v[key]).is_file(), "Unable to find file at {}".format(v[key])
@@ -203,14 +214,23 @@ class AnalysisConfigData(dict):
             return self._init_from_analysis_file(folder / analysis_files[0])
         else:
             matches = re.match(FOLDER_FIELDS_RE, folder.name)
-            vcfs = [p.name for p in folder.rglob("*.vcf")]
-            assert len(vcfs) >= 1
+            vcfs = [p for p in folder.rglob("*.vcf")]
+            peds = [p for p in folder.rglob("*.ped")]
+            assert len(vcfs) >= 1, "Unable to find vcf-file in folder"
+
+            # Match vcfs with peds on filename stem
+            vcf_peds = [
+                (vcf, next((ped for ped in peds if ped.stem == vcf.stem), None)) for vcf in vcfs
+            ]
             self.update(
                 {
                     "name": matches.group("analysis_name"),
                     "genepanel_name": matches.group("genepanel_name"),
                     "genepanel_version": matches.group("genepanel_version"),
-                    "data": [{"vcf": str(vcf)} for vcf in vcfs],
+                    "data": [
+                        {"vcf": str(vcf), "ped": str(ped) if ped else None}
+                        for (vcf, ped) in vcf_peds
+                    ],
                 }
             )
 
@@ -234,6 +254,9 @@ if __name__ == "__main__":
     file = "/ella/src/vardb/testdata/analyses/default/brca_long_variants.HBOCUTV_v01/brca_long_variants.HBOCUTV_v01.analysis"
     d4 = AnalysisConfigData(file)
     print(d4)
+
+    d5 = AnalysisConfigData(None)
+    print(d5)
 
     # class AnalysisConfigLoader(yaml.SafeLoader):
     #     pass

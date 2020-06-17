@@ -302,13 +302,20 @@ def test_analysis_multiple(session, vcf_data):
     vcf_string = create_vcf(variants, sample_names)
 
     # Import generated analysis
-    with tempinput(vcf_string) as vcf_file:
-        with tempinput(ped_string or "") as ped_file:
-            acd = AnalysisConfigData(
-                vcf_file, analysis_name, "HBOCUTV", "v01", ped_path=ped_file if ped_string else None
-            )
-            da = DepositAnalysis(session)
-            da.import_vcf(acd)
+    with tempinput(vcf_string) as vcf_file, tempinput(ped_string or "") as ped_file:
+
+        acd = AnalysisConfigData(None)
+        acd.update(
+            {
+                "name": analysis_name,
+                "genepanel_name": "HBOCUTV",
+                "genepanel_version": "v01",
+                "data": [{"vcf": vcf_file, "ped": ped_file if ped_string else None}],
+            }
+        )
+
+        da = DepositAnalysis(session)
+        da.import_vcf(acd)
 
     # Preload all data
     analysis = session.query(sample.Analysis).filter(sample.Analysis.name == analysis_name).one()
