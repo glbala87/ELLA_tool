@@ -427,7 +427,18 @@ class DepositAnalysis(DepositFromVCF):
         else:
             db_analysis = (
                 self.session.query(sample.Analysis)
+<<<<<<< HEAD
                 .filter(sample.Analysis.name == analysis_config_data["name"])
+=======
+                .filter(
+                    sample.Analysis.name == analysis_config_data["name"],
+                    tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version)
+                    == (
+                        analysis_config_data["genepanel_name"],
+                        analysis_config_data["genepanel_version"],
+                    ),
+                )
+>>>>>>> 81b32f17 ([db] Minor updates)
                 .one()
             )
 
