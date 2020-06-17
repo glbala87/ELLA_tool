@@ -140,6 +140,9 @@ def load_analyses(session, analysis_ids, user):
         session.query(sample.Analysis)
         .options(joinedload(sample.Analysis.interpretations).defer("state").defer("user_state"))
         .filter(sample.Analysis.id.in_(user_analysis_ids), sample.Analysis.id.in_(analysis_ids))
+        .order_by(
+            func.coalesce(sample.Analysis.date_requested, sample.Analysis.date_deposited).desc()
+        )
         .all()
     )
     # FIXME: many=True is broken when some fields (date_requested) are None
