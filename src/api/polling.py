@@ -168,29 +168,31 @@ class AnnotationJobsInterface:
                 if mode == "Analysis":
                     analysis_name = job.properties["analysis_name"]
                     append = job.properties["create_or_append"] != "Create"
-                    if not append:
+                    if append:
+                        analysis_name = job.properties["analysis_name"]
+                    else:
                         analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
-                        af_data = {
-                            "name": analysis_name,
-                            "genepanel_name": job.genepanel_name,
-                            "genepanel_version": job.genepanel_version,
-                            "priority": job.properties.get("priority", 1),
-                            "data": [
-                                {"vcf": vcf_file, "technology": job.properties["sample_type"]}
-                            ],
-                        }
+                    af_data = {
+                        "name": analysis_name,
+                        "genepanel_name": job.genepanel_name,
+                        "genepanel_version": job.genepanel_version,
+                        "priority": job.properties.get("priority", 1),
+                        "data": [
+                            {"vcf": str(vcf_file), "technology": job.properties["sample_type"]}
+                        ],
+                    }
 
-                        json.dump(af_data, af)
-                        af.flush()
+                    json.dump(af_data, af)
+                    af.flush()
 
-                        acd = AnalysisConfigData(analysis_file)
-                        da = DepositAnalysis(self.session)
-                        da.import_vcf(acd, append=append)
+                    acd = AnalysisConfigData(analysis_file)
+                    da = DepositAnalysis(self.session)
+                    da.import_vcf(acd, append=append)
 
                 elif mode in ["Variants", "Single variant"]:
                     deposit = DepositAlleles(self.session)
-                    deposit.import_vcf(vcf_file, gp_name, gp_version)
+                    deposit.import_vcf(str(vcf_file), gp_name, gp_version)
                 else:
                     raise RuntimeError("Unknown mode: %s" % mode)
 
