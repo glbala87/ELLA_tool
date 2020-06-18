@@ -1,10 +1,8 @@
-import { search } from 'angular-animate'
-
 export default function filterAnalyses({ state }) {
     const analyses = state.get('views.overview.data.analyses')
     const filter = state.get('views.overview.filter')
 
-    if (!filter || !Object.values(filter).some((x) => x !== null && x !== '')) {
+    if (!filter || !Object.values(filter).some((x) => x && x !== null && x !== '')) {
         state.set('views.overview.filteredAnalyses', analyses)
     } else {
         const filteredAnalyses = {}
