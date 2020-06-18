@@ -27,7 +27,7 @@ export default function filterAnalyses({ state }) {
                         (filter.technologyHTS && analysisTechnologies.includes('HTS'))) &&
                     ((!filter.priorityNormal && !filter.priorityHigh && !filter.priorityUrgent) ||
                         (filter.priorityNormal && a.priority == 1) ||
-                        (filter.priorityHigh && a.priorty == 2) ||
+                        (filter.priorityHigh && a.priority == 2) ||
                         (filter.priorityUrgent && a.priority == 3)) &&
                     (!filter.dateRange || withinRange(filter.dateRange, analysisDate))
                 )
@@ -90,6 +90,6 @@ function filterToRegex(searchString) {
     if (searchString === null) {
         return new RegExp('.*')
     } else {
-        return new RegExp(`${searchString.replace('.', '\\.').replace('*', '.+')}`)
+        return new RegExp(`${searchString.replace('.', '\\.').replace('*', '.+')}`, 'i')
     }
 }
