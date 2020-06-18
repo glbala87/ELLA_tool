@@ -47,7 +47,7 @@
             ng-model="$ctrl.getGeneCommentModel().comment"
             ng-change="$ctrl.geneCommentChanged()"
         ></wysiwyg-editor>
-        <div class="comment-controls" ng-if="!$ctrl.isReadOnly">
+        <div class="comment-controls">
             <button
                 class="id-edit-gene-assessment blue"
                 ng-if="!$ctrl.isCommmentEditable()"

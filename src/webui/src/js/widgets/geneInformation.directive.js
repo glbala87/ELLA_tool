@@ -1,11 +1,9 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
-import { Compute } from 'cerebral'
 import getGenepanelValues from '../store/common/computes/getGenepanelValues'
-import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
-import template from './geneInformation.ngtmpl.html'
 import getGeneAssessment from '../store/modules/views/workflows/interpretation/computed/getGeneAssessment'
+import template from './geneInformation.ngtmpl.html'
 
 app.component('geneInformation', {
     bindings: {
@@ -16,12 +14,11 @@ app.component('geneInformation', {
     controller: connect(
         {
             config: state`app.config`,
-            isReadOnly,
             genepanelValues: getGenepanelValues(
                 state`views.workflows.interpretation.data.genepanel`
             ),
             geneAssessment: getGeneAssessment(props`hgncId`),
-            userGeneAssessment: state`views.workflows.interpretation.userState.geneassessment.${props`hgncId`}`,
+            userGeneAssessment: state`views.workflows.interpretation.geneInformation.geneassessment.${props`hgncId`}`,
             geneAssessmentChanged: signal`views.workflows.interpretation.geneAssessmentChanged`,
             undoGeneAssessmentClicked: signal`views.workflows.interpretation.undoGeneAssessmentClicked`,
             updateGeneAssessmentClicked: signal`views.workflows.interpretation.updateGeneAssessmentClicked`
@@ -32,11 +29,6 @@ app.component('geneInformation', {
             function($scope) {
                 const $ctrl = $scope.$ctrl
                 Object.assign($ctrl, {
-                    geneCommentEditable: false,
-                    editedGeneComment: null,
-                    toggleGeneCommentEdit() {
-                        $ctrl.geneCommentEditable = !$ctrl.geneCommentEditable
-                    },
                     getOmimLink() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {
                             const entryId = $ctrl.genepanelValues[$ctrl.hgncId].omimEntryId
@@ -80,7 +72,7 @@ app.component('geneInformation', {
                     isCommmentEditable() {
                         // If there's a userGeneAssessment, it's per definition
                         // editable
-                        return Boolean($ctrl.userGeneAssessment) && !$ctrl.isReadOnly
+                        return Boolean($ctrl.userGeneAssessment)
                     },
                     editClicked() {
                         if (!$ctrl.hgncId) {
