@@ -14,12 +14,6 @@ export let AVAILABLE_SECTIONS = {
             selectedPage: 1
         }
     },
-    'analyses-by-classified': {
-        displayName: 'Analyses',
-        finalized: {
-            selectedPage: 1
-        }
-    },
     import: {
         displayName: 'Import'
     }
