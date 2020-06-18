@@ -18,14 +18,14 @@
             {{ ph.description }} ({{ ph.inheritance }})
         </li>
     </ul>
-    <h4 class="section-title">Frequency cutoff:</h4>
+    <h4 class="section-title">BS1/BA1 cutoff:</h4>
     <ul class="popover-list indented">
         <li>
             External:
             {{ $ctrl.getFrequencyExternal() }}
             <span
                 style="color: red;"
-                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.overridden"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.overridden"
                 >(overridden)</span
             >
         </li>
@@ -34,7 +34,7 @@
             {{ $ctrl.getFrequencyInternal() }}
             <span
                 style="color: red;"
-                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.overridden"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.overridden"
                 >(overridden)</span
             >
         </li>

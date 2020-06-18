@@ -51,10 +51,10 @@ app.component('geneInformation', {
                     getFrequencyExternal() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {
                             const loCutoff =
-                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.value.external
                                     .lo_freq_cutoff
                             const hiCutoff =
-                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.external
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.value.external
                                     .hi_freq_cutoff
                             return `${loCutoff}/${hiCutoff}`
                         }
@@ -63,10 +63,10 @@ app.component('geneInformation', {
                     getFrequencyInternal() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {
                             const loCutoff =
-                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.value.internal
                                     .lo_freq_cutoff
                             const hiCutoff =
-                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffs.value.internal
+                                $ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.value.internal
                                     .hi_freq_cutoff
                             return `${loCutoff}/${hiCutoff}`
                         }

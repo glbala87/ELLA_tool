@@ -34,12 +34,12 @@ export default (genepanel) => {
             // If 'frequency' is defined for the gene, use that.
             // Otherwise, use the default given the inheritance key
             if ('frequency' in geneConfigOverride) {
-                result[hgncId].freqCutoffs = {
+                result[hgncId].freqCutoffsACMG = {
                     value: geneConfigOverride.frequency.thresholds,
                     overridden: true
                 }
             } else {
-                result[hgncId].freqCutoffs = {
+                result[hgncId].freqCutoffsACMG = {
                     value:
                         result[hgncId].inheritance === 'AD'
                             ? acmgConfig.frequency.thresholds['AD']

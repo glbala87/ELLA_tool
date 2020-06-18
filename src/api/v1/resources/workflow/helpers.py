@@ -185,9 +185,7 @@ def get_alleles(
     return AlleleDataLoader(session).from_objs(alleles, **kwargs)
 
 
-def load_genepanel_for_allele_ids(
-    session, allele_ids, gp_name, gp_version, include_geneassessments=True
-):
+def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     """
     Loads genepanel data using input allele_ids as filter
     for what transcripts and phenotypes to include.
