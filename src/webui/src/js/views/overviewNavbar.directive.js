@@ -3,12 +3,12 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 
 import template from './overviewNavbar.ngtmpl.html'
-
 app.component('overviewNavbar', {
     templateUrl: 'overviewNavbar.ngtmpl.html',
     controller: connect(
         {
             overviewFilter: state`views.overview.filter`,
+            filterApplied: state`views.overview.filterApplied`,
             technologyHTS: state`views.overview.filter.technologyHTS`,
             technologySanger: state`views.overview.filter.technologySanger`,
             priorityNormal: state`views.overview.filter.priorityNormal`,

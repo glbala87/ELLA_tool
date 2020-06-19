@@ -5,5 +5,6 @@ import filterAnalyses from '../actions/filterAnalyses'
 
 export default [
     set(state`views.overview.filter`, Object.assign({}, DEFAULT_FILTER)),
+    set(state`views.overview.filterApplied`, false),
     filterAnalyses
 ]

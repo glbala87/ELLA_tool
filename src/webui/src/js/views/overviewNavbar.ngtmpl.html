@@ -28,7 +28,7 @@
                 ng-model-watch="$ctrl.overviewFilter.dateRange"
                 ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
             >
-                <option value="" hidden>Request date</option>
+                <option value="" hidden>Date requested</option>
                 <option value="lt:-1:d">&lt; 1 day ago</option>
                 <option value="lt:-3:d">&lt; 3 days ago</option>
                 <option value="lt:-7:d">&lt; 1 week ago</option>
@@ -84,7 +84,11 @@
             >
         </div>
 
-        <button class="id-clear-filter filter-clear" ng-click="$ctrl.clearFilter()">
+        <button
+            class="id-clear-filter filter-clear"
+            ng-class="{'pink': $ctrl.filterApplied}"
+            ng-click="$ctrl.clearFilter()"
+        >
             Reset filter
         </button>
     </section>
