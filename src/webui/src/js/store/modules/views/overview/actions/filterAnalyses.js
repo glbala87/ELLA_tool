@@ -24,9 +24,9 @@ export default function filterAnalyses({ state }) {
                         (filter.technologySanger && analysisTechnologies.includes('Sanger')) ||
                         (filter.technologyHTS && analysisTechnologies.includes('HTS'))) &&
                     ((!filter.priorityNormal && !filter.priorityHigh && !filter.priorityUrgent) ||
-                        (filter.priorityNormal && a.priority == 1) ||
-                        (filter.priorityHigh && a.priority == 2) ||
-                        (filter.priorityUrgent && a.priority == 3)) &&
+                        (filter.priorityNormal && a.priority === 1) ||
+                        (filter.priorityHigh && a.priority === 2) ||
+                        (filter.priorityUrgent && a.priority === 3)) &&
                     (!filter.dateRange || withinRange(filter.dateRange, analysisDate))
                 )
             })
@@ -40,9 +40,9 @@ function withinRange(filter, date) {
     // filter: (lt|le|gt|ge):Int:(d|m)
     const [op, amount, unit] = filter.split(':')
     let filterDate
-    if (unit == 'd') {
+    if (unit === 'd') {
         filterDate = createDate(Number(amount), 0)
-    } else if (unit == 'm') {
+    } else if (unit === 'm') {
         filterDate = createDate(0, Number(amount))
     } else {
         throw new SyntaxError(`Invalid unit in filter string: ${filter}`)
