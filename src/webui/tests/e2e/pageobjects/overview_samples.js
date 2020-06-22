@@ -3,23 +3,16 @@ var util = require('./util')
 
 const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses'
 const SELECTOR_FINISHED = '.id-analysis-finished'
-const SELECTOR_EMPTY = '.id-analysis-assessments-none'
 const SELECTOR_PENDING = '.id-analysis-pending'
 const SELECTOR_REVIEW = '.id-analysis-review'
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
 const SELECTOR_OURS = '.id-analysis-ours'
 const SELECTOR_OTHERS = '.id-analysis-others'
-const SELECTOR_CLASSIFIED = '.id-analysis-classified'
 
 // acceptable filter values
 const PRIORITY_LEVELS = ['normal', 'high', 'urgent']
 const FILTER_TECHNOLOGIES = ['Sanger', 'HTS']
 const FILTER_RANGES = new RegExp('^[gl][te]:-?\\d+:[dm]$')
-
-//id-analysis-ours
-// id-analysis-others
-
-const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
 
 const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 
@@ -80,9 +73,6 @@ class SampleSelection extends Page {
 
     get analysisList() {
         return util.element('analysis-list')
-    }
-    get emptySection() {
-        return util.element(SELECTOR_EMPTY)
     }
     get pendingSection() {
         return util.element(SELECTOR_PENDING)
