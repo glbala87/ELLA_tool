@@ -12,7 +12,7 @@ export default function filterAnalyses({ state }) {
 
         for (let [sectionName, sectionAnalyses] of Object.entries(analyses)) {
             filteredAnalyses[sectionName] = sectionAnalyses.filter((a) => {
-                const analysisDate = new Date(a.date_requested) || new Date(a.date_deposited)
+                const analysisDate = new Date(a.date_requested || a.date_deposited)
                 // if there are multiple samples, check if any contain the given technology
                 const analysisTechnologies = a.samples.map((s) => s.sample_type)
 
