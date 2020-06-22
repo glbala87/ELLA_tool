@@ -18,9 +18,9 @@ This page also links to the current documentation (you can also reach these by g
 
 ## Select analysis or variant from the worklist
 
-Depending on how ELLA is configured, the vertical buttons in the left margin of the OVERVIEW page may include buttons for either `ANALYSES` or `VARIANTS`, or both: 
+The vertical buttons in the left margin of the OVERVIEW page lets you choose between `ANALYSES` or `VARIANTS` workflows, with ANALYSES being the default: 
 
-<div style="text-indent: 4%;"><img src="./img/overview_sidebar_analyses.png"></div>
+<div style="text-indent: 4%;"><img src="./img/analyses_variants_btn.png"></div>
 
 For an in-depth explanation of the difference between an ANALYSES workflow and a VARIANTS workflow, see [Workflows](/manual/workflows.md). Most importantly: 
 
@@ -33,36 +33,36 @@ In the ANALYSES view, you may choose from one or more of the following:
 
 Option  | Explanation
 :--- | :---
-`NOT READY` | Analyses where a variant needs validation or are insufficiently covered. The variants in these samples should not be interpreted until validation/sequencing of missing regions has been performed.
-`YOUR ANALYSES` | Any unfinished analyses that you have started and saved, but not completed.
-`INTERPRETATION`  | Analyses that have not yet been opened by any user.
-`REVIEW`  | Analyses that have been interpreted by another user and marked for review.
-`MEDICAL REVIEW`  | Analyses marked for review by a lab physician.
-`OTHERS’ ANALYSES`  | Analyses currently being worked on by other users.
-`FINALIZED` | Analyses that have been analysed and marked as Finalized.
+NOT READY | Analyses where a variant needs validation or are insufficiently covered. The variants in these samples should not be interpreted until validation/sequencing of missing regions has been performed.
+YOUR ANALYSES | Any unfinished analyses that you have started and saved, but not completed.
+INTERPRETATION  | Analyses that have not yet been opened by any user.
+REVIEW  | Analyses that have been interpreted by another user and marked for review.
+MEDICAL REVIEW  | Analyses marked for review by a lab physician.
+OTHERS’ ANALYSES  | Analyses currently being worked on by other users.
+FINALIZED` | Analyses that have been analysed and marked as Finalized.
 
-#### Optional ANALYSES view
+#### Optional auto-comments
 
-Depending on configuration, you may see an alternative worklist in the ANALYSES view, where `INTERPRETATION` and `REVIEW` have been split in subcategories:
+Depending on [configuration](/technical/import.html#deposit), ELLA can add certain OVERVIEW comments automatically upon deposit of the analysis:
 
 Option  | Explanation
 :--- | :---
-`INTERPRETATION - ALL VARIANTS CLASSIFIED`  | Analyses ready for interpretation, but where all variants already have a valid classification.
-`INTERPRETATION - MISSING CLASSIFICATIONS` | Analyses ready for interpretation and where at least one variant is missing a valid classification (all analyses not in above section)
-`REVIEW - ALL VARIANTS CLASSIFIED` | Analyses ready for review, but where all variants already have a valid classification.
-`REVIEW - MISSING CLASSIFICATIONS`  | Analyses ready for review and where at least one variant is missing a valid classification (all analyses not in above section).
+ALL CLASSIFIED  | All variants in the analysis already have a valid classification.
+NO VARIANTS | The analysis contains no non-filtered variants. 
+
+Use the [OVERVIEW filter](#filter-the-overview) to quickly locate analyses with these comments.
 
 ### VARIANTS worklist
 
-In the VARIANTS view, you may choose from one or more of the following:
+In the VARIANTS view, only variants that have been imported manually as stand-alone variants (not tied to an analysis/sample) or that have been opened from variant search are shown. Here, you may choose from the following:
 
 Option  | Explanation
 :--- | :---
-`YOUR VARIANTS` | Any unfinished variant interpretations that you have started and saved from a previous session.
-`PENDING CLASSIFICATION` | Variants that have not yet been opened/interpreted.
-`PENDING REVIEW` | Variants that have been interpreted at least once and that have been marked for review. Users and dates for previous interpretations are given to the far right.
-`OTHERS’ VARIANTS` | Variants currently being worked on by other users.
-`FINALIZED` | Variants that have been interpreted and marked as Finalized.
+YOUR VARIANTS | Any unfinished variant interpretations that you have started and saved from a previous session.
+INTERPRETATION | Variants that have not yet been opened/interpreted.
+REVIEW | Variants that have been interpreted at least once and that have been marked for review. Users and dates for previous interpretations are given to the far right.
+OTHERS’ VARIANTS | Variants currently being worked on by other users.
+FINALIZED | Variants that have been interpreted and marked as Finalized.
 
 ## History, comments and tags
 
@@ -72,9 +72,30 @@ In the ANALYSES view, samples are marked with the source of the data (HTS or SAN
 
 <div style="text-indent: 4%;"><img src="./img/overview_tags.png"></div>
 
-## Search (and edit) variants and samples
+## Filter and search
 
-To search for a particular variant or analysis (past or present), use the search section at the top of the OVERVIEW page:
+### Filter the OVERVIEW
+
+Use the search fields and buttons in the top bar to quickly filter what is shown: 
+
+<div style="text-indent: 4%;"><img src="./img/overview_filter.png"></div>
+
+Filtering options include: 
+- Analysis name
+- Comment text (search OVERVIEW comments)
+- Request date (when the sample was imported into ELLA)
+- Genotyping technology (HTS/Sanger)
+- Priority (Normal/High/Urgent)
+
+Hit the `RESET FILTER` button to remove all filtering. 
+
+::: warning NOTE
+Only analyses that are not finalized are included in the filter. To find older analyses, use the search function instead.
+:::
+
+### Search for variants or samples
+
+To search for any variant or analysis (past or present), use the search section at the top of the OVERVIEW page:
 
 <div style="text-indent: 4%;"><img src="./img/search.png"></div>
 
@@ -91,4 +112,5 @@ Search results may be narrowed further by selecting gene or user, or by ignoring
 Clicking on a variant search result will open the variant in a VARIANTS workflow. Note that to (re-)interpret the variant, ELLA has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
 
 <div style="text-indent: 4%;"><img src="./img/choose_genepanel.png"></div>
+
 
