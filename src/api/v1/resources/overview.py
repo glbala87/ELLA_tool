@@ -150,7 +150,6 @@ def load_analyses(session, analysis_ids, user, keep_input_order=False):
     # FIXME: many=True is broken when some fields (date_requested) are None
     loaded_analyses = [aschema.dump(a).data for a in analyses]
     if keep_input_order:
-        print(analysis_ids)
         loaded_analyses.sort(key=lambda x: analysis_ids.index(x["id"]))
 
     # Load in priority, warning_cleared and review_comment
