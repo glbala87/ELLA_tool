@@ -17,6 +17,12 @@
                     >
                         {{ t.symbol }} ({{ t.exon }})
                     </span>
+                    <span
+                        tippy-title="Has gene information"
+                        class="tag"
+                        ng-if="$ctrl.hasGeneAssessment(t.hgnc_id)"
+                        >INFO</span
+                    >
                 </div>
             </h3>
         </td>
