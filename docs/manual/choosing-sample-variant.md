@@ -83,7 +83,7 @@ Use the search fields and buttons in the top bar to quickly filter what is shown
 Filtering options include: 
 - Analysis name
 - Comment text (search OVERVIEW comments)
-- Request date (when the sample was imported into ELLA)
+- Date requested (when the sample was requested or imported into ELLA, depending on configuration)
 - Genotyping technology (HTS/Sanger)
 - Priority (Normal/High/Urgent)
 
