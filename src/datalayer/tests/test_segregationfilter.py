@@ -40,38 +40,44 @@ class Sample:
     unaffected_sibling = False
     genotype = None
     allele_ratio = 0.0
+    genotype_quality = 99
 
     def __repr__(self):
-        return "<{}: {} {:.2f}>".format(self.name, self.genotype, self.allele_ratio)
+        return "<{}: {} {:.2f} {}>".format(
+            self.name, self.genotype, self.allele_ratio, self.genotype_quality
+        )
 
 
-def ps(gt, sex="Female", ar=0.0):
+def ps(gt, sex="Female", ar=0.0, gq=99):
     s = Sample()
     s.name = "Proband"
     s.sex = sex
     s.proband = True
     s.genotype = gt
     s.allele_ratio = ar
+    s.genotype_quality = gq
     return s
 
 
-def fs(gt, ar=0.0):
+def fs(gt, ar=0.0, gq=99):
     s = Sample()
     s.name = "Father"
     s.sex = "Male"
     s.father = True
     s.genotype = gt
     s.allele_ratio = ar
+    s.genotype_quality = gq
     return s
 
 
-def ms(gt, ar=0.0):
+def ms(gt, ar=0.0, gq=99):
     s = Sample()
     s.name = "Mother"
     s.sex = "Female"
     s.mother = True
     s.genotype = gt
     s.allele_ratio = ar
+    s.genotype_quality = gq
     return s
 
 
@@ -155,6 +161,7 @@ def sample_strategy(
     unaffected_siblings_num=None,
     unaffected_siblings_sex=None,
     allele_ratio_sample_from=None,
+    gq_sample_from=None,
 ):
     """
     allele_ratio_sample_from: Generating floats using st.floats() doesn't play with postgres since
@@ -193,11 +200,21 @@ def sample_strategy(
         else:
             return 0.0
 
-    samples = [ps(draw(genotype_strategy), ar=get_allele_ratio())]
+    def get_genotype_quality():
+        if gq_sample_from:
+            return draw(st.sampled_from(gq_sample_from))
+        else:
+            return 99
+
+    samples = [ps(draw(genotype_strategy), ar=get_allele_ratio(), gq=get_genotype_quality())]
     if include_father:
-        samples.append(fs(draw(genotype_strategy), ar=get_allele_ratio()))
+        samples.append(
+            fs(draw(genotype_strategy), ar=get_allele_ratio(), gq=get_genotype_quality())
+        )
     if include_mother:
-        samples.append(ms(draw(genotype_strategy), ar=get_allele_ratio()))
+        samples.append(
+            ms(draw(genotype_strategy), ar=get_allele_ratio(), gq=get_genotype_quality())
+        )
     if affected_siblings_num:
         for idx in range(affected_siblings_num):
             samples.append(
@@ -328,6 +345,21 @@ def x_minus_par(chrom, start_position, open_end_position):
     return x_minus_par
 
 
+@st.composite
+def denovo_config(draw, sample_from):
+    include_gq_thresholds = draw(st.booleans())
+    if not include_gq_thresholds:
+        return {}
+    else:
+        return {
+            "gq_threshold": {
+                "proband": draw(st.sampled_from(sample_from)),
+                "mother": draw(st.sampled_from(sample_from)),
+                "father": draw(st.sampled_from(sample_from)),
+            }
+        }
+
+
 def create_genotype_table(session, samples, entries):
     type = Enum(
         "Homozygous", "Heterozygous", "Reference", "No coverage", name="genotypesampledata_type"
@@ -336,7 +368,12 @@ def create_genotype_table(session, samples, entries):
     sample_columns = []
     for s in samples:
         sample_columns.extend(
-            [Column(s[0] + "_type", type), Column(s[0] + "_sex", sex), Column(s[0] + "_ar", Float)]
+            [
+                Column(s[0] + "_type", type),
+                Column(s[0] + "_sex", sex),
+                Column(s[0] + "_ar", Float),
+                Column(s[0] + "_gq", Integer),
+            ]
         )
 
     genotype_table_definition = Table(
@@ -347,8 +384,10 @@ def create_genotype_table(session, samples, entries):
     for e in entries:
         row = [e[0]]
         for idx, s in enumerate(samples):
-            idx = 2 * idx + 1
-            row.extend([e[idx], s[1], e[idx + 1]])  # e.g. ['Homozygous', 'Male', 0.0]
+            idx = 3 * idx + 1
+            row.extend(
+                [e[idx], s[1], e[idx + 1], e[idx + 2]]
+            )  # e.g. ['Homozygous', 'Male', 0.0, 99]
         rows.append(row)
 
     session.execute("DROP TABLE IF EXISTS genotype_test_table")
@@ -416,76 +455,107 @@ class TestInheritanceFilter(object):
 
     # All denovo positive cases
     @ht.example(
-        (10001, "1", 1, 2), (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")), True
+        (10001, "1", 1, 2),
+        (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        {},
+        True,
     )  # AD denovo
     @ht.example(
-        (10001, "1", 1, 2), (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")), True
+        (10001, "1", 1, 2),
+        (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        {},
+        True,
     )  # AD denovo
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
+        {},
         True,
     )  # AD denovo
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Reference")),
+        {},
         True,
     )  # AD denovo
     @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous"), fs("Reference"), ms("Reference")),
+        {},
         True,
     )
     @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Reference")),
+        {},
         True,
     )
     @ht.example(  # X-linked female
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous"), fs("Reference"), ms("Heterozygous")),
+        {},
         True,
     )
     @ht.example(  # X-linked male
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        {},
         True,
     )
     @ht.example(
         (10001, "X", PAR1_START, PAR1_START + 1),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        {},
+        True,
+    )
+    @ht.example(
+        (10001, "X", PAR1_START, PAR1_START + 1),
+        (ps("Homozygous", sex="Male", gq=20), fs("Reference", gq=20), ms("Reference", gq=20)),
+        {"gq_thresholds": {"proband": 20, "father": 20, "mother": 20}},
         True,
     )
     # Denovo negative examples
     @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Heterozygous", sex="Male"), fs("Reference"), ms("Reference")),
+        {},
         False,
     )
     @ht.example(
         (10001, "X", PAR1_START - 1, PAR1_START),
         (ps("Homozygous", sex="Male"), fs("Reference"), ms("Heterozygous")),
+        {},
         False,
     )
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("No coverage")),
+        {},
         False,
     )
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Heterozygous"), ms("Heterozygous")),
+        {},
         False,
     )
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("Homozygous"), ms("Heterozygous")),
+        {},
         False,
     )
     @ht.example(
         (10001, "1", 1, 2),
         (ps("Homozygous", sex="Male"), fs("No coverage"), ms("Heterozygous")),
+        {},
         False,
+    )
+    @ht.example(
+        (10001, "X", PAR1_START, PAR1_START + 1),
+        (ps("Homozygous", sex="Male", gq=20), fs("Reference", gq=20), ms("Reference", gq=19)),
+        {"gq_thresholds": {"proband": 20, "father": 20, "mother": 20}},
+        True,
     )
     @ht.given(
         allele_strategy,
@@ -494,11 +564,13 @@ class TestInheritanceFilter(object):
             include_mother=True,
             unaffected_siblings_num=0,
             affected_siblings_num=0,
+            gq_sample_from=[0, 19, 20, 21, 99],
         ),
+        denovo_config([0, 20, 30]),
         st.just(None),
     )
     @ht.settings(deadline=None)
-    def test_denovo(self, session, allele_data, entry, manually_curated_result):
+    def test_denovo(self, session, allele_data, entry, denovo_config, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
 
         session.rollback()
@@ -510,13 +582,17 @@ class TestInheritanceFilter(object):
         samples = [(s.name, s.sex) for s in entry]
         genotype_data = [allele_id]
         for s in entry:
-            genotype_data += [s.genotype, 0.0]
+            genotype_data += [s.genotype, 0.0, s.genotype_quality]
 
         genotype_table = create_genotype_table(session, samples, [genotype_data])
 
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).denovo(
-            genotype_table, sample_names["proband"], sample_names["father"], sample_names["mother"]
+            genotype_table,
+            sample_names["proband"],
+            sample_names["father"],
+            sample_names["mother"],
+            denovo_config,
         )
 
         if manually_curated_result is not None:
@@ -532,6 +608,17 @@ class TestInheritanceFilter(object):
 
         if any(g is None or g == "No coverage" for g in genotypes):
             assert set(result_allele_ids) == set([])
+
+        gq_threshold = denovo_config.get("gq_threshold", {})
+        passed_gq_test = (
+            (gq_threshold.get("proband") is None or ps.genotype_quality >= gq_threshold["proband"])
+            and (
+                gq_threshold.get("mother") is None or ms.genotype_quality >= gq_threshold["mother"]
+            )
+            and (
+                gq_threshold.get("father") is None or fs.genotype_quality >= gq_threshold["father"]
+            )
+        )
 
         # Autosomal:
         # 0/0 + 0/0 = 0/1
@@ -558,18 +645,18 @@ class TestInheritanceFilter(object):
         ]
         if not is_x_minus_par:
             if genotypes in autosomal_denovo_genotypes:
-                assert set(result_allele_ids) == set([allele_id])
+                assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
             else:
                 assert set(result_allele_ids) == set([])
         else:
             if ps.sex == "Male":
                 if genotypes in xlinked_boy_genotypes:
-                    assert set(result_allele_ids) == set([allele_id])
+                    assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
                 else:
                     assert set(result_allele_ids) == set([])
             else:
                 if genotypes in xlinked_girl_genotypes:
-                    assert set(result_allele_ids) == set([allele_id])
+                    assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
                 else:
                     assert set(result_allele_ids) == set([])
 
@@ -776,7 +863,7 @@ class TestInheritanceFilter(object):
             allele_entries.append((allele_id, "1", 1 + idx, 2 + idx))
             genotype_entry = [allele_id]
             for s in entry["genotypes"]:
-                genotype_entry += [s.genotype, 0.0]
+                genotype_entry += [s.genotype, 0.0, 0]
             genotype_entries.append(genotype_entry)
             annotationshadow_entries.append((1000 + idx, allele_id, entry["gene"]))
 
@@ -978,7 +1065,7 @@ class TestInheritanceFilter(object):
         samples = [(s.name, s.sex) for s in entry]
         genotype_table_data = [allele_id]
         for s in entry:
-            genotype_table_data += [s.genotype, 0.0]
+            genotype_table_data += [s.genotype, 0.0, 99]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(
@@ -1123,7 +1210,7 @@ class TestInheritanceFilter(object):
         samples = [(s.name, s.sex) for s in entry]
         genotype_table_data = [allele_id]
         for s in entry:
-            genotype_table_data += [s.genotype, 0.0]
+            genotype_table_data += [s.genotype, 0.0, 99]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(session, GLOBAL_CONFIG).xlinked_recessive_homozygous(
@@ -1196,7 +1283,7 @@ class TestInheritanceFilter(object):
         samples = [(s.name, s.sex) for s in entry]
         genotype_table_data = [allele_id]
         for s in entry:
-            genotype_table_data += [s.genotype, 0.0]
+            genotype_table_data += [s.genotype, 0.0, 99]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
         result_allele_ids = SegregationFilter(
@@ -1306,7 +1393,7 @@ class TestInheritanceFilter(object):
         samples = [(s.name, s.sex) for s in entry]
         genotype_table_data = [allele_id]
         for s in entry:
-            genotype_table_data += [s.genotype, s.allele_ratio]
+            genotype_table_data += [s.genotype, s.allele_ratio, 99]
         genotype_table = create_genotype_table(session, samples, [genotype_table_data])
         sample_names = get_sample_names(entry)
 
@@ -1407,7 +1494,7 @@ class TestInheritanceFilter(object):
         HOMOZYGOUS_UNAFFECTED_SIBLINGS = 7
 
         sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
-        sf.denovo = lambda a, b, c, d: set([DENOVO])
+        sf.denovo = lambda a, b, c, d, e: set([DENOVO])
         sf.parental_mosaicism = lambda a, b, c, d: set([PARENTAL_MOSAICISM])
         sf.compound_heterozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
             [COMPOUND_HETEROZYGOUS]
