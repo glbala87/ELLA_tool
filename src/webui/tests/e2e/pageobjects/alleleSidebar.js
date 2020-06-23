@@ -31,6 +31,11 @@ class AlleleSidebar extends Page {
         return $('allele-sidebar .nav-row.active .id-hgvsc').getText()
     }
 
+    getSelectedGene() {
+        this._ensureLoaded()
+        return $('allele-sidebar .nav-row.active .id-gene').getText()
+    }
+
     getSelectedAlleleClassification() {
         let e = $('allele-sidebar .nav-row.active')
         const current = e.$('.id-classification .current-classification').getText()

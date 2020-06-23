@@ -5,6 +5,9 @@ export default function getInterpretationState() {
         dirty: false, // Whether state is dirty (not saved)
         state: null,
         userState: null,
+        geneInformation: {
+            geneassessment: {}
+        },
         data: {
             filteredAlleleIds: null, // {allele_ids: [], excluded_allele_ids: {}}
             filterConfig: null,

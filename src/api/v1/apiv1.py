@@ -99,6 +99,8 @@ class ApiV1(object):
             r.filterconfig.FilterconfigResource, "/api/v1/filterconfigs/<int:filterconfig_id>"
         )
 
+        self._add_resource(r.geneassessment.GeneAssessmentListResource, "/api/v1/geneassessments/")
+
         self._add_resource(r.genepanel.GenepanelListResource, "/api/v1/genepanels/")
 
         self._add_resource(r.genepanel.GenepanelResource, "/api/v1/genepanels/<name>/<version>/")

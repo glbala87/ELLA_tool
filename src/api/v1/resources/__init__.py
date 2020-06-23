@@ -8,6 +8,7 @@ from . import attachment
 from . import broadcast
 from . import config
 from . import customannotation
+from . import geneassessment
 from . import overview
 from . import reference
 from . import referenceassessment

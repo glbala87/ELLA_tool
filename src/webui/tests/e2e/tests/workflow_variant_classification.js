@@ -37,6 +37,9 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         variantSelectionPage.selectPending(5)
         analysisPage.startButton.click()
 
+        analysisPage.setGeneComment('GENE COMMENT TEST')
+        expect(analysisPage.getGeneComment()).toBe('GENE COMMENT TEST')
+
         alleleSectionBox.classifyAsU()
 
         // Evaluate one reference
@@ -163,15 +166,24 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
     it('keeps the classification from the previous round', function() {
         loginPage.open()
         loginPage.loginAs('testuser2')
+
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
         analysisPage.startButton.click()
+
+        // Check gene assessment
+        expect(analysisPage.getGeneComment()).toBe('GENE COMMENT TEST')
+        // Update gene assesssment and check that it survives a reload
+        analysisPage.setGeneComment('GENE COMMENT TEST UPDATED')
+        browser.refresh()
+        $('#nprogress').waitForExist(undefined, true)
+        expect(analysisPage.getGeneComment()).toBe('GENE COMMENT TEST UPDATED')
+
         checkAlleleClassification(interpretation_expected_values, 'allele')
 
         workLog.open()
         expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
         workLog.close()
-
         alleleSectionBox.finalize()
 
         analysisPage.finishButton.click()

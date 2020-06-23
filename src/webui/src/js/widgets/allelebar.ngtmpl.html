@@ -2,25 +2,27 @@
     <tr ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript">
         <td ng-if="$ctrl.genepanel && $ctrl.getGenepanelValues(t.symbol).inheritance !== ''">
             <h3 class="full-title">
-                <gpv
-                    source="$ctrl.getGenepanelValues(t.symbol)"
-                    display="inheritance"
-                    mode="_"
-                ></gpv>
+                {{ $ctrl.genepanelValues[t.hgnc_id].inheritance }}
             </h3>
         </td>
 
         <td ng-if="$ctrl.genepanel">
             <h3 class="full-title">
-                <div class="allele_popup" isolate-click>
+                <div class="id-allelebar-gene allele_popup" isolate-click>
                     <span
                         class="clickable"
-                        tippy-popover="phenotypes_popover.ngtmpl.html"
+                        tippy-popover="genePopover.ngtmpl.html"
                         tippy-placement="bottom"
                         tippy-popover-title="GENE INFO"
                     >
                         {{ t.symbol }} ({{ t.exon }})
                     </span>
+                    <span
+                        tippy-title="Has gene information"
+                        class="tag"
+                        ng-if="$ctrl.hasGeneAssessment(t.hgnc_id)"
+                        >INFO</span
+                    >
                 </div>
             </h3>
         </td>

@@ -8,7 +8,6 @@ const TYPES = {
 }
 
 function getAlleles({ http, path, state, resolve }) {
-    const config = state.get('app.config')
     const genepanel = state.get('views.workflows.interpretation.data.genepanel')
 
     // There's two possible scenarios:
@@ -53,7 +52,7 @@ function getAlleles({ http, path, state, resolve }) {
             .get(uri, params)
             .then((response) => {
                 let alleles = response.result
-                processAlleles(alleles, config, genepanel)
+                processAlleles(alleles, genepanel)
 
                 // Structure as {alleleId: allele}
                 let allelesById = {}

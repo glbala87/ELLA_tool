@@ -1,14 +1,13 @@
 import processAlleles from '../../../../common/helpers/processAlleles'
 
 function getOverviewAllelesFinalized({ module, http, path, props, state }) {
-    const config = state.get('app.config')
     const { page: selectedPage } = props
 
     return http
         .get(`overviews/alleles/finalized/?per_page=10&page=${selectedPage}`)
         .then((response) => {
             for (let item of response.result) {
-                processAlleles([item.allele], config, item.genepanel)
+                processAlleles([item.allele], item.genepanel)
             }
             let result = {
                 entries: response.result,
