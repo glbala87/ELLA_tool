@@ -2,7 +2,7 @@ from typing import Sequence, Tuple
 import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column
-from vardb.datamodel import sample, workflow, assessment, allele, genotype, gene
+from vardb.datamodel import sample, workflow, assessment, allele, gene
 from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
 
 from api.util import filterconfig_requirements
@@ -169,23 +169,6 @@ def workflow_analyses_for_genepanels(session, genepanels):
     )
 
 
-def allele_ids_not_started_analyses(session):
-    """
-    Get all allele_ids for 'Not started' analyses in either
-    'Not ready' or 'Interpretation' workflow status.
-    """
-    return (
-        session.query(allele.Allele.id)
-        .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
-        .filter(
-            or_(
-                sample.Analysis.id.in_(workflow_analyses_interpretation_not_started(session)),
-                sample.Analysis.id.in_(workflow_analyses_notready_not_started(session)),
-            )
-        )
-    )
-
-
 def workflow_alleles_finalized(session):
     return workflow_by_status(
         session,
@@ -225,19 +208,8 @@ def workflow_alleles_ongoing(session):
 
 def workflow_alleles_for_genepanels(session, genepanels):
     """
-    Get all allele_ids connected to given genepanels.
-
-    They are either connected via an analysis or via an alleleinterpretation.
+    Get all allele_ids for allele workflow connected to given genepanels.
     """
-    analysis_ids = workflow_analyses_for_genepanels(session, genepanels)
-
-    allele_ids_for_analyses = (
-        session.query(allele.Allele.id)
-        .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
-        .filter(sample.Analysis.id.in_(analysis_ids))
-        .distinct()
-    )
-
     allele_ids_for_alleleinterpretation = (
         session.query(workflow.AlleleInterpretation.allele_id)
         .filter(
@@ -249,12 +221,15 @@ def workflow_alleles_for_genepanels(session, genepanels):
         .distinct()
     )
 
-    return session.query(allele.Allele.id).filter(
-        or_(
-            allele.Allele.id.in_(allele_ids_for_analyses),
-            allele.Allele.id.in_(allele_ids_for_alleleinterpretation),
-        )
+    return allele_ids_for_alleleinterpretation
+
+
+def analysis_ids_for_user(session, user):
+    # Restrict analyses to analyses matching this user's group's genepanels
+    analysis_ids_for_user = session.query(sample.Analysis.id).filter(
+        sample.Analysis.id.in_(workflow_analyses_for_genepanels(session, user.group.genepanels))
     )
+    return analysis_ids_for_user
 
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):

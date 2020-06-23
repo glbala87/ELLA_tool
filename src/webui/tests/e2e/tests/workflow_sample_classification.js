@@ -438,7 +438,7 @@ describe('Sample workflow', function() {
     it('reuses the latest variant classification done in another sample', function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
-        sampleSelectionPage.selectClassified(1)
+        sampleSelectionPage.selectPending(1)
         checkAlleleClassification(expected_analysis_2_round_1)
     })
 })

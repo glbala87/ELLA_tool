@@ -37,7 +37,7 @@ describe('Sample workflow ', function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
         overview.open()
-        overview.selectWithMissingAssessments(1)
+        overview.selectPending(1)
         analysisPage.startButton.click()
 
         expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_INTERPRETATION)
@@ -135,7 +135,7 @@ describe('Sample workflow ', function() {
         loginPage.open()
         loginPage.loginAs('testuser3')
         overview.open()
-        overview.selectWithMissingAssessments(1) // some variants assessed in another analysis
+        overview.selectPending(1) // some variants assessed in another analysis
         analysisPage.startButton.click()
 
         expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01' + TITLE_INTERPRETATION)
