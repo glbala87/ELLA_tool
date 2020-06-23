@@ -62,6 +62,9 @@ Note that the filters do _not_ include finalized analyses.
 
 This release retires the optional classification status sections on the OVERVIEW page and replaces them with a possibility to [auto-add comments](/manual/choosing-sample-variant.html#optional-auto-comments) (`ALL CLASSIFIED`/`NO VARIANTS`) upon deposit of new analyses to the ELLA database. In addition, the [VARIANTS OVERVIEW](/manual/choosing-sample-variant.html#variants-worklist) page has been limited to manually imported, stand-alone variants or individual variants opened from search. 
 
+#### Option to set GQ thresholds for de novo candidates
+
+To remove false positive de novo predictions in the segregation filter, it is now possible to set a genotype quality (GQ) threshold. This will disregard any de novo prediction where the proband, father or mother in a trio has a GQ value below the given thresholds. 
 
 ### All changes
 
@@ -71,6 +74,9 @@ This release retires the optional classification status sections on the OVERVIEW
 - [Added filtering feature in the ANALYSES OVERVIEW](#new-overview-filter-feature).
 <!-- MR !426 -->
 - [Replaced optional ANALYSES OVERVIEW sections with auto-comments](#optional-overview-sections-replaced-with-auto-comments)
+<!-- MR !431 -->
+- [Added option for GQ threshold for de novo candidates](#option-to-set-gq-thresholds-for-de-novo-candidates)
+<!-- MR !426 -->
 - Fixed a bug causing previously cleared warning tags to remain in the Finalized section and in search results.
 
 
