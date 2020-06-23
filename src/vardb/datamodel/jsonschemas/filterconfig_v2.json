@@ -478,7 +478,15 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "enable": { "type": "boolean" },
-                                    "gq_threshold": { "type": "integer", "minimum": 0 }
+                                    "gq_threshold": {
+                                        "required": ["proband", "mother", "father"],
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "proband": { "type": "integer", "minimum": 0 },
+                                            "mother": { "type": "integer", "minimum": 0 },
+                                            "father": { "type": "integer", "minimum": 0 }
+                                        }
+                                    }
                                 }
                             },
                             "parental_mosaicism": {

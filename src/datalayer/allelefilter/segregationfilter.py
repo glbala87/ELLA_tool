@@ -303,9 +303,12 @@ class SegregationFilter(object):
         gq_threshold = denovo_config.get("gq_threshold")
         if gq_threshold:
             denovo_allele_ids = denovo_allele_ids.filter(
-                getattr(genotype_with_allele_table.c, f"{father_sample_id}_gq") >= gq_threshold,
-                getattr(genotype_with_allele_table.c, f"{mother_sample_id}_gq") >= gq_threshold,
-                getattr(genotype_with_allele_table.c, f"{proband_sample_id}_gq") >= gq_threshold,
+                getattr(genotype_with_allele_table.c, f"{proband_sample_id}_gq")
+                >= gq_threshold["proband"],
+                getattr(genotype_with_allele_table.c, f"{mother_sample_id}_gq")
+                >= gq_threshold["mother"],
+                getattr(genotype_with_allele_table.c, f"{father_sample_id}_gq")
+                >= gq_threshold["father"],
             )
 
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
