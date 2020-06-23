@@ -1,1 +1,95 @@
-<nav class="navbar-secondary"></nav>
+<nav class="navbar-secondary">
+    <section class="overview-filter">
+        <input
+            title="Analysis name filter e.g., excap123"
+            placeholder="ANALYSIS NAME"
+            id="analysis"
+            class="id-overview-filter-analysis-name filter-input"
+            ng-model="$ctrl.modelAnalysisName"
+            ng-model-watch="$ctrl.overviewFilter.analysisName"
+            ng-change="$ctrl.updateFilter({filter: {analysisName: $ctrl.modelAnalysisName}})"
+        />
+
+        <input
+            title="Comment text filter e.g., reanalyse"
+            placeholder="COMMENT TEXT"
+            id="comment"
+            class="id-overview-filter-review-comment filter-input"
+            ng-model="$ctrl.modelReviewComment"
+            ng-model-watch="$ctrl.overviewFilter.reviewComment"
+            ng-change="$ctrl.updateFilter({filter: {reviewComment: $ctrl.modelReviewComment}})"
+        />
+
+        <div class="dropdown">
+            <select
+                id="date"
+                class="id-overview-filter-date-range filter-date"
+                ng-model="$ctrl.modelDateRange"
+                ng-model-watch="$ctrl.overviewFilter.dateRange"
+                ng-change="$ctrl.updateFilter({filter: {dateRange: $ctrl.modelDateRange}})"
+            >
+                <option value="" hidden>Date requested</option>
+                <option value="lt:-1:d">&lt; 1 day ago</option>
+                <option value="lt:-3:d">&lt; 3 days ago</option>
+                <option value="lt:-7:d">&lt; 1 week ago</option>
+                <option value="lt:-1:m">&lt; 1 month ago</option>
+                <option value="lt:-3:m">&lt; 3 months ago</option>
+                <option value="ge:-3:m">&ge; 3 months ago</option>
+            </select>
+        </div>
+
+        <div class="filter-technology bttn-set">
+            <label
+                class="id-overview-filter-technology-hts bttn"
+                uib-btn-checkbox="'user'"
+                ng-model="$ctrl.modelTechnologyHTS"
+                ng-model-watch="$ctrl.overviewFilter.technologyHTS"
+                ng-change="$ctrl.updateFilter({filter: {technologyHTS: $ctrl.modelTechnologyHTS}})"
+                >HTS</label
+            >
+            <label
+                class="id-overview-filter-technology-sanger bttn"
+                uib-btn-checkbox="'user'"
+                ng-model="$ctrl.modelTechnologySanger"
+                ng-model-watch="$ctrl.overviewFilter.technologySanger"
+                ng-change="$ctrl.updateFilter({filter: {technologySanger: $ctrl.modelTechnologySanger}})"
+                >Sanger</label
+            >
+        </div>
+
+        <div class="filter-priority bttn-set">
+            <label
+                class="id-overview-filter-priority-normal bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriorityNormal"
+                ng-model-watch="$ctrl.overviewFilter.priorityNormal"
+                ng-change="$ctrl.updateFilter({filter: {priorityNormal: $ctrl.modelPriorityNormal}})"
+                >Normal</label
+            >
+            <label
+                class="id-overview-filter-priority-high bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriorityHigh"
+                ng-model-watch="$ctrl.overviewFilter.priorityHigh"
+                ng-change="$ctrl.updateFilter({filter: {priorityHigh: $ctrl.modelPriorityHigh}})"
+                >High</label
+            >
+            <label
+                class="id-overview-filter-priority-urgent bttn"
+                uib-btn-checkbox
+                ng-model="$ctrl.modelPriorityUrgent"
+                ng-model-watch="$ctrl.overviewFilter.priorityUrgent"
+                ng-change="$ctrl.updateFilter({filter: {priorityUrgent: $ctrl.modelPriorityUrgent}})"
+                >Urgent</label
+            >
+        </div>
+
+        <button
+            class="id-clear-filter filter-clear"
+            ng-class="{'pink': $ctrl.filterApplied}"
+            ng-click="$ctrl.clearFilter()"
+        >
+            Reset filter
+        </button>
+    </section>
+</nav>

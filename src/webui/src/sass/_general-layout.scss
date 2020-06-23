@@ -552,6 +552,18 @@ button {
             margin-left: 1.4rem;
         }
     }
+
+    // Invert color of active button since navbar has opposite color scheme.
+    .bttn-set {
+        label.bttn {
+            background-color: $white-75;
+            color: $black-75;
+            &.active {
+                background-color: $blue-75;
+                color: $white;
+            }
+        }
+    }
 }
 
 .navbar-bottom {
@@ -579,6 +591,33 @@ button {
         width: 100%;
         justify-content: space-between;
         height: $allelebar-row-height;
+    }
+}
+
+.overview-filter {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+
+    .filter-input {
+        width: 18rem;
+        margin-right: 3rem;
+    }
+
+    .filter-date {
+        width: 16rem;
+    }
+
+    .filter-technology,
+    .filter-priority {
+        margin-left: 3rem;
+    }
+
+    .filter-clear {
+        margin-left: 3rem;
     }
 }
 
@@ -784,18 +823,8 @@ workflow-buttons {
 }
 .workflow-options {
     display: flex;
-    // Invert color of active button since navbar has opposite color scheme.
     .bttn-set {
         margin-right: 2rem;
-        background-color: $white;
-        label.bttn {
-            background-color: $blue-75;
-            color: $white;
-            &.active {
-                background-color: $white;
-                color: $black-75;
-            }
-        }
     }
 }
 

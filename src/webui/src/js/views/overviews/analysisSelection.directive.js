@@ -7,7 +7,7 @@ app.component('analysisSelection', {
     templateUrl: 'analysisSelection.ngtmpl.html',
     controller: connect(
         {
-            analyses: state`views.overview.data.analyses`,
+            analyses: state`views.overview.filteredAnalyses`,
             finalized: state`views.overview.data.analysesFinalized`,
             state: state`views.overview.state.${state`views.overview.state.selectedSection`}`,
             selectedSection: state`views.overview.state.selectedSection`,
