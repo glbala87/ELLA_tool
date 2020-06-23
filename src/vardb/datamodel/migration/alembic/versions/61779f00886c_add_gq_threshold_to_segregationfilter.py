@@ -14,6 +14,7 @@ depends_on = None
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.orm.session import Session
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
 
 
