@@ -58,9 +58,9 @@ Any combination of these filters is allowed.
 
 Note that the filters do _not_ include finalized analyses. 
 
-#### Custom OVERVIEW sections replaced with auto-comments
+#### Optional OVERVIEW sections replaced with auto-comments
 
-This release retires the custom sections on the OVERVIEW page and replaces them with a possibility to [auto-add comments](/manual/choosing-sample-variant.html#optional-auto-comments) (`ALL CLASSIFIED`/`NO VARIANTS`) upon deposit of new analyses to the ELLA database. In addition, the [VARIANTS OVERVIEW](/manual/choosing-sample-variant.html#variants-worklist) page has been limited to manually imported, stand-alone variants or individual variants opened from search, and is now available for all users independent of configuration. 
+This release retires the optional classification status sections on the OVERVIEW page and replaces them with a possibility to [auto-add comments](/manual/choosing-sample-variant.html#optional-auto-comments) (`ALL CLASSIFIED`/`NO VARIANTS`) upon deposit of new analyses to the ELLA database. In addition, the [VARIANTS OVERVIEW](/manual/choosing-sample-variant.html#variants-worklist) page has been limited to manually imported, stand-alone variants or individual variants opened from search, and is now available for all users independent of configuration. 
 
 
 ### All changes
@@ -70,7 +70,7 @@ This release retires the custom sections on the OVERVIEW page and replaces them 
 <!-- MR !420 -->
 - [Added filtering feature in the ANALYSES OVERVIEW](#new-overview-filter-feature).
 <!-- MR !426 -->
-- [Replaced optional ANALYSES OVERVIEW sections with auto-comments](#custom-overview-sections-replaced-with-auto-comments)
+- [Replaced optional ANALYSES OVERVIEW sections with auto-comments](#optional-overview-sections-replaced-with-auto-comments)
 - Fixed a bug causing previously cleared warning tags to remain in the Finalized section and in search results.
 
 
