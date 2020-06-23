@@ -474,9 +474,11 @@
                             },
                             "denovo": {
                                 "required": ["enable"],
+                                "optional": ["gq_threshold"],
                                 "additionalProperties": false,
                                 "properties": {
-                                    "enable": { "type": "boolean" }
+                                    "enable": { "type": "boolean" },
+                                    "gq_threshold": { "type": "integer", "minimum": 0 }
                                 }
                             },
                             "parental_mosaicism": {
