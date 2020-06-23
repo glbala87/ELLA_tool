@@ -138,6 +138,7 @@ class SegregationFilter(object):
         proband_sample_id: int,
         father_sample_id: int,
         mother_sample_id: int,
+        denovo_config: Dict[str, Any],
     ) -> Set[int]:
         """
         Denovo mutations
@@ -298,6 +299,14 @@ class SegregationFilter(object):
                 ),
             ),
         )
+
+        gq_threshold = denovo_config.get("gq_threshold")
+        if gq_threshold:
+            denovo_allele_ids = denovo_allele_ids.filter(
+                getattr(genotype_with_allele_table.c, f"{father_sample_id}_gq") >= gq_threshold,
+                getattr(genotype_with_allele_table.c, f"{mother_sample_id}_gq") >= gq_threshold,
+                getattr(genotype_with_allele_table.c, f"{proband_sample_id}_gq") >= gq_threshold,
+            )
 
         denovo_result = set([a[0] for a in denovo_allele_ids.all()])
         return denovo_result
@@ -871,7 +880,11 @@ class SegregationFilter(object):
                 self.session,
                 allele_ids,
                 family_sample_ids,
-                genotypesampledata_extras={"ar": "allele_ratio", "gl": "genotype_likelihood"},
+                genotypesampledata_extras={
+                    "ar": "allele_ratio",
+                    "gl": "genotype_likelihood",
+                    "gq": "genotype_quality",
+                },
             )
 
             if filter_config["no_coverage_parents"]["enable"]:
@@ -883,7 +896,11 @@ class SegregationFilter(object):
 
             if filter_config["denovo"]["enable"]:
                 result[analysis_id]["denovo"] = self.denovo(
-                    genotype_table, proband_sample_id, father_sample_id, mother_sample_id
+                    genotype_table,
+                    proband_sample_id,
+                    father_sample_id,
+                    mother_sample_id,
+                    filter_config["denovo"],
                 )
             else:
                 result[analysis_id]["denovo"] = set()

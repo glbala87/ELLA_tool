@@ -64,6 +64,7 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
             )
         allele_ids = request.args.get("allele_ids").split(",")
         current = request.args.get("current", "").lower() == "true"
+        filterconfig_id = request.args.get("filterconfig_id")
         return (
             helpers.get_alleles(
                 session,
@@ -71,6 +72,7 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
                 user.group.genepanels,
                 analysisinterpretation_id=interpretation_id,
                 current_allele_data=current,
+                filterconfig_id=filterconfig_id,
             ),
             len(allele_ids),
         )

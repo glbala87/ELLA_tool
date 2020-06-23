@@ -20,6 +20,7 @@ function getAlleles({ http, path, state, resolve }) {
     const hasInterpretations = Boolean(interpretations.length)
     const selectedInterpretation = resolve.value(getSelectedInterpretation)
     const selectedInterpretationId = state.get('views.workflows.interpretation.selectedId')
+    const filterConfigId = state.get('views.workflows.interpretation.state.filterconfigId')
     const alleleIds = resolve.value(getAlleleIdsFromInterpretation)
 
     let uri = null
@@ -33,7 +34,8 @@ function getAlleles({ http, path, state, resolve }) {
         uri = `workflows/${type}/${id}/interpretations/${selectedInterpretation.id}/alleles/`
         params = {
             allele_ids: alleleIds.join(','),
-            current: getCurrentData // Only relevant when interpretation status is 'Done'
+            current: getCurrentData, // Only relevant when interpretation status is 'Done'
+            filterconfig_id: filterConfigId
         }
     } else {
         if (type !== 'alleles') {
