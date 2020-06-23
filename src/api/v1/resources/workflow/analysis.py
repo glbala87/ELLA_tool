@@ -65,6 +65,8 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
         allele_ids = request.args.get("allele_ids").split(",")
         current = request.args.get("current", "").lower() == "true"
         filterconfig_id = request.args.get("filterconfig_id")
+        if filterconfig_id is not None:
+            filterconfig_id = int(filterconfig_id)
         return (
             helpers.get_alleles(
                 session,

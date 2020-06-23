@@ -303,7 +303,6 @@ class AlleleDataLoader(object):
         )[0]
 
         segregation_config = [fc for fc in filter_config["filters"] if fc["name"] == "segregation"]
-        assert len(segregation_config) <= 1, "Multiple segregation filters not supported"
         if len(segregation_config) > 1:
             raise RuntimeError("Multiple segregation filters not supported")
         elif len(segregation_config) == 0:
@@ -330,7 +329,6 @@ class AlleleDataLoader(object):
             for al in allele_data:
                 allele_id = al["id"]
                 # Homozygous
-                print(al.keys())
                 proband_samples = [s for s in al["samples"] if s["proband"]]
                 if any(s["genotype"]["type"] == "Homozygous" for s in proband_samples):
                     allele_ids_tags[allele_id].add("homozygous")
@@ -704,6 +702,7 @@ class AlleleDataLoader(object):
         :param alleles: List of allele objects.
         :param link_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
         :param analysis_id: Analysis id for including samples and genotype data.
+        :param filterconfig_id: Filterconfig id to use for segregation tagging
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
