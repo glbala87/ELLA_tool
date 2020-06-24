@@ -295,20 +295,23 @@ class AlleleDataLoader(object):
         self.inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
         self.segregation_filter = SegregationFilter(session, config)
 
-    def _get_segregation_results(self, allele_ids, analysis_id):
-        # These are for tags and de novo p-value,
-        # so we hard code what we require
-        # TODO: If segregation filter_config starts expanding it's configuration,
-        # we need to use actual filter_config here
-        filter_config = {
-            "no_coverage_parents": {"enable": False},
-            "denovo": {"enable": True},
-            "parental_mosaicism": {"enable": True},
-            "compound_heterozygous": {"enable": True},
-            "recessive_homozygous": {"enable": True},
-        }
+    def _get_segregation_results(self, allele_ids, analysis_id, filterconfig_id):
+        filter_config = (
+            self.session.query(sample.FilterConfig.filterconfig)
+            .filter(sample.FilterConfig.id == filterconfig_id)
+            .one()
+        )[0]
+
+        segregation_config = [fc for fc in filter_config["filters"] if fc["name"] == "segregation"]
+        if len(segregation_config) > 1:
+            raise RuntimeError("Multiple segregation filters not supported")
+        elif len(segregation_config) == 0:
+            return None
+
+        segregation_config = segregation_config[0]["config"]
+
         segregation_results = self.segregation_filter.get_segregation_results(
-            {analysis_id: allele_ids}, filter_config
+            {analysis_id: allele_ids}, segregation_config
         )
         return segregation_results.get(analysis_id)
 
@@ -674,6 +677,7 @@ class AlleleDataLoader(object):
         link_filter=None,
         genepanel=None,  # Make genepanel mandatory?
         analysis_id=None,
+        filterconfig_id=None,
         include_annotation=True,
         include_custom_annotation=True,
         include_allele_assessment=True,
@@ -698,6 +702,7 @@ class AlleleDataLoader(object):
         :param alleles: List of allele objects.
         :param link_filter: a struct defining the ids of related entities to fetch. See other parameters for more info.
         :param analysis_id: Analysis id for including samples and genotype data.
+        :param filterconfig_id: Filterconfig id to use for segregation tagging
         :param genepanel: Genepanel to be used in annotationprocessor.
         :type genepanel: vardb.datamodel.gene.Genepanel
         :param annotation: If true, load the ones mentioned in link_filter.annotation_id
@@ -735,7 +740,10 @@ class AlleleDataLoader(object):
 
         segregation_results = None
         if analysis_id and allele_ids:
-            segregation_results = self._get_segregation_results(allele_ids, analysis_id)
+            if filterconfig_id is not None:
+                segregation_results = self._get_segregation_results(
+                    allele_ids, analysis_id, filterconfig_id
+                )
             allele_id_sample_data = self._load_sample_data(
                 [a["allele"] for a in list(accumulated_allele_data.values())],
                 analysis_id,

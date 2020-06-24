@@ -95,6 +95,7 @@ def get_alleles(
     alleleinterpretation_id=None,
     analysisinterpretation_id=None,
     current_allele_data=False,
+    filterconfig_id=None,
 ):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
@@ -180,6 +181,7 @@ def get_alleles(
         "genepanel": interpretation.genepanel,
         "analysis_id": analysis_id,
         "link_filter": link_filter,
+        "filterconfig_id": filterconfig_id,
     }
 
     return AlleleDataLoader(session).from_objs(alleles, **kwargs)
