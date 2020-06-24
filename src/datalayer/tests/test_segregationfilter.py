@@ -645,20 +645,25 @@ class TestInheritanceFilter(object):
         ]
         if not is_x_minus_par:
             if genotypes in autosomal_denovo_genotypes:
-                assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
+                expected = set([allele_id])
             else:
-                assert set(result_allele_ids) == set([])
+                expected = set()
         else:
             if ps.sex == "Male":
                 if genotypes in xlinked_boy_genotypes:
-                    assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
+                    expected = set([allele_id])
                 else:
-                    assert set(result_allele_ids) == set([])
+                    expected = set([])
             else:
                 if genotypes in xlinked_girl_genotypes:
-                    assert set(result_allele_ids) == (set([allele_id]) if passed_gq_test else set())
+                    expected = set([allele_id])
                 else:
-                    assert set(result_allele_ids) == set([])
+                    expected = set([])
+
+        if not passed_gq_test:
+            expected = set()
+
+        assert set(result_allele_ids) == expected
 
     @ht.example(
         [
