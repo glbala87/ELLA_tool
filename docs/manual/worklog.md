@@ -18,7 +18,7 @@ The work log lets you:
 
   - Leave an OVERVIEW comment: Consider this before sending a variant interpretation or sample to review. This comment will be displayed on the overview page alongside the variant or sample and your user name, and is useful for short workflow-related messages about the sample/variant (e.g., "Should be reviewed by an expert on this gene.").
 
-  - Clear any analysis warnings (ANALYSES workflow only). Clearing a warning makes the warning tag disappear from the OVERVIEW and will take the next user directly to the CLASSIFICATION page (instead of the INFO page).
+  - Clear any analysis warnings (ANALYSES workflow only). The `CLEAR WARNING` button makes the warning tag disappear from the OVERVIEW and will take the next user directly to the CLASSIFICATION page (instead of the INFO page).
 
   - Manually adjust the priority of the analysis or variant (affects sorting on the OVERVIEW page, with high priority on top).
 

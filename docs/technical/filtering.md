@@ -495,14 +495,21 @@ Individual criteria (see [above](#segregation-filter)) may be either enabled (`t
 
 ##### Example
 
-This configuration will filter out any variant that does *not* match any of the possible criteria given above, except "Parental mosaicism":
+This configuration will filter out any variant that does *not* match any of the possible criteria given above, except "Parental mosaicism", and only de novo candidates where all members of the trio are reported with GQ>20 are considered:
 
 ```json
 {
     "name": "segregation",
     "config": {
         "no_coverage_parents": { "enable": true },
-        "denovo": { "enable": true },
+        "denovo": { 
+            "enable": true,
+            "gq_threshold": {
+                "proband": 20,
+                "mother": 20,
+                "father": 20
+            }
+        },
         "parental_mosaicism": { "enable": false },
         "compound_heterozygous": { "enable": true },
         "recessive_homozygous": { "enable": true }
@@ -533,6 +540,10 @@ Designating a variant as de novo is based on rules given in [Vigeland et al. (20
 ::: warning NOTE
 If a male trio member is reported as heterozygous for an X-linked variant, the variant will be filtered out.
 :::
+
+##### GQ threshold
+
+If `gq_threshold` is defined, only de novo candidates where the genotype qualities (GQ) are above the given thresholds are considered. This can be useful for removing false de novo predictions. Note that thresholds must be defined for each of the proband, father and mother. Setting the threshold to `0` is equivalent to disabling the check.
 
 #### Parental mosaicism
 

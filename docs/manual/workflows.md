@@ -6,39 +6,32 @@ title: Workflows
 
 [[toc]]
 
-ELLA allows both interpretation of individual [VARIANTS](#variant-centered-workflow-variants) (independent of laboratory samples), and [ANALYSES](#sample-centered-workflow-analyses) of variants in the context of a sample and a pre-specified gene panel. The most important difference is that the VARIANTS workflow does not show any sample-specific information/functionality, which includes:
+ELLA allows both interpretation of [ANALYSES](#sample-centered-workflow-analyses) of variants in the context of a sample and a pre-specified gene panel, and individual [VARIANTS](#variant-centered-workflow-variants) (independent of laboratory samples). Common to both workflows is that any analysis or variant interpretation should normally be reviewed. However, all steps are optional, and you may finalize at any time. 
 
-  - Genotype
-  - Quality of the variant call (read depth, allele balance, mapping quality, etc.)
-  - Genotyping method (e.g. HTS or Sanger)
-  - Sample(s) information
-  - Other variants in the same sample
-  - Possibility for generating a clinical report
+## ANALYSES workflow for samples
 
-Most users will default to [ANALYSES](#sample-centered-workflow-analyses) as this is the only workflow that allows completion of samples. However, in certain cases (typically high sample volume, small gene panels, multiple collaborating users) the [VARIANTS](#variant-centered-workflow-variants) workflow may be preferred. You may also go directly to a variant or analysis by using the [search function](/manual/choosing-sample-variant.html#search-and-edit-variants-and-samples).
+An ANALYSIS is tied to both a specific laboratory sample and a gene panel. Note that this means that the same patient may be present in multiple analyses. In these instances, each analysis is treated separately, and it is not possible to merge results. 
 
-Common to both workflows is that any analysis or variant interpretation should normally be reviewed. However, all steps are optional, and you may finalize at any time. 
+A schematic representation of a typical ANALYSES workflow is shown in **Figure 1** below.
 
-## Sample-centered workflow: ANALYSES
+<div style="text-indent: 4%;">
+  <img src="./img/workflow.png"><br>
+  <div style="font-size: 80%;">
+    <strong>Figure 1:</strong> Typical ANALYSES workflow.
+  </div>
+  <br> 
+</div>
 
-An ANALYSIS is tied to both a specific laboratory sample and a gene panel. Note that this means that, although rare, the same patient may be present in multiple analyses. In these instances, each analysis is treated separately, and it is not possible to merge results. 
+Valid classifications are defined in the [configuration](/technical/acmg.html#classification) (e.g. <6 months old). Each variant may be finalized at any time. The review steps are optional, and may be omitted for low-complexity samples (e.g. only benign variants and/or still valid existing classifications).
 
-A schematic representation of a possible workflow that starts with ANALYSES is shown in **Figure 1**.
+Note that each variant in the analysis must be finalized or set to not relevant or technical independently before the analysis containing the variants can be finalized. 
 
-<div style="text-indent: 4%;"><img src="./img//overview_figure1.png"></div>
+## VARIANTS workflow for independent variants
 
-**Figure 1:** Sample-centred workflow. Valid classifications are defined as \<6 month old. ”Sample review” is optional, and may be omitted for low-complexity samples (e.g. only benign variants and/or still valid existing classifications).
+If you have imported stand-alone variants (independent of any sample), or use search to locate and open a variant, the alternative VARIANTS workflow is used. The most important difference is that the VARIANTS workflow does not show any sample-specific information/functionality, which includes:
 
-## Variant-centered workflow: VARIANTS
+- Genotype
+- Quality of the variant call 
+- Possibility for generating a clinical report (although you may add/edit comments for a subsequent report in a sample)
 
-An alternative, more complex workflow starting with a VARIANTS workflow followed by ANALYSES is presented in **Figure 2**.
-
-<div style="text-indent: 4%;"><img src="./img//overview_figure2.png"></div>
-
-**Figure 2:** Variant-centred workflow followed by sample analysis
-
-This workflow is particularly well suited for small gene panels and high sample volumes, where a group of analysts collaborate on the same set of samples and variants. 
-
-::: warning NOTE
-Variants that have first been started in ANALYSES mode are not visible in VARIANTS mode. Moreover, variants that have been finalized in ANALYSES mode first are not visible under FINISHED variants in VARIANTS mode. It is therefore recommended to always follow a workflow similar to that in **Figure 2** when using VARIANTS mode.
-:::
+Furthermore, the workflow is much simpler, and only includes an INTERPRETATION and a REVIEW step. No filtering or auto-finalization if the variant was already (recently) classified is applied. 

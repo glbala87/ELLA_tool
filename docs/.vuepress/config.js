@@ -31,8 +31,7 @@ module.exports = {
                     collapsable: false,
                     children: [
                         '/manual/choosing-sample-variant',
-                        '/manual/data-import-reanalyses',
-                        '/manual/export-sanger'
+                        '/manual/data-import-reanalyses'
                     ]
                 },
                 {
