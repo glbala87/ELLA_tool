@@ -297,18 +297,31 @@ class AlleleDataLoader(object):
 
     def _get_segregation_results(self, allele_ids, analysis_id, filterconfig_id):
         filter_config = (
-            self.session.query(sample.FilterConfig.filterconfig)
+            self.session.query(sample.FilterConfig)
             .filter(sample.FilterConfig.id == filterconfig_id)
             .one()
-        )[0]
+        )
 
-        segregation_config = [fc for fc in filter_config["filters"] if fc["name"] == "segregation"]
+        segregation_config = [
+            fc for fc in filter_config.filterconfig["filters"] if fc["name"] == "segregation"
+        ]
         if len(segregation_config) > 1:
             raise RuntimeError("Multiple segregation filters not supported")
         elif len(segregation_config) == 0:
             return None
 
-        segregation_config = segregation_config[0]["config"]
+        # Prior to schema version 2, the segregation config was not explicit.
+        # Therefore, if schema < 2, use implicit config
+        if filter_config.schema_version >= 2:
+            segregation_config = segregation_config[0]["config"]
+        else:
+            segregation_config = {
+                "no_coverage_parents": {"enable": False},
+                "denovo": {"enable": True},
+                "parental_mosaicism": {"enable": True},
+                "compound_heterozygous": {"enable": True},
+                "recessive_homozygous": {"enable": True},
+            }
 
         segregation_results = self.segregation_filter.get_segregation_results(
             {analysis_id: allele_ids}, segregation_config
