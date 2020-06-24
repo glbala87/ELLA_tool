@@ -543,7 +543,7 @@ If a male trio member is reported as heterozygous for an X-linked variant, the v
 
 ##### GQ threshold
 
-If `gq_threshold` is defined, only de novo candidates where the genotype qualities (GQ) are above the given thresholds are considered. This can be useful for removing false de novo predictions. Note that thresholds must be defined for each of the proband, father and mother.
+If `gq_threshold` is defined, only de novo candidates where the genotype qualities (GQ) are above the given thresholds are considered. This can be useful for removing false de novo predictions. Note that thresholds must be defined for each of the proband, father and mother. Setting the threshold to `0` is equivalent to disabling the check.
 
 #### Parental mosaicism
 
