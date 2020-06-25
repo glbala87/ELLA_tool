@@ -95,6 +95,7 @@ def get_alleles(
     alleleinterpretation_id=None,
     analysisinterpretation_id=None,
     current_allele_data=False,
+    filterconfig_id=None,
 ):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
@@ -180,6 +181,7 @@ def get_alleles(
         "genepanel": interpretation.genepanel,
         "analysis_id": analysis_id,
         "link_filter": link_filter,
+        "filterconfig_id": filterconfig_id,
     }
 
     return AlleleDataLoader(session).from_objs(alleles, **kwargs)
@@ -226,9 +228,22 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         )
     )
 
+    geneassessments = (
+        session.query(assessment.GeneAssessment)
+        .filter(
+            assessment.GeneAssessment.gene_id
+            == annotation_transcripts_genepanel.c.genepanel_hgnc_id,
+            assessment.GeneAssessment.date_superceeded.is_(None),
+        )
+        .all()
+    )
+
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data["transcripts"] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
     genepanel_data["phenotypes"] = schemas.PhenotypeFullSchema().dump(phenotypes, many=True).data
+    genepanel_data["geneassessments"] = (
+        schemas.GeneAssessmentSchema().dump(geneassessments, many=True).data
+    )
     return genepanel_data
 
 

@@ -5,7 +5,7 @@
         "default_import_genepanel": ["HBOC", "v01"],
         "config": {
             "overview": {
-                "views": ["variants", "analyses-by-classified", "import"]
+                "views": ["analyses", "variants", "import"]
             },
             "comment_templates": [
                 {
@@ -91,8 +91,7 @@
                             }
                         },
                         "last_exon_important": "LENI",
-                        "disease_mode": "ANY",
-                        "comment": "a comment from the ACMG config"
+                        "disease_mode": "ANY"
                     }
                 }
             },
@@ -118,7 +117,7 @@
         "default_import_genepanel": ["Mendeliome", "v01"],
         "config": {
             "overview": {
-                "views": ["analyses", "import"]
+                "views": ["analyses", "variants", "import"]
             },
             "deposit": {
                 "analysis": [

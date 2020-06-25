@@ -1,14 +1,13 @@
 import processAlleles from '../../../../common/helpers/processAlleles'
 
 function getOverviewAlleles({ state, http, path }) {
-    const config = state.get('app.config')
     return http
         .get('overviews/alleles/')
         .then((response) => {
             let data = response.result
-            for (let key of ['marked_review', 'missing_alleleassessment', 'ongoing']) {
+            for (let key of ['marked_review', 'not_started', 'ongoing']) {
                 for (let item of data[key]) {
-                    processAlleles([item.allele], config, item.genepanel)
+                    processAlleles([item.allele], item.genepanel)
                 }
             }
 
@@ -29,6 +28,7 @@ function getOverviewAlleles({ state, http, path }) {
             return path.success(response)
         })
         .catch((response) => {
+            console.error(response)
             return path.error(response)
         })
 }

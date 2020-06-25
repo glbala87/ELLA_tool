@@ -367,20 +367,21 @@ _HGMD_SUBSTITUTE = [
 ]
 
 
+def _translate_to_original(x):
+    if not isinstance(x, str):
+        return x
+    for regexp, substitution in _HGMD_SUBSTITUTE:
+        x = regexp.sub(substitution, x)
+    return x
+
+
 def convert_hgmd(annotation):
     HGMD_FIELDS = ["acc_num", "codon", "disease", "tag"]
     if "HGMD" not in annotation:
         return dict()
 
-    def translate_to_original(x):
-        if not isinstance(x, str):
-            return x
-        for regexp, substitution in _HGMD_SUBSTITUTE:
-            x = regexp.sub(substitution, x)
-        return x
-
     data = {
-        k: translate_to_original(annotation["HGMD"][k])
+        k: _translate_to_original(annotation["HGMD"][k])
         for k in HGMD_FIELDS
         if k in annotation["HGMD"]
     }
@@ -647,7 +648,7 @@ class ConvertReferences(object):
             reftag = "Primary literature report"
             comments = annotation["HGMD"].get("comments", "No comments")
             comments = "No comments." if comments == "None" else comments
-            total[pmid] = [reftag, comments]
+            total[pmid] = [reftag, _translate_to_original(comments)]
 
         for er in annotation["HGMD"].get("extrarefs", []):
             if "pmid" in er:
@@ -661,7 +662,7 @@ class ConvertReferences(object):
                 if er.get("reftag") == "APR" and comments == "No comments.":
                     comments = er.get("disease", comments)
 
-                total[pmid] = [reftag, comments]
+                total[pmid] = [reftag, _translate_to_original(comments)]
 
         # Format reftag, comments to string
         for pmid, info in list(total.items()):
@@ -679,6 +680,7 @@ class ConvertReferences(object):
         )
 
         pubmeds = clinvarjson.get("pubmeds", [])
+        pubmeds += clinvarjson.get("pubmed_ids", [])
         pubmeds = dict(list(zip(pubmeds, [""] * len(pubmeds))))  # Return as dict (empty values)
 
         return pubmeds

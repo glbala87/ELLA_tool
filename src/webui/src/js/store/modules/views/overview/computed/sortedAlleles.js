@@ -9,7 +9,7 @@ export default function sortedAlleles(alleles) {
                 thenBy((a) => a.priority, -1)
                     .thenBy((a) => {
                         // Ignore seconds/milliseconds when sorting
-                        let d = new Date(a.oldest_analysis)
+                        let d = new Date(a.date_created)
                         d.setSeconds(0, 0)
                         return d.toISOString()
                     })

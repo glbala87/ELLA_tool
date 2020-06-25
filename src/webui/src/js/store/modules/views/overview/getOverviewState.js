@@ -14,15 +14,20 @@ export let AVAILABLE_SECTIONS = {
             selectedPage: 1
         }
     },
-    'analyses-by-classified': {
-        displayName: 'Analyses',
-        finalized: {
-            selectedPage: 1
-        }
-    },
     import: {
         displayName: 'Import'
     }
+}
+
+export let DEFAULT_FILTER = {
+    analysisName: null,
+    reviewComment: null,
+    dateRange: null,
+    technologyHTS: false,
+    technologySanger: false,
+    priorityNormal: false,
+    priorityHigh: false,
+    priorityUrgent: false
 }
 
 export default function getOverviewState() {
@@ -32,6 +37,8 @@ export default function getOverviewState() {
         state: {
             selectedSection: null
         },
+        filter: Object.assign({}, DEFAULT_FILTER),
+        filteredAnalyses: null,
         data: {
             alleles: null,
             allelesFinalized: null,

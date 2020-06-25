@@ -4,13 +4,13 @@ export default function getOverviewAnalyses({ http, props, path, state }) {
     return http
         .get('overviews/analyses/')
         .then((response) => {
-            const keys = ['not_ready', 'ongoing', 'marked_review', 'marked_medicalreview']
-
-            if (props.section === 'analyses') {
-                keys.push('not_started')
-            } else if (props.section === 'analyses-by-classified') {
-                keys.push.apply(['with_findings', 'without_findings', 'missing_alleleassessments'])
-            }
+            const keys = [
+                'not_ready',
+                'not_started',
+                'ongoing',
+                'marked_review',
+                'marked_medicalreview'
+            ]
 
             for (let key of keys) {
                 for (let item of response.result[key]) {

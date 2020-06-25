@@ -165,7 +165,7 @@ class WorkflowHelper(object):
             ),  # We don't bother to provide real data for normal rounds, we are just testing workflow
             interpretation["user"]["username"],
         )
-        assert r.status_code == 200
+        assert r.status_code == 200, r.get_data()
 
         # Check that new interpretation was created
         assert len(ih.get_interpretations(self.type, self.id).get_json()) == interpretation_cnt + 1

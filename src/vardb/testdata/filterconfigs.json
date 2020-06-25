@@ -262,14 +262,6 @@
                             }
                         },
                         {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                }
-                            }
-                        },
-                        {
                             "name": "consequence",
                             "config": {
                                 "genepanel_only": true,
@@ -349,14 +341,6 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                }
-                            }
                         }
                     ]
                 },
@@ -380,14 +364,6 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                }
-                            }
                         }
                     ]
                 },
@@ -409,14 +385,6 @@
                                 "clinvar": {
                                     "num_stars": [">=", 2],
                                     "combinations": [["pathogenic", ">", "benign"]]
-                                }
-                            }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
                                 }
                             }
                         }
@@ -552,19 +520,6 @@
                             }
                         },
                         {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                },
-                                "clinvar": {
-                                    "num_stars": [">=", 2],
-                                    "combinations": [["benign", ">", "pathogenic"]],
-                                    "inverse": true
-                                }
-                            }
-                        },
-                        {
                             "name": "consequence",
                             "config": {
                                 "genepanel_only": true,
@@ -643,19 +598,6 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                },
-                                "clinvar": {
-                                    "num_stars": [">=", 2],
-                                    "combinations": [["benign", ">", "pathogenic"]],
-                                    "inverse": true
-                                }
-                            }
                         }
                     ]
                 },
@@ -677,19 +619,6 @@
                                 "clinvar": {
                                     "num_stars": [">=", 2],
                                     "combinations": [["pathogenic", ">", "benign"]]
-                                }
-                            }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                },
-                                "clinvar": {
-                                    "num_stars": [">=", 2],
-                                    "combinations": [["benign", ">", "pathogenic"]],
-                                    "inverse": true
                                 }
                             }
                         }
@@ -715,19 +644,6 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                },
-                                "clinvar": {
-                                    "num_stars": [">=", 2],
-                                    "combinations": [["benign", ">", "pathogenic"]],
-                                    "inverse": true
-                                }
-                            }
                         }
                     ]
                 },
@@ -735,7 +651,14 @@
                     "name": "segregation",
                     "config": {
                         "no_coverage_parents": { "enable": true },
-                        "denovo": { "enable": true },
+                        "denovo": {
+                            "enable": true,
+                            "gq_threshold": {
+                                "proband": 20,
+                                "mother": 20,
+                                "father": 20
+                            }
+                        },
                         "parental_mosaicism": { "enable": true },
                         "compound_heterozygous": { "enable": true },
                         "recessive_homozygous": { "enable": true }
@@ -747,19 +670,6 @@
                                 "clinvar": {
                                     "num_stars": [">=", 2],
                                     "combinations": [["pathogenic", ">", "benign"]]
-                                }
-                            }
-                        },
-                        {
-                            "name": "external",
-                            "config": {
-                                "hgmd": {
-                                    "tags": ["DM", "DM?"]
-                                },
-                                "clinvar": {
-                                    "num_stars": [">=", 2],
-                                    "combinations": [["benign", ">", "pathogenic"]],
-                                    "inverse": true
                                 }
                             }
                         }

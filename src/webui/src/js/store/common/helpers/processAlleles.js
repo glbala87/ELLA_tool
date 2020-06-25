@@ -1,7 +1,7 @@
 import thenBy from 'thenby'
 import { formatInheritance } from './genepanel'
 
-export default function processAlleles(alleles, config, genepanel = null) {
+export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
         if (allele.annotation.filtered_transcripts.length) {
             allele.annotation.filtered = allele.annotation.filtered_transcripts.map((t) =>
@@ -14,7 +14,7 @@ export default function processAlleles(alleles, config, genepanel = null) {
         }
 
         allele.urls = getUrls(allele)
-        allele.formatted = getFormatted(allele, config, genepanel)
+        allele.formatted = getFormatted(allele, genepanel)
         allele.links = getLinks(allele, genepanel)
     }
 
@@ -84,7 +84,7 @@ function getLinks(allele, genepanel) {
     return links
 }
 
-function getFormatted(allele, config, genepanel) {
+function getFormatted(allele, genepanel) {
     let formatted = {}
 
     //
@@ -158,7 +158,7 @@ function getFormatted(allele, config, genepanel) {
     //
     if (genepanel) {
         let inheritance = allele.annotation.filtered.map((a) => {
-            return formatInheritance(genepanel, config.user.user_config.acmg, a.symbol, a.hgnc_id)
+            return formatInheritance(a.hgnc_id, genepanel)
         })
         formatted.inheritance = inheritance.join(' | ')
     }

@@ -159,12 +159,7 @@
                                     "additionalItems": false,
                                     "items": {
                                         "type": "string",
-                                        "enum": [
-                                            "analyses",
-                                            "variants",
-                                            "analyses-by-classified",
-                                            "import"
-                                        ]
+                                        "enum": ["analyses", "variants", "import"]
                                     }
                                 }
                             }

@@ -222,3 +222,38 @@ Index(
     postgresql_where=(AlleleReport.date_superceeded.is_(None)),
     unique=True,
 )
+
+
+class GeneAssessment(Base):
+    """Represents an assessment for a single gene."""
+
+    __tablename__ = "geneassessment"
+
+    id = Column(Integer, primary_key=True)
+    evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user = relationship("User", uselist=False)
+    usergroup_id = Column(Integer, ForeignKey("usergroup.id"))
+    usergroup = relationship("UserGroup", uselist=False)
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
+    genepanel_name = Column(String, nullable=False)
+    genepanel_version = Column(String, nullable=False)
+    date_superceeded = Column(DateTime(timezone=True))
+    previous_assessment_id = Column(Integer, ForeignKey("geneassessment.id"))
+    previous_assessment = relationship("GeneAssessment", uselist=False)
+    gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
+    gene = relationship("Gene", uselist=False, backref="assessments")
+    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+
+    def __repr__(self):
+        return "<GeneAssessment('%s','%s', '%s')>" % (self.id, self.gene_id, str(self.user))
+
+
+Index(
+    "ix_geneassessment_geneid_unique",
+    GeneAssessment.gene_id,
+    postgresql_where=(GeneAssessment.date_superceeded.is_(None)),
+    unique=True,
+)

@@ -20,6 +20,8 @@ If available, the RefSeq transcript and version used in the HGVSc variant name i
 
 ## Action buttons
 
+Various action buttons are available in the top bar, divided by Global actions (middle section) and Variant actions (specific for the chosen variant). 
+
 ### Global
 
 Button  | Explanation | More information
@@ -39,6 +41,26 @@ Button  | Explanation | More information
 `COLLAPSE ALL`  | Collapse all evidence sections. | [Use collapsing for overview ...](/manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)
 
 
+## Gene information
+
+Clicking on the gene name in the top bar gives you extended information about the particular gene:
+
+<div style="text-indent: 4%;"><img src="./img/gene_info.png"></div>
+
+Header  | Explanation | More information
+:---  | :---  | :---
+LINKS | Click to go to corresponding gene information pages from external resources. 
+INHERITANCE | Inheritance mode, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
+PHENOTYPES | Associated phenotypes, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
+BS1/BA1 CUTOFF | Frequency thresholds for automatic suggestions of the corresponding ACMG-AMP criteria (divided by external and internal database). | [User group-specific ACMG rules](/technical/acmg.html#user-group-rules)
+GENE INFORMATION | User-added gene information. | (see below)
+
+The GENE INFORMATION field is editable; click the `EDIT` button and `UPDATE` when you have made changes. If a comment has been added, an `INFO` tag is shown next to the gene name. 
+
+::: warning NOTE
+In the current iteration, no collision warnings will be shown if another user is editing the information at the same time, and there is a risk for overwriting each other's work if this happens. 
+:::
+
 ## Analysis history for previously finished samples
 
 When a previously analysed sample is opened in ANALYSES mode, a drop-down menu in the top bar (right) provides an option for viewing the exact state at an earlier, finished step (review or finalize):
@@ -48,7 +70,7 @@ When a previously analysed sample is opened in ANALYSES mode, a drop-down menu i
 This shows all variant interpretations as well as the annotation available at the selected time. Note that if you click `REOPEN` (button the right of the drop-down) for a finalized sample, the annotation and variant interpretations shown are always equal to the most current state.
 
 ::: warning NOTE
-This history view is specific to analyses performed in [ANALYSES mode](/manual/workflows.html#sample-centered-workflow-analyses) and does not include history of independent variant interpretations performed in [VARIANTS mode](/manual/workflows.html#variant-centered-workflow-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
+This history view is specific to analyses performed in [ANALYSES mode](/manual/workflows.html#analyses-workflow-for-samples) and does not include history of independent variant interpretations performed in [VARIANTS mode](/manual/workflows.html#variants-workflow-for-independent-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
 :::
 
 ## User profile and history

@@ -1,3 +1,4 @@
+from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case, cast
 from vardb.datamodel import gene
@@ -91,8 +92,8 @@ class GenepanelListResource(LogRequestResource):
         if not data["version"]:
             raise ApiError("No version given for genepanel")
 
-        transcript_ids = list()
-        phenotype_ids = list()
+        transcript_ids: List[int] = list()
+        phenotype_ids: List[int] = list()
         for g in data["genes"]:
             transcript_ids += [t["id"] for t in g["transcripts"]]
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
@@ -189,7 +190,7 @@ class GenepanelResource(LogRequestResource):
             .all()
         )
 
-        genes = {}
+        genes: Dict[int, Any] = {}
         for t in transcripts:
             if t.hgnc_id in genes:
                 genes[t.hgnc_id]["transcripts"].append(
@@ -209,13 +210,13 @@ class GenepanelResource(LogRequestResource):
                     {"id": p.id, "inheritance": p.inheritance, "description": p.description}
                 )
 
-        genes = list(genes.values())
-        genes.sort(key=lambda x: x["hgnc_symbol"])
-        for g in genes:
+        result_genes: List[Any] = list(genes.values())
+        result_genes.sort(key=lambda x: x["hgnc_symbol"])
+        for g in result_genes:
             g["transcripts"].sort(key=lambda x: x["transcript_name"])
             g["phenotypes"].sort(key=lambda x: x["inheritance"])
 
-        result = {"name": name, "version": version, "genes": genes}
+        result = {"name": name, "version": version, "genes": result_genes}
         return result
 
 

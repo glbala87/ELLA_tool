@@ -249,6 +249,12 @@ body.modal-open {
     }
 }
 
+.gene-popover {
+    width: 90rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
 .interpretationlog-popover {
     width: 70rem;
     padding: 0.2rem;

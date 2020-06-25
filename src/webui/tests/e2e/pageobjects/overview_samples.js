@@ -1,22 +1,18 @@
 var Page = require('./page')
 var util = require('./util')
 
-const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses-by-classified'
+const SELECTOR_ANALYSES_OVERVIEW = '#id-overview-sidenav-analyses'
 const SELECTOR_FINISHED = '.id-analysis-finished'
-const SELECTOR_EMPTY = '.id-analysis-assessments-none'
-const SELECTOR_ASSESSMENTS_MISSING = '.id-analysis-missing-classifications'
-const SELECTOR_PENDING = SELECTOR_ASSESSMENTS_MISSING
-const SELECTOR_REVIEW_ASSESSMENTS_MISSING = '.id-analysis-review-missing-classifications'
-const SELECTOR_REVIEW = SELECTOR_REVIEW_ASSESSMENTS_MISSING
+const SELECTOR_PENDING = '.id-analysis-pending'
+const SELECTOR_REVIEW = '.id-analysis-review'
 const SELECTOR_MEDICALREVIEW = '.id-analysis-medicalreview'
 const SELECTOR_OURS = '.id-analysis-ours'
 const SELECTOR_OTHERS = '.id-analysis-others'
-const SELECTOR_CLASSIFIED = '.id-analysis-classified'
 
-//id-analysis-ours
-// id-analysis-others
-
-const SELECTOR_ANALYSIS_NAME = '.id-analysis-name'
+// acceptable filter values
+const PRIORITY_LEVELS = ['normal', 'high', 'urgent']
+const FILTER_TECHNOLOGIES = ['Sanger', 'HTS']
+const FILTER_RANGES = new RegExp('^[gl][te]:-?\\d+:[dm]$')
 
 const SECTION_EXPAND_SELECTOR = ' header .sb-title-container'
 
@@ -33,17 +29,50 @@ class SampleSelection extends Page {
         $('#nprogress').waitForExist(undefined, true) // Make sure loading is done before proceeding
     }
 
+    filterAnalysisName(nameText) {
+        $('.id-overview-filter-analysis-name').setValue(nameText)
+    }
+
+    filterReviewComment(commentText) {
+        $('.id-overview-filter-review-comment').setValue(commentText)
+    }
+
+    toggleFilterTechnology(technologyType) {
+        if (FILTER_TECHNOLOGIES.indexOf(technologyType) > -1) {
+            $(`.id-overview-filter-technology-${technologyType.toLowerCase()}`).click()
+        } else {
+            throw new TypeError(`Invalid technology type ${technologyType}`)
+        }
+    }
+
+    toggleFilterPriority(priorityLevel) {
+        if (PRIORITY_LEVELS.indexOf(priorityLevel) > -1) {
+            $(`.id-overview-filter-priority-${priorityLevel}`).click()
+        } else {
+            throw new TypeError(`Invalid priority level: ${priorityLevel}`)
+        }
+    }
+
+    filterDateRange(dateString) {
+        if (FILTER_RANGES.test(dateString)) {
+            $('.id-overview-filter-date-range').selectByAttribute('value', dateString)
+        } else {
+            throw new TypeError(`Invalid dateRange: ${dateString}`)
+        }
+    }
+
+    filterClear() {
+        $('.id-clear-filter').click()
+    }
+
+    get filteredAnalyses() {
+        // flatten all analyses into a single array
+        const analysesByType = $$('analysis-list').map((a) => a.$$('.id-analysis'))
+        return [].concat.apply([], analysesByType)
+    }
+
     get analysisList() {
         return util.element('analysis-list')
-    }
-    get noClassifiedSection() {
-        return util.element('.id-analysis-classified-none')
-    }
-    get classifiedSection() {
-        return util.element(SELECTOR_CLASSIFIED)
-    }
-    get emptySection() {
-        return util.element(SELECTOR_EMPTY)
     }
     get pendingSection() {
         return util.element(SELECTOR_PENDING)
@@ -100,24 +129,12 @@ class SampleSelection extends Page {
         this.selectItemInSection(number, SELECTOR_PENDING)
     }
 
-    selectWithMissingAssessments(number, name) {
-        this.selectItemInSection(number, SELECTOR_ASSESSMENTS_MISSING)
-    }
-
     selectReview(number) {
         this.selectItemInSection(number, SELECTOR_REVIEW)
     }
 
     selectMedicalReview(number) {
         this.selectItemInSection(number, SELECTOR_MEDICALREVIEW)
-    }
-
-    selectClassifiedNormal(number) {
-        this.selectItemInSection(number, SELECTOR_NORMAL)
-    }
-
-    selectClassified(number) {
-        this.selectItemInSection(number, SELECTOR_CLASSIFIED)
     }
 
     selectOthers(number) {

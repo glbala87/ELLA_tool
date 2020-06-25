@@ -1,8 +1,10 @@
+let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 
 let util = require('../pageobjects/util')
 
+let analysisPage = new AnalysisPage()
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
 
@@ -48,6 +50,9 @@ function checkAlleleClassification(allele_data, workflowType = 'analysis') {
             )
         }
 
+        if ('geneComment' in data) {
+            expect(analysisPage.getGeneComment()).toBe(data.geneComment)
+        }
         if ('analysisComment' in data) {
             expect(alleleSectionBox.analysisComment).toEqual(data.analysisComment)
         }

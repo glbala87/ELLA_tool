@@ -12,11 +12,15 @@ ELLA suggests ACMG criteria and classifications based on the official guidelines
 
 Note that these suggestions do not remove the need for expert judgement: The suggestions generated for both ACMG criteria and variant classifications need to be verified and may be overridden, and you may also add ACMG criteria manually. **Figure 1** below gives an overview of this process:
 
-![](./img/rule_engine.png)
+<div style="text-indent: 4%;">
+    <img src="./img/rule_engine.png"><br>
+    <div style="font-size: 80%;">
+        <strong>Figure 1:</strong> Key elements in the process of generating suggested ACMG criteria and clinical classification in ELLA.
+    </div>
+    <br>
+</div>
 
-**Figure 1**: Key elements in the process of generating suggested ACMG criteria and clinical classification in ELLA.
-
-Also note that classification suggestions only include class 1-5 (not class U or DR), and any non-ACMG ("other") or ACMG criteria set as "not weighted" are disregarded in the calculation. 
+Note that classification suggestions only include class 1-5 (not class U or DR), and any non-ACMG ("other") or ACMG criteria set as "not weighted" are disregarded in the calculation. 
 
 ## REQ: Requirements
 

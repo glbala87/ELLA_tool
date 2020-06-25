@@ -99,6 +99,8 @@ class ApiV1(object):
             r.filterconfig.FilterconfigResource, "/api/v1/filterconfigs/<int:filterconfig_id>"
         )
 
+        self._add_resource(r.geneassessment.GeneAssessmentListResource, "/api/v1/geneassessments/")
+
         self._add_resource(r.genepanel.GenepanelListResource, "/api/v1/genepanels/")
 
         self._add_resource(r.genepanel.GenepanelResource, "/api/v1/genepanels/<name>/<version>/")
@@ -140,11 +142,6 @@ class ApiV1(object):
 
         self._add_resource(
             r.overview.OverviewAnalysisFinalizedResource, "/api/v1/overviews/analyses/finalized/"
-        )
-
-        self._add_resource(
-            r.overview.OverviewAnalysisByClassifiedResource,
-            "/api/v1/overviews/analyses/by-classified/",
         )
 
         self._add_resource(r.overview.OverviewUserStatsResource, "/api/v1/overviews/userstats/")

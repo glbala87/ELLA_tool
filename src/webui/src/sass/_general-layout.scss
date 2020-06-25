@@ -552,6 +552,18 @@ button {
             margin-left: 1.4rem;
         }
     }
+
+    // Invert color of active button since navbar has opposite color scheme.
+    .bttn-set {
+        label.bttn {
+            background-color: $white-75;
+            color: $black-75;
+            &.active {
+                background-color: $blue-75;
+                color: $white;
+            }
+        }
+    }
 }
 
 .navbar-bottom {
@@ -579,6 +591,33 @@ button {
         width: 100%;
         justify-content: space-between;
         height: $allelebar-row-height;
+    }
+}
+
+.overview-filter {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+
+    .filter-input {
+        width: 18rem;
+        margin-right: 3rem;
+    }
+
+    .filter-date {
+        width: 16rem;
+    }
+
+    .filter-technology,
+    .filter-priority {
+        margin-left: 3rem;
+    }
+
+    .filter-clear {
+        margin-left: 3rem;
     }
 }
 
@@ -784,18 +823,8 @@ workflow-buttons {
 }
 .workflow-options {
     display: flex;
-    // Invert color of active button since navbar has opposite color scheme.
     .bttn-set {
         margin-right: 2rem;
-        background-color: $white;
-        label.bttn {
-            background-color: $blue-75;
-            color: $white;
-            &.active {
-                background-color: $white;
-                color: $black-75;
-            }
-        }
     }
 }
 
@@ -2006,6 +2035,26 @@ button.toast-close-button {
     }
 }
 
+.gene-information {
+    .gene-information-title {
+        margin-top: 1.5rem;
+    }
+    .comment-container {
+        display: flex;
+        padding: 0.5rem;
+        flex-direction: column;
+
+        .comment-editor {
+        }
+        .comment-controls {
+            display: flex;
+            width: auto;
+            margin-top: 0.5rem;
+            justify-content: flex-end;
+        }
+    }
+}
+
 .new-fade {
     opacity: 0;
 }
@@ -2158,12 +2207,21 @@ button.toast-close-button {
 }
 
 .confirm-button-confirm {
-    background-color: $green-50 !important;
     margin-left: 0;
     box-shadow: 0 0.3rem $black-05;
+    color: $white-95 !important;
 
-    &:hover {
-        background-color: $green-75 !important;
+    &.confirm-green {
+        background-color: $green-50 !important;
+        &:hover {
+            background-color: $green-75 !important;
+        }
+    }
+    &.confirm-red {
+        background-color: $red-50 !important;
+        &:hover {
+            background-color: $red-75 !important;
+        }
     }
     &.hidden {
         overflow: hidden;

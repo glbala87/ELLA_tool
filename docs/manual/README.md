@@ -23,7 +23,6 @@ For in-depth descriptions, go to the referenced pages:
 
 - [Choosing a sample or variant](/manual/choosing-sample-variant.md): Select from worklist or perform a search.
 - [Data import and reanalyses](/manual/data-import-reanalyses.md): Import additional data from VCF/text, or perform reanalyses on existing data.
-- [Data export for Sanger](/manual/export-sanger.md): Export samples/variants to be verified by Sanger.
 
 <hr>	  
 	  
@@ -65,6 +64,6 @@ For in-depth descriptions, go to the referenced pages:
 
 These pages provide in-depth background on key aspects of ELLA that are important for the end-user, but that are not immediately visible in the user interface.
 
-- [Workflows](/manual/workflows)
-- [ACMG rules engine](/manual/acmg-rule-engine)
-- [Gene panels](/manual/gene-panels)
+- [Workflows](/manual/workflows.html)
+- [ACMG rules engine](/manual/acmg-rule-engine.html)
+- [Gene panels](/manual/gene-panels.html)

@@ -6,7 +6,6 @@ export default function getWorkflowsState() {
     // We must handle modules state in here due to changeView resetting it
     return {
         alleleSidebar: getAlleleSidebarState(),
-        collisions: null,
         components: null, // Set in prepareComponents
         data: {
             // Data from backend

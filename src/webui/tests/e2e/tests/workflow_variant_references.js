@@ -16,24 +16,19 @@ let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
 let customAnnotationModal = new CustomAnnotationModal()
 
-const OUR_VARIANT = 'c.581G>A'
-
-describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function() {
+describe(`Adding reference in variant workflow`, function() {
     beforeAll(() => {
         browser.resetDb()
     })
 
-    // Update expectations as we do interpretations in the UI
-    let interpretation_expected_values = {}
-
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
-        variantSelectionPage.selectPending(7)
+        variantSelectionPage.selectPending(1)
         analysisPage.startButton.click()
         alleleSectionBox.classifyAsU()
 
-        expect(alleleSectionBox.getReferences().length).toEqual(4)
+        expect(alleleSectionBox.getReferences().length).toEqual(1)
 
         // add a reference using XML format
         console.log(`adding XML reference`)
@@ -48,7 +43,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
-        expect(alleleSectionBox.getReferences().length).toEqual(5)
+        expect(alleleSectionBox.getReferences().length).toEqual(2)
 
         // add a reference using RIS format
         console.log(`adding RIS reference`)
@@ -63,7 +58,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
-        expect(alleleSectionBox.getReferences().length).toEqual(6)
+        expect(alleleSectionBox.getReferences().length).toEqual(3)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
         analysisPage.finishButton.click()
@@ -76,9 +71,9 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
-        expect(alleleSectionBox.getReferences().length).toEqual(6)
+        expect(alleleSectionBox.getReferences().length).toEqual(3)
         analysisPage.startButton.click()
-        expect(alleleSectionBox.getReferences().length).toEqual(6)
+        expect(alleleSectionBox.getReferences().length).toEqual(3)
         alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
@@ -90,7 +85,7 @@ describe(`Adding reference in variant workflow (using ${OUR_VARIANT}`, function(
         loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
-        expect(alleleSectionBox.getReferences().length).toEqual(6)
+        expect(alleleSectionBox.getReferences().length).toEqual(3)
     })
 })
 

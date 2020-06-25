@@ -14,6 +14,7 @@ from vardb.datamodel import (
 from api import schemas
 
 from api.v1.resource import LogRequestResource
+from api.v1.resources.overview import load_analyses
 from datalayer import AlleleDataLoader
 from datalayer.queries import annotation_transcripts_genepanel
 from api.util.util import authenticate
@@ -220,10 +221,8 @@ class SearchResource(LogRequestResource):
         if not search_query.check():
             return matches
         elif search_query.is_analyses_search():
-            # Use all usergroup genepanels
-            genepanels = user.group.genepanels
             # Search analysis
-            analyses = self._search_analysis(session, search_query, genepanels)
+            analyses = self._search_analysis(session, search_query, user)
             analysis_ids = [a["id"] for a in analyses]
             analysis_interpretations = self._get_analysis_interpretations(session, analysis_ids)
             for analysis in analyses:
@@ -507,19 +506,16 @@ class SearchResource(LogRequestResource):
         self._filter_transcripts_query(session, allele_data, genepanels, search_query)
         return allele_data
 
-    def _search_analysis(self, session, query, genepanels):
-        analyses = (
-            session.query(sample.Analysis)
-            .filter(*self._get_analyses_filters(session, query, genepanels))
+    def _search_analysis(self, session, query, user):
+        analysis_ids = (
+            session.query(sample.Analysis.id)
+            .filter(*self._get_analyses_filters(session, query, user.group.genepanels))
             .distinct()
             .limit(SearchResource.ANALYSIS_LIMIT)
-            .all()
+            .scalar_all()
         )
-        if analyses:
-            aschema = schemas.AnalysisSchema()
-            return [aschema.dump(a).data for a in analyses]
-        else:
-            return []
+
+        return load_analyses(session, analysis_ids, user)
 
 
 class SearchOptionsResource(LogRequestResource):

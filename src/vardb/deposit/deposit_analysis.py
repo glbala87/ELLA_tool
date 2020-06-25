@@ -320,6 +320,8 @@ class DepositAnalysis(DepositFromVCF):
 
         """
         if deposit_usergroup_config.get("postprocess"):
+            # get_valid_filter_configs() sorts according to user group order,
+            # so first is the "default" filter
             filter_config_id = (
                 queries.get_valid_filter_configs(self.session, deposit_usergroup_id, db_analysis.id)
                 .first()
@@ -333,6 +335,15 @@ class DepositAnalysis(DepositFromVCF):
                     )  # FIXME: Has circular import, so must import here...
 
                     analysis_not_ready_warnings(
+                        self.session, db_analysis, db_analysis_interpretation, filter_config_id
+                    )
+                elif method == "analysis_tag_all_classified":
+                    print("analysis_tag_all_classified")
+                    from .postprocessors import (
+                        analysis_tag_all_classified,
+                    )  # FIXME: Has circular import, so must import here...
+
+                    analysis_tag_all_classified(
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
 

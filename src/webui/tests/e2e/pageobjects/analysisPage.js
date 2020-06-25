@@ -4,6 +4,9 @@ var util = require('./util')
 const SELECTOR_COMMENT_ACMG = 'acmg.id-staged-acmg-code wysiwyg-editor.id-comment-acmg'
 const SELECTOR_COMMENT_ACMG_EDITOR = `${SELECTOR_COMMENT_ACMG} .wysiwygeditor`
 
+const SELECTOR_GENE_COMMENT = '.id-comment-gene-assessment'
+const SELECTOR_GENE_COMMENT_EDITOR = '.id-comment-gene-assessment .wysiwygeditor'
+
 class AnalysisPage extends Page {
     get overviewLink() {
         return util.element('a#home-bttn')
@@ -66,6 +69,10 @@ class AnalysisPage extends Page {
 
     get addExcludedButton() {
         return util.element('button.id-add-excluded')
+    }
+
+    get allelebarGene() {
+        return util.element('.id-allelebar-gene')
     }
 
     getRounds() {
@@ -153,12 +160,32 @@ class AnalysisPage extends Page {
         this.finalizeButton.click()
         const finalizePossible = util.elementOrNull('.id-finalize-not-possible') === null
         // Close modal
-        $('body').click()
+        $('.modal-close').click()
         return finalizePossible
     }
 
     getSuggestedClass() {
         return util.element('.suggested-class').getText()
+    }
+
+    setGeneComment(comment) {
+        this.allelebarGene.click()
+        $('.gene-information').waitForDisplayed()
+        if ($(SELECTOR_GENE_COMMENT_EDITOR).getText() !== comment) {
+            $('.id-edit-gene-assessment').click()
+            util.elementIntoView(SELECTOR_GENE_COMMENT)
+            browser.setWysiwygValue(SELECTOR_GENE_COMMENT, SELECTOR_GENE_COMMENT_EDITOR, comment)
+            $('.id-update-gene-assessment').click()
+        }
+        this.allelebarGene.click()
+    }
+
+    getGeneComment() {
+        this.allelebarGene.click()
+        $('.gene-information').waitForDisplayed()
+        const text = $(SELECTOR_GENE_COMMENT_EDITOR).getText()
+        this.allelebarGene.click()
+        return text
     }
 }
 

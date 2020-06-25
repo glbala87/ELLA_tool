@@ -3,32 +3,6 @@
 import { Filter, Inject } from './ng-decorators'
 
 class Filters {
-    /*
-    Convert one or several gene panel values to a string value
-    */
-
-    @Filter({
-        filterName: 'omimLink'
-    })
-    // Retrun url of symbol search if the gene entry ID is missing
-    omimLinkFilter() {
-        return (entryID, symbol) => {
-            const base = 'https://www.omim.org/'
-            return entryID ? base + `entry/${entryID}` : base + `/search/?search=${symbol}`
-        }
-    }
-
-    @Filter({
-        filterName: 'hgmdLink'
-    })
-    hgmdLinkFilter() {
-        return (gene) => {
-            return gene
-                ? `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${gene}`
-                : ''
-        }
-    }
-
     @Filter({
         filterName: 'noUnderscores'
     })

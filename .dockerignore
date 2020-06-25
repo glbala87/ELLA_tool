@@ -3,7 +3,6 @@ attachments
 node_modules/
 IGV_DATA/
 **/*.pyc
-**/*.bam
 **/*.simg
 src/webui/build
 # made by e2e tests:

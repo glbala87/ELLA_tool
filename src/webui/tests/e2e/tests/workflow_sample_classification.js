@@ -163,6 +163,12 @@ describe('Sample workflow', function() {
             selected_allele = alleleSidebar.getSelectedAllele()
             console.log(`Classifying variant ${selected_allele} in loop with idx=${idx}`)
 
+            // Set gene comment
+            const alleleGene = alleleSidebar.getSelectedGene()
+            const geneComment = `GENE COMMENT FOR ${alleleGene}`
+            analysisPage.setGeneComment(geneComment)
+            expect(analysisPage.getGeneComment()).toBe(geneComment)
+
             // Add attachment
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(0)
             analysisPage.addAttachment()
@@ -226,6 +232,7 @@ describe('Sample workflow', function() {
 
             expected_analysis_1_round_1[selected_allele] = {
                 reviewed: true,
+                geneComment: geneComment,
                 references: {
                     '1': {
                         relevance: 'Yes',
@@ -438,7 +445,7 @@ describe('Sample workflow', function() {
     it('reuses the latest variant classification done in another sample', function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
-        sampleSelectionPage.selectClassified(1)
+        sampleSelectionPage.selectPending(1)
         checkAlleleClassification(expected_analysis_2_round_1)
     })
 })

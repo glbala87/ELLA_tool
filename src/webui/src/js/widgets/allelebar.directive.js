@@ -2,9 +2,10 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import getGenepanelValuesForAllele from '../store/common/computes/getGenepanelValuesForAllele'
+import getGenepanelValues from '../store/common/computes/getGenepanelValues'
+
 import template from './allelebar.ngtmpl.html'
-import phenotypesPopover from './allelebar/phenotypes_popover.ngtmpl.html'
+import genePopover from './allelebar/genePopover.ngtmpl.html'
 import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
 import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
 
@@ -63,11 +64,8 @@ app.component('allelebar', {
         {
             allele: state`${props`allelePath`}`,
             genepanel: state`${props`genepanelPath`}`,
-            genotypeDisplay,
-            genepanelValuesForAllele: getGenepanelValuesForAllele(
-                state`${props`genepanelPath`}`,
-                state`${props`allelePath`}`
-            )
+            genepanelValues: getGenepanelValues(state`${props`genepanelPath`}`),
+            genotypeDisplay
         },
         'AlleleBar',
         [
@@ -76,7 +74,6 @@ app.component('allelebar', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    getGenepanelValues: (symbol) => $ctrl.genepanelValuesForAllele[symbol],
                     formatCodons: (codons) => {
                         if (codons === undefined) return
 
@@ -91,6 +88,11 @@ app.component('allelebar', {
                                 return c.replace(/([ACGT]+)/, shortCodon)
                             })
                             .join('/')
+                    },
+                    hasGeneAssessment(hgnc_id) {
+                        return $ctrl.genepanel.geneassessments.filter(
+                            (ga) => ga.gene_id === hgnc_id
+                        ).length
                     }
                 })
             }

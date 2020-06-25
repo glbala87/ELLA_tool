@@ -7,7 +7,8 @@ app.component('confirmButton', {
     bindings: {
         ngDisabled: '<?',
         color: '@?',
-        confirmAction: '<' // Function to call upon confirm
+        confirmAction: '<', // Function to call upon confirm
+        confirmColor: '@?'
     },
     transclude: true,
     templateUrl: 'confirmButton.ngtmpl.html',
@@ -32,6 +33,18 @@ app.component('confirmButton', {
                     }
                     if ($ctrl.color) {
                         classes.push($ctrl.color)
+                    }
+                    return classes
+                },
+                getConfirmClasses() {
+                    const classes = []
+                    if (!$ctrl.needsConfirmation || $ctrl.ngDisabled) {
+                        classes.push('hidden')
+                    }
+                    if ($ctrl.confirmColor) {
+                        classes.push(`confirm-${$ctrl.confirmColor}`)
+                    } else {
+                        classes.push('confirm-green')
                     }
                     return classes
                 }

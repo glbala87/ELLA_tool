@@ -3,7 +3,7 @@
         <navbar></navbar>
     </div>
     <div class="main-navbar-secondary">
-        <overview-navbar></overview-navbar>
+        <overview-navbar ng-if="$ctrl.selectedSection === 'analyses'"></overview-navbar>
     </div>
     <div class="main-overview-sidebar">
         <div class="overview-sidenavbar">

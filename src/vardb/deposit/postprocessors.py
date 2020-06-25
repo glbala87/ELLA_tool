@@ -1,11 +1,10 @@
 import datetime
 import pytz
-from datalayer import SnapshotCreator
-from api import schemas
+from datalayer import SnapshotCreator, queries
+from vardb.datamodel import workflow, assessment, allele, annotation
 from api.v1.resources.workflow import helpers
 from datalayer import AlleleDataLoader
-from datalayer.workflowcategorization import categorize_analyses_by_findings
-from vardb.datamodel import workflow, annotation, assessment, allele
+from api.config import config
 
 
 def analysis_not_ready_warnings(session, analysis, interpretation, filter_config_id):
@@ -33,6 +32,43 @@ def analysis_not_ready_warnings(session, analysis, interpretation, filter_config
         interpretation.workflow_status = "Not ready"
 
 
+def analysis_tag_all_classified(session, analysis, interpretation, filter_config_id):
+    """
+    Adds an overview comment with a "category" for the analysis.
+
+    Currently adds:
+
+    - 'ALL CLASSIFIED' if the analysis has no variants
+    missing classification.
+
+    - 'NO VARIANTS' if the analysis has no variants
+    using the given filterconfig (which normally is the default one)
+    """
+
+    allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
+
+    # Get alleles with valid alleleassessments
+    allele_ids_with_alleleasssessment = (
+        session.query(assessment.AlleleAssessment.allele_id)
+        .filter(
+            assessment.AlleleAssessment.allele_id.in_(allele_ids),
+            *queries.valid_alleleassessments_filter(session)
+        )
+        .scalar_all()
+    )
+
+    if not allele_ids:
+        il = workflow.InterpretationLog(
+            analysisinterpretation_id=interpretation.id, review_comment="NO VARIANTS"
+        )
+        session.add(il)
+    elif not set(allele_ids) - set(allele_ids_with_alleleasssessment):
+        il = workflow.InterpretationLog(
+            analysisinterpretation_id=interpretation.id, review_comment="ALL CLASSIFIED"
+        )
+        session.add(il)
+
+
 def analysis_finalize_without_findings(session, analysis, interpretation, filter_config_id):
     """
     Finalizes analyses that are without findings at import time.
@@ -40,13 +76,29 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
     Interpretation is set to system user (id 1) and an entry
     is inserted into the log to indicate reason for finalization.
     """
-    aschema = schemas.AnalysisSchema()
-    dumped_analysis = aschema.dump(analysis).data
-    without_findings = bool(
-        categorize_analyses_by_findings(session, [dumped_analysis], filter_config_id)[
-            "without_findings"
-        ]
+
+    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+        session, interpretation, filter_config_id
     )
+
+    # Get classifications from config that is defined as not being a finding
+    classification_options = config["classification"]["options"]
+    classification_wo_findings = [
+        o["value"] for o in classification_options if not o.get("include_analysis_with_findings")
+    ]
+
+    allele_ids_without_findings = (
+        session.query(assessment.AlleleAssessment.allele_id)
+        .filter(
+            assessment.AlleleAssessment.allele_id.in_(allele_ids),
+            assessment.AlleleAssessment.classification.in_(classification_wo_findings),
+            *queries.valid_alleleassessments_filter(session)
+        )
+        .scalar_all()
+    )
+
+    # This implicitly also checks for any missing alleleassessments via allele_ids_without_findings
+    without_findings = set(allele_ids) - set(allele_ids_without_findings) == set()
 
     if without_findings and not analysis.warnings:
 
@@ -57,10 +109,6 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
             message="Analysis had no findings at time of import. Automatically finalized by system.",
         )
         session.add(il)
-
-        allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
-            session, interpretation, filter_config_id
-        )
 
         annotation_ids = (
             session.query(annotation.Annotation.id)

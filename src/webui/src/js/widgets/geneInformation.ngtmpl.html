@@ -1,0 +1,78 @@
+<div class="gene-information">
+    <h4 class="section-title">
+        Links:
+    </h4>
+    <a-clip
+        tippy-title="See gene info on HGNC"
+        href="https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:{{ $ctrl.hgncId }}"
+        >HGNC</a-clip
+    >, <a-clip tippy-title="See gene info on OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>,
+    <a-clip tippy-title="See gene info on HGMD Pro" href="{{ $ctrl.getHgmdLink() }}">HGMD</a-clip>
+    <h4 class="section-title id_inheritance">
+        Inheritance:
+    </h4>
+    {{ $ctrl.genepanelValues[$ctrl.hgncId].inheritance }}
+    <h4 class="section-title">Phenotypes</h4>
+    <ul class="popover-list indented">
+        <li ng-repeat="ph in $ctrl.genepanelValues[$ctrl.hgncId].phenotypes">
+            {{ ph.description }} ({{ ph.inheritance }})
+        </li>
+    </ul>
+    <h4 class="section-title">BS1/BA1 cutoff:</h4>
+    <ul class="popover-list indented">
+        <li>
+            External:
+            {{ $ctrl.getFrequencyExternal() }}
+            <span
+                style="color: red;"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.overridden"
+                >(overridden)</span
+            >
+        </li>
+        <li>
+            Internal:
+            {{ $ctrl.getFrequencyInternal() }}
+            <span
+                style="color: red;"
+                ng-if="$ctrl.genepanelValues[$ctrl.hgncId].freqCutoffsACMG.overridden"
+                >(overridden)</span
+            >
+        </li>
+    </ul>
+    <h4 class="section-title gene-information-title">Gene information:</h4>
+    <div class="comment-container" ng-if="$ctrl.hgncId">
+        <wysiwyg-editor
+            class="id-comment-gene-assessment comment-editor"
+            ng-disabled="!$ctrl.isCommmentEditable()"
+            ng-model="$ctrl.getGeneCommentModel().comment"
+            ng-change="$ctrl.geneCommentChanged()"
+        ></wysiwyg-editor>
+        <div class="comment-controls">
+            <button
+                class="id-edit-gene-assessment blue"
+                ng-if="!$ctrl.isCommmentEditable()"
+                ng-click="$ctrl.editClicked()"
+            >
+                EDIT
+            </button>
+            <confirm-button
+                class="id-undo-gene-assessment"
+                ng-if="$ctrl.isCommmentEditable()"
+                confirm-action="$ctrl.undoGeneAssessment"
+                ng-disabled="$ctrl.readOnly"
+                color="blue"
+                confirm-color="red"
+            >
+                Undo
+            </confirm-button>
+            <button
+                class="purple id-update-gene-assessment"
+                ng-if="$ctrl.isCommmentEditable()"
+                ng-click="$ctrl.updateGeneAssessmentClicked({geneAssessment: $ctrl.userGeneAssessment})"
+                ng-disabled="!$ctrl.isGeneCommentChanged()"
+            >
+                Update
+            </button>
+        </div>
+    </div>
+</div>
