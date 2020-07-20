@@ -41,6 +41,7 @@ class SearchQuery:
         self.hgvsp = None
         self.hgvsc = None
         self.freetext = None
+        self.page = 1
 
         self._set_query(query)
 
@@ -93,6 +94,9 @@ class SearchQuery:
                     self.hgvsp = hgvs
                 elif "c." in hgvs.lower():
                     self.hgvsc = hgvs.lower()
+
+        if query.get("page") and query["page"] > self.page:
+            self.page = query["page"]
 
     def is_valid_freetext(self):
         return self.freetext and len(self.freetext) > 2 and self.check()
@@ -210,6 +214,9 @@ class SearchResource(LogRequestResource):
                     $ref: '#/definitions/Analysis'
                   alleleassessments:
                     $ref: '#/definitions/AlleleAssessment'
+                  page:
+                    type: number
+                    description: Page of search results
             description: Search result
         """
         query = request.args.get("q")
@@ -483,6 +490,7 @@ class SearchResource(LogRequestResource):
         allele_results_ids = (
             self._get_allele_results_ids(session, search_query)
             .limit(SearchResource.ALLELE_LIMIT)
+            .offset(self.ALLELE_LIMIT * (search_query.page - 1))
             .cte()
         )
 
@@ -512,6 +520,7 @@ class SearchResource(LogRequestResource):
             .filter(*self._get_analyses_filters(session, query, user.group.genepanels))
             .distinct()
             .limit(SearchResource.ANALYSIS_LIMIT)
+            .offset(self.ANALYSIS_LIMIT * (query.page - 1))
             .scalar_all()
         )
 

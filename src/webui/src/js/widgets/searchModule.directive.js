@@ -42,6 +42,15 @@ app.component('search', {
                     getSearchTypes: () => {
                         return TYPES
                     },
+                    nextPage: () => {
+                        if ($ctrl.results.alleles.length >= 10) {
+                            $ctrl.queryChanged({
+                                query: Object.assign({}, $ctrl.query, {
+                                    page: $ctrl.query.page + 1
+                                })
+                            })
+                        }
+                    },
                     optionSelected: (key, newValue) => {
                         // A bit hackish due to angular-selector not
                         // updating model before calling function.
@@ -49,6 +58,15 @@ app.component('search', {
                         $ctrl.queryChanged({
                             query: Object.assign({}, $ctrl.query, { [key]: newValue })
                         })
+                    },
+                    previousPage: () => {
+                        if ($ctrl.query.page > 1) {
+                            $ctrl.queryChanged({
+                                query: Object.assign({}, $ctrl.query, {
+                                    page: $ctrl.query.page - 1
+                                })
+                            })
+                        }
                     },
                     updateGeneOptions: (term) => {
                         // angular-selector needs a returned Promise, although
