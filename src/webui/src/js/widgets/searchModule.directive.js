@@ -55,9 +55,12 @@ app.component('search', {
                         // A bit hackish due to angular-selector not
                         // updating model before calling function.
                         // Copy the query and merge in changes
-                        $ctrl.queryChanged({
-                            query: Object.assign({}, $ctrl.query, { [key]: newValue })
-                        })
+
+                        const newQuery = Object.assign({}, $ctrl.query, { [key]: newValue })
+                        if (key != 'page') {
+                            newQuery.page = 1
+                        }
+                        $ctrl.queryChanged({ query: newQuery })
                     },
                     previousPage: () => {
                         if ($ctrl.query.page > 1) {
