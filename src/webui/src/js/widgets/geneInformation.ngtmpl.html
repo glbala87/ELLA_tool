@@ -2,12 +2,12 @@
     <h4 class="section-title">
         Links:
     </h4>
-    <a-clip
-        tippy-title="See gene info on HGNC"
-        href="https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:{{ $ctrl.hgncId }}"
-        >HGNC</a-clip
-    >, <a-clip tippy-title="See gene info on OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>,
-    <a-clip tippy-title="See gene info on HGMD Pro" href="{{ $ctrl.getHgmdLink() }}">HGMD</a-clip>
+    <a-clip tippy-title="See gene symbol report in HGNC" href="https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:{{ $ctrl.hgncId }}">HGNC</a-clip> • 
+    <a-clip tippy-title="See gene info in OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>,
+    <a-clip tippy-title="See ClinGen gene curation summaries" href="https://search.clinicalgenome.org/kb/genes/HGNC:{{ $ctrl.hgncId }}">ClinGen</a-clip>
+    <a-clip tippy-title="See gene summary in HGMD Pro" href="{{ $ctrl.getHgmdLink() }}">HGMD</a-clip> • 
+    <a-clip tippy-title="See gene panels with gene in PanelApp" href="https://panelapp.genomicsengland.co.uk/panels/entities/{{ $ctrl.hgncSymbol }}">PanelApp</a-clip>,
+    <a-clip tippy-title="See ACMG Recommendations for Reporting of Incidental Findings gene list" href="https://www.ncbi.nlm.nih.gov/clinvar/docs/acmg/">ACMG Incidental</a-clip>
     <h4 class="section-title id_inheritance">
         Inheritance:
     </h4>
