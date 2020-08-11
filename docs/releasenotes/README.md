@@ -6,10 +6,23 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.11](#version-1-11)|
+[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.11.1
+
+Release date: 17.08.2020
+
+### Highlights
+
+This release adds support for haploid genotypes. 
+
+### All changes
+<!-- MR !437 -->
+- Added support for haploid genotypes.
+
 
 ## Version 1.11
 
