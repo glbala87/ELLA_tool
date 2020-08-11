@@ -14,13 +14,12 @@
         >ClinGen</a-clip
     >,
     <a-clip tippy-title="See gene summary in HGMD Pro" href="{{ $ctrl.getHgmdLink() }}">HGMD</a-clip
-    >,
+    >, <a-clip tippy-title="See gene info in OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>,
     <a-clip
         tippy-title="See gene panels with this gene in PanelApp"
         href="https://panelapp.genomicsengland.co.uk/panels/entities/{{ $ctrl.hgncSymbol }}"
         >PanelApp</a-clip
-    >,
-    <a-clip tippy-title="See gene info in OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>
+    >
     •
     <a-clip
         tippy-title="See ACMG Recommendations for Reporting of Incidental Findings gene list"
