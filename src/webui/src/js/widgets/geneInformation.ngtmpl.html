@@ -1,34 +1,34 @@
 <div class="gene-information">
     <h4 class="section-title">
-        Links:
+        Links
     </h4>
     <a-clip
         tippy-title="See gene symbol report in HGNC"
         href="https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:{{ $ctrl.hgncId }}"
         >HGNC</a-clip
     >
-    • <a-clip tippy-title="See gene info in OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>,
+    •
     <a-clip
         tippy-title="See ClinGen gene curation summaries"
         href="https://search.clinicalgenome.org/kb/genes/HGNC:{{ $ctrl.hgncId }}"
         >ClinGen</a-clip
-    >
-    <a-clip tippy-title="See gene summary in HGMD Pro" href="{{ $ctrl.getHgmdLink() }}"
-        >HGMD</a-clip
-    >
-    •
+    >,
+    <a-clip tippy-title="See gene summary in HGMD Pro" href="{{ $ctrl.getHgmdLink() }}">HGMD</a-clip
+    >,
     <a-clip
-        tippy-title="See gene panels with gene in PanelApp"
+        tippy-title="See gene panels with this gene in PanelApp"
         href="https://panelapp.genomicsengland.co.uk/panels/entities/{{ $ctrl.hgncSymbol }}"
         >PanelApp</a-clip
     >,
+    <a-clip tippy-title="See gene info in OMIM" href="{{ $ctrl.getOmimLink() }}">OMIM</a-clip>
+    •
     <a-clip
         tippy-title="See ACMG Recommendations for Reporting of Incidental Findings gene list"
         href="https://www.ncbi.nlm.nih.gov/clinvar/docs/acmg/"
         >ACMG Incidental</a-clip
     >
     <h4 class="section-title id_inheritance">
-        Inheritance:
+        Inheritance
     </h4>
     {{ $ctrl.genepanelValues[$ctrl.hgncId].inheritance }}
     <h4 class="section-title">Phenotypes</h4>
@@ -37,7 +37,7 @@
             {{ ph.description }} ({{ ph.inheritance }})
         </li>
     </ul>
-    <h4 class="section-title">BS1/BA1 cutoff:</h4>
+    <h4 class="section-title">BS1/BA1 cutoff</h4>
     <ul class="popover-list indented">
         <li>
             External:
@@ -58,7 +58,7 @@
             >
         </li>
     </ul>
-    <h4 class="section-title gene-information-title">Gene information:</h4>
+    <h4 class="section-title">Gene comments</h4>
     <div class="comment-container" ng-if="$ctrl.hgncId">
         <wysiwyg-editor
             class="id-comment-gene-assessment comment-editor"
