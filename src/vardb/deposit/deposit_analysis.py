@@ -27,7 +27,7 @@ from .deposit_from_vcf import DepositFromVCF
 log = logging.getLogger(__name__)
 
 
-VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1"]
+VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1", "1"]
 
 
 class PrefilterBatchGenerator:
@@ -89,7 +89,7 @@ class PrefilterBatchGenerator:
             )
             checks = {
                 "non_multiallelic": r["SAMPLES"][self.proband_sample_name]["GT"]
-                in ["0/1", "1/1", "1|0", "0|1", "1|1"],
+                in ["0/1", "1/1", "1|0", "0|1", "1|1", "1"],
                 "hi_frequency": "GNOMAD_GENOMES" in r["INFO"]["ALL"]
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AN"] > 5000,
@@ -109,7 +109,6 @@ class PrefilterBatchGenerator:
                 self.previous_record_imported = False
 
             self.previous_record = r
-
         return result_records
 
     @staticmethod
@@ -228,7 +227,7 @@ class MultiAllelicBlockIterator(object):
                 if "." in sample_gt:
                     add_record_to_block = True
 
-                if sample_gt not in ["./.", ".|."]:
+                if sample_gt not in ["./.", ".|.", "."]:
                     self.sample_has_coverage[sample_name] = True
 
                 if sample_gt in ["1/.", "./1", ".|1", "1|."]:
@@ -338,7 +337,6 @@ class DepositAnalysis(DepositFromVCF):
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
                 elif method == "analysis_tag_all_classified":
-                    print("analysis_tag_all_classified")
                     from .postprocessors import (
                         analysis_tag_all_classified,
                     )  # FIXME: Has circular import, so must import here...

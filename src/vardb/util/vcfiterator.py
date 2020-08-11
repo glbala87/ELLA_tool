@@ -421,7 +421,8 @@ class DataParser(object):
         for sample_name in self.samples:
             sample_text = data.pop(sample_name)
             samples[sample_name] = {
-                k: extract(v) for k, v in zip(sample_format, sample_text.split(":"))
+                k: extract(v) if k != "GT" else v  # Don't convert GT to number (can be "1" or "0")
+                for k, v in zip(sample_format, sample_text.split(":"))
             }
 
         data["SAMPLES"] = samples

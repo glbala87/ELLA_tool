@@ -491,14 +491,22 @@ class GenotypeImporter(object):
             "1/.": "Heterozygous",
             "./1": "Heterozygous",
             "1/1": "Homozygous",
+            "1": "Homozygous",
             "0/.": "Reference",  # Not applicable to proband samples
             "0/0": "Reference",  # Not applicable to proband samples
-            "./.": "Reference",  # Note exception in add()
+            "./.": "Reference",  # Note exception in add(),
+            ".": "Reference",  # Note exception in add(),
+            "0": "Reference",
         }
 
     def is_sample_hom(self, record):
-        gt1, gt2 = record["GT"].split("/", 1)
-        return gt1 == gt2 == "1"
+        if record["GT"] == "1":
+            return True
+        elif record["GT"] == "0":
+            return False
+        else:
+            gt1, gt2 = record["GT"].split("/", 1)
+            return gt1 == gt2 == "1"
 
     def remove_phasing(self, record):
         phasing_removed = False
@@ -645,7 +653,10 @@ class GenotypeImporter(object):
                 if not isinstance(genotype_likelihood, list) or multiallelic:
                     genotype_likelihood = None
 
-                if record_sample["GT"] == "./." and sample.identifier in samples_missing_coverage:
+                if (
+                    record_sample["GT"] in ["./.", "."]
+                    and sample.identifier in samples_missing_coverage
+                ):
                     genotype_type = "No coverage"
                 else:
                     genotype_type = self.types[record_sample["GT"]]
