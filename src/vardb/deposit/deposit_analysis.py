@@ -115,6 +115,10 @@ class PrefilterBatchGenerator:
     def _is_nearby(prev, current):
         return abs(prev["POS"] - current["POS"]) <= 3 and prev["CHROM"] == current["CHROM"]
 
+    @staticmethod
+    def _is_multiallelic(current):
+        return BlockIterator.get_block_id(current) is not None
+
     def __next__(self):
 
         batch = list()
@@ -145,10 +149,13 @@ class PrefilterBatchGenerator:
             batch.append(prev)
 
             # Keep loading until we hit batch_size AND the current value is not nearby the previous one
+            # AND the current row is not part of a multiallelic site
             is_nearby = prev and self._is_nearby(prev, current)
             prev = current
             if (
-                len(batch) >= (self.batch_size - 1) and not is_nearby
+                len(batch) >= (self.batch_size - 1)
+                and not is_nearby
+                and not self._is_multiallelic(current)
             ):  # Batch size influences no. of db queries
                 batch.append(current)
                 break
@@ -169,9 +176,9 @@ class PrefilterBatchGenerator:
         return self
 
 
-class MultiAllelicBlockIterator(object):
+class BlockIterator(object):
     """
-    Generates "blocks" of multiallelic records from a batch of records.
+    Generates "blocks" of potentially multiallelic records from a batch of records.
 
     Due to the nature of decomposed + normalized variants, we need to be careful how we
     process the data. Variants belonging to the same sample's genotype can be on different positions
@@ -193,7 +200,6 @@ class MultiAllelicBlockIterator(object):
     def __init__(self, proband_sample_name, sample_names):
         self.proband_sample_name = proband_sample_name
         self.sample_names = sample_names
-        self.needs_secondallele = {s: False for s in sample_names}
         self.sample_has_coverage = {s: False for s in sample_names}
         self.proband_alleles = (
             []
@@ -205,8 +211,25 @@ class MultiAllelicBlockIterator(object):
             []
         )  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
 
+    @staticmethod
+    def get_block_id(record):
+        return record["INFO"]["ALL"].get("OLD_MULTIALLELIC")
+
     def iter_blocks(self, batch, alleles):
-        for record in batch:
+        def is_end_of_block(batch, i):
+            # print(i, len(batch), BlockIterator.get_block_id(batch[i]))
+
+            if i == len(batch) - 1:  # End of batch -> end of block
+                return True
+            elif BlockIterator.get_block_id(batch[i]) is None:  # Not on a multiallelic block
+                return True
+            else:
+                # If the next item is on the same multiallelic block, then we need to continue block
+                return BlockIterator.get_block_id(batch[i]) != BlockIterator.get_block_id(
+                    batch[i + 1]
+                )
+
+        for i, record in enumerate(batch):
             add_record_to_block = False
             if record["SAMPLES"][self.proband_sample_name]["GT"] in VARIANT_GENOTYPES:
 
@@ -230,13 +253,10 @@ class MultiAllelicBlockIterator(object):
                 if sample_gt not in ["./.", ".|.", "."]:
                     self.sample_has_coverage[sample_name] = True
 
-                if sample_gt in ["1/.", "./1", ".|1", "1|."]:
-                    self.needs_secondallele[sample_name] = not self.needs_secondallele[sample_name]
-
             if add_record_to_block:
                 self.block_records.append(record)
 
-            if not any(self.needs_secondallele.values()):
+            if is_end_of_block(batch, i):
                 if self.proband_records:
                     assert (len(self.proband_records) == 1 and len(self.proband_alleles) == 1) or (
                         len(self.proband_records) == 2 and len(self.proband_alleles) == 2
@@ -442,7 +462,7 @@ class DepositAnalysis(DepositFromVCF):
         imported_records_count = 0
 
         proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
-        block_iterator = MultiAllelicBlockIterator(proband_sample_name, vcf_sample_names)
+        block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
 
         prefilter = deposit_usergroup_config.get("prefilter", False)
         # prefiltered_records are proband-only, filtered records
