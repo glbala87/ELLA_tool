@@ -409,7 +409,7 @@ def create_vcf(variants, sample_names):
         )
         variant_data["annotation"] = DEFAULT_ANNOTATION
         if additional_annotation:
-            variant_data["annotation"] = ";" + additional_annotation
+            variant_data["annotation"] += ";" + additional_annotation
         vcf_data += "\n" + VCF_LINE_TEMPLATE.format(**variant_data)
 
     return vcf_data
@@ -425,10 +425,19 @@ def v(chr, pos, ref, alt, samples=None):
 ALLELE_ALT = "T"
 
 
-def gv(samples):
+def gv(samples, annotation=None):
     global ALLELE_ALT
     ALLELE_ALT += "T"
-    variant = {"chromosome": "5", "pos": 123, "ref": "A", "alt": ALLELE_ALT, "annotation": {}}
+    if annotation is None:
+        annotation = {}
+    variant = {
+        "chromosome": "5",
+        "pos": 123,
+        "ref": "A",
+        "alt": ALLELE_ALT,
+        "annotation": annotation,
+    }
+
     variant["samples"] = samples
     return variant
 
@@ -445,87 +454,91 @@ def s_gt(gt):
 @st.composite
 def block_strategy(draw, samples):
     """
-    Generates a multiallelic "block" for multiple samples.
+    Generates a multiallelic "block" for multiple samples, by creating a composed genotype and then decomposing it.
+
+    Returns a list where each element corresponds to the samples genotypes for a variant.
     """
 
-    # Genotypes that say something and are not just 'fillers'
-    genotypes = ["0/1", "1/1", "0/0", "./.", "0|1", "1|0", "0|0", ".|."]
-    multiallelic_genotypes = genotypes + ["1/.", "./1", "1|.", ".|1"]
-    block = list()
+    block = []
+    ploidity = {sample: draw(st.sampled_from([2, 1])) for sample in samples}
+    block_size = draw(st.integers(min_value=2, max_value=len(samples) * 2))
 
-    # Track whether the genotype for each sample.
-    # If a sample has started a block ('1/.')
-    # it will need to finish it later ('./1').
-    # If it has "used up" it's genotype already, it cannot make a new one,
-    # but has to insert '0/.' or '0/0.
-    sample_genotype = dict()  # {sample_name1: '1/.', sample_name2: './1'}
+    def decompose_genotype(gt):
+        """
+        Creates decomposed genotypes for a given composed genotype.
 
-    block_size = draw(st.integers(min_value=1, max_value=len(samples) * 2))
-    for idx in range(block_size):
-        block_samples = list()
-        for sample in samples:
-            if sample not in sample_genotype:
-                # Get our base genotype
-                if block_size == 1:
-                    gt = draw(st.sampled_from(genotypes))
+        Examples:
+        (0, 0) => [(0, 0)]]
+        (0, 1) => [(0, 1)]]
+        (1, 1) => [(1, 1)]]
+        (2, 1) => [(".", 1), (1, ".")]]
+        (0, 2) => [(0, "."), (0, 1)]]
+        (1, 3) => [(1, "."), (".", "."), (".", 1)]]
+
+        """
+        decomposed = []
+        if max(gt) <= 1:
+            return [gt]
+
+        num_genotypes = max(gt)
+        ploidity = len(gt)
+        is_reference = [False] * ploidity
+
+        for i in range(1, num_genotypes + 1):
+            x = [None] * ploidity
+            for j in range(ploidity):
+                if gt[j] == 0:
+                    is_reference[j] = True
+
+                if i == gt[j] and i > 0:
+                    x[j] = 1
+                elif is_reference[j]:
+                    x[j] = 0
                 else:
-                    gt = draw(st.sampled_from(genotypes + ["1/.", "1|."]))
-            else:
-                # Multiallelic case
-                # This is rather complex, we need to check what genotype
-                # we picked for this sample and insert sensible
-                # filler genotypes for the rest of the block
+                    x[j] = "."
 
-                if block_size > 1:
-                    sample_gt = tuple(sample_genotype[sample][::2])
-                    phasing = sample_genotype[sample][1]
-                    # Block as been started and last round -> finish it
-                    if sample_gt == ("1", ".") and idx == block_size - 1:
-                        gt = (".", "1")
-                    # Block has been started, not last round ->
-                    # random pick of finishing it or null data
-                    elif sample_gt == ("1", ".") and idx != block_size - 1:
-                        # We cannot risk ending all samples with './1'
-                        # when we're not on the record in the block
-                        # since one sample needs to end the block
-                        if (
-                            len(
-                                [
-                                    a
-                                    for a in list(sample_genotype.values())
-                                    if tuple(a[::2]) == ("1", ".")
-                                ]
-                            )
-                            > 1
-                        ):
-                            gt = draw(st.sampled_from([(".", "1"), (".", ".")]))
-                        else:
-                            gt = (".", ".")
-                    # Already ended, cannot have more variants
-                    elif sample_gt == (".", "1"):
-                        gt = (".", ".")
-                    # Heterozygous variant, will not have others (they are other positions)
-                    elif sample_gt in [("0", "1"), ("1", "0")]:
-                        gt = ("0", ".")
-                    elif sample_gt == ("1", "1"):
-                        gt = (".", ".")
-                    elif sample_gt == ("0", "0"):
-                        gt = ("0", "0")
-                    # If no coverage on initial draw, keep giving no coverage
-                    elif sample_gt == (".", "."):
-                        gt = (".", ".")
-                    else:
-                        assert False, "Shouldn't happen: {}".format(sample_gt)
+            decomposed.append(tuple(x))
+        return decomposed
 
-                    gt = phasing.join(gt)
+    sample_genotypes = {}
+    for sample in samples:
+        phasing = draw(st.sampled_from(["/", "|"]))
 
-            if gt in multiallelic_genotypes:
-                # Don't overwrite original genotype with './.
-                if sample not in sample_genotype or tuple(gt[::2]) != (".", "."):
-                    sample_genotype[sample] = gt
+        # Create a composed genotype
+        gt = draw(
+            st.tuples(*[st.integers(min_value=0, max_value=block_size - 1)] * ploidity[sample])
+        )
+
+        # Decompose genotype
+        decomposed = decompose_genotype(gt)
+
+        # Add "filler" genotypes for remaining records
+        while len(decomposed) < block_size:
+            filler = []
+            for i in range(ploidity[sample]):
+                if any(g[i] == 0 for g in decomposed):
+                    assert all(g[i] == 0 for g in decomposed)
+                    filler.append(0)
+                else:
+                    filler.append(".")
+            decomposed.append(tuple(filler))
+
+        # Debug: print decomposed genotype
+        # print(sample, gt, "-->", decomposed)
+
+        # Create genotype strings
+        sample_genotypes[sample] = [phasing.join(str(x) for x in dgt) for dgt in decomposed]
+
+    for record in range(block_size):
+        record_samples = []
+        variant_in_record = False
+        for sample in samples:
+            gt = sample_genotypes[sample][record]
+            if "1" in gt:
+                variant_in_record = True
 
             # Draw from a limited pool to avoid too many combinations
-            block_samples.append(
+            record_samples.append(
                 s(
                     gt,
                     # AD (nonsensical values as we don't take GT into account)
@@ -545,19 +558,12 @@ def block_strategy(draw, samples):
                     ),
                 )
             )
-        # If we have a block, at least one sample must start with '1/.',
-        # or it makes no sense
-        if idx == 1 and block_size > 1:
-            assume(any(a == "1/." for a in list(sample_genotype.values())))
-        if block_size > 1 and idx == block_size - 1:
-            assume(any(a == "./1" for a in list(sample_genotype.values())))
 
-        block.append(block_samples)
-    log.debug("Created block of size {} with {} samples".format(block_size, len(samples)))
+        # Skip block if it doesn't contain variants for any of the samples
+        if variant_in_record:
+            block.append(record_samples)
 
-    # Debug: Print GTs the block
-    # for b in block:
-    #    print([sa['GT'] for sa in b])
+    assume(block)
 
     return block
 
@@ -628,9 +634,14 @@ def vcf_family_strategy(draw, max_num_samples):
         sample_names += ["SIBLING_{}".format(idx - 3) for idx in range(3, num_samples)]
     block = draw(block_strategy(sample_names))
 
-    variants = [gv(s) for s in block]
-    vcf = create_vcf(variants, sample_names)
+    # Add OLD_MULTIALLELIC to annotation if this block is multiallelic
+    # (it doesn't matter what this is, as long as it is unique for the specific block)
+    annotation = {}
+    if len(block) > 1:
+        annotation["OLD_MULTIALLELIC"] = draw(st.uuids())
+
+    variants = [gv(s, annotation) for s in block]
 
     ped, ped_info = draw(pedigree_strategy(sample_names))
     meta = {"variants": variants, "sample_names": sample_names, "ped_info": ped_info}
-    return vcf, ped, meta
+    return variants, sample_names, ped, meta

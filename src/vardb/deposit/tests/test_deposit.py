@@ -9,7 +9,7 @@ from sqlalchemy import or_
 from vardb.deposit.deposit_analysis import DepositAnalysis, PrefilterBatchGenerator
 from vardb.datamodel.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele, assessment
-from .vcftestgenerator import vcf_family_strategy
+from .vcftestgenerator import vcf_family_strategy, create_vcf
 
 import logging
 
@@ -57,13 +57,7 @@ def prefilter_batch_strategy(draw, max_size=5):
             "REF": "A",
             "ALT": ["T"],
             "SAMPLES": {
-                "TEST_SAMPLE": {
-                    "GT": draw(
-                        st.sampled_from(
-                            ["0/1", "./.", "./1", "1/.", "0|1", "1|0", ".|.", ".|1", "1|."]
-                        )
-                    )
-                }
+                "TEST_SAMPLE": {"GT": draw(st.sampled_from(["0/1", "./.", "./1", "1/.", "1", "."]))}
             },
             "INFO": {"ALL": {}},
         }
@@ -142,7 +136,9 @@ def prefilter_batch_strategy(draw, max_size=5):
             "REF": "A",
             "ALT": ["T"],
             "SAMPLES": {"TEST_SAMPLE": {"GT": "./1"}},
-            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
+            "INFO": {
+                "ALL": {"OLD_MULTIALLELIC": "1", "GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}
+            },
             "__HAS_CLASSIFICATION": False,
         },
         {
@@ -151,32 +147,9 @@ def prefilter_batch_strategy(draw, max_size=5):
             "REF": "A",
             "ALT": ["T"],
             "SAMPLES": {"TEST_SAMPLE": {"GT": "1/."}},
-            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
-            "__HAS_CLASSIFICATION": False,
-        },
-    ],
-    1,
-    [1, 10],
-)
-# Multiallelic
-@ht.example(
-    [
-        {
-            "CHROM": "1",
-            "POS": 1,
-            "REF": "A",
-            "ALT": ["T"],
-            "SAMPLES": {"TEST_SAMPLE": {"GT": ".|1"}},
-            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
-            "__HAS_CLASSIFICATION": False,
-        },
-        {
-            "CHROM": "1",
-            "POS": 10,
-            "REF": "A",
-            "ALT": ["T"],
-            "SAMPLES": {"TEST_SAMPLE": {"GT": "1|."}},
-            "INFO": {"ALL": {"GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}},
+            "INFO": {
+                "ALL": {"OLD_MULTIALLELIC": "1", "GNOMAD_GENOMES": {"AF": [0.051], "AN": 5001}}
+            },
             "__HAS_CLASSIFICATION": False,
         },
     ],
@@ -228,7 +201,6 @@ def prefilter_batch_strategy(draw, max_size=5):
 )
 @ht.given(prefilter_batch_strategy(), st.integers(1, 5), st.just(None))
 def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_result):
-
     # Insert classifications if applicable
     session.execute("DELETE FROM alleleassessment")
 
@@ -287,7 +259,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
         assert manually_curated_result == total_prefiltered_pos
 
     included = list()
-    proband_batch = [r for r in batch if r["SAMPLES"]["TEST_SAMPLE"]["GT"] not in ["./.", ".|."]]
+    proband_batch = [r for r in batch if r["SAMPLES"]["TEST_SAMPLE"]["GT"] not in ["./.", "."]]
     for idx, r in enumerate(proband_batch):
 
         if idx == 0:
@@ -303,8 +275,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
 
         nearby = abs(r["POS"] - prev_pos) <= 3 or abs(r["POS"] - next_pos) <= 3
         checks = {
-            "not_multiallelic": r["SAMPLES"]["TEST_SAMPLE"]["GT"]
-            in ["0/1", "1/1", "1|0", "0|1", "1|1"],
+            "not_multiallelic": r["SAMPLES"]["TEST_SAMPLE"]["GT"] in ["0/1", "1/1", "1"],
             "hi_freq": (
                 "GNOMAD_GENOMES" in r["INFO"]["ALL"]
                 and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
@@ -320,13 +291,15 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
 
 
 @ht.given(vcf_family_strategy(6))
-@ht.settings(deadline=None, max_examples=100)  # A bit heavy, so few tests by default
+@ht.settings(deadline=None, max_examples=300)  # A bit heavy, so few tests by default
 def test_analysis_multiple(session, vcf_data):
     global ANALYSIS_NUM
     ANALYSIS_NUM += 1
     analysis_name = "TEST_ANALYSIS {}".format(ANALYSIS_NUM)
 
-    vcf_string, ped_string, meta = vcf_data
+    variants, sample_names, ped_string, meta = vcf_data
+
+    vcf_string = create_vcf(variants, sample_names)
 
     # Import generated analysis
     with tempinput(vcf_string) as vcf_file:
@@ -368,7 +341,9 @@ def test_analysis_multiple(session, vcf_data):
     proband_variants = [v for v in meta["variants"] if "1" in v["samples"][0]["GT"]]
     no_coverage_samples = list()
     for idx, sample_name in enumerate(meta["sample_names"]):
-        if all(tuple(v["samples"][idx]["GT"][::2]) == (".", ".") for v in meta["variants"]):
+        if all(
+            tuple(v["samples"][idx]["GT"][::2]) in [(".", "."), (".",)] for v in meta["variants"]
+        ):
             no_coverage_samples.append(sample_name)
 
     # Start checking data
@@ -471,13 +446,13 @@ def test_analysis_multiple(session, vcf_data):
                 continue
             for sample_name, data in fixtures[key]["sample_data"].items():
                 gsd = fixtures[key]["genotypesampledata"][sample_name]
-                if tuple(data["GT"][::2]) == ("1", "1"):
+                if tuple(data["GT"][::2]) in [("1", "1"), ("1",)]:
                     gsd_type = "Homozygous"
                 elif tuple(data["GT"][::2]) in [("0", "1"), ("1", "0"), ("1", "."), (".", "1")]:
                     gsd_type = "Heterozygous"
-                elif tuple(data["GT"][::2]) in [("0", "0"), ("0", "."), (".", "0")]:
+                elif tuple(data["GT"][::2]) in [("0", "0"), ("0", "."), (".", "0"), ("0",)]:
                     gsd_type = "Reference"
-                elif tuple(data["GT"][::2]) == (".", "."):
+                elif tuple(data["GT"][::2]) in [(".", "."), (".",)]:
                     # Proband cannot be reference for it's own variants
                     assert sample_name != "PROBAND"
                     if sample_name in no_coverage_samples:
