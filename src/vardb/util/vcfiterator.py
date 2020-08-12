@@ -2,6 +2,9 @@ import sys
 from collections import defaultdict
 import re
 import abc
+import logging
+
+log = logging.getLogger(__name__)
 
 
 # Official fields in specification
@@ -9,6 +12,8 @@ SPEC_FIELDS = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FO
 
 
 class Util(object):
+    warnings = set()
+
     @staticmethod
     def conv_to_number(value):
         """
@@ -53,6 +58,20 @@ class Util(object):
             # Reset file object and return
             path_or_fileobject.seek(0)
             return path_or_fileobject
+
+    @staticmethod
+    def convert_genotype(value):
+        if "|" in value:
+            value = value.replace("|", "/")
+            Util.warnings.add("Phased data detected. Phasing will be ignored.")
+        value = value.replace("1/0", "0/1").replace("./0", "0/.")
+        return value
+
+    @staticmethod
+    def log_warnings():
+        for warning in Util.warnings:
+            log.warning(warning)
+        Util.warnings = set()
 
 
 class BaseInfoProcessor(abc.ABC):
@@ -418,10 +437,15 @@ class DataParser(object):
 
         samples = dict()
         extract = Util.split_and_convert(Util.conv_to_number, extract_single=True)
+        extract_gt = Util.split_and_convert(Util.convert_genotype, extract_single=True)
         for sample_name in self.samples:
             sample_text = data.pop(sample_name)
             samples[sample_name] = {
-                k: extract(v) if k != "GT" else v  # Don't convert GT to number (can be "1" or "0")
+                k: extract(v)
+                if k != "GT"
+                else extract_gt(
+                    v
+                )  # Special logic for converting GT. Remove phasing and order alleles.
                 for k, v in zip(sample_format, sample_text.split(":"))
             }
 
@@ -467,6 +491,8 @@ class DataParser(object):
                         )
 
                 yield data
+
+        Util.log_warnings()
 
 
 class VcfIterator(object):
