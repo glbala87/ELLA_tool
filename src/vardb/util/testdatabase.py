@@ -60,11 +60,7 @@ class TestDatabase(object):
         with open(os.devnull, "w") as f:
             # Connect to template1 so we can remove whatever db name
             subprocess.check_call(
-                "psql postgresql:///template1 < {path}".format(
-                    uri=os.environ["DB_URL"], path=dump_path
-                ),
-                shell=True,
-                stdout=f,
+                "psql postgresql:///template1 < {path}".format(path=dump_path), shell=True, stdout=f
             )
 
         # Update mapping of annotation shadow tables based on global config
