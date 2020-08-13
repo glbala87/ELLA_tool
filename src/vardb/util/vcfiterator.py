@@ -3,6 +3,7 @@ from collections import defaultdict
 import re
 import abc
 import logging
+from typing import Set
 
 log = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ SPEC_FIELDS = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FO
 
 
 class Util(object):
-    warnings = set()
+    warnings: Set = set()
 
     @staticmethod
     def conv_to_number(value):
@@ -469,7 +470,7 @@ class DataParser(object):
 
         return data
 
-    def iter(self, throw_exceptions=True):
+    def iter(self, include_raw=False, throw_exceptions=True):
         found_data_start = False
         with Util.open(self.path_or_fileobject) as fd:
             for line_idx, line in enumerate(fd):
@@ -489,8 +490,10 @@ class DataParser(object):
                         sys.stderr.write(
                             "WARNING: Line {} failed to parse: \n {}".format(line_idx, line)
                         )
-
-                yield data
+                if include_raw:
+                    yield line, data
+                else:
+                    yield data
 
         Util.log_warnings()
 
@@ -517,8 +520,8 @@ class VcfIterator(object):
     def addInfoProcessor(self, processor):
         self.data_parser.addInfoProcessor(processor)
 
-    def iter(self, throw_exceptions=True):
-        for r in self.data_parser.iter(throw_exceptions=throw_exceptions):
+    def iter(self, include_raw=False, throw_exceptions=True):
+        for r in self.data_parser.iter(include_raw=include_raw, throw_exceptions=throw_exceptions):
             yield r
 
 
