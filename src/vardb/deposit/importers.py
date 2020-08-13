@@ -580,6 +580,17 @@ class GenotypeImporter(object):
                     else:
                         log.warning("AD not decomposed! Allele depth value will be empty.")
 
+        # When normalizing a multiallelic site, we might get multiple refs. This is a double count and affects the allele ratio.
+        # Therefore, there should only be one REF-key in the dict.
+        for sample in sample_allele_depth:
+            refs = list(k for k in sample_allele_depth[sample] if k.startswith("REF"))
+            if len(refs) > 1:
+                ref_count = sample_allele_depth[sample][refs[0]]
+                # Remove all ref counts
+                assert all([sample_allele_depth[sample].pop(ref) == ref_count for ref in refs])
+                # Insert ref count under REF-key
+                sample_allele_depth[sample]["REF"] = ref_count
+
         # Create genotypesampledata items
         genotypesampledata_items = list()
         for sample in samples:
