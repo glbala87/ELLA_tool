@@ -491,27 +491,22 @@ class GenotypeImporter(object):
             "1/.": "Heterozygous",
             "./1": "Heterozygous",
             "1/1": "Homozygous",
+            "1": "Homozygous",
             "0/.": "Reference",  # Not applicable to proband samples
             "0/0": "Reference",  # Not applicable to proband samples
-            "./.": "Reference",  # Note exception in add()
+            "./.": "Reference",  # Note exception in add(),
+            ".": "Reference",  # Note exception in add(),
+            "0": "Reference",
         }
 
     def is_sample_hom(self, record):
-        gt1, gt2 = record["GT"].split("/", 1)
-        return gt1 == gt2 == "1"
-
-    def remove_phasing(self, record):
-        phasing_removed = False
-        for sample in record["SAMPLES"]:
-            if "|" in record["SAMPLES"][sample]["GT"]:
-                phasing_removed = True
-                record["SAMPLES"][sample]["GT"] = (
-                    record["SAMPLES"][sample]["GT"]
-                    .replace("|", "/")
-                    .replace("1/0", "0/1")
-                    .replace("./0", "0/.")
-                )
-        return phasing_removed
+        if record["GT"] == "1":
+            return True
+        elif record["GT"] == "0":
+            return False
+        else:
+            gt1, gt2 = record["GT"].split("/", 1)
+            return gt1 == gt2 == "1"
 
     def add(
         self,
@@ -526,13 +521,7 @@ class GenotypeImporter(object):
         Add genotypes for provided record. We only create genotypes for the proband_sample_name,
         while we add genotypesampledata records for all samples (connected to the proband sample's genotype).
         See datamodel for more information.
-
-        :note: Phasing will be ignored.
         """
-
-        phasing_removed = any([self.remove_phasing(record) for record in records])
-        if phasing_removed:
-            log.warning("Phased data detected. Phasing will be ignored.")
 
         proband_sample_id = next(s.id for s in samples if s.identifier == proband_sample_name)
 
@@ -591,6 +580,17 @@ class GenotypeImporter(object):
                     else:
                         log.warning("AD not decomposed! Allele depth value will be empty.")
 
+        # When normalizing a multiallelic site, we might get multiple refs. This is a double count and affects the allele ratio.
+        # Therefore, there should only be one REF-key in the dict.
+        for sample in sample_allele_depth:
+            refs = list(k for k in sample_allele_depth[sample] if k.startswith("REF"))
+            if len(refs) > 1:
+                ref_count = sample_allele_depth[sample][refs[0]]
+                # Remove all ref counts
+                assert all([sample_allele_depth[sample].pop(ref) == ref_count for ref in refs])
+                # Insert ref count under REF-key
+                sample_allele_depth[sample]["REF"] = ref_count
+
         # Create genotypesampledata items
         genotypesampledata_items = list()
         for sample in samples:
@@ -645,7 +645,10 @@ class GenotypeImporter(object):
                 if not isinstance(genotype_likelihood, list) or multiallelic:
                     genotype_likelihood = None
 
-                if record_sample["GT"] == "./." and sample.identifier in samples_missing_coverage:
+                if (
+                    record_sample["GT"] in ["./.", "."]
+                    and sample.identifier in samples_missing_coverage
+                ):
                     genotype_type = "No coverage"
                 else:
                     genotype_type = self.types[record_sample["GT"]]

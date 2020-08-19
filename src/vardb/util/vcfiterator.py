@@ -2,6 +2,10 @@ import sys
 from collections import defaultdict
 import re
 import abc
+import logging
+from typing import Set
+
+log = logging.getLogger(__name__)
 
 
 # Official fields in specification
@@ -9,6 +13,8 @@ SPEC_FIELDS = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FO
 
 
 class Util(object):
+    warnings: Set = set()
+
     @staticmethod
     def conv_to_number(value):
         """
@@ -53,6 +59,20 @@ class Util(object):
             # Reset file object and return
             path_or_fileobject.seek(0)
             return path_or_fileobject
+
+    @staticmethod
+    def convert_genotype(value):
+        if "|" in value:
+            value = value.replace("|", "/")
+            Util.warnings.add("Phased data detected. Phasing will be ignored.")
+        value = value.replace("1/0", "0/1").replace("./0", "0/.")
+        return value
+
+    @staticmethod
+    def log_warnings():
+        for warning in Util.warnings:
+            log.warning(warning)
+        Util.warnings = set()
 
 
 class BaseInfoProcessor(abc.ABC):
@@ -418,10 +438,16 @@ class DataParser(object):
 
         samples = dict()
         extract = Util.split_and_convert(Util.conv_to_number, extract_single=True)
+        extract_gt = Util.split_and_convert(Util.convert_genotype, extract_single=True)
         for sample_name in self.samples:
             sample_text = data.pop(sample_name)
             samples[sample_name] = {
-                k: extract(v) for k, v in zip(sample_format, sample_text.split(":"))
+                k: extract(v)
+                if k != "GT"
+                else extract_gt(
+                    v
+                )  # Special logic for converting GT. Remove phasing and order alleles.
+                for k, v in zip(sample_format, sample_text.split(":"))
             }
 
         data["SAMPLES"] = samples
@@ -444,7 +470,7 @@ class DataParser(object):
 
         return data
 
-    def iter(self, throw_exceptions=True):
+    def iter(self, include_raw=False, throw_exceptions=True):
         found_data_start = False
         with Util.open(self.path_or_fileobject) as fd:
             for line_idx, line in enumerate(fd):
@@ -464,8 +490,12 @@ class DataParser(object):
                         sys.stderr.write(
                             "WARNING: Line {} failed to parse: \n {}".format(line_idx, line)
                         )
+                if include_raw:
+                    yield line, data
+                else:
+                    yield data
 
-                yield data
+        Util.log_warnings()
 
 
 class VcfIterator(object):
@@ -490,8 +520,8 @@ class VcfIterator(object):
     def addInfoProcessor(self, processor):
         self.data_parser.addInfoProcessor(processor)
 
-    def iter(self, throw_exceptions=True):
-        for r in self.data_parser.iter(throw_exceptions=throw_exceptions):
+    def iter(self, include_raw=False, throw_exceptions=True):
+        for r in self.data_parser.iter(include_raw=include_raw, throw_exceptions=throw_exceptions):
             yield r
 
 
