@@ -89,11 +89,12 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
         def __call__(self, f, m, c):
             return log10(self.trio_transmit(self.father_gt[f], self.mother_gt[m], self.child_gt[c]))
 
-    # Remove PL for genotype 0/1 if X chromosome for father and proband if proband is male
+    # Remove PL for genotype 0/1 (if exists) if X chromosome for father and proband if proband is male
+    # If PL length is 2, then this will not change anything
     if is_x_minus_par:
-        pl_f = [pl_f[0], pl_f[2]]
+        pl_f = [pl_f[0], pl_f[-1]]
         if proband_male:
-            pl_c = [pl_c[0], pl_c[2]]
+            pl_c = [pl_c[0], pl_c[-1]]
 
     mo_prior, fa_prior = priors(is_x_minus_par)
     log_transmission_matrix = LogTransmissionMatrix(is_x_minus_par, proband_male)
