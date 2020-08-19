@@ -81,7 +81,11 @@ def cmd_analysis_delete(logger, session, analysis_id):
 
 @delete.command("alleleinterpretation")
 @click.argument("allele_id", type=int)
-@click.option("--delete-all", is_flag=True, help="List users that would be imported")
+@click.option(
+    "--delete-all",
+    is_flag=True,
+    help="Delete all allele interpretations, not just since last finalize",
+)
 @session
 @cli_logger(prompt_reason=True)
 def cmd_alleleinterpretation_delete(logger, session, allele_id, delete_all):
