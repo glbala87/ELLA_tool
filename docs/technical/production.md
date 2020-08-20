@@ -14,6 +14,8 @@ For proper security, ELLA should be run in a walled garden with restricted exter
 ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data. The [documentation for this service](http://allel.es/anno-docs) is work in progress, please contact [ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F) for details on how to configure your own production setup.
 :::
 
+[[toc]]
+
 ## Requirements
 
 - A [PostgreSQL](https://www.postgresql.org/) database. Minimum required version is 9.6, but we recommend version 11.4 or higher.
@@ -100,7 +102,7 @@ docker run \
 
 The default entrypoint is `ops/prod/entrypoint.sh`, which will in turn start Supervisor to manage the different processes.
 
-## Behind the scenes
+### Behind the scenes
 
 Internally, the `supervisord` will spin up several services:
 

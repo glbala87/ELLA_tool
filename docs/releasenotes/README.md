@@ -13,17 +13,20 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.11.1
 
-Release date: 20.08.2020
+Release date: 21.08.2020
 
 ### Highlights
 
-This release adds support for haploid genotypes and better highlighting of reads with 0 mapping quality in VISUAL mode. 
+This release adds better highlighting of reads with 0 mapping quality in VISUAL mode, support for haploid genotypes, and easier deletion of analyses with associated variant assessments.  
 
 ### All changes
+
+<!-- MR !440 -->
+- Implemented a workaround for an [igv.js bug](https://github.com/igvteam/igv.js/issues/136) to properly distinguish reads with mapping quality 0 from other reads (these will be now be shown with lighter colors). 
 <!-- MR !437 -->
 - Added support for haploid genotypes.
-<!-- MR !440 -->
-- Implemented a workaround for an igv.js bug to properly distinguish reads with mapping quality 0 from other reads (these will be now be shown with lighter colors). 
+<!-- MR !436-->
+- Added CLI support for [deleting allele interpretations](/technical/production-tasks.html#delete-allele-interpretation) and [deleting analyses with associated allele assessments](/technical/production-tasks.html#delete-analysis).
 
 ## Version 1.11
 

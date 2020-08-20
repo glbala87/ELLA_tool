@@ -38,12 +38,11 @@ User example:
 ]
 ```
 
-See also `/src/vardb/testdata/users.json`
+See also `/src/vardb/testdata/users.json` and [Reset user password](/technical/production-tasks.html#reset-user-password).
 
 ::: warning NOTE
 For simplicity, `password` and `password_expiry` are provided in the testdata version of `users.json`. However, this should _not_ be done in production, as this may have undesired side effects. Instead, use the procedure [above](#users-and-passwords).
 :::
-
 
 ## User configuration
 
@@ -52,7 +51,7 @@ Default settings for all users (shallow merged with usergroup's and user's confi
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user`
 
-### Authentication: Passwords
+### Password requirements
 
 Requirements for valid password.
 
