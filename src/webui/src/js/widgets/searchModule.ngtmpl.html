@@ -103,13 +103,10 @@
             </article>
             <div>
                 <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
-                <h4 ng-if="$ctrl.results.alleles.length" class="results-limit-header">
-                    (showing 10 first results)
-                </h4>
                 <h4 ng-if="$ctrl.results.alleles.length >= 10 || $ctrl.query.page > 1">
                     <br />
                     <a
-                        ng-if="$ctrl.query.page > 1"
+                        ng-if="$ctrl.query.page > 1 && $ctrl.results.alleles.length"
                         href="javascript:void(0)"
                         ng-click="$ctrl.previousPage()"
                         >previous 10 results</a
@@ -161,9 +158,6 @@
                 </section>
 
                 <h4 ng-if="$ctrl.results.analyses.length" class="section-header">Analyses</h4>
-                <h4 ng-if="$ctrl.results.analyses.length" class="results-limit-header">
-                    (showing 10 first results)
-                </h4>
 
                 <section ng-if="$ctrl.results.analyses.length">
                     <analysis-list store-path="'search.results.analyses'"></analysis-list>
