@@ -16,7 +16,7 @@ The `--help` flag will show information for most `ella-cli` commands and options
 
 ## Manage broadcast messages
 
-To add a new broadcast message for all users (shown below the top banner, e.g. for notifications of planned downtime), run: 
+To add a new broadcast message for all users (shown at the top of the page, e.g. for notifications of planned downtime), run: 
 
 ``` bash
 ella-cli broadcast new <message>
@@ -53,7 +53,7 @@ ella-cli delete analysis <analysis_id>
 
 where `analysis_id` is the last part of the URL shown in ELLA, e.g. [...]/workflows/analyses/**12345**. 
 
-Note that this will not delete any interpretations that have been performed within the analysis; instead, `analysis_id` is set to `NULL` in the `alleleassessment`, `referenceassessment`, `allelereport` and `geneassessment` tables. This means that any associated allele assessments will appear as having been done in a variant workflow (i.e. independent of the analysis) after analysis deletion.
+Note that this will not delete any assessments that have been performed within the analysis; instead, `analysis_id` is set to `NULL` in the `alleleassessment`, `referenceassessment`, `allelereport` and `geneassessment` tables. This means that any associated allele assessments will appear as having been done in a variant workflow (i.e. independent of the analysis) after analysis deletion.
 
 
 ## Delete allele interpretation
