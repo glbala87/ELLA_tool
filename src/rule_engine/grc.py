@@ -108,7 +108,7 @@ class ACMGClassifier2015:
             ),
             self._AND(
                 self.contrib(self.PS, codes, lambda n: n == 1),
-                self.contrib(self.PM, codes, lambda n: n == 1),
+                self.contrib(self.PM, codes, lambda n: n >= 1),
             ),
             self._AND(
                 self.contrib(self.PS, codes, lambda n: n == 1),
@@ -269,6 +269,10 @@ class ACMGClassifier2015:
             return code
         return derived[1]
 
+    @staticmethod
+    def find_strength(code):
+        return re.sub(r"\d", "", code.split("x")[0])
+
     #    Selecting the criteria of highest precedence
     def _select_codes_by_precedence(self, existing_codes, target_code):
         assert len(existing_codes) <= 1, (
@@ -283,10 +287,13 @@ class ACMGClassifier2015:
 
         if existing_code is None:
             return [target_code]
-        elif self._has_higher_precedence(target_code, existing_code):
-            return [target_code]
         else:
-            return [existing_code]
+            target_strength = ACMGClassifier2015.find_strength(target_code)
+            existing_strength = ACMGClassifier2015.find_strength(existing_code)
+            if self._has_higher_precedence(target_strength, existing_strength):
+                return [target_code]
+            else:
+                return [existing_code]
 
     #    Accumulate criterias according to their precedence. Criterias with higher precedence
     #    are added. Already existing criterias with lower precedence are removed from the accum
