@@ -64,7 +64,7 @@ class AlleleAssessment(Base):
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
     genepanel = relationship("Genepanel", uselist=False)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="SET NULL"))
     annotation_id = Column(Integer, ForeignKey("annotation.id"))
     annotation = relationship("Annotation")
     custom_annotation_id = Column(Integer, ForeignKey("customannotation.id"))
@@ -129,7 +129,7 @@ class ReferenceAssessment(Base):
     allele = relationship("Allele", uselist=False)
     previous_assessment_id = Column(Integer, ForeignKey("referenceassessment.id"))
     previous_assessment = relationship("ReferenceAssessment", uselist=False)
-    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="SET NULL"))
     __table_args__ = (
         ForeignKeyConstraint(
             [genepanel_name, genepanel_version], ["genepanel.name", "genepanel.version"]
@@ -208,7 +208,7 @@ class AlleleReport(Base):
     previous_report = relationship("AlleleReport", uselist=False)
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     allele = relationship("Allele", uselist=False, backref="reports")
-    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="SET NULL"))
     alleleassessment_id = Column(Integer, ForeignKey("alleleassessment.id"))
     alleleassessment = relationship("AlleleAssessment")
 
@@ -245,7 +245,7 @@ class GeneAssessment(Base):
     previous_assessment = relationship("GeneAssessment", uselist=False)
     gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", uselist=False, backref="assessments")
-    analysis_id = Column(Integer, ForeignKey("analysis.id"))
+    analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="SET NULL"))
 
     def __repr__(self):
         return "<GeneAssessment('%s','%s', '%s')>" % (self.id, self.gene_id, str(self.user))

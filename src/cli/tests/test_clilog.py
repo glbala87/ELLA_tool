@@ -21,14 +21,14 @@ def test_clilog(test_database, session, run_command):
     assert entry.command == " ".join(sys.argv[1:])
     assert isinstance(entry.time, datetime.datetime)
 
-    result = run_command(["analyses", "delete", "1"], input="Test reason\ny\n")
+    result = run_command(["delete", "analysis", "1"], input="Test reason\ny\n")
     assert result.exit_code == 0
 
     entry = session.query(log.CliLog).order_by(log.CliLog.id.desc()).first()
     assert entry.user == getpass.getuser()
     assert entry.output == "Analysis 1 (brca_decomposed.HBOC_v01) deleted successfully"
-    assert entry.group == "analyses"
-    assert entry.groupcommand == "delete"
+    assert entry.group == "delete"
+    assert entry.groupcommand == "analysis"
     assert entry.reason == "Test reason"
     assert entry.command == " ".join(sys.argv[1:])
     assert isinstance(entry.time, datetime.datetime)

@@ -7,11 +7,11 @@ import click
 from cli.commands.broadcast.broadcast import broadcast
 from cli.commands.database.database import database
 from cli.commands.deposit.deposit import deposit
-from cli.commands.analyses.analyses import analyses
 from cli.commands.export.export import export
 from cli.commands.references.references import references
 from cli.commands.users.users import users
 from cli.commands.filterconfigs.filterconfigs import filterconfigs
+from cli.commands.delete.delete import delete
 
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -31,7 +31,7 @@ def cli_group():
 cli_group.add_command(broadcast)
 cli_group.add_command(database)
 cli_group.add_command(deposit)
-cli_group.add_command(analyses)
+cli_group.add_command(delete)
 cli_group.add_command(download_igv)
 cli_group.add_command(export)
 cli_group.add_command(references)
