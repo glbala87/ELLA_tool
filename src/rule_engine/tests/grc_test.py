@@ -261,8 +261,8 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertEqual(classifier._has_higher_precedence("PMxPS3", "PS3"), False)
         self.assertEqual(classifier._has_higher_precedence("PMxPS3", "PVSxPS3"), False)
         self.assertEqual(classifier._has_higher_precedence("PVSxPS3", "PMxPS3"), True)
-        self.assertEqual(classifier._has_higher_precedence("PVS1", "PVSxPS3"), True)
         self.assertEqual(classifier._has_higher_precedence("PVSxPS3", "PVS1"), False)
+        self.assertEqual(classifier._has_higher_precedence("PVS1", "PVSxPS3"), False)
 
     def test_find_base_code(self):
         classifier = ACMGClassifier2015()
