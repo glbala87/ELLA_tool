@@ -17,7 +17,7 @@ Release date: 21.08.2020
 
 ### Highlights
 
-This release adds better highlighting of reads with 0 mapping quality in VISUAL mode, support for haploid genotypes, and improvements to the backend CLI.  
+This release adds a few bugfixes and improvements. 
 
 ### All changes
 
@@ -27,6 +27,8 @@ This release adds better highlighting of reads with 0 mapping quality in VISUAL 
 - Added support for haploid genotypes.
 <!-- MR !436-->
 - Added CLI support for [deleting allele interpretations](/technical/production-tasks.html#delete-allele-interpretation) and [deleting analyses with associated allele assessments](/technical/production-tasks.html#delete-analysis).
+<!-- MR !441-->
+- Fixed bug causing incorrect calculation of class with ACMG criteria PS* + 2 PM*.
 
 ## Version 1.11
 
