@@ -111,6 +111,14 @@ module.exports = {
                     ]
                 },
                 {
+                    title: 'Production tasks',
+                    collapsable: false,
+                    children: [
+                        '/technical/production-tasks'
+                    ]
+
+                },
+                {
                     title: 'System internals',
                     collapsable: false,
                     children: [
