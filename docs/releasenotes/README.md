@@ -17,7 +17,7 @@ Release date: 21.08.2020
 
 ### Highlights
 
-This release adds better highlighting of reads with 0 mapping quality in VISUAL mode, support for haploid genotypes, and easier deletion of analyses with associated variant assessments.  
+This release adds better highlighting of reads with 0 mapping quality in VISUAL mode, support for haploid genotypes, and improvements to the backend CLI.  
 
 ### All changes
 
