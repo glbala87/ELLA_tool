@@ -108,7 +108,7 @@ class ACMGClassifier2015:
             ),
             self._AND(
                 self.contrib(self.PS, codes, lambda n: n == 1),
-                self.contrib(self.PM, codes, lambda n: n == 1),
+                self.contrib(self.PM, codes, lambda n: n >= 1),
             ),
             self._AND(
                 self.contrib(self.PS, codes, lambda n: n == 1),
@@ -204,10 +204,10 @@ class ACMGClassifier2015:
     #    Help method for _has_higher_precedence, returns the criteria with highest
     #    precedence.
     #
-    def _find_highest_precedence(self, code_a, code_b):
-        if self.precedence.index(code_a) < self.precedence.index(code_b):
-            return code_a
-        return code_b
+    def _find_highest_precedence(self, strength_a, strength_b):
+        if self.precedence.index(strength_a) < self.precedence.index(strength_b):
+            return strength_a
+        return strength_b
 
     """
     Returns True if criteria a has higher precedence than criteria b, else
@@ -222,37 +222,11 @@ class ACMGClassifier2015:
         # extracting numbers from criterias so it is possible to
         # do lookup in precedense list using index, i.e. PS1 is
         # converted to PS.
-
-        a = re.split(r"\d", code_a)[0]
-        b = re.split(r"\d", code_b)[0]
-
-        if "x" in a and "x" in b:
-            # Exploiting the fact that derived codes are
-            # always written like this: [PVS/PS/PM/PP/BP/BS/BA]x[source]
-            derived_a, source_a = a.split("x")
-            derived_b, source_b = b.split("x")
-
-            ah = self._find_highest_precedence(source_a, derived_a)
-            bh = self._find_highest_precedence(source_b, derived_b)
-
-            return self._has_higher_precedence(ah, bh)
-
-        if "x" in a:
-            return not self._has_higher_precedence(code_b, code_a)
-
-        if "x" in b:
-            derived_b, source_b = b.split("x")
-            bh = self._find_highest_precedence(source_b, derived_b)
-
-            # PS3 and PMxPS3 --> use PS3 only, the PM part would be
-            # filtered out in the previous step
-            if a == bh:
-                return True
-
-            return self._has_higher_precedence(a, bh)
+        strength_a = ACMGClassifier2015.find_strength(code_a)
+        strength_b = ACMGClassifier2015.find_strength(code_b)
 
         # The criteria with the lowest index has the highest precedence
-        return self.precedence.index(a) < self.precedence.index(b)
+        return self.precedence.index(strength_a) < self.precedence.index(strength_b)
 
     """
     Finding the base code from the derived code, if this is not a
@@ -269,6 +243,10 @@ class ACMGClassifier2015:
             return code
         return derived[1]
 
+    @staticmethod
+    def find_strength(code):
+        return re.sub(r"\d", "", code.split("x")[0])
+
     #    Selecting the criteria of highest precedence
     def _select_codes_by_precedence(self, existing_codes, target_code):
         assert len(existing_codes) <= 1, (
@@ -283,10 +261,13 @@ class ACMGClassifier2015:
 
         if existing_code is None:
             return [target_code]
-        elif self._has_higher_precedence(target_code, existing_code):
-            return [target_code]
         else:
-            return [existing_code]
+            target_strength = ACMGClassifier2015.find_strength(target_code)
+            existing_strength = ACMGClassifier2015.find_strength(existing_code)
+            if self._has_higher_precedence(target_strength, existing_strength):
+                return [target_code]
+            else:
+                return [existing_code]
 
     #    Accumulate criterias according to their precedence. Criterias with higher precedence
     #    are added. Already existing criterias with lower precedence are removed from the accum
