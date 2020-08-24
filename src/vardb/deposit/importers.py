@@ -814,7 +814,9 @@ class AnnotationImporter(object):
             import_config = yaml.safe_load(f)
         converters = []
         for converter in import_config["converters"]:
-            converters.append(ANNOTATION_CONVERTERS[converter["converter"]](converter["config"]))
+            converters.append(
+                ANNOTATION_CONVERTERS[converter["converter"]](converter["converter_config"])
+            )
 
         return converters
 
@@ -849,7 +851,8 @@ class AnnotationImporter(object):
         #    "transcripts": sorted(transcripts, key=lambda x: x["transcript"]),
         #    "references": references,
         # }
-        print(annotations)
+        # print(annotations)
+        print(len(annotations))
         return annotations
 
     def add(self, record, allele_id):

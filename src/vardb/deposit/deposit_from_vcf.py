@@ -23,7 +23,6 @@ from vardb.deposit.importers import (
     AlleleImporter,
     AnalysisInterpretationImporter,
     AlleleInterpretationImporter,
-    get_allele_from_record,
 )
 
 
@@ -68,9 +67,6 @@ class DepositFromVCF(object):
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True
         return False
-
-    def get_allele_from_record(self, record, alleles):
-        return get_allele_from_record(record, alleles)
 
     def getCounter(self):
         counter = dict(self.counter)
