@@ -12,6 +12,7 @@ Detailed descriptions of various technical aspects of ELLA are found in these se
 
 - [Setup](/technical/setup.md): How to deploy and setup a demo, production and/or development environment.
 - [Configuration](/technical/configuration.md): How to configure ELLA for your needs.
+- [Production tasks](/technical/production-tasks.md): Common production tasks with the ELLA command line interface (ella-cli).
 - [System internals](/technical/sysinternals.md): ELLA's inner workings.
 
 ## About ELLA
@@ -51,5 +52,5 @@ ELLA uses a relational [PostgreSQL](https://www.postgresql.org/) database with t
 
 ## Command line interface (ella-cli)
 
-Most admin tasks in ELLA are handled using the command line interface "ella-cli". This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image.
+Most admin tasks in ELLA are handled using the ELLA command line interface (ella-cli). This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image. For available options, type `ella-cli --help`.
 

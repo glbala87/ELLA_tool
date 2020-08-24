@@ -196,7 +196,9 @@ class AlleleInterpretationSnapshot(Base, InterpretationSnapshotMixin):
 
     __tablename__ = "alleleinterpretationsnapshot"
 
-    alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"), nullable=False)
+    alleleinterpretation_id = Column(
+        Integer, ForeignKey("alleleinterpretation.id", ondelete="CASCADE"), nullable=False
+    )
     alleleinterpretation = relationship("AlleleInterpretation", backref="snapshots")
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     __table_args__ = (UniqueConstraint("alleleinterpretation_id", "allele_id"),)
@@ -212,7 +214,9 @@ class InterpretationStateHistory(Base):
     __tablename__ = "interpretationstatehistory"
 
     id = Column(Integer, primary_key=True)
-    alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
+    alleleinterpretation_id = Column(
+        Integer, ForeignKey("alleleinterpretation.id", ondelete="CASCADE")
+    )
     analysisinterpretation_id = Column(
         Integer, ForeignKey("analysisinterpretation.id", ondelete="CASCADE")
     )
@@ -228,7 +232,9 @@ class InterpretationLog(Base):
     __tablename__ = "interpretationlog"
 
     id = Column(Integer, primary_key=True)
-    alleleinterpretation_id = Column(Integer, ForeignKey("alleleinterpretation.id"))
+    alleleinterpretation_id = Column(
+        Integer, ForeignKey("alleleinterpretation.id", ondelete="CASCADE")
+    )
     analysisinterpretation_id = Column(
         Integer, ForeignKey("analysisinterpretation.id", ondelete="CASCADE")
     )

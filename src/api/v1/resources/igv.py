@@ -23,6 +23,8 @@ IGV_DEFAULT_TRACK_CONFIGS = {
     "bam": {
         "format": "bam",
         "colorBy": "strand",
+        "negStrandColor": "rgb(150,150,230)",
+        "posStrandColor": "rgb(230,150,150)",
         "alignmentRowHeight": 12,
         "visibilityWindow": 20000,
         "order": 300,
