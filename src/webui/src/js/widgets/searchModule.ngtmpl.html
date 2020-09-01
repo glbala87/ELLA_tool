@@ -109,14 +109,15 @@
                         ng-if="$ctrl.query.page > 1 && $ctrl.results.alleles.length"
                         href="javascript:void(0)"
                         ng-click="$ctrl.previousPage()"
-                        >previous 10 results</a
+                        >previous page |</a
                     >
-                    <span>&nbsp;</span>
+                    <!-- TODO: page number needs styling -->
+                    <span>page {{ $ctrl.query.page || 1 }}</span>
                     <a
                         ng-if="$ctrl.results.alleles.length >= 10"
                         href="javascript:void(0)"
                         ng-click="$ctrl.nextPage()"
-                        >next 10 results</a
+                        >| next page</a
                     >
                     <br />
                 </h4>
