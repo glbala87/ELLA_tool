@@ -487,11 +487,7 @@ class SearchResource(LogRequestResource):
     def _search_allele(self, session, search_query, genepanels):
 
         # CTE for performance
-        allele_results_ids = (
-            self._get_allele_results_ids(session, search_query)
-            .limit(SearchResource.ALLELE_LIMIT)
-            .cte()
-        )
+        allele_results_ids = self._get_allele_results_ids(session, search_query).cte()
 
         alleles = (
             session.query(allele.Allele)
