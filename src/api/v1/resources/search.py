@@ -490,7 +490,6 @@ class SearchResource(LogRequestResource):
         allele_results_ids = (
             self._get_allele_results_ids(session, search_query)
             .limit(SearchResource.ALLELE_LIMIT)
-            .offset(self.ALLELE_LIMIT * (search_query.page - 1))
             .cte()
         )
 
@@ -498,6 +497,8 @@ class SearchResource(LogRequestResource):
             session.query(allele.Allele)
             .filter(allele.Allele.id.in_(select([allele_results_ids])))
             .order_by(allele.Allele.chromosome, allele.Allele.start_position)
+            .limit(SearchResource.ALLELE_LIMIT)
+            .offset(self.ALLELE_LIMIT * (search_query.page - 1))
         )
         alleles = alleles.all()
 
