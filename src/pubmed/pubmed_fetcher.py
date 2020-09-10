@@ -1,5 +1,7 @@
-import urllib
-from contextlib import closing
+#!/usr/bin/env python
+
+import urllib.request
+from contextlib import closing, contextmanager
 import xml.etree.ElementTree as ET
 import logging
 import json
@@ -9,16 +11,29 @@ from .pubmed_parser import PubMedParser
 """
 This module can query the PubMed article database based on PubMed article IDs
 trough the Entrez API
-The references can be dumped to a '.json'-file that can be used by E||A
+The references can be dumped to a file that can be imported into ELLA using the CLI.
 """
 log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+
+
+@contextmanager
+def output(filename):
+    try:
+        if filename is not None:
+            f = open(filename, "w")
+        else:
+            f = sys.stdout
+        yield f
+    finally:
+        f.close()
 
 
 class PubMedFetcher(object):
     BASE_URL_ENTREZ = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
     BASE_DB = "pubmed"
     MAX_QUERY = 200  # Entrez can process so many IDs per query
-    MIN_TIME_BETWEEN_QUERY = 0.5  # To avoid Entrez blacklisting
+    MIN_TIME_BETWEEN_QUERY = 0.1  # To avoid Entrez blacklisting
     WAIT_TIME = 30  # When Entrez gives faulty string, wait some seconds
 
     def control_query_frequency(self, time_previous_query, wait_time=0):
@@ -29,14 +44,14 @@ class PubMedFetcher(object):
         """
         # When Entrez returns fawlty xml string, we manually request long pause
         if wait_time > 0.0:
-            print(("Entrez may be blocking us. Waiting %d s" % wait_time))
+            log.info(("Entrez may be blocking us. Waiting %d s" % wait_time))
             time.sleep(wait_time)
 
         # If last query to Entrez was less than MIN_TIME_BETWEEN_QUERY s ago
         time_diff = time.time() - time_previous_query
         if time_diff < self.MIN_TIME_BETWEEN_QUERY:
             postpone_query = self.MIN_TIME_BETWEEN_QUERY - time_diff
-            print(("Entrez may be blocking us. Waiting %d s" % postpone_query))
+            log.info(("Entrez may be blocking us. Waiting %d s" % postpone_query))
             time.sleep(postpone_query)
 
         return time.time()
@@ -69,33 +84,6 @@ class PubMedFetcher(object):
 
         return xml_raw
 
-    def dump_references(self, references, json_file, replace_file=False):
-        """
-        :param references: list of reference dictionaries
-        :param json_file: Filename on format '*.json'
-        :param replace_file: write or append file
-        'return : Each reference is printed after each other.
-        """
-        if replace_file:
-            file_mode = "w+"
-        else:  # Add new references to file
-            file_mode = "a+"
-
-        with open(json_file, file_mode) as f:
-            for ref in references:
-                json.dump(ref, f, indent=None)
-                f.write("\n")
-
-    def print_references(self, references):
-        """ Prints the references nicely to screen
-        :param references: list of reference dictionaries
-        """
-        print_pattern = "PubMedID {pubmed_id}\n{title}\n{authors}\n{journal}\n{year}\n"
-        print_pattern_abstract = "{abstract}"
-        for ref in references:
-            print((print_pattern.format(**ref)))
-            print((print_pattern_abstract.format(**ref)))
-
     def import_pmids(self, pmid_filename):
         """
         :param pmid_filename: File with tab or line separated pmids
@@ -108,60 +96,25 @@ class PubMedFetcher(object):
 
         return pmids.split()
 
-    def get_references_from_file(
-        self,
-        pmid_file,
-        dump_json=False,
-        replace_json=False,
-        print_verbose=True,
-        json_file="default_references.json",
-        return_references=False,
-    ):
+    def get_references_from_file(self, pmid_file, outfile=None):
         """
         :param pmid_file: File with tab or line separated PubMed IDs
-        :param dump_json: Save references to file
-        :param replace_json: Replace or append file current content
-        :param print_verbose: Print references to screen
-        :param json_file: Save references to '*.json' file
-        :param return_references: Return list of refs
-        :return : Return list of refs if return_references is 'True'
+        :param outfile: Save references file (defaults to stdout)
         """
 
         pmids = self.import_pmids(pmid_file)
 
-        return self.get_references(
-            pmid=pmids,
-            dump_json=dump_json,
-            replace_json=replace_json,
-            print_verbose=print_verbose,
-            json_file=json_file,
-            return_references=return_references,
-        )
+        return self.get_references(pmids, outfile)
 
-    def get_references(
-        self,
-        pmid=[],
-        dump_json=False,
-        replace_json=False,
-        print_verbose=True,
-        json_file="default_references.json",
-        return_references=False,
-    ):
+    def get_references(self, pmids, outfile=None):
         """
-        :param pmid: PubMed IDs (either one pmid or list of pmids)
-        :param dump_json: Save references to file
-        :param replace_json: Replace or append file current content
-        :param print_verbose: Print references to screen
-        :param json_file: Save references to '*.json' file
-        :param return_references: Return list of refs
-        :return : Return list of refs if return_references is 'True'
+        :param pmids: PubMed IDs (either one pmid or list of pmids)
+        :param outfile: Save references to file (default stdout)
         """
-        if not hasattr(pmid, "__iter__"):  # Ensure iterable pmid
-            pmid = [pmid]
+        if not hasattr(pmids, "__iter__"):  # Ensure iterable pmids
+            pmids = [pmids]
 
-        n_refs = pmid.__len__()
-
-        all_references = []  # Always return empty reference list
+        n_refs = len(pmids)
 
         # Ensure that only MAX_QUERY ids are included per query
         max_query = self.MAX_QUERY
@@ -172,54 +125,49 @@ class PubMedFetcher(object):
         t_prev_query = time.time()
         time.sleep(self.MIN_TIME_BETWEEN_QUERY)
 
-        for i_query in range(n_queries):
-            print(("Processing query number %s of %s" % (i_query + 1, n_queries)))
-            # Query sub-set of all pmids
-            pmid_range = list(range(max_query * i_query, min(max_query * (i_query + 1), n_refs)))
+        with output(outfile) as out:
+            for i_query in range(n_queries):
+                log.info(("Processing query number %s of %s" % (i_query + 1, n_queries)))
+                # Query sub-set of all pmids
+                pmid_range = list(
+                    range(max_query * i_query, min(max_query * (i_query + 1), n_refs))
+                )
 
-            pmid_selection = [pmid[i_sel] for i_sel in pmid_range]
-            t_prev_query = self.control_query_frequency(t_prev_query)
+                pmid_selection = [pmids[i_sel] for i_sel in pmid_range]
+                t_prev_query = self.control_query_frequency(t_prev_query)
 
-            for count in range(10):
-                try:
-                    references = self.get_references_core(pmid_selection)
-                except RuntimeError as e1:
-                    # Entrez occationally returns unparsable string
-                    # due to too many queries. Wait, and try again
-                    r_err = "Attempt %s: Bad string from Entrez %s"
-                    log.error(r_err % (count + 1, e1))
-                    t_prev_query = self.control_query_frequency(
-                        t_prev_query, wait_time=self.WAIT_TIME
-                    )
-                except IOError as e2:
-                    # Entrez occationally has some problems with SSL
-                    # Try again
-                    r_err = "Attempt %s: IOError from Entrez %s"
-                    log.error(r_err % (count + 1, e2))
-                    t_prev_query = self.control_query_frequency(
-                        t_prev_query, wait_time=self.WAIT_TIME
-                    )
-                else:
-                    break
+                for count in range(10):
+                    try:
+                        references = self.get_references_core(pmid_selection)
+                    except RuntimeError as e1:
+                        # Entrez occationally returns unparsable string
+                        # due to too many queries. Wait, and try again
+                        r_err = "Attempt %s: Bad string from Entrez %s"
+                        log.error(r_err % (count + 1, e1))
+                        t_prev_query = self.control_query_frequency(
+                            t_prev_query, wait_time=self.WAIT_TIME
+                        )
+                    except IOError as e2:
+                        # Entrez occationally has some problems with SSL
+                        # Try again
+                        r_err = "Attempt %s: IOError from Entrez %s"
+                        log.error(r_err % (count + 1, e2))
+                        t_prev_query = self.control_query_frequency(
+                            t_prev_query, wait_time=self.WAIT_TIME
+                        )
+                    else:
+                        break
+                for ref in references:
+                    json.dump(ref, out, indent=None)
+                    out.write("\n")
 
-            if dump_json:
-                self.dump_references(references, json_file, replace_file=replace_json)
-                replace_json = False  # Ensure new refs are appended
-            if print_verbose:
-                self.print_references(references)
-            if return_references:
-                all_references.append(references)
-
-        # if return_references is 'True', otherwise empty
-        return all_references
-
-    def get_references_core(self, pmid):
+    def get_references_core(self, pmids):
         """
-        :param pmid: Pubmed IDs (Either one or a list)
+        :param pmids: Pubmed IDs (Either one or a list)
         :return : List of references as dictionaries
         """
         try:
-            xml_raw = self.query_entrez(pmid)
+            xml_raw = self.query_entrez(pmids)
         except IOError as e:
             raise IOError(e)
 
@@ -229,7 +177,7 @@ class PubMedFetcher(object):
             raise RuntimeError("ET cannot parse string from Entrez: %s" % e)
 
         # Log a warning for non-existing Pubmed entries
-        self.check_for_non_existence_of_pmid(pubmed_article_set, pmid)
+        self.check_for_non_existence_of_pmids(pubmed_article_set, pmids)
 
         references = []
         pmparser = PubMedParser()
@@ -240,19 +188,21 @@ class PubMedFetcher(object):
 
         return references
 
-    def check_for_non_existence_of_pmid(self, xml_tree, pmids):
+    def check_for_non_existence_of_pmids(self, xml_tree, pmids):
         """
         :param xml_tree: xml tree structure on PubmedArticleSet format
         :param pmids: List of pmids that are supposed to be in xml_tree
         """
-        if not hasattr(pmids, "__iter__"):
-            pmids = [pmids]
-
         pmids = list(map(str, pmids))  # In case pmids are not strings
 
         xml_pmids = [xml_pmid.text for xml_pmid in xml_tree.findall(".//PMID")]
 
         pmids_not_in_db = list(set(pmids) - set(xml_pmids))
         if len(pmids_not_in_db):
-            w_msg = "Pubmed IDs %s silently ignored."
-            log.warning(w_msg % ", ".join(pmids_not_in_db))
+            log.warning(f"Pubmed IDs ignored: {pmids_not_in_db}")
+
+
+if __name__ == "__main__":
+    import sys
+
+    PubMedFetcher().get_references_from_file(sys.argv[1])
