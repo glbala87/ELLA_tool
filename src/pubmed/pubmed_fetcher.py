@@ -111,8 +111,8 @@ class PubMedFetcher(object):
         :param pmids: PubMed IDs (either one pmid or list of pmids)
         :param outfile: Save references to file (default stdout)
         """
-        if not hasattr(pmids, "__iter__"):  # Ensure iterable pmids
-            pmids = [pmids]
+
+        assert isinstance(pmids, list)
 
         n_refs = len(pmids)
 
