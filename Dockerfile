@@ -84,7 +84,7 @@ USER ella-user
 # Standalone python
 RUN cd /dist && \
     WORKON_HOME="/dist" python3.7 -m venv ella-python && \
-    /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
+    /dist/ella-python/bin/pip install --no-cache-dir pipenv==2020.8.13 && \
     VIRTUAL_ENV=/dist/ella-python /dist/ella-python/bin/pipenv sync --dev
 
 # Patch supervisor, so "Clear log" is not available from UI
