@@ -77,16 +77,15 @@ RUN apt-get update && \
 
 
 # Add our requirements files
-COPY --chown=ella-user:ella-user  ./requirements.txt /dist/requirements.txt
-COPY --chown=ella-user:ella-user ./requirements-test.txt  /dist/requirements-test.txt
+COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 
 USER ella-user
 
 # Standalone python
 RUN cd /dist && \
     WORKON_HOME="/dist" python3.7 -m venv ella-python && \
-    /dist/ella-python/bin/pip install --no-cache-dir -r requirements.txt && \
-    /dist/ella-python/bin/pip install --no-cache-dir -r requirements-test.txt
+    /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
+    VIRTUAL_ENV=/dist/ella-python /dist/ella-python/bin/pipenv sync --dev
 
 # Patch supervisor, so "Clear log" is not available from UI
 RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.7/site-packages/supervisor/web.py
