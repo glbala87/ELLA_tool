@@ -874,6 +874,9 @@ workflow-buttons {
 
 allelebar {
     width: 100%;
+    display: grid;
+    max-height: 10rem;
+    overflow-y: auto;
     .genotype-display {
         &:not(:last-child) {
             border-right: 1px $black-25 dashed;
