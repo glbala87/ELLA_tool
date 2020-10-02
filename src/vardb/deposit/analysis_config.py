@@ -95,7 +95,7 @@ class AnalysisConfigData(dict):
         }
     }
     """
-    DEFAULTS = {"priority": 1, "report": None, "warnings": None, "data": []}
+    DEFAULTS = {"priority": 1, "report": None, "warnings": None, "data": []}  # type: ignore
     DATA_DEFAULTS = {"technology": "HTS", "ped": None}
 
     def __init__(self, folder_or_file):
@@ -233,33 +233,3 @@ class AnalysisConfigData(dict):
                     ],
                 }
             )
-
-
-if __name__ == "__main__":
-
-    # Add custom YAML constructors
-    file = "/ella/src/vardb/testdata/analyses/default/HG002-Trio.Mendeliome_v01/HG002-Trio.Mendeliome_v01.analysis"
-    d1 = AnalysisConfigData(file)
-    print(d1)
-
-    folder = "/ella/src/vardb/testdata/analyses/default/HG002-Trio.Mendeliome_v01"
-    d2 = AnalysisConfigData(folder)
-    print(d2)
-    assert d1 == d2
-
-    file = "/ella/src/vardb/testdata/analyses/default/HG002-Trio.Mendeliome_v01/HG002-Trio.Mendeliome_v01.vcf"
-    d3 = AnalysisConfigData(file)
-    print(d3)
-
-    file = "/ella/src/vardb/testdata/analyses/default/brca_long_variants.HBOCUTV_v01/brca_long_variants.HBOCUTV_v01.analysis"
-    d4 = AnalysisConfigData(file)
-    print(d4)
-
-    d5 = AnalysisConfigData(None)
-    print(d5)
-
-    # class AnalysisConfigLoader(yaml.SafeLoader):
-    #     pass
-    # AnalysisConfigLoader.add_constructor("!contents", lambda loader, node: file_constructor(loader, node, contents=True))
-
-    # d = AnalysisConfigData(foo="bar", baz="dabla")

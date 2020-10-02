@@ -410,14 +410,7 @@ class DepositAnalysis(DepositFromVCF):
         else:
             db_analysis = (
                 self.session.query(sample.Analysis)
-                .filter(
-                    sample.Analysis.name == analysis_config_data["name"],
-                    tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version)
-                    == (
-                        analysis_config_data["genepanel_name"],
-                        analysis_config_data["genepanel_version"],
-                    ),
-                )
+                .filter(sample.Analysis.name == analysis_config_data["name"])
                 .one()
             )
 
@@ -452,21 +445,19 @@ class DepositAnalysis(DepositFromVCF):
                         deposit_usergroup_id, deposit_usergroup_config["pattern"]
                     )
                 )
-                log.info(
-                    "Prefilter: {}".format(
-                        "Yes" if deposit_usergroup_config.get("prefilter") else "No"
+                prefilter = deposit_usergroup_config.get("prefilter")
+                log.info("Prefilter: {}".format("Yes" if prefilter else "No"))
+                if prefilter:
+                    log.info("Prefilter criterias:")
+                    log.info("    - GNOMAD_GENOMES.AF > 0.05")
+                    log.info("    - GNOMAD_GENOMES.AN > 5000")
+                    log.info("    - Nearby variants distance > 3")
+                    log.info("    - No existing classifications")
+                    log.info(
+                        "Postprocess: {}".format(
+                            ", ".join(deposit_usergroup_config.get("postprocess", []))
+                        )
                     )
-                )
-                log.info("Prefilter criterias:")
-                log.info("    - GNOMAD_GENOMES.AF > 0.05")
-                log.info("    - GNOMAD_GENOMES.AN > 5000")
-                log.info("    - Nearby variants distance > 3")
-                log.info("    - No existing classifications")
-                log.info(
-                    "Postprocess: {}".format(
-                        ", ".join(deposit_usergroup_config.get("postprocess", []))
-                    )
-                )
 
             records_count = 0
             imported_records_count = 0
