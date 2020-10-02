@@ -214,7 +214,7 @@ class AnalysisConfigData(dict):
             return self._init_from_analysis_file(folder / analysis_files[0])
         else:
             matches = re.match(FOLDER_FIELDS_RE, folder.name)
-            vcfs = [p for p in folder.rglob("*.vcf")]
+            vcfs = sorted([p for p in folder.rglob("*.vcf")])
             peds = [p for p in folder.rglob("*.ped")]
             assert len(vcfs) >= 1, "Unable to find vcf-file in folder"
 
