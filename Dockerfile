@@ -65,6 +65,7 @@ RUN apt-get update && \
     libpq-dev \
     libffi-dev \
     fontconfig \
+    graphviz \
     chromium-browser \
     chromium-chromedriver && \
     echo "Additional tools:" && \
