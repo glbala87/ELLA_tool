@@ -324,17 +324,6 @@ export class CustomAnnotationModal {
             }
         })
         // our modal UI calls the close method on the modal instance (save, cancel and the X in the corner),
-        // which triggers the 'then' callback, with or without data.
-        return modal.result.then(
-            (custom_annotation) => {
-                if (!custom_annotation) return
-                return this.customAnnotationResource
-                    .createOrUpdateCustomAnnotation(allele.id, custom_annotation)
-                    .then(() => {
-                        return custom_annotation
-                    })
-            },
-            () => console.log('modal dismissed')
-        )
+        return modal.result
     }
 }
