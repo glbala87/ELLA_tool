@@ -6,10 +6,27 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.12](#version-1-12)|
 [v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3])(#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.12
+
+Release date: TBD
+
+### Highlights
+
+Highlights ...
+
+### All changes
+
+<!-- MR !435 -->
+- Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings)
+<!-- MR !444 -->
+- Made allele list in top bar scrollable when number of transcripts exceed 3. 
+
 
 ## Version 1.11.3
 
