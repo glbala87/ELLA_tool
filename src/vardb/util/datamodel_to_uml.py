@@ -114,7 +114,7 @@ GROUPS = [
             annotationshadow.AnnotationShadowTranscript,
         ],
     },
-    {"name": "annotation", "tables": [user.UserSession, log.ResourceLog, log.CliLog]},
+    {"name": "log", "tables": [user.UserSession, log.ResourceLog, log.CliLog]},
 ]
 
 print("Generating diagrams...")
