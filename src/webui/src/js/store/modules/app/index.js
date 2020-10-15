@@ -1,5 +1,6 @@
 import { Module } from 'cerebral'
 import updateBroadcastTriggered from './signals/updateBroadcastTriggered'
+import logException from './signals/logException'
 
 export default Module({
     state: {
@@ -10,6 +11,7 @@ export default Module({
         user: null
     },
     signals: {
-        updateBroadcastTriggered
+        updateBroadcastTriggered,
+        logException
     }
 })

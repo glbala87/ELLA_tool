@@ -14,6 +14,7 @@ from . import reference
 from . import referenceassessment
 from . import search
 from . import user
+from . import ui
 from . import genepanel
 from . import igv
 from . import workflow
