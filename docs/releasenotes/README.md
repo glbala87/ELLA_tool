@@ -6,10 +6,25 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1)
+[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.11.2
+
+Release date: 19.10.2020
+
+### Highlights
+
+This release adds bugfixes related to manually appending results to an analysis.
+
+### All changes
+
+<!-- MR !449 -->
+- Fixed a bug where filters using `inheritance_mode` failed to load when there are more than two proband samples in an analysis (e.g. on manual appending import). 
+<!-- MR !452-->
+- Fixed a bug where manually appending an import to a finalized analysis fails. 
 
 ## Version 1.11.1
 
