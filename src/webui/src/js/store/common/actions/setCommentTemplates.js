@@ -7,6 +7,7 @@ const FIELDS = [
     'classificationPrediction',
     'classificationExternal',
     'classificationReferences',
+    'geneInformation',
     'reportIndications',
     'reportSummary',
     'referenceEvaluation',

@@ -64,6 +64,7 @@
             ng-disabled="!$ctrl.isCommmentEditable()"
             ng-model="$ctrl.getGeneCommentModel().comment"
             ng-change="$ctrl.geneCommentChanged()"
+            templates="$ctrl.commentTemplates.geneInformation"
         ></wysiwyg-editor>
         <div class="comment-controls">
             <button
