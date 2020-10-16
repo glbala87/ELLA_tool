@@ -254,7 +254,10 @@ app.component('alleleSectionbox', {
                         return $ctrl.isAlleleAssessmentReused ? $ctrl.isAlleleReportUpdated : true
                     },
                     finalizeTitle() {
-                        return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
+                        if (!$ctrl.isAlleleAssessmentReused) {
+                            return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
+                        }
+                        return ''
                     }
                 })
             }
