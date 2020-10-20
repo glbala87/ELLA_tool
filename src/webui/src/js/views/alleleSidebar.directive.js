@@ -96,14 +96,6 @@ app.component('alleleSidebar', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
-                $scope.$watch(
-                    () => {
-                        return $ctrl.selectedFilterConfig
-                    },
-                    () => {
-                        console.log($ctrl.selectedFilterConfig.filterconfig.filters)
-                    }
-                )
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {

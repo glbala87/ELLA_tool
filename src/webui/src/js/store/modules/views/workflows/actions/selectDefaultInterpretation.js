@@ -7,10 +7,6 @@ export default function selectDefaultInterpretation({ state }) {
     // If an interpretation is Ongoing, we assign it directly
     if (lastInterpretation && lastInterpretation.status === 'Ongoing') {
         selectedId = lastInterpretation.id
-    } else if (doneInterpretations.length) {
-        // Otherwise, make a copy of the last historical one to act as "current" entry in the dropdown.
-        // This lets the user see the latest data in the UI
-        selectedId = 'current'
     } else if (lastInterpretation) {
         selectedId = lastInterpretation.id
     } else {
