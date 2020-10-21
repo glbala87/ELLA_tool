@@ -10,6 +10,9 @@ let cerebral = null
 function createAlleleData(id) {
     return {
         id: id,
+        formatted: {
+            display: 'test variant'
+        },
         annotation: {
             annotation_id: id,
             references: [{ id: id }],

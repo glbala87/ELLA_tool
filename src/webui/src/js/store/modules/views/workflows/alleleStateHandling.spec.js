@@ -206,6 +206,7 @@ describe('Handling of allele state', () => {
                             ],
                             tags: [],
                             formatted: {
+                                display: 'test allele 1',
                                 inheritance: 'AD'
                             }
                         },
@@ -240,6 +241,7 @@ describe('Handling of allele state', () => {
                             ],
                             tags: [],
                             formatted: {
+                                display: 'test allele 2',
                                 inheritance: 'AD'
                             }
                         },
@@ -266,6 +268,7 @@ describe('Handling of allele state', () => {
                             },
                             tags: [],
                             formatted: {
+                                display: 'test allele 3',
                                 inheritance: 'AD'
                             }
                         },
@@ -292,6 +295,7 @@ describe('Handling of allele state', () => {
                             },
                             tags: [],
                             formatted: {
+                                display: 'test allele 4',
                                 inheritance: 'AD'
                             }
                         }
@@ -885,6 +889,9 @@ describe('Handling of allele state', () => {
                 data: {
                     alleles: {
                         584: {
+                            formatted: {
+                                display: 'test allele 1'
+                            },
                             allele_assessment: {
                                 id: 1,
                                 seconds_since_update: 1,
@@ -901,12 +908,21 @@ describe('Handling of allele state', () => {
                             id: 584
                         },
                         585: {
+                            formatted: {
+                                display: 'test allele 2'
+                            },
                             id: 585
                         },
                         586: {
+                            formatted: {
+                                display: 'test allele 3'
+                            },
                             id: 586
                         },
                         589: {
+                            formatted: {
+                                display: 'test allele 4'
+                            },
                             allele_assessment: {
                                 id: 2,
                                 seconds_since_update: 1,
