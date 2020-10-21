@@ -848,12 +848,17 @@ workflow-buttons {
         font-weight: 800;
     }
     p,
+    li,
     h5 {
         color: white;
         font-family: $slim;
         font-size: 1.6rem;
         font-weight: 600;
         letter-spacing: 0.05rem;
+    }
+    ul {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
     .subtitle {
         color: $white-50;
