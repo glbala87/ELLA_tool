@@ -28,6 +28,14 @@ export default [
     set(state`views.workflows.modals.addExcludedAlleles.selectedPage`, 1),
     set(state`views.workflows.modals.addExcludedAlleles.show`, true),
     set(state`views.workflows.modals.addExcludedAlleles.categoryAlleleIds`, getAlleleIdsCategory),
+    set(
+        state`views.workflows.modals.addExcludedAlleles.selectedInterpretation`,
+        props`selectedInterpretation`
+    ),
+    set(
+        state`views.workflows.modals.addExcludedAlleles.selectedInterpretationId`,
+        props`selectedInterpretationId`
+    ),
     set(props`alleleIds`, state`views.workflows.modals.addExcludedAlleles.categoryAlleleIds`), // Defaults to 'all', so we get all possible allele ids
     getAlleleIdsByGene,
     {

@@ -144,12 +144,15 @@ def get_alleles(
         # Serve using context data from snapshot
         snapshots = (
             session.query(interpretationsnapshot_model)
-            .filter(interpretationsnapshot_field == interpretation.id)
+            .filter(
+                interpretationsnapshot_field == interpretation.id,
+                interpretationsnapshot_model.allele_id.in_(allele_ids),
+            )
             .all()
         )
 
         link_filter = {
-            "annotation_id": [s.annotation_id for s in snapshots if s.annotation_id is not None],
+            "annotation_id": [s.annotation_id for s in snapshots],
             "customannotation_id": [
                 s.customannotation_id for s in snapshots if s.customannotation_id is not None
             ],

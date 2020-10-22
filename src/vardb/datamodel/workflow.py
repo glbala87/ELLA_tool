@@ -83,9 +83,7 @@ class InterpretationSnapshotMixin(object):
 
     @declared_attr
     def annotation_id(cls):
-        return Column(
-            Integer, ForeignKey("annotation.id"), nullable=True
-        )  # None for an excluded allele
+        return Column(Integer, ForeignKey("annotation.id"), nullable=False)
 
     @declared_attr
     def customannotation_id(cls):

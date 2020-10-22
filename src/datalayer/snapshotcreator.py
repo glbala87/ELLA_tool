@@ -1,4 +1,4 @@
-from typing import Sequence, Dict, Union
+from typing import Sequence, Dict, Union, List
 import itertools
 
 from vardb.datamodel import workflow, assessment, annotation
@@ -40,7 +40,7 @@ class SnapshotCreator(object):
         custom_annotation_ids: Sequence[int],
         alleleassessment_ids: Sequence[int],
         allelereport_ids: Sequence[int],
-        excluded_allele_ids: Dict = None,
+        excluded_allele_ids: Dict[str, Sequence[int]] = None,
     ) -> Sequence[Dict]:
 
         excluded: Dict = {}
@@ -54,6 +54,17 @@ class SnapshotCreator(object):
         # 'excluded' is not a concept for alleleinterpretation
         elif interpretation_snapshot_model == "allele":
             all_allele_ids = [interpretation.allele_id]
+
+        all_excluded_allele_ids: List[int] = []
+        if excluded_allele_ids:
+            for item in excluded_allele_ids.values():
+                all_excluded_allele_ids.extend(item)
+
+        excluded_allele_ids_annotation_ids = dict(
+            self.session.query(annotation.Annotation.allele_id, annotation.Annotation.id)
+            .filter(annotation.Annotation.allele_id.in_(all_excluded_allele_ids))
+            .all()
+        )
 
         allele_ids_annotation_ids = self._allele_id_model_id(annotation.Annotation, annotation_ids)
         allele_ids_custom_annotation_ids = self._allele_id_model_id(
@@ -71,9 +82,19 @@ class SnapshotCreator(object):
             # Check if allele_id is in any of the excluded categories
             excluded_category = next((k for k, v in excluded.items() if allele_id in v), None)
 
+            annotation_id = None
+            if excluded_category is not None:
+                annotation_id = excluded_allele_ids_annotation_ids.get(allele_id)
+            else:
+                annotation_id = allele_ids_annotation_ids.get(allele_id)
+
+            assert (
+                annotation_id
+            ), f"Missing required snapshot property annotation_id for allele_id {allele_id}"
+
             snapshot_item = {
                 "allele_id": allele_id,
-                "annotation_id": allele_ids_annotation_ids.get(allele_id),
+                "annotation_id": annotation_id,
                 "customannotation_id": allele_ids_custom_annotation_ids.get(allele_id),
                 "alleleassessment_id": allele_ids_alleleassessment_ids.get(allele_id),
                 "allelereport_id": allele_ids_allelereport_ids.get(allele_id),

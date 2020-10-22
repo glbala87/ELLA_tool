@@ -988,8 +988,7 @@ class AlleleDataLoader(object):
 
         """
         for item in items:
-            if item.allele_id not in allowed_allele_ids:
-                return
+            assert item.allele_id in allowed_allele_ids
             if use_list:
                 if key not in accumulator[item.allele_id]:
                     accumulator[item.allele_id][key] = list()

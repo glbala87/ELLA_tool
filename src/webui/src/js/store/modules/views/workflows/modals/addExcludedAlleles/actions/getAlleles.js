@@ -3,17 +3,27 @@ import processAlleles from '../../../../../../common/helpers/processAlleles'
 export default function({ http, path, state, props }) {
     const { alleleIds } = props
     const analysisId = state.get('views.workflows.modals.addExcludedAlleles.analysisId')
+    const selectedInterpretation = state.get(
+        'views.workflows.modals.addExcludedAlleles.selectedInterpretation'
+    )
+    const selectedInterpretationId = state.get(
+        'views.workflows.modals.addExcludedAlleles.selectedInterpretationId'
+    )
     const genepanel = state.get('views.workflows.modals.addExcludedAlleles.data.genepanel')
+    const filterConfigId = state.get('views.workflows.modals.addExcludedAlleles.filterconfig.id')
+
     if (!alleleIds.length) {
         return path.success({ result: [] })
     }
     return http
-        .get(`alleles/`, {
-            q: JSON.stringify({ id: alleleIds }),
-            analysis_id: analysisId,
-            gp_name: genepanel.name,
-            gp_version: genepanel.version
-        })
+        .get(
+            `workflows/analyses/${analysisId}/interpretations/${selectedInterpretation.id}/alleles`,
+            {
+                allele_ids: alleleIds.join(','),
+                filterconfig_id: filterConfigId,
+                current: selectedInterpretationId === 'current'
+            }
+        )
         .then((response) => {
             processAlleles(response.result, genepanel)
             const result = response.result.reduce((obj, allele) => {
