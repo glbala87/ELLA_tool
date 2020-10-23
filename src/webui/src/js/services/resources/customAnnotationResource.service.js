@@ -25,24 +25,6 @@ class CustomAnnotationResource {
             }, reject)
         })
     }
-
-    createOrUpdateCustomAnnotation(allele_id, annotation_data) {
-        let data = {
-            allele_id,
-            annotations: annotation_data,
-            user_id: this.user.getCurrentUserId()
-        }
-        return new Promise((resolve) => {
-            let r = this.resource(
-                `${this.base}/customannotations/`,
-                {},
-                { createOrUpdate: { method: 'POST' } }
-            )
-            r.createOrUpdate(data, (o) => {
-                resolve(o)
-            })
-        })
-    }
 }
 
 export default CustomAnnotationResource

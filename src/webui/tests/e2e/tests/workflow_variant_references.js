@@ -42,7 +42,9 @@ describe(`Adding reference in variant workflow`, function() {
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
-
+        browser.waitUntil(() => alleleSectionBox.getReferences().length === 2, {
+            timeout: 5000
+        })
         expect(alleleSectionBox.getReferences().length).toEqual(2)
 
         // add a reference using RIS format
@@ -58,6 +60,9 @@ describe(`Adding reference in variant workflow`, function() {
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
+        browser.waitUntil(() => alleleSectionBox.getReferences().length === 3, {
+            timeout: 5000
+        })
         expect(alleleSectionBox.getReferences().length).toEqual(3)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
