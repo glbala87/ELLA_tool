@@ -94,57 +94,6 @@ describe('prepareSelectedInterpretation', function() {
         })
     })
 
-    it("creates a 'Current' copy when no Ongoing, but history is present", function() {
-        const testState = {
-            views: {
-                workflows: {
-                    data: {
-                        interpretations: [
-                            {
-                                id: 1,
-                                status: 'Done',
-                                state: {
-                                    STATE1: null
-                                },
-                                user_state: {
-                                    USERSTATE1: null
-                                }
-                            },
-                            {
-                                id: 2,
-                                status: 'Done',
-                                state: {
-                                    STATE2: null
-                                },
-                                user_state: {
-                                    USERSTATE2: null
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        }
-
-        return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selectedId).toEqual('current')
-            const interpretation = runCompute(getSelectedInterpretation, { state })
-            expect(interpretation).toEqual(testState.views.workflows.data.interpretations[1])
-            return runAction(copyInterpretationState, { state }).then(({ state }) => {
-                expect(state.views.workflows.interpretation).toEqual({
-                    selectedId: 'current',
-                    state: {
-                        STATE2: null
-                    },
-                    userState: {
-                        USERSTATE2: null
-                    },
-                    isOngoing: false
-                })
-            })
-        })
-    })
-
     it('assigns the only interpretation when when no history is present', function() {
         const testState = {
             views: {
