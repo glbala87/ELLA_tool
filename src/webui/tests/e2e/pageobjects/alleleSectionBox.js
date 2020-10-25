@@ -162,7 +162,7 @@ class AlleleSectionBox {
     }
 
     get alleleWarningText() {
-        return util.element('.allele-warning .sb-body').getText()
+        return util.element('.warning-box .sb-body').getText()
     }
 
     undoReevaluation() {

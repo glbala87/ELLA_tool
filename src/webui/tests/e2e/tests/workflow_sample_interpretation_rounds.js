@@ -219,9 +219,9 @@ describe('Sample workflow ', function() {
         expect(alleleSidebar.countOfUnclassified()).toBe(0)
         expect(numberOfClassified).toBeGreaterThan(1)
 
-        // current data round: Three alleles were classified as U in this sample, and two as 2 in the other sample
-
+        // current data "round": Three alleles were classified as U in this sample, and two as 2 in the other sample
         let current_classifications = ['3', '3', 'U', 'U', 'U']
+        analysisPage.chooseRound(4) // current
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
