@@ -9,12 +9,10 @@ import ExceptionHandling from './exceptionhandling'
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 
-import './modals/alleleAssessmentHistoryModal.service'
 import './modals/customAnnotationModal.service'
 import './modals/referenceEvalModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resources are therefore still in use
-import './services/resources/alleleAssessmentResource.service'
 import './services/resources/customAnnotationResource.service'
 import './services/resources/analysisResource.service'
 import './services/resources/ReferenceResource.service'
@@ -70,7 +68,6 @@ import './widgets/copyText.directive'
 import './widgets/tippy.directive'
 import './widgets/alleleWarning.directive'
 import './widgets/analysisList.directive'
-import './widgets/alleleAssessment.directive'
 import './widgets/alleleList.directive'
 import './widgets/importList.directive'
 import './widgets/interpretationRoundInfo.directive'

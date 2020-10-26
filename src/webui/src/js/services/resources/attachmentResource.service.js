@@ -32,23 +32,6 @@ class AttachmentResource {
             })
         })
     }
-
-    getByIds(ids) {
-        return new Promise((resolve, reject) => {
-            if (!ids.length) {
-                resolve([])
-            }
-            let q = JSON.stringify({ id: ids })
-            let r = this.resource(`${this.base}/attachments/?q=${encodeURIComponent(q)}`)
-            let attachments = r.query(() => {
-                let attchmts = []
-                for (let o of attachments) {
-                    attchmts.push(o)
-                }
-                resolve(attchmts)
-            })
-        })
-    }
 }
 
 export default AttachmentResource
