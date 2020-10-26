@@ -17,6 +17,15 @@ export default function getWorkflowsState() {
         modals: {
             addExcludedAlleles: {
                 show: false
+            },
+            genepanelOverview: {
+                show: false
+            },
+            reassignWorkflow: {
+                show: false
+            },
+            finishConfirmation: {
+                show: false
             }
         },
         id: null, // analysis id or allele id

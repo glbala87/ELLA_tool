@@ -9,10 +9,23 @@
             </button>
         </section>
 
-        <allele-assessment
-            alleleassessment="$ctrl.allele.allele_assessment"
-            allelereport="$ctrl.allele.allele_report"
-            summary-only="true"
-        ></allele-assessment>
+        <div>
+            <h2 class="id-classification-name">
+                {{ $ctrl.getClassName() }}
+                <span class="outdated" ng-if="$ctrl.isOutdated()"> (Outdated)</span>
+            </h2>
+            <h5>
+                made by {{ $ctrl.allele.allele_assessment.user.user_group_name }} ({{
+                    $ctrl.allele.allele_assessment.user.full_name
+                }}) on {{ $ctrl.allele.allele_assessment.date_created | date: 'yyyy-MM-dd' }} for
+                {{ $ctrl.allele.allele_assessment.genepanel_name }}_{{
+                    $ctrl.allele.allele_assessment.genepanel_version
+                }}
+            </h5>
+            <h5 ng-if="$ctrl.allele.allele_report">
+                Report changed by {{ $ctrl.allele.allele_report.user.full_name }} on
+                {{ $ctrl.allele.allele_report.date_created | date: 'yyyy-MM-dd HH:mm' }}
+            </h5>
+        </div>
     </cbbody>
 </contentbox>

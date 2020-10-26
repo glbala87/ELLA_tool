@@ -1,5 +1,6 @@
 import { Module } from 'cerebral'
 import addExcludedAlleles from './addExcludedAlleles'
+import alleleAssessmentHistory from './alleleAssessmentHistory'
 import finishConfirmation from './finishConfirmation'
 import genepanelOverview from './genepanelOverview'
 import reassignWorkflow from './reassignWorkflow'
@@ -12,6 +13,7 @@ export default Module({
     signals: {},
     modules: {
         addExcludedAlleles,
+        alleleAssessmentHistory,
         finishConfirmation,
         genepanelOverview,
         reassignWorkflow

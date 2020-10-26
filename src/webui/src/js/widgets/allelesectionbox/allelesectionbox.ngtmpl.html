@@ -199,6 +199,7 @@
                 <attachment
                     ng-repeat="attachment_id in $ctrl.alleleassessment.attachment_ids"
                     attachment-path="'views.workflows.interpretation.data.attachments.' + attachment_id"
+                    read-only="$ctrl.readOnly || $ctrl.isAlleleAssessmentReused"
                 >
                 </attachment>
                 <upload mode="'drop'"></upload>

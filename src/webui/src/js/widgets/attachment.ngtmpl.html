@@ -56,7 +56,7 @@
         <div class="attachmentfilename">{{ $ctrl.attachment.filename }}</div>
         <div
             class="removeattachment"
-            ng-if="!($ctrl.readOnly || $ctrl.reused)"
+            ng-if="!($ctrl.readOnly)"
             ng-click="$ctrl.removeAttachment({attachmentId: $ctrl.attachment.id, alleleId: $ctrl.selectedAllele})"
         >
             <svg
