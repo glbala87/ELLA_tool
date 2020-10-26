@@ -48,6 +48,8 @@ start_review:
     tags:
         - review
     needs: []
+    timeout: 15m
+    allow_failure: true
 
 .test-common:
     stage: test
