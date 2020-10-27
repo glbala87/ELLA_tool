@@ -26,6 +26,24 @@ Highlights ...
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings)
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
+<!-- MR !443, !445, !446-->
+- Several smaller fixes and improvements to the backend.
+
+## Version 1.11.2
+
+Release date: 27.10.2020
+
+### Highlights
+
+This release adds bugfixes related to manually appending results to an analysis.
+
+### All changes
+
+<!-- MR !449 -->
+- Fixed a bug where filters using `inheritance_mode` failed to load when there are more than two proband samples in an analysis (e.g. on manual appending import). 
+<!-- MR !452-->
+- Fixed a bug where manually appending an import to a finalized analysis fails. 
+<!-- !442, !447 and !461: no release notes necessary -->
 
 
 ## Version 1.11.3
