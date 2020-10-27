@@ -67,10 +67,10 @@ class InheritanceModelFilter(object):
 
             # There can be multiple sample ids for a proband,
             # we need to check them all
-            proband_sample_identifier_ids = (
-                self.session.query(sample.Sample.identifier, sample.Sample.id)
+            proband_sample_ids = (
+                self.session.query(sample.Sample.id)
                 .filter(sample.Sample.analysis_id == analysis_id, sample.Sample.proband.is_(True))
-                .all()
+                .scalar_all()
             )
 
             # We need to merge all the proband samples together into one table
@@ -90,11 +90,10 @@ class InheritanceModelFilter(object):
             # | 63        | Homozygous       |
             # | 64        | Heterozygous     |
 
-            proband_sample_ids = [p.id for p in proband_sample_identifier_ids]
             genotype_table = get_genotype_temp_table(self.session, allele_ids, proband_sample_ids)
 
             proband_genotype_tables = list()
-            for proband_sample_name, proband_sample_id in proband_sample_identifier_ids:
+            for proband_sample_id in proband_sample_ids:
                 proband_genotype_tables.append(
                     self.session.query(
                         genotype_table.c.allele_id.label("allele_id"),
@@ -106,8 +105,7 @@ class InheritanceModelFilter(object):
 
             proband_genotype_table = proband_genotype_tables[0]
             if len(proband_genotype_tables) > 1:
-                for to_add_table in proband_genotype_tables[1:]:
-                    proband_genotype_table = proband_genotype_table.union(to_add_table)
+                proband_genotype_table = proband_genotype_table.union(*proband_genotype_tables[1:])
 
             proband_genotype_table = proband_genotype_table.temp_table("proband_genotype_table")
 
@@ -169,7 +167,7 @@ class InheritanceModelFilter(object):
             criteria_columns: List = []
             if filter_mode == "recessive_non_candidates":
                 # - single, heterozygous variant
-                # - distinct AR or distinct XR inheritance
+                # - distinct AR
                 criteria_columns = [
                     func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AR").label(
                         "is_inheritance_match"
@@ -187,14 +185,12 @@ class InheritanceModelFilter(object):
                         "is_inheritance_match"
                     ),
                     or_(
-                        # single homozygous
+                        # single variant, at least one sample has homozygous genotype
                         and_(
                             func.count(proband_genotype_table.c.allele_id.distinct()) == 1,
-                            func.bool_and(
-                                proband_genotype_table.c.proband_genotype == "Homozygous"
-                            ),
+                            func.bool_or(proband_genotype_table.c.proband_genotype == "Homozygous"),
                         ),
-                        # multiple whatever genotype
+                        # more than one variant (in which case genotype is irrelevant)
                         func.count(proband_genotype_table.c.allele_id.distinct()) > 1,
                     ).label("is_variant_match"),
                 ]
