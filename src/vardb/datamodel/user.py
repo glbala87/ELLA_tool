@@ -65,6 +65,15 @@ class UserGroup(Base):
     )
 
 
+# Represents relationship of what groups are allowed to import data into which groups
+UserGroupImport = Table(
+    "usergroupimport",
+    Base.metadata,
+    Column("usergroup_id", Integer, ForeignKey("usergroup.id"), nullable=False),
+    Column("usergroupimport_id", Integer, ForeignKey("usergroup.id"), nullable=False),
+)
+
+
 class UserSession(Base):
     """Represents a user session"""
 

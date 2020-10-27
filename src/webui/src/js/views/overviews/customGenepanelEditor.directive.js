@@ -85,12 +85,34 @@ const addedFilteredTotalItems = Compute(
     }
 )
 
+// This is just to work around uib-btn-checkbox model format
+const selectedImportUserGroups = Compute(
+    state`views.overview.import.custom.selectedImportUserGroups`,
+    state`app.user.group.import_groups`,
+    (selectedImportUserGroups, candidateImportGroups) => {
+        const selected = []
+        for (let c of candidateImportGroups) {
+            console.log(c)
+            selected.push({
+                selected: selectedImportUserGroups.length
+                    ? true
+                    : selectedImportUserGroups.includes(c),
+                name: c
+            })
+        }
+        console.log(selected)
+        return selected
+    }
+)
+
 app.component('customGenepanelEditor', {
     templateUrl: 'customGenepanelEditor.ngtmpl.html',
     controller: connect(
         {
             candidateTranscripts,
             addedTranscripts,
+            importUserGroups: state`app.user.group.import_groups`,
+            selectedImportUserGroups,
             genepanels: state`views.overview.import.data.genepanels`,
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
             selectedFilterMode: state`views.overview.import.custom.selectedFilterMode`,

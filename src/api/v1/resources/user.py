@@ -1,6 +1,6 @@
 import logging
 from flask import Response, make_response, redirect, request
-
+from sqlalchemy.orm import aliased
 from vardb.datamodel import user as user_model
 
 from api import schemas, ApiError
@@ -114,7 +114,25 @@ class ChangePasswordResource(Resource):
 class CurrentUser(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
-        return schemas.UserFullSchema().dump(user).data
+        # Load import_groups into user group
+        usergroupimport = aliased(user_model.UserGroup)
+        importgroups = (
+            session.query(user_model.UserGroup.name, usergroupimport.name)
+            .join(
+                user_model.UserGroupImport,
+                user_model.UserGroup.id == user_model.UserGroupImport.c.usergroup_id,
+            )
+            .join(
+                usergroupimport,
+                usergroupimport.id == user_model.UserGroupImport.c.usergroupimport_id,
+            )
+            .filter(user_model.UserGroup.id == user.group.id)
+            .all()
+        )
+        dumped_user = schemas.UserFullSchema().dump(user).data
+        import_group_names = [a[1] for a in importgroups]
+        dumped_user["group"]["import_groups"] = import_group_names
+        return dumped_user
 
 
 class LogoutResource(LogRequestResource):

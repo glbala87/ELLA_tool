@@ -3,6 +3,26 @@
         <div class="question tiny line-wrapper">
             <div class="left">
                 <h5 class="slim title">
+                    <b>IMPORT TO USER GROUPS</b>
+                </h5>
+            </div>
+            <div class="right bttn-set">
+                <div class="id-filter-search">
+                    <label
+                        class="bttn"
+                        uib-btn-checkbox
+                        ng-model="$ctrl.modelImportUserGroup[$index]"
+                        ng-model-watch="$ctrl.selectedImportUserGroups[$index].selected"
+                        ng-repeat="item in $ctrl.selectedImportUserGroups track by item.name"
+                        ng-change="$ctrl.priorityChanged({priority: $ctrl.modelPriority})"
+                        >{{ item.name }}</label
+                    >
+                </div>
+            </div>
+        </div>
+        <div class="question tiny line-wrapper">
+            <div class="left">
+                <h5 class="slim title">
                     <b>CUSTOM GENE PANEL NAME</b>
                 </h5>
             </div>
