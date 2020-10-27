@@ -3,7 +3,7 @@ import getAlleleState from '../computed/getAlleleState'
 export default function autoReuseExistingAlleleassessments({ state, resolve }) {
     const alleles = state.get('views.workflows.interpretation.data.alleles')
     const checkReportAlleleIds = []
-    const newAlleleAssessmentAlleleIds = []
+    const updatedAlleleAssessmentAlleleIds = []
 
     for (let [alleleId, allele] of Object.entries(alleles)) {
         if (!allele.allele_assessment) {
@@ -14,6 +14,11 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
         const hasNewAlleleAssessment =
             !('reuseCheckedId' in alleleState.alleleassessment) ||
             alleleState.alleleassessment.reuseCheckedId < allele.allele_assessment.id
+
+        const hasUpdatedAlleleAssessment =
+            'reuseCheckedId' in alleleState.alleleassessment &&
+            alleleState.alleleassessment.reuseCheckedId < allele.allele_assessment.id
+
         const isReused = alleleState.alleleassessment.reuse
 
         if (hasNewAlleleAssessment || isReused) {
@@ -31,8 +36,10 @@ export default function autoReuseExistingAlleleassessments({ state, resolve }) {
 
         if (hasNewAlleleAssessment) {
             checkReportAlleleIds.push(allele.id)
-            newAlleleAssessmentAlleleIds.push(allele.id)
+        }
+        if (hasUpdatedAlleleAssessment) {
+            updatedAlleleAssessmentAlleleIds.push(allele.id)
         }
     }
-    return { checkReportAlleleIds, newAlleleAssessmentAlleleIds }
+    return { checkReportAlleleIds, updatedAlleleAssessmentAlleleIds }
 }
