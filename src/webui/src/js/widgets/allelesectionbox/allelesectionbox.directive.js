@@ -124,6 +124,7 @@ app.component('alleleSectionbox', {
             finalizeAlleleClicked: signal`views.workflows.interpretation.finalizeAlleleClicked`,
             addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
             addPredictionClicked: signal`views.workflows.modals.addPrediction.showAddPredictionClicked`,
+            addExternalClicked: signal`views.workflows.modals.addExternal.showAddExternalClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,

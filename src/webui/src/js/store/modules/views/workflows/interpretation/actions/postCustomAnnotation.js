@@ -4,7 +4,6 @@ export default function postCustomAnnotation({ state, http, path, props }) {
         annotations: props.customAnnotationData,
         user_id: state.get('app.user.id')
     }
-    console.log(payload)
 
     return http
         .post(`customannotations/`, payload)

@@ -74,7 +74,7 @@
                     class="id-add-external"
                     ng-if="control == 'custom_external'"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'external'})"
+                    ng-click="$ctrl.addExternalClicked({alleleId: $ctrl.selectedAllele})"
                 >
                     Add external DB
                 </button>
