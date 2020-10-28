@@ -14,7 +14,7 @@
                         ng-model="$ctrl.modelImportUserGroup[$index]"
                         ng-model-watch="$ctrl.selectedImportUserGroups[$index].selected"
                         ng-repeat="item in $ctrl.selectedImportUserGroups track by item.name"
-                        ng-change="$ctrl.priorityChanged({priority: $ctrl.modelPriority})"
+                        ng-change="$ctrl.importUserGroupsChangedWrapper()"
                         >{{ item.name }}</label
                     >
                 </div>

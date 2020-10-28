@@ -38,6 +38,10 @@ export default [
             {
                 true: [
                     set(props`genepanel`, state`views.overview.import.custom.added.addedGenepanel`),
+                    set(
+                        props`usergroups`,
+                        state`views.overview.import.custom.selectedImportUserGroups`
+                    ),
                     postGenepanel,
                     {
                         success: [

@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case, cast
-from vardb.datamodel import gene
+from vardb.datamodel import gene, user as user_model
 
 from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
@@ -49,7 +49,7 @@ class GenepanelListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["name", "version", "genes"])
+    @request_json(["name", "version", "genes", "usergroups"])
     def post(self, session, data=None, user=None):
         """
         Creates a new genepanel.
@@ -115,9 +115,25 @@ class GenepanelListResource(LogRequestResource):
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
 
-        user.group.genepanels.append(genepanel)
+        assert data["usergroups"]
+        usergroup_ids = (
+            session.query(user_model.UserGroup.id)
+            .filter(user_model.UserGroup.name.in_(data["usergroups"]))
+            .scalar_all()
+        )
+        assert len(usergroup_ids) == len(data["usergroups"])
 
         session.add(genepanel)
+        session.flush()
+
+        for ug_id in usergroup_ids:
+            session.execute(
+                user_model.UserGroupGenepanel.insert().values(
+                    usergroup_id=ug_id,
+                    genepanel_name=data["name"],
+                    genepanel_version=data["version"],
+                )
+            )
 
         session.commit()
         return None

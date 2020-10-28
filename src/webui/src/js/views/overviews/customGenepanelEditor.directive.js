@@ -92,15 +92,11 @@ const selectedImportUserGroups = Compute(
     (selectedImportUserGroups, candidateImportGroups) => {
         const selected = []
         for (let c of candidateImportGroups) {
-            console.log(c)
             selected.push({
-                selected: selectedImportUserGroups.length
-                    ? true
-                    : selectedImportUserGroups.includes(c),
+                selected: selectedImportUserGroups.includes(c),
                 name: c
             })
         }
-        console.log(selected)
         return selected
     }
 )
@@ -142,7 +138,8 @@ app.component('customGenepanelEditor', {
             selectedCandidatesPageChanged: signal`views.overview.import.selectedCandidatesPageChanged`,
             selectedAddedPageChanged: signal`views.overview.import.selectedAddedPageChanged`,
             selectedGenepanelChanged: signal`views.overview.import.selectedGenepanelChanged`,
-            selectedFilterModeChanged: signal`views.overview.import.selectedFilterModeChanged`
+            selectedFilterModeChanged: signal`views.overview.import.selectedFilterModeChanged`,
+            importUserGroupsChanged: signal`views.overview.import.importUserGroupsChanged`
         },
         'CustomGenepanelEditor',
         [
@@ -176,6 +173,18 @@ app.component('customGenepanelEditor', {
                             return `from filter`
                         }
                         return ''
+                    },
+                    importUserGroupsChangedWrapper() {
+                        // Transform data to format expected in signal
+                        const result = $ctrl.importUserGroups
+                            .map((g, i) => {
+                                if ($ctrl.modelImportUserGroup[i]) {
+                                    return g
+                                }
+                                return null
+                            })
+                            .filter((i) => i !== null)
+                        $ctrl.importUserGroupsChanged({ importUserGroups: result })
                     }
                 })
             }
