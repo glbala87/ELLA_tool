@@ -34,20 +34,21 @@ build:
             - images/
         policy: push
 
-start_review:
-    stage: review
-    script:
-        - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-    environment:
-        name: review/$CI_BUILD_REF_SLUG
-        url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    only:
-        - branches
-    except:
-        - master
-    tags:
-        - review
-    needs: []
+# Runner is down for time being, disable it until it's back up
+#start_review:
+#    stage: review
+#    script:
+#        - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
+#    environment:
+#        name: review/$CI_BUILD_REF_SLUG
+#        url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+#    only:
+#        - branches
+#    except:
+#        - master
+#    tags:
+#        - review
+#    needs: []
 
 .test-common:
     stage: test

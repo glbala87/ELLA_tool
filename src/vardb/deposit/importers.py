@@ -1113,7 +1113,7 @@ class AnalysisInterpretationImporter(object):
                 import api.v1.resources.workflow.helpers as helpers  # TODO: Placed here due to circular imports...
 
                 db_interpretation = helpers.reopen_interpretation(
-                    self.session, analysis_id=existing.analysis_id
+                    self.session, workflow_analysis_id=existing.analysis_id
                 )[1]
             else:
                 db_interpretation = None

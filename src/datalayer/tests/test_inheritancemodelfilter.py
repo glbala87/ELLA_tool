@@ -76,11 +76,16 @@ def inheritance_model_data(draw):
         inheritance_strategy = st.sampled_from(["AD", "AR", "AD/AR", "XR", "XD", ""])
         gene_inheritance.append(draw(st.lists(inheritance_strategy, min_size=1, max_size=2)))
 
-    num_alleles: int = draw(st.integers(min_value=1, max_value=3))
+    num_alleles: int = draw(st.integers(min_value=1, max_value=5))
     alleles = list()
     for idx in range(num_alleles):
         gene = draw(st.lists(st.sampled_from(GENES), min_size=1, max_size=2, unique=True))
-        gt = draw(st.sampled_from(["Homozygous", "Heterozygous"]))
+        # Draw random genotype (or None) per sample
+        gt = draw(
+            st.lists(st.sampled_from(["Homozygous", "Heterozygous", None]), min_size=3, max_size=3)
+        )
+        ht.assume(any(gt))  # We need at least one sample to have a genotype
+
         alleles.append((gene, gt))
 
     return (tuple(gene_inheritance), alleles)
@@ -114,10 +119,18 @@ def reset_analyses(session):
         affected=True,
         sample_type="HTS",
     )
+    test_sample3 = sample.Sample(
+        identifier="Test sample 3",
+        analysis_id=test_analysis.id,
+        proband=True,
+        affected=True,
+        sample_type="HTS",
+    )
     session.add(test_sample)
     session.add(test_sample2)
+    session.add(test_sample3)
     session.flush()
-    return test_analysis, test_sample, test_sample2
+    return test_analysis, test_sample, test_sample2, test_sample3
 
 
 def setup_fixtures(session, data):
@@ -135,11 +148,11 @@ def setup_fixtures(session, data):
     allele_genes_genotypes = data[1]
 
     reset_genepanel(session, gene_inheritance)
-    test_analysis, test_sample, test_sample2 = reset_analyses(session)
+    test_analysis, test_sample, test_sample2, test_sample3 = reset_analyses(session)
 
     allele_ids = []
     idx = 0
-    for allele_genes, allele_gt in allele_genes_genotypes:
+    for allele_genes, allele_gts in allele_genes_genotypes:
         # Insert allele located in genes according to input
         transcripts = list()
         for allele_gene in allele_genes:
@@ -153,16 +166,19 @@ def setup_fixtures(session, data):
         al, _ = create_allele_with_annotation(session, {"transcripts": transcripts})
         session.flush()
         gt = genotype.Genotype(allele_id=al.id, sample_id=test_sample.id)
-        # If more than two alleles, assign the rest to the second sample
-        # in order to test the mergeing
-        gsd = genotype.GenotypeSampleData(
-            genotype=gt,
-            secondallele=False,
-            multiallelic=False,
-            sample_id=test_sample.id if idx < 2 else test_sample2.id,
-            type=allele_gt,
-        )
-        session.add(gsd)
+
+        sample_ids = [test_sample.id, test_sample2.id, test_sample3.id]
+        for idx, allele_gt in enumerate(allele_gts):
+            if allele_gt is None:
+                continue
+            gsd = genotype.GenotypeSampleData(
+                genotype=gt,
+                secondallele=False,
+                multiallelic=False,
+                sample_id=sample_ids[idx],
+                type=allele_gt,
+            )
+            session.add(gsd)
         allele_ids.append(al.id)
         idx += 1
 
@@ -187,30 +203,50 @@ class TestInheritanceModelFilter(object):
 
     # First index: Fixed tuple of inheritances (list) for GENE1, GENE2, GENE3
     # Second index: List of alleles with gene and genotype
-    @ht.example(((["AR"], [""], [""]), [(["GENE1"], "Heterozygous")]), [0])  # Single AR variant
-    @ht.example(((["XR"], [""], [""]), [(["GENE1"], "Heterozygous")]), [])  # Single XR variant
-    @ht.example(((["AD"], [""], [""]), [(["GENE1"], "Heterozygous")]), [])  # Single AD variant
     @ht.example(
-        ((["AR/AD"], [""], [""]), [(["GENE1"], "Heterozygous")]), []
+        ((["AR"], [""], [""]), [(["GENE1"], ["Heterozygous", None, None])]), [0]
+    )  # Single AR variant
+    @ht.example(
+        ((["XR"], [""], [""]), [(["GENE1"], ["Heterozygous", None, None])]), []
+    )  # Single XR variant
+    @ht.example(
+        ((["AD"], [""], [""]), [(["GENE1"], ["Heterozygous", None, None])]), []
+    )  # Single AD variant
+    @ht.example(
+        ((["AR/AD"], [""], [""]), [(["GENE1"], ["Heterozygous", None, None])]), []
     )  # Single mixed variant
-    @ht.example(((["AR"], [""], [""]), [(["GENE1"], "Homozygous")]), [])  # Single AR hom variant
-    @ht.example(((["AD"], [""], [""]), [(["GENE1"], "Homozygous")]), [])  # Single AR hom variant
-    @ht.example(((["AR/AD"], [""], [""]), [(["GENE1"], "Homozygous")]), [])  # Single AR hom variant
     @ht.example(
-        ((["AD"], ["AR"], [""]), [(["GENE1", "GENE2"], "Heterozygous")]), []
+        ((["AR"], [""], [""]), [(["GENE1"], ["Homozygous", None, None])]), []
+    )  # Single AR hom variant
+    @ht.example(
+        ((["AD"], [""], [""]), [(["GENE1"], ["Homozygous", None, None])]), []
+    )  # Single AR hom variant
+    @ht.example(
+        ((["AR/AD"], [""], [""]), [(["GENE1"], ["Homozygous", None, None])]), []
+    )  # Single AR hom variant
+    @ht.example(
+        ((["AD"], ["AR"], [""]), [(["GENE1", "GENE2"], ["Heterozygous", None, None])]), []
     )  # Different inheritance in different genes
-    @ht.example(((["AR"], ["AD"], ["AR"]), [(["GENE2", "GENE3"], "Heterozygous")]), [])
+    @ht.example(
+        ((["AR"], ["AD"], ["AR"]), [(["GENE2", "GENE3"], ["Heterozygous", None, None])]), []
+    )
     @ht.example(
         (
             (["XR"], ["AR", "AR"], ["XR", "AD"]),
             [
-                (["GENE1", "GENE3"], "Heterozygous"),
-                (["GENE1", "GENE3"], "Heterozygous"),
-                (["GENE2"], "Heterozygous"),
+                (["GENE1", "GENE3"], ["Heterozygous", None, None]),
+                (["GENE1", "GENE3"], ["Heterozygous", None, None]),
+                (["GENE2"], ["Heterozygous", None, None]),
             ],
         ),
         [2],
     )
+    @ht.example(
+        ((["AR"], [""], [""]), [(["GENE1"], ["Heterozygous", "Heterozygous", None])]), [0]
+    )  # Multiple samples with same variant, all heterozygous
+    @ht.example(
+        ((["AR"], [""], [""]), [(["GENE1"], ["Homozygous", "Heterozygous", None])]), []
+    )  # Multiple samples with same variant, conflicting genotype, one homozygous
     @ht.given(inheritance_model_data(), st.just(None))
     def test_recessive_non_candidates(self, session, data, manually_curated_result):
         session.rollback()
@@ -239,10 +275,12 @@ class TestInheritanceModelFilter(object):
         gene_allele_ids = defaultdict(set)
 
         for allele_id, allele_data in zip(allele_ids, alleles):
-            gene_names, gt = allele_data
+            gene_names, allele_gts = allele_data
             for gene_name in gene_names:
                 gene_allele_ids[gene_name].add(allele_id)
-            allele_id_heterozygous[allele_id] = gt == "Heterozygous"
+            allele_id_heterozygous[allele_id] = all(
+                gt in ["Heterozygous", None] for gt in allele_gts
+            )
 
         filter_candidate_allele_id_gene = defaultdict(dict)  # {1: {"GENE1": False, "GENE2": True}}
         for gene_name in GENES:
@@ -267,25 +305,47 @@ class TestInheritanceModelFilter(object):
 
         assert result[analysis_id] == result_allele_ids, filter_candidate_allele_id_gene
 
-    @ht.example(((["AD"], [""], [""]), [(["GENE1"], "Homozygous")]), [])  # Is AD
+    @ht.example(((["AD"], [""], [""]), [(["GENE1"], ["Homozygous", None, None])]), [])  # Is AD
     @ht.example(
-        ((["AD"], [""], [""]), [(["GENE1"], "Homozygous"), (["GENE1"], "Heterozygous")]),
+        (
+            (["AD"], [""], [""]),
+            [(["GENE1"], ["Homozygous", None, None]), (["GENE1"], ["Heterozygous", None, None])],
+        ),
         [],  # Multiple variants, but AD
     )
-    @ht.example(((["AD/AR"], [""], [""]), [(["GENE1"], "Homozygous")]), [0])  # Simple non-AD case
     @ht.example(
-        ((["AD/AR"], [""], [""]), [(["GENE1"], "Homozygous"), (["GENE1"], "Heterozygous")]),
+        ((["AD/AR"], [""], [""]), [(["GENE1"], ["Homozygous", None, None])]), [0]
+    )  # Simple non-AD case
+    @ht.example(
+        (
+            (["AD/AR"], [""], [""]),
+            [(["GENE1"], ["Homozygous", None, None]), (["GENE1"], ["Heterozygous", None, None])],
+        ),
         [0, 1],  # Multiple variants, same gene
     )
     @ht.example(
-        ((["AD/AR"], [""], [""]), [(["GENE1"], "Homozygous"), (["GENE2"], "Heterozygous")]), [0]
+        (
+            (["AD/AR"], [""], [""]),
+            [(["GENE1"], ["Homozygous", None, None]), (["GENE2"], ["Heterozygous", None, None])],
+        ),
+        [0],
     )  # Multple variants, different genes
     @ht.example(
-        ((["AD/AR"], [""], [""]), [(["GENE1"], "Heterozygous")]), []
+        ((["AD/AR"], [""], [""]), [(["GENE1"], ["Heterozygous", None, None])]), []
     )  # Single, but heterozygous
     @ht.example(
-        ((["AD"], ["AD"], [""]), [(["GENE1"], "Homozygous"), (["GENE2"], "Homozygous")]), []
+        (
+            (["AD"], ["AD"], [""]),
+            [(["GENE1"], ["Homozygous", None, None]), (["GENE2"], ["Homozygous", None, None])],
+        ),
+        [],
     )
+    @ht.example(
+        ((["AR"], [""], [""]), [(["GENE1"], ["Heterozygous", "Heterozygous", None])]), []
+    )  # Multiple samples with same variant, all heterozygous
+    @ht.example(
+        ((["AR"], [""], [""]), [(["GENE1"], ["Homozygous", "Heterozygous", None])]), [0]
+    )  # Multiple samples with same variant, conflicting genotype, one homozygous
     @ht.given(inheritance_model_data(), st.just(None))
     def test_recessive_candidates(self, session, data, manually_curated_result):
 
@@ -315,10 +375,10 @@ class TestInheritanceModelFilter(object):
         gene_allele_ids = defaultdict(set)
 
         for allele_id, allele_data in zip(allele_ids, alleles):
-            gene_names, gt = allele_data
+            gene_names, allele_gts = allele_data
             for gene_name in gene_names:
                 gene_allele_ids[gene_name].add(allele_id)
-            allele_id_homozygous[allele_id] = gt == "Homozygous"
+            allele_id_homozygous[allele_id] = any(gt == "Homozygous" for gt in allele_gts)
 
         filter_candidate_allele_id_gene = defaultdict(dict)  # {1: {"GENE1": False, "GENE2": True}}
         for gene_name in GENES:

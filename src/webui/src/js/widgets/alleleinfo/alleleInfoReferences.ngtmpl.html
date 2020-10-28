@@ -11,7 +11,7 @@
         </h3>
         <article
             class="id-reference-{{ $ctrl.type }}-unpublished"
-            ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished"
+            ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished track by ref.id"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
             <referenceassessment reference-id="ref.id"></referenceassessment>
@@ -21,7 +21,7 @@
         </h3>
         <article
             class="id-reference-{{ $ctrl.type }}-published"
-            ng-repeat="ref in $ctrl.references[$ctrl.type].published"
+            ng-repeat="ref in $ctrl.references[$ctrl.type].published track by ref.id"
         >
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
             <referenceassessment reference-id="ref.id"></referenceassessment>
@@ -29,7 +29,7 @@
 
         <article
             class="id-article-unreferenced"
-            ng-repeat="ref in $ctrl.references.missing"
+            ng-repeat="ref in $ctrl.references.missing track by ref.pubmed_id"
             ng-if="$ctrl.type === 'pending'"
         >
             <section class="line-wrapper">

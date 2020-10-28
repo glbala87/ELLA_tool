@@ -15,6 +15,6 @@ def cmd_references_fetch(pubmed_ids):
 
     d = datetime.datetime.now()
 
-    output = "references-" + d.strftime("%y%m%d") + ".json"
+    output = "references-" + d.strftime("%y%m%d") + ".txt"
     pm = PubMedFetcher()
-    pm.get_references_from_file(pubmed_ids, dump_json=True, json_file=output)
+    pm.get_references_from_file(pubmed_ids, output)
