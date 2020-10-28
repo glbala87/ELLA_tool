@@ -95,9 +95,23 @@ class CustomAnnotationList(LogRequestResource):
         ca_data = {"user_id": user.id, "annotations": data["annotations"], "allele_id": allele_id}
 
         if existing_ca:
-            # Replace current
+            # Replace current, but only update existing_ca.annotations
+            ca_data["annotations"] = {
+                **(existing_ca.annotations if existing_ca.annotations else {}),
+                **data["annotations"],
+            }
             ca_data["previous_annotation_id"] = existing_ca.id
             existing_ca.date_superceeded = datetime.datetime.now(pytz.utc)
+
+        def pop_empty_leaves(d):
+            for k, v in list(d.items()):
+                if isinstance(v, dict):
+                    pop_empty_leaves(v)
+                elif v is None:
+                    d.pop(k)
+
+        # Remove leaves without value assigned to them
+        pop_empty_leaves(ca_data["annotations"])
 
         ca = annotation.CustomAnnotation(**ca_data)
         session.add(ca)
