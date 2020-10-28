@@ -83,7 +83,7 @@
                     class="id-add-prediction"
                     ng-if="control == 'custom_prediction'"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'prediction'})"
+                    ng-click="$ctrl.addPredictionClicked({alleleId: $ctrl.selectedAllele})"
                 >
                     Add prediction
                 </button>
