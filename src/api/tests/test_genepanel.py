@@ -16,7 +16,7 @@ class TestGenepanel(object):
 
         genepanel_to_copy["name"] = "NewPanel"
         genepanel_to_copy["version"] = "NewVersion"
-
+        genepanel_to_copy["usergroups"] = ["testgroup01"]
         r = client.post("/api/v1/genepanels/", genepanel_to_copy)
         assert r.status_code == 200
 
