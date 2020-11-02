@@ -6,10 +6,23 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2)
+[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3])(#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.11.3
+
+Release date 02.11.2020
+
+### Highlights
+
+This release adds a bugfix for the frequency filter. 
+
+### All changes
+
+<!-- MR !466 -->
+- Fixed a bug that caused a timeout in the frequency filter and failed loading of the associated analysis.
 
 ## Version 1.11.2
 
