@@ -26,8 +26,36 @@ Highlights ...
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings)
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
-<!-- MR !443, !445, !446-->
+<!-- MR !443, !445, !446, !462-->
 - Several smaller fixes and improvements to the backend.
+
+<!-- MR !456 -->
+- Display message whe finalized variant in ongoing analysis has been updated by other user
+<!-- MR !455 -->
+- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
+<!-- MR !454 -->
+- Show latest interpretation round by default for historical analyses
+<!-- MR !458 -->
+- Separate variant/collision warnings
+<!-- MR !453 -->
+- Fixed wrong tooltip on `SUBMIT REPORT` button
+<!-- MR !450 -->
+- Added support for templates in Gene information comment field
+<!-- MR !429 ; backend only, no release note? But needs technical docs
+- Improved analaysis file for import -->
+
+## Version 1.11.3
+
+Release date 02.11.2020
+
+### Highlights
+
+This release adds a bugfix for the frequency filter. 
+
+### All changes
+
+<!-- MR !466 -->
+- Fixed a bug that caused a timeout in the frequency filter and failed loading of the associated analysis.
 
 ## Version 1.11.2
 
