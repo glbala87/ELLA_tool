@@ -41,9 +41,9 @@ function withinRange(filter, date) {
     const [op, amount, unit] = filter.split(':')
     let filterDate
     if (unit === 'd') {
-        filterDate = createDate(Number(amount), 0)
+        filterDate = createDate(Number(amount))
     } else if (unit === 'm') {
-        filterDate = createDate(0, Number(amount))
+        filterDate = createDate(30 * Number(amount))
     } else {
         throw new SyntaxError(`Invalid unit in filter string: ${filter}`)
     }
@@ -62,23 +62,17 @@ function withinRange(filter, date) {
     }
 }
 
-function createDate(days, months) {
+function createDate(days) {
     const orig_date = new Date()
-    const date = new Date(orig_date.getTime())
-    date.setHours(0)
-    date.setMinutes(0)
-    date.setSeconds(0)
-    date.setMilliseconds(0)
+    const date = new Date(
+        orig_date.getFullYear(),
+        orig_date.getMonth(),
+        orig_date.getDate(),
+        0,
+        0,
+        0
+    )
     date.setDate(date.getDate() + days)
-    date.setMonth(date.getMonth() + months)
-
-    // time is hard and js month math is bad, e.g.
-    // date = new Date(2020, 2, 30) -> Mon Mar 30 2020 00:00:00
-    // date.setMonth(date.getMonth() - 1) -> Sun Mar 01 2020 00:00:00
-    // So we check what the real month delta is and adjust days as necessary
-    while ((orig_date.getMonth() - date.getMonth() + 12) % 12 != Math.abs(months)) {
-        date.setDate(date.getDate() - 1)
-    }
     return date
 }
 
