@@ -9,11 +9,9 @@ import ExceptionHandling from './exceptionhandling'
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 
-import './modals/customAnnotationModal.service'
 import './modals/referenceEvalModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resources are therefore still in use
-import './services/resources/customAnnotationResource.service'
 import './services/resources/analysisResource.service'
 import './services/resources/ReferenceResource.service'
 import './services/resources/attachmentResource.service'
