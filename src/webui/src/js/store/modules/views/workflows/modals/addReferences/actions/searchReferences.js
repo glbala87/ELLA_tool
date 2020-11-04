@@ -1,6 +1,6 @@
 import processReferences from '../../../../../../common/helpers/processReferences'
 
-export default ({ state, props, http, path }) => {
+export default ({ props, http, path }) => {
     let { value, perPage } = props
     if (value.length < 3) {
         return path.success({ result: [] })

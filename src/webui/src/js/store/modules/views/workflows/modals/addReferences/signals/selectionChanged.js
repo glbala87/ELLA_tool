@@ -1,6 +1,5 @@
-import { set, equals, debounce, when } from 'cerebral/operators'
+import { set, equals, when } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
-import { Reference } from '../../../../../../../model/reference'
 import toast from '../../../../../../common/factories/toast'
 import setDefaultSelection from '../sequences/setDefaultSelection'
 import searchReferences from '../actions/searchReferences'

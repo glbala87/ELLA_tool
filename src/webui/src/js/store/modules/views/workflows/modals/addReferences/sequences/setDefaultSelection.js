@@ -1,5 +1,5 @@
-import { set, push, equals, debounce, when } from 'cerebral/operators'
-import { state, props } from 'cerebral/tags'
+import { set, equals } from 'cerebral/operators'
+import { state } from 'cerebral/tags'
 
 export default [
     equals(state`views.workflows.modals.addReferences.referenceMode`),
@@ -9,7 +9,7 @@ export default [
                 searchPhrase: ''
             })
         ],
-        Pubmed: [
+        PubMed: [
             set(state`views.workflows.modals.addReferences.selection`, {
                 pubmedData: ''
             })

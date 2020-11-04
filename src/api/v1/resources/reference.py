@@ -116,7 +116,6 @@ class ReferenceListResource(LogRequestResource):
 
             return schemas.ReferenceSchema().dump(reference).data
         elif "manual" in data:
-
             reference = (
                 session.query(assessment.Reference)
                 .filter(

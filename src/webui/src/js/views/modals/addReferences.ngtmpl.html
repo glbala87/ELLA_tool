@@ -142,7 +142,7 @@
                     </contentbox>
                 </article>
             </article>
-            <article ng-if="$ctrl.referenceMode === 'Pubmed'">
+            <article ng-if="$ctrl.referenceMode === 'PubMed'">
                 <div class="question line-wrapper">
                     <div class="left">
                         <h5 class="slim title section-top"><b>Instructions</b></h5>
@@ -168,7 +168,7 @@
                         <button
                             class="green id-add-reference-button"
                             ng-click="$ctrl.addReference({'pubmedData': $ctrl.currentSelection.pubmedData})"
-                            ng-disabled="vm.reference_raw === ''"
+                            ng-disabled="$ctrl.currentSelection.pubmedData === ''"
                         >
                             <svg
                                 id="i-plus"
