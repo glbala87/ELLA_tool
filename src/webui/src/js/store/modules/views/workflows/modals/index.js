@@ -6,6 +6,7 @@ import genepanelOverview from './genepanelOverview'
 import reassignWorkflow from './reassignWorkflow'
 import addPrediction from './addPrediction'
 import addExternal from './addExternal'
+import addReferences from './addReferences'
 
 export default Module({
     state: {
@@ -20,6 +21,7 @@ export default Module({
         genepanelOverview,
         reassignWorkflow,
         addPrediction,
-        addExternal
+        addExternal,
+        addReferences
     }
 })

@@ -55,7 +55,7 @@
 
                 <button
                     class="id-add-references"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
+                    ng-click="$ctrl.addReferencesClicked({alleleId: $ctrl.selectedAllele})"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
                     ng-if="control == 'references'"
                 >
@@ -86,14 +86,6 @@
                     ng-click="$ctrl.addPredictionClicked({alleleId: $ctrl.selectedAllele})"
                 >
                     Add prediction
-                </button>
-
-                <button
-                    ng-if="control == 'add_reference'"
-                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
-                >
-                    Add reference
                 </button>
 
                 <section class="line-wrapper" ng-if="control == 'classification'">

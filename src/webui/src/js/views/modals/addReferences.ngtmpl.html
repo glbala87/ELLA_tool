@@ -1,0 +1,270 @@
+<sectionbox
+    class="custom-annotation-modal id-custom-annotation-modal"
+    color="green"
+    modal="true"
+    on-close="($ctrl.dismissClicked)"
+>
+    <maintitle>
+        Add studies
+    </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-cancel" type="button" ng-click="$ctrl.dismissClicked()">
+                Cancel
+            </button>
+            <button
+                class="id-save"
+                type="button"
+                ng-click="$ctrl.saveClicked({alleleId: $ctrl.alleleId, category: 'references', customAnnotationData: {'references': $ctrl.userReferences} })"
+            >
+                Save
+            </button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <section>
+            <article class="sectionbox-content allele-control-bar">
+                <contentbox
+                    class="id-references-list"
+                    boxtitle="Studies"
+                    collapsible="false"
+                    class="max-width"
+                >
+                    <cbbody>
+                        <article class="content-box" ng-repeat="ref in $ctrl.userReferences">
+                            <section class="line-wrapper">
+                                <div>
+                                    <h5 class="wrap">{{ ref.title }}</h5>
+                                    <p>{{ ref.formatted.shortDesc }}</p>
+                                </div>
+                                <div>
+                                    <button
+                                        class="pink"
+                                        ng-click="$ctrl.removeReference({refId: ref.id})"
+                                    >
+                                        REMOVE
+                                    </button>
+                                </div>
+                            </section>
+                        </article>
+                    </cbbody>
+                </contentbox>
+            </article>
+
+            <article class="line-wrapper question id-relevance">
+                <div class="left">
+                    <h5 class="slim title"><b>Mode</b></h5>
+                    <p>
+                        Add reference by searching, extracting from pubmed, <br />or add manually
+                        (published or unpublished study, e.g. in-house)
+                    </p>
+                </div>
+                <div class="middle"></div>
+                <div class="right">
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            class="bttn id-referenceMode-{{ item }}"
+                            ng-class="{active: item===$ctrl.referenceMode}"
+                            ng-model="$ctrl.modelReferenceMode"
+                            ng-model-watch="$ctrl.referenceMode"
+                            ng-change="$ctrl.selectionChanged({key: 'referenceMode', 'value': item})"
+                            uncheckable="false"
+                            uib-btn-radio="item"
+                            ng-repeat="item in $ctrl.referenceModes"
+                            >{{ item }}</label
+                        >
+                    </div>
+                </div>
+            </article>
+
+            <article ng-if="$ctrl.referenceMode === 'Search'">
+                <div class="question line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Search phrase</b></h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="Search phrase..."
+                            ng-model-watch="$ctrl.currentSelection.searchPhrase"
+                            ng-model="$ctrl.modelSearchPhrase"
+                            ng-change="
+                                $ctrl.selectionChanged({
+                                    key: 'searchPhrase',
+                                    value: $ctrl.modelSearchPhrase
+                                })
+                            "
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <article class="sectionbox-content allele-control-bar reference-search-results">
+                    <contentbox
+                        class="id-references-list max-width"
+                        boxtitle="Search results"
+                        collapsible="false"
+                    >
+                        <cbbody>
+                            <article
+                                class="content-box"
+                                ng-repeat="ref in $ctrl.currentSelection.searchResults"
+                            >
+                                <section class="line-wrapper">
+                                    <div>
+                                        <h5 class="wrap">{{ ref.title }}</h5>
+                                        <p>{{ ref.formatted.shortDesc }}</p>
+                                    </div>
+                                    <div>
+                                        <button
+                                            class="pink"
+                                            ng-click="$ctrl.addReference({refId: ref.id, reference: ref})"
+                                        >
+                                            ADD
+                                        </button>
+                                    </div>
+                                </section>
+                            </article>
+                            <h4
+                                ng-if="!$ctrl.currentSelection.searchResults.length"
+                                class="sb-notification dim"
+                            >
+                                No references found
+                            </h4>
+                            <h4
+                                ng-if="$ctrl.currentSelection.searchResults.length >=
+                                    $ctrl.maxSearchResults
+                                "
+                                class="sb-notification dim"
+                            >
+                                Showing first {{ $ctrl.maxSearchResults }} search results only
+                            </h4>
+                        </cbbody>
+                    </contentbox>
+                </article>
+            </article>
+            <article ng-if="$ctrl.referenceMode === 'Pubmed'">
+                <div class="question line-wrapper">
+                    <div class="left">
+                        <h5 class="slim title section-top"><b>Instructions</b></h5>
+                        <p>
+                            Find the reference on PubMed - Click "Save", select "Format: PubMed" and
+                            "Create file". Open the downloaded file in a <i>text editor</i>, copy
+                            the entire contents, and paste it in the "RAW PUBMED DATA" field.
+                        </p>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            class="big id-reference-raw"
+                            ng-model="$ctrl.modelPubmedData"
+                            ng-model-watch="$ctrl.currentSelection.pubmedData"
+                            ng-change="$ctrl.selectionChanged({key: 'pubmedData', value: $ctrl.modelPubmedData})"
+                            placeholder="RAW PUBMED DATA"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left">
+                        <button
+                            class="green id-add-reference-button"
+                            ng-click="$ctrl.addReference({'pubmedData': $ctrl.currentSelection.pubmedData})"
+                            ng-disabled="vm.reference_raw === ''"
+                        >
+                            <svg
+                                id="i-plus"
+                                class="buttonmark"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                            Add reference
+                        </button>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right"></div>
+                </div>
+            </article>
+
+            <article ng-if="$ctrl.referenceMode === 'Manual'">
+                <article class="line-wrapper question id-relevance">
+                    <div class="left">
+                        <h5 class="slim title"><b>Status</b></h5>
+                        <p>
+                            Is the study published?
+                        </p>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <div class="bttn-set">
+                            <label
+                                tabindex="0"
+                                class="bttn id-referenceMode-{{ item }}"
+                                ng-class="{active: item===$ctrl.currentSelection.submode}"
+                                ng-change="$ctrl.selectionChanged({key: 'submode', value: $ctrl.modelSubmode})"
+                                ng-model="$ctrl.modelSubmode"
+                                ng-model-watch="$ctrl.currentSelection.mode"
+                                uib-btn-radio="item"
+                                ng-repeat="item in $ctrl.currentSelection.submodes"
+                                >{{ item }}</label
+                            >
+                        </div>
+                    </div>
+                </article>
+
+                <div
+                    class="question small line-wrapper"
+                    ng-repeat="input in $ctrl.manualReferenceInputs[$ctrl.currentSelection.submode]"
+                >
+                    <div class="left">
+                        <h5 class="slim title section-top">
+                            <b>{{ input.left }}</b>
+                        </h5>
+                    </div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <autosize-textarea
+                            placeholder="{{ input.placeholder }}"
+                            ng-change="$ctrl.selectionChanged({key: input.key, value: $ctrl.modelManual[input.key]})"
+                            ng-model="$ctrl.modelManual[input.key]"
+                            ng-model-watch="$ctrl.currentSelection[input.key]"
+                        ></autosize-textarea>
+                    </div>
+                </div>
+                <div class="question small line-wrapper">
+                    <div class="left"></div>
+                    <div class="middle"></div>
+                    <div class="right">
+                        <button
+                            class="green id-add-reference-button"
+                            ng-click="$ctrl.addReference($ctrl.currentSelection)"
+                            ng-disabled="$ctrl.canAddManualReference()"
+                        >
+                            <svg
+                                id="i-plus"
+                                class="buttonmark"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                            Add reference
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </contentwrapper>
+</sectionbox>

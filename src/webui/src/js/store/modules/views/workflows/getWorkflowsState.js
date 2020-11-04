@@ -26,6 +26,15 @@ export default function getWorkflowsState() {
             },
             finishConfirmation: {
                 show: false
+            },
+            addExternal: {
+                show: false
+            },
+            addPrediction: {
+                show: false
+            },
+            addReferences: {
+                show: false
             }
         },
         id: null, // analysis id or allele id

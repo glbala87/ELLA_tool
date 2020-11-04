@@ -29,6 +29,7 @@ import './views/modals/reassignWorkflow.directive'
 import './views/modals/genepanelOverview.directive'
 import './views/modals/addPrediction.directive'
 import './views/modals/addExternal.directive'
+import './views/modals/addReferences.directive'
 
 import './views/workflow/workflow.directive'
 import './views/workflow/workflowLoading.directive'
