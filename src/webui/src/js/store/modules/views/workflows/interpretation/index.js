@@ -1,6 +1,5 @@
 import { Module } from 'cerebral'
 import addAcmgClicked from './signals/addAcmgClicked'
-import addCustomAnnotationClicked from './signals/addCustomAnnotationClicked'
 import evaluateReferenceClicked from './signals/evaluateReferenceClicked'
 import geneAssessmentChanged from './signals/geneAssessmentChanged'
 import undoGeneAssessmentClicked from './signals/undoGeneAssessmentClicked'
@@ -30,7 +29,6 @@ export default Module({
     state: {},
     signals: {
         addAcmgClicked,
-        addCustomAnnotationClicked,
         evaluateReferenceClicked,
         geneAssessmentChanged,
         undoGeneAssessmentClicked,

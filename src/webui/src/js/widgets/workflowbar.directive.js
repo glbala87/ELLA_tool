@@ -61,8 +61,7 @@ app.component('workflowbar', {
             showGenepanelOverviewClicked: signal`views.workflows.modals.genepanelOverview.showGenepanelOverviewClicked`,
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,
-            addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
-            addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`
+            addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`
         },
         'Workflow',
         [

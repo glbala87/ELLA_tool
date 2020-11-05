@@ -15,9 +15,6 @@ const setSelectionValue = [
 ]
 
 export default [
-    ({ props }) => {
-        console.error(props)
-    },
     equals(props`key`),
     {
         referenceMode: [

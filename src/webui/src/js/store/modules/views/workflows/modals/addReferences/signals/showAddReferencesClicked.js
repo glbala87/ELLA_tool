@@ -3,7 +3,7 @@ import { state, props } from 'cerebral/tags'
 import setDefaultSelection from '../sequences/setDefaultSelection'
 import { deepCopy } from '../../../../../../../util'
 
-const userReferencesForAllele = ({ state, props, path }) => {
+const userReferencesForAllele = ({ state, props }) => {
     const { alleleId } = props
     const loadedReferences = state.get(`views.workflows.interpretation.data.references`)
     const userReferenceIds = state
@@ -22,14 +22,10 @@ const userReferencesForAllele = ({ state, props, path }) => {
 }
 
 export default [
-    ({ state, props }) => {
-        console.log(props)
-    },
     set(state`views.workflows.modals.addReferences.referenceModes`, ['Search', 'PubMed', 'Manual']),
     set(state`views.workflows.modals.addReferences.referenceMode`, 'Search'),
     setDefaultSelection,
-    ({ state, props }) => {
-        const { alleleId } = props
+    ({ state }) => {
         state.set(
             `views.workflows.modals.addReferences.data.references`,
             deepCopy(state.get(`views.workflows.interpretation.data.references`))

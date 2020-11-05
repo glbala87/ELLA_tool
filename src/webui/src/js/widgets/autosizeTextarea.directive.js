@@ -25,7 +25,7 @@ import autosize from 'autosize'
         scope.$watch(
             () => scope.ngModel,
             () => {
-                // Will not work with ng-change in HTML, probably due to some priority issues
+                // Will not work with ng-change in template, probably due to some priority issues
                 if (scope.ngChange) {
                     scope.ngChange()
                 }
