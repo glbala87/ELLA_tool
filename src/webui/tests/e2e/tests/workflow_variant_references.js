@@ -60,9 +60,16 @@ describe(`Adding reference in variant workflow`, function() {
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
 
+        console.log(`current ref length: ${alleleSectionBox.getReferences().length}`)
+        // console.log(`check: $$('allele-sectionbox .id-references-box article')`)
+        // browser.debug()
+        // browser.pause(3000)
+        const wait_start = new Date()
         browser.waitUntil(() => alleleSectionBox.getReferences().length === 3, {
             timeout: 5000
         })
+        const wait_end = new Date()
+        console.log(`success after waiting ${(wait_end - wait_start) / 1000}s`)
         expect(alleleSectionBox.getReferences().length).toEqual(3)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
