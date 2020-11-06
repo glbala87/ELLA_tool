@@ -50,7 +50,7 @@ describe('filterAnalyses', function() {
             ],
             Object.assign({}, DEFAULT_FILTER, {
                 // Relies on when test is run, but should be valid unless going back in time
-                dateRange: 'ge:3:m'
+                dateRange: 'ge:-3:m'
             })
         )
         const { state } = await runAction(filterAnalyses, { state: testState })
@@ -59,7 +59,11 @@ describe('filterAnalyses', function() {
 
     it('priority filter', async function() {
         const testState = createState(
-            [{ name: 'P1', priority: 1 }, { name: 'P2', priority: 2 }, { name: 'P3', priority: 3 }],
+            [
+                { name: 'P1', priority: 1 },
+                { name: 'P2', priority: 2 },
+                { name: 'P3', priority: 3 }
+            ],
             Object.assign({}, DEFAULT_FILTER, {
                 priorityNormal: false,
                 priorityHigh: true,
