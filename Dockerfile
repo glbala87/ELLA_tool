@@ -110,6 +110,7 @@ ENV PGHOST="/socket"
 ENV PGDATA="/pg-data"
 WORKDIR /ella
 
+CMD supervisord -c /ella/ops/dev/supervisor.cfg
 
 ####
 # production image
