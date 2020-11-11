@@ -159,6 +159,7 @@ describe('Sample workflow ', function() {
             const selectedAllele = alleleSidebar.getSelectedAllele()
             alleleSectionBox.reevaluateBtn.click()
             alleleSectionBox.classifyAsU()
+            browser.pause(500) // ensure classification has propagated
             let classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('3')
             expect(classification.current).toBe('U')
@@ -174,6 +175,7 @@ describe('Sample workflow ', function() {
             alleleSidebar.selectFirstUnclassified() // who's first changes as this is classified
             const selectedAllele = alleleSidebar.getSelectedAllele()
             alleleSectionBox.classifyAsU()
+            browser.pause(500) // ensure classification has propagated
             let classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('')
             expect(classification.current).toBe('U')
@@ -206,6 +208,7 @@ describe('Sample workflow ', function() {
         overview.open()
 
         // when
+        browser.pause(500)
         overview.selectFinished(2) // List is sorted desc, newest first
 
         // then

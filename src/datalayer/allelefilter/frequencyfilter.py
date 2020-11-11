@@ -264,7 +264,7 @@ class FrequencyFilter(object):
             # 2. AD gene thresholds
             ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
                 self.session, "AD", gp_key[0], gp_key[1]
-            )
+            ).scalar_all()
             ad_gene_allele_ids = set()
             if ad_hgnc_ids:
                 ad_filters = [
