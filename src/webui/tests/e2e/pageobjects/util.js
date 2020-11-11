@@ -67,6 +67,15 @@ class Util {
         browser.pause(20) // Scrolling can take a tiny amount of time
         return el
     }
+
+    clearUnexpectedAlerts() {
+        // occasionally get alerts for no known reason, here we can dump the text and move on
+        // only works for chromium, but that's all we test anyway
+        if (browser.isAlertOpen()) {
+            console.warn(`Got unexpected alert with text: ${browser.getAlertText()}`)
+            browser.dismissAlert()
+        }
+    }
 }
 
 module.exports = new Util()

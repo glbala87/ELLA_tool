@@ -1,4 +1,5 @@
 var Page = require('./page')
+var util = require('./util')
 
 const PASSWORD = 'demo'
 
@@ -12,6 +13,8 @@ class LoginPage extends Page {
     }
 
     loginAs(username) {
+        // alerts are occasionally thrown here in no reproducible way, try to clear and dump the text to log
+        util.clearUnexpectedAlerts()
         this.login.waitForExist()
         $(`.id-username`).setValue(username)
         $(`.id-password`).setValue(PASSWORD)

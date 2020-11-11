@@ -50,7 +50,7 @@ describe('filterAnalyses', function() {
             ],
             Object.assign({}, DEFAULT_FILTER, {
                 // Relies on when test is run, but should be valid unless going back in time
-                dateRange: 'ge:3:m'
+                dateRange: 'ge:-3:m'
             })
         )
         const { state } = await runAction(filterAnalyses, { state: testState })

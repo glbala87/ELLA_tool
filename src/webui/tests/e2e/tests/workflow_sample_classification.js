@@ -158,6 +158,8 @@ describe('Sample workflow', function() {
         // For the rest we perform more extensive classifications
         // Next allele is automatically selected by application
         for (let idx = 2; idx < 5; idx++) {
+            // unclassified count to avoid timing issue later
+            const numUnclassified = alleleSidebar.countOfUnclassified()
             // Move to next unclassified
             alleleSidebar.selectFirstUnclassified()
             selected_allele = alleleSidebar.getSelectedAllele()
@@ -223,6 +225,14 @@ describe('Sample workflow', function() {
 
             console.log('Setting class ' + (idx + 1))
             alleleSectionBox.classSelection.selectByVisibleText(`Class ${idx + 1}`)
+
+            // needs a moment for change to propagate
+            browser.waitUntil(
+                () => alleleSidebar.countOfUnclassified(selected_allele) < numUnclassified,
+                {
+                    timeout: 1000
+                }
+            )
 
             alleleSidebar.markClassifiedReview(selected_allele)
             expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
