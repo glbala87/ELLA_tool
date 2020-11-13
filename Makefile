@@ -34,6 +34,14 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
+ifeq ($(CI_REGISTRY_IMAGE),)
+# running locally, use tty
+TERM_OPTS := -it
+else
+TERM_OPTS := -t
+endif
+
+
 
 .PHONY: help
 
@@ -295,8 +303,7 @@ test: test-all
 test-all: test-js test-common test-api test-cli test-report test-e2e
 
 test-js:
-	docker run \
-	  --rm \
+	docker run --rm \
 	  --name $(CONTAINER_NAME)-js \
 	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
@@ -313,7 +320,8 @@ test-js-auto:
 	  yarn test-watch
 
 test-python:
-	docker run -d \
+	docker run \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
@@ -322,7 +330,8 @@ test-python:
 	  ops/test/run_python_tests.sh
 
 test-api:
-	docker run --rm -it \
+	docker run --rm  \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
@@ -332,26 +341,29 @@ test-api:
 
 
 test-api-migration:
-	docker run  --rm -it \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
-	  -e MIGRATION=1
+	  -e MIGRATION=1 \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_api_tests.sh
 
 test-cli:
-	docker run  --rm -it \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
-	  /ella/ops/common/common_pg_startup init
+	  /ella/ops/test/run_cli_tests.sh
 
 test-report:
-	docker run  --rm -it \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
@@ -385,6 +397,7 @@ test-e2e:
 
 test-formatting:
 	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-formatting \
 	  --user $(UID):$(GID) \
 	  $(IMAGE_NAME) \

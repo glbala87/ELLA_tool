@@ -7,7 +7,7 @@ make dbsleep
 
 if [ "$1" = "" ]
 then
-  py.test src --color=yes --ignore src/api --ignore src/cli --ignore src/datalayer
+  py.test src --color=yes --ignore src/api --ignore src/cli --ignore src/datalayer -s
 else
   $1
 fi

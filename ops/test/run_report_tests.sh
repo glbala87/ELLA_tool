@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -e # exit on first failure
 source ./scripts/bash-util.sh
+set -e # exit on first failure
 
 echo "Starting up postgres"
 ./ops/common/common_pg_startup init &>/dev/null &
