@@ -28,6 +28,8 @@
         "python.pythonPath": "/dist/ella-python/bin/python3",
         "python.languageServer": "Pylance",
         "python.analysis.extraPaths": ["/dist/ella-python/lib/python3.7/site-packages/"],
+        "python.testing.pytestEnabled": true,
+        "python.testing.cwd": "/ella",
         "prettier.prettierPath": "/dist/node_modules/prettier",
         "prettier.configPath": "/ella/.prettierrc",
         "javascript.suggest.completeFunctionCalls": true,
@@ -59,13 +61,14 @@
     "containerEnv": {
         "OFFLINE_MODE": "false",
         "ELLA_CONFIG": "/ella/example_config.yml",
+        "ATTACHMENT_STORAGE": "/tmp/attachments",
         "PRODUCTION": "false",
         "DEV_IGV_FASTA": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
         "DEV_IGV_CYTOBAND": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt",
         "PTVS_PORT": "5678",
         "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
         "ANALYSES_PATH": "/ella/src/vardb/testdata/analyses/default/",
-        "DB_URL": "postgresql:///postgres"
+        "DB_URL": "postgresql:///postgres",
     },
 
     "build": {

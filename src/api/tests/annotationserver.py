@@ -23,6 +23,11 @@ def taskstatus(task_id):
 taskstatus.count = 0
 
 
+@app.route("/")
+def ok():
+    return "ok"
+
+
 @app.route("/api/v1/process/<task_id>", methods=["GET", "DELETE"])
 def process(task_id):
     return "Dummy data that will fail deposit"

@@ -7,6 +7,7 @@ verify_ssl = true
 pytest = "==5.2.1"
 pytest-cov = "==2.8.1"
 pytest-ordering = "==0.6"
+pytest-env = "==0.6.2"
 hypothesis = "==3.84.5"
 black = "==18.9b0"
 mypy = "==0.650"

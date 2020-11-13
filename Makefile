@@ -272,6 +272,13 @@ create-diagrams:
 		$(IMAGE_NAME) \
 		python /ella/src/vardb/util/datamodel_to_uml.py
 
+update-pipfile:
+	docker run \
+		-v $(shell pwd):/ella \
+		$(IMAGE_NAME) \
+		pipenv lock
+
+
 #---------------------------------------------
 # TESTING (unit / modules)
 #---------------------------------------------
@@ -310,73 +317,49 @@ test-python:
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-common ops/test/run_python_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-common
+	  ops/test/run_python_tests.sh
 
 test-api:
-	docker run -d \
+	docker run --rm -it \
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
+	  /ella/ops/test/run_api_tests.sh
 
-	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-api
 
 test-api-migration:
-	docker run -d \
+	docker run  --rm -it \
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	  -e MIGRATION=1
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-api-migration ops/test/run_api_migration_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-api-migration
+	  /ella/ops/test/run_api_tests.sh
 
 test-cli:
-	docker run -d \
+	docker run  --rm -it \
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-cli ops/test/run_cli_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-cli
+	  /ella/ops/common/common_pg_startup init
 
 test-report:
-	docker run -d \
+	docker run  --rm -it \
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
+	  ops/test/run_report_tests.sh
 
-	docker exec -t $(CONTAINER_NAME)-report ops/test/run_report_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-report
 
 test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e

@@ -1,11 +1,42 @@
 """Testing is done by using a dummy annotation server.
-This server is specified in /ella/ops/test/testannotationserver.py
-and started in conftest.py"""
-
+This server is specified in ./annotationserver.py
+and started in fixture"""
+import pytest
+import re
+import socket
+import urllib
+import time
+import multiprocessing
+from .annotationserver import app
 from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
 from api.polling import process_annotated, process_submitted, process_running
 
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
+
+
+@pytest.yield_fixture(scope="module", autouse=True)
+def annotationserver():
+    "Launch dummy annotation server in subprocess"
+    host = re.findall("//([^:]*)", ANNOTATION_SERVICE_URL)[0]
+    assert socket.gethostbyname(host) == socket.gethostbyname("localhost")
+    port = int(re.findall(r":(\d+)", ANNOTATION_SERVICE_URL)[0])
+
+    p = multiprocessing.Process(target=app.run, kwargs={"port": port, "host": host})
+    p.start()
+    max_retries = 10
+    n = 0
+    while True:
+        try:
+            urllib.request.urlopen(f"http://0.0.0.0:{port}")
+            break
+        except:
+            time.sleep(0.5)
+            n += 1
+        if n >= max_retries:
+            raise RuntimeError()
+
+    yield
+    p.terminate()
 
 
 def test_annotationserver_running(client):

@@ -14,6 +14,10 @@ function green {
   echo -e "${GREEN}$1${RESET}"
 }
 
+function magenta {
+  echo -e "${MAGENTA}$1${RESET}"
+}
+
 function red {
    echo -e "${RED}$1${RESET}"
 }

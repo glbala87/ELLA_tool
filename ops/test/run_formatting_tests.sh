@@ -1,65 +1,27 @@
 #!/bin/bash
 
 pushd /ella
-
-COLOROFF='\033[0m'
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-LIGHTGREEN='\033[1;32m'
+source ./scripts/bash-util.sh
 
 EXIT_CODE=0
 
-# Run black
+function run() {
+    name=$1
+    cmd=$2
+    magenta "### Running ${name} ###"
+    /bin/bash -c "$cmd" || EXIT_CODE=1
+    if [ "$EXIT_CODE" == "1" ]
+    then
+        red "### ${name}: FAILED ###"
+    else
+        green "### ${name}: SUCCESS ###"
+    fi
+    return $EXIT_CODE
+}
 
-echo -e "\n${LIGHTGREEN}### Running black ###${COLOROFF}\n"
-
-black --check /ella || EXIT_CODE=1
-if [ "$EXIT_CODE" == "1" ]
-then
-    echo -e "\n${RED}### black: FAILED ###${COLOROFF}\n"
-else
-    echo -e "\n${GREEN}### black: SUCCESS ###${COLOROFF}\n"
-fi
-
-# Run mypy
-
-echo -e "\n${LIGHTGREEN}### Running mypy ###${COLOROFF}\n"
-
-mypy /ella/src/api/main.py || EXIT_CODE=2
-if [ "$EXIT_CODE" == "2" ]
-then
-    echo -e "\n${RED}### mypy: FAILED ###${COLOROFF}\n"
-else
-    echo -e "\n${GREEN}### mypy: SUCCESS ###${COLOROFF}\n"
-fi
-
-# Run prettier
-
-echo -e "\n${LIGHTGREEN}### Running prettier ###${COLOROFF}\n"
-
-# Explicitly run angular parser on html: https://github.com/prettier/prettier-vscode/issues/638#issuecomment-459661114
-yarn prettier -l "**/*\.@(js|scss|json|css|html|yml)" || EXIT_CODE=3
-if [ "$EXIT_CODE" == "3" ]
-then
-    echo -e "\n${RED}### prettier: FAILED ###${COLOROFF}\n"
-else
-    echo -e "\n${GREEN}### prettier: SUCCESS ###${COLOROFF}\n"
-fi
-
-
-# Run prettier
-
-echo -e "\n${LIGHTGREEN}### Running flake8 ###${COLOROFF}\n"
-
-flake8 || EXIT_CODE=4
-if [ "$EXIT_CODE" == "4" ]
-then
-    echo -e "\n${RED}### flake8: FAILED ###${COLOROFF}\n"
-else
-    echo -e "\n${GREEN}### flake8: SUCCESS ###${COLOROFF}\n"
-fi
-
-
-
-
+run "black" "black --check /ella"
+run "mypy" "mypy /ella/src/api/main.py"
+run "flake8" "flake8"
+run "prettier" "yarn prettier -l '**/*\.@(js|scss|json|css|html|yml)'"
+run "eslint" "yarn eslint /ella"
 exit $EXIT_CODE
