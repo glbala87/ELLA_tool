@@ -3,7 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 import getGeneAssessment from '../store/modules/views/workflows/interpretation/computed/getGeneAssessment'
-import template from './geneInformation.ngtmpl.html'
+import template from './geneInformation.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('geneInformation', {
     bindings: {

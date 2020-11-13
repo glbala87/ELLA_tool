@@ -2,7 +2,7 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state } from 'cerebral/tags'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
-import template from './analysisInfo.ngtmpl.html'
+import template from './analysisInfo.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getSamples from '../store/modules/views/workflows/computed/getSamples'
 import getWarningCleared from '../store/modules/views/workflows/worklog/computed/getWarningCleared'
 

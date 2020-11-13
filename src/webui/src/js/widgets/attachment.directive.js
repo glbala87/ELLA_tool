@@ -4,7 +4,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal, props } from 'cerebral/tags'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import isAlleleAssessmentReused from '../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
-import template from './attachment.ngtmpl.html'
+import template from './attachment.ngtmpl.html' // eslint-disable-line no-unused-vars
 import popover from './attachmentPopover.ngtmpl.html'
 
 app.component('attachment', {

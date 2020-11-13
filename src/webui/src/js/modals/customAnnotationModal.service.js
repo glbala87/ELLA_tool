@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 import { deepCopy } from '../util'
 import { Service, Inject } from '../ng-decorators'
-import template from './customAnnotationModal.ngtmpl.html'
+import template from './customAnnotationModal.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 /**
  * Supports two "modes", normal annotation and adding

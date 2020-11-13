@@ -5,7 +5,7 @@ import { connect } from '@cerebral/angularjs'
 import { state } from 'cerebral/tags'
 import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar/computed/shouldShowSidebar'
 
-import template from './workflow.ngtmpl.html'
+import template from './workflow.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('workflow', {
     templateUrl: 'workflow.ngtmpl.html',

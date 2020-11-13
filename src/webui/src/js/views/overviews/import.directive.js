@@ -4,7 +4,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { UUID } from '../../util'
 import { ImportData } from '../../model/importdata'
-import template from './import.ngtmpl.html'
+import template from './import.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const addedCount = Compute(
     state`views.overview.import.custom.added.addedGenepanel`,

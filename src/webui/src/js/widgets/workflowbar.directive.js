@@ -4,7 +4,7 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import { getAcmgCandidates } from '../store/common/helpers/acmg'
-import template from './workflowbar.ngtmpl.html'
+import template from './workflowbar.ngtmpl.html' // eslint-disable-line no-unused-vars
 import acmgSelectiontemplate from './acmgSelectionPopover.ngtmpl.html'
 import interpretationLogPopover from './interpretationLogPopover.ngtmpl.html'
 import { deepCopy } from '../util'

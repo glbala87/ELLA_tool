@@ -5,7 +5,7 @@ import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysi
 
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID, sanitize } from '../util'
-import template from './wysiwygEditor.ngtmpl.html'
+import template from './wysiwygEditor.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 @Directive({
     selector: 'wysiwyg-editor',

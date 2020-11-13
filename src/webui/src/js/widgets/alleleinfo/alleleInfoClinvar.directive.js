@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import getClinvarAnnotation from '../../store/common/computes/getClinvarAnnotation'
-import template from './alleleInfoClinvar.ngtmpl.html'
+import template from './alleleInfoClinvar.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoClinvar', {
     templateUrl: 'alleleInfoClinvar.ngtmpl.html',

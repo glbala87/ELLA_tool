@@ -2,7 +2,7 @@ import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { hasDataAtKey } from '../util'
-import template from './workflowButtons.ngtmpl.html'
+import template from './workflowButtons.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
 
 const START_BUTTON_OPTIONS = {

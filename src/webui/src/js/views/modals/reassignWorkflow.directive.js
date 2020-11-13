@@ -3,7 +3,7 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { signal } from 'cerebral/tags'
-import template from './reassignWorkflow.ngtmpl.html'
+import template from './reassignWorkflow.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('reassignWorkflow', {
     templateUrl: 'reassignWorkflow.ngtmpl.html',

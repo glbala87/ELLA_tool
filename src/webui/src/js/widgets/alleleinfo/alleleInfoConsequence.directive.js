@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import getWorseConsequenceTranscripts from '../../store/common/computes/getWorseConsequenceTranscripts'
-import template from './alleleInfoConsequence.ngtmpl.html'
+import template from './alleleInfoConsequence.ngtmpl.html' // eslint-disable-line no-unused-vars
 import popover from './alleleInfoConsequencePopover.ngtmpl.html'
 
 app.component('alleleInfoConsequence', {

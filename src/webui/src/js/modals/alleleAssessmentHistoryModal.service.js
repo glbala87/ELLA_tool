@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 import { Service, Inject } from '../ng-decorators'
-import template from './alleleAssessmentHistoryModal.ngtmpl.html'
+import template from './alleleAssessmentHistoryModal.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 export class AlleleAssessmentHistoryController {
     constructor(modalInstance, alleleAssessmentResource, attachmentResource, allele_id) {

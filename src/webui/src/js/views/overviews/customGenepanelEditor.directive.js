@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import template from './customGenepanelEditor.ngtmpl.html'
+import template from './customGenepanelEditor.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const candidatesFilteredTotalItems = Compute(
     state`views.overview.import.custom.candidates.filteredFlattened`,

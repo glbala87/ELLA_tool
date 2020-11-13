@@ -25,7 +25,7 @@ import getWarningById from '../store/modules/views/workflows/alleleSidebar/compu
 import { sortCodeStrByTypeStrength, getCodeBase } from '../store/common/helpers/acmg'
 
 // Templates
-import template from './alleleSidebarList.ngtmpl.html'
+import template from './alleleSidebarList.ngtmpl.html' // eslint-disable-line no-unused-vars
 import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualityPopover.ngtmpl.html'
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'

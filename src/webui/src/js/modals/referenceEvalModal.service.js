@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 import { Service, Inject } from '../ng-decorators'
 import { deepCopy, deepEquals } from '../util'
-import template from './referenceEvalModal.ngtmpl.html'
+import template from './referenceEvalModal.ngtmpl.html' // eslint-disable-line no-unused-vars
 import popover from '../widgets/referenceEvalHelpTextPopover.ngtmpl.html'
 import abstractPopover from '../widgets/abstractPopover.ngtmpl.html'
 

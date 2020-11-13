@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import { app } from '../ng-decorators'
-import template from './confirmButton.ngtmpl.html'
+import template from './confirmButton.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('confirmButton', {
     bindings: {

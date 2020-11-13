@@ -4,7 +4,7 @@ import { state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 
 import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar/computed/shouldShowSidebar'
-import template from './interpretation.ngtmpl.html'
+import template from './interpretation.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('interpretation', {
     templateUrl: 'interpretation.ngtmpl.html',

@@ -9,7 +9,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
-import template from './reportcard.ngtmpl.html'
+import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 function formatHGVS(allele, classification, config) {
     let hgvs = ''

@@ -3,7 +3,7 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state } from 'cerebral/tags'
-import template from './alleleInfoPredictionOther.ngtmpl.html'
+import template from './alleleInfoPredictionOther.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoPredictionOther', {
     templateUrl: 'alleleInfoPredictionOther.ngtmpl.html',

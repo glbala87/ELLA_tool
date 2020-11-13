@@ -3,7 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { Compute } from 'cerebral'
 import { state, props } from 'cerebral/tags'
 import sortedAnalyses from '../store/modules/views/overview/computed/sortedAnalyses'
-import template from './analysisList.ngtmpl.html'
+import template from './analysisList.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 // Uses prop to dynamically turn on/off sorting
 const sortSwitch = (analyses, shouldSort) => {

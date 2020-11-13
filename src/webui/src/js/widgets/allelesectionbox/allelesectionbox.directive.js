@@ -21,7 +21,7 @@ import {
 import { deepCopy, deepEquals } from '../../util'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
-import template from './allelesectionbox.ngtmpl.html'
+import template from './allelesectionbox.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import canFinalizeAllele from '../../store/modules/views/workflows/computed/canFinalizeAllele'
 import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'

@@ -8,7 +8,7 @@ import getPriority from '../store/modules/views/workflows/worklog/computed/getPr
 import getReviewComment from '../store/modules/views/workflows/worklog/computed/getReviewComment'
 import canClearWarning from '../store/modules/views/workflows/worklog/computed/canClearWarning'
 import canCreateInterpretationLog from '../store/modules/views/workflows/worklog/computed/canCreateInterpretationLog'
-import template from './interpretationLog.ngtmpl.html'
+import template from './interpretationLog.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const getPriorityOptions = Compute(state`app.config`, (config) => {
     const options = Object.entries(config.analysis.priority.display)

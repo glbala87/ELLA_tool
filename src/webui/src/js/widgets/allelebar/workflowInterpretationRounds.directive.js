@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state } from 'cerebral/tags'
 
-import template from './workflowInterpretationRounds.ngtmpl.html'
+import template from './workflowInterpretationRounds.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('workflowInterpretationRounds', {
     templateUrl: 'workflowInterpretationRounds.ngtmpl.html',

@@ -4,7 +4,7 @@ import { state, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 
-import template from './allelebar.ngtmpl.html'
+import template from './allelebar.ngtmpl.html' // eslint-disable-line no-unused-vars
 import genePopover from './allelebar/genePopover.ngtmpl.html'
 import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
 import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
