@@ -11,6 +11,7 @@ hypothesis = "==3.84.5"
 black = "==18.9b0"
 mypy = "==0.650"
 flake8 = "==3.7.9"
+sadisplay= "==0.4.9"
 
 [packages]
 psycopg2-binary = "==2.7.6.1"

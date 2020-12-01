@@ -146,27 +146,6 @@ bundle-dist: bundle-api bundle-client
 release-notes:
 	@ops/create_release_notes_wrapper.sh
 
-#---------------------------------------------
-# Create diagram of the datamodel
-#---------------------------------------------
-
-.PHONY: diagrams build-diagram-image start-diagram-container \
-        create-diagram stop-diagram-container
-
-diagrams: build-diagram-image start-diagram-container create-diagram stop-diagram-container
-
-build-diagram-image:
-	docker build -t $(DIAGRAM_IMAGE) -f Dockerfile-diagrams .
-
-start-diagram-container:
-	-docker rm $(DIAGRAM_CONTAINER)
-	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
-
-stop-diagram-container:
-	docker stop $(DIAGRAM_CONTAINER)
-
-create-diagram:
-	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
 # DEMO / REVIEW APPS
@@ -230,7 +209,7 @@ dbsleep:
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db node-inspect
+.PHONY: any build dev url kill shell logs restart db node-inspect create-diagrams
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
@@ -285,6 +264,13 @@ restart:
 node-inspect:
 	node inspect --harmony /dist/node_modules/jest/bin/jest.js --runInBand $(SPEC_NAME)
 
+create-diagrams:
+	docker run \
+		-v $(shell pwd):/ella \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e DB_URL=postgresql:///postgres \
+		$(IMAGE_NAME) \
+		python /ella/src/vardb/util/datamodel_to_uml.py
 
 #---------------------------------------------
 # TESTING (unit / modules)
