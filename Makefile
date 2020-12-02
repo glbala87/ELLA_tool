@@ -35,7 +35,7 @@ CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
 ifeq ($(CI_REGISTRY_IMAGE),)
-# running locally, use tty
+# running locally, use interactive
 TERM_OPTS := -it
 else
 TERM_OPTS := -t
