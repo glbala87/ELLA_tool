@@ -115,9 +115,14 @@ def test_allele_from_record(session, positions, manually_curated_result):
     chrom, pos, ref, alt = positions
     record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
 
-    al = deposit.build_allele_from_record(record, ref_genome="GRCh37")
+    allele_length = max(len(ref), len(alt))
+
+    al = record.build_allele(ref_genome="GRCh37")
+
     if manually_curated_result:
         for k, v in manually_curated_result.items():
+
+            print(f"({k},{v}) == {al[k]}")
             assert al[k] == v
 
     expected_result = {
@@ -126,6 +131,8 @@ def test_allele_from_record(session, positions, manually_curated_result):
         "vcf_pos": pos,
         "vcf_ref": ref,
         "vcf_alt": alt,
+        "length": allele_length,
+        "caller_type": "SNV",
     }
 
     if len(ref) == len(alt) == 1:
@@ -136,6 +143,8 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos,
                 "change_from": ref,
                 "change_to": alt,
+                "length": 1,
+                "caller_type": "SNV",
             }
         )
     elif len(ref) >= 1 and len(alt) >= 1 and alt[0] != ref[0]:
@@ -146,6 +155,8 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos - 1 + len(ref),
                 "change_from": ref,
                 "change_to": alt,
+                "length": allele_length,
+                "caller_type": "SNV",
             }
         )
     elif len(ref) < len(alt):
@@ -156,8 +167,11 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos,
                 "change_from": "",
                 "change_to": alt[1:],
+                "length": 1,
+                "caller_type": "SNV",
             }
         )
+
     elif len(ref) > len(alt):
         expected_result.update(
             {
@@ -166,6 +180,8 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos + len(ref) - 1,
                 "change_from": ref[1:],
                 "change_to": "",
+                "length": len(ref[1:]),
+                "caller_type": "SNV",
             }
         )
     else:
@@ -205,7 +221,7 @@ def test_equivalent_vcf_representations(standard, padding):
     for position in positions:
         chrom, pos, ref, alt = position
         record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
-        item = deposit.build_allele_from_record(record, ref_genome="dabla")
+        item = record.build_allele(ref_genome="dabla")
         item.pop("vcf_pos")
         item.pop("vcf_ref")
         item.pop("vcf_alt")

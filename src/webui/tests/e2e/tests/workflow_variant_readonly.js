@@ -14,8 +14,6 @@ let variantSelectionPage = new VariantSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSectionBox = new AlleleSectionBox()
 
-const OUR_VARIANT = 'c.581G>A'
-
 describe('Read-only version of variant workflow ', function() {
     beforeAll(() => {
         browser.resetDb()

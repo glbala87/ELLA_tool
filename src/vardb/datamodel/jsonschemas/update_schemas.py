@@ -4,7 +4,7 @@ import re
 import jsonschema
 from vardb.util.db import DB
 from vardb.datamodel.jsonschema import JSONSchema
-from .load_schema import load_schema
+from vardb.datamodel.jsonschemas.load_schema import load_schema
 
 
 def update_schemas(session):

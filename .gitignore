@@ -39,6 +39,7 @@ coverage.xml
 *.bai
 *.bam
 *.BAM
+*.bigWig
 
 #Eclipse
 *.prefs
@@ -60,6 +61,11 @@ attachments
 errorShots
 images
 local_settings.py
+# whole genome test/track data
+src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v01/tracks
+
+src/webui/node_modules
+
 node_modules
 ops/builder/venv
 src/package
@@ -72,3 +78,12 @@ vardb-schema.png
 *.pot
 *.pyc
 *~
+errorShots
+_book
+
+.hypothesis
+.mypy_cache
+.vscode
+.favorites.json
+.pytest_cache/v/cache/nodeids
+.pytest_*

@@ -13,15 +13,37 @@ export default function sortedAlleles(alleles) {
                         d.setSeconds(0, 0)
                         return d.toISOString()
                     })
-                    .thenBy((a) => a.allele.annotation.filtered[0].symbol)
                     .thenBy((a) => {
-                        if (a.allele.annotation.filtered[0].strand > 0) {
-                            return a.allele.start_position
-                        }
-                        return -a.allele.start_position
+                        if (
+                            a.allele.annotation.hasOwnProperty('filtered') &&
+                            a.allele.annotation.filtered.length > 0 &&
+                            a.allele.annotation.filtered[0].hasOwnProperty('symbol')
+                        )
+                            a.allele.annotation.filtered[0].symbol
+                        else 0
+                    })
+                    .thenBy((a) => {
+                        if (
+                            a.allele.annotation.hasOwnProperty('filtered') &&
+                            a.allele.annotation.filtered.length > 0 &&
+                            a.allele.annotation.filtered[0].hasOwnProperty('strand')
+                        ) {
+                            if (a.allele.annotation.filtered[0].strand > 0) {
+                                return a.allele.start_position
+                            }
+                            return -a.allele.start_position
+                        } else 0
                     })
                     // It happens that alleles have same position, but different variations
-                    .thenBy((a) => a.allele.annotation.filtered[0].HGVSc || 0)
+                    .thenBy((a) => {
+                        if (
+                            a.allele.annotation.hasOwnProperty('filtered') &&
+                            a.allele.annotation.filtered.length > 0 &&
+                            a.allele.annotation.filtered[0].hasOwnProperty('HGVsc')
+                        )
+                            a.allele.annotation.filtered[0].HGVSc
+                        else 0
+                    })
             )
             return alleles
         }
