@@ -240,7 +240,7 @@ def mock_allele(session, allele_data=None, vcf_data=None):
     if allele_data is None:
         allele_data = {}
     complete_allele_data = {
-        **build_allele_from_record(mock_record(vcf_data), ref_genome="GRCh37"),
+        **mock_record(vcf_data).build_allele(ref_genome="GRCh37"),
         **allele_data,
     }
     al = allele.Allele(**complete_allele_data)

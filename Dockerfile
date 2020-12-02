@@ -41,7 +41,7 @@ RUN apt-get update && \
 
 # Add user
 RUN useradd -ms /bin/bash ella-user
-RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
+RUN mkdir -p /dist /tsd/p22 /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
 
 # Tab completion for ella-cli
 ENV PATH=/dist/ella-python/bin:/ella/bin:${PATH} \

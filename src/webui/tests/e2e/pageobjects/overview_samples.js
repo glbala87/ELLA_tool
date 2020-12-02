@@ -125,7 +125,7 @@ class SampleSelection extends Page {
         this.selectItemInSection(number, SELECTOR_FINISHED)
     }
 
-    selectPending(number, name) {
+    selectPending(number) {
         this.selectItemInSection(number, SELECTOR_PENDING)
     }
 

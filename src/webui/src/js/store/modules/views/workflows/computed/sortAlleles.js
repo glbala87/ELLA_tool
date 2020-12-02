@@ -31,6 +31,21 @@ function getSortFunctions(
             }
             return allele.formatted.inheritance
         },
+        chromosome: (allele) => {
+            return allele.chromosome
+        },
+        start: (allele) => {
+            return allele.start_position
+        },
+        end: (allele) => {
+            return allele.open_end_position
+        },
+        sv_type: (allele) => {
+            return allele.change_type
+        },
+        sv_len: (allele) => {
+            return allele.length
+        },
         gene: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
                 return allele.annotation.filtered[0].symbol
@@ -40,8 +55,12 @@ function getSortFunctions(
         hgvsc: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
                 const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
-                const pos = s.match(/[cg]\.(\d+)/)
-                return pos ? parseInt(pos[1]) : 0
+                if (undefined != s) {
+                    const pos = s.match(/[cg]\.(\d+)/)
+                    return pos ? parseInt(pos[1]) : 0
+                } else {
+                    return -1
+                }
             }
             return -1
         },
