@@ -32,6 +32,7 @@ REPORT_FIELD = "REPORT_COMMENT"
 
 
 def commonsuffix(v):
+    "Common suffix is the same as the reversed common prefix of the reversed string"
     return commonprefix([x[::-1] for x in v])[::-1]
 
 
@@ -113,6 +114,14 @@ def build_allele_from_record(record, ref_genome):
         len(record["ALT"]) == 1
     ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
+    def isSvType():
+        if "ALL" not in record["INFO"]:
+            return False
+        elif "SVTYPE" in record["INFO"]["ALL"]:
+            return True
+        else:
+            return False
+
     vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
 
     ref = str(vcf_ref)
@@ -133,7 +142,14 @@ def build_allele_from_record(record, ref_genome):
     ref, alt = ref[N_prefix:], alt[N_prefix:]
     pos += N_prefix
 
-    if len(ref) == len(alt) == 1:
+    svlen = 0
+
+    if isSvType():
+        change_type = record["INFO"]["ALL"]["SVTYPE"]
+        start_position = pos
+        svlen = abs(record["INFO"]["ALL"]["SVLEN"])
+        open_end_position = svlen + vcf_pos
+    elif len(ref) == len(alt) == 1:
         change_type = "SNP"
         start_position = pos
         open_end_position = pos + 1
@@ -158,6 +174,11 @@ def build_allele_from_record(record, ref_genome):
     else:
         raise ValueError("Unable to determine allele from ref/alt={}/{}".format(ref, alt))
 
+    if isSvType():
+        allele_length = svlen
+    else:
+        allele_length = max(len(ref), len(alt))
+
     allele = {
         "genome_reference": ref_genome,
         "chromosome": record["CHROM"],
@@ -166,6 +187,7 @@ def build_allele_from_record(record, ref_genome):
         "change_type": change_type,
         "change_from": ref,
         "change_to": alt,
+        "length": allele_length,
         "vcf_pos": vcf_pos,
         "vcf_ref": vcf_ref,
         "vcf_alt": vcf_alt,
@@ -1018,12 +1040,34 @@ class AlleleImporter(object):
         """
         Adds a new record to internal batch
         """
+        assert (
+            len(record["ALT"]) == 1
+        ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
-        item = build_allele_from_record(record, self.ref_genome)
+        if "SVTYPE" in record["INFO"]["ALL"]:
+            item = self._sv_create(record)
+        else:
+            item = build_allele_from_record(record, self.ref_genome)
+
         self.batch_items.append(item)
 
         self.counter["nAltAlleles"] += 1
         return item
+
+    def _sv_create(self, record):
+        # alt = record["ALT"][0]
+        # if not set(alt).issubset(set(["ACGT"])):
+        #     record["ALT"] = [None]
+        # import json
+        # print(json.dumps(record, indent=4))
+        # exit()
+
+        allele = build_allele_from_record(record, self.ref_genome)
+        # TODO: Fetch correct length for SV (record["INFO"]["SVLEN"])
+        sv_type = record["INFO"]["ALL"]["SVTYPE"]
+
+        allele["change_type"] = sv_type.lower()
+        return allele
 
     def process(self):
         if not self.batch_items:

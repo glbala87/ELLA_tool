@@ -229,3 +229,135 @@ def test_equivalent_vcf_representations(standard, padding):
     standard_item = items.pop(0)
     for x in items:
         assert x == standard_item
+
+
+"""
+@ht.example(
+    {
+        "CHROM": "1",
+        "POS": 4185714,
+        "ID": "DEL00000036",
+        "REF": "C",
+        "ALT": [
+            "<DEL>"
+        ],
+        "QUAL": 317.0,
+        "FILTER": "PASS",
+        "INFO": {
+            "ALL": {
+                "SVTYPE": "DEL",
+                "IMPRECISE": True,
+                "SVMETHOD": "EMBL.DELLYv0.8.3",
+                "END": 5583628,
+                "PE": 7,
+                "MAPQ": 45,
+                "CT": "3to5",
+                "CIPOS": [
+                    -292,
+                    292
+                ],
+                "CIEND": [
+                    -292,
+                    292
+                ],
+                "DELLY": True,
+                "SVLEN": -1397914,
+                "OCC_INDB_DELLY": 1,
+                "FRQ_INDB_DELLY": 1.0,
+                "OCC_INDB_MERGED": 1,
+                "FRQ_INDB_MERGED": 1.0
+            },
+        },
+        "SAMPLES": {
+            "Diag-ValidationWGS2-HG002C2-PM": {
+                "GT": "0/1",
+                "GL": [
+                    -18.4547,
+                    0,
+                    -208.755
+                ],
+                "GQ": 10000,
+                "FT": "PASS",
+                "RCL": 63639,
+                "RC": 162842,
+                "RCR": 83652,
+                "CN": 2,
+                "DR": 37,
+                "DV": 7,
+                "RR": 0,
+                "RV": 0
+            }
+        }
+    },
+    {
+        "chromosome": "1",
+        "vcf_pos": 4185714,
+        # "length": ...
+        # "change_type": ...
+    }
+)
+@ht.given(
+#    st.one_of(positions()), st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=4)
+)
+"""
+
+# def test_cnv_importer(session, record, expected_result):
+# @ht.given(text())
+@ht.example(
+    {"CHROM": "1", "POS": 4185714, "ID": "DEL00000036", "REF": "C", "ALT": ["<DEL>"]},
+    {"chromosome": "1"},
+)
+def parsedData():
+    return {
+        "CHROM": "1",
+        "POS": 4185714,
+        "ID": "DEL00000036",
+        "REF": "C",
+        "ALT": ["<DEL>"],
+        "QUAL": 317.0,
+        "FILTER": "PASS",
+        "INFO": {
+            "ALL": {
+                "SVTYPE": "DEL",
+                "IMPRECISE": True,
+                "SVMETHOD": "EMBL.DELLYv0.8.3",
+                "END": 5583628,
+                "PE": 7,
+                "MAPQ": 45,
+                "CT": "3to5",
+                "CIPOS": [-292, 292],
+                "CIEND": [-292, 292],
+                "DELLY": True,
+                "SVLEN": -1397914,
+                "OCC_INDB_DELLY": 1,
+                "FRQ_INDB_DELLY": 1.0,
+                "OCC_INDB_MERGED": 1,
+                "FRQ_INDB_MERGED": 1.0,
+            }
+        },
+        "SAMPLES": {
+            "Diag-ValidationWGS2-HG002C2-PM": {
+                "GT": "0/1",
+                "GL": [-18.4547, 0, -208.755],
+                "GQ": 10000,
+                "FT": "PASS",
+                "RCL": 63639,
+                "RC": 162842,
+                "RCR": 83652,
+                "CN": 2,
+                "DR": 37,
+                "DV": 7,
+                "RR": 0,
+                "RV": 0,
+            }
+        },
+    }
+
+
+def test_cnv_importer(session):
+    ai = deposit.AlleleImporter(session)
+    print("creating allele")
+    allele = ai.add(parsedData())
+    print("resulting allele")
+    print(allele)
+    assert 4185713 == allele["start_position"]
