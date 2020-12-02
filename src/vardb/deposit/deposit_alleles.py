@@ -31,7 +31,12 @@ class DepositAlleles(DepositFromVCF):
             if not annotation_only:
                 is_not_inside_transcripts = []
                 for record in batch_records:
-                    if not self.is_inside_transcripts(record, db_genepanel):
+                    if not self.is_inside_transcripts(
+                        record,
+                        db_genepanel
+                        # Keeping structural variants outside of transcripts, they can still be filtered
+                        # using the filterchains
+                    ) and not record.variant.INFO.get("SVTYPE"):
                         is_not_inside_transcripts.append(record)
 
                 if is_not_inside_transcripts:

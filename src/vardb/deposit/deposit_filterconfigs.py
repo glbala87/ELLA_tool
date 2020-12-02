@@ -14,7 +14,6 @@ log = logging.getLogger(__name__)
 def deposit_filterconfigs(session, fc_configs):
     result = {"fc_updated": [], "fc_created": [], "ugfc_created": [], "ugfc_updated": []}
     filter_config_schema = load_schema("filterconfig_base.json")
-
     for fc_config in fc_configs:
         jsonschema.validate(fc_config, filter_config_schema)
         filterconfig = fc_config["filterconfig"]
