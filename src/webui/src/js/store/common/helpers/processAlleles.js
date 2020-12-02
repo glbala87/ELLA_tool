@@ -76,6 +76,18 @@ function getFormatted(allele, genepanel) {
             formatted.hgvsg = `g.${start + 1}_${end + 1}ins${allele.change_to}`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end + 1}`
             break
+        case 'dup':
+            formatted.hgsvg = `g.${start + 1}dup`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            break
+        case 'dup_tandem':
+            formatted.hgsvg = `g.${start + 1}dup_tandem`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            break
+        case 'del_me':
+            formatted.hgsvg = `g.${start + 1}dup_me`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            break
         default:
             throw Error(`Unsupported change type detected (${allele.id}): ${allele.change_type}`)
     }

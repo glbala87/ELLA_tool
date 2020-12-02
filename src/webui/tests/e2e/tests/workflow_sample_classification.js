@@ -187,7 +187,7 @@ describe('Sample workflow', function() {
 
             expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1')
 
-            // Add external annotation
+            // // Add external annotation
             console.log('Adding custom annotation')
             alleleSectionBox.addExternalBtn.click()
             customAnnotationModal.setExternalAnnotation(1, 'Likely pathogenic') // BRCA Exchange

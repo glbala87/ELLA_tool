@@ -56,10 +56,6 @@ ASSESSMENT_USERNAME_FIELD = "USERNAME"
 REPORT_FIELD = "REPORT_COMMENT"
 
 
-def commonsuffix(v):
-    return commonprefix([x[::-1] for x in v])[::-1]
-
-
 def ordered(obj):
     if isinstance(obj, dict):
         return sorted((k, ordered(v)) for k, v in list(obj.items()))
@@ -81,122 +77,6 @@ def has_diff_ignoring_order(ignore_order_for_key, obj1, obj2):
         obj1[ignore_order_for_key] = csq1_ordered
         obj2[ignore_order_for_key] = csq2_ordered
         return not obj1 == obj2
-
-
-def get_allele_from_record(record, alleles):
-    for allele in alleles:
-        if (
-            allele["chromosome"] == record.variant.CHROM
-            and allele["vcf_pos"] == record.variant.POS
-            and allele["vcf_ref"] == record.variant.REF
-            and allele["vcf_alt"] == record.variant.ALT[0]
-        ):
-            return allele
-    return None
-
-
-def build_allele_from_record(record, ref_genome):
-    """Build database representation of alleles from a vcf record
-
-    Examples (record.variant.POS - record.variant.REF - record.variant.ALT[0]):
-    (showing only the non-trivial part of the returned dictionary)
-
-    123-A-G -> {
-        "start_position": 122,
-        "open_end_position": 123,
-        "change_type": "SNP",
-        "change_from": "A",
-        "change_to": "G",
-    }
-
-    123-AC-A -> {
-        "start_position": 123,
-        "open_end_position": 124,
-        "change_type": "del",
-        "change_from": "C",
-        "change_to": "",
-    }
-
-    123-A-AC -> {
-        "start_position": 122,
-        "open_end_position": 123,
-        "change_type": "ins",
-        "change_from": "",
-        "change_to": "C",
-    }
-
-    123-GAGA-AC -> {
-        "start_position": 122,
-        "open_end_position": 126,
-        "change_type": "indel",
-        "change_from": "GAGA",
-        "change_to": "AC",
-    }
-
-    """
-    assert (
-        len(record.variant.ALT) == 1
-    ), "Only decomposed variants are supported. That is, only one ALT per line/record."
-
-    vcf_ref, vcf_alt, vcf_pos = record.variant.REF, record.variant.ALT[0], record.variant.POS
-
-    ref = str(vcf_ref)
-    alt = str(vcf_alt)
-
-    # Convert to zero-based position
-    pos = vcf_pos - 1
-
-    # Remove common suffix
-    # (with ref, alt = ("AGAA", "ACAA") change to ref, alt = ("AG", "AC"))
-    N_suffix = len(commonsuffix([ref, alt]))
-    if N_suffix > 0:
-        ref, alt = ref[:-N_suffix], alt[:-N_suffix]
-
-    # Remove common prefix and offset position
-    # (with pos, ref, alt = (123, "AG", "AC") change to pos, ref, alt = (124, "G", "C"))
-    N_prefix = len(commonprefix([ref, alt]))
-    ref, alt = ref[N_prefix:], alt[N_prefix:]
-    pos += N_prefix
-
-    if len(ref) == len(alt) == 1:
-        change_type = "SNP"
-        start_position = pos
-        open_end_position = pos + 1
-    elif len(ref) >= 1 and len(alt) >= 1:
-        assert len(ref) > 1 or len(alt) > 1
-        change_type = "indel"
-        start_position = pos
-        open_end_position = pos + len(ref)
-    elif len(ref) < len(alt):
-        assert ref == ""
-        change_type = "ins"
-        # An insertion is shifted one base 1 because of same prefix above,
-        # but the insertion is done between the reference allele (at pos-1) and the subsequent allele (at pos)
-        start_position = pos - 1
-        # Insertions have no span in the reference genome
-        open_end_position = pos
-    elif len(ref) > len(alt):
-        assert alt == ""
-        change_type = "del"
-        start_position = pos
-        open_end_position = pos + len(ref)
-    else:
-        raise ValueError("Unable to determine allele from ref/alt={}/{}".format(ref, alt))
-
-    allele = {
-        "genome_reference": ref_genome,
-        "chromosome": record.variant.CHROM,
-        "start_position": start_position,
-        "open_end_position": open_end_position,
-        "change_type": change_type,
-        "change_from": ref,
-        "change_to": alt,
-        "vcf_pos": vcf_pos,
-        "vcf_ref": vcf_ref,
-        "vcf_alt": vcf_alt,
-    }
-
-    return allele
 
 
 def is_non_empty_text(input):
@@ -537,7 +417,7 @@ class GenotypeImporter(object):
             for record in records:
                 record_proband_gt = record.sample_genotype(proband_sample_name)
                 assert record_proband_gt in [(1, -1), (-1, 1)]
-                allele = get_allele_from_record(record, alleles)
+                allele = record.get_allele(alleles)
                 if record_proband_gt == (1, -1):
                     a1 = allele
                 elif record_proband_gt == (-1, 1):
@@ -607,7 +487,7 @@ class GenotypeImporter(object):
 
                 # If a secondallele exists, check if this record is the secondallele
                 if a2:
-                    allele = get_allele_from_record(record, alleles)
+                    allele = record.get_allele(alleles)
                     secondallele = allele == a2
 
                 sample_genotype = record.sample_genotype(sample.identifier)
@@ -1090,11 +970,10 @@ class AlleleImporter(object):
         Adds a new record to internal batch
         """
 
-        item = build_allele_from_record(record, self.ref_genome)
-        self.batch_items.append(item)
-
+        allele = record.build_allele(self.ref_genome)
+        self.batch_items.append(allele)
         self.counter["nAltAlleles"] += 1
-        return item
+        return allele
 
     def process(self):
         if not self.batch_items:

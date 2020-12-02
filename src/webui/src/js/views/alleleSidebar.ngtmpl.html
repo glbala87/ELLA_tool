@@ -1,4 +1,18 @@
 <div class="sidebar" ng-class="{'constrain-size': $ctrl.constrainSize}">
+    <ul class="caller-type-selector" style="display: flex;">
+        <li class="bttn-set" ng-repeat="c in $ctrl.callerTypes">
+            <label
+                tabindex="0"
+                class="bttn"
+                ng-class="{'active': c === $ctrl.callerTypeSelected}"
+                id="caller-type-selector-{{ c | lowercase }}"
+                ng-model="$ctrl.callerTypeSelected"
+                ng-click="$ctrl.callerTypeSelectedChanged( { callerTypeSelected: c } )"
+                uib-btn-radio="c"
+                >{{ c }}
+            </label>
+        </li>
+    </ul>
     <div class="controls" ng-if="$ctrl.showControls">
         <wysiwyg-editor
             class="control-comment id-indications-comment"
@@ -13,13 +27,13 @@
             <button
                 class="blue id-add-excluded"
                 ng-click="$ctrl.showAddExcludedAllelesClicked({
-      analysisId: $ctrl.analysisId,
-      readOnly: $ctrl.readOnly,
-      genepanel: $ctrl.selectedGenepanel,
-      includedAlleleIds: $ctrl.manuallyAddedAlleleIds,
-      excludedAlleleIds: $ctrl.excludedAlleleIds,
-      filterConfig: $ctrl.selectedFilterConfig
-    })"
+                  analysisId: $ctrl.analysisId,
+                  readOnly: $ctrl.readOnly,
+                  genepanel: $ctrl.selectedGenepanel,
+                  includedAlleleIds: $ctrl.manuallyAddedAlleleIds,
+                  excludedAlleleIds: $ctrl.excludedAlleleIds,
+                  filterConfig: $ctrl.selectedFilterConfig
+                })"
             >
                 <svg
                     id="i-plus"

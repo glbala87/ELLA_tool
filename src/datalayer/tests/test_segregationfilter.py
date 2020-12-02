@@ -415,6 +415,8 @@ def replace_allele_table(session, entries):
             "change_from": "DUMMY",
             "change_to": "DUMMY",
             "change_type": "SNP",
+            "length": open_end_position - start_position,
+            "caller_type": "SNV",
         }
         al = allele.Allele(**data)
         session.add(al)

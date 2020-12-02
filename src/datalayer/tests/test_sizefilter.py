@@ -19,7 +19,7 @@ def allele_sizes(draw):
 def filter_config(draw):
     mode = draw(st.sampled_from([">", "<", ">=", "<=", "=="]))
     threshold = draw(st.integers(min_value=0, max_value=100))
-    return {"mode": mode, "treshold": threshold}
+    return {"mode": mode, "threshold": threshold}
 
 
 @ht.given(st.one_of(allele_sizes()), st.one_of(filter_config()))
@@ -33,5 +33,4 @@ def test_sizefilter(session, allele_sizes, filter_config):
     session.flush()
 
     sf = SizeFilter(session, None)
-    res = sf.filter_alleles({("Dabla", "v01"): allele_ids}, filter_config)
-
+    sf.filter_alleles({("Dabla", "v01"): allele_ids}, filter_config)

@@ -11,7 +11,9 @@
                 { "$ref": "#/definitions/filters/consequence" },
                 { "$ref": "#/definitions/filters/quality" },
                 { "$ref": "#/definitions/filters/segregation" },
-                { "$ref": "#/definitions/filters/gene" }
+                { "$ref": "#/definitions/filters/gene" },
+                { "$ref": "#/definitions/filters/size" },
+                { "$ref": "#/definitions/filters/callertype" }
             ]
         },
         "withExceptions": {
@@ -560,6 +562,46 @@
                             "inverse": {
                                 "type": "boolean"
                             }
+                        }
+                    }
+                }
+            },
+            "size": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["size"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["threshold", "mode"],
+                        "properties": {
+                            "threshold": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "mode": {
+                                "enum": ["<", ">", ">=", "<=", "=="]
+                            }
+                        }
+                    }
+                }
+            },
+            "callertype": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["callertype"]
+                    }
+                },
+                "config": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["callerTypes"],
+                    "properties": {
+                        "mode": {
+                            "enum": ["SNV", "CNV"]
                         }
                     }
                 }

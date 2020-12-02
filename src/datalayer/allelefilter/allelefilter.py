@@ -16,6 +16,7 @@ from datalayer.allelefilter.consequencefilter import ConsequenceFilter
 from datalayer.allelefilter.inheritancemodelfilter import InheritanceModelFilter
 from datalayer.allelefilter.genefilter import GeneFilter
 from datalayer.allelefilter.sizefilter import SizeFilter
+from datalayer.allelefilter.callertypefilter import CallerTypeFilter
 
 
 log = logging.getLogger(__name__)
@@ -47,6 +48,7 @@ class AlleleFilter(object):
             ),
             "gene": ("allele", GeneFilter(self.session, self.config).filter_alleles),
             "size": ("allele", SizeFilter(self.session, self.config).filter_alleles),
+            "callertype": ("allele", CallerTypeFilter(self.session, self.config).filter_alleles),
         }
 
     def get_filter_exceptions(

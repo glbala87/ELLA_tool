@@ -2,7 +2,7 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { signal, state } from 'cerebral/tags'
-import template from './addExternal.ngtmpl.html'
+import template from './addExternal.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('addExternal', {
     templateUrl: 'addExternal.ngtmpl.html',
@@ -36,7 +36,6 @@ app.component('addExternal', {
                         if ('url' in group) {
                             urls.add(group.url)
                         }
-
                         return Array.from(urls)
                     }
                 })

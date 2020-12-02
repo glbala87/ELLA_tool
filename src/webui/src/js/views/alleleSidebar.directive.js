@@ -63,17 +63,37 @@ const filterConfigs = Compute(
     }
 )
 
+const getExcludedAlleleCountsByCallerType = (excludedAlleleIds, callerType) => {
+    return Compute(
+        excludedAlleleIds,
+        callerType,
+
+        (excludedAlleleIds, callerType) => {
+            if (!excludedAlleleIds || !callerType) {
+                return
+            }
+            return excludedAlleleIds[callerType]
+        }
+    )
+}
+
 app.component('alleleSidebar', {
     templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
         {
             config: state`app.config`,
             analysisId: state`views.workflows.data.analysis.id`,
+            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
+            callerTypes: state`views.workflows.alleleSidebar.callerTypes`,
             classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
             constrainSize,
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
             classificationType, // effective classification type, see Compute
             showControls,
+            excludedAlleleCounts: getExcludedAlleleCountsByCallerType(
+                state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids_by_caller_type`,
+                state`views.workflows.alleleSidebar.callerTypeSelected`
+            ),
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
             indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
             commentTemplates: state`app.commentTemplates`,
@@ -91,7 +111,8 @@ app.component('alleleSidebar', {
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
             classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
-            editorReferences: getEditorReferences('report')
+            editorReferences: getEditorReferences('report'),
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'AlleleSidebar',
         [
@@ -101,7 +122,7 @@ app.component('alleleSidebar', {
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {
-                        return Object.values($ctrl.excludedAlleleIds)
+                        return Object.values($ctrl.excludedAlleleCounts)
                             .map((excluded_group) => excluded_group.length)
                             .reduce((total_length, length) => total_length + length)
                     },
