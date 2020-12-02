@@ -1,5 +1,7 @@
 export default function getAlleleSidebarState() {
     return {
+        callerTypes: ['snv', 'cnv'],
+        callerTypeSelected: 'snv',
         classificationType: 'full',
         classificationTypes: ['full', 'quick', 'visual'],
         unclassified: null,

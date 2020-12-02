@@ -1,6 +1,5 @@
 import operator
 from typing import List, Set, Dict, Any, Tuple
-from sqlalchemy import not_, and_, or_
 from vardb.datamodel import allele
 
 OPERATORS = {
@@ -20,14 +19,32 @@ class SizeFilter(object):
     def filter_alleles(
         self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
     ) -> Dict[Tuple[str, str], Set[int]]:
+        """
+        Return the allele ids, among the provided allele_ids, that have an allele
+        length specified by the size in threshold, and operator set in mode.
+
+        Example configuration:
+
+        {
+            "name": "size",
+            "config": {
+                "threshold": 10000,
+                "mode": ">"
+            }
+        }
+
+        Keeping all alleles with length above 10kb
+        """
+
         result: Dict[Tuple[str, str], Set[int]] = dict()
+
         for gp_key, allele_ids in gp_allele_ids.items():
             result[gp_key] = set(
                 self.session.query(allele.Allele.id)
                 .filter(
                     allele.Allele.id.in_(allele_ids),
                     OPERATORS[filter_config["mode"]](
-                        allele.Allele.length, filter_config["treshold"]
+                        allele.Allele.length, filter_config["threshold"]
                     ),
                 )
                 .scalar_all()

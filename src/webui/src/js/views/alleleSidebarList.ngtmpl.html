@@ -3,7 +3,234 @@
         {{ $ctrl.sectionTitle }} ({{ $ctrl.alleles.length }})
     </h4>
     <section class="allele-sidebar-list">
-        <div class="nav-table">
+        <div class="nav-table" ng-if="$ctrl.callerTypeSelected =='cnv'">
+            <div class="nav-row top" ng-if="$ctrl.alleles.length">
+                <div ng-if="!$ctrl.isTogglable()" class="cell"></div>
+                <div
+                    class="cell"
+                    tippy-title="chromosome"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'chromosome' })"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">CHR</span>
+                    <span ng-if="$ctrl.orderBy.key === 'chromosome' ">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="start"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'start' })"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">START</span>
+                    <span ng-if="$ctrl.orderBy.key === 'start' ">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="end"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'end' })"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">END</span>
+                    <span ng-if="$ctrl.orderBy.key === 'end' ">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="sv_type"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'sv_type' })"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">SVTYPE</span>
+                    <span ng-if="$ctrl.orderBy.key === 'sv_type' ">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="svlen"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'sv_len' })"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">LENGTH</span>
+                    <span ng-if="$ctrl.orderBy.key === 'sv_len' ">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="Gene"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'gene'})"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">GENE</span>
+                    <span ng-if="$ctrl.orderBy.key === 'gene'">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="HGVSc"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'hgvsc'})"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">HGVSc</span>
+                    <span ng-if="$ctrl.orderBy.key === 'hgvsc'">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell"
+                    tippy-title="Consequence"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'consequence'})"
+                >
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">CSQ</span>
+                    <span ng-if="$ctrl.orderBy.key === 'consequence'">
+                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                    </span>
+                </div>
+                <div
+                    class="cell evaluation"
+                    ng-if="$ctrl.showComment()"
+                    ng-class="{'narrow': $ctrl.showNarrowComment()}"
+                    tippy-title="{{ $ctrl.getCommentTitle() }}"
+                >
+                    {{ $ctrl.getCommentTitle() }}
+                </div>
+                <div ng-if="$ctrl.isTogglable()" class="cell"></div>
+            </div>
+            <div
+                class="nav-row allele"
+                ng-repeat="allele in $ctrl.alleles track by allele.id"
+                ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id), 'toggled': $ctrl.isToggled(allele.id), 'togglable': $ctrl.isTogglable(), 'multiple': $ctrl.shadeGene(allele), 'technical': $ctrl.isTechnical(allele.id)}"
+            >
+                <div ng-if="!$ctrl.isTogglable()" class="cell tab"></div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell chromosome chromosome-id"
+                    tippy-title="{{ $ctrl.getVariantCoordinates(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getChromosome(allele) }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell sv_start sv_start-id"
+                    tippy-title="{{ $ctrl.getStartPos(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getStartPos(allele) | numberFormat }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell sv_end sv_end-id"
+                    tippy-title="{{ $ctrl.getEndPos(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getEndPos(allele) | numberFormat }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell sv_type sv_type-id"
+                    tippy-title="{{ $ctrl.getsvType(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getSvType(allele) }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell chromosome chromosome-id"
+                    tippy-title="{{ $ctrl.getVariantLength(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getVariantLength(allele) | bioinfSized }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell gene id-gene"
+                    tippy-title="{{ $ctrl.getGene(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getGeneOverlaps(allele) }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell hgvsc id-hgvsc"
+                    tippy-title="{{ $ctrl.getHGVScTitle(allele) }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.getHGVSc(allele) }}
+                </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell consequence id-consequence"
+                    ng-class="{'hit': $ctrl.isNonsense[allele.id] && !$ctrl.isTechnical(allele.id)}"
+                    tippy-title="{{ $ctrl.consequence[allele.id] }}"
+                    tippy-clipboard="true"
+                >
+                    {{ $ctrl.consequence[allele.id] }}
+                </div>
+                <div class="cell quick-classification" ng-if="$ctrl.classificationOptions.length">
+                    <button
+                        ng-if="$ctrl.showClassificationBtn('technical')"
+                        class="purple id-quick-technical"
+                        ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, verificationStatus: 'technical', selectAllele: true})"
+                        ng-disabled="$ctrl.readOnly"
+                        tippy-title="Mark as technical"
+                    >
+                        T
+                    </button>
+                    <button
+                        ng-if="$ctrl.showClassificationBtn('notrelevant')"
+                        class="purple id-quick-notrelevant"
+                        ng-click="$ctrl.quickClassificationClicked({alleleId: allele.id, notRelevant: true, selectAllele: true})"
+                        ng-disabled="$ctrl.readOnly"
+                        tippy-title="Mark as not relevant"
+                    >
+                        NR
+                    </button>
+                    <button
+                        ng-if="$ctrl.showClassificationBtn('classnp')"
+                        class="purple id-quick-classnp"
+                        ng-click="$ctrl.quickClassificationClicked({classification: 'NP', alleleId: allele.id, selectAllele: true})"
+                        ng-disabled="$ctrl.readOnly"
+                        tippy-title="Mark as Not provided (no interpretation of clinical significance)"
+                    >
+                        NP
+                    </button>
+                </div>
+                <div
+                    class="cell evaluation"
+                    ng-if="$ctrl.showComment()"
+                    ng-class="{'narrow': $ctrl.showNarrowComment()}"
+                >
+                    <wysiwyg-editor
+                        class="control-comment"
+                        show-controls="false"
+                        ng-disabled="$ctrl.readOnly || !$ctrl.canUpdateComment(allele.id)"
+                        ng-change="$ctrl.commentUpdated(allele.id, $ctrl.getCommentModel(allele.id).comment)"
+                        ng-model="$ctrl.getCommentModel(allele.id).comment"
+                    ></wysiwyg-editor>
+                </div>
+                <div
+                    ng-if="$ctrl.isTogglable()"
+                    ng-click="$ctrl.toggleClicked({alleleId: allele.id})"
+                    class="cell tab"
+                >
+                    <div class="added">
+                        <h5 ng-if="$ctrl.isToggled(allele.id)">-</h5>
+                        <h5 ng-if="!$ctrl.isToggled(allele.id)">+</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-table" ng-if="$ctrl.callerTypeSelected =='snv'">
             <div class="nav-row top" ng-if="$ctrl.alleles.length">
                 <div ng-if="!$ctrl.isTogglable()" class="cell"></div>
                 <!-- Header for selected colorbox -->
@@ -13,7 +240,6 @@
                     ng-if="$ctrl.isMultipleSampleType"
                     ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'type'})"
                 >
-                    T
                     <span ng-if="$ctrl.orderBy.key === 'type'">
                         <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                         <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>

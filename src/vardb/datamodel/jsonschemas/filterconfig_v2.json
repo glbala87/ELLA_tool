@@ -559,28 +559,6 @@
                         }
                     }
                 }
-            },
-            "size": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "enum": ["size"]
-                    },
-                    "config": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": ["threshold", "mode"],
-                        "properties": {
-                            "threshold": {
-                                "type": "integer",
-                                "minimum": 0
-                            },
-                            "mode": {
-                                "enum": ["<", ">", ">=", "<=", "=="]
-                            }
-                        }
-                    }
-                }
             }
         }
     },

@@ -29,13 +29,32 @@ import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualit
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
-const getAlleles = (alleleIds, alleles) => {
-    return Compute(alleleIds, alleles, (alleleIds, alleles) => {
-        if (!alleleIds || !alleles) {
-            return
+const getAlleles = (alleleIds, alleles, callerTypeSelected) => {
+    return Compute(
+        alleleIds,
+        alleles,
+        callerTypeSelected,
+        (alleleIds, alleles, callerTypeSelected) => {
+            if (!alleleIds || !alleles || !callerTypeSelected) {
+                return
+            }
+
+            const filterByCallerType = (allele) => {
+                if (callerTypeSelected == 'snv') {
+                    return allele.caller_type == 'SNV'
+                } else if (callerTypeSelected == 'cnv') {
+                    return allele.caller_type == 'CNV'
+                } else {
+                    throw `caller type unrecognized for allele: ${allele}`
+                }
+            }
+
+            return alleleIds
+                .map((aId) => alleles[aId])
+                .filter((a) => a !== undefined)
+                .filter((a) => filterByCallerType(a))
         }
-        return alleleIds.map((aId) => alleles[aId]).filter((a) => a !== undefined)
-    })
+    )
 }
 
 const sectionContents = Compute(
@@ -74,7 +93,11 @@ app.component('alleleSidebarList', {
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,
-            alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
+            alleles: getAlleles(
+                state`${props`alleleIdsPath`}`,
+                state`${props`allelesPath`}`,
+                state`views.workflows.alleleSidebar.callerTypeSelected`
+            ),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
             sectionContents: state`${props`sectionContentPath`}`,
@@ -93,6 +116,7 @@ app.component('alleleSidebarList', {
             hiFreqDef: getHiFrequencyDefinition,
             externalSummary: getExternalSummaryById(state`${props`allelesPath`}`),
             isNonsense: isNonsenseById(state`${props`allelesPath`}`),
+            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
             isMultipleSampleType,
             warnings: getWarningById(state`${props`allelesPath`}`),
             verificationStatus: getVerificationStatusById(state`${props`allelesPath`}`),
@@ -136,6 +160,26 @@ app.component('alleleSidebarList', {
                             .join(', ')
                             .toUpperCase()
                     },
+                    getChromosome(allele) {
+                        return allele.chromosome.toUpperCase()
+                    },
+                    getStartPos(allele) {
+                        return allele.start_position
+                    },
+                    getEndPos(allele) {
+                        return allele.open_end_position
+                    },
+                    getVariantCoordinates(allele) {
+                        return `${this.getChromosome(allele)}:${this.getStartPos(
+                            allele
+                        )}-${this.getEndPos(allele)}`
+                    },
+                    getSvType(allele) {
+                        return allele.change_type.toUpperCase()
+                    },
+                    getVariantLength(allele) {
+                        return allele.length
+                    },
                     getGene(allele) {
                         if (allele.annotation.filtered.length) {
                             return allele.annotation.filtered
@@ -143,6 +187,15 @@ app.component('alleleSidebarList', {
                                 .join(' | ')
                         }
                         return 'chr' + allele.chromosome
+                    },
+                    getGeneOverlaps(allele) {
+                        var size = allele.annotation.filtered.length
+                        if (size && size == 1)
+                            return allele.annotation.filtered
+                                .map((t) => (t.symbol ? t.symbol : '-'))
+                                .join(' | ')
+                        else if (size && size > 1) return `${size} genes`
+                        else return 'none'
                     },
                     getHGVSc(allele) {
                         if (allele.annotation.filtered.length) {
