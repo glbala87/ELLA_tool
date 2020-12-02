@@ -2,13 +2,19 @@ import { runAction } from 'cerebral/test'
 
 import setManuallyAddedAlleleIds from './setManuallyAddedAlleleIds'
 
-function createState(manuallyAddedAlleles, filteredAlleleIds) {
+function createState(snvFiltered, filteredAlleleIds) {
     return {
         views: {
             workflows: {
+                alleleSidebar: {
+                    callerTypeSelected: 'snv'
+                },
                 interpretation: {
                     state: {
-                        manuallyAddedAlleles
+                        manuallyAddedAlleles: {
+                            cnv: [],
+                            snv: snvFiltered
+                        }
                     },
                     data: {
                         filteredAlleleIds
@@ -29,7 +35,11 @@ describe('setManuallyAddedAlleleIds', function() {
             includedAlleleIds: [1, 2, 3]
         }
         const { state } = await runAction(setManuallyAddedAlleleIds, { state: testState, props })
-        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles).toEqual([1, 2, 3])
+        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles.snv).toEqual([
+            1,
+            2,
+            3
+        ])
     })
 
     it("doesn't duplicate existing", async function() {
@@ -41,7 +51,11 @@ describe('setManuallyAddedAlleleIds', function() {
             includedAlleleIds: [1, 2, 3]
         }
         const { state } = await runAction(setManuallyAddedAlleleIds, { state: testState, props })
-        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles).toEqual([1, 2, 3])
+        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles.snv).toEqual([
+            1,
+            2,
+            3
+        ])
     })
 
     it("doesn't remove existing", async function() {
@@ -53,7 +67,7 @@ describe('setManuallyAddedAlleleIds', function() {
             includedAlleleIds: [3, 4, 5]
         }
         const { state } = await runAction(setManuallyAddedAlleleIds, { state: testState, props })
-        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles).toEqual([
+        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles.snv).toEqual([
             1,
             2,
             3,
@@ -71,7 +85,11 @@ describe('setManuallyAddedAlleleIds', function() {
             includedAlleleIds: []
         }
         const { state } = await runAction(setManuallyAddedAlleleIds, { state: testState, props })
-        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles).toEqual([1, 2, 3])
+        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles.snv).toEqual([
+            1,
+            2,
+            3
+        ])
     })
 
     it('removes ids that were removed', async function() {
@@ -83,6 +101,6 @@ describe('setManuallyAddedAlleleIds', function() {
             includedAlleleIds: [1, 2]
         }
         const { state } = await runAction(setManuallyAddedAlleleIds, { state: testState, props })
-        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles).toEqual([1, 2])
+        expect(state.views.workflows.interpretation.state.manuallyAddedAlleles.snv).toEqual([1, 2])
     })
 })

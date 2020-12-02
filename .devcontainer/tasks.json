@@ -8,6 +8,12 @@
         },
         {
             "type": "shell",
+            "label": "reset e2e db",
+            "command": ["TESTSET=e2e make dbreset"],
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
             "label": "Supervisor: web restart",
             "command": ["supervisorctl -c /ella/ops/dev/supervisor.cfg restart web"]
         },
@@ -15,6 +21,66 @@
             "type": "shell",
             "label": "Setup test environment",
             "command": ["source /ella/ops/dev/setup-local-integration-test.source"]
+        },
+        {
+            "type": "shell",
+            "label": "Run e2e test",
+            "command": [
+                "${workspaceRoot}/node_modules/.bin/wdio",
+                "run",
+                "wdio.conf.js",
+                // "--baseUrl", "127.0.0.1:9999",
+                "--baseUrl",
+                "127.0.0.1:5000",
+                "--hostname",
+                "172.17.0.1",
+                "--port",
+                "4444",
+                "--path",
+                "/",
+                "--spec",
+                "src/webui/tests/e2e/tests/worfklow_sample_with_cnv_classification.js"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "Run e2e test workflow_variant_classification",
+            "command": [
+                "${workspaceRoot}/node_modules/.bin/wdio",
+                "run",
+                "wdio.conf.js",
+                // "--baseUrl", "127.0.0.1:9999",
+                "--baseUrl",
+                "127.0.0.1:5000",
+                "--hostname",
+                "172.17.0.1",
+                "--port",
+                "4444",
+                "--path",
+                "/",
+                "--spec",
+                "src/webui/tests/e2e/tests/workflow_variant_classification.js"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "Run e2e test workflow_variant_classification",
+            "command": [
+                "${workspaceRoot}/node_modules/.bin/wdio",
+                "run",
+                "wdio.conf.js",
+                // "--baseUrl", "127.0.0.1:9999",
+                "--baseUrl",
+                "127.0.0.1:5000",
+                "--hostname",
+                "172.17.0.1",
+                "--port",
+                "4444",
+                "--path",
+                "/",
+                "--spec",
+                "src/webui/tests/e2e/tests/workflow_sample_interpretation_rounds.js"
+            ]
         }
     ]
 }

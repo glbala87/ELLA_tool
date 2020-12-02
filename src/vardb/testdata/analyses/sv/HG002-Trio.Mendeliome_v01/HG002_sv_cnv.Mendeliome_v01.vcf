@@ -1,0 +1,434 @@
+##fileformat=VCFv4.1
+##contig=<ID=1,length=249250621>
+##contig=<ID=2,length=243199373>
+##contig=<ID=3,length=198022430>
+##contig=<ID=4,length=191154276>
+##contig=<ID=5,length=180915260>
+##contig=<ID=6,length=171115067>
+##contig=<ID=7,length=159138663>
+##contig=<ID=8,length=146364022>
+##contig=<ID=9,length=141213431>
+##contig=<ID=10,length=135534747>
+##contig=<ID=11,length=135006516>
+##contig=<ID=12,length=133851895>
+##contig=<ID=13,length=115169878>
+##contig=<ID=14,length=107349540>
+##contig=<ID=15,length=102531392>
+##contig=<ID=16,length=90354753>
+##contig=<ID=17,length=81195210>
+##contig=<ID=18,length=78077248>
+##contig=<ID=19,length=59128983>
+##contig=<ID=20,length=63025520>
+##contig=<ID=21,length=48129895>
+##contig=<ID=22,length=51304566>
+##contig=<ID=X,length=155270560>
+##contig=<ID=Y,length=59373566>
+##contig=<ID=MT,length=16569>
+##contig=<ID=GL000207.1,length=4262>
+##contig=<ID=GL000226.1,length=15008>
+##contig=<ID=GL000229.1,length=19913>
+##contig=<ID=GL000231.1,length=27386>
+##contig=<ID=GL000210.1,length=27682>
+##contig=<ID=GL000239.1,length=33824>
+##contig=<ID=GL000235.1,length=34474>
+##contig=<ID=GL000201.1,length=36148>
+##contig=<ID=GL000247.1,length=36422>
+##contig=<ID=GL000245.1,length=36651>
+##contig=<ID=GL000197.1,length=37175>
+##contig=<ID=GL000203.1,length=37498>
+##contig=<ID=GL000246.1,length=38154>
+##contig=<ID=GL000249.1,length=38502>
+##contig=<ID=GL000196.1,length=38914>
+##contig=<ID=GL000248.1,length=39786>
+##contig=<ID=GL000244.1,length=39929>
+##contig=<ID=GL000238.1,length=39939>
+##contig=<ID=GL000202.1,length=40103>
+##contig=<ID=GL000234.1,length=40531>
+##contig=<ID=GL000232.1,length=40652>
+##contig=<ID=GL000206.1,length=41001>
+##contig=<ID=GL000240.1,length=41933>
+##contig=<ID=GL000236.1,length=41934>
+##contig=<ID=GL000241.1,length=42152>
+##contig=<ID=GL000243.1,length=43341>
+##contig=<ID=GL000242.1,length=43523>
+##contig=<ID=GL000230.1,length=43691>
+##contig=<ID=GL000237.1,length=45867>
+##contig=<ID=GL000233.1,length=45941>
+##contig=<ID=GL000204.1,length=81310>
+##contig=<ID=GL000198.1,length=90085>
+##contig=<ID=GL000208.1,length=92689>
+##contig=<ID=GL000191.1,length=106433>
+##contig=<ID=GL000227.1,length=128374>
+##contig=<ID=GL000228.1,length=129120>
+##contig=<ID=GL000214.1,length=137718>
+##contig=<ID=GL000221.1,length=155397>
+##contig=<ID=GL000209.1,length=159169>
+##contig=<ID=GL000218.1,length=161147>
+##contig=<ID=GL000220.1,length=161802>
+##contig=<ID=GL000213.1,length=164239>
+##contig=<ID=GL000211.1,length=166566>
+##contig=<ID=GL000199.1,length=169874>
+##contig=<ID=GL000217.1,length=172149>
+##contig=<ID=GL000216.1,length=172294>
+##contig=<ID=GL000215.1,length=172545>
+##contig=<ID=GL000205.1,length=174588>
+##contig=<ID=GL000219.1,length=179198>
+##contig=<ID=GL000224.1,length=179693>
+##contig=<ID=GL000223.1,length=180455>
+##contig=<ID=GL000195.1,length=182896>
+##contig=<ID=GL000212.1,length=186858>
+##contig=<ID=GL000222.1,length=186861>
+##contig=<ID=GL000200.1,length=187035>
+##contig=<ID=GL000193.1,length=189789>
+##contig=<ID=GL000194.1,length=191469>
+##contig=<ID=GL000225.1,length=211173>
+##contig=<ID=GL000192.1,length=547496>
+##contig=<ID=NC_007605,length=171823>
+##contig=<ID=hs37d5,length=35477943>
+##FILTER=<ID=BelowExpectedLinks,Description="The number of links or reads between A and B is too small">
+##FILTER=<ID=Density,Description="The discordant reads cluster too tightly">
+##FILTER=<ID=FewLinks,Description="Unexpectedly low fraction of discordant reads betwen A and B">
+##FILTER=<ID=HomRef,Description="homozygous reference call (filter applied at sample level)">
+##FILTER=<ID=LowQual,Description="Poor quality and insufficient number of PEs and SRs.">
+##FILTER=<ID=MaxDepth,Description="Depth is greater than 3x the median chromosome depth near one or both variant breakends">
+##FILTER=<ID=MaxMQ0Frac,Description="For a small variant (<1000 bases), the fraction of reads in all samples with MAPQ0 around either breakend exceeds 0.4">
+##FILTER=<ID=MinGQ,Description="GQ score is less than 15 (filter applied at sample level)">
+##FILTER=<ID=MinQUAL,Description="QUAL score is less than 20">
+##FILTER=<ID=MinSize,Description="The variant is smaller than the user set limit">
+##FILTER=<ID=NoPairSupport,Description="For variants significantly larger than the paired read fragment size, no paired reads support the alternate allele in any sample.">
+##FILTER=<ID=PASS,Description="All filters passed">
+##FILTER=<ID=Ploidy,Description="Intrachromosomal variant on a chromosome having 0 ploidy">
+##FILTER=<ID=RegionalQ,Description="The mapping quality of the region is lower than the user set limit">
+##FILTER=<ID=SampleFT,Description="No sample passes all the sample-level filters (at the field FORMAT/FT)">
+##FILTER=<ID=Smear,Description="Window A and Window B overlap">
+##FILTER=<ID=SplitsVSDiscs,Description="large variant supported mainly by split reads (and not discorant pairs)">
+##FILTER=<ID=UnexpectedCoverage,Description="The coverage of the window on chromosome B or A is higher than 4*average coverage">
+##INFO=<ID=BND_DEPTH,Number=1,Type=Integer,Description="Read depth at local translocation breakend">
+##INFO=<ID=CE,Number=1,Type=Float,Description="Consensus sequence entropy">
+##INFO=<ID=CHR2,Number=1,Type=String,Description="Chromosome for POS2 coordinate in case of an inter-chromosomal translocation">
+##INFO=<ID=CIEND,Number=2,Type=Integer,Description="Confidence interval around END for imprecise variants">
+##INFO=<ID=CIGAR,Number=A,Type=String,Description="CIGAR alignment for each alternate indel allele">
+##INFO=<ID=CIPOS,Number=2,Type=Integer,Description="Confidence interval around POS for imprecise variants">
+##INFO=<ID=CLINVARJSON,Number=1,Type=String,Description="Base 16-encoded JSON representation of metadata associated with this variant. Read back as lambda x: json.loads(base64.b16decode(x)) (from /anno/src/annotation/../../data/variantDBs/clinvar/clinvar_20200319.vcf.gz)">
+##INFO=<ID=CNVNATOR,Number=0,Type=Flag,Description="Cnvnator was used for calling">
+##INFO=<ID=CONSENSUS,Number=1,Type=String,Description="Split-read consensus sequence">
+##INFO=<ID=COVA,Number=1,Type=Float,Description="Coverage on window A">
+##INFO=<ID=COVB,Number=1,Type=Float,Description="Coverage on window B">
+##INFO=<ID=COVM,Number=1,Type=Float,Description="The coverage between A and B">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|ALLELE_NUM|DISTANCE|STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|CANONICAL|ENSP|REFSEQ_MATCH|SOURCE|GIVEN_REF|USED_REF|BAM_EDIT|SIFT|PolyPhen|DOMAINS|HGVS_OFFSET|HGVSg|CLIN_SIG|SOMATIC|PHENO|PUBMED|MOTIF_NAME|MOTIF_POS|HIGH_INF_POS|MOTIF_SCORE_CHANGE|RefSeq_gff|RefSeq_Interim_gff">
+##INFO=<ID=CT,Number=1,Type=String,Description="Paired-end signature induced connection type">
+##INFO=<ID=DELLY,Number=0,Type=Flag,Description="Delly was used for calling">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
+##INFO=<ID=EVENT,Number=1,Type=String,Description="ID of event associated to breakend">
+##INFO=<ID=FRQ_GNOMAD,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_INDB_CNVNATOR,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_INDB_DELLY,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_INDB_MANTA,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_INDB_MERGED,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_INDB_TIDDIT,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_SWEGEN_CNVNATOR,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_SWEGEN_DELLY,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_SWEGEN_MANTA,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=FRQ_SWEGEN_TIDDIT,Number=1,Type=Float,Description="The frequency of the event in the database">
+##INFO=<ID=GNOMAD_EXOMES__AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_AFR,Number=A,Type=Integer,Description="Allele count in African/African American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_AMR,Number=A,Type=Integer,Description="Allele count in Admixed American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_ASJ,Number=A,Type=Integer,Description="Allele count in Ashkenazi Jewish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_EAS,Number=A,Type=Integer,Description="Allele count in East Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_FIN,Number=A,Type=Integer,Description="Allele count in Finnish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_Female,Number=A,Type=Integer,Description="Allele count in Female genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_Male,Number=A,Type=Integer,Description="Allele count in Male genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_NFE,Number=A,Type=Integer,Description="Allele count in Non-Finnish European genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_OTH,Number=A,Type=Integer,Description="Allele count in Other (population not assigned) genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AC_SAS,Number=A,Type=Integer,Description="Allele count in South Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF,Number=A,Type=Float,Description="Allele Frequency among genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_AFR,Number=A,Type=Float,Description="Allele Frequency among African/African American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_AMR,Number=A,Type=Float,Description="Allele Frequency among Admixed American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_ASJ,Number=A,Type=Float,Description="Allele Frequency among Ashkenazi Jewish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_EAS,Number=A,Type=Float,Description="Allele Frequency among East Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_FIN,Number=A,Type=Float,Description="Allele Frequency among Finnish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_Female,Number=A,Type=Float,Description="Allele Frequency among Female genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_Male,Number=A,Type=Float,Description="Allele Frequency among Male genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_NFE,Number=A,Type=Float,Description="Allele Frequency among Non-Finnish European genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_OTH,Number=A,Type=Float,Description="Allele Frequency among Other (population not assigned) genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AF_SAS,Number=A,Type=Float,Description="Allele Frequency among South Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_AFR,Number=1,Type=Integer,Description="Total number of alleles in African/African American called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_AMR,Number=1,Type=Integer,Description="Total number of alleles in Admixed American called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_ASJ,Number=1,Type=Integer,Description="Total number of alleles in Ashkenazi Jewish called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_EAS,Number=1,Type=Integer,Description="Total number of alleles in East Asian called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_FIN,Number=1,Type=Integer,Description="Total number of alleles in Finnish called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_Female,Number=1,Type=Integer,Description="Total number of alleles in Female called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_Male,Number=1,Type=Integer,Description="Total number of alleles in Male called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_NFE,Number=1,Type=Integer,Description="Total number of alleles in Non-Finnish European called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_OTH,Number=1,Type=Integer,Description="Total number of alleles in Other (population not assigned) called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AN_SAS,Number=1,Type=Integer,Description="Total number of alleles in South Asian called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AS_FilterStatus,Number=A,Type=String,Description="Random Forests filter status for each allele (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__AS_RF,Number=A,Type=Float,Description="Random Forests probability for each allele (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__ClippingRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref number of hard clipped bases (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__DB,Number=0,Type=Flag,Description="dbSNP Membership (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_AFR,Number=G,Type=Integer,Description="Count of African/African American individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_AMR,Number=G,Type=Integer,Description="Count of Admixed American individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_ASJ,Number=G,Type=Integer,Description="Count of Ashkenazi Jewish individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_EAS,Number=G,Type=Integer,Description="Count of East Asian individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_FIN,Number=G,Type=Integer,Description="Count of Finnish individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_Female,Number=G,Type=Integer,Description="Count of Female individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_Male,Number=G,Type=Integer,Description="Count of Male individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_NFE,Number=G,Type=Integer,Description="Count of Non-Finnish European individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_OTH,Number=G,Type=Integer,Description="Count of Other (population not assigned) individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__GC_SAS,Number=G,Type=Integer,Description="Count of South Asian individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi,Number=A,Type=Integer,Description="Count of hemizygous individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_AFR,Number=A,Type=Integer,Description="Count of hemizygous African/African American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_AMR,Number=A,Type=Integer,Description="Count of hemizygous Admixed American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_ASJ,Number=A,Type=Integer,Description="Count of hemizygous Ashkenazi Jewish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_EAS,Number=A,Type=Integer,Description="Count of hemizygous East Asian individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_FIN,Number=A,Type=Integer,Description="Count of hemizygous Finnish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_NFE,Number=A,Type=Integer,Description="Count of hemizygous Non-Finnish European individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_OTH,Number=A,Type=Integer,Description="Count of hemizygous Other (population not assigned) individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hemi_SAS,Number=A,Type=Integer,Description="Count of hemizygous South Asian individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom,Number=A,Type=Integer,Description="Count of homozygous individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_AFR,Number=A,Type=Integer,Description="Count of homozygous African/African American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_AMR,Number=A,Type=Integer,Description="Count of homozygous Admixed American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_ASJ,Number=A,Type=Integer,Description="Count of homozygous Ashkenazi Jewish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_EAS,Number=A,Type=Integer,Description="Count of homozygous East Asian individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_FIN,Number=A,Type=Integer,Description="Count of homozygous Finnish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_Female,Number=A,Type=Integer,Description="Count of homozygous Female individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_Male,Number=A,Type=Integer,Description="Count of homozygous Male individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_NFE,Number=A,Type=Integer,Description="Count of homozygous Non-Finnish European individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_OTH,Number=A,Type=Integer,Description="Count of homozygous Other (population not assigned) individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__Hom_SAS,Number=A,Type=Integer,Description="Count of homozygous South Asian individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__MQ,Number=1,Type=Float,Description="RMS Mapping Quality (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__MQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read mapping qualities (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__MULTIALLELIC,Number=0,Type=Flag,Description="calculated by flag of overlapping values in field OLD_MULTIALLELIC from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_EXOMES__QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_EXOMES__ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.exomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_AFR,Number=A,Type=Integer,Description="Allele count in African/African American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_AMR,Number=A,Type=Integer,Description="Allele count in Admixed American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_ASJ,Number=A,Type=Integer,Description="Allele count in Ashkenazi Jewish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_EAS,Number=A,Type=Integer,Description="Allele count in East Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_FIN,Number=A,Type=Integer,Description="Allele count in Finnish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_Female,Number=A,Type=Integer,Description="Allele count in Female genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_Male,Number=A,Type=Integer,Description="Allele count in Male genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_NFE,Number=A,Type=Integer,Description="Allele count in Non-Finnish European genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_OTH,Number=A,Type=Integer,Description="Allele count in Other (population not assigned) genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AC_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field AC_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__AF,Number=A,Type=Float,Description="Allele Frequency among genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_AFR,Number=A,Type=Float,Description="Allele Frequency among African/African American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_AMR,Number=A,Type=Float,Description="Allele Frequency among Admixed American genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_ASJ,Number=A,Type=Float,Description="Allele Frequency among Ashkenazi Jewish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_EAS,Number=A,Type=Float,Description="Allele Frequency among East Asian genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_FIN,Number=A,Type=Float,Description="Allele Frequency among Finnish genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_Female,Number=A,Type=Float,Description="Allele Frequency among Female genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_Male,Number=A,Type=Float,Description="Allele Frequency among Male genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_NFE,Number=A,Type=Float,Description="Allele Frequency among Non-Finnish European genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_OTH,Number=A,Type=Float,Description="Allele Frequency among Other (population not assigned) genotypes, for each ALT allele, in the same order as listed (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AF_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field AF_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_AFR,Number=1,Type=Integer,Description="Total number of alleles in African/African American called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_AMR,Number=1,Type=Integer,Description="Total number of alleles in Admixed American called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_ASJ,Number=1,Type=Integer,Description="Total number of alleles in Ashkenazi Jewish called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_EAS,Number=1,Type=Integer,Description="Total number of alleles in East Asian called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_FIN,Number=1,Type=Integer,Description="Total number of alleles in Finnish called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_Female,Number=1,Type=Integer,Description="Total number of alleles in Female called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_Male,Number=1,Type=Integer,Description="Total number of alleles in Male called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_NFE,Number=1,Type=Integer,Description="Total number of alleles in Non-Finnish European called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_OTH,Number=1,Type=Integer,Description="Total number of alleles in Other (population not assigned) called genotypes (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AN_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field AN_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__AS_FilterStatus,Number=A,Type=String,Description="Random Forests filter status for each allele (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__AS_RF,Number=A,Type=Float,Description="Random Forests probability for each allele (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__ClippingRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref number of hard clipped bases (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__DB,Number=0,Type=Flag,Description="dbSNP Membership (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_AFR,Number=G,Type=Integer,Description="Count of African/African American individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_AMR,Number=G,Type=Integer,Description="Count of Admixed American individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_ASJ,Number=G,Type=Integer,Description="Count of Ashkenazi Jewish individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_EAS,Number=G,Type=Integer,Description="Count of East Asian individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_FIN,Number=G,Type=Integer,Description="Count of Finnish individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_Female,Number=G,Type=Integer,Description="Count of Female individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_Male,Number=G,Type=Integer,Description="Count of Male individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_NFE,Number=G,Type=Integer,Description="Count of Non-Finnish European individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_OTH,Number=G,Type=Integer,Description="Count of Other (population not assigned) individuals for each genotype (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__GC_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field GC_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_AFR,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_AFR from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_AMR,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_AMR from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_ASJ,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_ASJ from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_EAS,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_EAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_FIN,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_FIN from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_NFE,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_NFE from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_OTH,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_OTH from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hemi_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field Hemi_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__Hom,Number=A,Type=Integer,Description="Count of homozygous individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_AFR,Number=A,Type=Integer,Description="Count of homozygous African/African American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_AMR,Number=A,Type=Integer,Description="Count of homozygous Admixed American individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_ASJ,Number=A,Type=Integer,Description="Count of homozygous Ashkenazi Jewish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_EAS,Number=A,Type=Integer,Description="Count of homozygous East Asian individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_FIN,Number=A,Type=Integer,Description="Count of homozygous Finnish individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_Female,Number=A,Type=Integer,Description="Count of homozygous Female individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_Male,Number=A,Type=Integer,Description="Count of homozygous Male individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_NFE,Number=A,Type=Integer,Description="Count of homozygous Non-Finnish European individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_OTH,Number=A,Type=Integer,Description="Count of homozygous Other (population not assigned) individuals (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__Hom_SAS,Number=1,Type=String,Description="calculated by first of overlapping values in field Hom_SAS from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__InbreedingCoeff,Number=1,Type=Float,Description="Inbreeding coefficient as estimated from the genotype likelihoods per-sample when compared against the Hardy-Weinberg expectation (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__MQ,Number=1,Type=Float,Description="RMS Mapping Quality (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__MQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read mapping qualities (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__MULTIALLELIC,Number=0,Type=Flag,Description="calculated by flag of overlapping values in field OLD_MULTIALLELIC from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz">
+##INFO=<ID=GNOMAD_GENOMES__QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=GNOMAD_GENOMES__ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias (from /anno/src/annotation/../../data/variantDBs/gnomAD/gnomad.genomes.r2.0.2.norm.vcf.gz)">
+##INFO=<ID=HGMD__HGMD_type,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__acc_num,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__amino,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__author,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__base,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__chromosome,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__codon,Number=.,Type=Integer,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__comments,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__coordEND,Number=.,Type=Integer,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__coordSTART,Number=.,Type=Integer,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__deletion,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__disease,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__entrezID,Number=.,Type=Integer,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__extrarefs,Number=.,Type=String,Description="Format: (pmid|title|author|fullname|year|vol|issue|page|reftag|gene|disease|comments) (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__fullname,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__gene,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__hgvs,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__insertion,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__ivs,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__journal,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__location,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__locref,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__new_date,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__nucleotide,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__omimid,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__page,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__pmid,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__refCORE,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__refVER,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__score,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__strand,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__tag,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__type,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__vol,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__wildtype,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HGMD__year,Number=.,Type=String,Description="None (from /anno/src/annotation/../../data/variantDBs/HGMD/hgmd-2019.2_norm.vcf.gz)">
+##INFO=<ID=HOMLEN,Number=.,Type=Integer,Description="Predicted microhomology length using a max. edit distance of 2">
+##INFO=<ID=HOMSEQ,Number=.,Type=String,Description="Sequence of base pair identical homology at event breakpoints">
+##INFO=<ID=IMPRECISE,Number=0,Type=Flag,Description="Imprecise structural variation">
+##INFO=<ID=INSLEN,Number=1,Type=Integer,Description="Predicted length of the insertion">
+##INFO=<ID=JUNCTION_QUAL,Number=1,Type=Integer,Description="If the SV junction is part of an EVENT (ie. a multi-adjacency variant), this field provides the QUAL value for the adjacency in question only">
+##INFO=<ID=LEFT_SVINSSEQ,Number=.,Type=String,Description="Known left side of insertion for an insertion of unknown length">
+##INFO=<ID=LFA,Number=1,Type=Integer,Description="Links from window A">
+##INFO=<ID=LFB,Number=1,Type=Integer,Description="Links from window B">
+##INFO=<ID=LTE,Number=1,Type=Integer,Description="Links to event">
+##INFO=<ID=MANTA,Number=0,Type=Flag,Description="Manta was used for calling">
+##INFO=<ID=MAPQ,Number=1,Type=Integer,Description="Median mapping quality of paired-ends">
+##INFO=<ID=MATEID,Number=.,Type=String,Description="ID of mate breakend">
+##INFO=<ID=MATE_BND_DEPTH,Number=1,Type=Integer,Description="Read depth at remote translocation mate breakend">
+##INFO=<ID=OCC_GNOMAD,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_INDB_CNVNATOR,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_INDB_DELLY,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_INDB_MANTA,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_INDB_MERGED,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_INDB_TIDDIT,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_SWEGEN_CNVNATOR,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_SWEGEN_DELLY,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_SWEGEN_MANTA,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OCC_SWEGEN_TIDDIT,Number=1,Type=Integer,Description="The number of occurances of the event in the database">
+##INFO=<ID=OLD_MULTIALLELIC,Number=1,Type=String,Description="Original chr:pos:ref:alt encoding">
+##INFO=<ID=OLD_VARIANT,Number=.,Type=String,Description="Original chr:pos:ref:alt encoding">
+##INFO=<ID=OR,Number=4,Type=Integer,Description="Orientation of the pairs (FF,RR,RF,FR)">
+##INFO=<ID=ORSR,Number=2,Type=Integer,Description="Orientation of the split reads (inverted,normal)">
+##INFO=<ID=PE,Number=1,Type=Integer,Description="Paired-end support of the structural variant">
+##INFO=<ID=POS2,Number=1,Type=Integer,Description="Genomic position for CHR2 in case of an inter-chromosomal translocation">
+##INFO=<ID=PRECISE,Number=0,Type=Flag,Description="Precise structural variation">
+##INFO=<ID=QUALA,Number=1,Type=Float,Description="The average mapping quality of the reads in window A">
+##INFO=<ID=QUALB,Number=1,Type=Float,Description="The average mapping quality of the reads in window B">
+##INFO=<ID=RIGHT_SVINSSEQ,Number=.,Type=String,Description="Known right side of insertion for an insertion of unknown length">
+##INFO=<ID=RefSeq_Interim_gff,Number=.,Type=String,Description="/anno/src/annotation/../../data/RefSeq_interim/GRCh37_refseq_interim_20170113_VEP.gff.gz (overlap)">
+##INFO=<ID=RefSeq_gff,Number=.,Type=String,Description="/anno/src/annotation/../../data/RefSeq/GRCh37_refseq_20191105_VEP.gff.gz (overlap)">
+##INFO=<ID=SAMPLES,Number=.,Type=String,Description="Sample genotyped to have the variant">
+##INFO=<ID=SR,Number=1,Type=Integer,Description="Split-read support">
+##INFO=<ID=SRMAPQ,Number=1,Type=Integer,Description="Median mapping quality of split-reads">
+##INFO=<ID=SRQ,Number=1,Type=Float,Description="Split-read consensus alignment quality">
+##INFO=<ID=SVINSLEN,Number=.,Type=Integer,Description="Length of insertion">
+##INFO=<ID=SVINSSEQ,Number=.,Type=String,Description="Sequence of insertion">
+##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">
+##INFO=<ID=SVMETHOD,Number=1,Type=String,Description="Type of approach used to detect SV">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=TIDDIT,Number=0,Type=Flag,Description="Tiddit was used for calling">
+##INFO=<ID=inDB__AC_OUSWES,Number=A,Type=Integer,Description="Allele count. Number of observed alleles for given variant. (=2*Hom_OUSWES+Het_OUSWES)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__AC_OUSWGS,Number=A,Type=Integer,Description="Allele count. Number of observed alleles for given variant. (=2*Hom_OUSWGS+Het_OUSWGS)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__AF_OUSWES,Number=A,Type=Float,Description="Allele frequency (=AC_OUSWES/AN_OUSWES)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__AF_OUSWGS,Number=A,Type=Float,Description="Allele frequency (=AC_OUSWGS/AN_OUSWGS)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__AN_OUSWES,Number=1,Type=Integer,Description="Allele number. Total number of alleles on position (=2*SAMPLE_COUNT)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__AN_OUSWGS,Number=1,Type=Integer,Description="Allele number. Total number of alleles on position (=2*SAMPLE_COUNT)",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__Het_OUSWES,Number=A,Type=Integer,Description="Number of observed heterozygotes for given variant",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__Het_OUSWGS,Number=A,Type=Integer,Description="Number of observed heterozygotes for given variant",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__Hom_OUSWES,Number=A,Type=Integer,Description="Number of observed homozygotes for given variant",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__Hom_OUSWGS,Number=A,Type=Integer,Description="Number of observed homozygotes for given variant",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__filter_OUSWES,Number=.,Type=String,Description="The FILTER field from in-house database",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__filter_OUSWGS,Number=.,Type=String,Description="The FILTER field from in-house database",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=inDB__indications_OUSWES,Number=.,Type=String,Description="Number of observed samples (note: not allele count) having this variant, given per indication.",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/inDB/inDB-OUSWES-2019-10-10.vcf.gz)">
+##INFO=<ID=inDB__indications_OUSWGS,Number=.,Type=String,Description="Number of observed samples (note: not allele count) having this variant, given per indication.",Source="In-house database",Version="3.0 (from /anno/src/annotation/../../data/variantDBs/wgsDB/wgsDB-OUSWGS-2020-02-11.vcf.gz)">
+##INFO=<ID=natorP1,Number=1,Type=Float,Description="e-val by t-test">
+##INFO=<ID=natorP2,Number=1,Type=Float,Description="e-val by Gaussian tail">
+##INFO=<ID=natorP3,Number=1,Type=Float,Description="e-val by t-test (middle)">
+##INFO=<ID=natorP4,Number=1,Type=Float,Description="e-val by Gaussian tail (middle)">
+##INFO=<ID=natorPE,Number=1,Type=Integer,Description="Number of paired-ends support the event">
+##INFO=<ID=natorQ0,Number=1,Type=Float,Description="Fraction of reads with 0 mapping quality">
+##INFO=<ID=natorRD,Number=1,Type=Float,Description="Normalized RD">
+##FORMAT=<ID=CN,Number=1,Type=Integer,Description="Copy number genotype for imprecise events">
+##FORMAT=<ID=DR,Number=.,Type=Integer,Description="Number of paired-ends that supporting the reference allele (breakpoint A, and B)">
+##FORMAT=<ID=DV,Number=1,Type=Integer,Description="Number of paired-ends that support the event">
+##FORMAT=<ID=FT,Number=1,Type=String,Description="Per-sample genotype filter">
+##FORMAT=<ID=GL,Number=G,Type=Float,Description="Log10-scaled genotype likelihoods for RR,RA,AA genotypes">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PE,Number=2,Type=Integer,Description="Number of improperly paired end reads at start and stop breakpoints">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##FORMAT=<ID=PR,Number=.,Type=Integer,Description="Spanning paired-read support for the ref and alt alleles in the order listed">
+##FORMAT=<ID=RC,Number=1,Type=Integer,Description="Raw high-quality read counts or base counts for the SV">
+##FORMAT=<ID=RCL,Number=1,Type=Integer,Description="Raw high-quality read counts or base counts for the left control region">
+##FORMAT=<ID=RCR,Number=1,Type=Integer,Description="Raw high-quality read counts or base counts for the right control region">
+##FORMAT=<ID=RR,Number=.,Type=Integer,Description="Number of reads supporting the reference allele (breakpoint A, and B)">
+##FORMAT=<ID=RV,Number=1,Type=Integer,Description="Number of split reads that support the event">
+##FORMAT=<ID=SR,Number=.,Type=Integer,Description="Split reads for the ref and alt alleles in the order listed, for reads where P(allele|read)>0.999">
+##source=MergeVCF
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --merge --notag --pass_only --same_order --no_intra --overlap 0.7 --bnd_distance 2500 --vcf manta_Diag-ValidationWGS2-HG002C2-PM_std.vcf delly_Diag-ValidationWGS2-HG002C2-PM_std.vcf tiddit_Diag-ValidationWGS2-HG002C2-PM_std.vcf cnvnator_Diag-ValidationWGS2-HG002C2-PM_std.vcf"
+##ALT=<ID=BND,Description="Break end">
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=DUP,Description="Duplication">
+##ALT=<ID=DUP:TANDEM,Description="Tandem Duplication">
+##ALT=<ID=INS,Description="Insertion">
+##ALT=<ID=INV,Description="Inversion">
+##ALT=<ID=TDUP,Description="Tandem duplication">
+##reference=file:///workspace/ref/human_g1k_v37_decoy.fasta
+##LibraryStats=TIDDIT-2.10.0 Coverage=35.6867 ReadLength=151 MeanInsertSize=440 STDInsertSize=220 Orientation=innie
+##TIDDITcmd="/opt/TIDDIT/TIDDIT.py --sv --bam /workspace/bam/Diag-ValidationWGS2-HG002C2-PM.bam --ref /workspace/ref/human_g1k_v37_decoy.fasta -p 7 -r 5 -o tiddit_Diag-ValidationWGS2-HG002C2-PM_raw"
+##bcftools_viewCommand=view delly_Diag-ValidationWGS2-HG002C2-PM.bcf; Date=Thu Apr  2 21:37:43 2020
+##bcftools_viewVersion=1.9+htslib-1.9
+##cmdline=bin/configManta.py --bam /workspace/bam/Diag-ValidationWGS2-HG002C2-PM.bam --callRegions /filters/human.hg19.incl.bed.gz --referenceFasta /workspace/ref/human_g1k_v37_decoy.fasta --runDir /work
+##svdbcmdline=/targets/bin/svdb --merge --notag --pass_only --same_order --no_intra --overlap 0.7 --bnd_distance 2500 --vcf manta_Diag-ValidationWGS2-HG002C2-PM_std.vcf delly_Diag-ValidationWGS2-HG002C2-PM_std.vcf tiddit_Diag-ValidationWGS2-HG002C2-PM_std.vcf cnvnator_Diag-ValidationWGS2-HG002C2-PM_std.vcf
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp0.vcf --db /anno/data/structuralVariantDBs/swegen/SweGen_MANTA.sort.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_SWEGEN_MANTA --in_frq FRQ --out_frq FRQ_SWEGEN_MANTA"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp1.vcf --db /anno/data/structuralVariantDBs/swegen/SweGen_CNVNATORSVDB.sort.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_SWEGEN_CNVNATOR --in_frq FRQ --out_frq FRQ_SWEGEN_CNVNATOR"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp0.vcf --db /anno/data/structuralVariantDBs/swegen/SweGen_DELLY.sort.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_SWEGEN_DELLY --in_frq FRQ --out_frq FRQ_SWEGEN_DELLY"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp1.vcf --db /anno/data/structuralVariantDBs/swegen/SweGen_TIDDIT.sort.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_SWEGEN_TIDDIT --in_frq FRQ --out_frq FRQ_SWEGEN_TIDDIT"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp0.vcf --db /targets/test/testdata/indb_manta.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_INDB_MANTA --in_frq FRQ --out_frq FRQ_INDB_MANTA"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp1.vcf --db /targets/test/testdata/indb_cnvnator.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_INDB_CNVNATOR --in_frq FRQ --out_frq FRQ_INDB_CNVNATOR"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp0.vcf --db /targets/test/testdata/indb_delly.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_INDB_DELLY --in_frq FRQ --out_frq FRQ_INDB_DELLY"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp1.vcf --db /targets/test/testdata/indb_tiddit.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_INDB_TIDDIT --in_frq FRQ --out_frq FRQ_INDB_TIDDIT"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp0.vcf --db /targets/test/testdata/indb_merged.vcf --overlap 0.6 --bnd_distance 10000 --in_occ OCC --out_occ OCC_INDB_MERGED --in_frq FRQ --out_frq FRQ_INDB_MERGED"
+##SVDB_version=2.3.0 cmd="/targets/bin/svdb --query --query_vcf tmp1.vcf --db /anno/data/structuralVariantDBs/gnomad/gnomad_v2.1_sv.sites.vcf.gz --overlap 0.6 --bnd_distance 10000 --in_occ AC --out_occ OCC_GNOMAD --in_frq AF --out_frq FRQ_GNOMAD"
+##VEP="v98" time="2020-04-20 07:39:55" cache="/anno/bin/../data/VEP/cache/homo_sapiens_merged/98_GRCh37" ensembl-io=98.052d23b ensembl=98.e98e194 ensembl-variation=98.7a544e7 ensembl-funcgen=98.6f9bf7c 1000genomes="phase3" COSMIC="86" ClinVar="201810" ESP="20141103" HGMD-PUBLIC="20174" assembly="GRCh37.p13" dbSNP="151" gencode="GENCODE 19" genebuild="2011-04" gnomAD="r2.1" polyphen="2.2.2" refseq="01_2015" regbuild="1.0" sift="sift5.2.2"
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	HG002
+1	203935831	MantaDEL:18547:0:1:0:0:0	T	<DEL>	999.0	PASS	END=203945442;SVTYPE=DEL;SVLEN=-9611;SVINSLEN=7;SVINSSEQ=TAATAGA;MANTA;PRECISE;SVMETHOD=EMBL.DELLYv0.8.3;PE=25;MAPQ=60;CT=3to5;CIPOS=-1,1;CIEND=-1,1;SRMAPQ=60;INSLEN=0;HOMLEN=0;SR=6;SRQ=0.97561;CONSENSUS=CTAAAAATACAAAAAATTAGCTGAGTGTGGTGGCACGTGCCTATAGTCCCAGCTACTCGGGAGCCTGAGGCAGGGGAATTGCTTGAACCCAGGAGACAGAGGTTTAATAGATTTAATAACTGGATGGGGGCAAGTCCCTAAAGTTTTTCAACAAAGAGGCTTT;CE=1.9713;DELLY;COVM=20.4956;COVA=39.5379;COVB=33.6411;LFA=34;LFB=36;LTE=34;OR=0,0,0,25;ORSR=0,9;QUALA=60;QUALB=60;TIDDIT;IMPRECISE;natorRD=0.600331;natorP1=1.46549e-11;natorP2=288.253;natorP3=1.79575e-11;natorP4=1.20105e-10;natorQ0=0.00187149;CNVNATOR;OCC_SWEGEN_MANTA=2;FRQ_SWEGEN_MANTA=0.00200602;OCC_SWEGEN_CNVNATOR=2;FRQ_SWEGEN_CNVNATOR=0.00200401;OCC_SWEGEN_DELLY=2;FRQ_SWEGEN_DELLY=0.00210748;OCC_SWEGEN_TIDDIT=2;FRQ_SWEGEN_TIDDIT=0.002;OCC_INDB_MANTA=1;FRQ_INDB_MANTA=1;OCC_INDB_CNVNATOR=1;FRQ_INDB_CNVNATOR=1;OCC_INDB_DELLY=1;FRQ_INDB_DELLY=1;OCC_INDB_TIDDIT=1;FRQ_INDB_TIDDIT=1;OCC_INDB_MERGED=1;FRQ_INDB_MERGED=1;OCC_GNOMAD=80;FRQ_GNOMAD=0.003688;CSQ=deletion|regulatory_region_ablation&regulatory_region_variant|MODERATE|||RegulatoryFeature|ENSR00000957058||||||||||||1|||||||||||||||||||||||||||,deletion|regulatory_region_ablation&regulatory_region_variant|MODERATE|||RegulatoryFeature|ENSR00000957059||||||||||||1|||||||||||||||||||||||||||,deletion|regulatory_region_ablation&regulatory_region_variant|MODERATE|||RegulatoryFeature|ENSR00000957060||||||||||||1|||||||||||||||||||||||||||,deletion|TFBS_ablation&TF_binding_site_variant|MODERATE|||MotifFeature|ZBTB7A_W_TGAATA20NGA_NGCGACCACCNN_m1_c4_Cell2013||||||||||||1|||||||||||||||||||||||||||,deletion|TFBS_ablation&TF_binding_site_variant|MODERATE|||MotifFeature|ETV2_CEBPD_AAA_TGTAGA40NTGT_RSCGGANNTTGCGYAAN_m1_c2||||||||||||1|||||||||||||||||||||||||||,deletion|intergenic_variant|MODIFIER||||||||||||||||1|||||||||||||||||||||||||||	GT:FT:GQ:PL:PR:SR	0/1:PASS:606:999,0,603:23,25:32,18
+2	81900001	CNVnator_dup_474	G	<DUP>	.	PASS	END=81912001;SVTYPE=DUP;SVLEN=12000;IMPRECISE;natorRD=2.54511;natorP1=0;natorP2=1.34683e-17;natorP3=0;natorP4=2.69946e-15;natorQ0=0.181976;CNVNATOR;OCC_INDB_CNVNATOR=1;FRQ_INDB_CNVNATOR=1;OCC_INDB_MERGED=1;FRQ_INDB_MERGED=1;CSQ=duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000436174|processed_transcript|||||||||||1|3366|-1||Clone_based_vega_gene|||||Ensembl||||||||||||||||||,duplication|non_coding_transcript_exon_variant&intron_variant|MODIFIER|AC027612.4|ENSG00000223703|Transcript|ENST00000445234|unprocessed_pseudogene|1/6|1/5|||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000445955|transcribed_unprocessed_pseudogene|||||||||||1|731|-1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|transcript_amplification|HIGH|RP11-165D20.1|ENSG00000271627|Transcript|ENST00000605371|processed_pseudogene|||||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1||EntrezGene||YES||rseq_mrna_nonmatch&rseq_nctran_mismatch|RefSeq|||OK|||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1|||||||RefSeq_Interim_gff||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184190||||||||||||1|||||||||||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184191||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ATF4_CEBPB_AT_TCCATG40NCAC_NNATGAYGCAAYN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|CEBPG_Q_TAGACG20NTA_NTTRCGCAAY_m1_c2_Cell2013||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ETV2_CEBPD_AAA_TGTAGA40NTGT_RSCGGANNTTGCGYAAN_m1_c2||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|GCM1_CEBPB_AX_TGCAGG40NTCG_ATRSGGGNNNNTTRCGYAAN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|TEAD4_CEBPB_AY_TGACTC40NTCA_NTTRCGYAANNNNNNGGAATGY_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|FOXB1_AI_TGAGCA30NCGA_WRWGTMAAYAN_m1_c3_Cell2013||||||||||||1|||||||||||||||||||||||||||	GT:CN	./.:2
+2	91903501	CNVnator_dup_474	G	<DUP>	.	PASS	END=91926375;SVTYPE=DUP;SVLEN=22875;IMPRECISE;natorRD=2.54511;natorP1=0;natorP2=1.34683e-17;natorP3=0;natorP4=2.69946e-15;natorQ0=0.181976;CNVNATOR;OCC_INDB_CNVNATOR=1;FRQ_INDB_CNVNATOR=1;OCC_INDB_MERGED=1;FRQ_INDB_MERGED=1;CSQ=duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000436174|processed_transcript|||||||||||1|3366|-1||Clone_based_vega_gene|||||Ensembl||||||||||||||||||,duplication|non_coding_transcript_exon_variant&intron_variant|MODIFIER|AC027612.4|ENSG00000223703|Transcript|ENST00000445234|unprocessed_pseudogene|1/6|1/5|||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000445955|transcribed_unprocessed_pseudogene|||||||||||1|731|-1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|transcript_amplification|HIGH|RP11-165D20.1|ENSG00000271627|Transcript|ENST00000605371|processed_pseudogene|||||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1||EntrezGene||YES||rseq_mrna_nonmatch&rseq_nctran_mismatch|RefSeq|||OK|||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1|||||||RefSeq_Interim_gff||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184190||||||||||||1|||||||||||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184191||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ATF4_CEBPB_AT_TCCATG40NCAC_NNATGAYGCAAYN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|CEBPG_Q_TAGACG20NTA_NTTRCGCAAY_m1_c2_Cell2013||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ETV2_CEBPD_AAA_TGTAGA40NTGT_RSCGGANNTTGCGYAAN_m1_c2||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|GCM1_CEBPB_AX_TGCAGG40NTCG_ATRSGGGNNNNTTRCGYAAN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|TEAD4_CEBPB_AY_TGACTC40NTCA_NTTRCGYAANNNNNNGGAATGY_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|FOXB1_AI_TGAGCA30NCGA_WRWGTMAAYAN_m1_c3_Cell2013||||||||||||1|||||||||||||||||||||||||||	GT:CN	./1:3
+8	81900001	CNVnator_dup_474	G	<DUP>	.	PASS	END=81912001;SVTYPE=DUP;SVLEN=12000;IMPRECISE;natorRD=2.54511;natorP1=0;natorP2=1.34683e-17;natorP3=0;natorP4=2.69946e-15;natorQ0=0.181976;CNVNATOR;OCC_INDB_CNVNATOR=1;FRQ_INDB_CNVNATOR=1;OCC_INDB_MERGED=1;FRQ_INDB_MERGED=1;CSQ=duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000436174|processed_transcript|||||||||||1|3366|-1||Clone_based_vega_gene|||||Ensembl||||||||||||||||||,duplication|non_coding_transcript_exon_variant&intron_variant|MODIFIER|AC027612.4|ENSG00000223703|Transcript|ENST00000445234|unprocessed_pseudogene|1/6|1/5|||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|AC027612.3|ENSG00000230572|Transcript|ENST00000445955|transcribed_unprocessed_pseudogene|||||||||||1|731|-1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|transcript_amplification|HIGH|RP11-165D20.1|ENSG00000271627|Transcript|ENST00000605371|processed_pseudogene|||||||||||1||1||Clone_based_vega_gene||YES|||Ensembl||||||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1||EntrezGene||YES||rseq_mrna_nonmatch&rseq_nctran_mismatch|RefSeq|||OK|||||||||||||||,duplication|upstream_gene_variant|MODIFIER|LOC101927050|101927050|Transcript|NR_136329.1|misc_RNA|||||||||||1|3366|-1|||||||RefSeq_Interim_gff||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184190||||||||||||1|||||||||||||||||||||||||||,duplication|regulatory_region_amplification&regulatory_region_variant|MODIFIER|||RegulatoryFeature|ENSR00001184191||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ATF4_CEBPB_AT_TCCATG40NCAC_NNATGAYGCAAYN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|CEBPG_Q_TAGACG20NTA_NTTRCGCAAY_m1_c2_Cell2013||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|ETV2_CEBPD_AAA_TGTAGA40NTGT_RSCGGANNTTGCGYAAN_m1_c2||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|GCM1_CEBPB_AX_TGCAGG40NTCG_ATRSGGGNNNNTTRCGYAAN_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|TEAD4_CEBPB_AY_TGACTC40NTCA_NTTRCGYAANNNNNNGGAATGY_m1_c3||||||||||||1|||||||||||||||||||||||||||,duplication|TFBS_amplification&TF_binding_site_variant|MODIFIER|||MotifFeature|FOXB1_AI_TGAGCA30NCGA_WRWGTMAAYAN_m1_c3_Cell2013||||||||||||1|||||||||||||||||||||||||||	GT:CN	./.:3

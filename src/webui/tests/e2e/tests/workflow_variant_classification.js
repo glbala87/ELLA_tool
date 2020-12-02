@@ -55,6 +55,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
 
         // Add external annotation
         alleleSectionBox.addExternalBtn.click()
+        //TODO: investigate this crash!
         customAnnotationModal.setExternalAnnotation(4, 'Pathogenic') // UMD BRCAshare
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()

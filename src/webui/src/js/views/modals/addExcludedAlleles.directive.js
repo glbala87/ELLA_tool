@@ -26,15 +26,16 @@ const getGeneOptions = Compute(
 )
 
 const getMetrics = Compute(
-    state`views.workflows.modals.addExcludedAlleles.excludedAlleleIds`,
+    state`views.workflows.alleleSidebar.callerTypeSelected`,
+    state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids_by_caller_type`,
     state`views.workflows.modals.addExcludedAlleles.geneAlleleIds`,
-    (excludedAlleleIds, geneAlleleIds) => {
+    (callerTypeSelected, excludedAlleleIds, geneAlleleIds) => {
         const result = {}
-        if (!excludedAlleleIds || !geneAlleleIds) {
+        if (!callerTypeSelected || !excludedAlleleIds || !geneAlleleIds) {
             return result
         }
         result['all'] = 0
-        Object.entries(excludedAlleleIds).reduce((result, keyValues) => {
+        Object.entries(excludedAlleleIds[callerTypeSelected]).reduce((result, keyValues) => {
             result['all'] += keyValues[1].length
             result[keyValues[0]] = keyValues[1].length
             return result
