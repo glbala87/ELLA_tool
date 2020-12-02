@@ -31,11 +31,11 @@ Remember to run `make test-build` before executing tests everytime you make chan
 
 ### Python
 
-If you want to run a specific API test while developing, you can enter your development container and run `source /ella/ops/dev/setup-local-integration-test.source`, before running the test with `py.test`. This script will tell the test framework to use your local database dump after the initial run, saving you a lot of time when running the test again.
+If you want to run a specific API test while developing, enter your development container in VSCode, and select the `Test`-section in the left sidebar. From there you can run and debug specific tests.
+
+Alternatively, you can use `py.test <path>` like normal in the integrated terminal.
 
 The database fixtures are setup in different `conftest.py` files.
-
-For normal unit testing, just run `py.test <path>` like normal.
 
 
 ### Javascript

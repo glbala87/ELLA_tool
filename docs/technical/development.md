@@ -3,14 +3,23 @@
 [[toc]]
 
 ## Getting started
-- Start a development environment in Docker, run **`make dev`** - you may need to do `make build` first
-- Populate the database by running `make db` or `make db TEST_SET=..`
- if you want something else than the default data. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS
+
+The recommended way of developing with ELLA is to use VSCode with development containers. For this to work you need to follow the recipe provided [here](https://code.visualstudio.com/docs/remote/containers).
+
+Once VSCode is set up, open the root folder (`ella`) in VSCode, and use the command palette to launch `Remote-Containers: Rebuild and Reopen in Container`*. This will start up a Docker container with ELLA running inside it, and attach VSCode to it. From there, you can populate the database:
+
+- Run the task `reset db`
+- Run `make dbreset` (or `make dbreset TESTSET=default`) in the integrated terminal
+If you want something else than the default data. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS
+
+Now, ELLA should be available on http://localhost:5000, and one can log in with credentials `testuser1:demo`, `testuser2:demo`,...,`testuser8:demo`. The environments for the test users are slightly different.
 
 To get visibility into what's happening in the browser client, start the Cerebral debugger (<https://cerebraljs.com/docs/introduction/debugger.html>).
 Enter any name ('ella' is a good name) and port 8585. This sets up a server listening on that part port.
 Open the app in the browser (refresh if the app was openen before starting Cerebral). The browser will connect
 to the Cerebral. Make sure the server port match the port configured in webui/src/js/index.js
+
+\* On subsequent runs, it is sufficient to run `Remote-Containers: Reopen in Container`
 
 
 ## Ops
