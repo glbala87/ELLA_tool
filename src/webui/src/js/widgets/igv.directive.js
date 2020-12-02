@@ -42,7 +42,8 @@ import { Directive, Inject } from '../ng-decorators'
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
             elem.on('$destroy', () => {
-                igv.removeBrowser(browser)
+                // Use timeout of 5 seconds to allow igv tasks to finish
+                setTimeout(() => igv.removeBrowser(browser), 5000)
             })
 
             scope.$watch(

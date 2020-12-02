@@ -25,7 +25,6 @@ VALID_STATIC_FILES = [
     "templates.js",
     "fonts",
     "docs",
-    "favicon.ico",
 ]
 
 log = app.logger

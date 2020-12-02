@@ -90,6 +90,9 @@ export class WysiwygEditorController {
 
         this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
 
+        // Add positive debounce to avoid javascript error deep in AngularJS on 'blur'
+        this.ngModelController.$options.$$options.debounce = 1
+
         this.buttonselement.hidden = true
         this.isBlurred = true
 

@@ -7,8 +7,8 @@ source ./scripts/bash-util.sh
 
 if [ "${APP_URL}" = "" ]
     then
-        yellow "Assuming app is running at 127.0.0.1:5000"
-        APP_URL="127.0.0.1:5000"
+        yellow "Assuming app is running at 127.0.0.1:28752"
+        APP_URL="127.0.0.1:28752"
     else
         yellow "Running tests against $APP_URL Ip address to chrome browser"
 fi
