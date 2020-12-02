@@ -115,7 +115,9 @@ def build_allele_from_record(record, ref_genome):
     ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
     def isSvType():
-        if "ALL" not in record["INFO"]:
+        if "INFO" not in record:
+            return False
+        elif "ALL" not in record["INFO"]:
             return False
         elif "SVTYPE" in record["INFO"]["ALL"]:
             return True

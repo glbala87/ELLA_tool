@@ -120,6 +120,8 @@ def test_allele_from_record(session, positions, manually_curated_result):
         "SAMPLES": {"H01": {"GT": "0/1"}},
     }
 
+    allele_length = max(len(ref), len(alt))
+
     al = deposit.build_allele_from_record(record, ref_genome="GRCh37")
     if manually_curated_result:
         for k, v in manually_curated_result.items():
@@ -131,6 +133,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
         "vcf_pos": pos,
         "vcf_ref": ref,
         "vcf_alt": alt,
+        "length": 1,
     }
 
     if len(ref) == len(alt) == 1:
@@ -141,6 +144,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos,
                 "change_from": ref,
                 "change_to": alt,
+                "length": allele_length,
             }
         )
     elif len(ref) >= 1 and len(alt) >= 1 and alt[0] != ref[0]:
@@ -151,6 +155,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos - 1 + len(ref),
                 "change_from": ref,
                 "change_to": alt,
+                "length": allele_length,
             }
         )
     elif len(ref) < len(alt):
@@ -161,6 +166,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos,
                 "change_from": "",
                 "change_to": alt[1:],
+                "length": allele_length - 1,
             }
         )
     elif len(ref) > len(alt):
@@ -171,6 +177,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "open_end_position": pos + len(ref) - 1,
                 "change_from": ref[1:],
                 "change_to": "",
+                "length": allele_length - 1,
             }
         )
     else:
@@ -300,6 +307,7 @@ def test_equivalent_vcf_representations(standard, padding):
 #    st.one_of(positions()), st.lists(st.tuples(sequence(), sequence()), min_size=1, max_size=4)
 )
 """
+
 
 # def test_cnv_importer(session, record, expected_result):
 # @ht.given(text())
