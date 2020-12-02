@@ -25,6 +25,29 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'numberFormat'
+    })
+    numberFormat() {
+        return (text) => {
+            return text.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1, ')
+        }
+    }
+
+    @Filter({
+        filterName: 'bioinfSized'
+    })
+    bioinfSized() {
+        return (text) => {
+            if (text > 1000 && text < 1000000) {
+                return `${(text / 1000).toFixed(2)} kb`
+            } else if (text >= 1000000) {
+                return `${(text / 1000000).toFixed(2)} mb`
+            }
+            return text
+        }
+    }
+
+    @Filter({
         filterName: 'killLeadingDashes'
     })
     killLeadingDashes() {

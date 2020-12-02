@@ -707,10 +707,15 @@ class AnalysisInterpretationFilteredAlleles(LogRequestResource):
         if filterconfig_id is not None:
             filterconfig_id = int(filterconfig_id)
 
-        allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+        allele_ids, excluded_allele_ids, excluded_by_caller_type = helpers.get_filtered_alleles(
             session, interpretation, filter_config_id=filterconfig_id
         )
-        result = {"allele_ids": allele_ids, "excluded_allele_ids": excluded_allele_ids}
+
+        result = {
+            "allele_ids": allele_ids,
+            "excluded_allele_ids": excluded_allele_ids,
+            "excluded_allele_ids_by_caller_type": excluded_by_caller_type,
+        }
 
         return result
 

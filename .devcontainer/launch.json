@@ -1,11 +1,93 @@
 {
     "version": "0.2.0",
     "configurations": [
+
+        {"name":"Python: Remote Attach","type":"python","request":"attach","connect":{"host":"localhost","port":5678},"pathMappings":[{"localRoot":"${workspaceFolder}","remoteRoot":"."}]},
+        {"name":"Python: Attach using Process Id","type":"python","request":"attach","processId":"${command:pickProcess}"},
         {
             "name":"Python: Pytest Current File",
             "type":"python",
             "request":"test",
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name":"Python: debug reset_testdata",
+            "type":"python",
+            "request":"launch",
+            "program": "/ella/ops/test/reset_testdata.py",
+            "args": ["--testset", "default"]
+        },
+        {
+          "name" : "Python: pytest specific test, configure args to specific file",
+          "type" : "python",
+          "request": "launch",
+          "module" : "pytest",
+          "args" :[
+            "src/datalayer/tests/test_classificationfilter.py"
+          ],
+        },
+        {
+          "name": "e2e node: debug sample cnv test",
+          "type": "node",
+          "request": "launch",
+          "port": 9999,
+          //"port" : 28752,
+          "timeout": 60000,
+          "runtimeExecutable" :"${workspaceRoot}/node_modules/.bin/wdio",
+          "cwd" : "${workspaceRoot}",
+          "console" : "integratedTerminal",
+          "args" : [
+            "run",
+            "wdio.conf.js",
+            // "--baseUrl", "127.0.0.1:9999",
+            "--baseUrl", "127.0.0.1:5000",
+            "--hostname", "172.17.0.1",
+            "--port" ,"4444",
+            "--path", "/",
+            "--spec", "src/webui/tests/e2e/tests/worfklow_sample_with_cnv_classification.js"
+          ]
+        },
+        {
+          "name": "e2e node: workfow sample interpretation rounds",
+          "type": "node",
+          "request": "launch",
+          "port": 9999,
+          //"port" : 28752,
+          "timeout": 60000,
+          "runtimeExecutable" :"${workspaceRoot}/node_modules/.bin/wdio",
+          "cwd" : "${workspaceRoot}",
+          "console" : "integratedTerminal",
+          "args" : [
+            "run",
+            "wdio.conf.js",
+            // "--baseUrl", "127.0.0.1:9999",
+            "--baseUrl", "127.0.0.1:5000",
+            "--hostname", "172.17.0.1",
+            "--port" ,"4444",
+            "--path", "/",
+            "--spec", "src/webui/tests/e2e/tests/workflow_sample_interpretation_rounds.js"
+          ]
+        },
+        {
+          "name": "e2e node: workflow_variant_classification",
+          "type": "node",
+          "request": "launch",
+          "port": 9999,
+          //"port" : 28752,
+          "timeout": 60000,
+          "runtimeExecutable" :"${workspaceRoot}/node_modules/.bin/wdio",
+          "cwd" : "${workspaceRoot}",
+          "console" : "integratedTerminal",
+          "args" : [
+            "run",
+            "wdio.conf.js",
+            // "--baseUrl", "127.0.0.1:9999",
+            "--baseUrl", "127.0.0.1:5000",
+            "--hostname", "172.17.0.1",
+            "--port" ,"4444",
+            "--path", "/",
+            "--spec", "src/webui/tests/e2e/tests/workflow_variant_classification.js"
+          ]
         }
     ]
 }

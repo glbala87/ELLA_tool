@@ -3,7 +3,7 @@ import datetime
 import pytz
 from collections import defaultdict
 
-from sqlalchemy import tuple_, literal, func
+from sqlalchemy import tuple_, literal, func, and_
 from sqlalchemy.orm import joinedload
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
@@ -1217,6 +1217,42 @@ def delete_interpretationlog(
     session.delete(il)
 
 
+def fetch_allele_ids(session, excluded_alleles, caller_type):
+    return (
+        session.query(allele.Allele.id)
+        .filter(
+            and_(allele.Allele.id.in_(excluded_alleles), allele.Allele.caller_type == caller_type)
+        )
+        .all()
+    )
+
+
+def _filtered_by_caller_type(session, filtered_alleles):
+
+    """
+    This invokes many unecessary roundtrips to the database, however, it is
+    simple and easy to understand.
+    A more efficient way is to:
+        1. accumulate all filtered ids from filtered_alleles
+        2. make one query to the database
+        3. assemble the ids by each caller_type and filter_type by diffing the arrays
+            against filtered_alleles to know what goes where
+    """
+    filtered_by_caller_type = {}
+    for caller_type in "SNV", "CNV":
+        filtered_by_caller_type[caller_type.lower()] = {}
+        for filter_type in filtered_alleles:
+            ids = filtered_alleles[filter_type]
+            if len(ids) == 0:
+                filtered_by_caller_type[caller_type.lower()][filter_type] = []
+            else:
+                tupled_list = fetch_allele_ids(session, ids, caller_type)
+                ids = [item for tup in tupled_list for item in tup]
+                filtered_by_caller_type[caller_type.lower()][filter_type] = ids
+
+    return filtered_by_caller_type
+
+
 def get_filtered_alleles(session, interpretation, filter_config_id=None):
     """
     Return filter results for interpretation.
@@ -1264,7 +1300,11 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 else:
                     allele_ids.append(snapshot.allele_id)
 
-            return allele_ids, excluded_allele_ids
+            return (
+                allele_ids,
+                excluded_allele_ids,
+                _filtered_by_caller_type(session, excluded_allele_ids),
+            )
         else:
             analysis_id = interpretation.analysis_id
             analysis_allele_ids = (
@@ -1279,6 +1319,10 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 filter_config_id, analysis_id, analysis_allele_ids
             )
 
-            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
+            return (
+                filtered_alleles["allele_ids"],
+                filtered_alleles["excluded_allele_ids"],
+                _filtered_by_caller_type(session, filtered_alleles["excluded_allele_ids"]),
+            )
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))

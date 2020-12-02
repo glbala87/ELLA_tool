@@ -5840,10 +5840,6 @@ ignore@^4.0.6:
   dependencies:
     igv-utils "github:igvteam/igv-utils#v1.2.3"
 
-"igv-utils@github:igvteam/igv-utils#v1.2.3":
-  version "1.2.2"
-  resolved "https://codeload.github.com/igvteam/igv-utils/tar.gz/b01d4e5c6f1448e4b3abb955c813c1163c7b0bda"
-
 "igv-utils@github:igvteam/igv-utils#v1.2.4":
   version "1.2.2"
   resolved "https://codeload.github.com/igvteam/igv-utils/tar.gz/d5dfc7d03cbf894f1aaa7a89b07499d8d1beba75"
