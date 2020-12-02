@@ -15,9 +15,13 @@
         {
             "type": "shell",
             "label": "reset custom db",
-            "command": [
-                "TESTSET=custom make dbreset"
-            ],
+            "command": ["TESTSET=custom make dbreset"],
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "reset e2e db",
+            "command": ["TESTSET=e2e make dbreset"],
             "problemMatcher": []
         },
         {

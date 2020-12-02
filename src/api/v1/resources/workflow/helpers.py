@@ -1322,6 +1322,10 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 filter_config_id, analysis_id, analysis_allele_ids
             )
 
-            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
+            return (
+                filtered_alleles["allele_ids"],
+                filtered_alleles["excluded_allele_ids"],
+                _filtered_by_caller_type(session, filtered_alleles["excluded_allele_ids"]),
+            )
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))

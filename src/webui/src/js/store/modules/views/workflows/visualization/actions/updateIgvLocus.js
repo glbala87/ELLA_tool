@@ -1,6 +1,5 @@
 export default function updateIgvLocus({ state, props }) {
     const allele = state.get(`views.workflows.interpretation.data.alleles.${props.alleleId}`)
-
     const N = 50
     const padding = Math.max(N / 2, 0.1 * allele.length)
     const start = Math.max(allele.vcf_pos - padding, 0)

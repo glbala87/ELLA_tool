@@ -204,7 +204,6 @@ app.component('alleleSidebarList', {
                         }
                         return 'chr' + allele.chromosome
                     },
-
                     getHGVSc(allele) {
                         if (allele.caller_type == 'CNV') {
                             return allele.formatted.hgvsg
