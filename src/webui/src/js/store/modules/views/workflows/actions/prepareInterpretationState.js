@@ -16,7 +16,9 @@ export default function prepareInterpretationState({ state }) {
     }
 
     if (!('manuallyAddedAlleles' in preparedState)) {
-        preparedState.manuallyAddedAlleles = []
+        preparedState.manuallyAddedAlleles = {}
+        preparedState.manuallyAddedAlleles.snv = []
+        preparedState.manuallyAddedAlleles.cnv = []
     }
 
     if (!('allele' in preparedUserState)) {

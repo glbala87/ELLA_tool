@@ -10,11 +10,13 @@ import os
 import re
 import datetime
 
+
 import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
 import yaml
+
 from vardb.datamodel import DB
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.deposit.deposit_alleles import DepositAlleles
@@ -125,6 +127,7 @@ ANALYSES = [
     AnalysisInfo("../testdata/analyses/integration_testing", "integration_testing"),
     AnalysisInfo("../testdata/analyses/custom", "custom"),
     AnalysisInfo("../testdata/analyses/sanger", "sanger"),
+    AnalysisInfo("../testdata/analyses/sv/", "sv"),
 ]
 
 ALLELES = [
@@ -134,8 +137,16 @@ ALLELES = [
     )
 ]
 
+
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
 AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
+
+CNV_ALLELES = [
+    {
+        "path": "../testdata/sv-testdata/HG002_sv_cnv.Mendeliome_v01.vcf",
+        "genepanel": ("Mendeliome", "v01"),
+    }
+]
 
 REFERENCES = "../testdata/references_test.json"
 CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
@@ -188,8 +199,8 @@ class DepositTestdata(object):
         testset_path = os.path.join(SCRIPT_DIR, testset.path)
         analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
         analysis_paths.sort()
-        for analysis_path in analysis_paths:
 
+        for analysis_path in analysis_paths:
             if not os.path.isdir(analysis_path):
                 continue
             try:
@@ -197,17 +208,6 @@ class DepositTestdata(object):
                 acd["warnings"] = WARNINGS_EXAMPLE if acd["genepanel_name"] == "HBOC" else None
                 acd["report"] = REPORT_EXAMPLE
                 acd["date_requested"] = datetime.datetime.now().strftime("%Y-%m-%d")
-                # analysis_vcf_path = glob.glob(os.path.join(analysis_path, "*.vcf"))[0]
-                # analysis_ped_path = None
-                # ped_glob = glob.glob(os.path.join(analysis_path, "*.ped"))
-                # if ped_glob:
-                #     analysis_ped_path = ped_glob[0]
-                # filename = os.path.basename(analysis_vcf_path)
-                # matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
-
-                # analysis_name = matches.group("analysis_name")
-                # gp_name = matches.group("genepanel_name")
-                # gp_version = matches.group("genepanel_version")
 
                 da = DepositAnalysis(self.session)
                 da.import_vcf(acd)
@@ -226,6 +226,14 @@ class DepositTestdata(object):
 
             da = DepositAlleles(self.session)
             da.import_vcf(vcf_path, allele.genepanel[0], allele.genepanel[1])
+            log.info("Deposited {} as single alleles".format(vcf_path))
+            self.session.commit()
+
+    def deposit_cnv_alleles(self):
+        for allele in CNV_ALLELES:
+            vcf_path = os.path.join(SCRIPT_DIR, allele["path"])
+            da = DepositAlleles(self.session)
+            da.import_vcf(vcf_path, allele["genepanel"][0], allele["genepanel"][1])
             log.info("Deposited {} as single alleles".format(vcf_path))
             self.session.commit()
 
@@ -276,6 +284,7 @@ class DepositTestdata(object):
         else:
             self.deposit_analyses(test_set=test_set)
             self.deposit_alleles()
+            self.deposit_cnv_alleles()
             self.deposit_custom_annotation()
             if test_set == "default":
                 self.deposit_fixtures()

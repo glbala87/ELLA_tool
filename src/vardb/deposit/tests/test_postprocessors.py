@@ -97,7 +97,7 @@ class TestPostprocessors:
         assert interpretation.finalized is None
 
         # Create alleleassesments for all non-filtered alleles
-        allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
+        allele_ids, _, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
 
         for allele_id in allele_ids:
             aa = assessment.AlleleAssessment(
@@ -139,7 +139,7 @@ class TestPostprocessors:
         )
 
         filter_config_id = 1
-        allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
+        allele_ids, _, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
         assert allele_ids
         #
         # Test ALL CLASSIFIED

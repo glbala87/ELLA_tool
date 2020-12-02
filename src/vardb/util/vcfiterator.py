@@ -2,6 +2,7 @@ from typing import Any, Dict, IO, Mapping, Optional, Sequence, Tuple, Union
 import cyvcf2
 import logging
 import numpy as np
+from os.path import commonprefix
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,19 @@ def numpy_to_list(a: Optional[np.ndarray]):
         return a.tolist()
 
 
+def commonsuffix(v):
+    "Common suffix is the same as the reversed common prefix of the reversed string"
+    return commonprefix([x[::-1] for x in v])[::-1]
+
+
+change_type_from_sv_alt_field = {
+    "<DUP>": "dup",
+    "<DUP:TANDEM>": "dup_tandem",
+    "<DEL>": "del",
+    "<DEL:ME>": "del_me",
+}
+
+
 class Record(object):
     variant: cyvcf2.Variant
     samples: Sequence[str]
@@ -51,8 +65,159 @@ class Record(object):
         self.samples = samples
         self.meta = meta
 
-    def _sample_index(self, sample_name: str):
+    def get_allele(self, alleles):
+        for allele in alleles:
+            if (
+                allele["chromosome"] == self.variant.CHROM
+                and allele["vcf_pos"] == self.variant.POS
+                and allele["vcf_ref"] == self.variant.REF
+                and allele["vcf_alt"] == self.variant.ALT[0]
+            ):
+                return allele
+        return None
+
+    def _sample_index(self, sample_name):
         return self.samples.index(sample_name)
+
+    def sv_type(self):
+        return self.variant.INFO.get("SVTYPE")
+
+    def sv_change_type(self, vcf_alt):
+        if vcf_alt in change_type_from_sv_alt_field:
+            return change_type_from_sv_alt_field[vcf_alt]
+
+        elif self.sv_type() == "DEL":
+            return "del"
+        elif self.sv_type() == "DUP":
+            return "dup"
+        else:
+            raise Exception(
+                f"ELLA only supports ALT=<DUP>,<DUP:TANDEM>,<DEL> or SVTYPE of value: DEL and DUP, {self.sv_type()} is not supported"
+            )
+
+    def sv_len(self):
+        return self.variant.INFO.get("SVLEN")
+
+    def _sv_allele_length(self):
+
+        if type(self.sv_len()) is int:
+            svlen_value = int(self.sv_len())
+        elif type(self.sv_len()) is list:
+            assert (
+                len(self.sv_len()) == 1
+            ), f"ELLA only supports one allele, SVLEN contains: {len(self.sv_len())} alleles, with values: {self.sv_len()}"
+            svlen_value = self.sv_len()[0]
+        elif isinstance(self.sv_len(), str):
+            try:
+                svlen_value = int(self.sv_len())
+            except:
+                raise RuntimeError(f"Unable to cast {self.sv_len()} to int")
+            else:
+                raise ValueError(
+                    f"type of SVLEN is invalid: {type(self.sv_len())}, should only be either a list of Integers or a single Integer"
+                )
+        else:
+            raise RuntimeError(
+                f"Unable to determine type of SVLEN: {type(self.sv_len())}, with value: ${self.sv_len()}, for SVTYPE: {self.sv_type()}"
+            )
+        return abs(svlen_value)
+
+    def _sv_open_end_position(self, pos, change_type):
+
+        if change_type == "dup" or change_type == "dup_tandem" or change_type == "ins":
+            return pos + 1
+        else:
+            return pos + abs(self._sv_allele_length())
+
+    def _snv_allele_info(self, pos, ref, alt):
+        # Remove common suffix
+        # (with ref, alt = ("AGAA", "ACAA") change to ref, alt = ("AG", "AC"))
+        N_suffix = len(commonsuffix([ref, alt]))
+        if N_suffix > 0:
+            ref, alt = ref[:-N_suffix], alt[:-N_suffix]
+
+        # Remove common prefix and offset position
+        # (with pos, ref, alt = (123, "AG", "AC") change to pos, ref, alt = (124, "G", "C"))
+        N_prefix = len(commonprefix([ref, alt]))
+        ref, alt = ref[N_prefix:], alt[N_prefix:]
+        pos += N_prefix
+
+        if len(ref) == len(alt) == 1:
+            change_type = "SNP"
+            start_position = pos
+            open_end_position = pos + 1
+        elif len(ref) >= 1 and len(alt) >= 1:
+            assert len(ref) > 1 or len(alt) > 1
+            change_type = "indel"
+            start_position = pos
+            open_end_position = pos + len(ref)
+        elif len(ref) < len(alt):
+            assert ref == ""
+            change_type = "ins"
+            # An insertion is shifted one base 1 because of same prefix above,
+            # but the insertion is done between the reference allele (at pos-1) and the subsequent allele (at pos)
+            start_position = pos - 1
+            # Insertions have no span in the reference genome
+            open_end_position = pos
+        elif len(ref) > len(alt):
+            assert alt == ""
+            change_type = "del"
+            start_position = pos
+            open_end_position = pos + len(ref)
+        else:
+            raise ValueError("Unable to determine allele from ref/alt={}/{}".format(ref, alt))
+
+        if change_type == "ins":
+            allele_length = 1
+        else:
+            allele_length = max(len(ref), len(alt))
+
+        return start_position, open_end_position, change_type, allele_length, ref, alt
+
+    def build_allele(self, ref_genome):
+        vcf_ref, vcf_alt, vcf_pos = (
+            self.variant.REF,
+            self.variant.ALT[0],
+            self.variant.POS,
+        )
+
+        pos = vcf_pos - 1
+
+        if self.sv_type() is None:
+            (
+                start_position,
+                open_end_position,
+                change_type,
+                allele_length,
+                ref,
+                alt,
+            ) = self._snv_allele_info(pos, vcf_ref, vcf_alt)
+            caller_type = "SNV"
+        else:
+            start_position = pos
+            change_type = self.sv_change_type(vcf_alt)
+            open_end_position = self._sv_open_end_position(pos, change_type)
+            allele_length = self._sv_allele_length()
+            caller_type = "CNV"
+            ref = vcf_ref
+            alt = vcf_alt
+
+        allele = {
+            "genome_reference": ref_genome,
+            "chromosome": self.variant.CHROM,
+            "start_position": start_position,
+            "open_end_position": open_end_position,
+            "change_type": change_type,
+            "change_from": ref,
+            "change_to": alt,
+            "length": allele_length,
+            "vcf_pos": vcf_pos,
+            "vcf_ref": vcf_ref,
+            "vcf_alt": vcf_alt,
+            "caller_type": caller_type,
+        }
+
+        return allele
 
     def get_raw_filter(self):
         """Need to implement this here, as cyvcf2 does not distinguish between 'PASS' and '.' (both return None).
@@ -64,7 +229,18 @@ class Record(object):
 
     def has_allele(self, sample_name: str):
         gt = self.sample_genotype(sample_name)
-        return max(gt) == 1
+        vcf_alt = self.variant.ALT[0]
+        if (
+            self.sv_type()
+            and (
+                self.sv_change_type(vcf_alt) == "dup"
+                or self.sv_change_type(vcf_alt) == "dup_tandem"
+            )
+            and gt == (-1, -1)
+        ):
+            return True
+        else:
+            return max(gt) == 1
 
     def get_format_sample(self, property: str, sample_name: str, scalar: bool = False):
         if property == "GT":
