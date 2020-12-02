@@ -174,6 +174,13 @@ class AlleleSidebar extends Page {
         ).click()
     }
 
+    markCnvClassifiedReview(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
+        $(
+            `allele-sidebar .id-classified .nav-row:nth-child(${alleleIdx + 3}) .id-classification`
+        ).click()
+    }
+
     quickSetTechnical(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
         $(
