@@ -4,11 +4,11 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { signal, state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import template from './alleleAssessmentHistory.ngtmpl.html'
+import template from './alleleHistory.ngtmpl.html'
 
 const combinedAssessmentsReport = Compute(
-    state`views.workflows.modals.alleleAssessmentHistory.data.alleleassessments`,
-    state`views.workflows.modals.alleleAssessmentHistory.data.allelereports`,
+    state`views.workflows.modals.alleleHistory.data.alleleassessments`,
+    state`views.workflows.modals.alleleHistory.data.allelereports`,
     (alleleAssessments, alleleReports) => {
         // Join allele reports and allele assessments created together. This is done by assuming that allele reports
         // and allele assessments created within 10 seconds of each other are created together.
@@ -44,20 +44,20 @@ const combinedAssessmentsReport = Compute(
     }
 )
 
-app.component('alleleAssessmentHistory', {
-    templateUrl: 'alleleAssessmentHistory.ngtmpl.html',
+app.component('alleleHistory', {
+    templateUrl: 'alleleHistory.ngtmpl.html',
     controller: connect(
         {
-            alleleAssessments: state`views.workflows.modals.alleleAssessmentHistory.data.alleleassessments`,
-            selectedMode: state`views.workflows.modals.alleleAssessmentHistory.selectedMode`,
-            selected: state`views.workflows.modals.alleleAssessmentHistory.selected`,
-            alleleReports: state`views.workflows.modals.alleleAssessmentHistory.data.allelereports`,
+            alleleAssessments: state`views.workflows.modals.alleleHistory.data.alleleassessments`,
+            selectedMode: state`views.workflows.modals.alleleHistory.selectedMode`,
+            selected: state`views.workflows.modals.alleleHistory.selected`,
+            alleleReports: state`views.workflows.modals.alleleHistory.data.allelereports`,
             summaryItems: combinedAssessmentsReport,
-            selectedModeChanged: signal`views.workflows.modals.alleleAssessmentHistory.selectedModeChanged`,
-            selectedChanged: signal`views.workflows.modals.alleleAssessmentHistory.selectedChanged`,
-            dismissClicked: signal`views.workflows.modals.alleleAssessmentHistory.dismissClicked`
+            selectedModeChanged: signal`views.workflows.modals.alleleHistory.selectedModeChanged`,
+            selectedChanged: signal`views.workflows.modals.alleleHistory.selectedChanged`,
+            dismissClicked: signal`views.workflows.modals.alleleHistory.dismissClicked`
         },
-        'AlleleAssessmentHistory',
+        'alleleHistory',
         [
             '$scope',
             ($scope) => {

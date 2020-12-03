@@ -6,22 +6,19 @@ import getAlleleReports from '../actions/getAlleleReports'
 import getAttachmentsById from '../actions/getAttachmentsById'
 
 export default [
-    set(state`views.workflows.modals.alleleAssessmentHistory.show`, true),
-    set(state`views.workflows.modals.alleleAssessmentHistory.selectedMode`, 'classification'),
+    set(state`views.workflows.modals.alleleHistory.show`, true),
+    set(state`views.workflows.modals.alleleHistory.selectedMode`, 'classification'),
     getAlleleAssessments,
     {
         success: [
+            set(state`views.workflows.modals.alleleHistory.data.alleleassessments`, props`result`),
             set(
-                state`views.workflows.modals.alleleAssessmentHistory.data.alleleassessments`,
-                props`result`
-            ),
-            set(
-                state`views.workflows.modals.alleleAssessmentHistory.selected`,
-                state`views.workflows.modals.alleleAssessmentHistory.data.alleleassessments.0`
+                state`views.workflows.modals.alleleHistory.selected`,
+                state`views.workflows.modals.alleleHistory.data.alleleassessments.0`
             ),
             ({ state }) => {
                 const alleleassessments = state.get(
-                    'views.workflows.modals.alleleAssessmentHistory.data.alleleassessments'
+                    'views.workflows.modals.alleleHistory.data.alleleassessments'
                 )
                 const attachmentIds = alleleassessments
                     .map((aa) => aa.attachment_ids)
@@ -32,10 +29,7 @@ export default [
             getAttachmentsById,
             {
                 success: [
-                    set(
-                        state`views.workflows.modals.alleleAssessmentHistory.data.attachments`,
-                        props`result`
-                    )
+                    set(state`views.workflows.modals.alleleHistory.data.attachments`, props`result`)
                 ],
                 error: [toast('error', 'Failed to load attachments')]
             }
@@ -45,10 +39,7 @@ export default [
     getAlleleReports,
     {
         success: [
-            set(
-                state`views.workflows.modals.alleleAssessmentHistory.data.allelereports`,
-                props`result`
-            )
+            set(state`views.workflows.modals.alleleHistory.data.allelereports`, props`result`)
         ],
         error: [toast('error', 'Failed to load allele reports')]
     }

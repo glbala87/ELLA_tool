@@ -409,7 +409,7 @@ body.modal-open {
     }
 }
 
-.allele-assessment-history {
+.allele-history {
     font-family: $full;
     font-size: 1.4rem;
     display: flex;
@@ -417,12 +417,12 @@ body.modal-open {
     justify-content: left;
     min-width: 80vw;
 
-    .classification-summary {
+    .allele-history-summary {
         padding-top: 1rem;
         padding-bottom: 1rem;
         li {
             list-style: none;
-            .classification {
+            .summary-item {
                 font-weight: 600;
             }
             .details {
@@ -441,7 +441,7 @@ body.modal-open {
                 margin-left: 2rem;
             }
         }
-        .classification-details {
+        .history-details {
             .title {
                 display: block;
                 margin-top: 1.7rem;
