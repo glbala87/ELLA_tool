@@ -114,16 +114,6 @@ def build_allele_from_record(record, ref_genome):
         len(record["ALT"]) == 1
     ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
-    def isSvType():
-        if "INFO" not in record:
-            return False
-        elif "ALL" not in record["INFO"]:
-            return False
-        elif "SVTYPE" in record["INFO"]["ALL"]:
-            return True
-        else:
-            return False
-
     vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
 
     ref = str(vcf_ref)
@@ -144,14 +134,7 @@ def build_allele_from_record(record, ref_genome):
     ref, alt = ref[N_prefix:], alt[N_prefix:]
     pos += N_prefix
 
-    svlen = 0
-
-    if isSvType():
-        change_type = record["INFO"]["ALL"]["SVTYPE"]
-        start_position = pos
-        svlen = abs(record["INFO"]["ALL"]["SVLEN"])
-        open_end_position = svlen + vcf_pos
-    elif len(ref) == len(alt) == 1:
+    if len(ref) == len(alt) == 1:
         change_type = "SNP"
         start_position = pos
         open_end_position = pos + 1
@@ -176,10 +159,7 @@ def build_allele_from_record(record, ref_genome):
     else:
         raise ValueError("Unable to determine allele from ref/alt={}/{}".format(ref, alt))
 
-    if isSvType():
-        allele_length = svlen
-    else:
-        allele_length = max(len(ref), len(alt))
+    allele_length = max(len(ref), len(alt))
 
     allele = {
         "genome_reference": ref_genome,
@@ -1047,7 +1027,7 @@ class AlleleImporter(object):
         ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
         if "SVTYPE" in record["INFO"]["ALL"]:
-            item = self._sv_create(record)
+            item = self._build_structural_variant_allele(record, self.ref_genome)
         else:
             item = build_allele_from_record(record, self.ref_genome)
 
@@ -1056,19 +1036,31 @@ class AlleleImporter(object):
         self.counter["nAltAlleles"] += 1
         return item
 
-    def _sv_create(self, record):
-        # alt = record["ALT"][0]
-        # if not set(alt).issubset(set(["ACGT"])):
-        #     record["ALT"] = [None]
-        # import json
-        # print(json.dumps(record, indent=4))
-        # exit()
-
-        allele = build_allele_from_record(record, self.ref_genome)
-        # TODO: Fetch correct length for SV (record["INFO"]["SVLEN"])
+    def _build_structural_variant_allele(self, record, ref_genome):
+        """
+        Creates allele with relevant information for structural variant calling
+        """
+        vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
         sv_type = record["INFO"]["ALL"]["SVTYPE"]
+        sv_len = abs(record["INFO"]["ALL"]["SVLEN"])
+        # convert to zero-based position
+        pos = vcf_pos - 1
+        open_end_position = pos + sv_len
 
-        allele["change_type"] = sv_type.lower()
+        allele = {
+            "genome_reference": ref_genome,
+            "chromosome": record["CHROM"],
+            "start_position": pos,
+            "open_end_position": open_end_position,
+            "change_type": sv_type.lower(),
+            "change_from": str(vcf_ref),
+            "change_to": str(vcf_alt),
+            "length": sv_len,
+            "vcf_pos": vcf_pos,
+            "vcf_ref": vcf_ref,
+            "vcf_alt": vcf_alt,
+        }
+
         return allele
 
     def process(self):
