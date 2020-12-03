@@ -9,9 +9,10 @@ function run() {
     name=$1
     cmd=$2
     magenta "### Running ${name} ###"
-    /bin/bash -c "$cmd" || EXIT_CODE=1
-    if [ "$EXIT_CODE" == "1" ]
+    /bin/bash -c "$cmd"
+    if [ "$?" != "0" ]
     then
+        EXIT_CODE=1
         red "### ${name}: FAILED ###"
     else
         green "### ${name}: SUCCESS ###"
