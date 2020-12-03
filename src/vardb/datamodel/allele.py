@@ -26,7 +26,7 @@ class Allele(Base):
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)
     vcf_alt = Column(String, nullable=False)
-    length = Column(Integer, nullable=True)
+    length = Column(Integer, nullable=False)
 
     __table_args__ = (
         Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
