@@ -98,7 +98,7 @@
                     <acmg
                         class="included disabled"
                         code="code"
-                        ng-repeat="code in $ctrl.selected.evaluation.acmg.included track by $index"
+                        ng-repeat="code in $ctrl.sortedAcmgCodes track by $index"
                         comment-model="code.comment"
                         editable="false"
                     ></acmg>

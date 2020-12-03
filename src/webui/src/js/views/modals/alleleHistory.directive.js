@@ -4,6 +4,9 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { signal, state } from 'cerebral/tags'
 import { Compute } from 'cerebral'
+import { deepCopy } from '../../util'
+import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'
+
 import template from './alleleHistory.ngtmpl.html'
 
 const combinedAssessmentsReport = Compute(
@@ -44,6 +47,28 @@ const combinedAssessmentsReport = Compute(
     }
 )
 
+const sortedAcmgCodes = Compute(
+    state`views.workflows.modals.alleleHistory.selectedMode`,
+    state`views.workflows.modals.alleleHistory.selected`,
+    state`app.config`,
+    (selectedMode, selected, config) => {
+        if (selectedMode !== 'classification') {
+            return []
+        }
+
+        if (!(selected && selected.evaluation.acmg)) {
+            return []
+        }
+
+        const includedAcmgCopies = selected.evaluation.acmg.included.map((i) => deepCopy(i))
+        // Order by pathogenicity and strength
+        const sortedIncludedAcmgCopies = sortCodesByTypeStrength(includedAcmgCopies, config)
+        return sortedIncludedAcmgCopies.pathogenic
+            .concat(sortedIncludedAcmgCopies.benign)
+            .concat(sortedIncludedAcmgCopies.other)
+    }
+)
+
 app.component('alleleHistory', {
     templateUrl: 'alleleHistory.ngtmpl.html',
     controller: connect(
@@ -52,6 +77,7 @@ app.component('alleleHistory', {
             selectedMode: state`views.workflows.modals.alleleHistory.selectedMode`,
             selected: state`views.workflows.modals.alleleHistory.selected`,
             alleleReports: state`views.workflows.modals.alleleHistory.data.allelereports`,
+            sortedAcmgCodes,
             summaryItems: combinedAssessmentsReport,
             selectedModeChanged: signal`views.workflows.modals.alleleHistory.selectedModeChanged`,
             selectedChanged: signal`views.workflows.modals.alleleHistory.selectedChanged`,
