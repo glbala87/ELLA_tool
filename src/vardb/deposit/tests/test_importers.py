@@ -1,3 +1,5 @@
+from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_from_vcf import DepositFromVCF
 import vardb.deposit.importers as deposit
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -372,3 +374,16 @@ def test_cnv_importer(session):
     assert start_position == allele["start_position"]
     assert allele_length == allele["length"]
     assert end_position == allele["open_end_position"]
+
+
+def test_cnv_parser(session):
+    vcf_file = (
+        "/ella/src/vardb/testdata/sv/merged_Diag-ValidationWGS2-HG002C2-PM_std.Mendel_v05.vcf"
+    )
+    vcf_controller = DepositFromVCF(session)
+    allele_parser = DepositAlleles(vcf_controller)
+
+    vcf = allele_parser.import_vcf(vcf_file, None, None, True)
+    print("did it work?")
+    print(vcf)
+    assert 1 == 1
