@@ -740,3 +740,22 @@ allele-info-references {
         }
     }
 }
+
+allele-info-classification * cbbody {
+    > section {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        > h2 {
+            white-space: normal;
+        }
+    }
+    article {
+        display: flex;
+        flex-direction: column;
+        > p {
+            white-space: nowrap;
+            padding-top: 1.5rem;
+        }
+    }
+}
