@@ -305,12 +305,12 @@ class AlleleSectionBox {
     }
 
     getExistingClassificationClass() {
-        return $('allele-info-classification contentbox.vardb cbbody h2').getText()
+        return $('allele-info-classification contentbox cbbody section h2').getText()
     }
 
     hasExistingClassification() {
         $('allele-info-classification').waitForExist()
-        return $('allele-info-classification contentbox.vardb').isExisting()
+        return $('allele-info-classification contentbox').isExisting()
     }
 
     expandSectionClassification() {
