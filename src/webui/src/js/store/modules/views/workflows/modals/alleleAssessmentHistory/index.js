@@ -1,6 +1,7 @@
 import { Module } from 'cerebral'
 import dismissClicked from './signals/dismissClicked'
-import selectedAlleleAssessmentChanged from './signals/selectedAlleleAssessmentChanged'
+import selectedModeChanged from './signals/selectedModeChanged'
+import selectedChanged from './signals/selectedChanged'
 import showAlleleAssessmentHistoryClicked from './signals/showAlleleAssessmentHistoryClicked'
 
 export default Module({
@@ -9,7 +10,8 @@ export default Module({
     },
     signals: {
         dismissClicked,
-        selectedAlleleAssessmentChanged,
-        showAlleleAssessmentHistoryClicked
+        selectedModeChanged,
+        showAlleleAssessmentHistoryClicked,
+        selectedChanged
     }
 })
