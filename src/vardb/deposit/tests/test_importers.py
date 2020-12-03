@@ -364,8 +364,11 @@ def parsedData():
 
 def test_cnv_importer(session):
     ai = deposit.AlleleImporter(session)
-    print("creating allele")
     allele = ai.add(parsedData())
-    print("resulting allele")
-    print(allele)
-    assert 4185713 == allele["start_position"]
+    start_position = 4185713
+    allele_length = 1397914
+    end_position = start_position + allele_length
+
+    assert start_position == allele["start_position"]
+    assert allele_length == allele["length"]
+    assert end_position == allele["open_end_position"]

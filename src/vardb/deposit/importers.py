@@ -1043,7 +1043,7 @@ class AlleleImporter(object):
         vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
         sv_type = record["INFO"]["ALL"]["SVTYPE"]
         sv_len = abs(record["INFO"]["ALL"]["SVLEN"])
-        # convert to zero-based position
+        # convert to zero-based position also for structural variants
         pos = vcf_pos - 1
         open_end_position = pos + sv_len
 
