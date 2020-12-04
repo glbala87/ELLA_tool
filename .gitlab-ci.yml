@@ -1,4 +1,7 @@
 ---
+include:
+    - template: License-Scanning.gitlab-ci.yml
+
 image: docker:latest
 services:
     - docker:dind
@@ -34,6 +37,10 @@ build:
             - images/
         policy: push
 
+license_scanning:
+    stage: build
+    variables:
+        ASDF_PYTHON_VERSION: 3.8.5
 # Runner is down for time being, disable it until it's back up
 #start_review:
 #    stage: review
