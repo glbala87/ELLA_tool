@@ -3,6 +3,9 @@ import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
 
+from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_from_vcf import DepositFromVCF
+
 import hypothesis as ht
 from hypothesis import strategies as st
 from sqlalchemy import or_
@@ -479,3 +482,16 @@ def test_analysis_multiple(session, vcf_data):
                 else:
                     assert gsd.genotype_likelihood is None
                 assert gsd.allele_depth == sample_allele_depth[sample_name]
+
+
+def test_cnv_parser(session):
+    vcf_file = (
+        "/ella/src/vardb/testdata/sv/merged_Diag-ValidationWGS2-HG002C2-PM_std.Mendel_v05.vcf"
+    )
+    vcf_controller = DepositFromVCF(session)
+    allele_parser = DepositAlleles(vcf_controller)
+
+    vcf = allele_parser.import_vcf(vcf_file, None, None, True)
+    print("did it work?")
+    print(vcf)
+    assert 1 == 1
