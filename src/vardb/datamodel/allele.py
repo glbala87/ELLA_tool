@@ -22,11 +22,13 @@ class Allele(Base):
     open_end_position = Column(Integer, nullable=False)
     change_from = Column(String, nullable=False)
     change_to = Column(String, nullable=False)
-    change_type = Column(Enum("SNP", "del", "ins", "indel", name="change_type"), nullable=False)
+    change_type = Column(
+        Enum("SNP", "del", "ins", "indel", "dup", "inv", "bnd", name="change_type"), nullable=False
+    )
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)
     vcf_alt = Column(String, nullable=False)
-    length = Column(Integer, nullable=False)
+    length = Column(Integer, nullable=True)
 
     __table_args__ = (
         Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
