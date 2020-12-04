@@ -73,6 +73,33 @@
                     </cbbody>
                 </contentbox>
             </div>
+
+            <h4 class="section-header">Attachments</h4>
+            <div class="samples-container">
+                <contentbox
+                    class="samples"
+                    boxtitle="Attachments"
+                    disabled="!$ctrl.analysis.attachments.length"
+                >
+                    <cbbody>
+                        <div class="tabular-row">
+                            <p>
+                                <a
+                                    href="/api/v1/attachments/analyses/{{ $ctrl.analysis.id }}/{{
+                                        $index
+                                    }}"
+                                    target="/api/v1/attachments/analyses/{{ $ctrl.analysis.id }}/{{
+                                        $index
+                                    }}"
+                                    ng-repeat="atchmt in $ctrl.analysis.attachments track by $index"
+                                >
+                                    {{ atchmt }}
+                                </a>
+                            </p>
+                        </div>
+                    </cbbody>
+                </contentbox>
+            </div>
         </contentwrapper>
     </sectionbox>
 

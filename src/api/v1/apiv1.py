@@ -357,6 +357,10 @@ class ApiV1(object):
 
         self._add_resource(r.user.CurrentUser, "/api/v1/users/currentuser/")
 
+        # ---------------------------------------------------------------------------------------------------------
+        # Attachments
+        # ---------------------------------------------------------------------------------------------------------
+
         self._add_resource(
             r.attachment.AttachmentResource,
             "/api/v1/attachments/upload/",
@@ -364,6 +368,11 @@ class ApiV1(object):
         )
 
         self._add_resource(r.attachment.AttachmentListResource, "/api/v1/attachments/")
+
+        self._add_resource(
+            r.attachment.AnalysisAttachmentResource,
+            "/api/v1/attachments/analyses/<int:analysis_id>/<int:index>/",
+        )
 
         # ---------------------------------------------------------------------------------------------------------
         # IGV

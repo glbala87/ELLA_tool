@@ -1,6 +1,6 @@
 from marshmallow import fields, Schema
-
 from api.schemas import analysisinterpretations, samples, genepanels
+from api.util.analysis_attachments import get_attachments
 
 
 class UserSchema(Schema):
@@ -24,6 +24,7 @@ class AnalysisSchema(Schema):
             "samples",
             "report",
             "warnings",
+            "attachments",
         )
 
     samples = fields.Nested(samples.SampleSchema, many=True)
@@ -31,3 +32,7 @@ class AnalysisSchema(Schema):
     interpretations = fields.Nested(
         analysisinterpretations.AnalysisInterpretationOverviewSchema, many=True
     )
+    attachments = fields.Method("get_attachment_from_obj")
+
+    def get_attachment_from_obj(self, obj):
+        return [f.name for f in get_attachments(obj.name)]
