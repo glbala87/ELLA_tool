@@ -8,6 +8,7 @@ EXIT_CODE=0
 function run() {
     name=$1
     cmd=$2
+    unset EXIT_CODE
     magenta "### Running ${name} ###"
     /bin/bash -c "$cmd" || EXIT_CODE=1
     if [ "$EXIT_CODE" == "1" ]
