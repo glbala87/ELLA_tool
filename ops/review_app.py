@@ -7,11 +7,13 @@ import logging
 import logging.config
 import time
 from base64 import b64decode
+from enum import Enum, auto
 from operator import itemgetter
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import click
+import requests
 from digitalocean import Droplet, Manager
 from digitalocean.baseapi import REQUEST_TIMEOUT_ENV_VAR
 from paramiko import SSHClient, SSHException
@@ -48,11 +50,23 @@ docker run -d \
 -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 -e VIRTUAL_HOST={hostname} \
 -e PORT=5000 \
--p 5000:80 \
+-p 80:5000 \
 {image_name} \
 supervisord -c /ella/ops/demo/supervisor.cfg && \
 docker exec revapp make dbreset
 """.strip()
+
+
+class RevappStatus(str, Enum):
+    OK = "OK"
+    ServerError = "ServerError / Loading"
+    NotRunning = "Not Running"
+    TimedOut = "Timed Out"
+    Down = "Down"
+
+    def __str__(self) -> str:
+        return self.value
+
 
 droplet_attrs = ("id", "name", "created_at", "status", "ip_address")
 droplet_details = (
@@ -271,8 +285,21 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
         pass
 
 
-def set_firewall(ctx_args):
-    cmds = ["ufw allow in http", "ufw reject 2375/tcp", "ufw reject 2376/tcp"]
+def revapp_status(droplet: Droplet) -> RevappStatus:
+    url = f"http://{droplet.ip_address}"
+    try:
+        resp = requests.get(url)
+    except requests.ConnectionError as e:
+        if "[Errno 111] Connection refused" in str(e):
+            return RevappStatus.NotRunning
+        elif "[Errno -2] Name or service not known" in str(e):
+            return RevappStatus.Down
+        elif "[Errno 110] Connection timed out" in str(e):
+            return RevappStatus.TimedOut
+        raise e
+    if resp.ok:
+        return RevappStatus.OK
+    return RevappStatus.ServerError
 
 
 def str2path(ctx, param, value: str) -> Path:
