@@ -174,14 +174,16 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     ssh = get_ssh_conn(droplet.ip_address, args["pkey"])
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
     logger.info(f"moving old ufw configs")
+    ssh_exec(ssh, "ufw status")
     for ufw_conf in ufw_configs:
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     logger.info(f"uploading new configs")
     scp_put(scp, list(ufw_configs), remote_path="/etc/ufw/")
-    ssh_exec(ssh, "ls -l /etc/ufw")
+    ssh_exec(ssh, "ls -lt /etc/ufw")
     logger.info(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
-    ssh_exec(ssh, "ls -l /etc/ufw")
+    ssh_exec(ssh, "ufw status")
+    ssh_exec(ssh, "ls -lt /etc/ufw")
     if args.get("image_tar"):
         scp_put(scp, args["image_tar"])
         ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
