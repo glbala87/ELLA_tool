@@ -7,7 +7,7 @@ import logging
 import logging.config
 import time
 from base64 import b64decode
-from enum import Enum, auto
+from enum import Enum
 from operator import itemgetter
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
@@ -15,8 +15,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 import click
 import requests
 from digitalocean import Droplet, Manager
-from digitalocean.baseapi import REQUEST_TIMEOUT_ENV_VAR
-from paramiko import SSHClient, SSHException
+from paramiko import SSHClient
 from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
 from scp import SCPClient
@@ -97,7 +96,6 @@ To                         Action      From
 logger_name = Path(__file__).stem
 log_config = {
     "version": 1,
-    "disable_existing_loggers": False,
     "formatters": {"standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
     "handlers": {
         "console": {
