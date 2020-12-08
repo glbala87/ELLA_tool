@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import hashlib
 import json
 import logging
@@ -33,6 +34,7 @@ default_create_args = {
 }
 
 revapp_run = """
+docker inspect revapp >/dev/null 2>&1 && docker rm -f revapp
 docker run -d \
 --name revapp \
 -e ELLA_CONFIG=/ella/example_config.yml \
@@ -65,6 +67,7 @@ scp_bar_percent = 0.05
 scp_bar_padding = int(1 / scp_bar_percent)
 
 ufw_configs = list(Path("demo").glob("user*.rules"))
+logger_name = Path(__file__).stem
 log_config = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -77,10 +80,10 @@ log_config = {
             "stream": "ext://sys.stderr",
         }
     },
-    "loggers": {"": {"handlers": ["console"], "level": "DEBUG", "propagate": 0}},
+    "loggers": {logger_name: {"handlers": ["console"], "level": "INFO"}},
 }
 logging.config.dictConfig(log_config)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(logger_name)
 
 
 ### funcs
@@ -120,6 +123,7 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
     logger.info(f"Fetching all droplets with tag {tag}")
     all_drops = mgr.get_all_droplets(tag_name=tag)
+    logger.debug(f"got all the droplets")
     return all_drops
 
 
@@ -171,25 +175,17 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
     logger.info(f"moving old ufw configs")
     for ufw_conf in ufw_configs:
-        msg, err = ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
-        logger.debug(f"stdout: {msg}")
-        logger.debug(f"stderr: {err}")
+        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     logger.info(f"uploading new configs")
-    scp.put(list(ufw_configs), remote_path="/etc/ufw/")
+    scp_put(scp, list(ufw_configs), remote_path="/etc/ufw/")
+    ssh_exec(ssh, "ls -l /etc/ufw")
     logger.info(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
+    ssh_exec(ssh, "ls -l /etc/ufw")
     if args.get("image_tar"):
-        logger.info(f"uploading image {args['image_tar']}")
-        scp.put(str(args["image_tar"]), remote_path="/root/")
-        print()
-        msg, err = ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
-        logger.debug(f"stdout: {msg}")
-        logger.debug(f"stderr: {err}")
-    msg, err = ssh_exec(
-        ssh, revapp_run.format(hostname=droplet.ip_address, image_name=args["image_name"])
-    )
-    logger.debug(f"stdout: {msg}")
-    logger.debug(f"stderr: {err}")
+        scp_put(scp, args["image_tar"])
+        ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
+    ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=args["image_name"]))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
 
 
@@ -199,12 +195,31 @@ def scp_progress(filename: str, size, sent) -> None:
     print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
 
 
+def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
+    if isinstance(files, Path):
+        put_files = [str(files)]
+    else:
+        put_files = [str(f) for f in files]
+    str_files = ", ".join(put_files)
+    xfer_start = datetime.datetime.now()
+    try:
+        scp.put(put_files, **kwargs)
+    except Exception as e:
+        xfer_total = datetime.datetime.now() - xfer_start
+        logger.error(f"Transfer of {str_files} failed after {xfer_total}")
+        raise e
+    xfer_total = datetime.datetime.now() - xfer_start
+    logger.info(f"Finshed uploading file(s) {str_files} in {xfer_total}")
+
+
 def ssh_exec(ssh: SSHClient, cmd: str) -> Tuple[str, str]:
     """ use to get nicer output from SSHClient.exec_command """
     logger.debug(f"Executing '{cmd}'")
     _, stdout, stderr = ssh.exec_command(cmd)
     out_str: str = stdout.read().decode("utf-8").strip()
     err_str: str = stderr.read().decode("utf-8").strip()
+    logger.debug(f"output: {out_str}")
+    logger.debug(f"error:  {err_str}")
     return out_str, err_str
 
 
@@ -276,8 +291,11 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
     envvar="CI_CACHE_IMAGE_FILE",
 )
 @click.option("--driver", help="specify the docker-machine driver e.g., virtualbox")
+@click.option("--debug", "-D", is_flag=True, help="set log level to DEBUG")
 @click.pass_context
 def app(ctx, **kwargs):
+    if kwargs["debug"]:
+        logger.setLevel(logging.DEBUG)
     ctx.obj["mgr"] = Manager(token=kwargs["token"])
     ctx.obj["args"] = {k: v for k, v in kwargs.items() if v is not None and k != "ssh_key"}
     # ssh_key is handled a little special
