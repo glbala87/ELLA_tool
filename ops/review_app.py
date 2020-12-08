@@ -91,7 +91,7 @@ To                         Action      From
 22/tcp (v6)                LIMIT       Anywhere (v6)             
 80/tcp (v6)                ALLOW       Anywhere (v6)             
 443/tcp (v6)               ALLOW       Anywhere (v6)
-""".strip()
+""".strip()  # noqa: W291
 
 logger_name = Path(__file__).stem
 log_config = {
