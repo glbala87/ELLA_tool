@@ -136,4 +136,4 @@ if __name__ == "__main__":
     if is_dev:
         print("!!!!!DEVELOPMENT MODE!!!!!")
 
-    app.run(**opts)
+    app.run(**opts)  # type: ignore
