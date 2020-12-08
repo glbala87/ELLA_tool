@@ -268,7 +268,6 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
 @click.option("--driver", help="specify the docker-machine driver e.g., virtualbox")
 @click.pass_context
 def app(ctx, **kwargs):
-    logging.info("in app log test")
     ctx.obj["mgr"] = Manager(token=kwargs["token"])
     ctx.obj["args"] = kwargs.copy()
     # ssh_key is handled a little special
@@ -307,6 +306,7 @@ def create(ctx, name: str, replace: bool) -> None:
     droplet_args.update({k: ctx.obj["args"][k] for k in OPTIONAL_ARGS if ctx.obj["args"].get(k)})
     logging.debug(f"creating droplet with args {json.dumps(droplet_args)}")
     droplet = Droplet(**droplet_args)
+    breakpoint()
     droplet.create()
 
     while droplet.status is None or droplet.ip_address is None:
