@@ -77,7 +77,7 @@ log_config = {
             "stream": "ext://sys.stderr",
         }
     },
-    "loggers": {"": {"handlers": ["console"], "level": "DEBUG"}},
+    "loggers": {"": {"handlers": ["console"], "level": "DEBUG", "propagate": 0}},
 }
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -196,7 +196,7 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
 def scp_progress(filename: str, size, sent) -> None:
     percent = sent / size
     bar = int(percent // scp_bar_percent) * "=" + ">"
-    print(f"{filename}: {percent*100:.2f}% |{bar: <10}|", end="\r")
+    print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
 
 
 def ssh_exec(ssh: SSHClient, cmd: str) -> Tuple[str, str]:
