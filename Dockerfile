@@ -49,25 +49,26 @@ FROM base AS dev
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    gnupg2 \
-    python3.7-dev \
-    python3.7-venv \
-    python3-venv \
-    make \
     build-essential \
-    git \
-    curl \
-    gcc \
-    unzip \
     ca-certificates \
+    chromium-browser \
+    chromium-chromedriver \
+    curl \
+    fontconfig \
+    gcc \
+    git \
+    gnupg2 \
+    graphviz \
+    libffi-dev \
+    libpq-dev \
+    make \
+    openssh-client \
     postgresql \
     postgresql-contrib \
-    libpq-dev \
-    libffi-dev \
-    fontconfig \
-    graphviz \
-    chromium-browser \
-    chromium-chromedriver && \
+    python3-venv \
+    python3.7-dev \
+    python3.7-venv \
+    unzip && \
     echo "Additional tools:" && \
     echo "Node v10.x:" && \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
