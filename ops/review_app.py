@@ -8,7 +8,7 @@ import time
 from base64 import b64decode
 from operator import itemgetter
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union, Sequence
 
 import click
 from digitalocean import Droplet, Manager
@@ -167,22 +167,38 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
     logger.info(f"moving old ufw configs")
     for ufw_conf in ufw_configs:
-        ssh.exec_command(f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
+        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     logger.info(f"uploading new configs")
     scp.put(list(ufw_configs), remote_path="/etc/ufw/")
     logger.info(f"reloading ufw config")
-    ssh.exec_command("ufw reload")
-    logger.info(f"uploading image...")
+    ssh_exec(ssh, "ufw reload")
     if args.get("image_tar"):
+        logger.info(f"uploading image {args['image_tar']}")
         scp.put(args["image_tar"], remote_path="/root/")
-        ssh.exec_command(f"cat /root/{args['image_tar']} | docker load")
-    ssh.exec_command(f"docker run {args['image_name']}")
+        msg, err = ssh_exec(ssh, f"cat /root/{args['image_tar']} | docker load")
+        logger.debug(f"stdout: {msg}")
+        logger.debug(f"stderr: {err}")
+    msg, err = ssh_exec(
+        ssh, revapp_run.format(hostname=droplet.ip_address, image_name=args["image_name"])
+    )
+    logger.debug(f"stdout: {msg}")
+    logger.debug(f"stderr: {err}")
+    logger.info(f"Completed provisioning and starting of {droplet.name}")
 
 
 def scp_progress(filename: str, size, sent) -> None:
     percent = sent / size * 100
     bar = int(percent // 10) * "=" + ">"
     print(f"{filename}: {percent:.2f}% |{bar}|")
+
+
+def ssh_exec(ssh: SSHClient, cmd: str) -> Tuple[str, str]:
+    """ use to get nicer output from SSHClient.exec_command """
+    logger.debug(f"Executing '{cmd}'")
+    _, stdout, stderr = ssh.exec_command(cmd)
+    out_str: str = stdout.read().decode("utf-8").strip()
+    err_str: str = stderr.read().decode("utf-8").strip()
+    return out_str, err_str
 
 
 def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[Droplet] = None):
