@@ -66,7 +66,20 @@ droplet_details = (
 scp_bar_percent = 0.05
 scp_bar_padding = int(1 / scp_bar_percent)
 
-ufw_configs = list((Path(__file__).parent).glob("user*.rules"))
+ufw_configs = list((Path(__file__).parent / "demo").glob("user*.rules"))
+ufw_status_ok = """
+Status: active
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     LIMIT       Anywhere                  
+80/tcp                     ALLOW       Anywhere                  
+443/tcp                    ALLOW       Anywhere                  
+22/tcp (v6)                LIMIT       Anywhere (v6)             
+80/tcp (v6)                ALLOW       Anywhere (v6)             
+443/tcp (v6)               ALLOW       Anywhere (v6)
+""".strip()
+
 logger_name = Path(__file__).stem
 log_config = {
     "version": 1,
@@ -173,22 +186,32 @@ def print_table(
 def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     ssh = get_ssh_conn(droplet.ip_address, args["pkey"])
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
-    logger.info(f"moving old ufw configs")
-    ssh_exec(ssh, "ufw status")
-    for ufw_conf in ufw_configs:
-        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
-    logger.info(f"uploading new configs")
-    scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
-    ssh_exec(ssh, "ls -lt /etc/ufw")
-    logger.info(f"reloading ufw config")
-    ssh_exec(ssh, "ufw reload")
-    ssh_exec(ssh, "ufw status")
-    ssh_exec(ssh, "ls -lt /etc/ufw")
+
+    provision_ufw(ssh, scp)
+    # optionally don't set image_tar for quicker tests of re-provisioning
     if args.get("image_tar"):
         scp_put(scp, args["image_tar"])
         ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
     ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=args["image_name"]))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
+
+
+def provision_ufw(ssh: SSHClient, scp: SCPClient):
+    logger.debug(f"Checking ufw status")
+    msg, err = ssh_exec(ssh, "ufw status")
+    if msg.strip() == ufw_status_ok:
+        logger.info(f"ufw status ok, skipping")
+        return
+
+    logger.debug(f"moving current ufw configs")
+    for ufw_conf in ufw_configs:
+        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
+    scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
+    logger.info(f"reloading ufw config")
+    ssh_exec(ssh, "ufw reload")
+    msg, err = ssh_exec(ssh, "ufw status")
+    if msg.strip() != ufw_status_ok:
+        raise ValueError(f"ufw status not matching after update: {msg}")
 
 
 def scp_progress(filename: str, size, sent) -> None:
