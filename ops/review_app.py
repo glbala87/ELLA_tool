@@ -66,7 +66,7 @@ droplet_details = (
 scp_bar_percent = 0.05
 scp_bar_padding = int(1 / scp_bar_percent)
 
-ufw_configs = list(Path("demo").glob("user*.rules"))
+ufw_configs = list((Path(__file__).parent).glob("user*.rules"))
 logger_name = Path(__file__).stem
 log_config = {
     "version": 1,
@@ -178,7 +178,7 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     for ufw_conf in ufw_configs:
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     logger.info(f"uploading new configs")
-    scp_put(scp, list(ufw_configs), remote_path="/etc/ufw/")
+    scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
     ssh_exec(ssh, "ls -lt /etc/ufw")
     logger.info(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
