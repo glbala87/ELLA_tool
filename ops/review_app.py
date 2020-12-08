@@ -255,7 +255,7 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
 @click.group()
 @click.option("--token", envvar="DO_TOKEN", required=True)
 @click.option("--droplet-size", "size", envvar="DO_SIZE")
-@click.option("--image-name", "image", envvar="IMAGE_NAME")
+@click.option("--image-name", envvar="IMAGE_NAME")
 @click.option(
     "--ssh-key",
     type=click.Path(exists=True, dir_okay=False),
@@ -269,10 +269,9 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
 @click.pass_context
 def app(ctx, **kwargs):
     ctx.obj["mgr"] = Manager(token=kwargs["token"])
-    ctx.obj["args"] = kwargs.copy()
+    ctx.obj["args"] = {k: v for k, v in kwargs.items() if v is not None and k != "ssh_key"}
     # ssh_key is handled a little special
     if kwargs["ssh_key"]:
-        del ctx.obj["args"]["ssh_key"]
         rsa_key = RSAKey.from_private_key(kwargs["ssh_key"].open())
         rsa_fingerprint = fingerprint_key(rsa_key.get_base64())
         ctx.obj["args"]["ssh_keys"] = [rsa_fingerprint]
@@ -300,10 +299,10 @@ def create(ctx, name: str, replace: bool) -> None:
 
     droplet_args = default_create_args.copy()
     droplet_args["name"] = name
-    droplet_args.update(
-        {k: ctx.obj["args"][k] for k in REQUIRED_ARGS if ctx.obj["args"].get(k) is not None}
-    )
-    droplet_args.update({k: ctx.obj["args"][k] for k in OPTIONAL_ARGS if ctx.obj["args"].get(k)})
+    for arg_group in (REQUIRED_ARGS, OPTIONAL_ARGS):
+        droplet_args.update(
+            {k: ctx.obj["args"][k] for k in arg_group if ctx.obj["args"].get(k) is not None}
+        )
     logging.debug(f"creating droplet with args {json.dumps(droplet_args)}")
     droplet = Droplet(**droplet_args)
     breakpoint()
