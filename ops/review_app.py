@@ -61,6 +61,9 @@ droplet_details = (
     ("image", ("id", "name", "slug", "distribution")),
 )
 
+scp_bar_percent = 0.05
+scp_bar_padding = int(1 / scp_bar_percent)
+
 ufw_configs = list(Path("demo").glob("user*.rules"))
 log_config = {
     "version": 1,
@@ -69,12 +72,12 @@ log_config = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "standard",
             "stream": "ext://sys.stderr",
         }
     },
-    "loggers": {"": {"handlers": ["console"], "level": "INFO"}},
+    "loggers": {"": {"handlers": ["console"], "level": "DEBUG"}},
 }
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(__name__)
@@ -107,6 +110,7 @@ def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Droplet:
 
 
 def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClient:
+    logger.info(f"Creating ssh connection to {hostname}")
     ssh = SSHClient()
     ssh.set_missing_host_key_policy(AutoAddPolicy)
     ssh.connect(hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False)
@@ -167,15 +171,18 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
     logger.info(f"moving old ufw configs")
     for ufw_conf in ufw_configs:
-        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
+        msg, err = ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
+        logger.debug(f"stdout: {msg}")
+        logger.debug(f"stderr: {err}")
     logger.info(f"uploading new configs")
     scp.put(list(ufw_configs), remote_path="/etc/ufw/")
     logger.info(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
     if args.get("image_tar"):
         logger.info(f"uploading image {args['image_tar']}")
-        scp.put(args["image_tar"], remote_path="/root/")
-        msg, err = ssh_exec(ssh, f"cat /root/{args['image_tar']} | docker load")
+        scp.put(str(args["image_tar"]), remote_path="/root/")
+        print()
+        msg, err = ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
         logger.debug(f"stdout: {msg}")
         logger.debug(f"stderr: {err}")
     msg, err = ssh_exec(
@@ -187,9 +194,9 @@ def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
 
 
 def scp_progress(filename: str, size, sent) -> None:
-    percent = sent / size * 100
-    bar = int(percent // 10) * "=" + ">"
-    print(f"{filename}: {percent:.2f}% |{bar}|")
+    percent = sent / size
+    bar = int(percent // scp_bar_percent) * "=" + ">"
+    print(f"{filename}: {percent*100:.2f}% |{bar: <10}|", end="\r")
 
 
 def ssh_exec(ssh: SSHClient, cmd: str) -> Tuple[str, str]:
@@ -263,7 +270,10 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
     envvar="REVAPP_SSH_KEY",
 )
 @click.option(
-    "--image-tar", type=click.Path(exists=True, dir_okay=False), envvar="CI_CACHE_IMAGE_FILE"
+    "--image-tar",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=str2path,
+    envvar="CI_CACHE_IMAGE_FILE",
 )
 @click.option("--driver", help="specify the docker-machine driver e.g., virtualbox")
 @click.pass_context
@@ -305,7 +315,6 @@ def create(ctx, name: str, replace: bool) -> None:
         )
     logging.debug(f"creating droplet with args {json.dumps(droplet_args)}")
     droplet = Droplet(**droplet_args)
-    breakpoint()
     droplet.create()
 
     while droplet.status is None or droplet.ip_address is None:
