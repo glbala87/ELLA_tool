@@ -1,7 +1,7 @@
 ---
-image: docker:latest
+image: docker:stable
 services:
-    - docker:dind
+    - docker:stable-dind
 
 variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
