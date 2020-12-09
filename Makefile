@@ -168,16 +168,7 @@ REVIEW_OPTS ?=
 # Demo is just a review app, with port mapped to system
 demo: REVIEW_OPTS=-p 3114:3114
 demo: REVIEW_NAME=demo
-demo: review
 demo:
-	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
-
-kill-demo:
-	docker rm -f ella-demo
-
-# Review apps
-review:
-	$(call check_defined, REVIEW_NAME)
 	docker build -t local/ella-$(REVIEW_NAME) --target dev .
 	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
 	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
@@ -200,6 +191,19 @@ review:
 		local/ella-$(REVIEW_NAME) \
 		supervisord -c /ella/ops/demo/supervisor.cfg
 	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
+	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
+
+kill-demo:
+	docker rm -f ella-demo
+
+# Review apps
+review:
+	./ops/review_app.py create
+	APP_IP=$(shell ./ops/review_app.py status)
+	# scp images/$(CI_CACHE_IMAGE_FILE) $(APP_IP):images/
+	# ssh $APP_IP 'run some stuff'
+	# echo "APP_IP=$APP_IP" >> deploy.env
+
 
 #---------------------------------------------
 # Misc. database

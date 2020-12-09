@@ -356,7 +356,7 @@ def app(ctx, token: str, verbose: bool, debug: bool):
 @click.option(
     "--droplet-size",
     "size",
-    envvar="DO_SIZE",
+    envvar="REVAPP_SIZE",
     default=default_size,
     help="size slug for the droplet",
 )
