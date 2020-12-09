@@ -182,7 +182,7 @@ def print_table(
         new_data = list([new_header, sep_row]) + new_data
     for row in new_data:
         for i, cell in enumerate(row):
-            end_char = "\t" if i < len(row) - 1 else "\n"
+            end_char = "  " if i < len(row) - 1 else "\n"
             print(f"{cell : <{max_lens[i]}}", end=end_char)
 
 
