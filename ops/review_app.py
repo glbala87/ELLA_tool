@@ -20,19 +20,27 @@ from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
 from scp import SCPClient
 
-REQUIRED_ARGS = ("token", "name", "size", "image")
-OPTIONAL_ARGS = ("tags", "ssh_keys")
+logger_name = Path(__file__).stem
+log_config = {
+    "version": 1,
+    "formatters": {"standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "standard",
+            "stream": "ext://sys.stderr",
+        }
+    },
+    "loggers": {logger_name: {"handlers": ["console"], "level": "INFO"}},
+}
+logging.config.dictConfig(log_config)
+logger = logging.getLogger(logger_name)
 
 default_region = "fra1"
 default_size = "s-2vcpu-2gb"
-default_image = "docker-20-04"
+default_droplet_image = "docker-20-04"
 default_tag = "gitlab-review-app"
-default_create_args = {
-    "region": default_region,
-    "size": default_size,
-    "image": default_image,
-    "tags": [default_tag],
-}
 
 revapp_run = """
 docker inspect revapp >/dev/null 2>&1 && docker rm -f revapp
@@ -93,23 +101,6 @@ To                         Action      From
 443/tcp (v6)               ALLOW       Anywhere (v6)
 """.strip()  # noqa: W291
 
-logger_name = Path(__file__).stem
-log_config = {
-    "version": 1,
-    "formatters": {"standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "level": "DEBUG",
-            "formatter": "standard",
-            "stream": "ext://sys.stderr",
-        }
-    },
-    "loggers": {logger_name: {"handlers": ["console"], "level": "INFO"}},
-}
-logging.config.dictConfig(log_config)
-logger = logging.getLogger(logger_name)
-
 
 ### funcs
 
@@ -126,19 +117,19 @@ def format_name(ctx, param, value: str) -> str:
     return value
 
 
-def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Droplet:
-    logger.info(f"Fetching droplet named {name}")
+def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Optional[Droplet]:
+    logger.debug(f"Fetching droplet named {name}")
     all_drops = list_droplets(mgr, tag)
     by_name = [d for d in all_drops if d.name == name]
     if len(by_name) == 0:
-        return
+        return None
     elif len(by_name) > 1:
         raise ValueError(f"Found multiple droplets named: {name}")
     return by_name[0]
 
 
 def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClient:
-    logger.info(f"Creating ssh connection to {hostname}")
+    logger.debug(f"Creating ssh connection to {hostname}")
     ssh = SSHClient()
     ssh.set_missing_host_key_policy(AutoAddPolicy)
     ssh.connect(hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False)
@@ -146,7 +137,7 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
 
 
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
-    logger.info(f"Fetching all droplets with tag {tag}")
+    logger.debug(f"Fetching all droplets with tag {tag}")
     all_drops = mgr.get_all_droplets(tag_name=tag)
     logger.debug(f"got all the droplets")
     return all_drops
@@ -195,16 +186,15 @@ def print_table(
             print(f"{cell : <{max_lens[i]}}", end=end_char)
 
 
-def provision_droplet(droplet: Droplet, args: Dict[str, Any]):
-    ssh = get_ssh_conn(droplet.ip_address, args["pkey"])
+def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar: Path):
+    ssh = get_ssh_conn(droplet.ip_address, pkey)
     scp = SCPClient(ssh.get_transport(), progress=scp_progress)
 
     provision_ufw(ssh, scp)
     # optionally don't set image_tar for quicker tests of re-provisioning
-    if args.get("image_tar"):
-        scp_put(scp, args["image_tar"])
-        ssh_exec(ssh, f"cat /root/{args['image_tar'].name} | docker load")
-    ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=args["image_name"]))
+    scp_put(scp, image_tar)
+    ssh_exec(ssh, f"cat /root/{image_tar.name} | docker load")
+    ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
 
 
@@ -264,6 +254,8 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
     if droplet is None:
         if name:
             droplet = get_droplet(mgr, name)
+            if droplet is None:
+                raise ValueError(f"No droplet with name {name}")
         else:
             raise ValueError("Must give a droplet name or Droplet object to destroy")
 
@@ -300,6 +292,23 @@ def revapp_status(droplet: Droplet) -> RevappStatus:
     return RevappStatus.ServerError
 
 
+def str2key(ctx, param: click.Parameter, value: str) -> RSAKey:
+    key_file = Path(value)
+    if not key_file.exists():
+        raise click.BadParameter(f"Key {value} does not exist")
+    rsa_key = RSAKey.from_private_key(key_file.open())
+    return rsa_key
+
+
+def str2list(ctx, param: click.Parameter, value: Optional[str]) -> List[str]:
+    if value is None:
+        return []
+    new_list = [f for f in value.split(",") if f != ""]
+    if len(new_list):
+        return new_list
+    raise click.BadParameter(f"invalid value '{value}' received for {param.human_readable_name}'")
+
+
 def str2path(ctx, param, value: str) -> Path:
     return Path(value) if value is not None else None
 
@@ -323,50 +332,67 @@ def trim_droplet(drop: Droplet, detailed=False) -> Dict:
 # click/CLI command functions
 
 
-# Load all the CI env variables into the context obj for easy access
 @click.group()
-@click.option("--token", envvar="DO_TOKEN", required=True)
-@click.option("--droplet-size", "size", envvar="DO_SIZE")
-@click.option("--image-name", envvar="IMAGE_NAME")
 @click.option(
-    "--ssh-key",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=str2path,
-    envvar="REVAPP_SSH_KEY",
+    "--token",
+    envvar="DO_TOKEN",
+    required=True,
+    help="DigitalOcean API token (must have RW privilege)",
 )
-@click.option(
-    "--image-tar",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=str2path,
-    envvar="CI_CACHE_IMAGE_FILE",
-)
-@click.option("--driver", help="specify the docker-machine driver e.g., virtualbox")
+@click.option("--verbose", "-v", is_flag=True, help="set log level to INFO")
 @click.option("--debug", "-D", is_flag=True, help="set log level to DEBUG")
 @click.pass_context
-def app(ctx, **kwargs):
-    if kwargs["debug"]:
+def app(ctx, token: str, verbose: bool, debug: bool):
+    if debug:
         logger.setLevel(logging.DEBUG)
-    ctx.obj["mgr"] = Manager(token=kwargs["token"])
-    ctx.obj["args"] = {k: v for k, v in kwargs.items() if v is not None and k != "ssh_key"}
-    # ssh_key is handled a little special
-    if kwargs["ssh_key"]:
-        rsa_key = RSAKey.from_private_key(kwargs["ssh_key"].open())
-        rsa_fingerprint = fingerprint_key(rsa_key.get_base64())
-        ctx.obj["args"]["ssh_keys"] = [rsa_fingerprint]
-        ctx.obj["args"]["pkey"] = rsa_key
+    elif verbose:
+        logger.setLevel(logging.INFO)
+    ctx.obj["token"] = token
+    ctx.obj["mgr"] = Manager(token=token)
 
 
 @app.command(help="create a new droplet to run the review app")
-@click.option("--name", "-n", envvar="CI_BUILD_REF_SLUG", callback=format_name, required=True)
+@click.argument("name", envvar="REVAPP_NAME", callback=format_name)
+@click.option(
+    "--droplet-size",
+    "size",
+    envvar="DO_SIZE",
+    default=default_size,
+    help="size slug for the droplet",
+)
+@click.option(
+    "--image-tar",
+    envvar="REVAPP_IMAGE_TAR",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=str2path,
+    required=True,
+    help="path to tarred docker image to be run as the review app",
+)
+@click.option(
+    "--image-name",
+    envvar="IMAGE_NAME",
+    required=True,
+    help="name and tag of the tarred docker image",
+)
+@click.option(
+    "--ssh-key",
+    envvar="REVAPP_SSH_KEY",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=str2path,
+    required=True,
+    help="path to ssh private key to add to the review app (must be in digitalocean)",
+)
 @click.option(
     "--replace",
     envvar="REVAPP_REPLACE",
     type=click.BOOL,
     is_flag=True,
-    help="replace existing review app, if any",
+    help="replace review app of the same name, if found",
 )
 @click.pass_context
-def create(ctx, name: str, replace: bool) -> None:
+def create(
+    ctx, name: str, size: str, image_tar: Path, image_name: str, ssh_key: RSAKey, replace: bool
+) -> None:
     """ creates a new droplet to run the review app """
     exists = get_droplet(ctx.obj["mgr"], name)
     if exists:
@@ -375,12 +401,15 @@ def create(ctx, name: str, replace: bool) -> None:
             raise ValueError(f"Review app for {name} already exists. Remove it or use --replace")
         remove_droplet(ctx.obj["mgr"], name)
 
-    droplet_args = default_create_args.copy()
-    droplet_args["name"] = name
-    for arg_group in (REQUIRED_ARGS, OPTIONAL_ARGS):
-        droplet_args.update(
-            {k: ctx.obj["args"][k] for k in arg_group if ctx.obj["args"].get(k) is not None}
-        )
+    droplet_args = {
+        "name": name,
+        "region": default_region,
+        "size": size,
+        "image": default_droplet_image,
+        "tags": [default_tag],
+        "ssh_keys": [fingerprint_key(ssh_key.get_base64())],
+    }
+
     logging.debug(f"creating droplet with args {json.dumps(droplet_args)}")
     droplet = Droplet(**droplet_args)
     droplet.create()
@@ -393,45 +422,90 @@ def create(ctx, name: str, replace: bool) -> None:
             raise e
     logger.info(f"droplet {droplet.name} ready on {droplet.ip_address}")
 
-    provision_droplet(droplet, ctx.obj["args"])
+    provision_droplet(droplet, ssh_key, image_name, image_tar)
 
 
 # this won't work wtf
 @app.command(help="re-provision an existing review app")
-@click.option("--name", "-n", callback=format_name, required=True)
+@click.argument("name", envvar="REVAPP_NAME", callback=format_name)
+@click.option(
+    "--image-tar",
+    envvar="REVAPP_IMAGE_TAR",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=str2path,
+    required=True,
+    help="path to tarred docker image to be run as the review app",
+)
+@click.option(
+    "--image-name",
+    envvar="IMAGE_NAME",
+    required=True,
+    help="name and tag of the tarred docker image",
+)
+@click.option(
+    "--ssh-key",
+    envvar="REVAPP_SSH_KEY",
+    type=click.Path(exists=True, dir_okay=False),
+    callback=str2path,
+    required=True,
+    help="path to ssh private key to add to the review app (must be in digitalocean)",
+)
 @click.pass_context
-def provision(ctx, name):
+def provision(ctx, name: str, image_tar: Path, image_name: str, ssh_key: RSAKey):
     logger.info(f"Re-provisioning name {name}")
     droplet = get_droplet(ctx.obj["mgr"], name)
-    provision_droplet(droplet, ctx.obj["args"])
+    if droplet is None or droplet.status != "active":
+        raise ValueError(f"Cannot re-provision a stopped or non-existent droplet: {name}")
+    provision_droplet(droplet, ssh_key, image_name, image_tar)
 
 
 @app.command(help="get the status of review app by branch name")
-@click.option("--name", "-n", envvar="CI_BUILD_REF_SLUG", callback=format_name, required=True)
+@click.argument("name", envvar="REVAPP_NAME", callback=format_name)
 @click.option("--json", "json_format", is_flag=True, help="output in json format")
+@click.option(
+    "--fields",
+    "-f",
+    metavar="field1[,field2,...]",
+    callback=str2list,
+    help="restrict output to the selected fields",
+)
 @click.pass_context
-def status(ctx, name: str, json_format: bool):
+def status(ctx, name: str, json_format: bool, fields: List[str]):
     droplet = get_droplet(ctx.obj["mgr"], name)
     if droplet is None:
         logger.error(f"No review app found named: {name}")
         if json_format:
             print("{}")
+        return
+
+    status_map = {
+        "name": {"value": name, "format": "{}:"},
+        "ip_address": {"value": droplet.ip_address, "format": "@ {}"},
+        "droplet_status": {"value": droplet.status, "format": "{} (droplet)"},
+        "app_status": {"value": revapp_status(droplet), "format": "{} (review app)"},
+        "created_at": {"value": droplet.created_at, "format": "created at {}"},
+    }
+    if fields and len(fields):
+        bad_fields = [f for f in fields if f not in status_map]
+        if any(bad_fields):
+            bad_field_str = ", ".join(bad_fields)
+            good_field_str = ", ".join(status_map.keys())
+            plural = "s" if len(bad_fields) > 1 else ""
+            raise ValueError(
+                f"Invalid field{plural}: {bad_field_str}. Must be one of: {good_field_str}"
+            )
+        for fname in list(status_map.keys()):
+            if fname not in fields:
+                del status_map[fname]
+
+    if json_format:
+        print(json.dumps({k: v["value"] for k, v in status_map.items()}))
     else:
-        if json_format:
-            print(
-                json.dumps(
-                    {
-                        "name": name,
-                        "status": droplet.status,
-                        "ip_address": droplet.ip_address,
-                        "created_at": droplet.created_at,
-                    }
-                )
-            )
+        if len(status_map) == 1:
+            print(list(status_map.values())[0]["value"])
         else:
-            print(
-                f"{name}: {droplet.status} @ {droplet.ip_address}, created at {droplet.created_at}"
-            )
+            output_str = " ".join([v["format"].format(v["value"]) for v in status_map.values()])
+            print(output_str)
 
 
 @app.command(help="list all active review apps", name="list")
@@ -451,7 +525,7 @@ def list_apps(ctx, json_format: bool, detailed: bool, sort_key: str):
 
 
 @app.command(help="remove an existing review app droplet")
-@click.option("--name", "-n", envvar="CI_BUILD_REF_SLUG", callback=format_name, required=True)
+@click.argument("name", envvar="REVAPP_NAME", callback=format_name)
 @click.pass_context
 def remove(ctx, name: str) -> None:
     """ removes an existing review app droplet """
