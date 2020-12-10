@@ -13,6 +13,7 @@ variables:
     REVAPP_REPLACE: 1
     REVAPP_NAME: $CI_BUILD_REF_SLUG
     REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
+    REVAPP_IMAGE_NAME: $IMAGE_NAME
 
 stages:
     - build
@@ -117,6 +118,8 @@ e2e:
         paths:
             - images/
         policy: pull
+    except:
+        - /review-apps/
 
 api:
     extends: .load-cache
@@ -125,6 +128,7 @@ api:
     except:
         - /^ui-.*$/
         - /^ops-.*$/
+        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
     tags:
@@ -137,6 +141,7 @@ api_migration:
     except:
         - /^ui-.*$/
         - /^ops-.*$/
+        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
     tags:
@@ -149,6 +154,7 @@ js:
     except:
         - /^ui-.*$/
         - /^ops-.*$/
+        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
     tags:
@@ -161,6 +167,7 @@ python:
     except:
         - /^ui-.*$/
         - /^ops-.*$/
+        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
     tags:
@@ -174,6 +181,8 @@ cli:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
     tags:
         - do-small
+    except:
+        - /review-apps$/
 
 report:
     extends: .load-cache
@@ -183,6 +192,8 @@ report:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
     tags:
         - do-small
+    except:
+        - /review-apps$/
 
 release:
     stage: release
