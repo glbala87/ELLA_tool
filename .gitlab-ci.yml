@@ -34,11 +34,12 @@ build:
             - images/
         policy: push
 
-build-vars: &build-vars
-    REVAPP_REPLACE: 1
-    REVAPP_NAME: $CI_BUILD_REF_SLUG
-    REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
-    REVAPP_IMAGE_NAME: $IMAGE_NAME
+.build-vars: &build-vars
+    variables:
+        REVAPP_REPLACE: 1
+        REVAPP_NAME: $CI_BUILD_REF_SLUG
+        REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
+        REVAPP_IMAGE_NAME: $IMAGE_NAME
 
 .load-cache:
     stage: test
@@ -54,11 +55,10 @@ build-vars: &build-vars
             - images/
         policy: pull
 
-# Runner is down for time being, disable it until it's back up
 start_review:
+    <<: *build-vars
     extends: .load-cache
     variables:
-        <<: *build-vars
     stage: review
     script:
         - make gitlab-review
@@ -89,7 +89,7 @@ stop_review:
         name: review/$CI_BUILD_REF_SLUG
         action: stop
 
-check_formatting:
+.check_formatting:
     extends: .load-cache
     stage: formatting
     script:
@@ -99,7 +99,7 @@ check_formatting:
     tags:
         - do-small
 
-e2e:
+.e2e:
     stage: test
     before_script:
         - apk add --update make
@@ -123,62 +123,56 @@ e2e:
         paths:
             - images/
         policy: pull
-    except:
-        - /review-apps/
 
-api:
+.api:
     extends: .load-cache
     script:
         - make test-api
     except:
         - /^ui-.*$/
         - /^ops-.*$/
-        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
     tags:
         - do-small
 
-api_migration:
+.api_migration:
     extends: .load-cache
     script:
         - make test-api-migration
     except:
         - /^ui-.*$/
         - /^ops-.*$/
-        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
     tags:
         - do-small
 
-js:
+.js:
     extends: .load-cache
     script:
         - make test-js
     except:
         - /^ui-.*$/
         - /^ops-.*$/
-        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
     tags:
         - do-small
 
-python:
+.python:
     extends: .load-cache
     script:
         - make test-python
     except:
         - /^ui-.*$/
         - /^ops-.*$/
-        - /review-apps$/
     after_script:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
     tags:
         - do-small
 
-cli:
+.cli:
     extends: .load-cache
     script:
         - make test-cli
@@ -186,10 +180,8 @@ cli:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
     tags:
         - do-small
-    except:
-        - /review-apps$/
 
-report:
+.report:
     extends: .load-cache
     script:
         - make test-report
@@ -197,8 +189,6 @@ report:
         - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
     tags:
         - do-small
-    except:
-        - /review-apps$/
 
 release:
     stage: release
