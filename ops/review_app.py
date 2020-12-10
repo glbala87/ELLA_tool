@@ -38,7 +38,7 @@ logging.config.dictConfig(log_config)
 logger = logging.getLogger(logger_name)
 
 default_region = "fra1"
-default_size = "s-2vcpu-2gb"
+default_size = "s-2vcpu-4gb"
 default_droplet_image = "docker-20-04"
 default_tag = "gitlab-review-app"
 
@@ -188,7 +188,9 @@ def print_table(
 
 def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar: Path):
     ssh = get_ssh_conn(droplet.ip_address, pkey)
-    scp = SCPClient(ssh.get_transport(), progress=scp_progress)
+    # TODO: add option to show progress bar, is too noisy for runner loggers
+    # scp = SCPClient(ssh.get_transport(), progress=scp_progress)
+    scp = SCPClient(ssh.get_transport())
 
     provision_ufw(ssh, scp)
     # optionally don't set image_tar for quicker tests of re-provisioning
@@ -216,7 +218,7 @@ def provision_ufw(ssh: SSHClient, scp: SCPClient):
         raise ValueError(f"ufw status not matching after update: {msg}")
 
 
-def scp_progress(filename: str, size, sent) -> None:
+def scp_progress(filename: str, size: int, sent: int) -> None:
     percent = sent / size
     bar = int(percent // scp_bar_percent) * "=" + ">"
     print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
