@@ -212,7 +212,7 @@ def provision_ufw(ssh: SSHClient, scp: SCPClient):
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
     logger.info(f"reloading ufw config")
-    ssh_exec(ssh, "ufw reload")
+    ssh_exec(ssh, "ufw stop && ufw start")
     msg, err = ssh_exec(ssh, "ufw status")
     if msg.strip() != ufw_status_ok:
         raise ValueError(f"ufw status not matching after update: {msg}")
