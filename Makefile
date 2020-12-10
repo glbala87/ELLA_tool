@@ -204,11 +204,11 @@ docker run --rm $(TERM_OPTS) \
 	-v $(TMP_DIR):/tmp \
 	$(ELLA_OPTS) \
 	$(IMAGE_NAME) \
-	bash -ic "env | grep -iv token | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
+	bash -ic "export | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
 endef
 
 __review_env:
-	env | grep -E 'CI|REVAPP|GITLAB|DO_' > review_env
+	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
 	echo "PRODUCTION=false" >> review_env
 	$(eval ELLA_OPTS += --env-file=review_env)
 	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))

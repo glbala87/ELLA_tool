@@ -38,8 +38,8 @@ stages:
 .build-vars: &build-vars
     REVAPP_REPLACE: 1
     REVAPP_NAME: $CI_BUILD_REF_SLUG
-    REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
-    REVAPP_IMAGE_NAME: $IMAGE_NAME
+    REVAPP_IMAGE_TAR: eval $CI_CACHE_IMAGE_FILE
+    REVAPP_IMAGE_NAME: eval $IMAGE_NAME
 
 .load-cache:
     stage: test
