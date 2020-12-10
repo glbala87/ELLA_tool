@@ -5,7 +5,7 @@ services:
 
 variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-227940810.tar
+    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
     DOCKER_DRIVER: overlay2
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
@@ -17,7 +17,7 @@ stages:
     - review
     - release
 
-.build:
+build:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -29,16 +29,15 @@ stages:
     tags:
         - do-large
     cache:
-        # key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        key: 'ella-$CI_COMMIT_REF_NAME'
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
         paths:
             - images/
         policy: push
 
-.build-vars: &build-vars
+.revapp-vars: &revapp-vars
     REVAPP_REPLACE: 1
     REVAPP_NAME: $CI_BUILD_REF_SLUG
-    REVAPP_IMAGE_TAR: images/ella-ci-$CI_COMMIT_REF_SLUG-227940810.tar
+    REVAPP_IMAGE_TAR: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
     REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 .load-cache:
@@ -46,12 +45,11 @@ stages:
     before_script:
         - apk add --update make
         - cat images/$CI_CACHE_IMAGE_FILE | docker load
-    # needs: ['build']
+    needs: ['build']
     tags:
         - do-small
     cache:
-        # key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        key: 'ella-$CI_COMMIT_REF_NAME'
+        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
         paths:
             - images/
         policy: pull
@@ -60,7 +58,7 @@ start_review:
     extends: .load-cache
     stage: review
     variables:
-        <<: *build-vars
+        <<: *revapp-vars
     script:
         - make gitlab-review
     artifacts:
@@ -82,7 +80,7 @@ stop_review:
     script:
         - make gitlab-review-stop
     variables:
-        <<: *build-vars
+        <<: *revapp-vars
         GIT_STRATEGY: none
     when: manual
     environment:
