@@ -29,17 +29,17 @@ build:
     tags:
         - do-large
     cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        # key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        key: 'ella-$CI_COMMIT_REF_NAME'
         paths:
             - images/
         policy: push
 
 .build-vars: &build-vars
-    variables:
-        REVAPP_REPLACE: 1
-        REVAPP_NAME: $CI_BUILD_REF_SLUG
-        REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
-        REVAPP_IMAGE_NAME: $IMAGE_NAME
+    REVAPP_REPLACE: 1
+    REVAPP_NAME: $CI_BUILD_REF_SLUG
+    REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
+    REVAPP_IMAGE_NAME: $IMAGE_NAME
 
 .load-cache:
     stage: test
@@ -50,16 +50,17 @@ build:
     tags:
         - do-small
     cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        # key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+        key: 'ella-$CI_COMMIT_REF_NAME'
         paths:
             - images/
         policy: pull
 
 start_review:
-    <<: *build-vars
     extends: .load-cache
-    variables:
     stage: review
+    variables:
+        <<: *build-vars
     script:
         - make gitlab-review
     artifacts:
@@ -77,12 +78,11 @@ start_review:
 
 stop_review:
     extends: .load-cache
-    variables:
-        <<: *build-vars
     stage: review
     script:
         - make gitlab-review-stop
     variables:
+        <<: *build-vars
         GIT_STRATEGY: none
     when: manual
     environment:
