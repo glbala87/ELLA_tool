@@ -10,7 +10,7 @@ from base64 import b64decode
 from enum import Enum
 from operator import itemgetter
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import click
 import requests

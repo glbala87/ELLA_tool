@@ -10,6 +10,7 @@ variables:
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
 
+    REVAPP_REPLACE: 1
     REVAPP_NAME: $CI_BUILD_REF_SLUG
     REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
 
@@ -37,35 +38,7 @@ build:
             - images/
         policy: push
 
-# Runner is down for time being, disable it until it's back up
-start_review:
-    stage: review
-    script:
-        - ./ops/review_app.py create
-        - APP_IP=$(./ops/review_app.py status ${REVAPP_NAME} -f ip_address)
-        - scp images/$CI_CACHE_IMAGE_FILE $APP_IP:images/
-        - echo "APP_IP=$APP_IP" >> deploy.env
-    artifacts:
-        reports:
-            dotenv: deploy.env
-    environment:
-        name: review/$CI_BUILD_REF_SLUG
-        url: http://$APP_IP
-        # url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-    only:
-        - branches
-    except:
-        - master
-    tags:
-        - do-small
-    cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        paths:
-            - images/
-        policy: pull
-    needs: []
-
-.test-common:
+.load-cache:
     stage: test
     before_script:
         - apk add --update make
@@ -79,8 +52,39 @@ start_review:
             - images/
         policy: pull
 
+# Runner is down for time being, disable it until it's back up
+start_review:
+    extends: .load-cache
+    stage: review
+    script:
+        - make gitlab-review
+    artifacts:
+        reports:
+            dotenv: deploy.env
+    environment:
+        name: review/$CI_BUILD_REF_SLUG
+        url: http://$APP_IP
+        on_stop: stop_review
+        # url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
+    only:
+        - branches
+    except:
+        - master
+
+stop_review:
+    extends: .load-cache
+    stage: review
+    script:
+        - make gitlab-review-stop
+    variables:
+        GIT_STRATEGY: none
+    when: manual
+    environment:
+        name: review/$CI_BUILD_REF_SLUG
+        action: stop
+
 check_formatting:
-    extends: .test-common
+    extends: .load-cache
     stage: formatting
     script:
         - make test-formatting
@@ -115,7 +119,7 @@ e2e:
         policy: pull
 
 api:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-api
     except:
@@ -127,7 +131,7 @@ api:
         - do-small
 
 api_migration:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-api-migration
     except:
@@ -139,7 +143,7 @@ api_migration:
         - do-small
 
 js:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-js
     except:
@@ -151,7 +155,7 @@ js:
         - do-small
 
 python:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-python
     except:
@@ -163,7 +167,7 @@ python:
         - do-small
 
 cli:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-cli
     after_script:
@@ -172,7 +176,7 @@ cli:
         - do-small
 
 report:
-    extends: .test-common
+    extends: .load-cache
     script:
         - make test-report
     after_script:

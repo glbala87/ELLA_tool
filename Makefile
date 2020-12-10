@@ -159,7 +159,7 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop
 
 comma := ,
 REVIEW_NAME ?=
@@ -197,12 +197,30 @@ kill-demo:
 	docker rm -f ella-demo
 
 # Review apps
+gitlab-review:
+	docker run \
+	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
+	  -v $(shell pwd):/ella \
+	  -e PRODUCTION=false \
+	  $(IMAGE_NAME) \
+	  make review
+
+gitlab-review-stop:
+	docker run \
+	  --name $(CONTAINER_NAME)-js \
+	  --user $(UID):$(GID) \
+	  -v $(shell pwd):/ella \
+	  -e PRODUCTION=false \
+	  $(IMAGE_NAME) \
+	  make review-stop
+
 review:
 	./ops/review_app.py create
-	APP_IP=$(shell ./ops/review_app.py status)
-	# scp images/$(CI_CACHE_IMAGE_FILE) $(APP_IP):images/
-	# ssh $APP_IP 'run some stuff'
-	# echo "APP_IP=$APP_IP" >> deploy.env
+	$(shell ./ops/review_app.py status) >> deploy.env
+
+review-stop:
+	./ops/review_app.py remove
 
 
 #---------------------------------------------
