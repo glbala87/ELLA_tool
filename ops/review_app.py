@@ -401,6 +401,7 @@ def create(
         remove_droplet(ctx.obj["mgr"], name)
 
     droplet_args = {
+        "token": ctx.obj["token"],
         "name": name,
         "region": default_region,
         "size": size,
