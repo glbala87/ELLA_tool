@@ -122,6 +122,7 @@ def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Optional[Dro
     all_drops = list_droplets(mgr, tag)
     by_name = [d for d in all_drops if d.name == name]
     if len(by_name) == 0:
+        logger.info(f"No droplet found with name {name}")
         return None
     elif len(by_name) > 1:
         raise ValueError(f"Found multiple droplets named: {name}")
@@ -139,7 +140,6 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
     logger.debug(f"Fetching all droplets with tag {tag}")
     all_drops = mgr.get_all_droplets(tag_name=tag)
-    logger.debug(f"got all the droplets")
     return all_drops
 
 

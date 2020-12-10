@@ -41,7 +41,7 @@ TERM_OPTS := -it
 else
 TERM_OPTS := -t
 endif
-
+REVAPP_NAME ?= $(BRANCH)
 
 
 .PHONY: help
@@ -223,8 +223,9 @@ gitlab-review-stop: __review_env
 	$(gitlab-template)
 
 review:
+	$(call check_defined, DO_TOKEN, export DO_TOKEN with your DigitalOcean API token and try again)
 	./ops/review_app.py create
-	echo APP_IP=$(shell ./ops/review_app.py status -f ip_address) >> deploy.env
+	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
 
 review-stop:
 	./ops/review_app.py remove
