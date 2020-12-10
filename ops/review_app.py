@@ -377,8 +377,7 @@ def app(ctx, token: str, verbose: bool, debug: bool):
 @click.option(
     "--ssh-key",
     envvar="REVAPP_SSH_KEY",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=str2path,
+    callback=str2key,
     required=True,
     help="path to ssh private key to add to the review app (must be in digitalocean)",
 )
@@ -445,8 +444,7 @@ def create(
 @click.option(
     "--ssh-key",
     envvar="REVAPP_SSH_KEY",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=str2path,
+    callback=str2key,
     required=True,
     help="path to ssh private key to add to the review app (must be in digitalocean)",
 )
