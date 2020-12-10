@@ -10,11 +10,6 @@ variables:
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
 
-    REVAPP_REPLACE: 1
-    REVAPP_NAME: $CI_BUILD_REF_SLUG
-    REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
-    REVAPP_IMAGE_NAME: $IMAGE_NAME
-
 stages:
     - build
     - formatting
@@ -39,6 +34,12 @@ build:
             - images/
         policy: push
 
+build-vars: &build-vars
+    REVAPP_REPLACE: 1
+    REVAPP_NAME: $CI_BUILD_REF_SLUG
+    REVAPP_IMAGE_TAR: $CI_CACHE_IMAGE_FILE
+    REVAPP_IMAGE_NAME: $IMAGE_NAME
+
 .load-cache:
     stage: test
     before_script:
@@ -56,6 +57,8 @@ build:
 # Runner is down for time being, disable it until it's back up
 start_review:
     extends: .load-cache
+    variables:
+        <<: *build-vars
     stage: review
     script:
         - make gitlab-review
@@ -74,6 +77,8 @@ start_review:
 
 stop_review:
     extends: .load-cache
+    variables:
+        <<: *build-vars
     stage: review
     script:
         - make gitlab-review-stop
