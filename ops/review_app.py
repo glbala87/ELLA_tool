@@ -370,7 +370,7 @@ def app(ctx, token: str, verbose: bool, debug: bool):
 )
 @click.option(
     "--image-name",
-    envvar="IMAGE_NAME",
+    envvar="REVAPP_IMAGE_NAME",
     required=True,
     help="name and tag of the tarred docker image",
 )

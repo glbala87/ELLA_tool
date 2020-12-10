@@ -197,23 +197,29 @@ kill-demo:
 	docker rm -f ella-demo
 
 # Review apps
-gitlab-review:
-	docker run \
-	  --name $(CONTAINER_NAME)-js \
-	  --user $(UID):$(GID) \
-	  -v $(shell pwd):/ella \
-	  -e PRODUCTION=false \
-	  $(IMAGE_NAME) \
-	  make review
+define gitlab-template
+docker run --rm $(TERM_OPTS) \
+	--user $(UID):$(GID) \
+	-v $(shell pwd):/ella \
+	-v $(TMP_DIR):/tmp \
+	$(ELLA_OPTS) \
+	$(IMAGE_NAME) \
+	bash -ic "$(RUN_CMD) $(RUN_CMD_ARGS)"
+endef
 
-gitlab-review-stop:
-	docker run \
-	  --name $(CONTAINER_NAME)-js \
-	  --user $(UID):$(GID) \
-	  -v $(shell pwd):/ella \
-	  -e PRODUCTION=false \
-	  $(IMAGE_NAME) \
-	  make review-stop
+__review_env:
+	env | grep -P 'CI|REVAPP|GITLAB|DO_' > review_env
+	echo "PRODUCTION=false" >> review_env
+	$(eval ELLA_OPTS += --env-file=review_env)
+	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
+
+gitlab-review: __review_env
+	$(eval RUN_CMD = make review)
+	$(gitlab-template)
+
+gitlab-review-stop: __review_env
+	$(eval RUN_CMD = make review-stop)
+	$(gitlab-template)
 
 review:
 	./ops/review_app.py create
