@@ -30,7 +30,7 @@ build:
         - mkdir -p images
         - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
     tags:
-        - do-lg
+        - do-large
     cache:
         key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
         paths:
