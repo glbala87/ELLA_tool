@@ -17,7 +17,7 @@ stages:
     - review
     - release
 
-build:
+.build:
     stage: build
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -46,7 +46,7 @@ build:
     before_script:
         - apk add --update make
         - cat images/$CI_CACHE_IMAGE_FILE | docker load
-    needs: ['build']
+    # needs: ['build']
     tags:
         - do-small
     cache:
