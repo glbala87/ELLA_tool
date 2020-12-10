@@ -34,6 +34,7 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
+TMP_DIR ?= /tmp
 ifeq ($(CI_REGISTRY_IMAGE),)
 # running locally, use interactive
 TERM_OPTS := -it
@@ -204,7 +205,7 @@ docker run --rm $(TERM_OPTS) \
 	-v $(TMP_DIR):/tmp \
 	$(ELLA_OPTS) \
 	$(IMAGE_NAME) \
-	bash -ic "export | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
+	bash -ic "env | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
 endef
 
 __review_env:
