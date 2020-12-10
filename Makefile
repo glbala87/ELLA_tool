@@ -204,7 +204,7 @@ docker run --rm $(TERM_OPTS) \
 	-v $(TMP_DIR):/tmp \
 	$(ELLA_OPTS) \
 	$(IMAGE_NAME) \
-	bash -ic "$(RUN_CMD) $(RUN_CMD_ARGS)"
+	bash -ic "env | grep -iv token | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
 endef
 
 __review_env:
