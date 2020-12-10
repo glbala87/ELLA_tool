@@ -208,7 +208,7 @@ docker run --rm $(TERM_OPTS) \
 endef
 
 __review_env:
-	env | grep -P 'CI|REVAPP|GITLAB|DO_' > review_env
+	env | grep -E 'CI|REVAPP|GITLAB|DO_' > review_env
 	echo "PRODUCTION=false" >> review_env
 	$(eval ELLA_OPTS += --env-file=review_env)
 	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
