@@ -412,7 +412,7 @@ def create(
         "ssh_keys": [fingerprint_key(ssh_key.get_base64())],
     }
 
-    logging.debug(f"creating droplet with args {json.dumps(droplet_args)}")
+    logger.debug(f"creating droplet with args {json.dumps(droplet_args)}")
     droplet = Droplet(**droplet_args)
     droplet.create()
 
