@@ -224,7 +224,7 @@ gitlab-review-stop: __review_env
 
 review:
 	./ops/review_app.py create
-	$(shell ./ops/review_app.py status) >> deploy.env
+	echo APP_IP=$(shell ./ops/review_app.py status -f ip_address) >> deploy.env
 
 review-stop:
 	./ops/review_app.py remove
