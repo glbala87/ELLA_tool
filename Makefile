@@ -204,7 +204,6 @@ docker run --rm $(TERM_OPTS) \
 	-v $(shell pwd):/ella \
 	-v $(TMP_DIR):/tmp \
 	$(ELLA_OPTS) \
-	--entrypoint /bin/bash \
 	$(IMAGE_NAME) \
 	bash -ic "env | sort ; $(RUN_CMD) $(RUN_CMD_ARGS)"
 endef
