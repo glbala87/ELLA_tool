@@ -5,7 +5,6 @@ import { connect } from '@cerebral/angularjs'
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import shouldShowSidebar from '../../store/modules/views/workflows/alleleSidebar/computed/shouldShowSidebar'
-import getSelectedInterpretation from '../../store/modules/views/workflows/computed/getSelectedInterpretation'
 
 import template from './workflow.ngtmpl.html' // eslint-disable-line no-unused-vars
 
@@ -13,29 +12,37 @@ const showHistoricalDataWarning = Compute(
     state`views.workflows.type`,
     state`views.workflows.data.interpretations`,
     state`views.workflows.interpretation.selectedId`,
-    (workflowType, interpretations, selectedInterpretationId) => {
+    state`views.workflows.interpretation.isOngoing`,
+    (workflowType, interpretations, selectedInterpretationId, isOngoing) => {
         const result = {
             show: false,
-            date: null
+            text: null
         }
-        if (!workflowType || !interpretations || !selectedInterpretationId) {
+        if (!workflowType || !interpretations || !selectedInterpretationId || isOngoing) {
             return result
         }
-        const latestInterpretation = interpretations[interpretations.length - 1]
-        const selectedInterpretation = interpretations.find(
-            (i) => i.id === selectedInterpretationId
-        )
-        result.show = selectedInterpretationId !== 'current' && latestInterpretation.finalized
 
-        const analysisAddition =
-            workflowType === 'analysis'
-                ? "Select 'Current data' above to see results with the latest annotation and filter configurations."
-                : ''
-        const selectedDate = selectedInterpretation
-            ? selectedInterpretation.date_last_update.split('T')[0]
-            : '??-??-??'
-        result.text = `Data shown is from an interpretation performed
-        ${selectedDate}. ${analysisAddition}`
+        let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
+        if (!doneInterpretations.length) {
+            return result
+        }
+
+        if (selectedInterpretationId !== 'current') {
+            const selectedInterpretation = interpretations.find(
+                (i) => i.id === selectedInterpretationId
+            )
+            const analysisAddition =
+                workflowType === 'analysis'
+                    ? "Select 'Current data' above to see results with the latest annotation and filter configurations."
+                    : ''
+            const selectedDate = selectedInterpretation
+                ? selectedInterpretation.date_last_update.split('T')[0]
+                : '??-??-??'
+
+            result.show = true
+            result.text = `Data shown is from an interpretation performed ${selectedDate}. ${analysisAddition}`
+        }
+
         return result
     }
 )

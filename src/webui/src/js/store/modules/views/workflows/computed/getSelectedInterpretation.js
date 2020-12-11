@@ -23,10 +23,9 @@ export default Compute(
                 // only used for the view to have a model so it doesn't crash.
                 return defaultInterpretationState()
             } else {
-                // The state of the last done entry will be copied over to `views.workflows.interpretation`.
+                // The state of the last entry will be copied over to `views.workflows.interpretation`.
                 // The latest annotation is fetched from backend when selectedId === 'current'
-                let doneInterpretations = interpretations.filter((i) => i.status === 'Done')
-                interpretation = doneInterpretations[doneInterpretations.length - 1]
+                interpretation = interpretations[interpretations.length - 1]
             }
         } else {
             interpretation = interpretations.find((i) => i.id === selectedInterpretationId)

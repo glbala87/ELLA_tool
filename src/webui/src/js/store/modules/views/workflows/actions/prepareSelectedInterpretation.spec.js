@@ -113,13 +113,13 @@ describe('prepareSelectedInterpretation', function() {
         }
 
         return runAction(selectDefaultInterpretation, { state: testState }).then(({ state }) => {
-            expect(state.views.workflows.interpretation.selectedId).toEqual(1)
+            expect(state.views.workflows.interpretation.selectedId).toEqual('current')
             const interpretation = runCompute(getSelectedInterpretation, { state })
             expect(interpretation).toEqual(testState.views.workflows.data.interpretations[0])
 
             return runAction(copyInterpretationState, { state }).then(({ state }) => {
                 expect(state.views.workflows.interpretation).toEqual({
-                    selectedId: 1,
+                    selectedId: 'current',
                     state: {},
                     userState: {},
                     isOngoing: false
