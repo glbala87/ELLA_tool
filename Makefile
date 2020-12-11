@@ -41,7 +41,6 @@ TERM_OPTS := -it
 else
 TERM_OPTS := -t
 endif
-REVAPP_NAME ?= $(BRANCH)
 
 
 .PHONY: help
@@ -160,11 +159,16 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop local-review local-review-stop
 
 comma := ,
 REVIEW_NAME ?=
 REVIEW_OPTS ?=
+
+# set var defaults for starting from local-review
+REVAPP_NAME ?= $(BRANCH)
+REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)
+REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
 
 # Demo is just a review app, with port mapped to system
 demo: REVIEW_OPTS=-p 3114:3114
@@ -222,13 +226,32 @@ gitlab-review-stop: __review_env
 	$(eval RUN_CMD = make review-stop)
 	$(gitlab-template)
 
+local-review: local-review-build local-review-tar review
+
+local-review-tar:
+	@mkdir -p $$(dirname $(REVAPP_IMAGE_TAR))
+	[ -f $(REVAPP_IMAGE_TAR) ] && echo "using existing tar file: $(REVAPP_IMAGE_TAR)" \
+		|| docker save $(REVAPP_IMAGE_NAME) -o $(REVAPP_IMAGE_TAR)
+
+local-review-build:
+	@docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo "using existing docker image $(REVAPP_IMAGE_NAME)" \
+		|| $(MAKE) build
+
+
+local-review-stop: review-stop
+
 review:
-	$(call check_defined, DO_TOKEN, export DO_TOKEN with your DigitalOcean API token and try again)
-	./ops/review_app.py create
+	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
+	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
+	./ops/review_app.py --token $(DO_TOKEN) create \
+		--image-tar $(REVAPP_IMAGE_TAR) \
+		--image-name $(REVAPP_IMAGE_NAME) \
+		--ssh-key $(REVAPP_SSH_KEY) \
+		$(REVAPP_NAME)
 	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
 
 review-stop:
-	./ops/review_app.py remove
+	./ops/review_app.py remove $(REVAPP_NAME)
 
 
 #---------------------------------------------

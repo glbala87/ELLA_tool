@@ -68,6 +68,7 @@ start_review:
         name: review/$CI_BUILD_REF_SLUG
         url: http://$APP_IP
         on_stop: stop_review
+        auto_stop_in: 6 hours
         # url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
     only:
         - branches

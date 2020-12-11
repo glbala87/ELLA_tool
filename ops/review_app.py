@@ -18,6 +18,7 @@ from digitalocean import Droplet, Manager
 from paramiko import SSHClient
 from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
+from paramiko.ssh_exception import NoValidConnectionsError, SSHException
 from scp import SCPClient
 
 logger_name = Path(__file__).stem
@@ -86,6 +87,8 @@ droplet_details = (
 
 scp_bar_percent = 0.05
 scp_bar_padding = int(1 / scp_bar_percent)
+ssh_max_retries = 3
+ssh_default_timeout = 60
 
 ufw_configs = list((Path(__file__).parent / "demo").glob("user*.rules"))
 ufw_status_ok = """
@@ -133,8 +136,21 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
     logger.debug(f"Creating ssh connection to {hostname}")
     ssh = SSHClient()
     ssh.set_missing_host_key_policy(AutoAddPolicy)
-    ssh.connect(hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False)
-    return ssh
+    conn_attempts = 0
+    conn_success = False
+    while conn_attempts < ssh_max_retries and conn_success is False:
+        try:
+            ssh.connect(
+                hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False
+            )
+        except NoValidConnectionsError:
+            conn_attempts += 1
+            logger.warn(f"Failed to connect to {hostname}. Attempting retry #{conn_attempts}...")
+            continue
+        conn_success = True
+    if conn_success:
+        return ssh
+    raise SSHException(f"Unable to connect to {hostname}:22 after {conn_attempts} tries")
 
 
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
@@ -194,8 +210,11 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar
 
     provision_ufw(ssh, scp)
     # optionally don't set image_tar for quicker tests of re-provisioning
+    logger.info(f"Uploading tar file")
     scp_put(scp, image_tar)
+    logger.info(f"Loading docker image")
     ssh_exec(ssh, f"cat /root/{image_tar.name} | docker load")
+    logger.info(f"Starting application")
     ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
 
@@ -211,11 +230,12 @@ def provision_ufw(ssh: SSHClient, scp: SCPClient):
     for ufw_conf in ufw_configs:
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
-    logger.info(f"reloading ufw config")
-    ssh_exec(ssh, "ufw stop && ufw start")
+    logger.debug(f"reloading ufw config")
+    ssh_exec(ssh, "ufw reload")
     msg, err = ssh_exec(ssh, "ufw status")
     if msg.strip() != ufw_status_ok:
         raise ValueError(f"ufw status not matching after update: {msg}")
+    logger.info(f"ufw successfully configured")
 
 
 def scp_progress(filename: str, size: int, sent: int) -> None:
@@ -241,10 +261,12 @@ def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
     logger.info(f"Finshed uploading file(s) {str_files} in {xfer_total}")
 
 
-def ssh_exec(ssh: SSHClient, cmd: str) -> Tuple[str, str]:
+def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
     """ use to get nicer output from SSHClient.exec_command """
     logger.debug(f"Executing '{cmd}'")
-    _, stdout, stderr = ssh.exec_command(cmd)
+    if "timeout" not in kwargs:
+        kwargs["timeout"] = ssh_default_timeout
+    _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
     out_str: str = stdout.read().decode("utf-8").strip()
     err_str: str = stderr.read().decode("utf-8").strip()
     logger.debug(f"output: {out_str}")
