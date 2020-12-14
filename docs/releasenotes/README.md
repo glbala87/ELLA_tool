@@ -20,15 +20,24 @@ Release date: TBD
 
 This release includes many smaller fixes and improvements. 
 
-#### Improved analysis history
+#### Improvements to history
 
 <!-- MR !454 -->
 When opening a previously finalized analysis, ELLA will now display the annotation corresponding to the latest interpretation round, instead of `CURRENT DATA` in previous ELLA versions. In addition, a warning was added when opening a historic analysis to prevent confusion. As before, it is possible to switch to older interpretation rounds or current data using the dropdown in the top bar. 
+
+[TODO: screenshot]
+
+<!-- MR !465 --> 
+In addition, history for changes to the CLASSIFICATION REPORT field was added: 
+
+[TODO: screenshot]
 
 #### Improved warnings
 
 <!-- MR !456, !458 --> 
 ELLA now displays a message if a saved variant in an ongoing analysis has been updated and finalized by another user. In addition, to prevent over-crowding of the warnings displayed on the CLASSIFICATION page, collision warnings have now been separated out in a separate, yellow banner from the (red) variant warnings. 
+
+[TODO: screenshot]
 
 ### All changes
 
@@ -36,7 +45,7 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Improved analysis file for import -->
 <!-- MR !435 -->
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
-<!-- MR !443, !446, !462, !468, !470 -->
+<!-- MR !443, !446, !462, !464, !468, !470 -->
 - Several fixes and improvements to development environment and code base.
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
@@ -54,6 +63,8 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Collision warnings are now separated from variant warnings on the Classification page.
 <!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
+<!-- MR !465 TODO: QA, update manual/classification-section.html#variants-with-a-previous-interpretation -->
+- Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.
 <!-- MR !473 TODO: QA, update manual/info-page.html -->
 - Added possibility for showing attachments on the INFO page.
 
