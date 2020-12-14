@@ -152,7 +152,7 @@ This section shows annotation from external databases, currently including HGMD 
 
 ### Included databases
 
-  - [HGMD Pro](https://portal.biobase-international.com/hgmd/pro/)
+  - [HGMD Pro](https://digitalinsights.qiagen.com/products-overview/clinical-insights-portfolio/human-gene-mutation-database/)
   - [ClinVar](http://www.ncbi.nlm.nih.gov/clinvar/)
 
 ### Add data from other external databases

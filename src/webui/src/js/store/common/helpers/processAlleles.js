@@ -44,7 +44,7 @@ function getUrls(allele) {
     }
 
     if ('HGMD' in allele.annotation.external && 'acc_num' in allele.annotation.external.HGMD) {
-        urls.hgmd = `https://portal.biobase-international.com/hgmd/pro/mut.php?accession=${allele.annotation.external.HGMD.acc_num}`
+        urls.hgmd = `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=${allele.annotation.external.HGMD.acc_num}`
     } else {
         const gene_symbols = allele.annotation.transcripts
             .filter((t) => allele.annotation.filtered_transcripts.indexOf(t.transcript) > -1)
@@ -52,7 +52,7 @@ function getUrls(allele) {
         if (gene_symbols.length) {
             // HGMD only support one gene symbol for specific search
             const gene_symbol = gene_symbols[0]
-            urls.hgmd = `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${gene_symbol}`
+            urls.hgmd = `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/gene.php?gene=${gene_symbol}`
         }
     }
 
