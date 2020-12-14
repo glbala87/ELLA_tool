@@ -218,9 +218,7 @@ kill-demo:
 
 # Review apps
 define gitlab-template
-echo "env vars:"
-cat review_env | sort
-echo docker run --rm $(TERM_OPTS) \
+docker run --rm $(TERM_OPTS) \
 	--user $(UID):$(GID) \
 	-v $(shell pwd):/ella \
 	-v $(TMP_DIR):/tmp \
