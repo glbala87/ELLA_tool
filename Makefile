@@ -169,8 +169,13 @@ REVIEW_OPTS ?=
 export REVAPP_NAME ?= $(BRANCH)
 export REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)-review
 export REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
+export REVAPP_ENV_NAME ?= review/$(REVAPP_NAME)
 REVAPP_TAR_EXISTS = $(shell [ -f $(REVAPP_IMAGE_TAR) ] && echo yes || echo no)
+ifneq ($(shell which docker),)
 REVAPP_IMAGE_EXISTS = $(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes || echo no)
+else
+REVAPP_IMAGE_EXISTS = no
+endif
 ifeq ($(REVAPP_TAR_EXISTS),no)
 ifeq ($(REVAPP_IMAGE_EXISTS),no)
 LOCAL_STEPS = local-review-build local-review-tar
@@ -215,8 +220,7 @@ kill-demo:
 define gitlab-template
 echo "env vars:"
 cat review_env | sort
-echo
-docker run --rm $(TERM_OPTS) \
+echo docker run --rm $(TERM_OPTS) \
 	--user $(UID):$(GID) \
 	-v $(shell pwd):/ella \
 	-v $(TMP_DIR):/tmp \
@@ -256,12 +260,13 @@ local-review-stop: review-stop
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
-	./ops/review_app.py --token $(DO_TOKEN) create \
+	echo ./ops/review_app.py --token $(DO_TOKEN) create \
 		--image-tar $(REVAPP_IMAGE_TAR) \
 		--image-name $(REVAPP_IMAGE_NAME) \
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
-	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
+	echo "export APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
+	echo "export REVAPP_ENV_NAME=$(REVAPP_ENV_NAME)" >> deploy.env
 
 review-stop:
 	./ops/review_app.py remove $(REVAPP_NAME)

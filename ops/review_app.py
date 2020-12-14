@@ -212,14 +212,7 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar
     scp = SCPClient(ssh.get_transport())
 
     provision_ufw(ssh, scp)
-    logger.info("logging into gitlab container registrsy")
-    ssh_exec(
-        ssh,
-        f"docker login -u gitlab-ci-token -p {os.environ['CI_JOB_TOKEN']} {os.environ['CI_REGISTRY']}",
-    )
-    logger.info("pulling review image")
-    msg, err = ssh_exec(ssh, f"docker pull {image_name} || true")
-    logger.info(f"pull stdout: {msg}\npull stderr{err}")
+    ssh_exec(ssh, f"docker pull {image_name} || true")
     # logger.info(f"Uploading tar file")
     # scp_put(scp, image_tar)
     # logger.info(f"Loading docker image")
