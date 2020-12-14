@@ -169,6 +169,16 @@ REVIEW_OPTS ?=
 REVAPP_NAME ?= $(BRANCH)
 REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)
 REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
+REVAPP_TAR_EXISTS = $(shell [ -f $(REVAPP_IMAGE_TAR) ] && echo yes || echo no)
+REVAPP_IMAGE_EXISTS = $(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes || echo no)
+ifeq ($(REVAPP_TAR_EXISTS),no)
+ifeq ($(REVAPP_IMAGE_EXISTS),no)
+LOCAL_STEPS = local-review-build local-review-tar
+else
+LOCAL_STEPS = local-review-tar
+endif
+endif
+
 
 # Demo is just a review app, with port mapped to system
 demo: REVIEW_OPTS=-p 3114:3114
@@ -208,38 +218,38 @@ docker run --rm $(TERM_OPTS) \
 	-v $(shell pwd):/ella \
 	-v $(TMP_DIR):/tmp \
 	$(ELLA_OPTS) \
-	$(IMAGE_NAME) \
+	$(REVAPP_IMAGE_NAME) \
 	bash -ic "$(RUN_CMD) $(RUN_CMD_ARGS)"
 endef
 
-__review_env:
+__gitlab_env:
 	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
 	echo "PRODUCTION=false" >> review_env
 	$(eval ELLA_OPTS += --env-file=review_env)
 	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
 
-gitlab-review: __review_env
+gitlab-review: __gitlab_env
 	$(eval RUN_CMD = make review)
 	$(gitlab-template)
 
-gitlab-review-stop: __review_env
+# TODO: doesn't work for some reason?
+gitlab-review-stop: __gitlab_env
 	$(eval RUN_CMD = make review-stop)
 	$(gitlab-template)
 
-local-review: local-review-build local-review-tar review
+local-review: $(LOCAL_STEPS) review
 
 local-review-tar:
 	@mkdir -p $$(dirname $(REVAPP_IMAGE_TAR))
-	[ -f $(REVAPP_IMAGE_TAR) ] && echo "using existing tar file: $(REVAPP_IMAGE_TAR)" \
-		|| docker save $(REVAPP_IMAGE_NAME) -o $(REVAPP_IMAGE_TAR)
+	docker save $(REVAPP_IMAGE_NAME) -o $(REVAPP_IMAGE_TAR)
 
 local-review-build:
-	@docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo "using existing docker image $(REVAPP_IMAGE_NAME)" \
-		|| $(MAKE) build
+	docker build $(BUILD_OPTIONS) -t $(REVAPP_IMAGE_NAME) --target production .
 
 
 local-review-stop: review-stop
 
+# TODO: image tar should be prod, not dev
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)

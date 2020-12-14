@@ -5,6 +5,7 @@ import hashlib
 import json
 import logging
 import logging.config
+import os
 import time
 from base64 import b64decode
 from enum import Enum
@@ -90,7 +91,9 @@ scp_bar_padding = int(1 / scp_bar_percent)
 ssh_max_retries = 3
 ssh_default_timeout = 60
 
+# set up firewall on droplet to only listen on 22, 80 and 443
 ufw_configs = list((Path(__file__).parent / "demo").glob("user*.rules"))
+# expected output from correctly configured `ufw status`
 ufw_status_ok = """
 Status: active
 
@@ -209,11 +212,18 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar
     scp = SCPClient(ssh.get_transport())
 
     provision_ufw(ssh, scp)
-    # optionally don't set image_tar for quicker tests of re-provisioning
-    logger.info(f"Uploading tar file")
-    scp_put(scp, image_tar)
-    logger.info(f"Loading docker image")
-    ssh_exec(ssh, f"cat /root/{image_tar.name} | docker load")
+    logger.info("logging into gitlab container registrsy")
+    ssh_exec(
+        ssh,
+        f"docker login -u gitlab-ci-token -p {os.environ['CI_JOB_TOKEN']} {os.environ['CI_REGISTRY']}",
+    )
+    logger.info("pulling review image")
+    msg, err = ssh_exec(ssh, f"docker pull {image_name} || true")
+    logger.info(f"pull stdout: {msg}\npull stderr{err}")
+    # logger.info(f"Uploading tar file")
+    # scp_put(scp, image_tar)
+    # logger.info(f"Loading docker image")
+    # ssh_exec(ssh, f"cat /root/{image_tar.name} | docker load")
     logger.info(f"Starting application")
     ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
@@ -387,7 +397,7 @@ def app(ctx, token: str, verbose: bool, debug: bool):
 @click.option(
     "--image-tar",
     envvar="REVAPP_IMAGE_TAR",
-    type=click.Path(exists=True, dir_okay=False),
+    type=click.Path(exists=False, dir_okay=False),
     callback=str2path,
     required=True,
     help="path to tarred docker image to be run as the review app",
@@ -432,6 +442,7 @@ def create(
         "image": default_droplet_image,
         "tags": [default_tag],
         "ssh_keys": [fingerprint_key(ssh_key.get_base64())],
+        "private_networking": True,
     }
 
     logger.debug(f"creating droplet with args {json.dumps(droplet_args)}")
@@ -475,6 +486,7 @@ def create(
 )
 @click.pass_context
 def provision(ctx, name: str, image_tar: Path, image_name: str, ssh_key: RSAKey):
+    # TODO: set timeout option on digitalocean side
     logger.info(f"Re-provisioning name {name}")
     droplet = get_droplet(ctx.obj["mgr"], name)
     if droplet is None or droplet.status != "active":
