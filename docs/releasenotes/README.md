@@ -67,6 +67,8 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.
 <!-- MR !473 TODO: QA, update manual/info-page.html -->
 - Added possibility for showing attachments on the INFO page.
+<!-- MR !475 -->
+- Updated HGMD Pro links to point to new base url. 
 
 
 ## Version 1.11.3
