@@ -48,17 +48,17 @@ revapp_run = """
 docker inspect revapp >/dev/null 2>&1 && docker rm -f revapp
 docker run -d \
 --name revapp \
--e ELLA_CONFIG=/ella/example_config.yml \
--e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
--e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
--e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 -e ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments/" \
--e PRODUCTION=false \
--e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
--e VIRTUAL_HOST={hostname} \
+-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+-e ELLA_CONFIG=/ella/example_config.yml \
+-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+-e PGDATA=/pg-data \
+-e PGHOST=/socket \
 -e PORT=5000 \
+-e PRODUCTION=false \
+-e VIRTUAL_HOST={hostname} \
 -p 80:5000 \
 {image_name} \
 supervisord -c /ella/ops/demo/supervisor.cfg && \
