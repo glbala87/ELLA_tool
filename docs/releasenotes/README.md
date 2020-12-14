@@ -45,14 +45,14 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 <!-- MR !453 -->
 - Fixed wrong tooltip on `SUBMIT REPORT` button
 <!-- MR !454 TODO: QA, update manual/top-bar.html#analysis-history-for-previously-finished-samples -->
-- Show latest interpretation round by default for historical analyses, indcluding warning for "Historical data".
+- Show latest interpretation round by default for historical analyses, including warning for "Historical data".
 <!-- MR !455 -->
 - Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
-<!-- MR !456 TODO: QA, update manual warnings.html#annotation-warnings -->
+<!-- MR !456 TODO: QA, update manual/warnings.html#annotation-warnings -->
 - Display message when variant in ongoing analysis has been updated by another user.
-<!-- MR !458 -->
+<!-- MR !458 TODO: QA, update manual/warnings.html -->
 - Collision warnings are now separated from variant warnings on the Classification page.
-<!-- MR !463 TODO: QA, update manual data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
+<!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
 <!-- MR !473 TODO: QA, update manual/info-page.html -->
 - Added possibility for showing attachments on the INFO page.
