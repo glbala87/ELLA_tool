@@ -1,6 +1,3 @@
-# export all makefile variables to env variables for all targets
-.EXPORT_ALL_VARIABLES:
-
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
 # used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
 UID ?= 1000
