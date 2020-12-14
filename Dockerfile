@@ -124,14 +124,11 @@ RUN cd /ella && yarn build
 FROM base AS production
 
 USER root
-COPY --from=production-build /dist/ella-python /dist/ella-python
-RUN chown ella-user:ella-user -R /dist
+COPY --from=production-build --chown=ella-user:ella-user /dist /dist
+COPY --from=production-build --chown=ella-user:ella-user /ella /ella
 
 ENV PATH="/dist/ella-python/bin:${PATH}"
 ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
-
-COPY --from=production-build /ella /ella
-RUN chown ella-user:ella-user -R /ella
 
 USER ella-user
 WORKDIR /ella
