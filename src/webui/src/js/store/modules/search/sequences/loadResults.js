@@ -23,7 +23,10 @@ export default sequence('loadResults', [
                     // Check that this signal's props id matches the latest issued one
                     checkSearchId,
                     {
-                        true: [set(module`results`, props`result`)],
+                        true: [
+                            set(module`results`, props`result`),
+                            set(module`totalCount`, props`totalCount`)
+                        ],
                         false: [] // Ignore result
                     }
                 ],

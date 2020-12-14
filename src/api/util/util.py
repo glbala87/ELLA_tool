@@ -256,8 +256,12 @@ def paginate(func):
                 per_page = 50
         else:
             per_page = 10000  # FIXME: Leave at high value until we add pagination in frontend
+        limit = request.args.get("limit")
+
         kwargs["page"] = page
         kwargs["per_page"] = per_page
+        if limit is not None:
+            kwargs["limit"] = int(limit)
         result, total = func(*args, **kwargs)
         response_headers = dict()
         if total is not None:

@@ -17,7 +17,7 @@ from api.v1.resource import LogRequestResource
 from api.v1.resources.overview import load_analyses
 from datalayer import AlleleDataLoader
 from datalayer.queries import annotation_transcripts_genepanel
-from api.util.util import authenticate
+from api.util.util import authenticate, paginate
 
 from api.config import config
 
@@ -41,7 +41,6 @@ class SearchQuery:
         self.hgvsp = None
         self.hgvsc = None
         self.freetext = None
-        self.page = 1
 
         self._set_query(query)
 
@@ -95,9 +94,6 @@ class SearchQuery:
                 elif "c." in hgvs.lower():
                     self.hgvsc = hgvs.lower()
 
-        if query.get("page") and query["page"] > self.page:
-            self.page = query["page"]
-
     def is_valid_freetext(self):
         return self.freetext and len(self.freetext) > 2 and self.check()
 
@@ -139,9 +135,6 @@ class SearchQuery:
 
 class SearchResource(LogRequestResource):
 
-    ANALYSIS_LIMIT = 10
-    ALLELE_LIMIT = 10
-
     # Matches:
     # 14:234234234-123123123
     # chr14:143000-234234
@@ -153,7 +146,8 @@ class SearchResource(LogRequestResource):
     TSQUERY_ESCAPE = ["&", ":", "(", ")", "*", "!", "|"]
 
     @authenticate()
-    def get(self, session, user=None):
+    @paginate
+    def get(self, session, page=None, per_page=None, limit=None, user=None):
         """
         Provides basic search functionality.
 
@@ -214,9 +208,6 @@ class SearchResource(LogRequestResource):
                     $ref: '#/definitions/Analysis'
                   alleleassessments:
                     $ref: '#/definitions/AlleleAssessment'
-                  page:
-                    type: number
-                    description: Page of search results
             description: Search result
         """
         query = request.args.get("q")
@@ -229,7 +220,9 @@ class SearchResource(LogRequestResource):
             return matches
         elif search_query.is_analyses_search():
             # Search analysis
-            analyses = self._search_analysis(session, search_query, user)
+            analyses, count = self._search_analysis(
+                session, search_query, user, page=page, per_page=per_page, limit=limit
+            )
             analysis_ids = [a["id"] for a in analyses]
             analysis_interpretations = self._get_analysis_interpretations(session, analysis_ids)
             for analysis in analyses:
@@ -242,7 +235,9 @@ class SearchResource(LogRequestResource):
             genepanels = [gp for gp in user.group.genepanels if gp.official]
             if search_query.check():
                 # Search allele
-                alleles = self._search_allele(session, search_query, genepanels)
+                alleles, count = self._search_allele(
+                    session, search_query, genepanels, page=page, per_page=per_page, limit=limit
+                )
                 allele_ids = [a["id"] for a in alleles]
                 allele_interpretations = self._get_allele_interpretations(session, allele_ids)
                 for al in alleles:
@@ -254,8 +249,7 @@ class SearchResource(LogRequestResource):
                             ],
                         }
                     )
-
-        return matches
+        return matches, count
 
     def _get_analysis_interpretations(self, session, analysis_ids):
         interpretations = (
@@ -484,17 +478,22 @@ class SearchResource(LogRequestResource):
                 list(set([t["transcript"] for t in filtered_transcripts]))
             )
 
-    def _search_allele(self, session, search_query, genepanels):
+    def _search_allele(self, session, search_query, genepanels, page=1, per_page=10, limit=None):
 
         # CTE for performance
-        allele_results_ids = self._get_allele_results_ids(session, search_query).cte()
+        allele_results_ids = self._get_allele_results_ids(session, search_query)
+        if limit:
+            allele_results_ids = allele_results_ids.limit(limit)
+
+        count = allele_results_ids.count()
+        allele_results_ids = allele_results_ids.cte()
 
         alleles = (
             session.query(allele.Allele)
             .filter(allele.Allele.id.in_(select([allele_results_ids])))
             .order_by(allele.Allele.chromosome, allele.Allele.start_position)
-            .limit(SearchResource.ALLELE_LIMIT)
-            .offset(self.ALLELE_LIMIT * (search_query.page - 1))
+            .limit(per_page)
+            .offset(per_page * (page - 1))
         )
         alleles = alleles.all()
 
@@ -509,19 +508,22 @@ class SearchResource(LogRequestResource):
         )
 
         self._filter_transcripts_query(session, allele_data, genepanels, search_query)
-        return allele_data
+        return allele_data, count
 
-    def _search_analysis(self, session, query, user):
+    def _search_analysis(self, session, query, user, page=1, per_page=10, limit=None):
         analysis_ids = (
             session.query(sample.Analysis.id)
             .filter(*self._get_analyses_filters(session, query, user.group.genepanels))
             .distinct()
-            .limit(SearchResource.ANALYSIS_LIMIT)
-            .offset(self.ANALYSIS_LIMIT * (query.page - 1))
-            .scalar_all()
         )
 
-        return load_analyses(session, analysis_ids, user)
+        if limit:
+            analysis_ids = analysis_ids.limit(limit)
+        count = analysis_ids.count()
+
+        analysis_ids = analysis_ids.limit(per_page).offset(per_page * (page - 1)).scalar_all()
+
+        return load_analyses(session, analysis_ids, user), count
 
 
 class SearchOptionsResource(LogRequestResource):

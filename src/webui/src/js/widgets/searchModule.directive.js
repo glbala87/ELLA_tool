@@ -5,11 +5,11 @@ import template from './searchModule.ngtmpl.html' // eslint-disable-line no-unus
 
 const TYPES = [
     {
-        name: 'VARIANTS',
+        name: 'Variants',
         type: 'alleles'
     },
     {
-        name: 'ANALYSES',
+        name: 'Analyses',
         type: 'analyses'
     }
 ]
@@ -19,9 +19,13 @@ app.component('search', {
     controller: connect(
         {
             query: state`search.query`,
+            totalCount: state`search.totalCount`,
             options: state`search.options`,
             results: state`search.results`,
+            limit: state`search.limit`,
             queryChanged: signal`search.queryChanged`,
+            page: state`search.page`,
+            pageChanged: signal`search.pageChanged`,
             optionsSearchChanged: signal`search.optionsSearchChanged`,
             showAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.showAnalysesForAlleleClicked`
         },
@@ -39,17 +43,16 @@ app.component('search', {
                         }
                         return 'NEW'
                     },
+                    getSearchResultSummary: () => {
+                        return `${TYPES.find((t) => t.type === $ctrl.query.type).name} (
+                        ${
+                            $ctrl.totalCount >= $ctrl.limit
+                                ? 'showing first ' + $ctrl.totalCount
+                                : totalCount
+                        })`
+                    },
                     getSearchTypes: () => {
                         return TYPES
-                    },
-                    nextPage: () => {
-                        if ($ctrl.results.alleles.length >= 10) {
-                            $ctrl.queryChanged({
-                                query: Object.assign({}, $ctrl.query, {
-                                    page: $ctrl.query.page + 1
-                                })
-                            })
-                        }
                     },
                     optionSelected: (key, newValue) => {
                         // A bit hackish due to angular-selector not
@@ -61,15 +64,6 @@ app.component('search', {
                             newQuery.page = 1
                         }
                         $ctrl.queryChanged({ query: newQuery })
-                    },
-                    previousPage: () => {
-                        if ($ctrl.query.page > 1) {
-                            $ctrl.queryChanged({
-                                query: Object.assign({}, $ctrl.query, {
-                                    page: $ctrl.query.page - 1
-                                })
-                            })
-                        }
                     },
                     updateGeneOptions: (term) => {
                         // angular-selector needs a returned Promise, although

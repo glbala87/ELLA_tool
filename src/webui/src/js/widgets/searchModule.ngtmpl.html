@@ -101,26 +101,21 @@
                     </div>
                 </div>
             </article>
-            <div>
-                <h4 ng-if="$ctrl.results.alleles.length" class="section-header">Variants</h4>
-                <h4 ng-if="$ctrl.results.alleles.length >= 10 || $ctrl.query.page > 1">
-                    <br />
-                    <a
-                        ng-if="$ctrl.query.page > 1 && $ctrl.results.alleles.length"
-                        href="javascript:void(0)"
-                        ng-click="$ctrl.previousPage()"
-                        >previous page |</a
-                    >
-                    <!-- TODO: page number needs styling -->
-                    <span>page {{ $ctrl.query.page || 1 }}</span>
-                    <a
-                        ng-if="$ctrl.results.alleles.length >= 10"
-                        href="javascript:void(0)"
-                        ng-click="$ctrl.nextPage()"
-                        >| next page</a
-                    >
-                    <br />
+            <div class="search-results" ng-if="$ctrl.results">
+                <h4 ng-if="$ctrl.results.alleles.length" class="section-header">
+                    {{ $ctrl.getSearchResultSummary() }}
                 </h4>
+                <uib-pagination
+                    total-items="$ctrl.totalCount"
+                    ng-model="$ctrl.modelPage"
+                    ng-model-watch="$ctrl.page"
+                    class="pagination-sm"
+                    ng-change="$ctrl.pageChanged({page: $ctrl.modelPage})"
+                    items-per-page="10"
+                    max-size="3"
+                    rotate="true"
+                >
+                </uib-pagination>
 
                 <section ng-if="$ctrl.results.alleles.length">
                     <article class="sectionbox-content allele-list">
@@ -157,8 +152,6 @@
                         </a>
                     </article>
                 </section>
-
-                <h4 ng-if="$ctrl.results.analyses.length" class="section-header">Analyses</h4>
 
                 <section ng-if="$ctrl.results.analyses.length">
                     <analysis-list store-path="'search.results.analyses'"></analysis-list>
