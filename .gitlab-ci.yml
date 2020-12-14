@@ -7,6 +7,7 @@ variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
     DOCKER_DRIVER: overlay2
+    DOCKER_BUILDKIT: 1
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
     BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
@@ -120,10 +121,6 @@ check_formatting:
 
 e2e:
     extends: .common-test
-    before_script:
-        - *apk-setup
-        - *docker-login
-        - rm -rf errorShots
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
     artifacts:
