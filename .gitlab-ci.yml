@@ -43,6 +43,7 @@ stages:
 .revapp: &revapp
     stage: review
     before_script:
+        - *apk-setup
         - *docker-login
         - docker pull $REVAPP_IMAGE_NAME || true
     variables:
@@ -166,8 +167,8 @@ report:
 release:
     stage: release
     before_script:
-        - apk add --update make git
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - *apk-setup
+        - *docker-login
     script:
         - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
         - docker build -t $IMAGE_NAME .
@@ -180,4 +181,4 @@ release:
     only:
         - tags
     tags:
-        - do-small
+        - do-large
