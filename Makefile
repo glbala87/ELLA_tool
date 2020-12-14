@@ -1,3 +1,6 @@
+# export all makefile variables to env variables for all targets
+.EXPORT_ALL_VARIABLES:
+
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)# Configured on the outside when running in gitlab
 # used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
 UID ?= 1000
@@ -213,6 +216,9 @@ kill-demo:
 
 # Review apps
 define gitlab-template
+echo "env vars:"
+cat review_env | sort
+echo
 docker run --rm $(TERM_OPTS) \
 	--user $(UID):$(GID) \
 	-v $(shell pwd):/ella \
