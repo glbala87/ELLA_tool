@@ -5,13 +5,13 @@ services:
 
 variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
     CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
     DOCKER_DRIVER: overlay2
     DOCKER_BUILDKIT: 1
     BRANCH: $CI_COMMIT_REF_NAME
     PIPELINE_ID: ella-$CI_PIPELINE_ID
     BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
-    REVIEW_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
 
 stages:
     - build
@@ -50,7 +50,6 @@ stages:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
         REVAPP_IMAGE_TAR: images/ella-review-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
-        REVAPP_IMAGE_NAME: $REVIEW_IMAGE
         REVAPP_ENV_NAME: review/$CI_BUILD_REF_SLUG
 
 .common-test: &common-test
@@ -69,16 +68,16 @@ stages:
 
 # jobs
 
-build:
+.build:
     stage: build
     before_script:
         - *docker-login
     script:
         - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
         - docker build $BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
-        - docker build $BUILD_OPTIONS -t $REVIEW_IMAGE .
+        - docker build $BUILD_OPTIONS -t $REVAPP_IMAGE_NAME .
         - docker push $CI_REGISTRY_IMAGE:ci-latest
-        - docker push $REVIEW_IMAGE
+        - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
         - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
     tags:

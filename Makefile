@@ -6,7 +6,7 @@ GID ?= 1000
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 
 CONTAINER_NAME ?= ella-$(BRANCH)
-IMAGE_NAME ?= local/ella-$(BRANCH)
+export IMAGE_NAME ?= local/ella-$(BRANCH)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -166,9 +166,9 @@ REVIEW_NAME ?=
 REVIEW_OPTS ?=
 
 # set var defaults for starting from local-review
-REVAPP_NAME ?= $(BRANCH)
-REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)
-REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
+export REVAPP_NAME ?= $(BRANCH)
+export REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)-review
+export REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
 REVAPP_TAR_EXISTS = $(shell [ -f $(REVAPP_IMAGE_TAR) ] && echo yes || echo no)
 REVAPP_IMAGE_EXISTS = $(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes || echo no)
 ifeq ($(REVAPP_TAR_EXISTS),no)
