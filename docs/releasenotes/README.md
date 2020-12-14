@@ -7,7 +7,7 @@ title: Latest releases
 |Major versions|Minor versions|
 |:--|:--|
 [v1.12](#version-1-12)|
-[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3])(#version-1-11-3)
+[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3](#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
@@ -18,60 +18,44 @@ Release date: TBD
 
 ### Highlights
 
-Highlights ...
+This release includes many smaller fixes and improvements. 
+
+#### Improved analysis history
+
+<!-- MR !454 -->
+When opening a previously finalized analysis, ELLA will now display the annotation corresponding to the latest interpretation round, instead of `CURRENT DATA` in previous ELLA versions. In addition, a warning was added when opening a historic analysis to prevent confusion. As before, it is possible to switch to older interpretation rounds or current data using the dropdown in the top bar. 
+
+#### Improved warnings
+
+<!-- MR !456, !458 --> 
+ELLA now displays a message if a saved variant in an ongoing analysis has been updated and finalized by another user. In addition, to prevent over-crowding of the warnings displayed on the CLASSIFICATION page, collision warnings have now been separated out in a separate, yellow banner from the (red) variant warnings. 
 
 ### All changes
 
+<!-- MR !429: no release note, but needs technical docs?
+- Improved analysis file for import -->
 <!-- MR !435 -->
-- Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings)
+- Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
+<!-- MR !443, !446, !462, !468, !470 -->
+- Several fixes and improvements to development environment and code base.
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
-<!-- MR !443, !445, !446, !462-->
-- Several smaller fixes and improvements to the backend.
-
-<!-- MR !456 -->
-- Display message whe finalized variant in ongoing analysis has been updated by other user
-<!-- MR !455 -->
-- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
-<!-- MR !454 -->
-- Show latest interpretation round by default for historical analyses
-<!-- MR !458 -->
-- Separate variant/collision warnings
+<!-- MR !450 TODO: QA, update manual/top-bar.html#gene-information -->
+- Added support for templates in the Gene information comment field.
 <!-- MR !453 -->
 - Fixed wrong tooltip on `SUBMIT REPORT` button
-<!-- MR !450 -->
-- Added support for templates in Gene information comment field
-<!-- MR !429 ; backend only, no release note? But needs technical docs
-- Improved analaysis file for import -->
-
-## Version 1.11.3
-
-Release date 02.11.2020
-
-### Highlights
-
-This release adds a bugfix for the frequency filter. 
-
-### All changes
-
-<!-- MR !466 -->
-- Fixed a bug that caused a timeout in the frequency filter and failed loading of the associated analysis.
-
-## Version 1.11.2
-
-Release date: 27.10.2020
-
-### Highlights
-
-This release adds bugfixes related to manually appending results to an analysis.
-
-### All changes
-
-<!-- MR !449 -->
-- Fixed a bug where filters using `inheritance_mode` failed to load when there are more than two proband samples in an analysis (e.g. on manual appending import). 
-<!-- MR !452-->
-- Fixed a bug where manually appending an import to a finalized analysis fails. 
-<!-- !442, !447 and !461: no release notes necessary -->
+<!-- MR !454 TODO: QA, update manual/top-bar.html#analysis-history-for-previously-finished-samples -->
+- Show latest interpretation round by default for historical analyses, indcluding warning for "Historical data".
+<!-- MR !455 -->
+- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
+<!-- MR !456 TODO: QA, update manual warnings.html#annotation-warnings -->
+- Display message when variant in ongoing analysis has been updated by another user.
+<!-- MR !458 -->
+- Collision warnings are now separated from variant warnings on the Classification page.
+<!-- MR !463 TODO: QA, update manual data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
+- It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
+<!-- MR !473 TODO: QA, update manual/info-page.html -->
+- Added possibility for showing attachments on the INFO page.
 
 
 ## Version 1.11.3
