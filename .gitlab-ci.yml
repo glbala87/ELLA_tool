@@ -4,14 +4,19 @@ services:
     - docker:stable-dind
 
 variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
-    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
+    # build vars
     DOCKER_DRIVER: overlay2
     DOCKER_BUILDKIT: 1
-    BRANCH: $CI_COMMIT_REF_NAME
-    PIPELINE_ID: ella-$CI_PIPELINE_ID
     BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
+
+    # repo vars
+    PIPELINE_ID: ella-$CI_PIPELINE_ID
+    BRANCH: $CI_COMMIT_REF_NAME
+
+    # image vars
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
+    REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
 
 stages:
     - build
@@ -38,6 +43,7 @@ stages:
 .apk-setup: &apk-setup apk add --update make git
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat images/$CI_CACHE_IMAGE_FILE | docker load
+.revapp-env-name: &revapp-env-name review/$CI_BUILD_REF_SLUG
 
 # base jobs
 .revapp: &revapp
@@ -50,7 +56,6 @@ stages:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
         REVAPP_IMAGE_TAR: images/ella-review-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
-        REVAPP_ENV_NAME: review/$CI_BUILD_REF_SLUG
 
 .common-test: &common-test
     stage: test
@@ -94,7 +99,7 @@ start_review:
         reports:
             dotenv: deploy.env
     environment:
-        name: $REVAPP_ENV_NAME
+        name: *revapp-env-name
         url: http://$APP_IP
         on_stop: stop_review
         auto_stop_in: 6 hours
@@ -109,7 +114,7 @@ stop_review:
         - make gitlab-review-stop
     when: manual
     environment:
-        name: $REVAPP_ENV_NAME
+        name: *revapp-env-name
         action: stop
 
 ###
