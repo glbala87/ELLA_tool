@@ -15,8 +15,7 @@ variables:
 
     # image vars
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
-    REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
+    CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
 
 stages:
     - build
@@ -42,8 +41,10 @@ stages:
 # before_script actions
 .apk-setup: &apk-setup apk add --update make git
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-.docker-load: &docker-load cat images/$CI_CACHE_IMAGE_FILE | docker load
-.revapp-env-name: &revapp-env-name review/$CI_BUILD_REF_SLUG
+.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
+
+# use anchors when using an env variable inside another
+.revapp-image-name: &revapp-image-name $IMAGE_NAME-review
 
 # base jobs
 .revapp: &revapp
@@ -55,7 +56,10 @@ stages:
     variables:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
-        REVAPP_IMAGE_TAR: images/ella-review-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
+        REVAPP_IMAGE_NAME: *revapp-image-name
+
+.revapp-env: &revapp-env
+    name: review/$CI_BUILD_REF_SLUG
 
 .common-test: &common-test
     stage: test
@@ -80,12 +84,11 @@ stages:
     script:
         - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
         - docker build $BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
-        # point at dev for now, but should point at prod
-        - docker build $BUILD_OPTIONS -t $REVAPP_IMAGE_NAME --target dev
+        - docker build $BUILD_OPTIONS --cache-from $REVAPP_IMAGE_NAME -t $REVAPP_IMAGE_NAME --label commit_sha=$CI_COMMIT_SHA --target review .
         - docker push $CI_REGISTRY_IMAGE:ci-latest
         - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
-        - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
+        - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
     tags:
         - do-large
     cache:
@@ -99,7 +102,7 @@ start_review:
         reports:
             dotenv: deploy.env
     environment:
-        name: *revapp-env-name
+        <<: *revapp-env
         url: http://$APP_IP
         on_stop: stop_review
         auto_stop_in: 6 hours
@@ -114,7 +117,7 @@ stop_review:
         - make gitlab-review-stop
     when: manual
     environment:
-        name: *revapp-env-name
+        <<: *revapp-env
         action: stop
 
 ###
