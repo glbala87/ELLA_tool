@@ -227,17 +227,6 @@ gitlab-review-stop: __gitlab_env
 	$(eval RUN_CMD = make review-stop)
 	$(gitlab-template)
 
-local-review: $(LOCAL_STEPS) review
-
-local-review-tar:
-	@mkdir -p $$(dirname $(REVAPP_IMAGE_TAR))
-	docker save $(REVAPP_IMAGE_NAME) -o $(REVAPP_IMAGE_TAR)
-
-local-review-build:
-	docker build $(BUILD_OPTIONS) -t $(REVAPP_IMAGE_NAME) --target production .
-
-local-review-stop: review-stop
-
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
@@ -245,8 +234,7 @@ review:
 		--image-name $(REVAPP_IMAGE_NAME) \
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
-	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" > deploy.env
-	cat deploy.env
+	-@[ -n "$(CI_REGISTRY_IMAGE)" ] && echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" > deploy.env
 
 review-stop:
 	./ops/review_app.py remove $(REVAPP_NAME)

@@ -211,6 +211,7 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
     scp = SCPClient(ssh.get_transport())
 
     provision_ufw(ssh, scp)
+    logger.info(f"pulling image {image_name}")
     ssh_exec(ssh, f"docker pull {image_name} || true")
     logger.info(f"Starting application")
     ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
@@ -256,7 +257,7 @@ def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
         logger.error(f"Transfer of {str_files} failed after {xfer_total}")
         raise e
     xfer_total = datetime.datetime.now() - xfer_start
-    logger.info(f"Finshed uploading file(s) {str_files} in {xfer_total}")
+    logger.info(f"Finished uploading file(s) {str_files} after {xfer_total}")
 
 
 def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
@@ -423,7 +424,9 @@ def create(ctx, name: str, size: str, image_name: str, ssh_key: RSAKey, replace:
         "private_networking": True,
     }
 
-    logger.debug(f"creating droplet with args {json.dumps(droplet_args)}")
+    logger.debug(
+        f"creating droplet with args {json.dumps({k: v for k, v in droplet_args.items() if k != 'token'})}"
+    )
     droplet = Droplet(**droplet_args)
     droplet.create()
 
