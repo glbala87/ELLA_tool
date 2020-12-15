@@ -30,7 +30,14 @@ When opening a previously finalized analysis, ELLA will now display the annotati
 <!-- MR !465 --> 
 In addition, history for changes to the CLASSIFICATION REPORT field was added: 
 
-[TODO: screenshot]
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-variant-history.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Modified variant history view with addition of Report history and dropdown for previous versions.
+    </div>
+    <br>
+</div>
 
 #### Improved warnings
 
@@ -63,7 +70,7 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Collision warnings are now separated from variant warnings on the Classification page.
 <!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
-<!-- MR !465 TODO: QA, update manual/classification-section.html#variants-with-a-previous-interpretation -->
+<!-- MR !465 -->
 - Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.
 <!-- MR !473 TODO: QA, update manual/info-page.html -->
 - Added possibility for showing attachments on the INFO page.

@@ -20,11 +20,17 @@ Unlike other sections, this section contains two main comment fields:
 
 ## Variants with a previous interpretation
 
-ELLA matches the variants in each new sample with existing variant interpretations in the database. If a match is found, the last classification along with user, date and any changes to the report is displayed in a separate card:
+ELLA matches the variants in each new sample with existing variant interpretations in the database, allowing reuse of any previous interpretation. 
+
+### Variant classification and report history
+
+If a previous interpretation is found, the last saved change to the classification/evaluation and/or report is displayed along with user and date in the EXISTING card:
 
 <div style="text-indent: 4%;"><img src="./img/existing_classification.png"></div>
 
-Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalized round of interpretation, ordered by date.
+Note that changes to the variant classification/evaluation and report fields are recorded independently (see [below](#update-submit-report-only)). Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalized round of interpretation or report change, ordered by date. Switch between `CLASSIFICATION` (default) and `REPORT` histories using the buttons, and use the dropdown for viewing the version saved at a specific time point: 
+
+<div style="text-indent: 4%;"><img src="./img/variant_history.png"></div>
 
 ### Interpretations that are still valid
 
