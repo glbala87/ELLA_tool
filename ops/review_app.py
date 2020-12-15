@@ -14,6 +14,7 @@ from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import click
 import requests
+from requests.exceptions import ConnectTimeout, ConnectionError
 from digitalocean import Droplet, Manager
 from paramiko import SSHClient
 from paramiko.client import AutoAddPolicy
@@ -300,13 +301,13 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
 def revapp_status(droplet: Droplet) -> RevappStatus:
     url = f"http://{droplet.ip_address}"
     try:
-        resp = requests.get(url)
-    except requests.ConnectionError as e:
+        resp = requests.get(url, timeout=3)
+    except ConnectionError as e:
         if "[Errno 111] Connection refused" in str(e):
             return RevappStatus.NotRunning
         elif "[Errno -2] Name or service not known" in str(e):
             return RevappStatus.Down
-        elif "[Errno 110] Connection timed out" in str(e):
+        elif isinstance(e, ConnectTimeout) or "[Errno 110] Connection timed out" in str(e):
             return RevappStatus.TimedOut
         raise e
     if resp.ok:

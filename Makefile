@@ -159,7 +159,7 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop local-review local-review-stop
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop local-review local-review-stop gitlab-review-refresh-ip review-refresh-ip
 
 comma := ,
 REVIEW_NAME ?=
@@ -219,12 +219,15 @@ __gitlab_env:
 	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
 
 gitlab-review: __gitlab_env
-	$(eval RUN_CMD = make review)
+	$(eval RUN_CMD = make review review-refresh-ip)
 	$(gitlab-template)
 
-# TODO: doesn't work for some reason?
 gitlab-review-stop: __gitlab_env
 	$(eval RUN_CMD = make review-stop)
+	$(gitlab-template)
+
+gitlab-review-refresh-ip:
+	$(eval RUN_CMD = make review-refresh-ip)
 	$(gitlab-template)
 
 review:
@@ -234,11 +237,13 @@ review:
 		--image-name $(REVAPP_IMAGE_NAME) \
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
-	-@[ -n "$(CI_REGISTRY_IMAGE)" ] && echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" > deploy.env
 
 review-stop:
 	./ops/review_app.py remove $(REVAPP_NAME)
 
+review-refresh-ip:
+	$(eval APP_IP = $(shell ./ops/review_app.py status -f ip_address))
+	echo APP_IP=$(APP_IP) > deploy.env
 
 #---------------------------------------------
 # Misc. database
