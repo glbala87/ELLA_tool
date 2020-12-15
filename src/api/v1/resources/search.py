@@ -217,7 +217,7 @@ class SearchResource(LogRequestResource):
         matches = {"alleles": [], "analyses": []}
 
         if not search_query.check():
-            return matches
+            return matches, 0
         elif search_query.is_analyses_search():
             # Search analysis
             analyses, count = self._search_analysis(
