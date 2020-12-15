@@ -167,21 +167,9 @@ REVIEW_OPTS ?=
 
 # set var defaults for starting from local-review
 export REVAPP_NAME ?= $(BRANCH)
-export REVAPP_IMAGE_NAME ?= $(IMAGE_NAME)-review
-export REVAPP_IMAGE_TAR ?= images/$(REVAPP_IMAGE_NAME).tar
-export REVAPP_ENV_NAME ?= review/$(REVAPP_NAME)
-REVAPP_TAR_EXISTS = $(shell [ -f $(REVAPP_IMAGE_TAR) ] && echo yes || echo no)
-ifneq ($(shell which docker),)
-REVAPP_IMAGE_EXISTS = $(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes || echo no)
-else
-REVAPP_IMAGE_EXISTS = no
-endif
-ifeq ($(REVAPP_TAR_EXISTS),no)
-ifeq ($(REVAPP_IMAGE_EXISTS),no)
-LOCAL_STEPS = local-review-build local-review-tar
-else
-LOCAL_STEPS = local-review-tar
-endif
+export REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
+ifneq ($(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes),yes)
+LOCAL_STEPS = local-review-build
 endif
 
 
@@ -189,27 +177,24 @@ endif
 demo: REVIEW_OPTS=-p 3114:3114
 demo: REVIEW_NAME=demo
 demo:
-	docker build -t local/ella-$(REVIEW_NAME) --target dev .
+	docker build -t local/ella-$(REVIEW_NAME) --target review .
 	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
 	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
 	docker run -d \
 		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
 		--user $(UID):$(GID) \
-		-e ELLA_CONFIG=$(ELLA_CONFIG) \
-		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-		-e PRODUCTION=false \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e VIRTUAL_HOST=$(REVIEW_NAME) \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 		-e PORT=3114 \
+		-e PRODUCTION=false \
+		-e VIRTUAL_HOST=$(REVIEW_NAME) \
 		--expose 3114 \
 		$(REVIEW_OPTS) \
-		local/ella-$(REVIEW_NAME) \
-		supervisord -c /ella/ops/demo/supervisor.cfg
+		local/ella-$(REVIEW_NAME)
 	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
 	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
 
@@ -251,20 +236,16 @@ local-review-tar:
 local-review-build:
 	docker build $(BUILD_OPTIONS) -t $(REVAPP_IMAGE_NAME) --target production .
 
-
 local-review-stop: review-stop
 
-# TODO: image tar should be prod, not dev
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
-	echo ./ops/review_app.py --token $(DO_TOKEN) create \
-		--image-tar $(REVAPP_IMAGE_TAR) \
+	./ops/review_app.py --token $(DO_TOKEN) create \
 		--image-name $(REVAPP_IMAGE_NAME) \
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
 	echo "export APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
-	echo "export REVAPP_ENV_NAME=$(REVAPP_ENV_NAME)" >> deploy.env
 
 review-stop:
 	./ops/review_app.py remove $(REVAPP_NAME)

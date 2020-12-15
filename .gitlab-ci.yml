@@ -38,12 +38,15 @@ stages:
     <<: *cache
     policy: push
 
+.revapp-env: &revapp-env
+    name: review/$CI_BUILD_REF_SLUG
+
 # before_script actions
 .apk-setup: &apk-setup apk add --update make git
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
 
-# use anchors when using an env variable inside another
+# anchor magic as variable not getting fully resolved
 .revapp-image-name: &revapp-image-name $IMAGE_NAME-review
 
 # base jobs
@@ -57,9 +60,6 @@ stages:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
         REVAPP_IMAGE_NAME: *revapp-image-name
-
-.revapp-env: &revapp-env
-    name: review/$CI_BUILD_REF_SLUG
 
 .common-test: &common-test
     stage: test
@@ -77,15 +77,16 @@ stages:
 
 # jobs
 
-.build:
+build:
     stage: build
     before_script:
+        - *apk-setup
         - *docker-login
     script:
         - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
         - docker build $BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
-        - docker build $BUILD_OPTIONS --cache-from $REVAPP_IMAGE_NAME -t $REVAPP_IMAGE_NAME --label commit_sha=$CI_COMMIT_SHA --target review .
         - docker push $CI_REGISTRY_IMAGE:ci-latest
+        - docker build $BUILD_OPTIONS -t $REVAPP_IMAGE_NAME --label commit_sha=$CI_COMMIT_SHA --target review .
         - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
         - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
