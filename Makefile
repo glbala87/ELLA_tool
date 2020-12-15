@@ -241,15 +241,11 @@ local-review-stop: review-stop
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
-	echo ./ops/review_app.py --token $(DO_TOKEN) create \
+	./ops/review_app.py --token $(DO_TOKEN) create \
 		--image-name $(REVAPP_IMAGE_NAME) \
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
-	./ops/review_app.py list
-	./ops/review_app.py status -f ip_address
-	echo "inline: $$(./ops/review_app.py status -f ip_address)"
-	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
-	ls -l deploy.env
+	echo "APP_IP=$$(./ops/review_app.py status -f ip_address)" > deploy.env
 	cat deploy.env
 
 review-stop:
