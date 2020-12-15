@@ -5,7 +5,6 @@ import hashlib
 import json
 import logging
 import logging.config
-import os
 import time
 from base64 import b64decode
 from enum import Enum
@@ -19,7 +18,7 @@ from digitalocean import Droplet, Manager
 from paramiko import SSHClient
 from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
-from paramiko.ssh_exception import NoValidConnectionsError, SSHException
+from paramiko.ssh_exception import SSHException
 from scp import SCPClient
 
 logger_name = Path(__file__).stem
@@ -145,7 +144,7 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
             ssh.connect(
                 hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False
             )
-        except NoValidConnectionsError:
+        except TimeoutError:
             conn_attempts += 1
             logger.warn(f"Failed to connect to {hostname}. Attempting retry #{conn_attempts}...")
             continue
