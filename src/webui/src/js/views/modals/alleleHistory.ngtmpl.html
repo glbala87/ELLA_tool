@@ -42,30 +42,30 @@
                 </ul>
             </div>
             <div class="full-view">
-                <div class="bttn-set" tippy-title="Externally verified (e.g. with Sanger)">
-                    <label
-                        tabindex="0"
-                        ng-disabled="$ctrl.readOnly"
-                        class="bttn"
-                        ng-model="$ctrl.modelSelectedMode"
-                        ng-model-watch="$ctrl.selectedMode"
-                        ng-change="$ctrl.selectedModeChanged({selectedMode: $ctrl.modelSelectedMode})"
-                        uib-btn-radio="s"
-                        uncheckable="true"
-                        ng-repeat="s in ['classification', 'report']"
-                        >{{ s | uppercase }}</label
-                    >
-                </div>
                 <h4 class="section-header">Details</h4>
-                <div class="controls">
-                    <div class="dropdown">
-                        <select
-                            ng-model="$ctrl.modelSelected"
-                            ng-model-watch="$ctrl.selected"
-                            ng-options="element as $ctrl.formatSelection(element) for element in $ctrl.getDropdownItems()"
-                            ng-change="$ctrl.selectedChanged({selected: $ctrl.modelSelected})"
+                <div>
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            ng-disabled="$ctrl.readOnly"
+                            class="bttn"
+                            ng-model="$ctrl.modelSelectedMode"
+                            ng-model-watch="$ctrl.selectedMode"
+                            ng-change="$ctrl.selectedModeChanged({selectedMode: $ctrl.modelSelectedMode})"
+                            uib-btn-radio="s"
+                            uncheckable="true"
+                            ng-repeat="s in ['classification', 'report']"
+                            >{{ s | uppercase }}</label
                         >
-                        </select>
+                        <div class="dropdown">
+                            <select
+                                ng-model="$ctrl.modelSelected"
+                                ng-model-watch="$ctrl.selected"
+                                ng-options="element as $ctrl.formatSelection(element) for element in $ctrl.getDropdownItems()"
+                                ng-change="$ctrl.selectedChanged({selected: $ctrl.modelSelected})"
+                            >
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="history-details" ng-if="$ctrl.selectedMode === 'report'">
