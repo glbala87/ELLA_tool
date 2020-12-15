@@ -57,6 +57,7 @@ stages:
     variables:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
+        APP_IP: 165.22.88.235
 
 .common-test: &common-test
     stage: test
@@ -95,7 +96,8 @@ stages:
 start_review:
     extends: .revapp
     script:
-        - make gitlab-review
+        # - make gitlab-review
+        - echo why no work
     artifacts:
         reports:
             dotenv: deploy.env
