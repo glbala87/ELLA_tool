@@ -60,8 +60,7 @@ docker run -d \
 -e PRODUCTION=false \
 -e VIRTUAL_HOST={hostname} \
 -p 80:5000 \
-{image_name} \
-supervisord -c /ella/ops/demo/supervisor.cfg && \
+{image_name} && \
 docker exec revapp make dbreset
 """.strip()
 
@@ -205,7 +204,7 @@ def print_table(
             print(f"{cell : <{max_lens[i]}}", end=end_char)
 
 
-def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar: Path):
+def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
     ssh = get_ssh_conn(droplet.ip_address, pkey)
     # TODO: add option to show progress bar, is too noisy for runner loggers
     # scp = SCPClient(ssh.get_transport(), progress=scp_progress)
@@ -213,10 +212,6 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str, image_tar
 
     provision_ufw(ssh, scp)
     ssh_exec(ssh, f"docker pull {image_name} || true")
-    # logger.info(f"Uploading tar file")
-    # scp_put(scp, image_tar)
-    # logger.info(f"Loading docker image")
-    # ssh_exec(ssh, f"cat /root/{image_tar.name} | docker load")
     logger.info(f"Starting application")
     ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
     logger.info(f"Completed provisioning and starting of {droplet.name}")
@@ -388,14 +383,6 @@ def app(ctx, token: str, verbose: bool, debug: bool):
     help="size slug for the droplet",
 )
 @click.option(
-    "--image-tar",
-    envvar="REVAPP_IMAGE_TAR",
-    type=click.Path(exists=False, dir_okay=False),
-    callback=str2path,
-    required=True,
-    help="path to tarred docker image to be run as the review app",
-)
-@click.option(
     "--image-name",
     envvar="REVAPP_IMAGE_NAME",
     required=True,
@@ -416,9 +403,7 @@ def app(ctx, token: str, verbose: bool, debug: bool):
     help="replace review app of the same name, if found",
 )
 @click.pass_context
-def create(
-    ctx, name: str, size: str, image_tar: Path, image_name: str, ssh_key: RSAKey, replace: bool
-) -> None:
+def create(ctx, name: str, size: str, image_name: str, ssh_key: RSAKey, replace: bool) -> None:
     """ creates a new droplet to run the review app """
     exists = get_droplet(ctx.obj["mgr"], name)
     if exists:
@@ -450,20 +435,12 @@ def create(
             raise e
     logger.info(f"droplet {droplet.name} ready on {droplet.ip_address}")
 
-    provision_droplet(droplet, ssh_key, image_name, image_tar)
+    provision_droplet(droplet, ssh_key, image_name)
 
 
 # this won't work wtf
 @app.command(help="re-provision an existing review app")
 @click.argument("name", envvar="REVAPP_NAME", callback=format_name)
-@click.option(
-    "--image-tar",
-    envvar="REVAPP_IMAGE_TAR",
-    type=click.Path(exists=True, dir_okay=False),
-    callback=str2path,
-    required=True,
-    help="path to tarred docker image to be run as the review app",
-)
 @click.option(
     "--image-name",
     envvar="IMAGE_NAME",
@@ -478,13 +455,13 @@ def create(
     help="path to ssh private key to add to the review app (must be in digitalocean)",
 )
 @click.pass_context
-def provision(ctx, name: str, image_tar: Path, image_name: str, ssh_key: RSAKey):
+def provision(ctx, name: str, image_name: str, ssh_key: RSAKey):
     # TODO: set timeout option on digitalocean side
     logger.info(f"Re-provisioning name {name}")
     droplet = get_droplet(ctx.obj["mgr"], name)
     if droplet is None or droplet.status != "active":
         raise ValueError(f"Cannot re-provision a stopped or non-existent droplet: {name}")
-    provision_droplet(droplet, ssh_key, image_name, image_tar)
+    provision_droplet(droplet, ssh_key, image_name)
 
 
 @app.command(help="get the status of review app by branch name")
