@@ -96,8 +96,7 @@ stages:
 start_review:
     extends: .revapp
     script:
-        # - make gitlab-review
-        - echo why no work
+        - make gitlab-review
     artifacts:
         reports:
             dotenv: deploy.env
