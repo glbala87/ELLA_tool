@@ -1,12 +1,11 @@
 # bionic = 18.04
 FROM ubuntu:bionic-20200219 AS base
-MAINTAINER OUS AMG <ella-support@medisin.uio.no>
+LABEL maintainer="OUS AMG <ella-support@medisin.uio.no>"
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LANGUAGE C.UTF-8
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV VIRTUAL_ENV /dist/ella-python
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANGUAGE=C.UTF-8 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
@@ -14,9 +13,11 @@ RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     bash \
+    curl \
     gettext-base \
     ghostscript \
     git \
+    gnupg2 \
     htop \
     imagemagick \
     iotop \
@@ -50,7 +51,9 @@ RUN useradd -ms /bin/bash ella-user
 RUN mkdir -p /dist /logs /data /pg-data /socket && chown -R ella-user:ella-user /dist /logs /socket /data /pg-data
 
 # Tab completion for ella-cli
-ENV PATH=/ella/bin:${PATH}
+ENV PATH=/dist/ella-python/bin:/ella/bin:${PATH} \
+    PYTHONPATH=/ella/src \
+    VIRTUAL_ENV=/dist/ella-python
 RUN echo 'eval "$(_ELLA_CLI_COMPLETE=source ella-cli)"' >> /home/ella-user/.bashrc
 
 ####
@@ -66,10 +69,8 @@ RUN apt-get update && \
     ca-certificates \
     chromium-browser \
     chromium-chromedriver \
-    curl \
     fontconfig \
     gcc \
-    gnupg2 \
     graphviz \
     libffi-dev \
     libpq-dev \
@@ -139,7 +140,7 @@ FROM production AS review
 USER root
 COPY --from=dev --chown=ella-user:ella-user /pg-data /pg-data
 COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql/10 /usr/share/postgresql/10
-COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql/10 /usr/lib/postgresql/10
+COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql/10 /usr/lib/postgresql/10
 
 USER ella-user
 WORKDIR /ella
@@ -149,6 +150,3 @@ CMD ["supervisord", "-c" , "/ella/ops/demo/supervisor.cfg"]
 # Default is production
 #####
 FROM production
-
-ENV PATH="/dist/ella-python/bin:${PATH}"
-ENV PYTHONPATH="/ella/src:${PYTHONPATH}"
