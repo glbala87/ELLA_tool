@@ -246,6 +246,7 @@ review:
 		--ssh-key $(REVAPP_SSH_KEY) \
 		$(REVAPP_NAME)
 	echo "export APP_IP=$$(./ops/review_app.py status -f ip_address)" >> deploy.env
+	cat deploy.dev
 
 review-stop:
 	./ops/review_app.py remove $(REVAPP_NAME)
