@@ -17,7 +17,6 @@ function run() {
     else
         green "### ${name}: SUCCESS ###"
     fi
-    return $EXIT_CODE
 }
 
 run "black" "black --check /ella"
