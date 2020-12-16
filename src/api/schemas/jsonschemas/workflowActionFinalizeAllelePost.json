@@ -20,7 +20,7 @@
                 "reuseCheckedId": { "type": "integer" },
                 "allele_id": { "type": "integer" },
                 "attachment_ids": { "type": "array", "items": { "type": "integer" } },
-                "classification": { "enum": [null, "1", "2", "3", "4", "5", "U", "DR"] },
+                "classification": { "enum": [null, "1", "2", "3", "4", "5", "DR", "NP", "RF"] },
                 "evaluation": {
                     "$ref": "file://alleleAssessmentEvaluation.json#"
                 },
