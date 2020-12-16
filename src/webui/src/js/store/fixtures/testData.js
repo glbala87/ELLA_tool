@@ -260,8 +260,8 @@ const testUiConfig = {
         },
         options: [
             {
-                name: 'Class U',
-                value: 'U'
+                name: 'Not provided',
+                value: 'NP'
             },
             {
                 name: 'Class 1',
@@ -296,6 +296,10 @@ const testUiConfig = {
             {
                 name: 'Drug response',
                 value: 'DR'
+            },
+            {
+                name: 'Risk factor',
+                value: 'RF'
             }
         ]
     },

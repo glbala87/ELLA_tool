@@ -26,7 +26,9 @@ def classifications(session):
 def filter_data(draw):
     classes = draw(
         st.lists(
-            elements=st.sampled_from(["1", "2", "3", "4", "5", "U", "DR", "non-existing-class"]),
+            elements=st.sampled_from(
+                ["1", "2", "3", "4", "5", "DR", "NP", "RF", "non-existing-class"]
+            ),
             unique=True,
         )
     )
