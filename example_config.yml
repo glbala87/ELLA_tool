@@ -256,8 +256,8 @@ classification:
             - MSH6
             - PMS2
     options:
-        - name: Class U
-          value: U
+        - name: Not provided
+          value: NP
         - name: Class 1
           value: '1'
         - name: Class 2
@@ -280,6 +280,8 @@ classification:
           include_analysis_with_findings: true
         - name: Drug response
           value: DR
+        - name: Risk factor
+          value: RF
 report:
     classification_text:
         '1': Benign variant

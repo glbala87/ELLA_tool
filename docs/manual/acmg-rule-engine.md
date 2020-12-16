@@ -20,7 +20,7 @@ Note that these suggestions do not remove the need for expert judgement: The sug
     <br>
 </div>
 
-Note that classification suggestions only include class 1-5 (not class U or DR), and any non-ACMG ("other") or ACMG criteria set as "not weighted" are disregarded in the calculation. 
+Note that classification suggestions only include class 1-5 (not class NP, RF, or DR), and any non-ACMG ("other") or ACMG criteria set as "not weighted" are disregarded in the calculation. 
 
 ## REQ: Requirements
 
