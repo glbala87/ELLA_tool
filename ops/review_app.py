@@ -2,17 +2,17 @@
 
 import datetime
 import hashlib
-from functools import wraps
 import json
 import logging
 import logging.config
-from socket import timeout as SocketTimeout
 import time
 from base64 import b64decode
 from enum import Enum
+from functools import wraps
 from operator import itemgetter
 from pathlib import Path
-from typing import Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from socket import timeout as SocketTimeout
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import click
 import requests
@@ -21,7 +21,7 @@ from paramiko import SSHClient
 from paramiko.buffered_pipe import PipeTimeout
 from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
-from paramiko.ssh_exception import NoValidConnectionsError, SSHException
+from paramiko.ssh_exception import NoValidConnectionsError
 from requests.exceptions import ConnectionError, ConnectTimeout
 from scp import SCPClient
 
