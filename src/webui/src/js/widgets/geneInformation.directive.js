@@ -38,7 +38,7 @@ app.component('geneInformation', {
                         }
                     },
                     getHgmdLink() {
-                        return `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
+                        return `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
                     },
                     getFrequencyExternal() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {
