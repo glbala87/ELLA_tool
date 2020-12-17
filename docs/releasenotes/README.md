@@ -74,7 +74,7 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
-<!-- MR !450 TODO: QA, update manual/top-bar.html#gene-information -->
+<!-- MR !450 -->
 - Added support for templates in the Gene information comment field.
 <!-- MR !453 -->
 - Fixed wrong tooltip on `SUBMIT REPORT` button

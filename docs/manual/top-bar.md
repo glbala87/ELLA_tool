@@ -55,7 +55,7 @@ PHENOTYPES | Associated phenotypes, specified in the gene panel. | [Gene panels]
 BS1/BA1 CUTOFF | Frequency thresholds for automatic suggestions of the corresponding ACMG-AMP criteria (divided by external and internal database). | [User group-specific ACMG rules](/technical/acmg.html#user-group-rules)
 GENE COMMENTS | User-added gene information. | (see below)
 
-The GENE COMMENTS field is editable; click the `EDIT` button and `UPDATE` when you have made changes. If a comment has been added, an `INFO` tag is shown next to the gene name. 
+The GENE COMMENTS field is editable; click the `EDIT` button and `UPDATE` when you have made changes. This can be done even if the analysis itself has not been started. If a comment has been added, an `INFO` tag is shown next to the gene name. 
 
 ::: warning NOTE
 In the current iteration, no collision warnings will be shown if another user is editing the information at the same time, and there is a risk for overwriting each other's work if this happens. 
