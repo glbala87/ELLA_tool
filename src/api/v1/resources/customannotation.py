@@ -95,7 +95,7 @@ class CustomAnnotationList(LogRequestResource):
         ca_data = {"user_id": user.id, "annotations": data["annotations"], "allele_id": allele_id}
 
         if existing_ca:
-            # Replace current, but only update existing_ca.annotations
+            # Update existing_ca.annotations
             ca_data["annotations"] = {
                 **(existing_ca.annotations if existing_ca.annotations else {}),
                 **data["annotations"],
