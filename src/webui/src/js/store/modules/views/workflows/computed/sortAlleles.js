@@ -88,9 +88,17 @@ function getSortFunctions(
             return verificationStatus[allele.id] === 'technical' ? 1 : -1
         },
         classification: (allele) => {
-            return config.classification.options.findIndex(
+            let idx = config.classification.options.findIndex(
                 (o) => o.value === classification[allele.id].classification
             )
+
+            if (idx === undefined) {
+                return
+            } else if ('sort_index' in config.classification.options[idx]) {
+                return config.classification.options[idx].sort_index
+            } else {
+                return idx
+            }
         },
         warning: (allele) => {
             return allele.warnings ? -1 : 1

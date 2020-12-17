@@ -260,10 +260,6 @@ const testUiConfig = {
         },
         options: [
             {
-                name: 'Not provided',
-                value: 'NP'
-            },
-            {
                 name: 'Class 1',
                 value: '1'
             },
@@ -294,12 +290,16 @@ const testUiConfig = {
                 include_analysis_with_findings: true
             },
             {
+                name: 'Risk factor',
+                value: 'RF'
+            },
+            {
                 name: 'Drug response',
                 value: 'DR'
             },
             {
-                name: 'Risk factor',
-                value: 'RF'
+                name: 'Not provided',
+                value: 'NP'
             }
         ]
     },

@@ -225,27 +225,27 @@ class AlleleSectionBox {
     }
 
     classifyAsNP() {
-        this._setClassification(2)
+        this._setClassification(9)
     }
 
     classifyAs1() {
-        this._setClassification(3)
+        this._setClassification(2)
     }
 
     classifyAs2() {
-        this._setClassification(4)
+        this._setClassification(3)
     }
 
     classifyAs3() {
-        this._setClassification(5)
+        this._setClassification(4)
     }
 
     classifyAs4() {
-        this._setClassification(6)
+        this._setClassification(5)
     }
 
     classifyAs5() {
-        this._setClassification(7)
+        this._setClassification(6)
     }
 
     unclassify() {

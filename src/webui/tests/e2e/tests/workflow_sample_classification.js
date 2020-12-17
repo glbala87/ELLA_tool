@@ -329,7 +329,7 @@ describe('Sample workflow', function() {
 
         // Finalize all classified variants (we're now in "Review" workflow status)
         const numberOfClassified = alleleSidebar.countOfClassified()
-        for (let idx = 1; idx < numberOfClassified; idx++) {
+        for (let idx = 1; idx < numberOfClassified + 1; idx++) {
             alleleSidebar.selectClassifiedAlleleByIdx(idx)
             alleleSectionBox.finalize()
         }
