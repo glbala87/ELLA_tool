@@ -347,7 +347,7 @@ def patch_annotation_job(annotation_jobs, id, updates):
     except Exception as e:
         log.error(
             "Failed patch of annotation job {id} ({update}): {error}".format(
-                id, str(updates), getattr(e, "message", str(e))
+                id=id, update=str(updates), error=getattr(e, "message", str(e))
             )
         )
         annotation_jobs.rollback()

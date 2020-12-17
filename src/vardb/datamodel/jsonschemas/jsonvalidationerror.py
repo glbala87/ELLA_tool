@@ -23,9 +23,7 @@ def concatenate_json_validation_errors(session, data, schema_name):
         try:
             jsonschema.validate(data, schema)
             error_message.append(
-                "Unexpectedly passed python jsonschema validate. This suggests a discrepancy between postgres json validation and python json validation.".format(
-                    schema_name, version
-                )
+                "Unexpectedly passed python jsonschema validate. This suggests a discrepancy between postgres json validation and python json validation."
             )
         except jsonschema.ValidationError as e:
             error_message.append(format(e))
