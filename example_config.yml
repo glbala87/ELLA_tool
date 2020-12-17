@@ -90,7 +90,7 @@ analysis:
                 unclassified:
                     - technical
                     - notrelevant
-                    - classu
+                    - classnp
                     - class2
                 classified: []
                 not_relevant: []

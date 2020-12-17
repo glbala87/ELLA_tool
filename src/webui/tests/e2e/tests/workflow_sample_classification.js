@@ -137,12 +137,12 @@ describe('Sample workflow', function() {
             analysisComment: 'NOTRELEVANT_ROUND_1'
         }
 
-        alleleSidebar.quickClassU('c.1788T>C')
+        alleleSidebar.quickClassNP('c.1788T>C')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
         alleleSidebar.setEvaluationComment('c.1788T>C', 'EVALUATION_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
-            classification: 'U',
+            classification: 'NP',
             evaluation: 'EVALUATION_ROUND_1'
         }
 

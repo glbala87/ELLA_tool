@@ -10,7 +10,7 @@ import hypothesis.strategies as st
 def classifications(session):
     c = {}
     for i in range(1, 7):
-        c[i] = str(i) if i < 6 else "U"
+        c[i] = str(i) if i < 6 else "NP"
         assm = assessment.AlleleAssessment(
             user_id=1,
             allele_id=i,

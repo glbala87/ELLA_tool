@@ -135,7 +135,6 @@ If in ANALYSES mode, this moves the variant to CLASSIFIED VARIANTS in the varian
 
 ::: warning NOTES
 - Suggestions are only made for CLASS 1-5.
-- Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!
 :::
 
 ## Finalize variant

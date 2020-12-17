@@ -40,7 +40,7 @@ describe(`Variant workflow (using ${OUR_VARIANT})`, function() {
         analysisPage.setGeneComment('GENE COMMENT TEST')
         expect(analysisPage.getGeneComment()).toBe('GENE COMMENT TEST')
 
-        alleleSectionBox.classifyAsU()
+        alleleSectionBox.classifyAsNP()
 
         // Evaluate one reference
         let referenceTitle = alleleSectionBox.evaluateReference(1)

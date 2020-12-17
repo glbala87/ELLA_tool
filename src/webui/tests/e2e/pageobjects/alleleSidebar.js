@@ -190,11 +190,11 @@ class AlleleSidebar extends Page {
         ).click()
     }
 
-    quickClassU(allele) {
+    quickClassNP(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
         $(
             `allele-sidebar .id-unclassified .nav-row:nth-child(${alleleIdx +
-                2}) .quick-classification .id-quick-classu`
+                2}) .quick-classification .id-quick-classnp`
         ).click()
     }
 

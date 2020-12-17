@@ -163,7 +163,7 @@ const testUiConfig = {
             },
             quick: {
                 columns: ['qual', 'dp', 'ratio', 'hi-freq', 'hi-count', 'external'],
-                classification_options: ['technical', 'notrelevant', 'classu', 'class2'],
+                classification_options: ['technical', 'notrelevant', 'classnp', 'class2'],
                 narrow_comment: false,
                 shade_multiple_in_gene: true
             },
