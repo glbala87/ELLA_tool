@@ -5,22 +5,23 @@ import hashlib
 import json
 import logging
 import logging.config
-import socket
 import time
 from base64 import b64decode
 from enum import Enum
+from functools import wraps
 from operator import itemgetter
 from pathlib import Path
+from socket import timeout as SocketTimeout
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import click
-import paramiko
 import requests
 from digitalocean import Droplet, Manager
 from paramiko import SSHClient
+from paramiko.buffered_pipe import PipeTimeout
 from paramiko.client import AutoAddPolicy
 from paramiko.rsakey import RSAKey
-from paramiko.ssh_exception import NoValidConnectionsError, SSHException
+from paramiko.ssh_exception import NoValidConnectionsError
 from requests.exceptions import ConnectionError, ConnectTimeout
 from scp import SCPClient
 
@@ -109,6 +110,72 @@ To                         Action      From
 """.strip()  # noqa: W291
 
 
+class RetriesExceeded(Exception):
+    err_list: List[Exception] = []
+
+    def __init__(self, num_retries: int, errors=[], msg: str = None, args=[], kwargs={}):
+        if msg is not None:
+            self.msg = msg.format(num_retries=num_retries, *args, **kwargs)
+        else:
+            self.msg = f"Command failed after exceeding {num_retries} retries"
+        super().__init__(msg)
+        self.err_list = errors
+
+
+### utility funcs
+
+
+def retry(catch_exc, max_retries: int = ssh_max_retries, delay: int = 15, err_msg: str = None):
+    if isinstance(catch_exc, Exception):
+        catch_exc = (catch_exc,)
+
+    def try_again(attempt_num):
+        return attempt_num <= max_retries
+
+    def deco_retry(f):
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            num_retries = 0
+            err_list = []
+            while try_again(num_retries):
+                try:
+                    return f(*args, **kwargs)
+                except catch_exc as e:
+                    err_list.append(e)
+                    backoff = delay * 2 ** num_retries
+                    logger.error(f"{type(e).__name__}: {e}")
+                    num_retries += 1
+                    if try_again(num_retries):
+                        logger.warning(f"Attempting retry #{num_retries} in {backoff}s")
+                        time.sleep(backoff)
+            raise RetriesExceeded(max_retries, err_list, err_msg, args, kwargs)
+
+        return f_retry
+
+    return deco_retry
+
+
+def str2key(ctx, param: click.Parameter, value: str) -> RSAKey:
+    key_file = Path(value)
+    if not key_file.exists():
+        raise click.BadParameter(f"Key {value} does not exist")
+    rsa_key = RSAKey.from_private_key(key_file.open())
+    return rsa_key
+
+
+def str2list(ctx, param: click.Parameter, value: Optional[str]) -> List[str]:
+    if value is None:
+        return []
+    new_list = [f for f in value.split(",") if f != ""]
+    if len(new_list):
+        return new_list
+    raise click.BadParameter(f"invalid value '{value}' received for {param.human_readable_name}'")
+
+
+def str2path(ctx, param, value: str) -> Path:
+    return Path(value) if value is not None else None
+
+
 ### funcs
 
 
@@ -136,25 +203,17 @@ def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Optional[Dro
     return by_name[0]
 
 
+@retry(
+    (TimeoutError, NoValidConnectionsError),
+    err_msg="Failed to connect to {2}@{1} after {max_retries}",
+)
 def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClient:
     logger.debug(f"Creating ssh connection to {hostname}")
     ssh = SSHClient()
     ssh.set_missing_host_key_policy(AutoAddPolicy)
-    conn_attempts = 0
-    conn_success = False
-    while conn_attempts < ssh_max_retries and conn_success is False:
-        try:
-            ssh.connect(
-                hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False
-            )
-        except (TimeoutError, NoValidConnectionsError):
-            conn_attempts += 1
-            logger.warning(f"Failed to connect to {hostname}. Attempting retry #{conn_attempts}...")
-            continue
-        conn_success = True
-    if conn_success:
-        return ssh
-    raise SSHException(f"Unable to connect to {hostname}:22 after {conn_attempts} tries")
+
+    ssh.connect(hostname, username=username, pkey=pkey, allow_agent=False, look_for_keys=False)
+    return ssh
 
 
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
@@ -245,6 +304,8 @@ def scp_progress(filename: str, size: int, sent: int) -> None:
     print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
 
 
+# TODO: narrow down what exceptions this might throw
+@retry(Exception)
 def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
     if isinstance(files, Path):
         put_files = [str(files)]
@@ -262,35 +323,19 @@ def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
     logger.info(f"Finished uploading file(s) {str_files} after {xfer_total}")
 
 
+@retry((SocketTimeout, PipeTimeout), err_msg="SSH cmd '{1}' failed after {max_retries}")
 def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
     """ use to get nicer output from SSHClient.exec_command """
     logger.debug(f"Executing '{cmd}'")
     if "timeout" not in kwargs:
         kwargs["timeout"] = ssh_default_timeout
 
-    retries = 0
-    success = False
-    exceptions = []
-    while retries < ssh_max_retries and success is False:
-        try:
-            _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
-        except (socket.timeout, paramiko.BufferedPipeTimeout) as e:
-            retries += 1
-            exceptions.append(e)
-            logger.warning(f"Command timed out. Attempting retry #{retries}")
-            continue
-
-        out_str: str = stdout.read().decode("utf-8").strip()
-        err_str: str = stderr.read().decode("utf-8").strip()
-        logger.debug(f"output: {out_str}")
-        logger.debug(f"error:  {err_str}")
-        success = True
-
-    if not success:
-        logger.error(f"Command '{cmd}' failed after {retries} attempts. Final error:")
-        raise exceptions[-1]
-
-    return out_str, err_str  # type: ignore
+    _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
+    out_str: str = stdout.read().decode("utf-8").strip()
+    err_str: str = stderr.read().decode("utf-8").strip()
+    logger.debug(f"output: {out_str}")
+    logger.debug(f"error:  {err_str}")
+    return out_str, err_str
 
 
 def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[Droplet] = None):
@@ -333,27 +378,6 @@ def revapp_status(droplet: Droplet) -> RevappStatus:
     if resp.ok:
         return RevappStatus.OK
     return RevappStatus.ServerError
-
-
-def str2key(ctx, param: click.Parameter, value: str) -> RSAKey:
-    key_file = Path(value)
-    if not key_file.exists():
-        raise click.BadParameter(f"Key {value} does not exist")
-    rsa_key = RSAKey.from_private_key(key_file.open())
-    return rsa_key
-
-
-def str2list(ctx, param: click.Parameter, value: Optional[str]) -> List[str]:
-    if value is None:
-        return []
-    new_list = [f for f in value.split(",") if f != ""]
-    if len(new_list):
-        return new_list
-    raise click.BadParameter(f"invalid value '{value}' received for {param.human_readable_name}'")
-
-
-def str2path(ctx, param, value: str) -> Path:
-    return Path(value) if value is not None else None
 
 
 def trim_droplet(drop: Droplet, detailed=False) -> Dict:
