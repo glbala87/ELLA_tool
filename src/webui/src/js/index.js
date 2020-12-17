@@ -4,6 +4,7 @@ import '../sass/main.scss'
 // Import here for template handling to be injected correctly
 import angular from 'angular'
 import Router from './router'
+import ExceptionHandling from './exceptionhandling'
 
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.

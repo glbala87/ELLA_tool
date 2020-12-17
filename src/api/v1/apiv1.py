@@ -124,6 +124,8 @@ class ApiV1(object):
 
         self._add_resource(r.search.SearchOptionsResource, "/api/v1/search/options/")
 
+        self._add_resource(r.ui.ExceptionLog, "/api/v1/ui/exceptionlog/")
+
         self._add_resource(r.user.UserListResource, "/api/v1/users/")
 
         self._add_resource(r.user.UserResource, "/api/v1/users/<int:user_id>/")

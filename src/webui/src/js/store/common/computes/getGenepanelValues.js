@@ -17,6 +17,10 @@ export default (genepanel) => {
     return Compute(genepanel, state`app.config.user.user_config.acmg`, (genepanel, acmgConfig) => {
         const result = {}
 
+        if (genepanel === undefined) {
+            return result
+        }
+
         const uniqueHgncIds = new Set(genepanel.transcripts.map((t) => t.gene.hgnc_id))
         for (let hgncId of uniqueHgncIds) {
             result[hgncId] = {}

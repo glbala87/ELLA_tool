@@ -407,7 +407,7 @@ def populate_g_user():
         g.user = user_session.user
 
 
-def authenticate(user_config=False, optional=False):
+def authenticate(user_config=False, usersession=False, optional=False):
     """
     Decorator that works in conjunction with flask's 'g' object
     in a before_request trigger, in order to auth the user as
@@ -422,6 +422,10 @@ def authenticate(user_config=False, optional=False):
             if g.user:
                 # Logged in
                 kwargs["user"] = g.user
+
+                if usersession:
+                    kwargs["usersession_id"] = g.usersession_id
+
                 # Merge users config
                 if user_config:
                     kwargs["user_config"] = get_user_config(

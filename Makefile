@@ -430,6 +430,8 @@ test-e2e:
 	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
+	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
@@ -463,8 +465,11 @@ e2e-test-local: test-build
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
+	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+	   -e API_PORT=28752 \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -p 5000:5000 -p 5859:5859 \
+	   -p 28752:28752 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \
