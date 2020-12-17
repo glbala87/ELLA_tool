@@ -43,7 +43,7 @@ logging.config.dictConfig(log_config)
 logger = logging.getLogger(logger_name)
 
 default_region = "fra1"
-default_size = "s-2vcpu-4gb"
+default_size = "s-2vcpu-2gb"
 default_droplet_image = "docker-20-04"
 default_tag = "gitlab-review-app"
 
@@ -113,11 +113,11 @@ To                         Action      From
 class RetriesExceeded(Exception):
     err_list: List[Exception] = []
 
-    def __init__(self, num_retries: int, errors=[], msg: str = None, args=[], kwargs={}):
+    def __init__(self, max_retries: int, errors=[], msg: str = None, args=[], kwargs={}):
         if msg is not None:
-            self.msg = msg.format(num_retries=num_retries, *args, **kwargs)
+            self.msg = msg.format(max_retries=max_retries, *args, **kwargs)
         else:
-            self.msg = f"Command failed after exceeding {num_retries} retries"
+            self.msg = f"Command failed after exceeding {max_retries} retries"
         super().__init__(msg)
         self.err_list = errors
 
@@ -135,18 +135,18 @@ def retry(catch_exc, max_retries: int = ssh_max_retries, delay: int = 15, err_ms
     def deco_retry(f):
         @wraps(f)
         def f_retry(*args, **kwargs):
-            num_retries = 0
+            retry_num = 0
             err_list = []
-            while try_again(num_retries):
+            while try_again(retry_num):
                 try:
                     return f(*args, **kwargs)
                 except catch_exc as e:
                     err_list.append(e)
-                    backoff = delay * 2 ** num_retries
+                    backoff = delay * 2 ** retry_num
                     logger.error(f"{type(e).__name__}: {e}")
-                    num_retries += 1
-                    if try_again(num_retries):
-                        logger.warning(f"Attempting retry #{num_retries} in {backoff}s")
+                    retry_num += 1
+                    if try_again(retry_num):
+                        logger.warning(f"Attempting retry #{retry_num} in {backoff}s")
                         time.sleep(backoff)
             raise RetriesExceeded(max_retries, err_list, err_msg, args, kwargs)
 
