@@ -69,7 +69,6 @@ stages:
     tags:
         - do-small
     except:
-        - /^ui-.*$/
         - /^ops-.*$/
 
 # jobs
