@@ -6,6 +6,7 @@ local_settings.py
 .cache/
 __pycache__/
 ops/builder/venv
+images/
 
 # Packages
 *.egg

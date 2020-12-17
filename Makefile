@@ -6,7 +6,7 @@ GID ?= 1000
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 
 CONTAINER_NAME ?= ella-$(BRANCH)
-IMAGE_NAME ?= local/ella-$(BRANCH)
+export IMAGE_NAME ?= local/ella-$(BRANCH)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -34,13 +34,13 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
+TMP_DIR ?= /tmp
 ifeq ($(CI_REGISTRY_IMAGE),)
 # running locally, use interactive
 TERM_OPTS := -it
 else
 TERM_OPTS := -t
 endif
-
 
 
 .PHONY: help
@@ -159,47 +159,91 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop local-review local-review-stop gitlab-review-refresh-ip review-refresh-ip
 
 comma := ,
 REVIEW_NAME ?=
 REVIEW_OPTS ?=
 
+# set var defaults for starting from local-review
+export REVAPP_NAME ?= $(BRANCH)
+export REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
+ifneq ($(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes),yes)
+LOCAL_STEPS = local-review-build
+endif
+
+
 # Demo is just a review app, with port mapped to system
 demo: REVIEW_OPTS=-p 3114:3114
 demo: REVIEW_NAME=demo
-demo: review
 demo:
+	docker build -t local/ella-$(REVIEW_NAME) --target review .
+	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
+	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
+	docker run -d \
+		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
+		--user $(UID):$(GID) \
+		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
+		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+		-e PORT=3114 \
+		-e PRODUCTION=false \
+		-e VIRTUAL_HOST=$(REVIEW_NAME) \
+		--expose 3114 \
+		$(REVIEW_OPTS) \
+		local/ella-$(REVIEW_NAME)
+	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
 	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
 	docker rm -f ella-demo
 
 # Review apps
+define gitlab-template
+docker run --rm $(TERM_OPTS) \
+	--user $(UID):$(GID) \
+	-v $(shell pwd):/ella \
+	-v $(TMP_DIR):/tmp \
+	$(ELLA_OPTS) \
+	$(REVAPP_IMAGE_NAME) \
+	bash -ic "$(RUN_CMD) $(RUN_CMD_ARGS)"
+endef
+
+__gitlab_env:
+	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
+	echo "PRODUCTION=false" >> review_env
+	$(eval ELLA_OPTS += --env-file=review_env)
+	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
+
+gitlab-review: __gitlab_env
+	$(eval RUN_CMD = make review review-refresh-ip)
+	$(gitlab-template)
+
+gitlab-review-stop: __gitlab_env
+	$(eval RUN_CMD = make review-stop)
+	$(gitlab-template)
+
+gitlab-review-refresh-ip:
+	$(eval RUN_CMD = make review-refresh-ip)
+	$(gitlab-template)
+
 review:
-	$(call check_defined, REVIEW_NAME)
-	docker build -t local/ella-$(REVIEW_NAME) --target dev .
-	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
-	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
-	docker run -d \
-		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
-		--user $(UID):$(GID) \
-		-e ELLA_CONFIG=$(ELLA_CONFIG) \
-		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
-		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-		-e PRODUCTION=false \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e VIRTUAL_HOST=$(REVIEW_NAME) \
-		-e PORT=3114 \
-		--expose 3114 \
-		$(REVIEW_OPTS) \
-		local/ella-$(REVIEW_NAME) \
-		supervisord -c /ella/ops/demo/supervisor.cfg
-	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
+	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
+	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
+	./ops/review_app.py --token $(DO_TOKEN) create \
+		--image-name $(REVAPP_IMAGE_NAME) \
+		--ssh-key $(REVAPP_SSH_KEY) \
+		$(REVAPP_NAME)
+
+review-stop:
+	./ops/review_app.py remove $(REVAPP_NAME)
+
+review-refresh-ip:
+	$(eval APP_IP = $(shell ./ops/review_app.py status -f ip_address))
+	echo APP_IP=$(APP_IP) > deploy.env
 
 #---------------------------------------------
 # Misc. database
