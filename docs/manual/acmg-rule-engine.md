@@ -8,7 +8,7 @@ title: ACMG rules engine
 
 ## Generating suggestions
 
-ELLA suggests ACMG criteria and classifications based on the official guidelines described in [Richards et al. 2015](https://pubmed.ncbi.nlm.nih.gov/25741868). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirements (REQs), prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
+ELLA suggests ACMG criteria and classifications based on the official guidelines described in [Richards et al. 2015](https://www.nature.com/articles/gim201530). To achieve this, certain ACMG criteria have been split into more granulated gene panel parameters and requirements (REQs), prior mapping of annotation to these codes, as well as structuring data gathered from user evaluation of literature references and studies.
 
 Note that these suggestions do not remove the need for expert judgement: The suggestions generated for both ACMG criteria and variant classifications need to be verified and may be overridden, and you may also add ACMG criteria manually. **Figure 1** below gives an overview of this process:
 
@@ -20,7 +20,7 @@ Note that these suggestions do not remove the need for expert judgement: The sug
     <br>
 </div>
 
-Note that classification suggestions only include class 1-5 (not class U or DR), and any non-ACMG ("other") or ACMG criteria set as "not weighted" are disregarded in the calculation. 
+Note that classification suggestions only include "Class 1-5" (not "Risk factor", "Drug response" or "Not provided"), and any non-ACMG ("Other") or ACMG criteria set as "Not weighted" are disregarded in the calculation. 
 
 ## REQ: Requirements
 

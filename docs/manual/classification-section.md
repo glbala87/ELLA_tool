@@ -133,16 +133,24 @@ Based on the particular ACMG criteria you have added, ELLA [suggests a classific
 
 <div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
 
+::: warning NOTES
+Suggestions for classification are only made for `CLASS 1-5`, not the other choices below.
+:::
+
 As with suggested criteria, you are free to ignore the suggestion, and you must always actively set a classification yourself before it takes effect. Once you have made a decision, select the corresponding class in the pull-down menu in the section bar:
 
 <div style="text-indent: 4%;"><img src="./img/select_class.png"></div>
 
-If in ANALYSES mode, this moves the variant to CLASSIFIED VARIANTS in the variant side bar.
+The variant classification choices should be interpreted in line with [ClinVar's definitions](https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/): 
 
-::: warning NOTES
-- Suggestions are only made for CLASS 1-5.
-- Class U is never outdated, and should be used with caution, as it will be valid for all subsequent samples!
-:::
+Option  | Explanation
+:--- | :---
+`CLASS 1-5` | In accordance with [ACMG guidelines](https://www.nature.com/articles/gim201530).
+`RISK FACTOR` | For variants that are interpreted not to cause a disorder but to increase the risk.
+`DRUG RESPONSE` | For variants that affect a drug response, not a disease.
+`NOT PROVIDED` | For recording various information (e.g. literature findings, research into functional significance, observed phenotypes) without interpreting clinical significance.
+
+If in ANALYSES mode, making a classification selection moves the variant to CLASSIFIED VARIANTS in the variant side bar.
 
 ## Finalize variant
 

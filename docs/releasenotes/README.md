@@ -20,6 +20,24 @@ Release date: TBD
 
 This release includes many smaller fixes and improvements. 
 
+#### Redefined classification choices
+
+<!-- MR !477 -->
+Variant classification choices have been redefined in line with [ClinVar definitions](https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/): 
+- `CLASS U` was renamed to `NOT PROVIDED`, meant for recording various information (literature/research/clinical/phenotyping) without interpreting clinical significance. It is recommended to configure this class to be immediately outdated.
+- The choice `RISK FACTOR` was added, meant for variants that are interpreted not to cause a disorder but to increase the risk.
+
+The classification choices are now: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-select-class.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Redefined variant classification choices.
+    </div>
+    <br>
+</div>
+
 #### Improvements to history
 
 <!-- MR !454 -->
@@ -48,12 +66,12 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 
 ### All changes
 
-<!-- MR !429: no release note, but needs technical docs?
-- Improved analysis file for import -->
+<!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478 -->
+- Several fixes and improvements to development environment and code base.
+<!-- MR !433 -->
+- Search result limit has been increased from 10 to 100.
 <!-- MR !435 -->
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
-<!-- MR !443, !446, !462, !464, !468, !470 -->
-- Several fixes and improvements to development environment and code base.
 <!-- MR !444 -->
 - Made allele list in top bar scrollable when number of transcripts exceed 3. 
 <!-- MR !450 TODO: QA, update manual/top-bar.html#gene-information -->
@@ -67,7 +85,7 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 <!-- MR !456 TODO: QA, update manual/warnings.html#annotation-warnings -->
 - Display message when variant in ongoing analysis has been updated by another user.
 <!-- MR !458 TODO: QA, update manual/warnings.html -->
-- Collision warnings are now separated from variant warnings on the Classification page.
+- Collision warnings are now separated from variant warnings on the CLASSIFICATION page.
 <!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
 <!-- MR !465 -->
@@ -76,6 +94,8 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Added possibility for showing attachments on the INFO page.
 <!-- MR !475 -->
 - Updated HGMD Pro links to point to new base url. 
+<!-- MR !477 -->
+- [Redefined classification choices in line with ClinVar definitions](#redefined-classification-choices).
 
 
 ## Version 1.11.3
