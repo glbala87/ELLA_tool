@@ -44,11 +44,10 @@ app.component('search', {
                         return 'NEW'
                     },
                     getSearchResultSummary: () => {
-                        return `${TYPES.find((t) => t.type === $ctrl.query.type).name} (
-                        ${
+                        return `${TYPES.find((t) => t.type === $ctrl.query.type).name} (${
                             $ctrl.totalCount >= $ctrl.limit
                                 ? 'showing first ' + $ctrl.totalCount
-                                : totalCount
+                                : $ctrl.totalCount
                         })`
                     },
                     getSearchTypes: () => {

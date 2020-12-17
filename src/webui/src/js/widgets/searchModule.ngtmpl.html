@@ -102,7 +102,10 @@
                 </div>
             </article>
             <div class="search-results" ng-if="$ctrl.results">
-                <h4 ng-if="$ctrl.results.alleles.length" class="section-header">
+                <h4
+                    ng-if="$ctrl.results.alleles.length || $ctrl.results.analyses.length"
+                    class="section-header"
+                >
                     {{ $ctrl.getSearchResultSummary() }}
                 </h4>
                 <uib-pagination
