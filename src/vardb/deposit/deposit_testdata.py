@@ -7,7 +7,6 @@ import os
 import sys
 import logging
 import json
-import glob
 import re
 import datetime
 
@@ -161,34 +160,14 @@ class DepositTestdata(object):
             if not os.path.isdir(analysis_path):
                 continue
             try:
-                analysis_vcf_path = glob.glob(os.path.join(analysis_path, "*.vcf"))[0]
-                analysis_ped_path = None
-                ped_glob = glob.glob(os.path.join(analysis_path, "*.ped"))
-                if ped_glob:
-                    analysis_ped_path = ped_glob[0]
-                filename = os.path.basename(analysis_vcf_path)
-                matches = re.match(DepositTestdata.ANALYSIS_FILE_RE, filename)
-
-                analysis_name = matches.group("analysis_name")
-                gp_name = matches.group("genepanel_name")
-                gp_version = matches.group("genepanel_version")
-
+                acd = AnalysisConfigData(analysis_path)
+                acd["warnings"] = WARNINGS_EXAMPLE if acd["genepanel_name"] == "HBOC" else None
+                acd["report"] = REPORT_EXAMPLE
+                acd["date_requested"] = datetime.datetime.now().strftime("%Y-%m-%d")
                 da = DepositAnalysis(self.session)
-                acd = AnalysisConfigData(
-                    analysis_vcf_path,
-                    analysis_name,
-                    gp_name,
-                    gp_version,
-                    "1",
-                    date_requested=datetime.datetime.now().strftime("%Y-%m-%d"),
-                    ped_path=analysis_ped_path,
-                    warnings=WARNINGS_EXAMPLE if gp_name == "HBOC" else None,
-                    report=REPORT_EXAMPLE,
-                )
-
                 da.import_vcf(acd)
 
-                log.info("Deposited {} as analysis".format(analysis_name))
+                log.info("Deposited {} as analysis".format(acd["name"]))
                 self.session.commit()
 
             except UserWarning as e:

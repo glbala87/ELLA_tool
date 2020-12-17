@@ -374,7 +374,7 @@ class DepositAnalysis(DepositFromVCF):
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
 
-    def import_vcf(self, analysis_config_data, sample_type="HTS", append=False):
+    def import_vcf(self, analysis_config_data, append=False):
         """
         Deposit related configs can be defined in the usergroup configs.
 
@@ -396,28 +396,21 @@ class DepositAnalysis(DepositFromVCF):
 
         """
 
-        vi = vcfiterator.VcfIterator(analysis_config_data.vcf_path)
-        vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
-        vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
-
-        vcf_sample_names = vi.samples
-
-        db_genepanel = self.get_genepanel(
-            analysis_config_data.gp_name, analysis_config_data.gp_version
-        )
-
         if not append:
+            db_genepanel = self.get_genepanel(
+                analysis_config_data["genepanel_name"], analysis_config_data["genepanel_version"]
+            )
             db_analysis = self.analysis_importer.process(
-                analysis_config_data.analysis_name,
+                analysis_config_data["name"],
                 db_genepanel,
-                analysis_config_data.report,
-                analysis_config_data.warnings,
-                date_requested=analysis_config_data.date_requested,
+                analysis_config_data["report"],
+                analysis_config_data["warnings"],
+                date_requested=analysis_config_data.get("date_requested"),
             )
         else:
             db_analysis = (
                 self.session.query(sample.Analysis)
-                .filter(sample.Analysis.name == analysis_config_data.analysis_name)
+                .filter(sample.Analysis.name == analysis_config_data["name"])
                 .one()
             )
 
@@ -426,90 +419,97 @@ class DepositAnalysis(DepositFromVCF):
             ):
                 raise RuntimeError("Appending to a family analysis is not supported.")
 
-        log.info("Importing {}".format(db_analysis.name))
-        db_analysis_interpretation = self.analysis_interpretation_importer.process(
-            db_analysis, analysis_config_data.priority, reopen_if_exists=append
-        )
-        db_samples = self.sample_importer.process(
-            vcf_sample_names,
-            db_analysis,
-            sample_type=sample_type,
-            ped_file=analysis_config_data.ped_path,
-        )
-
         deposit_usergroup_id, deposit_usergroup_config = self.get_usergroup_deposit_config(
             db_analysis
         )
-        if deposit_usergroup_config:
-            log.info(
-                "Using deposit configuration from usergroup id {} with pattern {}".format(
-                    deposit_usergroup_id, deposit_usergroup_config["pattern"]
+
+        db_analysis_interpretation = self.analysis_interpretation_importer.process(
+            db_analysis, analysis_config_data["priority"], reopen_if_exists=append
+        )
+
+        for data in analysis_config_data["data"]:
+            vi = vcfiterator.VcfIterator(data["vcf"])
+            vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
+            vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
+
+            vcf_sample_names = vi.samples
+
+            log.info("Importing {}".format(db_analysis.name))
+            db_samples = self.sample_importer.process(
+                vcf_sample_names, db_analysis, sample_type=data["technology"], ped_file=data["ped"]
+            )
+
+            if deposit_usergroup_config:
+                log.info(
+                    "Using deposit configuration from usergroup id {} with pattern {}".format(
+                        deposit_usergroup_id, deposit_usergroup_config["pattern"]
+                    )
                 )
-            )
-            log.info(
-                "Prefilter: {}".format("Yes" if deposit_usergroup_config.get("prefilter") else "No")
-            )
-            log.info("Prefilter criterias:")
-            log.info("    - GNOMAD_GENOMES.AF > 0.05")
-            log.info("    - GNOMAD_GENOMES.AN > 5000")
-            log.info("    - Nearby variants distance > 3")
-            log.info("    - No existing classifications")
-            log.info(
-                "Postprocess: {}".format(", ".join(deposit_usergroup_config.get("postprocess", [])))
-            )
+                prefilter = deposit_usergroup_config.get("prefilter")
+                log.info("Prefilter: {}".format("Yes" if prefilter else "No"))
+                if prefilter:
+                    log.info("Prefilter criterias:")
+                    log.info("    - GNOMAD_GENOMES.AF > 0.05")
+                    log.info("    - GNOMAD_GENOMES.AN > 5000")
+                    log.info("    - Nearby variants distance > 3")
+                    log.info("    - No existing classifications")
+                    log.info(
+                        "Postprocess: {}".format(
+                            ", ".join(deposit_usergroup_config.get("postprocess", []))
+                        )
+                    )
 
-        records_count = 0
-        imported_records_count = 0
+            records_count = 0
+            imported_records_count = 0
 
-        proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
-        block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
+            proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
+            block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
 
-        prefilter = deposit_usergroup_config.get("prefilter", False)
-        # prefiltered_records are proband-only, filtered records
-        # batch_records are _all_ records
-        for prefiltered_records, batch_records in PrefilterBatchGenerator(
-            self.session, proband_sample_name, vi.iter(), prefilter=prefilter
-        ):
-            for record in prefiltered_records:
-                self.allele_importer.add(record)
-            alleles = self.allele_importer.process()
+            prefilter = deposit_usergroup_config.get("prefilter", False)
+            # batch_records are _all_ records
+            for proband_only_records, batch_records in PrefilterBatchGenerator(
+                self.session, proband_sample_name, vi.iter(), prefilter=prefilter
+            ):
+                for record in proband_only_records:
+                    self.allele_importer.add(record)
+                alleles = self.allele_importer.process()
 
-            for record in prefiltered_records:
-                allele = get_allele_from_record(record, alleles)
-                self.annotation_importer.add(record, allele["id"])
+                for record in proband_only_records:
+                    allele = get_allele_from_record(record, alleles)
+                    self.annotation_importer.add(record, allele["id"])
 
-            # block_iterator splits batch_records into "multiallelic blocks",
-            # yielding the proband's records along with data about the other samples used in genotype_importer
-            for (
-                proband_records,
-                proband_alleles,
-                block_records,
-                samples_missing_coverage,
-            ) in block_iterator.iter_blocks(batch_records, alleles):
-                self.genotype_importer.add(
+                # block_iterator splits batch_records into "multiallelic blocks" (if the site is multiallelic),
+                # yielding the proband's records along with data about the other samples used in genotype_importer
+                for (
                     proband_records,
                     proband_alleles,
-                    proband_sample_name,
-                    db_samples,
-                    samples_missing_coverage,
                     block_records,
-                )
-                imported_records_count += len(proband_records)
+                    samples_missing_coverage,
+                ) in block_iterator.iter_blocks(batch_records, alleles):
+                    self.genotype_importer.add(
+                        proband_records,
+                        proband_alleles,
+                        proband_sample_name,
+                        db_samples,
+                        samples_missing_coverage,
+                        block_records,
+                    )
+                    imported_records_count += len(proband_records)
 
-            annotations = self.annotation_importer.process()
-            assert len(alleles) == len(annotations), "Got {} alleles and {} annotations".format(
-                len(alleles), len(annotations)
-            )
-            genotypes, genotypesamplesdata = self.genotype_importer.process()
-            records_count += len(batch_records)
-            log.info(
-                "Progress: {} records processed, {} variants imported".format(
-                    records_count, imported_records_count
+                annotations = self.annotation_importer.process()
+                assert len(alleles) == len(annotations), "Got {} alleles and {} annotations".format(
+                    len(alleles), len(annotations)
                 )
-            )
+                self.genotype_importer.process()
+                records_count += len(batch_records)
+                log.info(
+                    "Progress: {} records processed, {} variants imported".format(
+                        records_count, imported_records_count
+                    )
+                )
 
-        # Run asserts on block data
-        block_iterator.finish_check()
+            # Run asserts on block data
+            block_iterator.finish_check()
 
         if not append:
             self.postprocess(

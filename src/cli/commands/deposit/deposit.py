@@ -9,7 +9,7 @@ from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_genepanel import DepositGenepanel
-from vardb.datamodel.analysis_config import AnalysisConfigData
+from vardb.deposit.analysis_config import AnalysisConfigData
 
 from cli.decorators import cli_logger, session
 
@@ -28,41 +28,17 @@ def deposit():
 
 
 @deposit.command("analysis")
-@click.argument("vcf", type=click.Path(exists=True))
-@click.option("--ped", type=click.Path(exists=True))
-@click.option("--report", type=click.Path(exists=True))
-@click.option("--warnings", type=click.Path(exists=True))
-@click.option("--priority", type=click.INT, default=1)
+@click.argument("file_or_folder", type=click.Path(exists=True))
 @session
 @cli_logger()
-def cmd_deposit_analysis(logger, session, vcf, ped=None, report=None, warnings=None, priority=None):
+def cmd_deposit_analysis(logger, session, file_or_folder):
     """
     Deposit an analysis given input vcf.
     File should be in format of {analysis_name}.{genepanel_name}-{genepanel_version}.vcf
     """
 
-    matches = re.match(VCF_FIELDS_RE, os.path.basename(vcf))
     da = DepositAnalysis(session)
-
-    report_data = warnings_data = None
-    if report:
-        with open(report) as f:
-            report_data = f.read()
-
-    if warnings:
-        with open(warnings) as f:
-            warnings_data = f.read()
-
-    analysis_config_data = AnalysisConfigData(
-        vcf,
-        matches.group("analysis_name"),
-        matches.group("genepanel_name"),
-        matches.group("genepanel_version"),
-        priority,
-        ped_path=ped,
-        report=report_data,
-        warnings=warnings_data,
-    )
+    analysis_config_data = AnalysisConfigData(file_or_folder)
     analysis = da.import_vcf(analysis_config_data)
     session.commit()
     logger.echo("Analysis {} deposited successfully".format(analysis.name))
