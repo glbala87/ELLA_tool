@@ -466,20 +466,19 @@ class DepositAnalysis(DepositFromVCF):
             block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
 
             prefilter = deposit_usergroup_config.get("prefilter", False)
-            # prefiltered_records are proband-only, filtered records
             # batch_records are _all_ records
-            for prefiltered_records, batch_records in PrefilterBatchGenerator(
+            for proband_only_records, batch_records in PrefilterBatchGenerator(
                 self.session, proband_sample_name, vi.iter(), prefilter=prefilter
             ):
-                for record in prefiltered_records:
+                for record in proband_only_records:
                     self.allele_importer.add(record)
                 alleles = self.allele_importer.process()
 
-                for record in prefiltered_records:
+                for record in proband_only_records:
                     allele = get_allele_from_record(record, alleles)
                     self.annotation_importer.add(record, allele["id"])
 
-                # block_iterator splits batch_records into "multiallelic blocks",
+                # block_iterator splits batch_records into "multiallelic blocks" (if the site is multiallelic),
                 # yielding the proband's records along with data about the other samples used in genotype_importer
                 for (
                     proband_records,
@@ -501,7 +500,7 @@ class DepositAnalysis(DepositFromVCF):
                 assert len(alleles) == len(annotations), "Got {} alleles and {} annotations".format(
                     len(alleles), len(annotations)
                 )
-                genotypes, genotypesamplesdata = self.genotype_importer.process()
+                self.genotype_importer.process()
                 records_count += len(batch_records)
                 log.info(
                     "Progress: {} records processed, {} variants imported".format(
