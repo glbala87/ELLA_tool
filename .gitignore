@@ -68,7 +68,7 @@ src/webui/dest
 
 src/package
 
-attachments
+/attachments/
 src/webui/build
 src/webui/dev
 vardb-schema.png
