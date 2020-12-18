@@ -1,0 +1,599 @@
+{
+    "definitions": {
+        "filter": {
+            "anyOf": [
+                { "$ref": "#/definitions/filters/frequency" },
+                { "$ref": "#/definitions/filters/region" },
+                { "$ref": "#/definitions/filters/classification" },
+                { "$ref": "#/definitions/filters/external" },
+                { "$ref": "#/definitions/filters/ppy" },
+                { "$ref": "#/definitions/filters/inheritancemodel" },
+                { "$ref": "#/definitions/filters/consequence" },
+                { "$ref": "#/definitions/filters/quality" },
+                { "$ref": "#/definitions/filters/segregation" },
+                { "$ref": "#/definitions/filters/gene" }
+            ]
+        },
+        "withExceptions": {
+            "type": "object",
+            "properties": {
+                "exceptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/filter"
+                    }
+                }
+            }
+        },
+        "filters": {
+            "frequency": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["frequency"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["groups", "num_thresholds", "thresholds", "genes"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "genes": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "patternProperties": {
+                                    "[0-9]+": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "thresholds": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "external": {
+                                                        "type": "number",
+                                                        "minimum": 0.0,
+                                                        "maximum": 1.0
+                                                    },
+                                                    "internal": {
+                                                        "type": "number",
+                                                        "minimum": 0.0,
+                                                        "maximum": 1.0
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "groups": {
+                                "type": "object",
+                                "optional": ["external", "internal"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "external": {
+                                        "patternProperties": {
+                                            ".*": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "internal": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "patternProperties": {
+                                            ".*": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "num_thresholds": {
+                                "type": "object",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "object",
+                                        "patternProperties": {
+                                            ".*": {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "thresholds": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "AD": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "external": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            },
+                                            "internal": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "external": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            },
+                                            "internal": {
+                                                "type": "number",
+                                                "minimum": 0.0,
+                                                "maximum": 1.0
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "consequence": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["consequence"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["consequences"],
+                        "optional": ["genepanel_only"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "consequences": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "enum": [
+                                        "transcript_ablation",
+                                        "splice_donor_variant",
+                                        "splice_acceptor_variant",
+                                        "stop_gained",
+                                        "frameshift_variant",
+                                        "start_lost",
+                                        "initiator_codon_variant",
+                                        "stop_lost",
+                                        "inframe_insertion",
+                                        "inframe_deletion",
+                                        "missense_variant",
+                                        "protein_altering_variant",
+                                        "transcript_amplification",
+                                        "splice_region_variant",
+                                        "incomplete_terminal_codon_variant",
+                                        "synonymous_variant",
+                                        "start_retained_variant",
+                                        "stop_retained_variant",
+                                        "coding_sequence_variant",
+                                        "mature_miRNA_variant",
+                                        "5_prime_UTR_variant",
+                                        "3_prime_UTR_variant",
+                                        "non_coding_transcript_exon_variant",
+                                        "non_coding_transcript_variant",
+                                        "intron_variant",
+                                        "NMD_transcript_variant",
+                                        "upstream_gene_variant",
+                                        "downstream_gene_variant",
+                                        "TFBS_ablation",
+                                        "TFBS_amplification",
+                                        "TF_binding_site_variant",
+                                        "regulatory_region_variant",
+                                        "regulatory_region_ablation",
+                                        "regulatory_region_amplification",
+                                        "feature_elongation",
+                                        "feature_truncation",
+                                        "intergenic_variant"
+                                    ]
+                                }
+                            },
+                            "genepanel_only": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "region": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["region"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["splice_region", "utr_region"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "splice_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            },
+                            "utr_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "classification": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["classification"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["classes"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "classes": {
+                                "type": "array",
+                                "uniqueItems": true,
+                                "items": {
+                                    "enum": ["1", "2", "3", "4", "5", "DR", "NP", "RF"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "external": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["external"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["hgmd", "clinvar"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "hgmd": {
+                                "type": "object",
+                                "required": ["tags"],
+                                "optional": ["inverse"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "tags": {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "enum": ["FP", "DM", "DFP", "R", "DP", "DM?"]
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            },
+                            "clinvar": {
+                                "type": "object",
+                                "optional": ["num_stars", "combinations", "inverse"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "num_stars": {
+                                        "type": "array",
+                                        "additionalItems": false,
+                                        "items": [
+                                            {
+                                                "enum": [">", "<", ">=", "<=", "=="]
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 4
+                                            }
+                                        ]
+                                    },
+                                    "combinations": {
+                                        "type": "array",
+                                        "items": [
+                                            {
+                                                "type": "array",
+                                                "items": [
+                                                    {
+                                                        "enum": [
+                                                            "pathogenic",
+                                                            "uncertain",
+                                                            "benign"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "enum": [">", "<", ">=", "<=", "=="]
+                                                    },
+                                                    {
+                                                        "anyOf": [
+                                                            {
+                                                                "enum": [
+                                                                    "pathogenic",
+                                                                    "uncertain",
+                                                                    "benign"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": 0
+                                                            }
+                                                        ]
+                                                    }
+                                                ],
+                                                "minItems": 1
+                                            }
+                                        ]
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ppy": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["ppy"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["ppy_tract_region"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "ppy_tract_region": {
+                                "type": "array",
+                                "additionalItems": false,
+                                "items": [
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "maximum": 0
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "quality": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["quality"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "optional": ["qual", "filter_status", "allele_ratio"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "qual": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "allele_ratio": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                            },
+                            "filter_status": {
+                                "type": "object",
+                                "required": ["pattern"],
+                                "optional": ["inverse", "filter_empty"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "pattern": {
+                                        "type": "string"
+                                    },
+                                    "inverse": {
+                                        "type": "boolean"
+                                    },
+                                    "filter_empty": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "segregation": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["segregation"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "no_coverage_parents",
+                            "denovo",
+                            "parental_mosaicism",
+                            "compound_heterozygous",
+                            "recessive_homozygous"
+                        ],
+                        "properties": {
+                            "no_coverage_parents": {
+                                "required": ["enable"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "enable": { "type": "boolean" }
+                                }
+                            },
+                            "denovo": {
+                                "required": ["enable"],
+                                "optional": ["gq_threshold"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "enable": { "type": "boolean" },
+                                    "gq_threshold": {
+                                        "required": ["proband", "mother", "father"],
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "proband": { "type": "integer", "minimum": 0 },
+                                            "mother": { "type": "integer", "minimum": 0 },
+                                            "father": { "type": "integer", "minimum": 0 }
+                                        }
+                                    }
+                                }
+                            },
+                            "parental_mosaicism": {
+                                "required": ["enable"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "enable": { "type": "boolean" }
+                                }
+                            },
+                            "compound_heterozygous": {
+                                "required": ["enable"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "enable": { "type": "boolean" }
+                                }
+                            },
+                            "recessive_homozygous": {
+                                "required": ["enable"],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "enable": { "type": "boolean" }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "inheritancemodel": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["inheritancemodel"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "required": ["filter_mode"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "filter_mode": {
+                                "enum": ["recessive_non_candidates", "recessive_candidates"]
+                            }
+                        }
+                    }
+                }
+            },
+            "gene": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "enum": ["gene"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["genes"],
+                        "optional": ["mode", "inverse"],
+                        "properties": {
+                            "genes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            "mode": {
+                                "enum": ["one", "all"]
+                            },
+                            "inverse": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["filters"],
+    "additionalProperties": false,
+    "properties": {
+        "filters": {
+            "type": "array",
+            "items": {
+                "allOf": [
+                    { "$ref": "#/definitions/filter" },
+                    { "$ref": "#/definitions/withExceptions" }
+                ],
+                "required": ["name", "config"],
+                "additionalProperties": false,
+                "properties": {
+                    "name": {},
+                    "config": {},
+                    "exceptions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["name", "config"],
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {},
+                                "config": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

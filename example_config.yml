@@ -90,7 +90,7 @@ analysis:
                 unclassified:
                     - technical
                     - notrelevant
-                    - classu
+                    - classnp
                     - class2
                 classified: []
                 not_relevant: []
@@ -256,8 +256,6 @@ classification:
             - MSH6
             - PMS2
     options:
-        - name: Class U
-          value: U
         - name: Class 1
           value: '1'
         - name: Class 2
@@ -278,8 +276,16 @@ classification:
           outdated_after_days: 365
           include_report: true
           include_analysis_with_findings: true
+        - name: Risk factor
+          value: RF
+          outdated_after_days: 365
+          sort_index: -1
         - name: Drug response
           value: DR
+          sort_index: -2
+        - name: Not provided
+          value: NP
+          sort_index: -3
 report:
     classification_text:
         '1': Benign variant

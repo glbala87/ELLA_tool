@@ -45,7 +45,7 @@ class AlleleAssessment(Base):
 
     id = Column(Integer, primary_key=True)
     classification = Column(
-        Enum("1", "2", "3", "4", "5", "U", "DR", name="alleleassessment_classification"),
+        Enum("1", "2", "3", "4", "5", "NP", "RF", "DR", name="alleleassessment_classification"),
         nullable=False,
     )
     evaluation = Column(JSONMutableDict.as_mutable(JSONB), default={})

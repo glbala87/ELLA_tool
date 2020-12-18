@@ -200,8 +200,8 @@ class AlleleSectionBox {
         return this.classSelection.$('option:checked').getText()
     }
 
-    isClassU() {
-        return this._getClassificationLabel().toLowerCase() === 'Unclassified'.toLowerCase()
+    isClassNP() {
+        return this._getClassificationLabel().toLowerCase() === 'Not provided'.toLowerCase()
     }
 
     isClass1() {
@@ -224,28 +224,28 @@ class AlleleSectionBox {
         return this._getClassificationLabel().toLowerCase() === 'Class 5'.toLowerCase()
     }
 
-    classifyAsU() {
-        this._setClassification(2)
+    classifyAsNP() {
+        this._setClassification(9)
     }
 
     classifyAs1() {
-        this._setClassification(3)
+        this._setClassification(2)
     }
 
     classifyAs2() {
-        this._setClassification(4)
+        this._setClassification(3)
     }
 
     classifyAs3() {
-        this._setClassification(5)
+        this._setClassification(4)
     }
 
     classifyAs4() {
-        this._setClassification(6)
+        this._setClassification(5)
     }
 
     classifyAs5() {
-        this._setClassification(7)
+        this._setClassification(6)
     }
 
     unclassify() {

@@ -11,7 +11,7 @@ fi
 
 if [ "$1" = "" ]
 then
-	py.test --color=yes -x "/ella/src/datalayer/" "/ella/src/api/" -s
+	py.test --color=yes "/ella/src/datalayer/" "/ella/src/api/" -s
 else
   $@
 fi

@@ -10,7 +10,7 @@ import hypothesis.strategies as st
 def classifications(session):
     c = {}
     for i in range(1, 7):
-        c[i] = str(i) if i < 6 else "U"
+        c[i] = str(i) if i < 6 else "NP"
         assm = assessment.AlleleAssessment(
             user_id=1,
             allele_id=i,
@@ -26,7 +26,9 @@ def classifications(session):
 def filter_data(draw):
     classes = draw(
         st.lists(
-            elements=st.sampled_from(["1", "2", "3", "4", "5", "U", "DR", "non-existing-class"]),
+            elements=st.sampled_from(
+                ["1", "2", "3", "4", "5", "DR", "NP", "RF", "non-existing-class"]
+            ),
             unique=True,
         )
     )

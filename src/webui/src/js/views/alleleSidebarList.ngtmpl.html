@@ -444,13 +444,13 @@
                         NR
                     </button>
                     <button
-                        ng-if="$ctrl.showClassificationBtn('classu')"
-                        class="purple id-quick-classu"
-                        ng-click="$ctrl.quickClassificationClicked({classification: 'U', alleleId: allele.id, selectAllele: true})"
+                        ng-if="$ctrl.showClassificationBtn('classnp')"
+                        class="purple id-quick-classnp"
+                        ng-click="$ctrl.quickClassificationClicked({classification: 'NP', alleleId: allele.id, selectAllele: true})"
                         ng-disabled="$ctrl.readOnly"
-                        tippy-title="Mark as Class U"
+                        tippy-title="Mark as Not provided (no interpretation of clinical significance)"
                     >
-                        U
+                        NP
                     </button>
                     <button
                         ng-if="$ctrl.showClassificationBtn('class2')"

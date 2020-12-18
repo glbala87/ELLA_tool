@@ -49,12 +49,12 @@ describe(`ACMG`, function() {
 
     describe('suggested codes and REQs are', function() {
         beforeAll(function() {
-            // classify one variant as 'U'
+            // classify one variant as 'NP'
             loginPage.open()
             loginPage.loginAs('testuser1')
             variantSelectionPage.selectPending(1)
             analysisPage.startButton.click()
-            alleleSectionBox.classifyAsU()
+            alleleSectionBox.classifyAsNP()
             alleleSectionBox.finalize()
             analysisPage.finishButton.click()
             analysisPage.finalizeButton.click()

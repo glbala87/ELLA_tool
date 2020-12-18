@@ -163,7 +163,7 @@ const testUiConfig = {
             },
             quick: {
                 columns: ['qual', 'dp', 'ratio', 'hi-freq', 'hi-count', 'external'],
-                classification_options: ['technical', 'notrelevant', 'classu', 'class2'],
+                classification_options: ['technical', 'notrelevant', 'classnp', 'class2'],
                 narrow_comment: false,
                 shade_multiple_in_gene: true
             },
@@ -260,10 +260,6 @@ const testUiConfig = {
         },
         options: [
             {
-                name: 'Class U',
-                value: 'U'
-            },
-            {
                 name: 'Class 1',
                 value: '1'
             },
@@ -294,8 +290,16 @@ const testUiConfig = {
                 include_analysis_with_findings: true
             },
             {
+                name: 'Risk factor',
+                value: 'RF'
+            },
+            {
                 name: 'Drug response',
                 value: 'DR'
+            },
+            {
+                name: 'Not provided',
+                value: 'NP'
             }
         ]
     },
