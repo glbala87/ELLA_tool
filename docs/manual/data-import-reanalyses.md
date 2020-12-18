@@ -116,6 +116,8 @@ If you choose CUSTOM GENE PANEL: `YES`, you may instead add any combination of g
 
 To start a reanalysis with a custom gene panel for a chosen sample: 
 
+  - Select the user groups the analysis should be made available to (IMPORT TO USER GROUPS).
+  
   - Add a name for custom gene panel in the CUSTOM GENE PANEL NAME field. This should be max 12 characters, and you should avoid using the same name more than once per day to ensure a unique name.
 
   - In the ADD TRANSCRIPTS section: 

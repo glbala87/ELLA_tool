@@ -92,6 +92,19 @@ In addition, ELLA now displays a message at the bottom of the page if a finalize
 
 Note that the message is only displayed when a user finalizes another variant or manually refreshes the view.
 
+#### Select user group on custom imports
+
+To better support custom gene panel imports that should be available to more than one user group, the custom gene panel import dialogue now includes an option to select user groups: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-select-user-group-custom-import.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Message when evaluation has been updated by another user.
+    </div>
+    <br>
+</div>
+
 
 ### All changes
 
@@ -106,7 +119,7 @@ Note that the message is only displayed when a user finalizes another variant or
 <!-- MR !450 -->
 - Added support for templates in the Gene information comment field.
 <!-- MR !453 -->
-- Fixed wrong tooltip on `SUBMIT REPORT` button
+- Fixed wrong tooltip on `SUBMIT REPORT` button.
 <!-- MR !454 -->
 - [Show latest interpretation round by default for historical analyses, including warning](#improvements-to-history).
 <!-- MR !455 -->
@@ -115,10 +128,10 @@ Note that the message is only displayed when a user finalizes another variant or
 - [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
 <!-- MR !458 -->
 - [Variant collision warnings are now separated from annotation warnings on the CLASSIFICATION page](#improved-warnings).
-<!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
-- It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
+<!-- MR !463 -->
+- [Added possibility to select which user groups an imported custom gene panel analysis should be available to](#select-user-group-on-custom-imports). 
 <!-- MR !465 -->
-- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.](#improvements-to-history)
+- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria](#improvements-to-history).
 <!-- MR !473 -->
 - Added possibility for linking attachments on the INFO page.
 <!-- MR !475 -->
