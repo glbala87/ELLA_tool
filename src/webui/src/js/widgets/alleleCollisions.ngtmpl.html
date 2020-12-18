@@ -1,0 +1,11 @@
+<sectionbox
+    color="custom"
+    collapsible="false"
+    class="warning-box yellow"
+    ng-if="$ctrl.collisions.length"
+>
+    <maintitle><h3>Potential conflict</h3></maintitle>
+    <contentwrapper>
+        <p ng-repeat="c in $ctrl.collisions">{{ c.message }}</p>
+    </contentwrapper>
+</sectionbox>
