@@ -621,6 +621,10 @@ button {
     }
 }
 
+.historical-warning {
+    padding: 1rem 1rem 0 1rem;
+}
+
 .interpretation-content {
     padding: 2rem;
 }
@@ -828,7 +832,7 @@ workflow-buttons {
     }
 }
 
-.allele-warning section {
+.warning-box section {
     .titlebar,
     .titlebar > .sb-title-container,
     .sb-container {
@@ -869,6 +873,14 @@ workflow-buttons {
         &:hover::-webkit-scrollbar-thumb {
             background-color: $white-75;
         }
+    }
+}
+
+.warning-box.yellow {
+    .titlebar,
+    .titlebar > .sb-title-container,
+    .sb-container {
+        background-color: $yellow-75;
     }
 }
 
