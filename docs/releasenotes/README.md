@@ -40,27 +40,48 @@ The classification choices are now:
 
 #### Improvements to history
 
-<!-- MR !454 -->
-When opening a previously finalized analysis, ELLA will now display the annotation corresponding to the latest interpretation round, instead of `CURRENT DATA` in previous ELLA versions. In addition, a warning was added when opening a historic analysis to prevent confusion. As before, it is possible to switch to older interpretation rounds or current data using the dropdown in the top bar. 
-
-[TODO: screenshot]
-
 <!-- MR !465 --> 
-In addition, history for changes to the CLASSIFICATION REPORT field was added: 
+History for changes to the variant CLASSIFICATION REPORT field was added, and the HISTORY pop-up now shows a drop-down for viewing previous versions instead of listing them: 
 
 <div style="text-indent: 4%;">
     <img src="./img/1-12-variant-history.png">
     <br>
     <div style="font-size: 80%;">
-        <strong>Figure: </strong>Modified variant history view with addition of Report history and dropdown for previous versions.
+        <strong>Figure: </strong>Modified variant history view with addition of Report history and drop-down for previous versions.
+    </div>
+    <br>
+</div>
+
+<!-- MR !454 -->
+In addition, when opening a previously finalized analysis, ELLA will now default to displaying the state corresponding to the latest interpretation round, i.e. showing variant interpretations, classifications and annotation exactly as they were presented at the time of the last finalization. The previous default, `CURRENT DATA` (along with any other interpretation round), is still available using the drop-down in the top bar. To prevent confusion, a warning was added when viewing historical data. 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-analyses-history-select.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Latest interpretation round now selected by default (with warning) for historic analyses.
     </div>
     <br>
 </div>
 
 #### Improved warnings
 
-<!-- MR !456, !458 --> 
-ELLA now displays a message if a saved variant in an ongoing analysis has been updated and finalized by another user. In addition, to prevent over-crowding of the warnings displayed on the CLASSIFICATION page, collision warnings have now been separated out in a separate, yellow banner from the (red) variant warnings. 
+<!-- MR !456 --> 
+ELLA now displays a message at the bottom of the page if a finalized variant in an ongoing analysis has been updated and finalized by another user: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-toast-updated-evaluation.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Message when evaluation has been updated by another user.
+    </div>
+    <br>
+</div>
+
+Note that the message is only displayed when a user finalizes another variant or manually refreshes the view.
+
+<!-- MR !458 --> 
+In addition, to prevent over-crowding of the warnings displayed on the CLASSIFICATION page, collision warnings have now been separated out in a separate, yellow banner from the (red) variant warnings. 
 
 [TODO: screenshot]
 
@@ -78,18 +99,18 @@ ELLA now displays a message if a saved variant in an ongoing analysis has been u
 - Added support for templates in the Gene information comment field.
 <!-- MR !453 -->
 - Fixed wrong tooltip on `SUBMIT REPORT` button
-<!-- MR !454 TODO: QA, update manual/top-bar.html#analysis-history-for-previously-finished-samples -->
-- Show latest interpretation round by default for historical analyses, including warning for "Historical data".
+<!-- MR !454 -->
+- [Show latest interpretation round by default for historical analyses, including warning](#improvements-to-history).
 <!-- MR !455 -->
 - Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
-<!-- MR !456 TODO: QA, update manual/warnings.html#annotation-warnings -->
-- Display message when variant in ongoing analysis has been updated by another user.
+<!-- MR !456 -->
+- [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
 <!-- MR !458 TODO: QA, update manual/warnings.html -->
 - Collision warnings are now separated from variant warnings on the CLASSIFICATION page.
 <!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
 <!-- MR !465 -->
-- Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.
+- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.](#improvements-to-history)
 <!-- MR !473 TODO: QA, update manual/info-page.html -->
 - Added possibility for showing attachments on the INFO page.
 <!-- MR !475 -->

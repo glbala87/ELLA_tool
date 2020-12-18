@@ -29,6 +29,16 @@ Similarly, if another user imports new results to an analysis you have already o
 If a variant classification is still valid, no collision warnings will be triggered, even if the variant is being re-evaluated. 
 :::
 
+### Message when variant updated by another user
+
+If a user has an analysis open with a finalized variant, and then another user updates (finalizes) the same variant in another analysis, the first user will get a message at the bottom of the screen that the new evaluation was loaded: 
+
+<div style="text-indent: 4%;"><img src="./img/toast_updated_evaluation.png"></div>
+
+::: warning NOTE
+The message is only displayed when a user finalizes another variant or manually refreshes the view.
+:::
+
 ## User group warnings
 
 Variant interpretations are sometimes shared between multiple user groups due to overlapping gene panels. In these cases, ELLA displays a warning message if the last user to classify (finalize) the variant was from another user group than your own: 
