@@ -118,7 +118,6 @@ class RetriesExceeded(Exception):
             self.msg = msg.format(max_retries=max_retries, *args, **kwargs)
         else:
             self.msg = f"Command failed after exceeding {max_retries} retries"
-        super().__init__(msg)
         self.err_list = errors
 
 
@@ -275,7 +274,9 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
     logger.info(f"pulling image {image_name}")
     ssh_exec(ssh, f"docker pull {image_name}", timeout=300)
     logger.info(f"Starting application")
-    ssh_exec(ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name))
+    ssh_exec(
+        ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name), timeout=300
+    )
     logger.info(f"Completed provisioning and starting of {droplet.name}")
 
 
