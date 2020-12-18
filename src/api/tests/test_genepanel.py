@@ -1,5 +1,5 @@
 import pytest
-from vardb.datamodel import gene
+from vardb.datamodel import gene, user
 
 
 class TestGenepanel(object):
@@ -16,7 +16,7 @@ class TestGenepanel(object):
 
         genepanel_to_copy["name"] = "NewPanel"
         genepanel_to_copy["version"] = "NewVersion"
-        genepanel_to_copy["usergroups"] = ["testgroup01"]
+        genepanel_to_copy["usergroups"] = ["testgroup01", "testgroup02"]
         r = client.post("/api/v1/genepanels/", genepanel_to_copy)
         assert r.status_code == 200
 
@@ -48,3 +48,38 @@ class TestGenepanel(object):
 
         assert created.name == genepanel_to_copy["name"]
         assert created.version == genepanel_to_copy["version"]
+
+        # Check that groups are correct
+        original_usergroups = (
+            session.query(user.UserGroup.name)
+            .join(
+                user.UserGroupGenepanel, user.UserGroupGenepanel.c.usergroup_id == user.UserGroup.id
+            )
+            .filter(
+                user.UserGroupGenepanel.c.genepanel_name == original_name,
+                user.UserGroupGenepanel.c.genepanel_version == original_version,
+            )
+        ).scalar_all()
+
+        assert set(original_usergroups) == set(["testgroup01", "testgroup03"])
+
+        created_usergroups = (
+            session.query(user.UserGroup.name)
+            .join(
+                user.UserGroupGenepanel, user.UserGroupGenepanel.c.usergroup_id == user.UserGroup.id
+            )
+            .filter(
+                user.UserGroupGenepanel.c.genepanel_name == genepanel_to_copy["name"],
+                user.UserGroupGenepanel.c.genepanel_version == genepanel_to_copy["version"],
+            )
+        ).scalar_all()
+
+        assert set(created_usergroups) == set(genepanel_to_copy["usergroups"])
+
+        # Check testgroup01 not allowed to import to testgroup03
+        genepanel_to_copy["name"] = "NewPanel2"
+        genepanel_to_copy["version"] = "NewVersion2"
+        genepanel_to_copy["usergroups"] = ["testgroup01", "testgroup03"]
+        with pytest.raises(AssertionError):
+            r = client.post("/api/v1/genepanels/", genepanel_to_copy)
+            assert r.status_code == 200

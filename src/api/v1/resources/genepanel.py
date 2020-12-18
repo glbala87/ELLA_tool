@@ -115,6 +115,12 @@ class GenepanelListResource(LogRequestResource):
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
 
+        allowed_usergroup_ids = (
+            session.query(user_model.UserGroupImport.c.usergroupimport_id)
+            .filter(user_model.UserGroupImport.c.usergroup_id == user.group.id)
+            .scalar_all()
+        )
+
         assert data["usergroups"]
         usergroup_ids = (
             session.query(user_model.UserGroup.id)
@@ -122,6 +128,8 @@ class GenepanelListResource(LogRequestResource):
             .scalar_all()
         )
         assert len(usergroup_ids) == len(data["usergroups"])
+
+        assert set(usergroup_ids).issubset(allowed_usergroup_ids)
 
         session.add(genepanel)
         session.flush()
