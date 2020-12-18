@@ -1,6 +1,7 @@
 import { Module } from 'cerebral'
 
 import queryChanged from './signals/queryChanged'
+import pageChanged from './signals/pageChanged'
 import optionsSearchChanged from './signals/optionsSearchChanged'
 import modals from './modals'
 
@@ -11,6 +12,9 @@ export default Module({
             gene: null,
             user: null
         },
+        page: 1,
+        per_page: 10,
+        limit: 100,
         options: {
             genepanel: null,
             user: null
@@ -20,7 +24,8 @@ export default Module({
     },
     signals: {
         optionsSearchChanged,
-        queryChanged
+        queryChanged,
+        pageChanged
     },
     modules: {
         modals

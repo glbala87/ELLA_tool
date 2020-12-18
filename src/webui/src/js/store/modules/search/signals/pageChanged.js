@@ -3,10 +3,10 @@ import { module, props } from 'cerebral/tags'
 import loadResults from '../sequences/loadResults'
 
 export default [
-    set(module`query`, props`query`),
+    set(module`page`, props`page`),
     debounce(500),
     {
-        continue: [set(module`page`, 1), loadResults],
+        continue: loadResults,
         discard: []
     }
 ]
