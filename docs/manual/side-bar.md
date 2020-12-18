@@ -54,7 +54,7 @@ The default sorting in each section is (Class) - Inheritance – Gene – HGVSc.
 
 If applicable, variants in the variant list are tagged with:
 
-  - `!` [Variant warnings](/manual/warnings.md). 
+  - `!` [Annotation and/or user group warnings](/manual/warnings.md). 
 
   - `S` [Segregation](/technical/filtering.html#segregation-filter). Depending on data, changes to:
     

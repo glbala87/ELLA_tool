@@ -4,13 +4,17 @@ title: Variant warnings
 
 # Variant warnings
 
-Variant warnings are triggered for certain conditions that require attention, and are displayed both as a [tag in the side bar](/manual/side-bar.html#variant-tags) (`!`) and as a red warning banner on the top when you select the variant. The list of warnings includes:
+Variant warnings are shown for certain conditions that require special attention, and are triggered when you select the variant. The list of warnings includes:
 
 [[toc]]
 
 ## Annotation warnings
 
-Annotation warnings include: 
+Annotation warnings are displayed both as a [tag in the side bar](/manual/side-bar.html#variant-tags) (`!`) and as a red warning banner on the top: 
+
+<div style="text-indent: 4%;"><img src="./img/annotation_warning.png"></div>
+
+Warnings include: 
 
 - Worse consequences found in other transcripts, e.g. intron variant in default transcript, exon variant in alternative transcript. See the PREDICTION section for further details.
 - Other variants are within 2 bp of the variant in the analysis (often indicative of technically challenging regions or that annotation should be manually verified).
@@ -41,6 +45,6 @@ The message is only displayed when a user finalizes another variant or manually 
 
 ## User group warnings
 
-Variant interpretations are sometimes shared between multiple user groups due to overlapping gene panels. In these cases, ELLA displays a warning message if the last user to classify (finalize) the variant was from another user group than your own: 
+Variant interpretations are sometimes shared between multiple user groups due to overlapping gene panels. If the last user to classify (finalize) the variant was from another user group than your own, ELLA displays a warning both as a [tag in the side bar](/manual/side-bar.html#variant-tags) (`!`) and as a red warning banner on the top: 
 
 <div style="text-indent: 4%;"><img src="./img/user_group_warning.png"></div>

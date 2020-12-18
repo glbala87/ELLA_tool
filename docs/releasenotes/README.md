@@ -66,8 +66,20 @@ In addition, when opening a previously finalized analysis, ELLA will now default
 
 #### Improved warnings
 
+<!-- MR !458 --> 
+To improve visibility of the different variant warnings displayed on the CLASSIFICATION page, collision warnings are now shown in a yellow banner separate from annotation and user group warnings (red), and collision warnings are no longer included in the `!` tag in the sidebar: 
+
+<div style="text-indent: 4%;">
+    <img src="./img/1-12-separate-warnings.png">
+    <br>
+    <div style="font-size: 80%;">
+        <strong>Figure: </strong>Collision and annotation warnings are now separate.
+    </div>
+    <br>
+</div>
+
 <!-- MR !456 --> 
-ELLA now displays a message at the bottom of the page if a finalized variant in an ongoing analysis has been updated and finalized by another user: 
+In addition, ELLA now displays a message at the bottom of the page if a finalized variant in an ongoing analysis has been updated and finalized by another user: 
 
 <div style="text-indent: 4%;">
     <img src="./img/1-12-toast-updated-evaluation.png">
@@ -80,10 +92,6 @@ ELLA now displays a message at the bottom of the page if a finalized variant in 
 
 Note that the message is only displayed when a user finalizes another variant or manually refreshes the view.
 
-<!-- MR !458 --> 
-In addition, to prevent over-crowding of the warnings displayed on the CLASSIFICATION page, collision warnings have now been separated out in a separate, yellow banner from the (red) variant warnings. 
-
-[TODO: screenshot]
 
 ### All changes
 
@@ -105,8 +113,8 @@ In addition, to prevent over-crowding of the warnings displayed on the CLASSIFIC
 - Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
 <!-- MR !456 -->
 - [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
-<!-- MR !458 TODO: QA, update manual/warnings.html -->
-- Collision warnings are now separated from variant warnings on the CLASSIFICATION page.
+<!-- MR !458 -->
+- [Variant collision warnings are now separated from annotation warnings on the CLASSIFICATION page](#improved-warnings).
 <!-- MR !463 TODO: QA, update manual/data-import-reanalyses.html#custom-reanalyses-from-sample-repository -->
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
 <!-- MR !465 -->
