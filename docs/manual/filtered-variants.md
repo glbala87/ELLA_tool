@@ -8,13 +8,13 @@ title: Filtered variants
 
 Many variants have usually been automatically filtered from view before you start an analysis, based on [pre-configured rules](#filter-rules). These variants are still accessible via a button at the top of the variant list in the [side bar](/manual/side-bar.md): 
 
-<div style="text-indent: 4%;"><img src="./img/filtered_btn.png"></div>
+<div class="figure"><img src="./img/filtered_btn.png"></div>
 
 In this particular sample, there are a total of 123 filtered variants, and one of these have been added manually to the analysis by the user. 
 
 Pushing the button brings up a window where you may select individual variants and add them to the analysis:
 
-<div style="text-indent: 4%;"><img src="./img/filtered.png"></div>
+<div class="figure"><img src="./img/filtered.png"></div>
 
 Pushing the `+` to the right of a variant adds the variant to the analysis, and will be shown in the side bar variant list with the `I` tag. 
 

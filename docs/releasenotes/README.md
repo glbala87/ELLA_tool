@@ -18,7 +18,7 @@ Release date: TBD
 
 ### Highlights
 
-This release includes many smaller fixes and improvements. 
+This release includes many fixes and improvements, both to the frontend and backend/development environment. The most significant changes for users include changes to [classification](#redefined-classification-choices), [history](#improvements-to-history) and [variant warnings](#improved-warnings): 
 
 #### Redefined classification choices
 
@@ -29,13 +29,9 @@ Variant classification choices have been redefined in line with [ClinVar definit
 
 The classification choices are now: 
 
-<div style="text-indent: 4%;">
-    <img src="./img/1-12-select-class.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Redefined variant classification choices.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-12-select-class.png"><br>
+    <p><strong>Figure: </strong>Redefined variant classification choices.</p>
 </div>
 
 #### Improvements to history
@@ -43,25 +39,17 @@ The classification choices are now:
 <!-- MR !465 --> 
 History for changes to the variant CLASSIFICATION REPORT field was added, and the HISTORY pop-up now shows a drop-down for viewing previous versions instead of listing them: 
 
-<div style="text-indent: 4%;">
-    <img src="./img/1-12-variant-history.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Modified variant history view with addition of Report history and drop-down for previous versions.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-12-variant-history.png"><br>
+    <p><strong>Figure: </strong>Modified variant history view with addition of Report history and drop-down for previous versions.</p>
 </div>
 
 <!-- MR !454 -->
 In addition, when opening a previously finalized analysis, ELLA will now default to displaying the state corresponding to the latest interpretation round, i.e. showing variant interpretations, classifications and annotation exactly as they were presented at the time of the last finalization. The previous default, `CURRENT DATA` (along with any other interpretation round), is still available using the drop-down in the top bar. To prevent confusion, a warning was added when viewing historical data. 
 
-<div style="text-indent: 4%;">
-    <img src="./img/1-12-analyses-history-select.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Latest interpretation round now selected by default (with warning) for historic analyses.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-12-analyses-history-select.png"><br>
+    <p><strong>Figure: </strong>Latest interpretation round now selected by default (with warning) for historic analyses.</p>
 </div>
 
 #### Improved warnings
@@ -69,75 +57,64 @@ In addition, when opening a previously finalized analysis, ELLA will now default
 <!-- MR !458 --> 
 To improve visibility of the different variant warnings displayed on the CLASSIFICATION page, collision warnings are now shown in a yellow banner separate from annotation and user group warnings (red), and collision warnings are no longer included in the `!` tag in the sidebar: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-12-separate-warnings.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Collision and annotation warnings are now separate.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Collision and annotation warnings are now separate.</p>
 </div>
 
 <!-- MR !456 --> 
 In addition, ELLA now displays a message at the bottom of the page if a finalized variant in an ongoing analysis has been updated and finalized by another user: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-12-toast-updated-evaluation.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Message when evaluation has been updated by another user.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Message when evaluation has been updated by another user.</p>
 </div>
 
 Note that the message is only displayed when a user finalizes another variant or manually refreshes the view.
 
 #### Select user group on custom imports
 
+<!-- MR !463-->
 To better support custom gene panel imports that should be available to more than one user group, the custom gene panel import dialogue now includes an option to select user groups: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-12-select-user-group-custom-import.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Message when evaluation has been updated by another user.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Message when evaluation has been updated by another user.</p>
 </div>
 
 
 ### All changes
 
-<!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478 -->
-- Several fixes and improvements to development environment and code base.
+<!-- MR !477 -->
+- [Redefined classification choices in line with ClinVar definitions](#redefined-classification-choices).
+<!-- MR !465 -->
+- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria](#improvements-to-history).
+<!-- MR !454 -->
+- [Show latest interpretation round by default for historical analyses, including warning](#improvements-to-history).
+<!-- MR !458 -->
+- [Variant collision warnings are now separated from annotation warnings on the CLASSIFICATION page](#improved-warnings).
+<!-- MR !456 -->
+- [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
+<!-- MR !463 -->
+- [Added possibility to select which user groups an imported custom gene panel analysis should be available to](#select-user-group-on-custom-imports). 
 <!-- MR !433 -->
 - Search result limit has been increased from 10 to 100.
 <!-- MR !435 -->
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
-<!-- MR !444 -->
-- Made allele list in top bar scrollable when number of transcripts exceed 3. 
-<!-- MR !450 -->
-- Added support for templates in the Gene information comment field.
-<!-- MR !453 -->
-- Fixed wrong tooltip on `SUBMIT REPORT` button.
-<!-- MR !454 -->
-- [Show latest interpretation round by default for historical analyses, including warning](#improvements-to-history).
-<!-- MR !455 -->
-- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
-<!-- MR !456 -->
-- [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
-<!-- MR !458 -->
-- [Variant collision warnings are now separated from annotation warnings on the CLASSIFICATION page](#improved-warnings).
-<!-- MR !463 -->
-- [Added possibility to select which user groups an imported custom gene panel analysis should be available to](#select-user-group-on-custom-imports). 
-<!-- MR !465 -->
-- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria](#improvements-to-history).
-<!-- MR !473 -->
-- Added possibility for linking attachments on the INFO page.
 <!-- MR !475 -->
 - Updated HGMD Pro links to point to new base url. 
-<!-- MR !477 -->
-- [Redefined classification choices in line with ClinVar definitions](#redefined-classification-choices).
+<!-- MR !450 -->
+- Added support for templates in the Gene information comment field.
+<!-- MR !473 -->
+- Added possibility for linking attachments on the INFO page.
+<!-- MR !444 -->
+- Made allele list in top bar scrollable when number of transcripts exceed 3. 
+<!-- MR !453 -->
+- Fixed wrong tooltip on `SUBMIT REPORT` button.
+<!-- MR !455 -->
+- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
+<!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478 -->
+- Many fixes and improvements to development environment and code base.
 
 
 ## Version 1.11.3
@@ -200,13 +177,9 @@ This release brings an improved gene information popup with editing possibilitie
 
 The [gene information popup](/manual/top-bar.html#gene-information) (click the gene name in the top bar) has been improved, with the possibility to add and edit comments about the gene. This can be used for information that is important for evaluating variants in this gene, and is available for all analyses where the gene is included.  
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-11-gene-info.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>User-editable gene information.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>User-editable gene information.</p>
 </div>
 
 If a comment has been added, an `INFO` tag is shown next to the gene name. 
@@ -224,13 +197,9 @@ A new [filter feature](/manual/choosing-sample-variant.html#filter-the-overview)
 
 Any combination of these filters is allowed.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-11-overview-filter.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>User-editable gene information.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>User-editable gene information.</p>
 </div>
 
 Note that the filters do _not_ include finalized analyses. 

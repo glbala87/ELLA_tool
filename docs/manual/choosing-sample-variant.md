@@ -8,19 +8,19 @@ title: Choosing a sample or variant
 
 The first page you see after logging in is the OVERVIEW page. You can always navigate to this page using the link in the top right corner:
 
-<div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
+<div class="figure"><img src="./img/overview_btn.png"></div>
 <br>
 
 This page also links to the current documentation (you can also reach these by going to [allel.es/docs](http://allel.es/docs)): 
 
-<div style="text-indent: 4%;"><img src="./img/documentation_btn.png"></div>
+<div class="figure"><img src="./img/documentation_btn.png"></div>
 
 
 ## Select analysis or variant from the worklist
 
 The vertical buttons in the left margin of the OVERVIEW page lets you choose between `ANALYSES` or `VARIANTS` workflows, with ANALYSES being the default: 
 
-<div style="text-indent: 4%;"><img src="./img/analyses_variants_btn.png"></div>
+<div class="figure"><img src="./img/analyses_variants_btn.png"></div>
 
 For an in-depth explanation of the difference between an ANALYSES workflow and a VARIANTS workflow, see [Workflows](/manual/workflows.md). Most importantly: 
 
@@ -70,7 +70,7 @@ For both ANALYSES and VARIANTS view, each analysis/variant is marked with the da
 
 In the ANALYSES view, samples are marked with the source of the data (HTS or SANGER, or both), as well as a [WARNING](/manual/info-page.html#pipeline-warnings) from the variant calling pipeline if relevant:
 
-<div style="text-indent: 4%;"><img src="./img/overview_tags.png"></div>
+<div class="figure"><img src="./img/overview_tags.png"></div>
 
 ## Filter and search
 
@@ -78,7 +78,7 @@ In the ANALYSES view, samples are marked with the source of the data (HTS or SAN
 
 Use the search fields and buttons in the top bar to quickly filter what is shown: 
 
-<div style="text-indent: 4%;"><img src="./img/overview_filter.png"></div>
+<div class="figure"><img src="./img/overview_filter.png"></div>
 
 Filtering options include: 
 - Analysis name
@@ -97,7 +97,7 @@ Only analyses that are not finalized are included in the filter. To find older a
 
 To search for any variant or analysis (past or present), use the search section at the top of the OVERVIEW page:
 
-<div style="text-indent: 4%;"><img src="./img/search.png"></div>
+<div class="figure"><img src="./img/search.png"></div>
 
 Possible searches include HGVS cDNA or protein variant name with or without reference ID, genomic position/range and analysis ID. Examples:
 
@@ -111,6 +111,6 @@ Search results may be narrowed further by selecting gene or user, or by ignoring
 
 Clicking on a variant search result will open the variant in a VARIANTS workflow. Note that to (re-)interpret the variant, ELLA has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
 
-<div style="text-indent: 4%;"><img src="./img/choose_genepanel.png"></div>
+<div class="figure"><img src="./img/choose_genepanel.png"></div>
 
 

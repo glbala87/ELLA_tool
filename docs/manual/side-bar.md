@@ -8,7 +8,7 @@ title: Side bar
 
 The variants in your sample (ANALYSES mode only) are listed in the side bar to the left:
 
-<div style="text-indent: 4%;"><img src="./img/sidebar.png"></div>
+<div class="figure"><img src="./img/sidebar.png"></div>
 
 The side bar layout described here is for the default, full classification mode. The layout is almost the same in other CLASSIFICATION view modes ([QUICK](/manual/quick-classification.md) and [VISUAL](/manual/visual.md)) and on the [REPORT](/manual/report-page.md) page, except for some columns/buttons. For details, go the referenced pages. 
 
@@ -21,7 +21,7 @@ The side bar has an INDICATIONS COMMENT field at the top, corresponding to the [
 
 Directly beneath that are several buttons: 
 
-<div style="text-indent: 4%;"><img src="./img/sidebar_buttons.png"></div>
+<div class="figure"><img src="./img/sidebar_buttons.png"></div>
 <br>
 
 - `FILTER`: View and optionally add back [filtered variants](/manual/filtered-variants.md).
@@ -90,7 +90,7 @@ Hold the mouse cursor over a tag to see the full label.
 
 Existing or newly set classes are given in the right-most column: 
 
-<div style="text-indent: 4%;"><img src="./img/classified_variants.png"></div>
+<div class="figure"><img src="./img/classified_variants.png"></div>
 
 An arrow (→) indicates that a new classification will be created, and any existing class is given to the left of the arrow. If this classification is also outdated (long since last interpretation), an `*` is added to the existing class.
 
@@ -102,6 +102,6 @@ Outdated variants marked with `*` in CLASSIFIED VARIANTS should be re-interprete
 
 You can toggle a blue colouring of the background of the class by clicking on it in the side bar: 
 
-<div style="text-indent: 4%;"><img src="./img/mark_reviewed.png"></div>
+<div class="figure"><img src="./img/mark_reviewed.png"></div>
 
 This is done automatically when you finalize a variant. Manual marking can be used to indicates which variants have been reviewed, i.e. to keep track of the work done in a review round.  

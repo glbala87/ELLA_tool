@@ -8,11 +8,11 @@ title: Quick mode
 
 Instead of performing a full classification, you may instead choose the Quick classification mode by pressing the `QUICK` button at the top of the variant list in the side bar: 
 
-<div style="text-indent: 4%;"><img src="./img/sidebar_modes_quick.png"></div>
+<div class="figure"><img src="./img/sidebar_modes_quick.png"></div>
 
 This feature is particularly well suited for workflows with large gene panels and many variants. The Quick classification view gives a summary of the most important information necessary for [marking variants](/manual/evidence-sections.html#mark-as-verified-technical-not-relevant) as TECHNICAL (`T`) or NOT RELEVANT (`NR`), or [classifying](/manual/classification-section.html#set-variant-class) as NOT PROVIDED (`NP`) or CLASS 2 (`2`), and gives you buttons to perform those actions directly:
 
-<div style="text-indent: 4%;"><img src="./img/quick_classification.png"></div>
+<div class="figure"><img src="./img/quick_classification.png"></div>
 <br>
 
 The `2` button is disabled until you have added at least one benign ACMG criterion; the most commonly used criteria `BS1` and `BS2` are available as quick buttons. 

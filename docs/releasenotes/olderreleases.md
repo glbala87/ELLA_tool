@@ -23,13 +23,9 @@ Release date: 27.04.2020
 
 This release contains a few bug fixes and improvements. Notably, support for the new PubMed page was improved, changing the recommended import procedure to use the new `Save` option to download the necessary text file (see the [documentation](/manual/evidence-sections.html#add-studies) for further details): 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-9-2-PubMed-download.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>New recommended procedure for downloading PubMed references.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>New recommended procedure for downloading PubMed references.</p>
 </div>
 
 ### All changes
@@ -108,13 +104,9 @@ The most important change in this version is the addition of a "finalize variant
 
 With this change, each variant with a new/updated classification in an analysis needs to be finalized by pressing the new `FINALIZE` button in the CLASSIFICATION section before the analysis (sample) itself can be finalized:
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-9-finalize-variant.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>New button to finalize variant in analysis.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>New button to finalize variant in analysis.</p>
 </div>
 
 Note that this also needs to be performed for any classification done in [QUICK mode](/manual/quick-classification.md), and that interpretations done in VARIANTS mode (stand-alone variants e.g. from search) still need to be finalized as before via the `FINISH` button in the top bar before the variant is considered truly finalized. 
@@ -123,26 +115,18 @@ Note that this also needs to be performed for any classification done in [QUICK 
 
 Finalizing variants means each variant interpretation will be tagged with the main responsible user and user group. This also allows showing a warning if the previous (finalized) variant interpretation was performed by a user from another user group than your own: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-9-user-group-warning.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>New user group warning.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>New user group warning.</p>
 </div>
 
 #### Copy text by mouse-click
 
 You can now more easily copy text from many pop-overs by clicking on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-9-popup.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>New option to copy text directly by mouse-click in popups.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>New option to copy text directly by mouse-click in popups.</p>
 </div>
 
 ### All changes
@@ -213,13 +197,9 @@ Sometimes, criteria that don't match the ACMG guidelines are important for a var
 
 In addition, users can often spend significant time evaluating an ACMG criterion for a particular interpretation, but in the end decide that the requirements are not met. ELLA now allows setting an added ACMG criterion as `NOT WEIGHTED`, so that comments related to this work can be properly recorded.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-8-ACMG-other-unweighted.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>The new "other" criterion and unweighted option for ACMG criteria.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>The new "other" criterion and unweighted option for ACMG criteria.</p>
 </div>
 
 Note that neither "other" or unweighted ACMG criteria are counted in the calculation of suggested classification.
@@ -277,30 +257,22 @@ Import of variants in various text formats and ordering of reanalyses from exist
 
 The new import solution includes the possibility to adjust the priority (for the OVERVIEW work lists) for any import involving a sample. In addition, it is now possible to search for multiple genes at once (batch query) when ordering a custom reanalysis, e.g. by pasting a list of genes from an external source. Both gene names and HGNC ID is supported, and any genes not found are shown as a list that can be copied out. 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-7-batch-filter.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>The new batch filter mode for searching for multiple genes when ordering a custom reanalysis.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>The new batch filter mode for searching for multiple genes when ordering a custom reanalysis.</p>
 </div>
 
 #### Gene panel info
 
 Various information about the gene panel used in an analysis is now available via a new button in the top bar: 
 
-<div style="text-indent: 4%;"><img src="./img/1-7-gene-panel-info-btn.png"></div>
+<div class="figure"><img src="./img/1-7-gene-panel-info-btn.png"></div>
 
 The information includes which genes are in the panel (with inheritance and default transcript available on mouse-over; list can be copied), as well as a list of the five most similar gene panels: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-7-gene-panel-info.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Gene panel info.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Gene panel info.</p>
 </div>
 
 #### Improvements to attachments
@@ -352,13 +324,9 @@ The most noticeable changes are the addition of selection buttons for ACMG crite
 
 Note that to select CLASS 2 for a variant in QUICK CLASSIFICATION mode, you must now first add at least one benign ACMG criterion (e.g. BS1/BS2 via the check boxes); see the figure below.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-6-quick-classification.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Check boxes for BS1 and BS2 for CLASS 2, and ACMG indicators (vertical bars next to CLASS column) in side bar.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Check boxes for BS1 and BS2 for CLASS 2, and ACMG indicators (vertical bars next to CLASS column) in side bar.</p>
 </div>
 
 #### Outdated variants treated as UNCLASSIFIED 
@@ -393,8 +361,7 @@ Release date: 23.05.2019
 
 The VISUALIZATION page has been redefined as a view mode on the CLASSIFICATION page, allowing for easier switching between relevant views while performing variant classification. Switching between view modes can now be done with three buttons above the variant list in the side bar: 
 
-<div style="text-indent: 4%;"><img src="./img/1-5-sidebar-modes.png"></div>
-<br>
+<div class="figure"><img src="./img/1-5-sidebar-modes.png"></div>
 
 - `FULL` (new button; default view mode).
 - `QUICK` (renamed from QUICK CLASSIFICATION).
@@ -438,13 +405,9 @@ Release date: 26.03.2019
 
 ELLA now supports configuring several filter configurations for a user group. This lets you define filter chains that are specific to certain types of analyses (e.g. single or trio analyses) or specific analysis names. One analysis can have several applicable filter configurations which will show up as options in the side bar inside the analysis workflow: 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-4-filter-select.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Switch between different filter configurations in an ongoing analysis.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Switch between different filter configurations in an ongoing analysis.</p>
 </div>
 
 Examples of possible filter configurations are different levels of frequency thresholds, or being able to turn on and off family (segregation) filtering for an analysis.
@@ -469,13 +432,9 @@ See new section [Concepts/Filters](/concepts/filtering.md) in the documentation 
 
 The comment editor now supports inserting pre-defined templates, as well as references from the STUDIES & REFERENCES section, using two new buttons in the comment field menu. Templates can be defined independently for different comment fields, and supports basic text formatting.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-4-comment-template-reference.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Adding templates and references.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Adding templates and references.</p>
 </div>
 
 If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
@@ -534,13 +493,9 @@ ELLA provides a few special tracks by default:
 - Variants: Shows the analysis variants _after_ filtering.
 
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-3-visualization.png">
-    <br><br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>New visualization feature.
-    </div>
-    <br>
+    <br><p><strong>Figure: </strong>New visualization feature.</p>
 </div>
 
 
@@ -555,13 +510,9 @@ It gives a summary of the most important information necessary for classifying v
 
 It is most relevant for workflows where you first perform a quicker interpretation of certain variants, before doing a more thorough interpretation of the remaining ones.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/1-3-quick-classification.png">
-    <br><br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Quick classification view.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>Quick classification view.</p>
 </div>
 
 
@@ -578,9 +529,7 @@ The view of a variant's class in the sidebar has been improved.
 
 Left number is existing class, right is new. An arrow indicates that a new classification will be created. Blue background indicates that the variant has been reviewed. You can toggle the review status by clicking on the class in the sidebar.
 
-<div style="text-indent: 4%;">
-    <img style="width: 28rem" src="./img/1-3-sidebar-classification.png">
-</div>
+<div class="figure"><img src="./img/1-3-sidebar-classification.png"></div>
 
 
 #### New user manual
@@ -634,13 +583,9 @@ The following segregation models are supported:
 The most powerful filtering requires two parents to be present in the analysis, but
 some segregation filters and tags also apply to analyses with only siblings (unaffected and/or affected).
 
-<div style="text-indent: 4%;">
-    <img style="width: 10rem" src="./img/1-2-family-tags.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Segregation tags in sidebar.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-2-family-tags.png">
+    <p><strong>Figure: </strong>Segregation tags in sidebar.</p>
 </div>
 
 Variants filtered out by these filters can be found in the `Segregation` category in the excluded variants.
@@ -657,24 +602,16 @@ The analysis and variant workflows now have their own `Work log`. The work log c
 
 All options in the work log can be changed at any time, without having to start a new interpretation round.
 
-<div style="text-indent: 4%;">
-    <img style="width: 35rem" src="./img/1-2-work-log.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Work log example.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-2-work-log.png">
+    <p><strong>Figure: </strong>Work log example.</p>
 </div>
 
 If there are any messages since last time the workflow was `Finalised`, the work log button will appear in purple, along with the current message count.
 
-<div style="text-indent: 4%;">
-    <img style="width: 8rem" src="./img/1-2-worklog-button.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>2 messages since beginning or last finalization.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-2-worklog-button.png">
+    <p><strong>Figure: </strong>2 messages since beginning or last finalization.</p>
 </div>
 
 #### Variant warnings
@@ -687,22 +624,15 @@ Variants are now tagged with warnings whenever there is something special that c
 Variant warnings are implemented for both the variant and analysis workflows, but some warnings are only available for analyses.
 
 
-<div style="text-indent: 4%;">
-    <img style="width: 42rem" src="./img/1-2-variant-warning-example.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Example warning.
-    </div>
-    <br>
+<div class="figure_text">
+    <img src="./img/1-2-variant-warning-example.png">
+    <p><strong>Figure: </strong>Example warning.</p>
 </div>
 
 
-<div style="text-indent: 4%;">
-    <img style="width: 28rem" src="./img/1-2-variant-warning-tags.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>Warning tags in sidebar.</i>
-    </div>
+<div class="figure_text">
+    <img src="./img/1-2-variant-warning-tags.png">
+    <p><strong>Figure: </strong>Warning tags in sidebar.</p>
 </div>
 
 
@@ -762,9 +692,7 @@ ELLA now lets you re-import previously run samples, using either an existing gen
 
 This lets you request new analyses directly in the application and shortens the time for reanalysis with a different set of genes.
 
-<div style="text-indent: 4%;">
-<img style="width: 30rem" src="./img/1-1-import.png">
-</div>
+<div class="figure"><img src="./img/1-1-import.png"></div>
 
 
 #### Frontend code improvements

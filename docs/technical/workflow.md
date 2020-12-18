@@ -45,7 +45,7 @@ The analysis is then set to review and another user will either continue the int
 
 So the interpretation goes through (possibly multiple) review rounds before being finalized:
 
-<div style="text-indent: 4%;"><img src="./img/interpretation-rounds.png"></div>
+<div class="figure"><img src="./img/interpretation-rounds.png"></div>
 
 ## Interpretation rounds and history
 

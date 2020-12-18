@@ -8,7 +8,7 @@ title: Top bar
 
 The top bar contains information about the current user, selected variant, as well as action buttons. The figure below shows the top bar in the ANALYSIS workflow, where there are three sections, for global and variant-specific information/actions, respectively:
 
-<div style="text-indent: 4%;"><img src="./img/top_bar.png"></div>
+<div class="figure"><img src="./img/top_bar.png"></div>
 
 The view in VARIANTS workflow is almost the same but contains no sample-specific information.
 
@@ -45,7 +45,7 @@ Button  | Explanation | More information
 
 Clicking on the gene name in the top bar gives you extended information about the particular gene:
 
-<div style="text-indent: 4%;"><img src="./img/gene_info.png"></div>
+<div class="figure"><img src="./img/gene_info.png"></div>
 
 Header  | Explanation | More information
 :---  | :---  | :---
@@ -65,7 +65,7 @@ In the current iteration, no collision warnings will be shown if another user is
 
 When a previously finalized sample is opened, all variants are shown with the variant interpretations, classifications and annotation available at the time of the last finalized interpretation round. As this may differ from the current state (especially if the interpretation was done a long time ago), a warning about historical data is given. To instead view current data, or any previous interpretation rounds (including non-finalized steps), use the drop-down menu in the top bar (right):
 
-<div style="text-indent: 4%;"><img src="./img/analyses_history_select.png"></div>
+<div class="figure"><img src="./img/analyses_history_select.png"></div>
 
 Note that if you click `REOPEN` (button the right of the drop-down) for a finalized sample, the annotation and variant interpretations shown are always equal to the most current state.
 

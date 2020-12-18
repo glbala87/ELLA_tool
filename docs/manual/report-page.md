@@ -6,7 +6,7 @@ title: Generate a clinical report
 
 Navigate to the report page using the corrseponding button in the top bar:
 
-<div style="text-indent: 4%;"><img src="./img/nav_report_btn.png"></div>
+<div class="figure"><img src="./img/nav_report_btn.png"></div>
 <br>
 
 ## Comment fields: Indication and report
@@ -28,6 +28,6 @@ The report page also lets you export variants in a CLINICAL REPORT using using s
 
 Variants classified as Class (3,) 4 or 5 (depending on configuration) are automatically added to the report and marked with a `-` sign in the side bar. Not included variants are marked with a `+` sign. If you want to remove or add additional variants, simply click on the `-` or `+` sign, respectively, for the variant.
 
-<div style="text-indent: 4%;"><img src="./img/report_sidebar.png"></div>
+<div class="figure"><img src="./img/report_sidebar.png"></div>
 
 Once you are satisfied, copy the text generated in the REPORT field to LIMS software. 

@@ -25,13 +25,9 @@ In general, ELLA has an append-only data model, where no data is deleted or over
 
 ELLA is built as a web application with a frontend and backend. The frontend runs fully in the user's browser, while the backend runs on a server. The frontend communicates with the backend via a JSON-based REST API.
 
-<div style="text-indent: 4%;">
+<div class="figure_text">
     <img src="./img/system.png">
-    <br>
-    <div style="font-size: 80%;">
-        <strong>Figure: </strong>High-level system diagram of ELLA.
-    </div>
-    <br>
+    <p><strong>Figure: </strong>High-level system diagram of ELLA.</p>
 </div>
 
 ## Frontend

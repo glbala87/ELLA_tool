@@ -26,11 +26,11 @@ ELLA matches the variants in each new sample with existing variant interpretatio
 
 If a previous interpretation is found, the last saved change to the classification/evaluation and/or report is displayed along with user and date in the EXISTING card:
 
-<div style="text-indent: 4%;"><img src="./img/existing_classification.png"></div>
+<div class="figure"><img src="./img/existing_classification.png"></div>
 
 Note that changes to the variant classification/evaluation and report fields are recorded independently (see [below](#update-submit-report-only)). Clicking the `HISTORY` button shows a more detailed history including ACMG criteria and comments, for every previously finalized round of interpretation or report change, ordered by date. Switch between `CLASSIFICATION` (default) and `REPORT` histories using the buttons, and use the dropdown for viewing the version saved at a specific time point: 
 
-<div style="text-indent: 4%;"><img src="./img/variant_history.png"></div>
+<div class="figure"><img src="./img/variant_history.png"></div>
 
 ### Interpretations that are still valid
 
@@ -40,7 +40,7 @@ Variant interpretations that are still valid are shown with a green background a
 
 It is still possible to do a re-evaluation of these variants by clicking the `RE-EVALUATE` button in the section banner (only available if the analysis/interpretation has been started). To undo any new interpretation (and avoid resetting the validity period), click the `UNDO RE-EVALUATION` button:
 
-<div style="text-indent: 4%;"><img src="./img/reevaluate_btn.png"></div>
+<div class="figure"><img src="./img/reevaluate_btn.png"></div>
 
 ::: warning NOTE
 Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalize the variant, you must first reselect a class in the dropdown. 
@@ -53,7 +53,7 @@ Edits can be made to the REPORT field without resetting the validity period for 
 - Click the `START INTERPRETATION` button if you haven't already done so. For variants that are still valid, this makes the REPORT field writeable, whereas other fields/choices are kept read-only (to make a full re-evaluation with validity reset, click `RE-EVALUATE`).
 - Make your changes and push the `SUBMIT REPORT` button, or undo with the `UNDO REPORT CHANGES` button (followed by `CONFIRM`): 
 
-<div style="text-indent: 4%;"><img src="./img/update_report.png"></div>
+<div class="figure"><img src="./img/update_report.png"></div>
 
 ::: warning NOTES
 Finalization of an analysis or interpretation is not possible if there are unsaved changes to a REPORT field (you will get an error message if you try). To correct this, click the `SUBMIT REPORT` button or undo the changes you made.
@@ -81,7 +81,7 @@ Each ACMG criterion can be added only once for a particular variant, irrespectiv
 
 ELLA automatically [suggests relevant ACMG criteria](/manual/acmg-rule-engine.html) based on a mapping of the variant annotation, as well as any information you have added manually, to these criteria. Suggested criteria are shown in the SUGGESTED card:
 
-<div style="text-indent: 4%;"><img src="./img/ACMG_suggested.png"></div>
+<div class="figure"><img src="./img/ACMG_suggested.png"></div>
 
 The specific requirements for each criterion are available by clicking on the label. The resulting pop-up also contains (where applicable):
 
@@ -101,17 +101,17 @@ Where possible, some of the ACMG criteria have been split into separate ["requir
 
 REQs that have a match in the current variant are shown when you click the `SHOW REQ` button:
 
-<div style="text-indent: 4%;"><img src="./img/ACMG_REQ.png"></div>
+<div class="figure"><img src="./img/ACMG_REQ.png"></div>
 
 ### Add ACMG criteria manually
 
 To add an ACMG criterion that is not already suggested by ELLA, press the `ADD ACMG` button in the top banner:
 
-<div style="text-indent: 4%;"><img src="./img/add_ACMG_btn.png"></div>
+<div class="figure"><img src="./img/add_ACMG_btn.png"></div>
 
 This brings up a side bar where you may modify strength, comment and add any ACMG criterion:
 
-<div style="text-indent: 4%;"><img src="./img/add_ACMG.png"></div>
+<div class="figure"><img src="./img/add_ACMG.png"></div>
 
 #### Other (non-ACMG) criteria
 
@@ -121,7 +121,7 @@ In addition to the official ACMG criteria, you can also add the generic `OTHER` 
 
 To change the strength of a particular, added criterion, click either the `+` or `-` sign, for stronger or weaker evidence, respectively:
 
-<div style="text-indent: 4%;"><img src="./img/ACMG_change_strength.png"></div>
+<div class="figure"><img src="./img/ACMG_change_strength.png"></div>
 
 ### Unweighted ACMG criterion 
 
@@ -131,7 +131,7 @@ If you click the `-` sign all the way, the criterion will be marked as `NOT WEIG
 
 Based on the particular ACMG criteria you have added, ELLA [suggests a classification](/manual/acmg-rule-engine.html#generating-suggestions), shown over the list of included ACMG criteria:
 
-<div style="text-indent: 4%;"><img src="./img/suggested_class.png"></div>
+<div class="figure"><img src="./img/suggested_class.png"></div>
 
 ::: warning NOTES
 Suggestions for classification are only made for `CLASS 1-5`, not the other choices below.
@@ -139,7 +139,7 @@ Suggestions for classification are only made for `CLASS 1-5`, not the other choi
 
 As with suggested criteria, you are free to ignore the suggestion, and you must always actively set a classification yourself before it takes effect. Once you have made a decision, select the corresponding class in the pull-down menu in the section bar:
 
-<div style="text-indent: 4%;"><img src="./img/select_class.png"></div>
+<div class="figure"><img src="./img/select_class.png"></div>
 
 The variant classification choices should be interpreted in line with [ClinVar's definitions](https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/): 
 
@@ -156,7 +156,7 @@ If in ANALYSES mode, making a classification selection moves the variant to CLAS
 
 Once you have set a classification, you have the option to finalize the variant: 
 
-<div style="text-indent: 4%;"><img src="./img/finalize_variant.png"></div>
+<div class="figure"><img src="./img/finalize_variant.png"></div>
 
 Once a variant is finalized, the interpretation is made available to other users and will not generate [collision warnings](/manual/warnings.html#collision-warnings) if there are overlapping analyses. 
 
