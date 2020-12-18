@@ -28,12 +28,7 @@ export default function issueToastNewAlleleAssessments({ props, state, toast }) 
                 return 'display' in a.formatted ? a.formatted.display : a.formatted.hgvsg
             })
 
-            let text = ''
-            if (loadedAlleles.length > 1) {
-                text = `New evaluations were loaded for variants: ${formattedAlleles.join(', ')}`
-            } else {
-                text = `A new evaluation was loaded for variant: ${formattedAlleles[0]}`
-            }
+            let text = `A new evaluation was loaded for: ${formattedAlleles.join(', ')}`
             toast.show('info', text, null, true)
         }
     }
