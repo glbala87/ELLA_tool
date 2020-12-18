@@ -137,6 +137,7 @@ const testUiConfig = {
                         'classificationPrediction',
                         'classificationExternal',
                         'classificationReferences',
+                        'geneInformation',
                         'reportIndications',
                         'reportSummary',
                         'referenceEvaluation',
