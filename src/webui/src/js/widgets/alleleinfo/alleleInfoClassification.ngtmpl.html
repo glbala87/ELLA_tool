@@ -1,18 +1,37 @@
-<contentbox class="vardb" boxtitle="Existing" ng-if="$ctrl.allele.allele_assessment">
+<contentbox boxtitle="Existing" ng-if="$ctrl.allele.allele_assessment">
     <cbbody>
-        <section class="button-row">
-            <button
-                class="blue"
-                ng-click="$ctrl.showAlleleAssessmentHistory({alleleId: $ctrl.allele.id})"
-            >
+        <section>
+            <h2 class="id-classification-name">
+                {{ $ctrl.getClassName() }}
+                <span class="outdated" ng-if="$ctrl.isOutdated()"> (Outdated)</span>
+            </h2>
+            <button class="blue" ng-click="$ctrl.showAlleleHistory({alleleId: $ctrl.allele.id})">
                 History
             </button>
         </section>
-
-        <allele-assessment
-            alleleassessment="$ctrl.allele.allele_assessment"
-            allelereport="$ctrl.allele.allele_report"
-            summary-only="true"
-        ></allele-assessment>
+        <article>
+            <p>
+                Classification made by
+                <b
+                    >{{ $ctrl.allele.allele_assessment.user.full_name }} ({{
+                        $ctrl.allele.allele_assessment.user.user_group_name
+                    }})</b
+                >
+                on {{ $ctrl.allele.allele_assessment.date_created | date: 'yyyy-MM-dd' }} for
+                {{ $ctrl.allele.allele_assessment.genepanel_name }}_{{
+                    $ctrl.allele.allele_assessment.genepanel_version
+                }}
+            </p>
+            <p ng-if="$ctrl.allele.allele_report">
+                Report changed by
+                <b
+                    >{{ $ctrl.allele.allele_report.user.full_name }} ({{
+                        $ctrl.allele.allele_assessment.user.user_group_name
+                    }})</b
+                >
+                on
+                {{ $ctrl.allele.allele_report.date_created | date: 'yyyy-MM-dd' }}
+            </p>
+        </article>
     </cbbody>
 </contentbox>
