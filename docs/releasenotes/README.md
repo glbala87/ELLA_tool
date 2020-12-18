@@ -111,8 +111,8 @@ In addition, to prevent over-crowding of the warnings displayed on the CLASSIFIC
 - It is now possible to select which user groups an imported custom gene panel analysis should be available to. 
 <!-- MR !465 -->
 - [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria.](#improvements-to-history)
-<!-- MR !473 TODO: QA, update manual/info-page.html -->
-- Added possibility for showing attachments on the INFO page.
+<!-- MR !473 -->
+- Added possibility for linking attachments on the INFO page.
 <!-- MR !475 -->
 - Updated HGMD Pro links to point to new base url. 
 <!-- MR !477 -->

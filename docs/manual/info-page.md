@@ -22,6 +22,10 @@ Note that these warnings can be turned off at any time using the [work log](/man
 
 The ANALYSIS INFO section shows some basic information about the current sample. If the sample was run as part of a family, information about the other family samples will also be displayed here.
 
+### Attachments
+
+Attachments may be added in the pipeline and linked in a card here.
+
 ## Pipeline report
 
 The PIPELINE REPORT section displays information from the HTS pipeline, e.g. coverage details.
