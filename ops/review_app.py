@@ -43,7 +43,7 @@ logging.config.dictConfig(log_config)
 logger = logging.getLogger(logger_name)
 
 default_region = "fra1"
-default_size = "s-2vcpu-2gb"
+default_size = "s-1vcpu-2gb"
 default_droplet_image = "docker-20-04"
 default_tag = "gitlab-review-app"
 
