@@ -86,6 +86,10 @@ class AnalysisPage extends Page {
         dropdownOption.click()
     }
 
+    selectSectionInfo() {
+        $('#section-info').click()
+    }
+
     selectSectionClassification() {
         $('#section-classification').click()
     }

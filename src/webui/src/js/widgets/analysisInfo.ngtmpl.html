@@ -73,16 +73,18 @@
                     </cbbody>
                 </contentbox>
             </div>
-
             <h4 class="section-header">Attachments</h4>
-            <div class="samples-container">
+            <div class="attachments-container">
                 <contentbox
-                    class="samples"
+                    class="attachments"
                     boxtitle="Attachments"
                     disabled="!$ctrl.analysis.attachments.length"
                 >
                     <cbbody>
-                        <div class="tabular-row">
+                        <div
+                            class="tabular-row"
+                            ng-repeat="atchmt in $ctrl.analysis.attachments track by $index"
+                        >
                             <p>
                                 <a
                                     href="/api/v1/attachments/analyses/{{ $ctrl.analysis.id }}/{{
@@ -91,7 +93,6 @@
                                     target="/api/v1/attachments/analyses/{{ $ctrl.analysis.id }}/{{
                                         $index
                                     }}"
-                                    ng-repeat="atchmt in $ctrl.analysis.attachments track by $index"
                                 >
                                     {{ atchmt }}
                                 </a>

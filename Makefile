@@ -429,6 +429,7 @@ test-e2e:
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
@@ -463,6 +464,7 @@ e2e-test-local: test-build
        -it \
        -v $(shell pwd):/ella \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
