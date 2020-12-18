@@ -5,6 +5,7 @@ import autoReuseExistingAlleleassessments from '../interpretation/actions/autoRe
 import autoReuseExistingReferenceAssessments from '../interpretation/actions/autoReuseExistingReferenceAssessments'
 import prepareAlleleState from '../actions/prepareAlleleState'
 import copyExistingAlleleReports from '../actions/copyExistingAlleleReports'
+import issueToastNewAlleleAssessments from '../interpretation/actions/issueToastNewAlleleAssessments'
 
 export default sequence('prepareInterpretationState', [
     prepareInterpretationState,
@@ -12,5 +13,6 @@ export default sequence('prepareInterpretationState', [
     autoReuseExistingAlleleassessments,
     copyExistingAlleleReports,
     autoReuseExistingReferenceAssessments,
-    checkAddRemoveAlleleToReport
+    checkAddRemoveAlleleToReport,
+    issueToastNewAlleleAssessments
 ])

@@ -1661,6 +1661,17 @@ nav.warning {
         color: white;
         padding-top: 0.3rem;
     }
+    .toast-close-button {
+        @extend button;
+        background-color: transparent;
+        border: 1px solid $white-75;
+        float: right;
+        margin-top: 0.8rem;
+        color: $white;
+    }
+    .toast-close-button:hover:not([disabled]) {
+        background-color: $white-25;
+    }
     .toast.ng-enter {
         max-height: 0px;
         transition: all 0.6s ease-in-out;
@@ -1678,13 +1689,6 @@ nav.warning {
 }
 
 // all initial styling from toastr, probably needs fixed
-button.toast-close-button {
-    padding: 0;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    -webkit-appearance: none;
-}
 .toast-title {
     font-weight: bold;
 }
@@ -1695,25 +1699,6 @@ button.toast-close-button {
 .toast-message a:hover {
     color: $white;
     text-decoration: none;
-}
-.toast-close-button {
-    position: relative;
-    right: -0.3em;
-    top: -0.3em;
-    float: right;
-    font-size: 20px;
-    font-weight: bold;
-    color: $white-75;
-    -webkit-text-shadow: 0 1px 0 #ffffff;
-    text-shadow: 0 1px 0 #ffffff;
-    opacity: 0.8;
-}
-.toast-close-button:hover,
-.toast-close-button:focus {
-    color: $white;
-    text-decoration: none;
-    cursor: pointer;
-    opacity: 0.4;
 }
 
 .spacer {
