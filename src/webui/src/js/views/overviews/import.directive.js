@@ -47,7 +47,14 @@ const canImport = Compute(
     state`views.overview.import.selectedGenepanel`,
     state`views.overview.import.selectedSample`,
     state`views.overview.import.custom.added.addedGenepanel`,
-    (customGenepanel, selectedGenepanel, selectedSample, addedGenepanel) => {
+    state`views.overview.import.custom.selectedImportUserGroups`,
+    (
+        customGenepanel,
+        selectedGenepanel,
+        selectedSample,
+        addedGenepanel,
+        selectedImportUserGroups
+    ) => {
         if (!selectedSample) {
             return false
         }
@@ -58,7 +65,8 @@ const canImport = Compute(
             return (
                 addedGenepanel.name &&
                 addedGenepanel.name !== '' &&
-                Object.keys(addedGenepanel.genes).length
+                Object.keys(addedGenepanel.genes).length &&
+                selectedImportUserGroups.length
             )
         }
         return Boolean(selectedGenepanel)
