@@ -33,14 +33,7 @@ RUN apt-get update && \
     python3.7-dev \
     python3.7-venv \
     tzdata \
-    && echo "Additional tools:" && \
-    echo "Node v10.x:" && \
-    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get install -yqq nodejs && \
-    echo "Yarn:" && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get -yqq update && apt-get install -yqq yarn && \
-    echo "Cleanup:" && \
+    && echo "Cleanup:" && \
     apt-get clean && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -78,7 +71,14 @@ RUN apt-get update && \
     openssh-client \
     postgresql \
     postgresql-contrib \
-    unzip
+    unzip \
+    && echo "Additional tools:" && \
+    echo "Node v10.x:" && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -yqq nodejs && \
+    echo "Yarn:" && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+    apt-get -yqq update && apt-get install -yqq yarn
 
 
 # Add our requirements files
@@ -107,11 +107,11 @@ COPY --chown=ella-user:ella-user . /ella
 
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 
-ENV PGHOST="/socket"
-ENV PGDATA="/pg-data"
+ENV PGHOST="/socket" \
+    PGDATA="/pg-data"
 WORKDIR /ella
 
-CMD supervisord -c /ella/ops/dev/supervisor.cfg
+CMD ["supervisord", "-c", "/ella/ops/dev/supervisor.cfg"]
 
 ####
 # production image
@@ -119,7 +119,7 @@ CMD supervisord -c /ella/ops/dev/supervisor.cfg
 
 FROM dev AS production-build
 
-RUN cd /ella && yarn build
+RUN cd /ella && yarn production && yarn docs
 
 FROM base AS production
 
@@ -129,7 +129,7 @@ COPY --from=production-build --chown=ella-user:ella-user /ella /ella
 
 USER ella-user
 WORKDIR /ella
-CMD /ella/ops/prod/entrypoint.sh
+CMD ["/ella/ops/prod/entrypoint.sh"]
 
 ####
 # review image: part prod, part dev

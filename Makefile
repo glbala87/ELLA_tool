@@ -159,18 +159,16 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop local-review local-review-stop gitlab-review-refresh-ip review-refresh-ip
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
 
 comma := ,
 REVIEW_NAME ?=
 REVIEW_OPTS ?=
 
-# set var defaults for starting from local-review
+# set var defaults for running review steps locally
 export REVAPP_NAME ?= $(BRANCH)
 export REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
-ifneq ($(shell docker image ls -q $(REVAPP_IMAGE_NAME) | grep -q . && echo yes),yes)
-LOCAL_STEPS = local-review-build
-endif
+export REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
 
 
 # Demo is just a review app, with port mapped to system
@@ -229,6 +227,9 @@ gitlab-review-stop: __gitlab_env
 gitlab-review-refresh-ip:
 	$(eval RUN_CMD = make review-refresh-ip)
 	$(gitlab-template)
+
+build-review:
+	docker build $(BUILD_OPTIONS) -t $(REVAPP_IMAGE_NAME) --label commit_sha=$(REVAPP_COMMIT_SHA) --target review .
 
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
