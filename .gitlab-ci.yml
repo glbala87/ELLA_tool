@@ -57,6 +57,7 @@ stages:
     variables:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
+        REVAPP_COMMIT_SHA: $CI_COMMIT_SHA
 
 .common-test: &common-test
     stage: test
@@ -80,9 +81,9 @@ build:
         - *docker-login
     script:
         - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
-        - docker build $BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
+        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest"
         - docker push $CI_REGISTRY_IMAGE:ci-latest
-        - docker build $BUILD_OPTIONS -t $REVAPP_IMAGE_NAME --label commit_sha=$CI_COMMIT_SHA --target review .
+        - make build-review
         - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
         - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
