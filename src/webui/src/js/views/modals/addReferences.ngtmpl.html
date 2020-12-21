@@ -59,7 +59,7 @@
                         (published or unpublished study, e.g. in-house)
                     </p>
                 </div>
-                <div class="middle"></div>
+                <div class="middle-small"></div>
                 <div class="right">
                     <div class="bttn-set">
                         <label
@@ -83,7 +83,7 @@
                     <div class="left">
                         <h5 class="slim title section-top"><b>Search phrase</b></h5>
                     </div>
-                    <div class="middle"></div>
+                    <div class="middle-small"></div>
                     <div class="right">
                         <autosize-textarea
                             placeholder="Search phrase..."
@@ -152,7 +152,7 @@
                             the entire contents, and paste it in the "RAW PUBMED DATA" field.
                         </p>
                     </div>
-                    <div class="middle"></div>
+                    <div class="middle-small"></div>
                     <div class="right">
                         <autosize-textarea
                             class="big id-reference-raw"
@@ -164,7 +164,9 @@
                     </div>
                 </div>
                 <div class="question small line-wrapper">
-                    <div class="left">
+                    <div class="left"></div>
+                    <div class="middle-small"></div>
+                    <div class="right">
                         <button
                             class="green id-add-reference-button"
                             ng-click="$ctrl.addReference({'pubmedData': $ctrl.currentSelection.pubmedData})"
@@ -187,8 +189,6 @@
                             Add reference
                         </button>
                     </div>
-                    <div class="middle"></div>
-                    <div class="right"></div>
                 </div>
             </article>
 
@@ -200,7 +200,7 @@
                             Is the study published?
                         </p>
                     </div>
-                    <div class="middle"></div>
+                    <div class="middle-small"></div>
                     <div class="right">
                         <div class="bttn-set">
                             <label
@@ -227,7 +227,7 @@
                             <b>{{ input.left }}</b>
                         </h5>
                     </div>
-                    <div class="middle"></div>
+                    <div class="middle-small"></div>
                     <div class="right">
                         <autosize-textarea
                             placeholder="{{ input.placeholder }}"
@@ -239,7 +239,7 @@
                 </div>
                 <div class="question small line-wrapper">
                     <div class="left"></div>
-                    <div class="middle"></div>
+                    <div class="middle-small"></div>
                     <div class="right">
                         <button
                             class="green id-add-reference-button"
