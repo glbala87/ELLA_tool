@@ -23,6 +23,23 @@ const parseManual = ({ props }) => {
         }
     })
 
+    if ('volume' in manual) {
+        manual['journal'] += `: ${manual['volume']}`
+        delete manual['volume']
+    }
+
+    if ('issue' in manual) {
+        manual['journal'] += `(${manual['issue']})`
+        delete manual['issue']
+    }
+
+    if ('pages' in manual) {
+        manual['journal'] += `, ${manual['pages']}`
+        delete manual['pages']
+    }
+
+    manual['journal'] += '.'
+
     return { data: { manual } }
 }
 
