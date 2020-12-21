@@ -357,7 +357,7 @@ class HeaderParser(object):
                 meta[key].append(value)
             elif line.startswith("#"):
                 line = line.replace("#", "")
-                header = re.split(r"\s+", line)
+                header = re.split(r"\s+", line, flags=re.ASCII)
                 # header = line.split('\t')
                 # header =
             else:
@@ -455,7 +455,7 @@ class DataParser(object):
         del data["FORMAT"]
 
     def _parseData(self, line):
-        data = {k: v for k, v in zip(self.header, re.split(r"\s+", line))}
+        data = {k: v for k, v in zip(self.header, re.split(r"\s+", line, flags=re.ASCII))}
 
         # Split by alleles
         data["ALT"] = data["ALT"].split(",")
