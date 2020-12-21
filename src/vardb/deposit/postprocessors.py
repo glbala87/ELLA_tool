@@ -12,7 +12,7 @@ def analysis_not_ready_warnings(session, analysis, interpretation, filter_config
     Set analysis as 'Not ready' if it has warnings _or_
     there are variants that needs verification.
     """
-    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+    allele_ids, excluded_allele_ids, filter_config_id = helpers.get_filtered_alleles(
         session, interpretation, filter_config_id
     )
 
@@ -45,7 +45,9 @@ def analysis_tag_all_classified(session, analysis, interpretation, filter_config
     using the given filterconfig (which normally is the default one)
     """
 
-    allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
+    allele_ids, _, filter_config_id = helpers.get_filtered_alleles(
+        session, interpretation, filter_config_id
+    )
 
     # Get alleles with valid alleleassessments
     allele_ids_with_alleleasssessment = (
@@ -77,7 +79,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
     is inserted into the log to indicate reason for finalization.
     """
 
-    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
+    allele_ids, excluded_allele_ids, filter_config_id = helpers.get_filtered_alleles(
         session, interpretation, filter_config_id
     )
 

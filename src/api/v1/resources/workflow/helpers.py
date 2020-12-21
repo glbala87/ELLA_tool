@@ -1255,7 +1255,7 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 else:
                     allele_ids.append(snapshot.allele_id)
 
-            return allele_ids, excluded_allele_ids
+            return allele_ids, excluded_allele_ids, filter_config_id
         else:
             analysis_id = interpretation.analysis_id
             analysis_allele_ids = (
@@ -1270,6 +1270,6 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 filter_config_id, analysis_id, analysis_allele_ids
             )
 
-            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
+            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"], filter_config_id)
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))
