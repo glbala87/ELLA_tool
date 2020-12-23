@@ -74,7 +74,7 @@ stages:
 
 # jobs
 
-build:
+.build:
     stage: build
     before_script:
         - *apk-setup
@@ -92,7 +92,7 @@ build:
     cache:
         <<: *cache-push
 
-start_review:
+.start_review:
     extends: .revapp
     script:
         - make gitlab-review
@@ -109,7 +109,7 @@ start_review:
     except:
         - master
 
-stop_review:
+.stop_review:
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -118,7 +118,7 @@ stop_review:
         <<: *revapp-env
         action: stop
 
-refresh_ip:
+.refresh_ip:
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -132,13 +132,13 @@ refresh_ip:
 
 ###
 
-check_formatting:
+.check_formatting:
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-e2e:
+.e2e:
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -152,37 +152,37 @@ e2e:
     cache:
         <<: *cache-pull
 
-api:
+.api:
     extends: .common-test
     script:
         - make test-api
 
-api_migration:
+.api_migration:
     extends: .common-test
     script:
         - make test-api-migration
 
-js:
+.js:
     extends: .common-test
     script:
         - make test-js
 
-python:
+.python:
     extends: .common-test
     script:
         - make test-python
 
-cli:
+.cli:
     extends: .common-test
     script:
         - make test-cli
 
-report:
+.report:
     extends: .common-test
     script:
         - make test-report
 
-release:
+.release:
     stage: release
     before_script:
         - *apk-setup
@@ -198,5 +198,13 @@ release:
         when: on_success
     only:
         - tags
+    tags:
+        - do-large
+
+runner_test:
+    image: python:alpine
+    stage: test
+    script:
+        - python3 -V
     tags:
         - do-large
