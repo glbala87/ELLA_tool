@@ -201,10 +201,25 @@ stages:
     tags:
         - do-large
 
-runner_test:
+push_test:
+    image: python:alpine
+    stage: build
+    script:
+        - python3 -V
+        - mkdir -p images/
+        - echo "test files" > $CI_CACHE_IMAGE_FILE
+    tags:
+        - do-large
+    cache:
+        <<: *cache-push
+
+pull_test:
     image: python:alpine
     stage: test
     script:
-        - python3 -V
+        - cat $CI_CACHE_IMAGE_FILE
     tags:
         - do-large
+    cache:
+        <<: *cache-pull
+    needs: ['push_test']
