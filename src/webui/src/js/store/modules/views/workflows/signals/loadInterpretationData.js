@@ -12,6 +12,7 @@ import toast from '../../../../common/factories/toast'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
 import getFilterConfig from '../actions/getFilterConfig'
 import setDefaultFilterConfig from '../actions/setDefaultFilterConfig'
+import autoIgnoreReferences from '../interpretation/actions/autoIgnoreReferences'
 
 export default sequence('loadInterpretationData', [
     progress('start'),
@@ -39,7 +40,7 @@ export default sequence('loadInterpretationData', [
             loadGenepanel,
             loadAlleles,
             progress('inc'),
-            parallel([[loadReferences, loadAcmg], loadAttachments]),
+            parallel([[loadReferences, loadAcmg, autoIgnoreReferences], loadAttachments]),
             updateLoadingPhase('done'),
             progress('done')
         ]

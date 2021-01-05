@@ -17,12 +17,12 @@ export default [
                 success: [
                     setDirty,
                     loadAlleles,
-                    loadAcmg,
                     when(props`category`, (c) => c === 'references'),
                     {
                         true: loadReferences,
                         false: [] // noop
-                    }
+                    },
+                    loadAcmg
                 ],
                 error: [toast('error', string`Could not submit ${props`category`} annotation`)]
             }

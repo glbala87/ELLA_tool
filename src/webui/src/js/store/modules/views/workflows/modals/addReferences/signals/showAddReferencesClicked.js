@@ -13,11 +13,10 @@ const userReferencesForAllele = ({ state, props }) => {
         })
         .map((ref) => {
             const loadedRef = Object.values(loadedReferences).find(
-                (r) => r.pubmed_id === ref.pubmed_id || r.id === ref.id
+                (r) => (r.pubmed_id && r.pubmed_id === ref.pubmed_id) || (r.id && r.id === ref.id)
             )
             return loadedRef.id
         })
-
     return { userReferenceIds }
 }
 
