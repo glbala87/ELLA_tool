@@ -1,0 +1,85 @@
+<sectionbox
+    class="custom-annotation-modal id-custom-annotation-modal"
+    color="green"
+    modal="true"
+    on-close="($ctrl.dismissClicked)"
+>
+    <maintitle>
+        External
+    </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-cancel" type="button" ng-click="$ctrl.dismissClicked()">
+                Cancel
+            </button>
+            <button
+                class="id-save"
+                type="button"
+                ng-click="$ctrl.saveClicked({alleleId: $ctrl.alleleId, category: 'external', customAnnotationData: {'external': $ctrl.externalSelected} })"
+            >
+                Save
+            </button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <section>
+            <article
+                class="line-wrapper question medium"
+                ng-repeat="group in $ctrl.annotationGroups"
+            >
+                <div class="left-small" class="faded-title">
+                    <h5 class="slim title">
+                        <b>{{ group.name }}</b>
+                    </h5>
+                </div>
+                <div class="middle-small line-wrapper"></div>
+                <div class="right line-wrapper">
+                    <div class="multiple-question-element">
+                        <div
+                            class="id-annotation-bttn-set bttn-set"
+                            ng-if="group.options && group.options.length < 5"
+                        >
+                            <label
+                                tabindex="0"
+                                class="bttn"
+                                ng-model-watch="$ctrl.externalSelected[group.key]"
+                                ng-model="$ctrl.modelExternalSelected[group.key]"
+                                ng-change="$ctrl.selectionChanged({key: group.key, value: $ctrl.modelExternalSelected[group.key]})"
+                                uib-btn-radio="item[1]"
+                                uib-uncheckable="true"
+                                ng-repeat="item in group.options"
+                                >{{ item[0] }}</label
+                            >
+                        </div>
+                        <div class="dropdown" ng-if="group.options && group.options.length >= 5">
+                            <select
+                                class="id-annotation-select"
+                                ng-options="v[1] as v[0] for v in group.options"
+                                ng-model-watch="$ctrl.externalSelected[group.key]"
+                                ng-model="$ctrl.modelExternalSelected[group.key]"
+                                ng-change="$ctrl.selectionChanged({key: group.key, value: $ctrl.modelExternalSelected[group.key]})"
+                            >
+                                <option value="" selected></option>
+                                {{
+                                    $ctrl.modelExternalSelected[group.key]
+                                }}
+                            </select>
+                        </div>
+                        <div ng-if="group.text">
+                            <autosize-textarea
+                                placeholder="ENTER VALUE"
+                                ng-model-watch="$ctrl.externalSelected[group.key]"
+                                ng-model="$ctrl.modelExternalSelected[group.key]"
+                                ng-change="$ctrl.selectionChanged({key: group.key, value: $ctrl.modelExternalSelected[group.key]})"
+                            >
+                            </autosize-textarea>
+                        </div>
+                    </div>
+                    <div class="db-url" ng-repeat="url in $ctrl.getUrls(group)">
+                        <a-clip href="{{ url }}">Visit database</a-clip>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </contentwrapper>
+</sectionbox>

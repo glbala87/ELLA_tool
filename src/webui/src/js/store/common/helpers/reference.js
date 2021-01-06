@@ -49,8 +49,12 @@ export function findReferencesFromIds(references, ids) {
             }
             if (reference) {
                 result.references.push(reference)
-            } else {
+            } else if (pmid) {
                 result.missing.push(rid)
+            } else {
+                console.warn(
+                    `Reference with id ${id} not loaded, this is probably caused by a harmless race condition in the view rendering`
+                )
             }
         }
     }

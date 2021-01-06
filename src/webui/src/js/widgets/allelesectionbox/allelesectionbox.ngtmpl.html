@@ -55,7 +55,7 @@
 
                 <button
                     class="id-add-references"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
+                    ng-click="$ctrl.addReferencesClicked({alleleId: $ctrl.selectedAllele})"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
                     ng-if="control == 'references'"
                 >
@@ -74,7 +74,7 @@
                     class="id-add-external"
                     ng-if="control == 'custom_external'"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'external'})"
+                    ng-click="$ctrl.addExternalClicked({alleleId: $ctrl.selectedAllele})"
                 >
                     Add external DB
                 </button>
@@ -83,17 +83,9 @@
                     class="id-add-prediction"
                     ng-if="control == 'custom_prediction'"
                     ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'prediction'})"
+                    ng-click="$ctrl.addPredictionClicked({alleleId: $ctrl.selectedAllele})"
                 >
                     Add prediction
-                </button>
-
-                <button
-                    ng-if="control == 'add_reference'"
-                    ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAllele, category: 'references'})"
-                >
-                    Add reference
                 </button>
 
                 <section class="line-wrapper" ng-if="control == 'classification'">

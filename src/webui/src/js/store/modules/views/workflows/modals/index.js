@@ -4,6 +4,9 @@ import alleleHistory from './alleleHistory'
 import finishConfirmation from './finishConfirmation'
 import genepanelOverview from './genepanelOverview'
 import reassignWorkflow from './reassignWorkflow'
+import addPrediction from './addPrediction'
+import addExternal from './addExternal'
+import addReferences from './addReferences'
 
 export default Module({
     state: {
@@ -16,6 +19,9 @@ export default Module({
         alleleHistory,
         finishConfirmation,
         genepanelOverview,
-        reassignWorkflow
+        reassignWorkflow,
+        addPrediction,
+        addExternal,
+        addReferences
     }
 })

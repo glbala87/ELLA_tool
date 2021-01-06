@@ -9,13 +9,10 @@ import ExceptionHandling from './exceptionhandling'
 // We must import all the modules using Angular for them to register
 // although we're not using them explicitly.
 
-import './modals/customAnnotationModal.service'
 import './modals/referenceEvalModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resources are therefore still in use
-import './services/resources/customAnnotationResource.service'
 import './services/resources/analysisResource.service'
-import './services/resources/ReferenceResource.service'
 import './services/resources/attachmentResource.service'
 import './services/user.service'
 import './services/ConfigService'
@@ -27,6 +24,10 @@ import './views/modals/addExcludedAlleles.directive'
 import './views/modals/alleleHistory.directive'
 import './views/modals/reassignWorkflow.directive'
 import './views/modals/genepanelOverview.directive'
+import './views/modals/addPrediction.directive'
+import './views/modals/addExternal.directive'
+import './views/modals/addReferences.directive'
+
 import './views/workflow/workflow.directive'
 import './views/workflow/workflowLoading.directive'
 import './views/workflow/interpretation.directive'
