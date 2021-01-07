@@ -1,9 +1,10 @@
 from typing import Sequence, Tuple
 import datetime
 import pytz
-from sqlalchemy import or_, and_, tuple_, func, text, literal_column
-from vardb.datamodel import sample, workflow, assessment, allele, gene
-from vardb.datamodel.annotationshadow import AnnotationShadowTranscript
+from sqlalchemy import or_, and_, tuple_, func, text, literal_column, Text
+from sqlalchemy.sql.sqltypes import Integer
+from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
+from vardb.datamodel import annotationshadow
 
 from api.util import filterconfig_requirements
 from api.config import config
@@ -342,7 +343,10 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
 
 
 def annotation_transcripts_genepanel(
-    session, genepanel_keys: Sequence[Tuple[str, str]], allele_ids: Sequence[int] = None
+    session,
+    genepanel_keys: Sequence[Tuple[str, str]],
+    allele_ids: Sequence[int] = None,
+    annotation_ids: Sequence[int] = None,
 ):
 
     """
@@ -365,6 +369,28 @@ def annotation_transcripts_genepanel(
     Use it only to get annotation data for further filtering,
     where a non-match wouldn't exclude the allele in the analysis.
     """
+    assert not (allele_ids and annotation_ids)
+
+    # If annotation ids is specified, we should not use the default AnnotationShadowTranscript, as this contains only
+    # the most recent annotations. Instead, we create a temp-table matching the structure of AnnotationShadowTranscript,
+    # with the annotations requested
+    if annotation_ids:
+        tx = func.jsonb_array_elements(annotation.Annotation.annotations.op("->")("transcripts"))
+        annotation_shadow_transcript_table = (
+            session.query(
+                annotation.Annotation.allele_id,
+                tx.op("->>")("hgnc_id").cast(Integer).label("hgnc_id"),
+                tx.op("->>")("symbol").cast(Text).label("symbol"),
+                tx.op("->>")("transcript").cast(Text).label("transcript"),
+                tx.op("->>")("HGVSc").cast(Text).label("hgvsc"),
+                tx.op("->>")("protein").cast(Text).label("protein"),
+                tx.op("->>")("HGVSp").cast(Text).label("hgvsp"),
+            )
+            .filter(annotation.Annotation.id.in_(annotation_ids))
+            .temp_table("annotationshadowtranscript")
+        ).columns
+    else:
+        annotation_shadow_transcript_table = annotationshadow.AnnotationShadowTranscript
 
     genepanel_transcripts = (
         session.query(
@@ -387,25 +413,25 @@ def annotation_transcripts_genepanel(
     # Join genepanel and annotation tables together, using transcript as key
     # and splitting out the version number of the transcript (if it has one)
     result = session.query(
-        AnnotationShadowTranscript.allele_id.label("allele_id"),
+        annotation_shadow_transcript_table.allele_id.label("allele_id"),
         genepanel_transcripts.c.name.label("name"),
         genepanel_transcripts.c.version.label("version"),
         genepanel_transcripts.c.gene_id.label("genepanel_hgnc_id"),
         genepanel_transcripts.c.transcript_name.label("genepanel_transcript"),
-        AnnotationShadowTranscript.transcript.label("annotation_transcript"),
-        AnnotationShadowTranscript.symbol.label("annotation_symbol"),
-        AnnotationShadowTranscript.hgnc_id.label("annotation_hgnc_id"),
-        AnnotationShadowTranscript.hgvsc.label("annotation_hgvsc"),
-        AnnotationShadowTranscript.hgvsp.label("annotation_hgvsp"),
+        annotation_shadow_transcript_table.transcript.label("annotation_transcript"),
+        annotation_shadow_transcript_table.symbol.label("annotation_symbol"),
+        annotation_shadow_transcript_table.hgnc_id.label("annotation_hgnc_id"),
+        annotation_shadow_transcript_table.hgvsc.label("annotation_hgvsc"),
+        annotation_shadow_transcript_table.hgvsp.label("annotation_hgvsp"),
     ).filter(
         # Matches e.g. NM_12345dabla.1 with NM_12345.2
         text("transcript_name like split_part(transcript, '.', 1) || '%'"),
-        genepanel_transcripts.c.gene_id == AnnotationShadowTranscript.hgnc_id,
+        genepanel_transcripts.c.gene_id == annotation_shadow_transcript_table.hgnc_id,
     )
 
     if allele_ids is not None:
         result = result.filter(
-            AnnotationShadowTranscript.allele_id.in_(allele_ids) if allele_ids else False
+            annotation_shadow_transcript_table.allele_id.in_(allele_ids) if allele_ids else False
         )
 
     # Order and distinct:
@@ -413,17 +439,19 @@ def annotation_transcripts_genepanel(
     # - The annotation transcript that matches the genepanel transcript on version
     # - Otherwise, select the latest available transcript version
     result = result.order_by(
-        AnnotationShadowTranscript.allele_id,
+        annotation_shadow_transcript_table.allele_id,
         genepanel_transcripts.c.name,
         genepanel_transcripts.c.version,
         genepanel_transcripts.c.gene_id,
         genepanel_transcripts.c.transcript_name,
-        (genepanel_transcripts.c.transcript_name == AnnotationShadowTranscript.transcript).desc(),
+        (
+            genepanel_transcripts.c.transcript_name == annotation_shadow_transcript_table.transcript
+        ).desc(),
         tx_version.desc().nullslast(),
     )
 
     result = result.distinct(
-        AnnotationShadowTranscript.allele_id,
+        annotation_shadow_transcript_table.allele_id,
         genepanel_transcripts.c.name,
         genepanel_transcripts.c.version,
         genepanel_transcripts.c.gene_id,
