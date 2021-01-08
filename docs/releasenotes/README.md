@@ -14,7 +14,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.12
 
-Release date: TBD
+Release date: 13.01.2021
 
 ### Highlights
 
@@ -112,7 +112,9 @@ To better support custom gene panel imports that should be available to more tha
 <!-- MR !453 -->
 - Fixed wrong tooltip on `SUBMIT REPORT` button.
 <!-- MR !455 -->
-- Fixed bug that caused variants that were removed from the REPORT to be added back again without user intent. 
+- Fixed a bug that caused variants that were removed from the REPORT to be added back again without user intent. 
+<!-- MR !482 -->
+- Fixed a bug that caused errors in loading of historical data.
 <!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478 -->
 - Many fixes and improvements to development environment and code base.
 
