@@ -46,7 +46,7 @@
                                 ng-model="$ctrl.modelPredictionSelected[group.key]"
                                 ng-change="$ctrl.selectionChanged({key: group.key, value: $ctrl.modelPredictionSelected[group.key]})"
                                 uib-btn-radio="item[1]"
-                                uib-uncheckable="true"
+                                uib-uncheckable="false"
                                 ng-repeat="item in group.options"
                                 >{{ item[0] }}</label
                             >

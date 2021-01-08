@@ -119,7 +119,7 @@ CMD ["supervisord", "-c", "/ella/ops/dev/supervisor.cfg"]
 
 FROM dev AS production-build
 
-RUN cd /ella && yarn production && yarn docs
+RUN cd /ella && yarn build && yarn docs
 
 FROM base AS production
 
