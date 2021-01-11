@@ -111,9 +111,8 @@ def output_json(data, code, headers=None):
 # Setup resources for v1
 ApiV1(app, api).setup_api()
 
-if os.environ.get("SERVE_STATIC"):
-    app.add_url_rule("/", "index", serve_static)
-    app.add_url_rule("/<path:path>", "index_redirect", serve_static)
+app.add_url_rule("/", "index", serve_static)
+app.add_url_rule("/<path:path>", "index_redirect", serve_static)
 
 # This is used by development - production will not trigger it
 if __name__ == "__main__":
