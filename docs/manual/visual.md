@@ -8,12 +8,12 @@ title: Visual mode
 
 Pushing the `VISUAL` button (available in ANALYSIS mode only) in the side bar opens the VISUAL mode:
 
-<div style="text-indent: 4%;"><img src="./img/sidebar_modes_visual.png"></div>
+<div class="figure"><img src="./img/sidebar_modes_visual.png"></div>
 <br>
 
 This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.5.4) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
 
-<div style="text-indent: 4%;"><img src="./img/visual.png"></div>
+<div class="figure"><img src="./img/visual.png"></div>
 
 With IGV, you can visualize all variants in an analysis, along with customisable tracks at three different levels: global, user group or analysis.
 

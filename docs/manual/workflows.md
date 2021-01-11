@@ -14,12 +14,9 @@ An ANALYSIS is tied to both a specific laboratory sample and a gene panel. Note 
 
 A schematic representation of a typical ANALYSES workflow is shown in **Figure 1** below.
 
-<div style="text-indent: 4%;">
-  <img src="./img/workflow.png"><br>
-  <div style="font-size: 80%;">
-    <strong>Figure 1:</strong> Typical ANALYSES workflow.
-  </div>
-  <br> 
+<div class="figure_text">
+  <img src="./img/workflow.png">
+  <p><strong>Figure 1:</strong> Typical ANALYSES workflow.</p>
 </div>
 
 Valid classifications are defined in the [configuration](/technical/acmg.html#classification) (e.g. <6 months old). Each variant may be finalized at any time. The review steps are optional, and may be omitted for low-complexity samples (e.g. only benign variants and/or still valid existing classifications).

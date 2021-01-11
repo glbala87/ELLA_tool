@@ -40,7 +40,7 @@ Models with previous/current semantics are:
 
 Genetic data, currently genetic variation represented as SNVs and indels, are stored in the `allele` table.
 
-<div style="text-indent: 4%;">
+<div class="figure">
     <img src="./img/datamodel-allele.png">
 </div>
 
@@ -89,7 +89,7 @@ The genotype is connected to/has:
 
 The *official* classification (1-5) and complementary data such as ACMG criteria and comments are stored in **AlleleAssessment**.
 
-<div style="text-indent: 4%;"><img src="./img/datamodel-alleleassessment.png"></div>
+<div class="figure"><img src="./img/datamodel-alleleassessment.png"></div>
 
 
 The assessment has:
@@ -134,7 +134,7 @@ A reference assessment has:
 ## Analyses and samples
 
 <br>
-<div style="text-indent: 4%;"><img src="./img/datamodel-analysis.png"></div>
+<div class="figure"><img src="./img/datamodel-analysis.png"></div>
 
 An **Analysis** is bioinformatic calcalutation producing a list of variants that are to be interpreted. An analysis is done in the context of a specific gene panel used as a basis for variant filtering. The sequencing data is taken from a **Sample**. The data from a sample can be used in different analyeses, and the database will have a pair of sample/analysis for each. Thus there can be multiple rows for the same physical sample.
 
@@ -170,7 +170,7 @@ AnalysisInterpretation: S [] --save--> S' [S] --save--> S'' [S' S] etc
 AnalysisInterpretationState':  S'' [] --save--> S''' [S''] --save--> S'''' [S''' S''] etc
 ```
 
-<div><img style="transform: scale(0.8);" src="./img/datamodel-workflow.png"></div>
+<div class="figure"><img src="./img/datamodel-workflow.png"></div>
 
 In addition to passing the state to a new round, the context of the interpretation is persisted in so-called snapshot objects.
 
