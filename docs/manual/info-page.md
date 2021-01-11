@@ -24,7 +24,7 @@ The ANALYSIS INFO section shows some basic information about the current sample.
 
 ### Attachments
 
-Attachments may be added in the pipeline and linked in a card here.
+Files added under <ANALYSIS_FOLDER>/attachments are available to download here.
 
 ## Pipeline report
 

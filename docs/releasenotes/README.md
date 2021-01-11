@@ -98,7 +98,7 @@ To better support custom gene panel imports that should be available to more tha
 <!-- MR !463 -->
 - [Added possibility to select which user groups an imported custom gene panel analysis should be available to](#select-user-group-on-custom-imports). 
 <!-- MR !433 -->
-- Search result limit has been increased from 10 to 100.
+- Search result limit has been increased from 10 to 100, with pagination of the search results.
 <!-- MR !435 -->
 - Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
 <!-- MR !475 -->
