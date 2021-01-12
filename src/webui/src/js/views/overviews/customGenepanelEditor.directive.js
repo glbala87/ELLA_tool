@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import template from './customGenepanelEditor.ngtmpl.html'
+import template from './customGenepanelEditor.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const candidatesFilteredTotalItems = Compute(
     state`views.overview.import.custom.candidates.filteredFlattened`,
@@ -85,12 +85,30 @@ const addedFilteredTotalItems = Compute(
     }
 )
 
+// This is just to work around uib-btn-checkbox model format
+const selectedImportUserGroups = Compute(
+    state`views.overview.import.custom.selectedImportUserGroups`,
+    state`app.user.group.import_groups`,
+    (selectedImportUserGroups, candidateImportGroups) => {
+        const selected = []
+        for (let c of candidateImportGroups) {
+            selected.push({
+                selected: selectedImportUserGroups.includes(c),
+                name: c
+            })
+        }
+        return selected
+    }
+)
+
 app.component('customGenepanelEditor', {
     templateUrl: 'customGenepanelEditor.ngtmpl.html',
     controller: connect(
         {
             candidateTranscripts,
             addedTranscripts,
+            importUserGroups: state`app.user.group.import_groups`,
+            selectedImportUserGroups,
             genepanels: state`views.overview.import.data.genepanels`,
             selectedGenepanel: state`views.overview.import.selectedGenepanel`,
             selectedFilterMode: state`views.overview.import.custom.selectedFilterMode`,
@@ -120,7 +138,8 @@ app.component('customGenepanelEditor', {
             selectedCandidatesPageChanged: signal`views.overview.import.selectedCandidatesPageChanged`,
             selectedAddedPageChanged: signal`views.overview.import.selectedAddedPageChanged`,
             selectedGenepanelChanged: signal`views.overview.import.selectedGenepanelChanged`,
-            selectedFilterModeChanged: signal`views.overview.import.selectedFilterModeChanged`
+            selectedFilterModeChanged: signal`views.overview.import.selectedFilterModeChanged`,
+            importUserGroupsChanged: signal`views.overview.import.importUserGroupsChanged`
         },
         'CustomGenepanelEditor',
         [
@@ -154,6 +173,18 @@ app.component('customGenepanelEditor', {
                             return `from filter`
                         }
                         return ''
+                    },
+                    importUserGroupsChangedWrapper() {
+                        // Transform data to format expected in signal
+                        const result = $ctrl.importUserGroups
+                            .map((g, i) => {
+                                if ($ctrl.modelImportUserGroup[i]) {
+                                    return g
+                                }
+                                return null
+                            })
+                            .filter((i) => i !== null)
+                        $ctrl.importUserGroupsChanged({ importUserGroups: result })
                     }
                 })
             }

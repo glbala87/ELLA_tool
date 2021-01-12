@@ -26,7 +26,7 @@ describe(`Adding reference in variant workflow`, function() {
         loginPage.loginAs('testuser1')
         variantSelectionPage.selectPending(1)
         analysisPage.startButton.click()
-        alleleSectionBox.classifyAsU()
+        alleleSectionBox.classifyAsNP()
 
         expect(alleleSectionBox.getReferences().length).toEqual(1)
 

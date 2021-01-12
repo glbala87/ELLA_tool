@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject, Config } from '../../ng-decorators'
-import template from './importSingle.ngtmpl.html'
+import template from './importSingle.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 @Directive({
     selector: 'importsingle',

@@ -8,7 +8,7 @@ title: Data import and reanalyses
 
 HTS data produced in-house is imported automatically into ELLA, with a gene panel predefined from the pipeline. However, [data for variants and samples can also be added manually](#import-variant-data), and the [gene panel for an existing sample can be changed](#custom-reanalyses-from-sample-repository). Both of these tasks can be performed through the `IMPORT` function available in the left, vertical sidebar:
 
-<div style="text-indent: 4%;"><img src="./img/overview_sidebar.png"></div>
+<div class="figure"><img src="./img/overview_sidebar.png"></div>
 
 ## Overview: Import
 
@@ -24,14 +24,14 @@ The import page has the following sections:
 
 ## Import variant data
 
-- In the NEW IMPORT section, select the `VARIANTS` option if not already the case: <div style="text-indent: 4%;"><img src="./img/import_source_variants.png"></div>
-- Paste text containing the variants to be imported into the `PASTE VARIANT DATA HERE` field (see [supported import formats](#supported-import-formats)), then click `+ PARSE DATA`: <div style="text-indent: 4%;"><img src="./img/parse_data_btn.png"></div>
-- To go back and edit the import data, click the `EDIT VARIANT DATA` button (note that this will also reset any options selected): <div style="text-indent: 4%;"><img src="./img/edit_variant_data_btn.png"></div>
-- See [options](#import-options) for configuring the import. When ready (and no warnings are displayed), click `+ IMPORT`: <div style="text-indent: 4%;"><img src="./img/plus_import_btn.png"></div>
+- In the NEW IMPORT section, select the `VARIANTS` option if not already the case: <img src="./img/import_source_variants.png">
+- Paste text containing the variants to be imported into the `PASTE VARIANT DATA HERE` field (see [supported import formats](#supported-import-formats)), then click `+ PARSE DATA`: <img src="./img/parse_data_btn.png">
+- To go back and edit the import data, click the `EDIT VARIANT DATA` button (note that this will also reset any options selected): <img src="./img/edit_variant_data_btn.png">
+- See [options](#import-options) for configuring the import. When ready (and no warnings are displayed), click `+ IMPORT`: <img src="./img/plus_import_btn.png">
 
 Submitted jobs are listed in the ACTIVE IMPORTS section:
 
-<div style="text-indent: 4%;"><img src="./img/status_submitted.png"></div>
+<div class="figure"><img src="./img/status_submitted.png"></div>
 
 If something went wrong, you can try the retry button to the right, or check for errors in the imported text (click anywhere on the import job text) and repeat the import process. 
 
@@ -65,7 +65,7 @@ Variants for the same sample must all be given in the same format. If you wish t
 
 You may change parameters by clicking the `IMPORT OPTIONS` button (automatically opened if a warning: "Selection is incomplete" is displayed):
 
-<div style="text-indent: 4%;"><img src="./img/import_options_btn.png"></div>
+<div class="figure"><img src="./img/import_options_btn.png"></div>
 
 Depending on your data, the following options are available:
 
@@ -93,13 +93,13 @@ You may also exclude individual variants from the import by deselecting them in 
 
 By default, ELLA uses gene panels defined in the pipeline for all samples. However, you may also create a new analysis on a previously run sample (provided other genes were sequenced, e.g. exome/genome data) by using the `SAMPLE REPOSITORY` option in the NEW IMPORT section: 
 
-<div style="text-indent: 4%;"><img src="./img/import_source_sample_repo.png"></div>
+<div class="figure"><img src="./img/import_source_sample_repo.png"></div>
 
 ### Use existing gene panel
 
 The default reanalysis mode is to use an existing gene panel (CUSTOM GENE PANEL: `NO`):
 
-<div style="text-indent: 4%;"><img src="./img/reanalysis_existing.png"></div>
+<div class="figure"><img src="./img/reanalysis_existing.png"></div>
 
 To start a reanalysis: 
 
@@ -112,10 +112,12 @@ To start a reanalysis:
 
 If you choose CUSTOM GENE PANEL: `YES`, you may instead add any combination of genes from existing gene panels:
 
-<div style="text-indent: 4%;"><img src="./img/reanalysis_custom.png"></div>
+<div class="figure"><img src="./img/reanalysis_custom.png"></div>
 
 To start a reanalysis with a custom gene panel for a chosen sample: 
 
+  - Select the user groups the analysis should be made available to (IMPORT TO USER GROUPS).
+  
   - Add a name for custom gene panel in the CUSTOM GENE PANEL NAME field. This should be max 12 characters, and you should avoid using the same name more than once per day to ensure a unique name.
 
   - In the ADD TRANSCRIPTS section: 
@@ -138,7 +140,7 @@ By default the `SINGLE` filter option is selected, which is useful for quickly l
 
 You may also search for multiple genes in batch using the `BATCH` filter option: 
 
-<div style="text-indent: 4%;"><img src="./img/batch_filter.png"></div>
+<div class="figure"><img src="./img/batch_filter.png"></div>
 
 To use the batch filter: 
 

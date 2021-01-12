@@ -1,3 +1,4 @@
+from typing import Dict, List
 import json
 import argparse
 import logging
@@ -10,8 +11,13 @@ log = logging.getLogger(__name__)
 
 
 def import_groups(session, groups, log=log.info):
+
+    # Store import_groups data (has to be inserted after groups)
+    import_groups: Dict[str, List[str]] = dict()
+
     for g in groups:
         group_data = dict(g)
+        group_name = group_data["name"]
 
         existing_group = (
             session.query(user.UserGroup)
@@ -27,7 +33,6 @@ def import_groups(session, groups, log=log.info):
             )
             .all()
         )
-        print(db_official_genepanels)
 
         if len(db_official_genepanels) != len(group_data["genepanels"]):
             not_found = set(tuple(gp) for gp in group_data["genepanels"]) - set(
@@ -36,6 +41,8 @@ def import_groups(session, groups, log=log.info):
             raise NoResultFound(
                 "Unable to find all genepanels in database: %s" % str(list(not_found))
             )
+
+        import_groups[group_name] = group_data.pop("import_groups", [group_name])
 
         if group_data.get("default_import_genepanel"):
             default_import_genepanel = group_data.pop("default_import_genepanel")
@@ -47,7 +54,7 @@ def import_groups(session, groups, log=log.info):
             group_data["genepanels"] = db_official_genepanels
             new_group = user.UserGroup(**group_data)
             session.add(new_group)
-            log("Added user group {}".format(group_data["name"]))
+            log("Added user group {}".format(group_name))
         else:
             # Keep unofficial genepanels for group
             db_unofficial_genepanels = [
@@ -62,6 +69,26 @@ def import_groups(session, groups, log=log.info):
         annotationshadow.check_usergroup_config(
             existing_group if existing_group else new_group, config
         )
+
+    # Handle import_groups
+    session.flush()
+    usergroup_id_names = session.query(user.UserGroup.id, user.UserGroup.name).all()
+    usergroup_name_id = {gn: gid for gid, gn in usergroup_id_names}
+    for group_name, import_group_names in import_groups.items():
+
+        # Delete all usergroupimport rows for this group before re-inserting new
+        session.execute(
+            user.UserGroupImport.delete().where(
+                user.UserGroupImport.c.usergroup_id == usergroup_name_id[group_name]
+            )
+        )
+        for import_group_name in import_group_names:
+            session.execute(
+                user.UserGroupImport.insert().values(
+                    usergroup_id=usergroup_name_id[group_name],
+                    usergroupimport_id=usergroup_name_id[import_group_name],
+                )
+            )
 
     session.commit()
 

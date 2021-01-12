@@ -137,6 +137,7 @@ const testUiConfig = {
                         'classificationPrediction',
                         'classificationExternal',
                         'classificationReferences',
+                        'geneInformation',
                         'reportIndications',
                         'reportSummary',
                         'referenceEvaluation',
@@ -162,7 +163,7 @@ const testUiConfig = {
             },
             quick: {
                 columns: ['qual', 'dp', 'ratio', 'hi-freq', 'hi-count', 'external'],
-                classification_options: ['technical', 'notrelevant', 'classu', 'class2'],
+                classification_options: ['technical', 'notrelevant', 'classnp', 'class2'],
                 narrow_comment: false,
                 shade_multiple_in_gene: true
             },
@@ -259,10 +260,6 @@ const testUiConfig = {
         },
         options: [
             {
-                name: 'Class U',
-                value: 'U'
-            },
-            {
                 name: 'Class 1',
                 value: '1'
             },
@@ -293,8 +290,16 @@ const testUiConfig = {
                 include_analysis_with_findings: true
             },
             {
+                name: 'Risk factor',
+                value: 'RF'
+            },
+            {
                 name: 'Drug response',
                 value: 'DR'
+            },
+            {
+                name: 'Not provided',
+                value: 'NP'
             }
         ]
     },
@@ -2444,7 +2449,7 @@ const testAlleleState = {
             ensembl:
                 'http://grch37.ensembl.org/Homo_sapiens/Location/View?r=13%3A32890607-32890607',
             gnomad: 'http://gnomad.broadinstitute.org/region/13-32890597-32890617',
-            hgmd: 'https://portal.biobase-international.com/hgmd/pro/mut.php?accession=CM082514',
+            hgmd: 'https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=CM082514',
             clinvar: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/51063'
         },
         formatted: {
@@ -2760,7 +2765,7 @@ const testAlleleState = {
             ensembl:
                 'http://grch37.ensembl.org/Homo_sapiens/Location/View?r=13%3A32890646-32890647',
             gnomad: 'http://gnomad.broadinstitute.org/region/13-32890635-32890657',
-            hgmd: 'https://portal.biobase-international.com/hgmd/pro/mut.php?accession=CD961847',
+            hgmd: 'https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=CD961847',
             clinvar: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/51814'
         },
         formatted: {
@@ -2932,7 +2937,7 @@ const testAlleleState = {
             ensembl:
                 'http://grch37.ensembl.org/Homo_sapiens/Location/View?r=13%3A32890666-32890666',
             gnomad: 'http://gnomad.broadinstitute.org/region/13-32890656-32890676',
-            hgmd: 'https://portal.biobase-international.com/hgmd/pro/mut.php?accession=CS087186',
+            hgmd: 'https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=CS087186',
             clinvar: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/52162'
         },
         formatted: {
@@ -3205,7 +3210,7 @@ const testAlleleState = {
             ensembl:
                 'http://grch37.ensembl.org/Homo_sapiens/Location/View?r=13%3A32893218-32893218',
             gnomad: 'http://gnomad.broadinstitute.org/variant/13-32893218-A-T',
-            hgmd: 'https://portal.biobase-international.com/hgmd/pro/mut.php?accession=CM111973',
+            hgmd: 'https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=CM111973',
             clinvar: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/52303'
         },
         formatted: {
@@ -3391,7 +3396,7 @@ const testAlleleState = {
             ensembl:
                 'http://grch37.ensembl.org/Homo_sapiens/Location/View?r=13%3A32893243-32893243',
             gnomad: 'http://gnomad.broadinstitute.org/region/13-32893233-32893253',
-            hgmd: 'https://portal.biobase-international.com/hgmd/pro/mut.php?accession=CM067653',
+            hgmd: 'https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=CM067653',
             clinvar: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/52900'
         },
         formatted: {

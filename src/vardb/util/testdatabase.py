@@ -10,7 +10,9 @@ from api.config import config
 
 class TestDatabase(object):
     def __init__(self):
-        self.dump_path = self.get_dump_path()
+        self.dump_path = os.getenv("TEST_DB_DUMP")
+        if not self.dump_path:
+            self.dump_path = self.get_dump_path()
 
         # Reconnect with NullPool in order to avoid hanging connections
         # which prevents us from dropping/creating database
@@ -19,7 +21,7 @@ class TestDatabase(object):
         self.create_dump()
 
     def get_dump_path(self):
-        with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
+        with tempfile.NamedTemporaryFile() as tmpfile:
             return tmpfile.name
 
     def create_dump(self):
@@ -29,38 +31,42 @@ class TestDatabase(object):
         if os.environ.get("TEST_DB_DUMP") and os.path.exists(os.environ.get("TEST_DB_DUMP")):
             return
         with open(os.devnull, "w") as f:
-            subprocess.call("createdb {uri}".format(uri=os.environ["DB_URL"]), shell=True, stdout=f)
+            db_url = os.environ["DB_URL"]
+            db_name = db_url.rsplit("/", 1)[-1]
+            subprocess.check_call(f"dropdb --if-exists {db_name}", shell=True, stdout=f)
+            subprocess.check_call(f"createdb {db_name}", shell=True, stdout=f)
+            subprocess.check_call("ella-cli database drop -f", shell=True, stdout=f)
+            subprocess.check_call("ella-cli database make -f", shell=True, stdout=f)
+            if os.getenv("MIGRATION") == "1":
+                print("Migration running")
+                subprocess.call("ella-cli database ci-migration-head -f", shell=True)
+                subprocess.call("ella-cli database refresh -f", shell=True, stdout=f)
         DepositTestdata(db).deposit_all(test_set="integration_testing")
 
-        if os.environ.get("TEST_DB_DUMP"):
-            dump_path = os.environ["TEST_DB_DUMP"]
-        else:
-            dump_path = self.dump_path
         # Note the --clean and --create flags, which will recreate db when run
         subprocess.check_call(
             "pg_dump {uri} --file={path} --clean --create".format(
-                uri=os.environ["DB_URL"], path=dump_path
+                uri=os.environ["DB_URL"], path=self.dump_path
             ),
             shell=True,
         )
-        print("Temporary database file created at {}.".format(dump_path))
+        print("Temporary database file created at {}.".format(self.dump_path))
 
     def refresh(self):
         """
         Wipes out whole database, and recreates a clean copy from the dump.
         """
         print("Refreshing database with data from dump")
-
-        if os.environ.get("TEST_DB_DUMP") and os.path.exists(os.environ.get("TEST_DB_DUMP")):
-            print("Reusing dump from {}".format(os.environ["TEST_DB_DUMP"]))
-            dump_path = os.environ["TEST_DB_DUMP"]
-        else:
-            dump_path = self.dump_path
+        if not os.path.exists(self.dump_path):
+            self.create_dump()
 
         with open(os.devnull, "w") as f:
+
             # Connect to template1 so we can remove whatever db name
             subprocess.check_call(
-                "psql postgresql:///template1 < {path}".format(path=dump_path), shell=True, stdout=f
+                "psql postgresql:///template1 < {path}".format(path=self.dump_path),
+                shell=True,
+                stdout=f,
             )
 
         # Update mapping of annotation shadow tables based on global config
@@ -69,10 +75,9 @@ class TestDatabase(object):
     def cleanup(self):
         print("Disconnecting...")
         db.disconnect()
-        print("Removing database in TestDatabase")
-        subprocess.call("dropdb {uri}".format(uri=os.environ["DB_URL"]), shell=True)
-        try:
-            os.remove(self.dump_path)
-            print("Temporary database file removed.")
-        except OSError:
-            pass
+        if os.getenv("TEST_DB_DUMP") != self.dump_path:
+            try:
+                os.remove(self.dump_path)
+                print("Temporary database file removed.")
+            except OSError:
+                pass

@@ -3,7 +3,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
-import template from './userDashboard.ngtmpl.html'
+import template from './userDashboard.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('userDashboard', {
     templateUrl: 'userDashboard.ngtmpl.html',

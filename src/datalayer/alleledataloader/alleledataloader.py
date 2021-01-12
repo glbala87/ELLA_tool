@@ -26,7 +26,6 @@ from api.schemas import (
 )
 from api.config import config
 
-
 # Top level keys:
 KEY_REFERENCE_ASSESSMENTS = "reference_assessments"
 KEY_ALLELE_ASSESSMENT = "allele_assessment"
@@ -765,9 +764,9 @@ class AlleleDataLoader(object):
             for allele_id, sample_data in allele_id_sample_data.items():
                 accumulated_allele_data[allele_id][KEY_SAMPLES] = sample_data
 
-        allele_annotations = list()
+        allele_annotations, annotation_ids = list(), None
         if include_annotation:
-            annotation_filters = self.setup_entity_filter(
+            annotation_filters, annotation_ids = self.setup_entity_filter(
                 Annotation, "annotation_id", allele_ids, link_filter
             )
             if annotation_filters:
@@ -777,7 +776,7 @@ class AlleleDataLoader(object):
 
         allele_custom_annotations = list()
         if include_custom_annotation:
-            custom_annotation_filters = self.setup_entity_filter(
+            custom_annotation_filters, _ = self.setup_entity_filter(
                 CustomAnnotation, "customannotation_id", allele_ids, link_filter
             )
             if custom_annotation_filters:
@@ -787,7 +786,7 @@ class AlleleDataLoader(object):
 
         allele_assessments = list()
         if include_allele_assessment:
-            assessment_filters = self.setup_entity_filter(
+            assessment_filters, _ = self.setup_entity_filter(
                 AlleleAssessment, "alleleassessment_id", allele_ids, link_filter
             )
             if assessment_filters:
@@ -797,7 +796,7 @@ class AlleleDataLoader(object):
 
         reference_assessments = list()
         if include_reference_assessments:
-            reference_filters = self.setup_entity_filter(
+            reference_filters, _ = self.setup_entity_filter(
                 ReferenceAssessment, "referenceassessment_id", allele_ids, link_filter
             )
             if reference_filters:
@@ -807,7 +806,7 @@ class AlleleDataLoader(object):
 
         allele_reports = list()
         if include_allele_report:
-            report_filters = self.setup_entity_filter(
+            report_filters, _ = self.setup_entity_filter(
                 AlleleReport, "allelereport_id", allele_ids, link_filter
             )
             if report_filters:
@@ -857,7 +856,7 @@ class AlleleDataLoader(object):
         annotation_transcripts = None
         if genepanel:
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-                self.session, [(genepanel.name, genepanel.version)]
+                self.session, [(genepanel.name, genepanel.version)], annotation_ids=annotation_ids
             ).subquery()
 
             annotation_transcripts = (
@@ -909,9 +908,9 @@ class AlleleDataLoader(object):
                 # - Make sure to include all transcripts we have in our genepanel
                 # - If a regex filter is given, filter out the ones not matching
                 # - If we end up with an empty inclusion list, keep the original data (better with any data than nothing)
+                transcripts_in_genepanel = set()
                 if "transcripts" in annotation_data:
                     # 'filtered_transcripts' -> transcripts in our genepanel
-                    transcripts_in_genepanel = set()
                     if annotation_transcripts:
                         transcripts_in_genepanel = set(
                             [
@@ -1014,7 +1013,7 @@ class AlleleDataLoader(object):
         :return: An array of filters to be used in a session.query
         """
         filters = []
-
+        list_of_ids = None
         if query_object and key in query_object:
             list_of_ids = (
                 query_object[key] if isinstance(query_object[key], list) else [query_object[key]]
@@ -1022,23 +1021,9 @@ class AlleleDataLoader(object):
             if len(list_of_ids) > 0:
                 filters.append(entity_clazz.id.in_(list_of_ids))
             else:
-                return None  # we don't want any entities
+                return None, None  # we don't want any entities
         else:
             filters.append(entity_clazz.allele_id.in_(allele_ids) if allele_ids else False)
             filters.append(entity_clazz.date_superceeded.is_(None))
 
-        return filters
-
-
-if __name__ == "__main__":
-    from api import db
-
-    gp = (
-        db.session.query(gene.Genepanel)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == ("Mendeliome", "v01"))
-        .one()
-    )
-
-    adl = AlleleDataLoader(db.session)
-    alleles = db.session.query(allele.Allele).limit(100).all()
-    adl.from_objs(alleles, genepanel=gp)
+        return filters, list_of_ids

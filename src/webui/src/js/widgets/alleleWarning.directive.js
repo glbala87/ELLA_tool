@@ -3,7 +3,7 @@ import { state } from 'cerebral/tags'
 import { connect } from '@cerebral/angularjs'
 import getWarnings from '../store/modules/views/workflows/interpretation/computed/getWarnings'
 
-import template from './alleleWarning.ngtmpl.html'
+import template from './alleleWarning.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleWarning', {
     templateUrl: 'alleleWarning.ngtmpl.html',

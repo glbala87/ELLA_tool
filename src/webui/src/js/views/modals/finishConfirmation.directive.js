@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import canFinalize from '../../store/modules/views/workflows/computed/canFinalize'
-import template from './finishConfirmation.ngtmpl.html'
+import template from './finishConfirmation.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getSelectedInterpretation from '../../store/modules/views/workflows/computed/getSelectedInterpretation'
 
 app.component('finishConfirmation', {

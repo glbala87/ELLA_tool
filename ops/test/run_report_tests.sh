@@ -1,9 +1,11 @@
 #!/bin/bash
 
-set -e # exit on first failure
 source ./scripts/bash-util.sh
+set -e # exit on first failure
 
-while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
+echo "Starting up postgres"
+./ops/common/common_pg_startup init &>/dev/null &
+make dbsleep
 
 yellow "Starting report tests..."
 make dbreset TESTSET=sanger > /dev/null

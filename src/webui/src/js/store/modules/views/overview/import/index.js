@@ -23,6 +23,7 @@ import selectedFilterModeChanged from './signals/selectedFilterModeChanged'
 import applyFilterBatchClicked from './signals/applyFilterBatchClicked'
 import clearFilterBatchClicked from './signals/clearFilterBatchClicked'
 import copyFilterBatchClicked from './signals/copyFilterBatchClicked'
+import importUserGroupsChanged from './signals/importUserGroupsChanged'
 
 export default Module({
     state: {}, // State set in changeView
@@ -50,6 +51,7 @@ export default Module({
         applyFilterBatchClicked,
         updateImportJobsTriggered,
         clearFilterBatchClicked,
-        copyFilterBatchClicked
+        copyFilterBatchClicked,
+        importUserGroupsChanged
     }
 })

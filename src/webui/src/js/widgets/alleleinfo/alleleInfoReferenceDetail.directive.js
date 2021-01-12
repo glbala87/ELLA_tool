@@ -4,7 +4,7 @@ import { state, props, signal } from 'cerebral/tags'
 import getReferenceAssessment from '../../store/modules/views/workflows/interpretation/computed/getReferenceAssessment'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
-import template from './alleleInfoReferenceDetail.ngtmpl.html'
+import template from './alleleInfoReferenceDetail.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoReferenceDetail', {
     bindings: {

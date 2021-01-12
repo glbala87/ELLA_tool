@@ -1,7 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal, props } from 'cerebral/tags'
-import template from './modal.ngtmpl.html'
+import template from './modal.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('modal', {
     bindings: {

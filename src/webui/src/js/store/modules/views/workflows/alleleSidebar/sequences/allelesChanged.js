@@ -10,7 +10,6 @@ import autoIgnoreReferences from '../../interpretation/actions/autoIgnoreReferen
 export default [
     sortSections,
     prepareSelectedAllele,
-    autoIgnoreReferences,
     when(state`views.workflows.selectedAllele`),
     {
         true: [set(props`alleleId`, state`views.workflows.selectedAllele`), updateIgvLocus],

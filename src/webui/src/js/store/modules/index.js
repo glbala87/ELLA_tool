@@ -13,6 +13,7 @@ import {
 } from '../common/providers/'
 import onBeforeUnload from '../common/providers/onBeforeUnload'
 import toastProvider from '../common/providers/toastProvider'
+import logException from './app/signals/logException'
 
 export let http = HttpProvider({
     baseUrl: '/api/v1/',
@@ -80,12 +81,17 @@ function RootModule(withRouter = true) {
             toast: toastProvider,
             http
         },
-        services: [
-            'AlleleAssessmentHistoryModal',
-            'CustomAnnotationModal',
-            'ReferenceEvalModal',
-            'Config',
-            'User'
+        services: ['ReferenceEvalModal', 'Config', 'User'],
+        catch: [
+            [
+                Error,
+                [
+                    ({ props }) => {
+                        console.error(props.error)
+                    },
+                    logException
+                ]
+            ]
         ]
     })
 }

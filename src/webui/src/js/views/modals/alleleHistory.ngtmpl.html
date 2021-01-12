@@ -1,0 +1,137 @@
+<sectionbox class="prompt" color="purple" modal="true" on-close="($ctrl.close)">
+    <maintitle>
+        <h3 class="title">Variant history</h3>
+    </maintitle>
+    <controls>
+        <section class="line-wrapper pinned-right">
+            <button class="id-cancel" type="button" ng-click="$ctrl.close()">Close</button>
+        </section>
+    </controls>
+    <contentwrapper>
+        <div class="allele-history" ng-if="$ctrl.alleleAssessments">
+            <div class="allele-history-summary">
+                <h4 class="section-header">Summary</h4>
+                <ul>
+                    <li ng-repeat="item in $ctrl.summaryItems track by $index" ng-if="$index < 5">
+                        <span class="date">{{
+                            $ctrl.formatDate(
+                                item.alleleAssessment ? item.alleleAssessment : item.alleleReport
+                            )
+                        }}</span
+                        >:
+                        <span class="summary-item" ng-if="item.alleleAssessment"
+                            >Class {{ item.alleleAssessment.classification }}</span
+                        >
+                        <span class="summary-item" ng-if="item.alleleReport"
+                            >{{ item.alleleAssessment ? ' (' : '' }}Report Changed{{
+                                item.alleleAssessment ? ')' : ''
+                            }}</span
+                        >
+                        <span class="details"
+                            >by
+                            {{
+                                item.alleleAssessment
+                                    ? item.alleleAssessment.user.full_name
+                                    : item.alleleReport.user.full_name
+                            }}
+                        </span>
+                    </li>
+                    <span ng-if="$ctrl.summaryItems.length > 5"
+                        >(Showing 5 of {{ $ctrl.summaryItems.length }} items)</span
+                    >
+                </ul>
+            </div>
+            <div class="full-view">
+                <h4 class="section-header">Details</h4>
+                <div>
+                    <div class="bttn-set">
+                        <label
+                            tabindex="0"
+                            ng-disabled="$ctrl.readOnly"
+                            class="bttn"
+                            ng-model="$ctrl.modelSelectedMode"
+                            ng-model-watch="$ctrl.selectedMode"
+                            ng-change="$ctrl.selectedModeChanged({selectedMode: $ctrl.modelSelectedMode})"
+                            uib-btn-radio="s"
+                            ng-repeat="s in ['classification', 'report']"
+                            >{{ s | uppercase }}</label
+                        >
+                        <div class="dropdown">
+                            <select
+                                ng-model="$ctrl.modelSelected"
+                                ng-model-watch="$ctrl.selected"
+                                ng-options="element as $ctrl.formatSelection(element) for element in $ctrl.getDropdownItems()"
+                                ng-change="$ctrl.selectedChanged({selected: $ctrl.modelSelected})"
+                            >
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="history-details" ng-if="$ctrl.selectedMode === 'report'">
+                    <span class="title">Report</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-classification"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.comment"
+                    >
+                    </wysiwyg-editor>
+                </div>
+                <div class="history-details" ng-if="$ctrl.selectedMode === 'classification'">
+                    <span class="title">Evaluation</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-classification"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.classification.comment"
+                    >
+                    </wysiwyg-editor>
+
+                    <span class="title">Attachments</span>
+                    <attachment
+                        ng-repeat="at in $ctrl.selected.attachment_ids"
+                        attachment-path="'views.workflows.modals.alleleHistory.data.attachments.' + at"
+                        read-only="true"
+                    ></attachment>
+
+                    <span class="title">ACMG</span>
+
+                    <acmg
+                        class="included disabled"
+                        code="code"
+                        ng-repeat="code in $ctrl.sortedAcmgCodes track by $index"
+                        comment-model="code.comment"
+                        editable="false"
+                    ></acmg>
+
+                    <span class="title">Frequency</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-frequency"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.frequency.comment"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">External</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-external"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.external.comment"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">Prediction</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-prediction"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.prediction.comment"
+                    >
+                    </wysiwyg-editor>
+                    <span class="title">Reference</span>
+                    <wysiwyg-editor
+                        class="id-existing-comment-reference"
+                        ng-disabled="true"
+                        ng-model="$ctrl.selected.evaluation.reference.comment"
+                    >
+                    </wysiwyg-editor>
+                </div>
+            </div>
+        </div>
+    </contentwrapper>
+</sectionbox>

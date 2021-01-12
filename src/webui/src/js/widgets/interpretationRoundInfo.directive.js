@@ -1,5 +1,5 @@
 import app from '../ng-decorators'
-import template from './interpretationRoundInfo.ngtmpl.html'
+import template from './interpretationRoundInfo.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('interpretationRoundInfo', {
     templateUrl: 'interpretationRoundInfo.ngtmpl.html',

@@ -8,7 +8,7 @@ title: Evidence sections
 
 In FULL (default) mode, the main view of the CLASSIFICATION page contains a number of different sections (shown here as [collapsed](http://manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)):  
 
-<div style="text-indent: 4%;"><img src="./img/classification_sections.png"></div>
+<div class="figure"><img src="./img/classification_sections.png"></div>
 <br>
 
 The different sections presenting annotation evidence are described below, see the separate page for the [Classification section](/manual/classification-section.md).
@@ -58,7 +58,7 @@ HTS variants with quality issues are marked with `NEEDS VERIFICATION` in red in 
 
 In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFIED`, `TECHNICAL` or `NOT RELEVANT`:
 
-<div style="text-indent: 4%;"><img src="./img/verified_btn.png"></div>
+<div class="figure"><img src="./img/verified_btn.png"></div>
 
   - `VERIFIED` means the variant has been verified by an independent method (e.g. Sanger) in this sample. This adds a green `V` tag in the "Q" column of the [side bar](/manual/side-bar.html#variant-tags).
 
@@ -103,7 +103,7 @@ By default, only effects in the default transcript(s) specified in the gene pane
 
 Add other types of predictions by clicking the `ADD PREDICTION` button:
 
-<div style="text-indent: 4%;"><img src="./img/add_prediction_btn.png"></div>
+<div class="figure"><img src="./img/add_prediction_btn.png"></div>
 
 The choices you make here are meant as “keywords”, and any details important for evaluating the choices made should always be added to the PREDICTION-COMMENTS field. Choices made here result in suggestions for relevant ACMG codes in the CLASSIFICATION section, but you still need to approve/add individual codes before final classification.
 
@@ -152,14 +152,14 @@ This section shows annotation from external databases, currently including HGMD 
 
 ### Included databases
 
-  - [HGMD Pro](https://portal.biobase-international.com/hgmd/pro/)
+  - [HGMD Pro](https://digitalinsights.qiagen.com/products-overview/clinical-insights-portfolio/human-gene-mutation-database/)
   - [ClinVar](http://www.ncbi.nlm.nih.gov/clinvar/)
 
 ### Add data from other external databases
 
 If you want to add results from other databases (various LSDBs, depending on the gene), press the `ADD EXTERNAL DB` button:
 
-<div style="text-indent: 4%;"><img src="./img/add_external_btn.png"></div>
+<div class="figure"><img src="./img/add_external_btn.png"></div>
 
 In the pop-up, select from the dropdown for each database you want to add from. For pre-specified databases, there will be a <span class="underline">Visit database</span> link to the right, which will take you to the corresponding database and gene. Choices for all databases except OTHER (which is free text) are:
 
@@ -186,7 +186,7 @@ This section contains literature references describing the selected variant. The
 
 Evaluate or ignore a reference by pressing one of the corresponding buttons:
 
-<div style="text-indent: 4%;"><img src="./img/evaluate_ignore_btn.png"></div>
+<div class="figure"><img src="./img/evaluate_ignore_btn.png"></div>
 
 ::: tip TIP
 Recurring, generic or otherwise irrelevant references from the annotation can automatically be ignored by [changing the configuration](/technical/uioptions.html#define-references-as-ignored) by a system administrator.
@@ -214,14 +214,14 @@ Evaluated/new references are placed in separate cards (only non-empty cards are 
 
 - IGNORED: References marked with either the `IGNORE` button or RELEVANCE: `IGNORE` in the evaluation form. This card is hidden by default; To review, press the `SHOW IGNORED` button:
 
-  <div style="text-indent: 4%;"><img src="./img/show_ignored_btn.png"></div>
+  <div class="figure"><img src="./img/show_ignored_btn.png"></div>
   These references may be added back by clicking the `RE-EVALUATE` button and changing to RELEVANCE: `YES` or `INDIRECTLY`.
 
 ### Add studies
 
 If you have found other studies/references that aren’t already in the list, you can add them by clicking the `ADD STUDIES` button:
 
-<div style="text-indent: 4%;"><img src="./img/add_studies_btn.png"></div>
+<div class="figure"><img src="./img/add_studies_btn.png"></div>
 
 The resulting dialogue lets you add studies in one of three ways:
 
@@ -229,7 +229,7 @@ The resulting dialogue lets you add studies in one of three ways:
   
   - PUBMED: Add reference data from PubMed. To add a reference: 
     - On the PubMed page for that reference, download the details with `Save` - "Format: PubMed" and `Create file`: 
-    <div style="text-indent: 4%;"><img src="./img/PubMed_download.png"></div>
+    <div class="figure"><img src="./img/PubMed_download.png"></div>
     
     - Open the file that is downloaded, copy the entire contents and paste it into the `RAW PUBMED DATA` field in ELLA. 
   

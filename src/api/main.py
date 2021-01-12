@@ -25,7 +25,6 @@ VALID_STATIC_FILES = [
     "templates.js",
     "fonts",
     "docs",
-    "favicon.ico",
 ]
 
 log = app.logger
@@ -112,9 +111,8 @@ def output_json(data, code, headers=None):
 # Setup resources for v1
 ApiV1(app, api).setup_api()
 
-if os.environ.get("SERVE_STATIC"):
-    app.add_url_rule("/", "index", serve_static)
-    app.add_url_rule("/<path:path>", "index_redirect", serve_static)
+app.add_url_rule("/", "index", serve_static)
+app.add_url_rule("/<path:path>", "index_redirect", serve_static)
 
 # This is used by development - production will not trigger it
 if __name__ == "__main__":
@@ -136,4 +134,4 @@ if __name__ == "__main__":
     if is_dev:
         print("!!!!!DEVELOPMENT MODE!!!!!")
 
-    app.run(**opts)
+    app.run(**opts)  # type: ignore

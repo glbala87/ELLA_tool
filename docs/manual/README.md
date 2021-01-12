@@ -18,8 +18,8 @@ For in-depth descriptions, go to the referenced pages:
 
 **OVERVIEW page**  
 *Data and worklists*
-  
-<div style="text-indent: 4%;"><img src="./img/overview_btn.png"></div>
+
+<img src="./img/overview_btn.png">
 
 - [Choosing a sample or variant](/manual/choosing-sample-variant.md): Select from worklist or perform a search.
 - [Data import and reanalyses](/manual/data-import-reanalyses.md): Import additional data from VCF/text, or perform reanalyses on existing data.
@@ -29,7 +29,7 @@ For in-depth descriptions, go to the referenced pages:
 **INFO page**  
 *Sample information and warnings*
 
-<div style="text-indent: 4%;"><img src="./img/nav_info_btn.png"></div>
+<img src="./img/nav_info_btn.png">
 
 - [Info page](/manual/info-page.html)
 
@@ -38,7 +38,7 @@ For in-depth descriptions, go to the referenced pages:
 **CLASSIFCATION page**  
 *Evaluate evidence and set a classification*
 
-<div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
+<img src="./img/nav_classification_btn.png">
 
 - [Classification page](/manual/classification-page.html): Overview and basics.
 - [Top bar](/manual/top-bar.html): Info and actions.
@@ -56,7 +56,7 @@ For in-depth descriptions, go to the referenced pages:
 **REPORT page**  
 *Generate a clinical report*
 
-<div style="text-indent: 4%;"><img src="./img/nav_report_btn.png"></div>
+<img src="./img/nav_report_btn.png">
 
 - [Report page](/manual/report-page.html) 
 

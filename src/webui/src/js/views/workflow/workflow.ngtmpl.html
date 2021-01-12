@@ -4,6 +4,17 @@
     </div>
     <div class="main-navbar-secondary">
         <workflowbar></workflowbar>
+        <div class="historical-warning" ng-if="$ctrl.showHistoricalDataWarning.show">
+            <sectionbox color="custom" collapsible="false" class="warning-box yellow">
+                <maintitle><h3>HISTORICAL DATA</h3></maintitle>
+                <subtitle><h3></h3></subtitle>
+                <contentwrapper>
+                    <p>
+                        {{ $ctrl.showHistoricalDataWarning.text }}
+                    </p>
+                </contentwrapper>
+            </sectionbox>
+        </div>
     </div>
     <div class="main-allele-sidebar" ng-if="$ctrl.loaded && $ctrl.showSidebar">
         <allele-sidebar></allele-sidebar>

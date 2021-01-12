@@ -1,7 +1,7 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state } from 'cerebral/tags'
-import template from './alleleInfoDbsnp.ngtmpl.html'
+import template from './alleleInfoDbsnp.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoDbsnp', {
     templateUrl: 'alleleInfoDbsnp.ngtmpl.html',

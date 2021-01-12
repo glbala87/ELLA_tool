@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive } from '../ng-decorators'
-import template from './checkablebutton.ngtmpl.html'
+import template from './checkablebutton.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 /**
  <checkable-button>

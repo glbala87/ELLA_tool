@@ -29,6 +29,14 @@ describe('Sample workflow', function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
         analysesSelectionPage.selectTopPending()
+        analysisPage.selectSectionInfo()
+
+        // Should have two attachments
+        const attachmentFilenames = $$('.attachments-container .tabular-row').map((a) =>
+            a.getText()
+        )
+        expect(attachmentFilenames.length).toEqual(2)
+        analysisPage.selectSectionClassification()
         analysisPage.startButton.click()
 
         // sample 2

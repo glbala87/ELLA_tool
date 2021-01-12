@@ -6,7 +6,7 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
 import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
-import template from './alleleSidebar.ngtmpl.html'
+import template from './alleleSidebar.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const showControls = Compute(state`views.workflows.selectedComponent`, (selectedComponent) => {
     return selectedComponent === 'Classification'
@@ -96,14 +96,6 @@ app.component('alleleSidebar', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
-                $scope.$watch(
-                    () => {
-                        return $ctrl.selectedFilterConfig
-                    },
-                    () => {
-                        console.log($ctrl.selectedFilterConfig.filterconfig.filters)
-                    }
-                )
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {

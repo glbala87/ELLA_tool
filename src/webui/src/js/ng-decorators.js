@@ -38,43 +38,59 @@ const ngModelWatchDirective = [
                 '$parse',
                 '$attrs',
                 function($scope, $parse, $attrs) {
-                    // HACK: Scope is shared between all ngModel.
-                    // Store the get() function created with it's attr string
-                    if (!$scope.$$parsedNgModelWatch) {
+                    // Store $parse on scope, as we need this when child scopes have been created in link-function
+                    $scope.$$parseFunc = $parse
+                    const key = $attrs.ngModel + $attrs.ngModelWatch
+
+                    // Create cache for parse-functions. This should not be populated here, as we need child scopes to be created
+                    // (e.g. for ngRepeat), available in link-function
+                    if (!('$$parsedNgModelWatch' in $scope)) {
                         $scope.$$parsedNgModelWatch = {}
                     }
-                    $scope.$$parsedNgModelWatch[$attrs.ngModelWatch] = $parse($attrs.ngModelWatch)
 
                     // We cache the ngModel value, to evaluate whether to set a new ngModel value
-                    if (!$scope.$$parsedNgModelWatchPrevious) {
-                        $scope.$$parsedNgModelWatchPrevious = {}
+                    if (!('$$ngModelWatchPrevious' in $scope)) {
+                        $scope.$$ngModelWatchPrevious = {}
                     }
                     // Initialize with ngModel value, to avoid an unnecessary ngModelSet below
-                    $scope.$$parsedNgModelWatchPrevious[$attrs.ngModelWatch] = $parse(
-                        $attrs.ngModel
-                    )($scope)
+                    if (!(key in $scope.$$ngModelWatchPrevious)) {
+                        $scope.$$ngModelWatchPrevious[key] = $scope.$$parseFunc($attrs.ngModel)(
+                            $scope
+                        )
+                    }
                 }
             ],
             link: function(scope, element, attr, ctrls) {
                 const ngModel = ctrls[0]
 
+                // Use combination of ngModel and ngModelWatch as key, as this should be unique in behaviour
+                const key = attr.ngModel + attr.ngModelWatch
+
+                // Cache parsed ngModelWatch to avoid calling $parse many times
+                //
+                // Do not move to controller, as we need to wait for other directives (e.g. ngRepeat)
+                // to create child scopes
+                if (!(key in scope.$$parsedNgModelWatch)) {
+                    scope.$$parsedNgModelWatch[key] = scope.$$parseFunc(attr.ngModelWatch)
+                }
+
                 scope.$watch(
                     () => {
                         // Evaluate whether ngModelWatch has changed
                         return JSON.stringify({
-                            ngModelWatchValue: scope.$$parsedNgModelWatch[attr.ngModelWatch](scope),
+                            ngModelWatchValue: scope.$$parsedNgModelWatch[key](scope),
                             ngModelValue: attr.ngModelWatch
                         })
                     },
 
                     (n, o) => {
                         let current = JSON.parse(n).ngModelWatchValue
-                        let previous = scope.$$parsedNgModelWatchPrevious[attr.ngModelWatch]
+                        let previous = scope.$$ngModelWatchPrevious[key]
 
                         // If the ngModelWatch value is different from the previous ngModelWatch value, we update ngModel
                         if (current !== previous) {
                             ngModel.$$ngModelSet(scope, current)
-                            scope.$$parsedNgModelWatchPrevious[attr.ngModelWatch] = current
+                            scope.$$ngModelWatchPrevious[key] = current
                         }
                     }
                 )

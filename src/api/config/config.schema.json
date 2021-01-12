@@ -402,7 +402,8 @@
                         "optional": [
                             "outdated_after_days",
                             "include_report",
-                            "include_analysis_with_findings"
+                            "include_analysis_with_findings",
+                            "sort_index"
                         ],
                         "properties": {
                             "name": {
@@ -420,6 +421,9 @@
                             },
                             "include_analysis_with_findings": {
                                 "type": "boolean"
+                            },
+                            "sort_index": {
+                                "type": "integer"
                             }
                         }
                     }

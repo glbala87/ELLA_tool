@@ -124,6 +124,8 @@ class ApiV1(object):
 
         self._add_resource(r.search.SearchOptionsResource, "/api/v1/search/options/")
 
+        self._add_resource(r.ui.ExceptionLog, "/api/v1/ui/exceptionlog/")
+
         self._add_resource(r.user.UserListResource, "/api/v1/users/")
 
         self._add_resource(r.user.UserResource, "/api/v1/users/<int:user_id>/")
@@ -355,6 +357,10 @@ class ApiV1(object):
 
         self._add_resource(r.user.CurrentUser, "/api/v1/users/currentuser/")
 
+        # ---------------------------------------------------------------------------------------------------------
+        # Attachments
+        # ---------------------------------------------------------------------------------------------------------
+
         self._add_resource(
             r.attachment.AttachmentResource,
             "/api/v1/attachments/upload/",
@@ -362,6 +368,11 @@ class ApiV1(object):
         )
 
         self._add_resource(r.attachment.AttachmentListResource, "/api/v1/attachments/")
+
+        self._add_resource(
+            r.attachment.AnalysisAttachmentResource,
+            "/api/v1/attachments/analyses/<int:analysis_id>/<int:index>/",
+        )
 
         # ---------------------------------------------------------------------------------------------------------
         # IGV

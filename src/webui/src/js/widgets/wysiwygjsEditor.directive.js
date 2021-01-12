@@ -5,7 +5,7 @@ import wysiwyg from 'exports-loader?wysiwyg=window.wysiwyg!../../thirdparty/wysi
 
 import { Directive, Inject } from '../ng-decorators'
 import { EventListeners, UUID, sanitize } from '../util'
-import template from './wysiwygEditor.ngtmpl.html'
+import template from './wysiwygEditor.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 @Directive({
     selector: 'wysiwyg-editor',
@@ -89,6 +89,9 @@ export class WysiwygEditorController {
         this.attachmentResource = AttachmentResource
 
         this.ngModelController = $element.controller('ngModel') // Get controller for editors ngmodel
+
+        // Add positive debounce to avoid javascript error deep in AngularJS on 'blur'
+        this.ngModelController.$overrideModelOptions({ debounce: 1 })
 
         this.buttonselement.hidden = true
         this.isBlurred = true

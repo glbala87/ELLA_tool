@@ -4,7 +4,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { UUID } from '../../util'
 import { ImportData } from '../../model/importdata'
-import template from './import.ngtmpl.html'
+import template from './import.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const addedCount = Compute(
     state`views.overview.import.custom.added.addedGenepanel`,
@@ -47,7 +47,14 @@ const canImport = Compute(
     state`views.overview.import.selectedGenepanel`,
     state`views.overview.import.selectedSample`,
     state`views.overview.import.custom.added.addedGenepanel`,
-    (customGenepanel, selectedGenepanel, selectedSample, addedGenepanel) => {
+    state`views.overview.import.custom.selectedImportUserGroups`,
+    (
+        customGenepanel,
+        selectedGenepanel,
+        selectedSample,
+        addedGenepanel,
+        selectedImportUserGroups
+    ) => {
         if (!selectedSample) {
             return false
         }
@@ -58,7 +65,8 @@ const canImport = Compute(
             return (
                 addedGenepanel.name &&
                 addedGenepanel.name !== '' &&
-                Object.keys(addedGenepanel.genes).length
+                Object.keys(addedGenepanel.genes).length &&
+                selectedImportUserGroups.length
             )
         }
         return Boolean(selectedGenepanel)

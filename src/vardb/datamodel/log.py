@@ -1,8 +1,9 @@
 import datetime
 import pytz
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy.dialects.postgresql import INET, JSONB
 
+from vardb.util.mutjson import JSONMutableDict
 from vardb.datamodel import Base
 
 
@@ -46,3 +47,19 @@ class CliLog(Base):
     command = Column(String, nullable=False)
     reason = Column(String)
     output = Column(String, nullable=False)
+
+
+class UiExceptionLog(Base):
+    """Logs CLI actions"""
+
+    __tablename__ = "uiexception"
+
+    id = Column(Integer, primary_key=True)
+    time = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
+    usersession_id = Column(Integer, ForeignKey("usersession.id"))
+    message = Column(String, nullable=False)
+    location = Column(String)
+    stacktrace = Column(String)
+    state = Column(JSONMutableDict.as_mutable(JSONB), default={})

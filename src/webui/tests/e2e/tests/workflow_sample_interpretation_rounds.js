@@ -4,7 +4,7 @@ require('core-js/fn/object/entries')
  * Finalize two analyses, checking the interpretation rounds for the finished analyses:
  * 1. Sample 1, all classified as 1, set to review,
  * 2. Sample 1, , all classified as 2, finalization
- * 3. Sample 2: alleles overlap with previous sample 1, all classified as class U, finalize
+ * 3. Sample 2: alleles overlap with previous sample 1, all classified as class NP, finalize
  * 4. Open sample 1 (with two rounds). Check the rounds are different
  * 5. Open sample 2 (with one round). Check that some variants had an existing classification
  */
@@ -158,32 +158,32 @@ describe('Sample workflow ', function() {
             alleleSidebar.selectFirstClassified() // who's first changes when unclassify/classify
             const selectedAllele = alleleSidebar.getSelectedAllele()
             alleleSectionBox.reevaluateBtn.click()
-            alleleSectionBox.classifyAsU()
+            alleleSectionBox.classifyAsNP()
             browser.pause(500) // ensure classification has propagated
             let classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('3')
-            expect(classification.current).toBe('U')
+            expect(classification.current).toBe('NP')
             alleleSectionBox.finalize()
             alleleSectionBox.reevaluateBtn.waitForDisplayed()
             classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('')
-            expect(classification.current).toBe('U')
+            expect(classification.current).toBe('NP')
             expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
         }
 
         for (let i = 1; i <= numberOfUnclassifiedBefore; i++) {
             alleleSidebar.selectFirstUnclassified() // who's first changes as this is classified
             const selectedAllele = alleleSidebar.getSelectedAllele()
-            alleleSectionBox.classifyAsU()
+            alleleSectionBox.classifyAsNP()
             browser.pause(500) // ensure classification has propagated
             let classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('')
-            expect(classification.current).toBe('U')
+            expect(classification.current).toBe('NP')
             alleleSectionBox.finalize()
             alleleSectionBox.reevaluateBtn.waitForDisplayed()
             classification = alleleSidebar.getSelectedAlleleClassification()
             expect(classification.existing).toBe('')
-            expect(classification.current).toBe('U')
+            expect(classification.current).toBe('NP')
             expect(alleleSidebar.isAlleleInClassified(selectedAllele)).toBe(true)
         }
 
@@ -219,9 +219,8 @@ describe('Sample workflow ', function() {
         expect(alleleSidebar.countOfUnclassified()).toBe(0)
         expect(numberOfClassified).toBeGreaterThan(1)
 
-        // current data round: Three alleles were classified as U in this sample, and two as 2 in the other sample
-
-        let current_classifications = ['3', '3', 'U', 'U', 'U']
+        let current_classifications = ['3', '3', 'NP', 'NP', 'NP']
+        analysisPage.chooseRound(4) // current
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
@@ -284,8 +283,8 @@ describe('Sample workflow ', function() {
         for (let i = 1; i <= numberOfClassified; i++) {
             alleleSidebar.selectClassifiedAlleleByIdx(i)
             let classification = alleleSidebar.getSelectedAlleleClassification()
-            expect(classification.current).toBe('U')
-            expect(alleleSectionBox.getExistingClassificationClass()).toContain('Class U')
+            expect(classification.current).toBe('NP')
+            expect(alleleSectionBox.getExistingClassificationClass()).toContain('Not provided')
         }
     })
 })

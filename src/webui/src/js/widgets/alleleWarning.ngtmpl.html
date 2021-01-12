@@ -1,9 +1,11 @@
-<sectionbox color="custom" collapsible="false" class="allele-warning" ng-if="$ctrl.warnings.length">
+<sectionbox color="custom" collapsible="false" class="warning-box" ng-if="$ctrl.warnings.length">
     <maintitle><h3>Warning</h3></maintitle>
     <subtitle
         ><h3>{{ $ctrl.warnings.length }}</h3></subtitle
     >
     <contentwrapper>
-        <p ng-repeat="w in $ctrl.warnings">{{ w.warning }}</p>
+        <ul>
+            <li ng-repeat="w in $ctrl.warnings">{{ w.warning }}</li>
+        </ul>
     </contentwrapper>
 </sectionbox>

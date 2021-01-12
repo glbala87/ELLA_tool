@@ -8,14 +8,14 @@ title: Overview and basics
 
 The CLASSIFICATION page contains all annotation, as well as tools for visualizing, interpreting and classifying each variant. Navigate to this page by using the button in the left corner of the top bar (if no warnings are present, you will start on this page automatically):
 
-<div style="text-indent: 4%;"><img src="./img/nav_classification_btn.png"></div>
+<div class="figure"><img src="./img/nav_classification_btn.png"></div>
 <br>
 
 ## Overview 
 
 This page has three main parts (go to links for further details), a top bar, a side bar and the main content: 
 
-<div style="text-indent: 4%;"><img src="./img/classification_overview.png"></div>
+<div class="figure"><img src="./img/classification_overview.png"></div>
 <br>
 
 - [Top bar](/manual/top-bar.html): 
@@ -38,13 +38,13 @@ See also [Variant warnings](/manual/warnings.md) for various warnings that may b
 
 To start an analysis or variant interpretation, click the green `START ...` button in the top bar (right):
 
-<div style="text-indent: 4%;"><img src="./img/start_btn.png"></div>
+<div class="figure"><img src="./img/start_btn.png"></div>
 
 This reserves the variant or analysis for your user and marks it as ongoing for other users. If you don’t click start, the variant or analysis and previous user comments or choices are mostly read-only.
 
 If the analysis has been opened and not finished by another user, the start button is replaced with a `REASSIGN TO ME` button:
 
-<div style="text-indent: 4%;"><img src="./img/reassign_btn.png"></div>
+<div class="figure"><img src="./img/reassign_btn.png"></div>
 
 Choosing this means you will take over responsibility for the analysis from the current user. 
 
@@ -52,7 +52,7 @@ Choosing this means you will take over responsibility for the analysis from the 
 
 Buttons for saving and finishing your analyses are in the right corner of the top bar:
 
-<div style="text-indent: 4%;"><img src="./img/finish_save_btn.png"></div>
+<div class="figure"><img src="./img/finish_save_btn.png"></div>
 
 ### Saving unfinished work
 
@@ -62,7 +62,7 @@ There is currently no auto-save feature in ELLA, so please make sure to use the 
 
 When you are satisfied with the analysis of a variant or a sample, press the `FINISH` button (this also saves your work). You are then shown the complete workflow with options to change workflow state. By default, your current workflow step is selected:
 
-<img style="transform: scale(0.9);" src="./img/select_next_round.png">
+<div class="figure"><img src="./img/select_next_round.png"></div>
 
 ::: tip TIP
 Remember that you can also leave an Overview comment for the next user in the [work log](/manual/top-bar.html#work-log). This should be done before finishing the analysis.
@@ -84,7 +84,7 @@ Option  | Explanation
 
 Each section on this page has a comment field, which should be used for making notes about the particular evidence you find in each section. Most comment fields have the possibility for changing basic text formatting by using the menu below the comment field: 
 
-<div style="text-indent: 4%;"><img src="./img/comment_menu.png"></div>
+<div class="figure"><img src="./img/comment_menu.png"></div>
 
 The menu also includes buttons for adding pre-defined templates (can be configured independently for specific fields), as well as references from the STUDIES & REFERENCES section. Insert a template or reference by clicking the `+` sign in the pop-up. If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
 
@@ -98,7 +98,7 @@ Image attachments copied to the clipboard may be pasted into any of the section 
 
 In addition, files of any type (\<50 MB) may be added to ELLA using the `ADD ATTACHMENT` button in the top banner:
 
-<div style="text-indent: 4%;"><img src="./img/add_attachment_btn.png"></div>
+<div class="figure"><img src="./img/add_attachment_btn.png"></div>
 
 Attachments added this way are available (through thumbnails) in the CLASSIFICATION section. Hover your mouse pointer over the thumbnail to see details. 
 
@@ -108,7 +108,7 @@ Attachments added this way are available (through thumbnails) in the CLASSIFICAT
 
 Throughout this page and often in card headers, you will find weblinks, usually to the sources of various annotation data, as well as buttons for exporting analyses or individual variants to Alamut. Weblinks are marked with a dotted line under the text, e.g.:
 
-<div style="text-indent: 4%;"><img src="./img/link.png"></div>
+<div class="figure"><img src="./img/link.png"></div>
 
 If you are in an offline environment, when you click one of these, instead of opening a browser or the program directly, the link is copied to your clipboard. To open the link:
 
@@ -116,19 +116,19 @@ If you are in an offline environment, when you click one of these, instead of op
 
   - For Alamut, click the `COPY VARIANT TO ALAMUT` in the top bar, then (as you get the message COPIED TEXT TO CLIPBOARD) paste (Ctrl+V) the contents in the "Go to:" input field at the top right of the Alamut main window:  
       
-    <div style="text-indent: 4%;"><img src="./img/alamut.png"></div>
+    <div class="figure"><img src="./img/alamut.png"></div>
 
 ### Copy text in pop-ups on mouse-click
 
 Many pop-ups has a function to copy text directly when you click on the text. Look for the clipboard symbol, e.g. in the HGVS cDNA variant name in the top bar: 
 
-<div style="text-indent: 4%;"><img src="./img/popup.png"></div>
+<div class="figure"><img src="./img/popup.png"></div>
 
 ## Collapse/expand sections
 
 To get a better overview of the comments you have added in the different sections for a variant, use the `COLLAPSE ALL` button in the top bar:
 
-<div style="text-indent: 4%;"><img src="./img/collapse_all_btn.png"></div>
+<div class="figure"><img src="./img/collapse_all_btn.png"></div>
 
 Alternatively, you may collapse each section individually by clicking on the section header. 
 

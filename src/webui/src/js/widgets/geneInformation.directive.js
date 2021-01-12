@@ -3,7 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
 import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 import getGeneAssessment from '../store/modules/views/workflows/interpretation/computed/getGeneAssessment'
-import template from './geneInformation.ngtmpl.html'
+import template from './geneInformation.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('geneInformation', {
     bindings: {
@@ -17,6 +17,7 @@ app.component('geneInformation', {
             genepanelValues: getGenepanelValues(
                 state`views.workflows.interpretation.data.genepanel`
             ),
+            commentTemplates: state`app.commentTemplates`,
             geneAssessment: getGeneAssessment(props`hgncId`),
             userGeneAssessment: state`views.workflows.interpretation.geneInformation.geneassessment.${props`hgncId`}`,
             geneAssessmentChanged: signal`views.workflows.interpretation.geneAssessmentChanged`,
@@ -38,7 +39,7 @@ app.component('geneInformation', {
                         }
                     },
                     getHgmdLink() {
-                        return `https://portal.biobase-international.com/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
+                        return `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/gene.php?gene=${$ctrl.hgncSymbol}`
                     },
                     getFrequencyExternal() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {

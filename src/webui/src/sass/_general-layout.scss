@@ -621,6 +621,10 @@ button {
     }
 }
 
+.historical-warning {
+    padding: 1rem 1rem 0 1rem;
+}
+
 .interpretation-content {
     padding: 2rem;
 }
@@ -828,7 +832,7 @@ workflow-buttons {
     }
 }
 
-.allele-warning section {
+.warning-box section {
     .titlebar,
     .titlebar > .sb-title-container,
     .sb-container {
@@ -844,12 +848,17 @@ workflow-buttons {
         font-weight: 800;
     }
     p,
+    li,
     h5 {
         color: white;
         font-family: $slim;
         font-size: 1.6rem;
         font-weight: 600;
         letter-spacing: 0.05rem;
+    }
+    ul {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
     .subtitle {
         color: $white-50;
@@ -872,8 +881,19 @@ workflow-buttons {
     }
 }
 
+.warning-box.yellow {
+    .titlebar,
+    .titlebar > .sb-title-container,
+    .sb-container {
+        background-color: $yellow-75;
+    }
+}
+
 allelebar {
     width: 100%;
+    display: grid;
+    max-height: 10rem;
+    overflow-y: auto;
     .genotype-display {
         &:not(:last-child) {
             border-right: 1px $black-25 dashed;
@@ -1019,6 +1039,9 @@ nav.warning {
         height: auto;
         padding-top: 3.9rem;
         padding-bottom: 1.3rem;
+    }
+    .search-results > .pagination {
+        margin-bottom: 1rem;
     }
 }
 
@@ -1643,6 +1666,17 @@ nav.warning {
         color: white;
         padding-top: 0.3rem;
     }
+    .toast-close-button {
+        @extend button;
+        background-color: transparent;
+        border: 1px solid $white-75;
+        float: right;
+        margin-top: 0.8rem;
+        color: $white;
+    }
+    .toast-close-button:hover:not([disabled]) {
+        background-color: $white-25;
+    }
     .toast.ng-enter {
         max-height: 0px;
         transition: all 0.6s ease-in-out;
@@ -1660,13 +1694,6 @@ nav.warning {
 }
 
 // all initial styling from toastr, probably needs fixed
-button.toast-close-button {
-    padding: 0;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-    -webkit-appearance: none;
-}
 .toast-title {
     font-weight: bold;
 }
@@ -1677,25 +1704,6 @@ button.toast-close-button {
 .toast-message a:hover {
     color: $white;
     text-decoration: none;
-}
-.toast-close-button {
-    position: relative;
-    right: -0.3em;
-    top: -0.3em;
-    float: right;
-    font-size: 20px;
-    font-weight: bold;
-    color: $white-75;
-    -webkit-text-shadow: 0 1px 0 #ffffff;
-    text-shadow: 0 1px 0 #ffffff;
-    opacity: 0.8;
-}
-.toast-close-button:hover,
-.toast-close-button:focus {
-    color: $white;
-    text-decoration: none;
-    cursor: pointer;
-    opacity: 0.4;
 }
 
 .spacer {
@@ -2036,9 +2044,6 @@ button.toast-close-button {
 }
 
 .gene-information {
-    .gene-information-title {
-        margin-top: 1.5rem;
-    }
     .comment-container {
         display: flex;
         padding: 0.5rem;

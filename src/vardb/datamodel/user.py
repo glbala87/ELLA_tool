@@ -1,6 +1,15 @@
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Table
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    DateTime,
+    Boolean,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import ForeignKeyConstraint
@@ -63,6 +72,16 @@ class UserGroup(Base):
             ["genepanel.name", "genepanel.version"],
         ),
     )
+
+
+# Represents relationship of what groups are allowed to import data into which groups
+UserGroupImport = Table(
+    "usergroupimport",
+    Base.metadata,
+    Column("usergroup_id", Integer, ForeignKey("usergroup.id"), nullable=False),
+    Column("usergroupimport_id", Integer, ForeignKey("usergroup.id"), nullable=False),
+    UniqueConstraint("usergroup_id", "usergroupimport_id"),
+)
 
 
 class UserSession(Base):

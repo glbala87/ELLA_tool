@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import template from './genepanelOverview.ngtmpl.html'
+import template from './genepanelOverview.ngtmpl.html' // eslint-disable-line no-unused-vars
 import popoverTemplate from './genepanelOverviewGenePopover.ngtmpl.html'
 
 const filteredGenes = Compute(

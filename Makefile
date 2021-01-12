@@ -6,7 +6,7 @@ GID ?= 1000
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 
 CONTAINER_NAME ?= ella-$(BRANCH)
-IMAGE_NAME ?= local/ella-$(BRANCH)
+export IMAGE_NAME ?= local/ella-$(BRANCH)
 # use --no-cache to create have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -33,6 +33,14 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 # distribution
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
+
+TMP_DIR ?= /tmp
+ifeq ($(CI_REGISTRY_IMAGE),)
+# running locally, use interactive
+TERM_OPTS := -it
+else
+TERM_OPTS := -t
+endif
 
 
 .PHONY: help
@@ -146,73 +154,97 @@ bundle-dist: bundle-api bundle-client
 release-notes:
 	@ops/create_release_notes_wrapper.sh
 
-#---------------------------------------------
-# Create diagram of the datamodel
-#---------------------------------------------
-
-.PHONY: diagrams build-diagram-image start-diagram-container \
-        create-diagram stop-diagram-container
-
-diagrams: build-diagram-image start-diagram-container create-diagram stop-diagram-container
-
-build-diagram-image:
-	docker build -t $(DIAGRAM_IMAGE) -f Dockerfile-diagrams .
-
-start-diagram-container:
-	-docker rm $(DIAGRAM_CONTAINER)
-	docker run --name $(DIAGRAM_CONTAINER) -d $(DIAGRAM_IMAGE)  sleep 10s
-
-stop-diagram-container:
-	docker stop $(DIAGRAM_CONTAINER)
-
-create-diagram:
-	docker exec $(DIAGRAM_CONTAINER) /bin/sh -c 'PYTHONPATH="/ella/src" python datamodel_to_uml.py; dot -Tpng ella-datamodel.dot' > ella-datamodel.png
 
 #---------------------------------------------
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review
+.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
 
 comma := ,
 REVIEW_NAME ?=
 REVIEW_OPTS ?=
 
+# set var defaults for running review steps locally
+export REVAPP_NAME ?= $(BRANCH)
+export REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
+export REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+
+
 # Demo is just a review app, with port mapped to system
 demo: REVIEW_OPTS=-p 3114:3114
 demo: REVIEW_NAME=demo
-demo: review
 demo:
+	docker build -t local/ella-$(REVIEW_NAME) --target review .
+	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
+	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
+	docker run -d \
+		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
+		--user $(UID):$(GID) \
+		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
+		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+		-e PORT=3114 \
+		-e PRODUCTION=false \
+		-e VIRTUAL_HOST=$(REVIEW_NAME) \
+		--expose 3114 \
+		$(REVIEW_OPTS) \
+		local/ella-$(REVIEW_NAME)
+	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
 	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
 	docker rm -f ella-demo
 
 # Review apps
+define gitlab-template
+docker run --rm $(TERM_OPTS) \
+	--user $(UID):$(GID) \
+	-v $(shell pwd):/ella \
+	-v $(TMP_DIR):/tmp \
+	$(ELLA_OPTS) \
+	$(REVAPP_IMAGE_NAME) \
+	bash -ic "$(RUN_CMD) $(RUN_CMD_ARGS)"
+endef
+
+__gitlab_env:
+	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
+	echo "PRODUCTION=false" >> review_env
+	$(eval ELLA_OPTS += --env-file=review_env)
+	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
+
+gitlab-review: __gitlab_env
+	$(eval RUN_CMD = make review review-refresh-ip)
+	$(gitlab-template)
+
+gitlab-review-stop: __gitlab_env
+	$(eval RUN_CMD = make review-stop)
+	$(gitlab-template)
+
+gitlab-review-refresh-ip:
+	$(eval RUN_CMD = make review-refresh-ip)
+	$(gitlab-template)
+
+build-review:
+	docker build $(BUILD_OPTIONS) -t $(REVAPP_IMAGE_NAME) --label commit_sha=$(REVAPP_COMMIT_SHA) --target review .
+
 review:
-	$(call check_defined, REVIEW_NAME)
-	docker build -t local/ella-$(REVIEW_NAME) --target dev .
-	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
-	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
-	docker run -d \
-		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
-		--user $(UID):$(GID) \
-		-e ELLA_CONFIG=$(ELLA_CONFIG) \
-		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
-		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-		-e PRODUCTION=false \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e VIRTUAL_HOST=$(REVIEW_NAME) \
-		-e PORT=3114 \
-		--expose 3114 \
-		$(REVIEW_OPTS) \
-		local/ella-$(REVIEW_NAME) \
-		supervisord -c /ella/ops/demo/supervisor.cfg
-	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
+	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
+	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
+	./ops/review_app.py --token $(DO_TOKEN) create \
+		--image-name $(REVAPP_IMAGE_NAME) \
+		--ssh-key $(REVAPP_SSH_KEY) \
+		$(REVAPP_NAME)
+
+review-stop:
+	./ops/review_app.py remove $(REVAPP_NAME)
+
+review-refresh-ip:
+	$(eval APP_IP = $(shell ./ops/review_app.py status -f ip_address))
+	echo APP_IP=$(APP_IP) > deploy.env
 
 #---------------------------------------------
 # Misc. database
@@ -230,7 +262,7 @@ dbsleep:
 #---------------------------------------------
 # DEVELOPMENT
 #---------------------------------------------
-.PHONY: any build dev url kill shell logs restart db node-inspect
+.PHONY: any build dev url kill shell logs restart db node-inspect create-diagrams
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-$(USER)/ {print $$NF}'))
@@ -285,6 +317,20 @@ restart:
 node-inspect:
 	node inspect --harmony /dist/node_modules/jest/bin/jest.js --runInBand $(SPEC_NAME)
 
+create-diagrams:
+	docker run \
+		-v $(shell pwd):/ella \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e DB_URL=postgresql:///postgres \
+		$(IMAGE_NAME) \
+		python /ella/src/vardb/util/datamodel_to_uml.py
+
+update-pipfile:
+	docker run \
+		-v $(shell pwd):/ella \
+		$(IMAGE_NAME) \
+		pipenv lock
+
 
 #---------------------------------------------
 # TESTING (unit / modules)
@@ -302,8 +348,7 @@ test: test-all
 test-all: test-js test-common test-api test-cli test-report test-e2e
 
 test-js:
-	docker run \
-	  --rm \
+	docker run --rm \
 	  --name $(CONTAINER_NAME)-js \
 	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
@@ -320,77 +365,58 @@ test-js-auto:
 	  yarn test-watch
 
 test-python:
-	docker run -d \
+	docker run \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-common ops/test/run_python_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-common
+	  ops/test/run_python_tests.sh
 
 test-api:
-	docker run -d \
+	docker run --rm  \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	  -e HYPOTHESIS_PROFILE=$(HYPOTHESIS_PROFILE) \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
+	  /ella/ops/test/run_api_tests.sh
 
-	docker exec $(CONTAINER_NAME)-api ops/test/run_api_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-api
 
 test-api-migration:
-	docker run -d \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e ATTACHMENT_STORAGE=/ella/attachments \
 	  -e PRODUCTION=false \
-	  -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	  -e MIGRATION=1 \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-api-migration ops/test/run_api_migration_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-api-migration
+	  /ella/ops/test/run_api_tests.sh
 
 test-cli:
-	docker run -d \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	  -e DB_URL=postgresql:///vardb-test \
-	  -e TESTDATA=/ella/src/vardb/testdata/ \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
-
-	docker exec $(CONTAINER_NAME)-cli ops/test/run_cli_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-cli
+	  /ella/ops/test/run_cli_tests.sh
 
 test-report:
-	docker run -d \
+	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
-	  supervisord -c /ella/ops/test/supervisor.cfg
+	  ops/test/run_report_tests.sh
 
-	docker exec -t $(CONTAINER_NAME)-report ops/test/run_report_tests.sh
-	@docker rm -f $(CONTAINER_NAME)-report
 
 test-e2e:
 	@-docker rm -f $(CONTAINER_NAME)-e2e
@@ -404,7 +430,10 @@ test-e2e:
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
+	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 	   -e PRODUCTION=false \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
@@ -416,6 +445,7 @@ test-e2e:
 
 test-formatting:
 	docker run --rm \
+	  $(TERM_OPTS) \
 	  --name $(CONTAINER_NAME)-formatting \
 	  --user $(UID):$(GID) \
 	  $(IMAGE_NAME) \
@@ -435,10 +465,14 @@ e2e-test-local: test-build
        -it \
        -v $(shell pwd):/ella \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
+	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+	   -e API_PORT=28752 \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -p 5000:5000 -p 5859:5859 \
+	   -p 28752:28752 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \

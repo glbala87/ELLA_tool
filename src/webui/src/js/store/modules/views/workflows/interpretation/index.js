@@ -1,6 +1,5 @@
 import { Module } from 'cerebral'
 import addAcmgClicked from './signals/addAcmgClicked'
-import addCustomAnnotationClicked from './signals/addCustomAnnotationClicked'
 import evaluateReferenceClicked from './signals/evaluateReferenceClicked'
 import geneAssessmentChanged from './signals/geneAssessmentChanged'
 import undoGeneAssessmentClicked from './signals/undoGeneAssessmentClicked'
@@ -21,7 +20,6 @@ import reuseAlleleReportClicked from './signals/reuseAlleleReportClicked'
 import removeAcmgClicked from './signals/removeAcmgClicked'
 import removeAttachmentClicked from './signals/removeAttachmentClicked'
 import showExcludedReferencesClicked from './signals/showExcludedReferencesClicked'
-import showAlleleAssessmentHistoryClicked from './signals/showAlleleAssessmentHistoryClicked'
 import interpretationUserStateChanged from './signals/interpretationUserStateChanged'
 import upgradeDowngradeAcmgClicked from './signals/upgradeDowngradeAcmgClicked'
 import uploadAttachmentTriggered from './signals/uploadAttachmentTriggered'
@@ -31,7 +29,6 @@ export default Module({
     state: {},
     signals: {
         addAcmgClicked,
-        addCustomAnnotationClicked,
         evaluateReferenceClicked,
         geneAssessmentChanged,
         undoGeneAssessmentClicked,
@@ -53,7 +50,6 @@ export default Module({
         reuseAlleleAssessmentClicked,
         interpretationUserStateChanged,
         showExcludedReferencesClicked,
-        showAlleleAssessmentHistoryClicked,
         upgradeDowngradeAcmgClicked,
         uploadAttachmentTriggered,
         indicationsCommentChanged

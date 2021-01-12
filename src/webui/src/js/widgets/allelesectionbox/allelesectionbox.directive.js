@@ -21,7 +21,7 @@ import {
 import { deepCopy, deepEquals } from '../../util'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
-import template from './allelesectionbox.ngtmpl.html'
+import template from './allelesectionbox.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import canFinalizeAllele from '../../store/modules/views/workflows/computed/canFinalizeAllele'
 import { sortCodesByTypeStrength } from '../../store/common/helpers/acmg'
@@ -122,7 +122,9 @@ app.component('alleleSectionbox', {
             verificationStatusChanged: signal`views.workflows.verificationStatusChanged`,
             notRelevantChanged: signal`views.workflows.notRelevantChanged`,
             finalizeAlleleClicked: signal`views.workflows.interpretation.finalizeAlleleClicked`,
-            addCustomAnnotationClicked: signal`views.workflows.interpretation.addCustomAnnotationClicked`,
+            addPredictionClicked: signal`views.workflows.modals.addPrediction.showAddPredictionClicked`,
+            addExternalClicked: signal`views.workflows.modals.addExternal.showAddExternalClicked`,
+            addReferencesClicked: signal`views.workflows.modals.addReferences.showAddReferencesClicked`,
             classificationChanged: signal`views.workflows.interpretation.classificationChanged`,
             collapseAlleleSectionboxChanged: signal`views.workflows.interpretation.collapseAlleleSectionboxChanged`,
             evaluationCommentChanged: signal`views.workflows.interpretation.evaluationCommentChanged`,
@@ -254,7 +256,10 @@ app.component('alleleSectionbox', {
                         return $ctrl.isAlleleAssessmentReused ? $ctrl.isAlleleReportUpdated : true
                     },
                     finalizeTitle() {
-                        return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
+                        if (!$ctrl.isAlleleAssessmentReused) {
+                            return $ctrl.canFinalizeSelectedAllele.messages.join('\n')
+                        }
+                        return ''
                     }
                 })
             }

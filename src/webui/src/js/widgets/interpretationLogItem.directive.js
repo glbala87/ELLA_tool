@@ -1,7 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props, signal } from 'cerebral/tags'
-import template from './interpretationLogItem.ngtmpl.html'
+import template from './interpretationLogItem.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('interpretationLogItem', {
     templateUrl: 'interpretationLogItem.ngtmpl.html',

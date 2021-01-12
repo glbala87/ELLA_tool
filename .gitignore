@@ -6,6 +6,7 @@ local_settings.py
 .cache/
 __pycache__/
 ops/builder/venv
+images/
 
 # Packages
 *.egg
@@ -67,7 +68,7 @@ src/webui/dest
 
 src/package
 
-attachments
+/attachments/
 src/webui/build
 src/webui/dev
 vardb-schema.png

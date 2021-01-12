@@ -6,7 +6,7 @@ export default [
     set(module`query`, props`query`),
     debounce(500),
     {
-        continue: loadResults,
+        continue: [set(module`page`, 1), loadResults],
         discard: []
     }
 ]

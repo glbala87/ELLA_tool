@@ -1,14 +1,22 @@
 ---
-image: docker:latest
+image: docker:stable
 services:
-    - docker:dind
+    - docker:stable-dind
 
 variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-    CI_CACHE_IMAGE_FILE: ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
+    # build vars
     DOCKER_DRIVER: overlay2
-    BRANCH: $CI_COMMIT_REF_NAME
+    DOCKER_BUILDKIT: 1
+    BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
+
+    # repo vars
     PIPELINE_ID: ella-$CI_PIPELINE_ID
+    BRANCH: $CI_COMMIT_REF_NAME
+
+    # image vars
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
+    CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
 
 stages:
     - build
@@ -17,72 +25,123 @@ stages:
     - review
     - release
 
-build:
-    stage: build
-    script:
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
-        - docker build --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest -t $IMAGE_NAME -t ella:ci-latest --target dev .
-        - docker push $CI_REGISTRY_IMAGE:ci-latest
-        - mkdir -p images
-        - docker save $IMAGE_NAME > images/$CI_CACHE_IMAGE_FILE
-    tags:
-        - do-small
-    cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        paths:
-            - images/
-        policy: push
+# shared settings
+.cache: &cache
+    key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
+    paths:
+        - images/
 
-# Runner is down for time being, disable it until it's back up
-#start_review:
-#    stage: review
-#    script:
-#        - make review REVIEW_NAME=${CI_BUILD_REF_SLUG}.review.ousamg.io
-#    environment:
-#        name: review/$CI_BUILD_REF_SLUG
-#        url: http://$CI_BUILD_REF_SLUG.review.ousamg.io
-#    only:
-#        - branches
-#    except:
-#        - master
-#    tags:
-#        - review
-#    needs: []
+.cache-pull: &cache-pull
+    <<: *cache
+    policy: pull
 
-.test-common:
+.cache-push: &cache-push
+    <<: *cache
+    policy: push
+
+.revapp-env: &revapp-env
+    name: review/$CI_BUILD_REF_SLUG
+
+# before_script actions
+.apk-setup: &apk-setup apk add --update make git
+.docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
+
+# base jobs
+.revapp: &revapp
+    stage: review
+    before_script:
+        - *apk-setup
+        - *docker-login
+        - docker pull $REVAPP_IMAGE_NAME
+    variables:
+        REVAPP_REPLACE: 1
+        REVAPP_NAME: $CI_BUILD_REF_SLUG
+        REVAPP_COMMIT_SHA: $CI_COMMIT_SHA
+
+.common-test: &common-test
     stage: test
     before_script:
-        - apk add --update make
-        - cat images/$CI_CACHE_IMAGE_FILE | docker load
+        - *apk-setup
+        - *docker-load
     needs: ['build']
+    cache:
+        <<: *cache-pull
     tags:
         - do-small
+    except:
+        - /^ops-.*$/
+
+# jobs
+
+build:
+    stage: build
+    before_script:
+        - *apk-setup
+        - *docker-login
+    script:
+        - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
+        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest"
+        - docker push $CI_REGISTRY_IMAGE:ci-latest
+        - make build-review
+        - docker push $REVAPP_IMAGE_NAME
+        - mkdir -p images
+        - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
+    tags:
+        - do-large
     cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        paths:
-            - images/
-        policy: pull
+        <<: *cache-push
+
+start_review:
+    extends: .revapp
+    script:
+        - make gitlab-review
+    artifacts:
+        reports:
+            dotenv: deploy.env
+    environment:
+        <<: *revapp-env
+        url: http://$APP_IP
+        on_stop: stop_review
+        auto_stop_in: 6 hours
+    only:
+        - branches
+    except:
+        - master
+
+stop_review:
+    extends: .revapp
+    script:
+        - make gitlab-review-stop
+    when: manual
+    environment:
+        <<: *revapp-env
+        action: stop
+
+refresh_ip:
+    extends: .revapp
+    script:
+        - make gitlab-review-refresh-ip
+    artifacts:
+        reports:
+            dotenv: deploy.env
+    environment:
+        <<: *revapp-env
+        url: http://$APP_IP
+    when: manual
+
+###
 
 check_formatting:
-    extends: .test-common
+    extends: .common-test
     stage: formatting
     script:
         - make test-formatting
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-formatting
-    tags:
-        - do-small
 
 e2e:
-    stage: test
-    before_script:
-        - apk add --update make
-        - cat images/$CI_CACHE_IMAGE_FILE | docker load
-        - rm -rf errorShots
-    script: PARALLEL_INSTANCES=2 make test-e2e
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-e2e
+    extends: .common-test
+    script:
+        - PARALLEL_INSTANCES=2 make test-e2e
     artifacts:
         paths:
             - errorShots/
@@ -90,86 +149,44 @@ e2e:
         name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks
-    needs: ['build']
-    tags:
-        - do-small
     cache:
-        key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
-        paths:
-            - images/
-        policy: pull
+        <<: *cache-pull
 
 api:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-api
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api
-    tags:
-        - do-small
 
 api_migration:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-api-migration
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-api-migration
-    tags:
-        - do-small
 
 js:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-js
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-js
-    tags:
-        - do-small
 
 python:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-python
-    except:
-        - /^ui-.*$/
-        - /^ops-.*$/
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-common
-    tags:
-        - do-small
 
 cli:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-cli
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-cli
-    tags:
-        - do-small
 
 report:
-    extends: .test-common
+    extends: .common-test
     script:
         - make test-report
-    after_script:
-        - docker rm  -f -v ella-$CI_COMMIT_REF_NAME-report
-    tags:
-        - do-small
 
 release:
     stage: release
     before_script:
-        - apk add --update make git
-        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - *apk-setup
+        - *docker-login
     script:
         - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
         - docker build -t $IMAGE_NAME .
@@ -182,4 +199,4 @@ release:
     only:
         - tags
     tags:
-        - do-small
+        - do-large

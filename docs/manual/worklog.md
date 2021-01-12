@@ -6,13 +6,13 @@ title: Work log
 
 Both the ANALYSES and VARIANTS workflows have their own work log, which can be accessed with the button in the top right corner of the [top bar](/manual/top-bar.html):
 
-<div style="text-indent: 4%;"><img src="./img/work_log_btn.png"></div>
+<div class="figure"><img src="./img/work_log_btn.png"></div>
 
 If there are any messages since last time the workflow was finalized, the work log button will appear in purple, along with the current message count.
 
 Overview and example work log:
 
-<div style="text-indent: 4%;"><img src="./img/work_log.png"></div>
+<div class="figure"><img src="./img/work_log.png"></div>
 
 The work log lets you:
 

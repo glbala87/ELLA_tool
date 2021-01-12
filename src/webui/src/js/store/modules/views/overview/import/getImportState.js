@@ -40,7 +40,8 @@ export default function getImportState() {
         custom: {
             selectedFilterMode: 'single',
             candidates: getCandidatesState(),
-            added: getAddedState()
+            added: getAddedState(),
+            selectedImportUserGroups: []
         },
         importHistoryPage: 1,
         importSourceType: 'user',

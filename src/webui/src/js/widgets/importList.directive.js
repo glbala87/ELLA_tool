@@ -1,7 +1,7 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { signal, state, props } from 'cerebral/tags'
-import template from './importList.ngtmpl.html'
+import template from './importList.ngtmpl.html' // eslint-disable-line no-unused-vars
 import popoverTemplate from './annotationjobPopover.ngtmpl.html'
 
 app.component('importList', {

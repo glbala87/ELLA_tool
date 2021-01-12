@@ -61,7 +61,7 @@
                 </button>
                 <button
                     class="id-add-references"
-                    ng-click="$ctrl.addCustomAnnotationClicked({alleleId: $ctrl.selectedAlleleId, category: 'references'})"
+                    ng-click="$ctrl.addReferencesClicked({alleleId: $ctrl.selectedAlleleId})"
                     ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded || $ctrl.isCurrentAlleleReused"
                     ng-if="!$ctrl.readOnly"
                 >

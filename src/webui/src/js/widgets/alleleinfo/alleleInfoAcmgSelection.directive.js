@@ -6,7 +6,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getSuggestedAcmgCodes from '../../store/modules/views/workflows/interpretation/computed/getSuggestedAcmgCodes'
 import isAlleleAssessmentReused from '../../store/modules/views/workflows/interpretation/computed/isAlleleAssessmentReused'
 import getReqCodes from '../../store/modules/views/workflows/interpretation/computed/getReqCodes'
-import template from './alleleInfoAcmgSelection.ngtmpl.html'
+import template from './alleleInfoAcmgSelection.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoAcmgSelection', {
     templateUrl: 'alleleInfoAcmgSelection.ngtmpl.html',

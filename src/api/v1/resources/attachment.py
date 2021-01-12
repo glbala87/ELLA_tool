@@ -1,11 +1,12 @@
 import pathlib
 import subprocess
 import uuid
+from api.util.analysis_attachments import get_attachments
 from api.v1.resource import LogRequestResource
 from api.config import config
 from flask import request, send_file
 from hashlib import sha256
-from vardb.datamodel import attachment
+from vardb.datamodel import attachment, sample
 from api import schemas
 from api.util.util import authenticate, rest_filter, paginate
 
@@ -94,3 +95,14 @@ class AttachmentResource(LogRequestResource):
         return send_file(
             atchmt_schema.get_path(atchmt), as_attachment=True, attachment_filename=atchmt.filename
         )
+
+
+class AnalysisAttachmentResource(LogRequestResource):
+    @authenticate()
+    def get(self, session, analysis_id, index, user=None):
+        aname = (
+            session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).scalar()
+        )
+        attachment = get_attachments(aname)[index]
+
+        return send_file(str(attachment), as_attachment=True, attachment_filename=attachment.name)

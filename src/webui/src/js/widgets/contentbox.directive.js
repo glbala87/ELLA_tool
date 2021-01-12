@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 import { Directive, Inject } from '../ng-decorators'
-import template from './contentbox.ngtmpl.html'
+import template from './contentbox.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 /**
  <contentbox>

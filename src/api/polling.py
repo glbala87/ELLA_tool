@@ -11,8 +11,9 @@ from urllib.parse import urlencode
 import os
 import binascii
 import subprocess
-from io import StringIO
+import tempfile
 from os.path import join
+from pathlib import Path
 import pytz
 from sqlalchemy.exc import OperationalError
 
@@ -21,7 +22,7 @@ from api.util.genepanel_to_bed import genepanel_to_bed
 from vardb.datamodel import annotationjob
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.datamodel.analysis_config import AnalysisConfigData
+from vardb.deposit.analysis_config import AnalysisConfigData
 
 log = logging.getLogger(__name__)
 
@@ -154,39 +155,46 @@ class AnnotationJobsInterface:
     def deposit(self, id, annotated_vcf):
         job = self.get_with_id(id)
         mode = job.mode
-        fd = StringIO()
-        fd.write(annotated_vcf)
-        fd.flush()
-        fd.seek(0)
+        with tempfile.TemporaryDirectory() as folder:
+            vcf_file = Path(folder) / "{}.vcf".format(job.id)
+            analysis_file = Path(folder) / "{}.analysis".format(job.id)
+            with open(vcf_file, "w") as vcf, open(analysis_file, "w") as af:
+                vcf.write(annotated_vcf)
+                vcf.flush()
 
-        gp_name = job.genepanel_name
-        gp_version = job.genepanel_version
+                gp_name = job.genepanel_name
+                gp_version = job.genepanel_version
 
-        if mode == "Analysis":
-            job_type = job.properties["create_or_append"]
-            sample_type = job.properties["sample_type"]
-            analysis_name = job.properties["analysis_name"]
-            priority = job.properties.get("priority", 1)
-            if job_type == "Create":
-                analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
+                if mode == "Analysis":
+                    analysis_name = job.properties["analysis_name"]
+                    append = job.properties["create_or_append"] != "Create"
+                    if append:
+                        analysis_name = job.properties["analysis_name"]
+                    else:
+                        analysis_name = "{}.{}_{}".format(analysis_name, gp_name, gp_version)
 
-            acd = AnalysisConfigData(
-                vcf_path=fd,
-                analysis_name=analysis_name,
-                gp_name=gp_name,
-                gp_version=gp_version,
-                priority=priority,
-            )
-            append = job_type != "Create"
-            da = DepositAnalysis(self.session)
-            da.import_vcf(acd, sample_type=sample_type, append=append)
+                    af_data = {
+                        "name": analysis_name,
+                        "genepanel_name": job.genepanel_name,
+                        "genepanel_version": job.genepanel_version,
+                        "priority": job.properties.get("priority", 1),
+                        "data": [
+                            {"vcf": str(vcf_file), "technology": job.properties["sample_type"]}
+                        ],
+                    }
 
-        elif mode in ["Variants", "Single variant"]:
+                    json.dump(af_data, af)
+                    af.flush()
 
-            deposit = DepositAlleles(self.session)
-            deposit.import_vcf(fd, gp_name, gp_version)
-        else:
-            raise RuntimeError("Unknown mode: %s" % mode)
+                    acd = AnalysisConfigData(analysis_file)
+                    da = DepositAnalysis(self.session)
+                    da.import_vcf(acd, append=append)
+
+                elif mode in ["Variants", "Single variant"]:
+                    deposit = DepositAlleles(self.session)
+                    deposit.import_vcf(str(vcf_file), gp_name, gp_version)
+                else:
+                    raise RuntimeError("Unknown mode: %s" % mode)
 
     def delete(self, job):
         self.session.delete(job)
@@ -347,7 +355,7 @@ def patch_annotation_job(annotation_jobs, id, updates):
     except Exception as e:
         log.error(
             "Failed patch of annotation job {id} ({update}): {error}".format(
-                id, str(updates), getattr(e, "message", str(e))
+                id=id, update=str(updates), error=getattr(e, "message", str(e))
             )
         )
         annotation_jobs.rollback()

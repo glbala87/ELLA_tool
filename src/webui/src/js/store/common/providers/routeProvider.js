@@ -7,5 +7,8 @@ export default Provider({
     },
     goTo(url) {
         page(url)
+    },
+    current() {
+        return window.location.toString()
     }
 })

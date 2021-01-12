@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import template from './addExcludedAlleles.ngtmpl.html'
+import template from './addExcludedAlleles.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const getGeneOptions = Compute(
     state`views.workflows.modals.addExcludedAlleles.data.alleleIdsByGene`,

@@ -2,7 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import template from './alleleInfoQuality.ngtmpl.html'
+import template from './alleleInfoQuality.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const GENOTYPE_KEYS = [
     'multiallelic',
