@@ -74,7 +74,7 @@ Note that the message is only displayed when a user finalizes another variant or
 
 #### Select user group on custom imports
 
-<!-- MR !463-->
+<!-- MR !463, MR !485-->
 To better support custom gene panel imports that should be available to more than one user group, the custom gene panel import dialogue now includes an option to select user groups: 
 
 <div class="figure_text">
