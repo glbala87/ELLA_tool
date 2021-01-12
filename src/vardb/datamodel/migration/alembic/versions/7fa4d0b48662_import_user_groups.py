@@ -31,6 +31,9 @@ def upgrade():
             ["usergroup.id"],
             name=op.f("fk_usergroupimport_usergroupimport_id_usergroup"),
         ),
+        sa.UniqueConstraint(
+            "usergroup_id", "usergroupimport_id", name=op.f("uq_usergroupimport_usergroup_id")
+        ),
     )
 
 

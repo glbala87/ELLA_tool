@@ -75,6 +75,13 @@ def import_groups(session, groups, log=log.info):
     usergroup_id_names = session.query(user.UserGroup.id, user.UserGroup.name).all()
     usergroup_name_id = {gn: gid for gid, gn in usergroup_id_names}
     for group_name, import_group_names in import_groups.items():
+
+        # Delete all usergroupimport rows for this group before re-inserting new
+        session.execute(
+            user.UserGroupImport.delete().where(
+                user.UserGroupImport.c.usergroup_id == usergroup_name_id[group_name]
+            )
+        )
         for import_group_name in import_group_names:
             session.execute(
                 user.UserGroupImport.insert().values(

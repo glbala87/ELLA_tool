@@ -1,6 +1,15 @@
 import datetime
 import pytz
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Table
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    DateTime,
+    Boolean,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.schema import ForeignKeyConstraint
@@ -71,6 +80,7 @@ UserGroupImport = Table(
     Base.metadata,
     Column("usergroup_id", Integer, ForeignKey("usergroup.id"), nullable=False),
     Column("usergroupimport_id", Integer, ForeignKey("usergroup.id"), nullable=False),
+    UniqueConstraint("usergroup_id", "usergroupimport_id"),
 )
 
 
