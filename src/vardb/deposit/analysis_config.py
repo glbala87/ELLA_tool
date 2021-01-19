@@ -177,8 +177,9 @@ class AnalysisConfigData(dict):
         if "priority" in legacy:
             d["priority"] = int(legacy["priority"])
 
-        if "date_requested" in legacy:
-            d["date_requested"] = legacy["date_requested"]
+        for date_key in ["date_requested", "date_analysis_requested"]:
+            if date_key in legacy:
+                d["date_requested"] = legacy[date_key]
 
         self.update(d)
 

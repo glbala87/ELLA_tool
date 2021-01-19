@@ -6,11 +6,26 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.12](#version-1-12)|
+[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1)
 [v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3](#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.12.1
+
+Release date: 19.01.2021
+
+### Highlights
+
+This release adds a few bugfixes. 
+
+### All changes
+
+<!-- MR !486 -->
+- Fixed a bug that caused pre- and postprocessing to fail.
+- Fixed a bug that caused missing "Requested" date on imported analyses.
+- Fixed a bug that caused performance problems.
 
 ## Version 1.12
 
