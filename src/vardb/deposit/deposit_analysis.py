@@ -292,6 +292,7 @@ class DepositAnalysis(DepositFromVCF):
                 tuple_(gene.Genepanel.name, gene.Genepanel.version)
                 == (db_analysis.genepanel_name, db_analysis.genepanel_version)
             )
+            .distinct()
             .all()
         )
 
@@ -407,6 +408,7 @@ class DepositAnalysis(DepositFromVCF):
                 analysis_config_data["warnings"],
                 date_requested=analysis_config_data.get("date_requested"),
             )
+            self.session.flush()
         else:
             db_analysis = (
                 self.session.query(sample.Analysis)
