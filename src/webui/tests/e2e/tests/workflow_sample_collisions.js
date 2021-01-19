@@ -32,10 +32,11 @@ describe('Sample workflow', function() {
         analysisPage.selectSectionInfo()
 
         // Should have two attachments
-        const attachmentFilenames = $$('.attachments-container .tabular-row').map((a) =>
-            a.getText()
-        )
-        expect(attachmentFilenames.length).toEqual(2)
+        // NOTE: disabling until getting attachments is also re-enabled
+        // const attachmentFilenames = $$('.attachments-container .tabular-row').map((a) =>
+        //     a.getText()
+        // )
+        // expect(attachmentFilenames.length).toEqual(2)
         analysisPage.selectSectionClassification()
         analysisPage.startButton.click()
 
