@@ -696,7 +696,7 @@ class AlleleDataLoader(object):
         include_reference_assessments=True,
         include_allele_report=True,
         allele_assessment_schema=None,
-        only_most_recent_annotation=False
+        only_most_recent_annotation=False,
     ):
         """
         Loads data for a list of alleles from the database, and returns a dictionary
@@ -859,7 +859,9 @@ class AlleleDataLoader(object):
         if genepanel:
             # sometimes we need to limit the amount of annotation data to load
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-                self.session, [(genepanel.name, genepanel.version)], annotation_ids=None if only_most_recent_annotation else annotation_ids
+                self.session,
+                [(genepanel.name, genepanel.version)],
+                annotation_ids=None if only_most_recent_annotation else annotation_ids,
             ).subquery()
 
             annotation_transcripts = (
