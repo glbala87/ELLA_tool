@@ -47,7 +47,7 @@ class AnalysisConfigData(dict):
         "$id": "analysis_config_data",
         "type": "object",
         "required": ["name", "genepanel_name", "genepanel_version", "priority", "data"],
-        "optional": ["report", "warnings"],
+        "optional": ["report", "warnings", "date_requested", "date_analysis_requested"],
         "additionalProperties": false,
         "properties": {
             "name": {
@@ -63,8 +63,16 @@ class AnalysisConfigData(dict):
                 "type": "integer"
             },
             "date_requested": {
-                "type": "string",
-                "pattern": "[0-9]{4}-[0-1][0-9]-[0-3][0-9]"
+                "$oneOf": [
+                    { "type": "string", "pattern": "[0-9]{4}-[0-1][0-9]-[0-3][0-9]" },
+                    { "type": "null" }
+                ]
+            },
+            "date_analysis_requested": {
+                "$oneOf": [
+                    { "type": "string", "pattern": "[0-9]{4}-[0-1][0-9]-[0-3][0-9]" },
+                    { "type": "null" }
+                ]
             },
             "report": {
                 "$oneOf": [
