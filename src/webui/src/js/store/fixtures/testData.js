@@ -117,7 +117,7 @@ const testUiConfig = {
                     {
                         pattern: '^NonExistingPattern.*',
                         postprocess: [
-                            'analysis_not_ready_findings',
+                            'analysis_not_ready_warnings',
                             'analysis_finalize_without_findings'
                         ]
                     }
