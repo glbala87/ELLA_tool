@@ -6,11 +6,28 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1)
+[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2)
 [v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3](#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.12.2
+
+Release date: 29.01.2021
+
+### Highlights
+
+This release adds a few bugfixes. 
+
+### All changes
+
+<!-- MR !491 -->
+- Fixed a bug causing ELLA not to start.
+<!-- MR !489 -->
+- Fixed a bug causing excessive memory use in exports of variant interpretation database.
+<!-- MR !490 -->
+- Fixed an error in test configuration. 
 
 ## Version 1.12.1
 
