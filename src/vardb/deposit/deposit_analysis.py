@@ -349,30 +349,20 @@ class DepositAnalysis(DepositFromVCF):
             )
 
             for method in deposit_usergroup_config["postprocess"]:
-                if method == "analysis_not_ready_warnings":
-                    from .postprocessors import (
-                        analysis_not_ready_warnings,
-                    )  # FIXME: Has circular import, so must import here...
+                # FIXME: circular import, so importing on demand here
+                from . import postprocessors
 
-                    analysis_not_ready_warnings(
+                if method in postprocessors.valid_methods:
+                    method_func = getattr(postprocessors, method)
+                    method_func(
                         self.session, db_analysis, db_analysis_interpretation, filter_config_id
                     )
-                elif method == "analysis_tag_all_classified":
-                    from .postprocessors import (
-                        analysis_tag_all_classified,
-                    )  # FIXME: Has circular import, so must import here...
-
-                    analysis_tag_all_classified(
-                        self.session, db_analysis, db_analysis_interpretation, filter_config_id
-                    )
-
-                elif method == "analysis_finalize_without_findings":
-                    from .postprocessors import (
-                        analysis_finalize_without_findings,
-                    )  # FIXME: Has circular import, so must import here...
-
-                    analysis_finalize_without_findings(
-                        self.session, db_analysis, db_analysis_interpretation, filter_config_id
+                else:
+                    # postprocess methods initially defined in fixtures/usergroups.json
+                    # then fetched for use from the database
+                    pattern = deposit_usergroup_config.get("pattern", "pattern missing")
+                    raise RuntimeError(
+                        f"Invalid postprocess method {method} in {pattern} of user group {deposit_usergroup_id}"
                     )
 
     def import_vcf(self, analysis_config_data, append=False):
