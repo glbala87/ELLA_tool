@@ -696,6 +696,7 @@ class AlleleDataLoader(object):
         include_reference_assessments=True,
         include_allele_report=True,
         allele_assessment_schema=None,
+        only_most_recent_annotation=False,
     ):
         """
         Loads data for a list of alleles from the database, and returns a dictionary
@@ -723,6 +724,7 @@ class AlleleDataLoader(object):
         :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id or, if not provided, the latest data
         :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id or, if not provided, the latest data
         :param allele_assessment_schema: Use this schema for serialization. If None, use default
+        :param only_most_recent_annotation: Avoid memory issues (like in dumping variants in export files) by including only most recent annotation
         :returns: dict with converted data using schema data.
         """
 
@@ -855,8 +857,11 @@ class AlleleDataLoader(object):
         # If genepanel is provided, get annotation transcripts filtered on genepanel
         annotation_transcripts = None
         if genepanel:
+            # sometimes we need to limit the amount of annotation data to load
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-                self.session, [(genepanel.name, genepanel.version)], annotation_ids=annotation_ids
+                self.session,
+                [(genepanel.name, genepanel.version)],
+                annotation_ids=None if only_most_recent_annotation else annotation_ids,
             ).subquery()
 
             annotation_transcripts = (
