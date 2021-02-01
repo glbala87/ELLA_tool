@@ -153,6 +153,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         include_allele_assessment=False,
         include_reference_assessments=False,
         include_allele_report=True,
+        only_most_recent_annotation=True,
     )[0]
 
     # Imported assessments without date can have 0000-00-00 as created_time. strftime doesn't like that..
