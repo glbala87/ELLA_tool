@@ -42,16 +42,8 @@
                 >Abstract</a
             >
         </p>
-        <div ng-repeat="(source, sourceStr) in vm.getReferenceDBSources()">
-            <div ng-switch="source">
-                <p ng-switch-when="HGMD">
-                    <a-clip href="{{ vm.allele.urls.hgmd }}">Source: {{ sourceStr }}</a-clip>
-                </p>
-                <p ng-switch-when="CLINVAR">
-                    <a-clip href="{{ vm.allele.urls.clinvar }}">Source: {{ sourceStr }}</a-clip>
-                </p>
-                <p ng-switch-default>Source: {{ sourceStr }}</p>
-            </div>
+        <div ng-repeat="sourceStr in vm.getReferenceDBSources()">
+            <p>Source: {{ sourceStr }}</p>
         </div>
 
         <article class="line-wrapper question medium id-relevance">

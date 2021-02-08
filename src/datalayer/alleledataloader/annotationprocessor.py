@@ -77,32 +77,18 @@ class AnnotationProcessor(object):
 
         if custom_annotation:
             # Merge/overwrite annotation with custom_annotation
-            for key in list(config.config["custom_annotation"].keys()):
-                if key in custom_annotation:
-                    if key not in annotation:
-                        annotation[key] = dict()
-                    annotation[key].update(custom_annotation[key])
-
+            annotation["external"] = {
+                **annotation.get("external", {}),
+                **custom_annotation.get("external", {}),
+            }
+            annotation["prediction"] = {
+                **annotation.get("prediction", {}),
+                **custom_annotation.get("prediction", {}),
+            }
             # References are merged specially
-            if "references" in annotation and "references" in custom_annotation:
-                for ca_ref in custom_annotation["references"]:
-                    if "source_info" not in ca_ref:
-                        ca_ref["source_info"] = dict()
-
-                    # A reference can come from several sources, if so only merge the source
-                    assert ca_ref.get("id") or ca_ref.get("pubmed_id"), ca_ref
-                    existing_ref = None
-                    for r in annotation["references"]:
-                        for id in ["id", "pubmed_id"]:
-                            if r.get(id) is not None and r.get(id) == ca_ref.get(id):
-                                existing_ref = r
-                                break
-
-                    if existing_ref is not None:
-                        existing_ref["sources"] = existing_ref["sources"] + ca_ref["sources"]
-                        continue
-
-                    annotation["references"].append(ca_ref)
+            annotation["references"] = annotation.get("references", []) + custom_annotation.get(
+                "references", []
+            )
 
         # DEPRECATION: Rename inDB AF to OUSWES on the fly.
         # Can be removed once database is remade in production.

@@ -5,29 +5,17 @@
     "additionalItems": false,
     "items": {
         "type": "object",
-        "required": ["pubmed_id", "source_info", "sources"],
+        "required": ["pubmed_id", "source_info", "source"],
         "additionalProperties": false,
         "properties": {
             "pubmed_id": {
                 "type": "integer"
             },
             "source_info": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                    "HGMD": {
-                        "type": "string"
-                    },
-                    "CLINVAR": {
-                        "type": "string"
-                    }
-                }
+                "type": "string"
             },
-            "sources": {
-                "type": "array",
-                "items": {
-                    "enum": ["HGMD", "CLINVAR"]
-                }
+            "source": {
+                "type": "string"
             }
         }
     }

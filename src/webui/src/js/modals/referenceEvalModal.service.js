@@ -679,21 +679,19 @@ export class ReferenceEvalModalController {
     isDropdownDisabled(source) {}
 
     getReferenceDBSources() {
-        let sources = {}
-        let annotation_reference = this.allele.annotation.references.find(
-            (a) => a.pubmed_id === this.reference.pubmed_id
-        )
-        if (!annotation_reference) {
-            return sources
-        }
-        for (let source of annotation_reference.sources) {
-            let source_text = source
-            if (source in annotation_reference.source_info) {
-                source_text += ' (' + annotation_reference.source_info[source] + ')'
-            }
-            sources[source] = source_text
-        }
-        return sources
+        return this.allele.annotation.references
+            .filter(
+                (r) =>
+                    (this.reference.pubmed_id && r.pubmed_id === this.reference.pubmed_id) ||
+                    (this.reference.id && r.id === this.reference.id)
+            )
+            .map((r) => {
+                if (r.source_info) {
+                    return `${r.source} (${r.source_info})`
+                } else {
+                    return r.source
+                }
+            })
     }
 
     getAbstract(reference) {
