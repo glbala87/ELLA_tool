@@ -143,6 +143,8 @@ COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql/10 /usr/share/
 COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql/10 /usr/lib/postgresql/10
 
 USER ella-user
+ENV PGHOST="/socket" \
+    PGDATA="/pg-data"
 WORKDIR /ella
 CMD ["supervisord", "-c" , "/ella/ops/demo/supervisor.cfg"]
 
