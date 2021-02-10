@@ -28,7 +28,7 @@ def test_get_pubmeds_HGMD():
 
     assert pubmeds[2] == {
         "pubmed_id": 3,
-        "sources": "HGMD",
+        "source": "HGMD",
         "source_info": "Reftag not specified. No comments.",
     }
 
