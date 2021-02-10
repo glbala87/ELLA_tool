@@ -1,4 +1,4 @@
-"""foobar
+"""Split annotation references
 
 Revision ID: 611d46cd83b4
 Revises: 7fa4d0b48662
@@ -21,6 +21,8 @@ from sqlalchemy.sql import table, column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm.session import Session
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
+from vardb.datamodel.annotationshadow import create_trigger_sql
+from api.config import config
 
 Annotation = table("annotation", column("id", sa.Integer), column("annotations", JSONB))
 CustomAnnotation = table("customannotation", column("id", sa.Integer), column("annotations", JSONB))
@@ -31,12 +33,12 @@ def upgrade():
     session = Session(bind=conn)
     # Drop trigger that disallows modification on annotation.annotations.
     # This needs to be added back.
-    conn.execute("DROP TRIGGER annotation_to_annotationshadow ON annotation")
+    conn.execute("DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation")
 
     # Drop trigger that cause a massive overhead
     # Need to update schemas after migration, so that the trigger is reinsterted
     conn.execute("DELETE from jsonschema where name='annotation'")
-    conn.execute("DROP TRIGGER annotation_schema_version ON annotation")
+    conn.execute("DROP TRIGGER IF EXISTS annotation_schema_version ON annotation")
     for tbl in [Annotation, CustomAnnotation]:
         annotations = conn.execute(sa.select([tbl.c.id, tbl.c.annotations]))
         for a in annotations:
@@ -64,9 +66,7 @@ def upgrade():
             )
 
     # Add back triggers
-    conn.execute(
-        "CREATE TRIGGER annotation_to_annotationshadow BEFORE INSERT OR UPDATE OR DELETE ON annotation FOR EACH ROW EXECUTE PROCEDURE annotation_to_annotationshadow();"
-    )
+    conn.execute(create_trigger_sql(config))
     update_schemas(session)
 
 
@@ -76,12 +76,12 @@ def downgrade():
     session = Session(bind=conn)
     # Drop trigger that disallows modification on annotation.annotations.
     # This needs to be added back.
-    conn.execute("DROP TRIGGER annotation_to_annotationshadow ON annotation")
+    conn.execute("DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation")
 
     # Drop trigger that cause a massive overhead
     # Need to update schemas after migration, so that the trigger is reinsterted
     conn.execute("DELETE from jsonschema where name='annotation'")
-    conn.execute("DROP TRIGGER annotation_schema_version ON annotation")
+    conn.execute("DROP TRIGGER IF EXISTS annotation_schema_version ON annotation")
     for tbl in [Annotation, CustomAnnotation]:
         annotations = conn.execute(sa.select([tbl.c.id, tbl.c.annotations]))
         for a in annotations:
