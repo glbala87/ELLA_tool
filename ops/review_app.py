@@ -25,6 +25,10 @@ from paramiko.ssh_exception import NoValidConnectionsError
 from requests.exceptions import ConnectionError, ConnectTimeout
 from scp import SCPClient
 
+###
+### general settings
+###
+
 logger_name = Path(__file__).stem
 log_config = {
     "version": 1,
@@ -42,42 +46,14 @@ log_config = {
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(logger_name)
 
+###
+### digitalocean settings
+###
+
 default_region = "fra1"
 default_size = "s-1vcpu-2gb"
 default_droplet_image = "docker-20-04"
 default_tag = "gitlab-review-app"
-
-revapp_run = """
-docker inspect revapp >/dev/null 2>&1 && docker rm -f revapp
-docker run -d \
---name revapp \
--e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
--e ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments/" \
--e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
--e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
--e ELLA_CONFIG=/ella/example_config.yml \
--e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
--e PGDATA=/pg-data \
--e PGHOST=/socket \
--e PORT=5000 \
--e PRODUCTION=false \
--e VIRTUAL_HOST={hostname} \
--p 80:5000 \
-{image_name} && \
-docker exec revapp make dbreset
-""".strip()
-
-
-class RevappStatus(str, Enum):
-    OK = "OK"
-    ServerError = "ServerError / Loading"
-    NotRunning = "Not Running"
-    TimedOut = "Timed Out"
-    Down = "Down"
-
-    def __str__(self) -> str:
-        return self.value
-
 
 droplet_attrs = ("id", "name", "created_at", "status", "ip_address")
 droplet_details = (
@@ -109,6 +85,28 @@ To                         Action      From
 443/tcp (v6)               ALLOW       Anywhere (v6)
 """.strip()  # noqa: W291
 
+###
+### review app settings
+###
+
+revapp_start_script = Path(__file__).parent / "start_demo.sh"
+revapp_base_env = {"DEMO_NAME": "revapp", "DEMO_IMAGE": None, "DEMO_PORT": 80, "DEMO_HOST_PORT": 80}
+
+###
+### support classes
+###
+
+
+class RevappStatus(str, Enum):
+    OK = "OK"
+    ServerError = "ServerError / Loading"
+    NotRunning = "Not Running"
+    TimedOut = "Timed Out"
+    Down = "Down"
+
+    def __str__(self) -> str:
+        return self.value
+
 
 class RetriesExceeded(Exception):
     err_list: List[Exception] = []
@@ -121,7 +119,64 @@ class RetriesExceeded(Exception):
         self.err_list = errors
 
 
+###
 ### utility funcs
+###
+
+
+def fingerprint_key(pubkey: str) -> str:
+    """ generates the md5 hexdigest of the public key used by digitalocean """
+    pub_digest = hashlib.md5(b64decode(pubkey.encode("utf-8"))).hexdigest()
+    return ":".join([pub_digest[i : i + 2] for i in range(0, len(pub_digest), 2)])
+
+
+def format_name(ctx, param, value: str) -> str:
+    if not value.startswith("revapp-"):
+        value = f"revapp-{value}"
+    return value
+
+
+def print_table(
+    data: Sequence[Union[Sequence, Mapping]],
+    header: Sequence[Sequence] = [],
+    min_width: int = 6,
+    sep_char: str = "=",
+) -> None:
+    new_header = [str(x) for x in header]
+    max_lens = [len(x) for x in new_header]
+    new_data: List[List[str]] = []
+    for rn, row in enumerate(data[:]):
+        new_row = list()
+        if isinstance(row, dict):
+            if not header:
+                raise ValueError("You must include a header if printing a dict")
+            for i, h in enumerate(header):
+                h_str = str(row.get(h, ""))
+                dlen = len(h_str)
+                if dlen > max_lens[i]:
+                    max_lens[i] = dlen
+                new_row.append(h_str)
+        elif isinstance(row, (tuple, list)):
+            for i, d in enumerate(row):
+                d_str = str(d)
+                d_len = len(d_str)
+                if i + 1 > len(max_lens):
+                    max_lens.append(d_len)
+                elif len(d) > max_lens[i]:
+                    max_lens[i] = d_len
+        new_data.append(new_row)
+    for i, val in enumerate(max_lens[:]):
+        val += 1  # a little extra padding
+        if val < min_width:
+            val = min_width
+        max_lens[i] = val
+    if header:
+        sep_row = [sep_char * i for i in max_lens]
+        new_data = list([new_header, sep_row]) + new_data
+    for row in new_data:
+        for i, cell in enumerate(row):
+            end_char = "  " if i < len(row) - 1 else "\n"
+            print(f"{cell : <{max_lens[i]}}", end=end_char)
 
 
 def retry(catch_exc, max_retries: int = ssh_max_retries, delay: int = 15, err_msg: str = None):
@@ -175,31 +230,9 @@ def str2path(ctx, param, value: str) -> Path:
     return Path(value) if value is not None else None
 
 
-### funcs
-
-
-def fingerprint_key(pubkey: str) -> str:
-    """ generates the md5 hexdigest of the public key used by digitalocean """
-    pub_digest = hashlib.md5(b64decode(pubkey.encode("utf-8"))).hexdigest()
-    return ":".join([pub_digest[i : i + 2] for i in range(0, len(pub_digest), 2)])
-
-
-def format_name(ctx, param, value: str) -> str:
-    if not value.startswith("revapp-"):
-        value = f"revapp-{value}"
-    return value
-
-
-def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Optional[Droplet]:
-    logger.debug(f"Fetching droplet named {name}")
-    all_drops = list_droplets(mgr, tag)
-    by_name = [d for d in all_drops if d.name == name]
-    if len(by_name) == 0:
-        logger.info(f"No droplet found with name {name}")
-        return None
-    elif len(by_name) > 1:
-        raise ValueError(f"Found multiple droplets named: {name}")
-    return by_name[0]
+###
+### SSH funcs
+###
 
 
 @retry(
@@ -215,53 +248,72 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
     return ssh
 
 
+@retry((SocketTimeout, PipeTimeout), err_msg="SSH cmd '{1}' failed after {max_retries}")
+def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
+    """ use to get nicer output from SSHClient.exec_command """
+    logger.debug(f"Executing '{cmd}'")
+    if "timeout" not in kwargs:
+        kwargs["timeout"] = ssh_default_timeout
+
+    _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
+    out_str: str = stdout.read().decode("utf-8").strip()
+    err_str: str = stderr.read().decode("utf-8").strip()
+    logger.debug(f"output: {out_str}")
+    logger.debug(f"error:  {err_str}")
+    return out_str, err_str
+
+
+###
+### SCP funcs
+###
+
+
+def scp_progress(filename: str, size: int, sent: int) -> None:
+    percent = sent / size
+    bar = int(percent // scp_bar_percent) * "=" + ">"
+    print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
+
+
+@retry(Exception)
+def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
+    if isinstance(files, Path):
+        put_files = [str(files)]
+    else:
+        put_files = [str(f) for f in files]
+    str_files = ", ".join(put_files)
+    xfer_start = datetime.datetime.now()
+    try:
+        scp.put(put_files, **kwargs)
+    except Exception as e:
+        # TODO: narrow down what exceptions this might throw
+        xfer_total = datetime.datetime.now() - xfer_start
+        logger.error(f"Transfer of {str_files} failed after {xfer_total}")
+        raise e
+    xfer_total = datetime.datetime.now() - xfer_start
+    logger.info(f"Finished uploading file(s) {str_files} after {xfer_total}")
+
+
+###
+### digitalocean funcs
+###
+
+
+def get_droplet(mgr: Manager, name: str, tag: str = default_tag) -> Optional[Droplet]:
+    logger.debug(f"Fetching droplet named {name}")
+    all_drops = list_droplets(mgr, tag)
+    by_name = [d for d in all_drops if d.name == name]
+    if len(by_name) == 0:
+        logger.info(f"No droplet found with name {name}")
+        return None
+    elif len(by_name) > 1:
+        raise ValueError(f"Found multiple droplets named: {name}")
+    return by_name[0]
+
+
 def list_droplets(mgr: Manager, tag: str = default_tag) -> Sequence[Droplet]:
     logger.debug(f"Fetching all droplets with tag {tag}")
     all_drops = mgr.get_all_droplets(tag_name=tag)
     return all_drops
-
-
-def print_table(
-    data: Sequence[Union[Sequence, Mapping]],
-    header: Sequence[Sequence] = [],
-    min_width: int = 6,
-    sep_char: str = "=",
-) -> None:
-    new_header = [str(x) for x in header]
-    max_lens = [len(x) for x in new_header]
-    new_data: List[List[str]] = []
-    for rn, row in enumerate(data[:]):
-        new_row = list()
-        if isinstance(row, dict):
-            if not header:
-                raise ValueError("You must include a header if printing a dict")
-            for i, h in enumerate(header):
-                h_str = str(row.get(h, ""))
-                dlen = len(h_str)
-                if dlen > max_lens[i]:
-                    max_lens[i] = dlen
-                new_row.append(h_str)
-        elif isinstance(row, (tuple, list)):
-            for i, d in enumerate(row):
-                d_str = str(d)
-                d_len = len(d_str)
-                if i + 1 > len(max_lens):
-                    max_lens.append(d_len)
-                elif len(d) > max_lens[i]:
-                    max_lens[i] = d_len
-        new_data.append(new_row)
-    for i, val in enumerate(max_lens[:]):
-        val += 1  # a little extra padding
-        if val < min_width:
-            val = min_width
-        max_lens[i] = val
-    if header:
-        sep_row = [sep_char * i for i in max_lens]
-        new_data = list([new_header, sep_row]) + new_data
-    for row in new_data:
-        for i, cell in enumerate(row):
-            end_char = "  " if i < len(row) - 1 else "\n"
-            print(f"{cell : <{max_lens[i]}}", end=end_char)
 
 
 def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
@@ -271,13 +323,9 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
     scp = SCPClient(ssh.get_transport())
 
     provision_ufw(ssh, scp)
-    logger.info(f"pulling image {image_name}")
-    ssh_exec(ssh, f"docker pull {image_name}", timeout=300)
-    logger.info(f"Starting application")
-    ssh_exec(
-        ssh, revapp_run.format(hostname=droplet.ip_address, image_name=image_name), timeout=300
-    )
-    logger.info(f"Completed provisioning and starting of {droplet.name}")
+    logger.info(f"{droplet.name} provisioned")
+    revapp_launch(ssh, droplet.ip_address, image_name)
+    logger.info(f"Review app started on {droplet.name}")
 
 
 def provision_ufw(ssh: SSHClient, scp: SCPClient):
@@ -297,46 +345,6 @@ def provision_ufw(ssh: SSHClient, scp: SCPClient):
     if msg.strip() != ufw_status_ok:
         raise ValueError(f"ufw status not matching after update: {msg}")
     logger.info(f"ufw successfully configured")
-
-
-def scp_progress(filename: str, size: int, sent: int) -> None:
-    percent = sent / size
-    bar = int(percent // scp_bar_percent) * "=" + ">"
-    print(f"{filename}: {percent*100:.2f}% |{bar: <{scp_bar_padding}}|", end="\r")
-
-
-# TODO: narrow down what exceptions this might throw
-@retry(Exception)
-def scp_put(scp: SCPClient, files: Union[Path, Sequence[Path]], **kwargs):
-    if isinstance(files, Path):
-        put_files = [str(files)]
-    else:
-        put_files = [str(f) for f in files]
-    str_files = ", ".join(put_files)
-    xfer_start = datetime.datetime.now()
-    try:
-        scp.put(put_files, **kwargs)
-    except Exception as e:
-        xfer_total = datetime.datetime.now() - xfer_start
-        logger.error(f"Transfer of {str_files} failed after {xfer_total}")
-        raise e
-    xfer_total = datetime.datetime.now() - xfer_start
-    logger.info(f"Finished uploading file(s) {str_files} after {xfer_total}")
-
-
-@retry((SocketTimeout, PipeTimeout), err_msg="SSH cmd '{1}' failed after {max_retries}")
-def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
-    """ use to get nicer output from SSHClient.exec_command """
-    logger.debug(f"Executing '{cmd}'")
-    if "timeout" not in kwargs:
-        kwargs["timeout"] = ssh_default_timeout
-
-    _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
-    out_str: str = stdout.read().decode("utf-8").strip()
-    err_str: str = stderr.read().decode("utf-8").strip()
-    logger.debug(f"output: {out_str}")
-    logger.debug(f"error:  {err_str}")
-    return out_str, err_str
 
 
 def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[Droplet] = None):
@@ -364,6 +372,27 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
         pass
 
 
+def trim_droplet(drop: Droplet, detailed=False) -> Dict:
+    new_drop = {a: getattr(drop, a) for a in droplet_attrs}
+    if detailed:
+        for (key, vals) in droplet_details:
+            if key not in drop:
+                logger.warn(f"Could not find {key} attr in droplet {drop.name}/{drop.id}")
+                continue
+            if vals:
+                new_drop[key] = dict()
+                for v in vals:  # type: ignore
+                    new_drop[key][v] = drop[key].get(v)
+            else:
+                new_drop[key] = drop[key]
+    return new_drop
+
+
+###
+### review app funcs
+###
+
+
 def revapp_status(droplet: Droplet) -> RevappStatus:
     url = f"http://{droplet.ip_address}"
     try:
@@ -381,20 +410,27 @@ def revapp_status(droplet: Droplet) -> RevappStatus:
     return RevappStatus.ServerError
 
 
-def trim_droplet(drop: Droplet, detailed=False) -> Dict:
-    new_drop = {a: getattr(drop, a) for a in droplet_attrs}
-    if detailed:
-        for (key, vals) in droplet_details:
-            if key not in drop:
-                logger.warn(f"Could not find {key} attr in droplet {drop.name}/{drop.id}")
-                continue
-            if vals:
-                new_drop[key] = dict()
-                for v in vals:  # type: ignore
-                    new_drop[key][v] = drop[key].get(v)
-            else:
-                new_drop[key] = drop[key]
-    return new_drop
+def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
+    logger.info(f"pulling image {image_name}")
+    ssh_exec(ssh, f"docker pull {image_name}", timeout=300)
+
+    # set up environment for revapp_start_script
+    revapp_env = revapp_base_env.copy()
+    revapp_env["VIRTUAL_HOST"] = hostname
+    revapp_env["DEMO_IMAGE"] = image_name
+
+    # check everything is set
+    empty_vars = [k for k, v in revapp_env.items() if v is None]
+    if empty_vars:
+        err = ValueError(f"Required environment variable(s) unset: {', '.join(empty_vars)}")
+        logger.exception(err)
+        raise err
+
+    logger.info(f"Starting application")
+    out_str, err_str = ssh_exec(ssh, "make demo-start", environment=revapp_env, timeout=300)
+    breakpoint()
+
+    logger.info(f"Review app started on {hostname}:{revapp_env['DEMO_HOST_PORT']}")
 
 
 # click/CLI command functions

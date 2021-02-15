@@ -159,45 +159,51 @@ release-notes:
 # DEMO / REVIEW APPS
 #---------------------------------------------
 
-.PHONY: demo kill-demo review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
+# demo is a local review app, a review app is a remote demo
 
-comma := ,
-REVIEW_NAME ?=
-REVIEW_OPTS ?=
+.PHONY: review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
+.PHONY: demo-build demo-pull demo-check-image demo kill-demo
+
+# set and export demo vars used in ops/start_demo.sh
+DEMO_NAME ?= ella-demo
+DEMO_PORT ?= 3114
+DEMO_HOST_PORT ?= 3114
+DEMO_OPTS ?=
+export DEMO_NAME DEMO_PORT DEMO_HOST_PORT DEMO_OPTS
 
 # set var defaults for running review steps locally
-export REVAPP_NAME ?= $(BRANCH)
-export REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
-export REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+REVAPP_NAME ?= $(BRANCH)
+REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:$(REVAPP_NAME)-review
+REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+export REVAPP_NAME REVAPP_IMAGE_NAME REVAPP_COMMIT_SHA
 
+demo-build: build-review
 
-# Demo is just a review app, with port mapped to system
-demo: REVIEW_OPTS=-p 3114:3114
-demo: REVIEW_NAME=demo
-demo:
-	docker build -t local/ella-$(REVIEW_NAME) --target review .
-	-docker stop $(subst $(comma),-,ella-$(REVIEW_NAME))
-	-docker rm $(subst $(comma),-,ella-$(REVIEW_NAME))
-	docker run -d \
-		--name $(subst $(comma),-,ella-$(REVIEW_NAME)) \
-		--user $(UID):$(GID) \
-		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
-		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
-		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-		-e ELLA_CONFIG=$(ELLA_CONFIG) \
-		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-		-e PORT=3114 \
-		-e PRODUCTION=false \
-		-e VIRTUAL_HOST=$(REVIEW_NAME) \
-		--expose 3114 \
-		$(REVIEW_OPTS) \
-		local/ella-$(REVIEW_NAME)
-	docker exec $(subst $(comma),-,ella-$(REVIEW_NAME)) make dbreset
-	@echo "Demo is now running at http://localhost:3114. Some example user/pass are testuser1/demo and testuser5/demo."
+demo-pull:
+	docker pull $(REVAPP_IMAGE_NAME)
+
+demo-check-image:
+	docker image inspect $(REVAPP_IMAGE_NAME) >/dev/null 2>&1 || (echo "you must use demo-build, demo-pull or build $(REVAPP_IMAGE_NAME) yourself"; exit 1)
+	-@docker rm -f $(DEMO_NAME)
+
+demo: demo-check-image
+	$(eval export DEMO_IMAGE = $(REVAPP_IMAGE_NAME))
+	./ops/start_demo.sh
+	@echo "Demo is now running at http://localhost:$(DEMO_HOST_PORT). Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
 	docker rm -f ella-demo
+
+define demo-start-template
+docker run -d \
+		--name $(DEMO_NAME) \
+		--user $(UID):$(GID) \
+		-e VIRTUAL_HOST=$(DEMO_NAME) \
+		-p $(DEMO_HOST_PORT):$(DEMO_PORT) \
+		$(DEMO_OPTS) \
+		$(REVAPP_IMAGE_NAME)
+	docker exec $(DEMO_NAME) make dbreset
+endef
 
 # Review apps
 define gitlab-template
