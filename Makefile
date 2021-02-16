@@ -169,7 +169,9 @@ DEMO_NAME ?= ella-demo
 DEMO_PORT ?= 3114
 DEMO_HOST_PORT ?= 3114
 DEMO_OPTS ?=
-export DEMO_NAME DEMO_PORT DEMO_HOST_PORT DEMO_OPTS
+DEMO_USER ?= $(UID)
+DEMO_GROUP ?= $(shell id -g)
+export DEMO_NAME DEMO_PORT DEMO_HOST_PORT DEMO_OPTS DEMO_USER DEMO_GROUP
 
 # set var defaults for running review steps locally
 REVAPP_NAME ?= $(BRANCH)

@@ -18,6 +18,9 @@ variables:
     REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
     CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
 
+    # ensure breakpoints don't fire accidentally
+    PYTHONBREAKPOINT: 0
+
 stages:
     - build
     - formatting

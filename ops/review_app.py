@@ -2,6 +2,7 @@
 
 import datetime
 import hashlib
+import io
 import json
 import logging
 import logging.config
@@ -41,7 +42,10 @@ log_config = {
             "stream": "ext://sys.stderr",
         }
     },
-    "loggers": {logger_name: {"handlers": ["console"], "level": "INFO"}},
+    "loggers": {
+        logger_name: {"handlers": ["console"], "level": "INFO"},
+        "paramiko": {"handlers": ["console"], "level": "WARN"},
+    },
 }
 logging.config.dictConfig(log_config)
 logger = logging.getLogger(logger_name)
@@ -77,20 +81,27 @@ Status: active
 
 To                         Action      From
 --                         ------      ----
-22/tcp                     LIMIT       Anywhere                  
-80/tcp                     ALLOW       Anywhere                  
-443/tcp                    ALLOW       Anywhere                  
-22/tcp (v6)                LIMIT       Anywhere (v6)             
-80/tcp (v6)                ALLOW       Anywhere (v6)             
+22/tcp                     LIMIT       Anywhere
+80/tcp                     ALLOW       Anywhere
+443/tcp                    ALLOW       Anywhere
+22/tcp (v6)                LIMIT       Anywhere (v6)
+80/tcp (v6)                ALLOW       Anywhere (v6)
 443/tcp (v6)               ALLOW       Anywhere (v6)
-""".strip()  # noqa: W291
+""".strip()
 
 ###
 ### review app settings
 ###
 
 revapp_start_script = Path(__file__).parent / "start_demo.sh"
-revapp_base_env = {"DEMO_NAME": "revapp", "DEMO_IMAGE": None, "DEMO_PORT": 80, "DEMO_HOST_PORT": 80}
+revapp_base_env = {
+    "DEMO_NAME": "revapp",
+    "DEMO_IMAGE": None,
+    "DEMO_PORT": "3114",
+    "DEMO_USER": "1000",
+    "DEMO_GROUP": "1000",
+    "DEMO_HOST_PORT": "80",
+}
 
 ###
 ### support classes
@@ -117,6 +128,27 @@ class RetriesExceeded(Exception):
         else:
             self.msg = f"Command failed after exceeding {max_retries} retries"
         self.err_list = errors
+
+
+class ExecFailed(Exception):
+    rc: int
+    host: str
+    cmd: str
+    stdout: str
+    stderr: str
+    msg: str
+
+    def __init__(
+        self, host: str, cmd: str, rc: int, stdout: str, stderr: str, msg: str = None
+    ) -> None:
+        self.rc = rc
+        self.cmd = cmd
+        self.host = host
+        self.stdout = stdout
+        self.stderr = stderr
+        if msg is None:
+            msg = f"Received rc {self.rc} from {self.host} while running {self.cmd}"
+        self.msg = msg
 
 
 ###
@@ -249,18 +281,40 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
 
 
 @retry((SocketTimeout, PipeTimeout), err_msg="SSH cmd '{1}' failed after {max_retries}")
-def ssh_exec(ssh: SSHClient, cmd: str, **kwargs) -> Tuple[str, str]:
-    """ use to get nicer output from SSHClient.exec_command """
+def ssh_exec(
+    ssh: SSHClient,
+    cmd: str,
+    check_rc: bool = True,
+    timeout: int = ssh_default_timeout,
+    bufsize: int = -1,
+) -> Tuple[Optional[int], List[str], List[str]]:
+    """ executes the command, returning formatted output and optionally checking success (default) """
     logger.debug(f"Executing '{cmd}'")
-    if "timeout" not in kwargs:
-        kwargs["timeout"] = ssh_default_timeout
 
-    _, stdout, stderr = ssh.exec_command(cmd, **kwargs)
-    out_str: str = stdout.read().decode("utf-8").strip()
-    err_str: str = stderr.read().decode("utf-8").strip()
-    logger.debug(f"output: {out_str}")
-    logger.debug(f"error:  {err_str}")
-    return out_str, err_str
+    # SSHClient.exec_command does not allow checking the return code from what was executed, so we
+    # are basically duplicating that function and checking it ourselves
+    chan = ssh._transport.open_session()
+    # set timeout for blocking operations
+    chan.settimeout(timeout)
+    chan.exec_command(cmd)
+
+    rc = chan.recv_exit_status()
+    stdout = [line.rstrip() for line in chan.makefile("r", bufsize).readlines()]
+    stderr = [line.rstrip() for line in chan.makefile_stderr("r", bufsize).readlines()]
+    json_blob = {
+        "host": ssh._transport.sock.getpeername()[0],
+        "cmd": cmd,
+        "rc": rc,
+        "stdout": "\n".join(stdout),
+        "stderr": "\n".join(stderr),
+    }
+
+    if check_rc and rc:
+        err = ExecFailed(**json_blob)
+        raise err
+    else:
+        logger.debug(json.dumps(json_blob))
+    return rc, stdout, stderr
 
 
 ###
@@ -326,23 +380,26 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
     logger.info(f"{droplet.name} provisioned")
     revapp_launch(ssh, droplet.ip_address, image_name)
     logger.info(f"Review app started on {droplet.name}")
+    ssh.close()
 
 
 def provision_ufw(ssh: SSHClient, scp: SCPClient):
     logger.debug(f"Checking ufw status")
-    msg, err = ssh_exec(ssh, "ufw status")
-    if msg.strip() == ufw_status_ok:
+    rc, msg, err = ssh_exec(ssh, "ufw status")
+    if "\n".join(msg) == ufw_status_ok:
         logger.info(f"ufw status ok, skipping")
         return
 
     logger.debug(f"moving current ufw configs")
     for ufw_conf in ufw_configs:
-        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
+        rc, stdout, stderr = ssh_exec(
+            ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old"
+        )
     scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
     logger.debug(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
-    msg, err = ssh_exec(ssh, "ufw status")
-    if msg.strip() != ufw_status_ok:
+    rc, msg, err = ssh_exec(ssh, "ufw status")
+    if "\n".join(msg) == ufw_status_ok:
         raise ValueError(f"ufw status not matching after update: {msg}")
     logger.info(f"ufw successfully configured")
 
@@ -411,6 +468,7 @@ def revapp_status(droplet: Droplet) -> RevappStatus:
 
 
 def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
+    # can take a little while, so run pull by itself
     logger.info(f"pulling image {image_name}")
     ssh_exec(ssh, f"docker pull {image_name}", timeout=300)
 
@@ -426,9 +484,25 @@ def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
         logger.exception(err)
         raise err
 
+    # set up the env
+    cmd_list = [f"export {k}={v}" for k, v in revapp_env.items()]
+    # remove any existing containers from failed/partial provisions
+    cmd_list.append("docker ps -aq | xargs docker rm -f")
+    # run non-empty, non-comment/shebang lines from start script
+    cmd_list.extend(
+        [
+            line.rstrip()
+            for line in io.StringIO(revapp_start_script.read_text())
+            if line.strip() != "" and not line.lstrip().startswith("#")
+        ]
+    )
+    cmd_str = "\n".join(cmd_list)
+
     logger.info(f"Starting application")
-    out_str, err_str = ssh_exec(ssh, "make demo-start", environment=revapp_env, timeout=300)
-    breakpoint()
+    rc, out_str, err_str = ssh_exec(ssh, cmd_str, timeout=300)
+    if rc:
+        logger.warn(f"Got rc {rc} on command {cmd_str}")
+        logger.warn(f"App may not have started correctly")
 
     logger.info(f"Review app started on {hostname}:{revapp_env['DEMO_HOST_PORT']}")
 
