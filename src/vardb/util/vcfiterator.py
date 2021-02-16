@@ -1,535 +1,187 @@
-import sys
-from collections import defaultdict
-import re
-import abc
+import cyvcf2
 import logging
-from typing import Set
+import numpy as np
 
 log = logging.getLogger(__name__)
 
 
-# Official fields in specification
-SPEC_FIELDS = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]
+def _numpy_unknown_to_none(a):
+    """
+    Unknown values ('.') in integer arrays are assigned as '-inf' (e.g. for in32 the value is -2^31)
+    Convert array to list, and replace these values with None
+    """
+    b = a.tolist()
+    n = max(a.shape)
+    indices = zip(*np.where(a < np.iinfo(a.dtype).min + n))
 
-
-class Util(object):
-    warnings: Set = set()
-
-    @staticmethod
-    def conv_to_number(value):
-        """
-        Tries to convert a string to a number, silently returning the originally value if it fails.
-        """
-        try:
-            return int(value)
-        except ValueError:
-            pass
-        try:
-            return float(value)
-        except ValueError:
-            pass
-        return value
-
-    @staticmethod
-    def split_and_convert(conv_func, split_max=-1, extract_single=False):
-        """
-        Performs a normal split() on a string, with support for converting the values and extraction of single values.
-
-        :param conv_func: Function for converting the values
-        :type conv_func: functions
-        :param split_max: Maximum number of splits to perform. Default: No limit.
-        :type split_max: int
-        :param extract_single: If value ends up being a single value, do not return a list. Default: False
-        :type extract_single: bool
-        """
-
-        def inner(x):
-            lst = [conv_func(i) for i in x.split(",", split_max)]
-            if len(lst) == 1 and extract_single:
-                lst = lst[0]
-            return lst
-
-        return inner
-
-    @staticmethod
-    def open(path_or_fileobject):
-        if isinstance(path_or_fileobject, str):
-            return open(path_or_fileobject, "r")
+    def set_value(x, i, value):
+        "Set value in nested lists"
+        if len(i) > 1:
+            x = set_value(x[i[0]], i[1:], value)
         else:
-            # Reset file object and return
-            path_or_fileobject.seek(0)
-            return path_or_fileobject
+            x[i[0]] = value
 
-    @staticmethod
-    def convert_genotype(value):
-        if "|" in value:
-            value = value.replace("|", "/")
-            Util.warnings.add("Phased data detected. Phasing will be ignored.")
-        value = value.replace("1/0", "0/1").replace("./0", "0/.")
-        return value
+    for idx in indices:
+        set_value(b, idx, None)
 
-    @staticmethod
-    def log_warnings():
-        for warning in Util.warnings:
-            log.warning(warning)
-        Util.warnings = set()
+    return b
 
 
-class BaseInfoProcessor(abc.ABC):
-    @abc.abstractmethod
-    def accepts(self, key, value, processed):
-        """
-        Checks whether this info processor should be run for this key/value.
+def numpy_to_list(a):
+    if a is None:
+        return None
+    if np.issubdtype(a.dtype, np.integer):
+        return _numpy_unknown_to_none(a)
+    else:
+        return a.tolist()
 
-        :param key: The key of the INFO field.
-        :param value: The string value for this field.
-        :param processed: Tells whether another processor has already accepted this field.
 
-        """
-        pass
-
-    @abc.abstractmethod
-    def process(self, key, value, info_data, alleles, processed):
-        """
-        For processing the incoming key, value pair, inserting the data into info_data
-        however is seen fit. Is only invoked if accepts returned True.
-
-        :param key: The key of the INFO field.
-        :param value: The string value for this field.
-        :param info_data: INFO data structure for inserting data into.
-        :param alleles: List of alleles (strings) for this value. In practice same as ALT field.
-        :param processed: Tells whether another processor has already accepted this field.
-
-        """
-        pass
-
-    def getConvertFunction(self, meta, key):
-        # Search for meta item
-        f = next((m for m in meta["INFO"] if m["ID"] == key), None)
-
-        def identity(x):
-            return x
-
-        func = identity
-        if f:
-            parse_func = str
-            if f["Type"] == "Integer":
-                parse_func = int
-            elif f["Type"] in ["Number", "Double", "Float"]:
-                parse_func = float
-            elif f["Type"] == "Flag":
-                parse_func = bool
-            elif f["Type"] == "String":
-                parse_func = identity
-
-            number = f["Number"]
-
-            try:
-                # Number == int
-                n = int(number)
-                func = Util.split_and_convert(parse_func, split_max=n, extract_single=True)
-            except ValueError:
-                # Number == Allele specific
-                if number == "A":
-                    func = Util.split_and_convert(parse_func)
-                # Number == Unknown
-                else:
-                    if f["Type"] == "Integer":
-                        func = Util.split_and_convert(parse_func, extract_single=True)
-                    else:
-                        func = parse_func
-
-        return func
-
-
-class VEPInfoProcessor(BaseInfoProcessor):
-    """
-    Parser for the VEP INFO field.
-    """
-
-    field = "CSQ"
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.fields = self._parseFieldsFromMeta()
-        self.converters = {
-            "AA_MAF": self._parseMAF,
-            "AFR_MAF": self._parseMAF,
-            "AMR_MAF": self._parseMAF,
-            "ALLELE_NUM": int,
-            "ASN_MAF": self._parseMAF,
-            "EA_MAF": self._parseMAF,
-            "EUR_MAF": self._parseMAF,
-            "EAS_MAF": self._parseMAF,
-            "SAS_MAF": self._parseMAF,
-            "GMAF": self._parseMAF,
-            "Consequence": lambda x: [i for i in x.split("&")],
-            "Existing_variation": lambda x: [i for i in x.split("&")],
-            "DISTANCE": int,
-            "STRAND": int,
-            "PUBMED": lambda x: [int(i) for i in x.split("&")],
-        }
-
-    def _parseFieldsFromMeta(self):
-        info_line = next(
-            (l for l in self.meta["INFO"] if l.get("ID") == VEPInfoProcessor.field), None
-        )
-        if info_line:
-            fields = info_line["Description"].split("Format: ", 1)[1].split("|")
-            return fields
-        return list()
-
-    def _parseMAF(self, val):
-        maf = dict()
-        alleles = val.split("&")
-        for allele in alleles:
-            v = allele.split(":")
-            for key, value in zip(v[0::2], v[1::2]):
-                try:
-                    maf[key] = float(value)
-                except ValueError:
-                    continue
-        return maf
-
-    def accepts(self, key, value, processed):
-        return key == VEPInfoProcessor.field
-
-    def process(self, key, value, info_data, alleles, processed):
-        transcripts = value.split(",")
-
-        all_data = [
-            {
-                k: self.converters.get(k, lambda x: x)(v)
-                for k, v in zip(self.fields, t.split("|"))
-                if v != ""
-            }
-            for t in transcripts
-        ]
-
-        for a_idx, allele in enumerate(alleles):
-            info_data[allele][key] = [d for d in all_data if d["ALLELE_NUM"] - 1 == a_idx]
-
-
-class SnpEffInfoProcessor(BaseInfoProcessor):
-    """
-    Parser for the snpEff INFO field.
-    """
-
-    field = "EFF"
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.fields = self._parseFieldsFromMeta()
-        self.converters = {"Genotype_Number": int, "Exon_Rank": int, "Amino_Acid_length": int}
-
-    def _parseFormat(self, line):
-        """
-        Parse following format to a flat list.
-        Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_Change| Amino_Acid_length | Gene_Name | Transcript_BioType | Gene_Coding | Transcript_ID | Exon_Rank  | Genotype_Number [ | ERRORS | WARNINGS ] )
-        """
-        fields = list()
-
-        line = (
-            line.replace("(", "|")
-            .replace(")", "")
-            .replace("[ | ERRORS | WARNINGS ]", "")
-            .replace("'", "")
-        )
-        fields = line.split("|")
-
-        fields = [f.strip() for f in fields]
-
-        return fields
-
-    def _parseFieldsFromMeta(self):
-        info_line = next(
-            (l for l in self.meta["INFO"] if l.get("ID") == SnpEffInfoProcessor.field), None
-        )
-        if info_line:
-            fields = self._parseFormat(info_line["Description"].split("Format: '", 1)[1])
-            fields.append("ERRORS")
-            return fields
-        return list()
-
-    def accepts(self, key, value, processed):
-        return key == SnpEffInfoProcessor.field
-
-    def process(self, key, value, info_data, alleles, processed):
-        transcripts = value.split(",")
-
-        all_data = [
-            {
-                k: self.converters.get(k, lambda x: x)(v)
-                for k, v in zip(self.fields, self._parseFormat(t))
-                if v != ""
-            }
-            for t in transcripts
-        ]
-
-        for a_idx, allele in enumerate(alleles):
-            info_data[allele][key] = [d for d in all_data if d["Genotype_Number"] - 1 == a_idx]
-
-
-class CsvAlleleParser(BaseInfoProcessor):
-    """
-    Parses comma separated values, and inserts them into the data according to the allele the value belongs to.
-    """
-
-    fields = ["AC", "AF", "MLEAC", "MLEAF"]
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.conv_func = Util.conv_to_number
-
-    def accepts(self, key, value, processed):
-        return key in CsvAlleleParser.fields
-
-    def process(self, key, value, info_data, alleles, processed):
-        allele_values = value.split(",")
-        if not len(allele_values) == len(alleles):
-            raise RuntimeError(
-                "Number of allele values for {} not matching number of alleles".format(key)
-            )
-
-        for a_idx, allele in enumerate(alleles):
-            info_data[allele][key] = self.conv_func(allele_values[a_idx])
-
-
-class NativeInfoProcessor(BaseInfoProcessor):
-    """
-        Fallback processor, invoked if none of the custom ones accepted the data.
-
-        It searches the INFO fields in the header metadata, trying to use the specified type and length.
-
-        Unlike custom processors (e.g. VEPInfoProcessor), it does not generate allele specific data. Instead, all data is put
-        into the 'ALL' key in 'INFO' in the resulting dictionary.
-        """
-
-    def __init__(self, meta):
-        self.meta = meta
-
-    def accepts(self, key, value, processed):
-        return not processed
-
-    def process(self, key, value, info_data, alleles):
-
-        if isinstance(value, bool):
-            info_data["ALL"][key] = value
-        else:
-            func = self.getConvertFunction(self.meta, key)
-            # We ignore alleles for these values, but return them in the 'ALL' key
-            info_data["ALL"][key] = func(value)
-
-
-class HeaderParser(object):
-    """
-    Class for parsing the header part of the vcf and returns the metadata and header data.
-    """
-
-    RE_INFO = re.compile(r'[<]*(.*?)=["]*(.*?)["]*[,>]')
-
-    def __init__(self, path_or_fileobject):
-        self.path_or_fileobject = path_or_fileobject
-        self.metaProccessors = {
-            "INFO": self._parseMetaInfo,
-            "FILTER": self._parseMetaInfo,
-            "FORMAT": self._parseMetaInfo,
-        }
-
-    def _getSamples(self, header):
-        return [field for field in header if field not in SPEC_FIELDS]
-
-    def _parseMetaInfo(self, infoline):
-        groups = re.findall(HeaderParser.RE_INFO, infoline)
-        info = {k: v for k, v in groups}
-        return info
-
-    def _parseHeader(self):
-        meta = defaultdict(list)
-        header = list()
-
-        # Read in metadata and header
-        fd = Util.open(self.path_or_fileobject)
-        for line in fd:
-            line = line.replace("\n", "")
-            if line.startswith("##"):
-                key, value = line[2:].split("=", 1)
-                meta[key].append(value)
-            elif line.startswith("#"):
-                line = line.replace("#", "")
-                header = re.split(r"\s+", line, flags=re.ASCII)
-                # header = line.split('\t')
-                # header =
-            else:
-                # End of header
-                break
-
-        fd.seek(0)
-
-        # Extract data with processors
-        for key, func in self.metaProccessors.items():
-            if key in meta:
-                for idx, value in enumerate(meta[key]):
-                    meta[key][idx] = func(value)
-
-        # Extract value from single-item lists ([val] -> val):
-        for k, v in meta.items():
-            if len(v) == 1:
-                meta[k] = v[0]
-
-        samples = self._getSamples(header)
-        return meta, header, samples
-
-    def parse(self):
-        return self._parseHeader()
-
-
-class DataParser(object):
-    def __init__(self, path_or_fileobject, meta, header, samples):
-        self.path_or_fileobject = path_or_fileobject
-
-        self.meta = meta
-        self.header = header
+class Record(object):
+    def __init__(self, variant, samples, meta):
+        self.variant = variant
         self.samples = samples
+        self.meta = meta
 
-        self.infoProcessors = list()
-        self.fallbackProcessor = NativeInfoProcessor(meta)
+    def _sample_index(self, sample_name):
+        return self.samples.index(sample_name)
 
-    def addInfoProcessor(self, processor):
-        self.infoProcessors.append(processor)
+    def sample_genotype(self, sample_name):
+        return tuple(self.variant.genotypes[self._sample_index(sample_name)][:-1])
 
-    def _parseDataInfoField(self, data):
-        """
-        Parses the INFO data into data structures.
-        Data is split into general ('ALL') and allele specific data.
-        """
-        alleles = data["ALT"]
+    def has_allele(self, sample_name):
+        gt = self.sample_genotype(sample_name)
+        return max(gt) == 1
 
-        fields = data["INFO"].split(";")
-
-        # Create dict for allele specific INFO
-        info_data = {k: dict() for k in alleles}
-        # And include INFO for 'ALL' alleles
-        info_data["ALL"] = dict()
-
-        for f in fields:
-            if not f:  # Avoid empty keys
-                continue
-            if "=" in f:
-                key, value = f.split("=", 1)
+    def get_format_sample(self, property, sample_name, scalar=False):
+        prop = self.variant.format(property)
+        if prop is not None:
+            ret = numpy_to_list(prop[self._sample_index(sample_name)])
+            if scalar:
+                assert len(ret) == 1
+                return ret[0]
             else:
-                key, value = f, True
-            # Process keys by processor, if present, or use native processor
-            # Data is inserted into info_data by the functions
-            processed = False
-            for processor in self.infoProcessors:
-                if processor.accepts(key, value, processed):
-                    processor.process(key, value, info_data, alleles, processed)
-                    processed = True
-            # If no processors handled the data, use the native header processor
-            if not processed:
-                self.fallbackProcessor.process(key, value, info_data, alleles)
-        data["INFO"] = info_data
+                return ret
 
-    def _parseDataSampleFields(self, data):
-        if "FORMAT" not in data:
-            return
-        sample_format = data["FORMAT"].split(":")
+    def get_format(self, property):
+        return numpy_to_list(self.variant.format(property))
 
-        samples = dict()
-        extract = Util.split_and_convert(Util.conv_to_number, extract_single=True)
-        extract_gt = Util.split_and_convert(Util.convert_genotype, extract_single=True)
-        for sample_name in self.samples:
-            sample_text = data.pop(sample_name)
-            samples[sample_name] = {
-                k: extract(v)
-                if k != "GT"
-                else extract_gt(
-                    v
-                )  # Special logic for converting GT. Remove phasing and order alleles.
-                for k, v in zip(sample_format, sample_text.split(":"))
-            }
+    def get_block_id(self):
+        return self.variant.INFO.get("OLD_MULTIALLELIC")
 
-        data["SAMPLES"] = samples
+    def is_multiallelic(self):
+        return self.get_block_id() is not None
 
-        del data["FORMAT"]
+    def is_sample_multiallelic(self, sample_name):
+        return bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
 
-    def _parseData(self, line):
-        data = {k: v for k, v in zip(self.header, re.split(r"\s+", line, flags=re.ASCII))}
+    def annotation(self):
+        return dict(x for x in self.variant.INFO)
 
-        # Split by alleles
-        data["ALT"] = data["ALT"].split(",")
+    def __str__(self):
+        s = repr(self.variant)
 
-        self._parseDataInfoField(data)
+        if self.samples:
+            genotypes = []
+            for i, x in enumerate(self.variant.gt_bases):
+                genotypes.append(f"{x} ({self.samples[i]})")
 
-        self._parseDataSampleFields(data)
-
-        # Manual conversion
-        data["POS"] = Util.conv_to_number(data["POS"])
-        data["QUAL"] = Util.conv_to_number(data["QUAL"])
-
-        return data
-
-    def iter(self, include_raw=False, throw_exceptions=True):
-        found_data_start = False
-        with Util.open(self.path_or_fileobject) as fd:
-            for line_idx, line in enumerate(fd):
-                # Skip header, wait for #CHROM to signal start of data
-                if line.startswith("#CHROM") and not found_data_start:
-                    found_data_start = True
-                    continue
-                if not found_data_start:
-                    continue
-                line = line.replace("\n", "")
-                try:
-                    data = self._parseData(line)
-                except Exception:
-                    if throw_exceptions:
-                        raise
-                    else:
-                        sys.stderr.write(
-                            "WARNING: Line {} failed to parse: \n {}".format(line_idx, line)
-                        )
-                if include_raw:
-                    yield line, data
-                else:
-                    yield data
-
-        Util.log_warnings()
+            s += f" - Genotypes: {', '.join(genotypes)}"
+        return s
 
 
 class VcfIterator(object):
-    def __init__(self, path_or_fileobject):
+    def __init__(self, path_or_fileobject, include_raw=False):
         self.path_or_fileobject = path_or_fileobject
-        self.meta, self.header, self.samples = HeaderParser(self.path_or_fileobject).parse()
-        self.data_parser = DataParser(self.path_or_fileobject, self.meta, self.header, self.samples)
+        self.reader = cyvcf2.Reader(self.path_or_fileobject, gts012=True)
+        self.include_raw = include_raw
+        self.samples = self.reader.samples
+        self.add_format_headers()
+        self.meta = {}
+        for h in self.reader.header_iter():
+            if h.type not in self.meta:
+                self.meta[h.type] = []
+            self.meta[h.type].append(h.info())
 
-        self.addInfoProcessor(VEPInfoProcessor(self.meta))
-        self.addInfoProcessor(SnpEffInfoProcessor(self.meta))
-        self.addInfoProcessor(CsvAlleleParser(self.meta))
+    def add_format_headers(self):
+        "Add format headers if they do not exist. This is a subset of the reserved genotype keys from https://samtools.github.io/hts-specs/VCFv4.3.pdf (table 2)"
 
-    def getHeader(self):
-        return self.header
+        reserved_gt_headers = {
+            "AD": {
+                "Number": "R",
+                "Type": "Integer",
+                "Description": "Injected. Read depth for each allele",
+            },
+            "ADF": {
+                "Number": "R",
+                "Type": "Integer",
+                "Description": "Injected. Read depth for each allele on the forward strand",
+            },
+            "ADR": {
+                "Number": "R",
+                "Type": "Integer",
+                "Description": "Injected. Read depth for each allele on the reverse strand",
+            },
+            "DP": {"Number": "1", "Type": "Integer", "Description": "Injected. Read depth"},
+            "EC": {
+                "Number": "A",
+                "Type": "Integer",
+                "Description": "Injected. Expected alternate allele counts",
+            },
+            "FT": {
+                "Number": "1",
+                "Type": "String",
+                "Description": "Injected. Filter indicating if this genotype was “called”",
+            },
+            "GL": {"Number": "G", "Type": "Float", "Description": "Injected. Genotype likelihoods"},
+            "GP": {
+                "Number": "G",
+                "Type": "Float",
+                "Description": "Injected. Genotype posterior probabilities",
+            },
+            "GQ": {
+                "Number": "1",
+                "Type": "Integer",
+                "Description": "Injected. Conditional genotype quality",
+            },
+            "GT": {"Number": "1", "Type": "String", "Description": "Injected. Genotype"},
+            "HQ": {"Number": "2", "Type": "Integer", "Description": "Injected. Haplotype quality"},
+            "MQ": {
+                "Number": "1",
+                "Type": "Integer",
+                "Description": "Injected. RMS mapping quality",
+            },
+            "PL": {
+                "Number": "G",
+                "Type": "Integer",
+                "Description": "Injected. Phred-scaled genotype likelihoods rounded to the closest integer",
+            },
+            "PP": {
+                "Number": "G",
+                "Type": "Integer",
+                "Description": "Injected. Phred-scaled genotype posterior probabilities rounded to the closest integer",
+            },
+            "PQ": {"Number": "1", "Type": "Integer", "Description": "Injected. Phasing quality"},
+            "PS": {"Number": "1", "Type": "Integer", "Description": "Injected. Phase"},
+        }
 
-    def getMeta(self):
-        return self.meta
+        for key, fmt in reserved_gt_headers.items():
+            if key in self.reader and self.reader.get_header_type(key) == "FORMAT":
+                existing_header_line = self.reader[key]
+                if (
+                    existing_header_line["Number"] != fmt["Number"]
+                    or existing_header_line["Type"] != fmt["Type"]
+                ):
+                    log.warning(
+                        f"Header for format field {key} in VCF does not match VCF spec. Ignoring."
+                    )
+            else:
+                self.reader.add_format_to_header({**fmt, **{"ID": key}})
 
-    def getSamples(self):
-        return self.samples
-
-    def addInfoProcessor(self, processor):
-        self.data_parser.addInfoProcessor(processor)
-
-    def iter(self, include_raw=False, throw_exceptions=True):
-        for r in self.data_parser.iter(include_raw=include_raw, throw_exceptions=throw_exceptions):
-            yield r
-
-
-if __name__ == "__main__":
-    import json
-
-    path = sys.argv[1]
-    v = VcfIterator(path)
-
-    for value in v.iter():
-        print(json.dumps(value, indent=4))
+    def __iter__(self):
+        if self.include_raw:
+            for variant in self.reader:
+                yield str(variant), variant
+        else:
+            for variant in self.reader:
+                r = Record(variant, self.samples, self.meta)
+                yield r

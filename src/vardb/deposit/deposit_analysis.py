@@ -14,20 +14,13 @@ import logging
 from sqlalchemy import tuple_
 from datalayer import queries
 from vardb.util import vcfiterator
-from vardb.deposit.importers import (
-    HGMDInfoProcessor,
-    SplitToDictInfoProcessor,
-    get_allele_from_record,
-)
+from vardb.deposit.importers import get_allele_from_record
 
 from vardb.datamodel import sample, user, gene, assessment, allele
 
 from .deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
-
-
-VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1", "1"]
 
 
 class PrefilterBatchGenerator:
@@ -56,7 +49,9 @@ class PrefilterBatchGenerator:
 
         result_records = []
 
-        allele_data = [(r["CHROM"], r["POS"], r["REF"], r["ALT"][0]) for r in records]
+        allele_data = [
+            (r.variant.CHROM, r.variant.POS, r.variant.REF, r.variant.ALT[0]) for r in records
+        ]
 
         alleles_classifications = (
             self.session.query(
@@ -83,16 +78,14 @@ class PrefilterBatchGenerator:
                 (
                     a
                     for a in alleles_classifications
-                    if a == (r["CHROM"], r["POS"], r["REF"], r["ALT"][0])
+                    if a == (r.variant.CHROM, r.variant.POS, r.variant.REF, r.variant.ALT[0])
                 ),
                 False,
             )
             checks = {
-                "non_multiallelic": r["SAMPLES"][self.proband_sample_name]["GT"]
-                in ["0/1", "1/1", "1|0", "0|1", "1|1", "1"],
-                "hi_frequency": "GNOMAD_GENOMES" in r["INFO"]["ALL"]
-                and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
-                and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AN"] > 5000,
+                "non_multiallelic": not r.is_sample_multiallelic(self.proband_sample_name),
+                "hi_frequency": float(r.variant.INFO.get("GNOMAD_GENOMES__AF", 0.0)) > 0.05
+                and int(r.variant.INFO.get("GNOMAD_GENOMES__AN", 0)) > 5000,
                 "position_not_nearby": bool(self.previous_record)
                 and not self._is_nearby(self.previous_record, r),
                 "no_classification": not has_classification,
@@ -113,11 +106,10 @@ class PrefilterBatchGenerator:
 
     @staticmethod
     def _is_nearby(prev, current):
-        return abs(prev["POS"] - current["POS"]) <= 3 and prev["CHROM"] == current["CHROM"]
-
-    @staticmethod
-    def _is_multiallelic(current):
-        return BlockIterator.get_block_id(current) is not None
+        return (
+            abs(prev.variant.POS - current.variant.POS) <= 3
+            and prev.variant.CHROM == current.variant.CHROM
+        )
 
     def __next__(self):
 
@@ -155,7 +147,7 @@ class PrefilterBatchGenerator:
             if (
                 len(batch) >= (self.batch_size - 1)
                 and not is_nearby
-                and not self._is_multiallelic(current)
+                and not current.is_multiallelic()
             ):  # Batch size influences no. of db queries
                 batch.append(current)
                 break
@@ -163,7 +155,8 @@ class PrefilterBatchGenerator:
         proband_records = list()
         # We only import variants found in proband
         for record in batch:
-            if record["SAMPLES"][self.proband_sample_name]["GT"] in VARIANT_GENOTYPES:
+
+            if record.has_allele(self.proband_sample_name):
                 proband_records.append(record)
 
         if self.prefilter:
@@ -211,28 +204,19 @@ class BlockIterator(object):
             []
         )  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
 
-    @staticmethod
-    def get_block_id(record):
-        return record["INFO"]["ALL"].get("OLD_MULTIALLELIC")
-
     def iter_blocks(self, batch, alleles):
         def is_end_of_block(batch, i):
-            # print(i, len(batch), BlockIterator.get_block_id(batch[i]))
-
             if i == len(batch) - 1:  # End of batch -> end of block
                 return True
-            elif BlockIterator.get_block_id(batch[i]) is None:  # Not on a multiallelic block
+            elif not batch[i].is_multiallelic():  # Not on a multiallelic block
                 return True
             else:
                 # If the next item is on the same multiallelic block, then we need to continue block
-                return BlockIterator.get_block_id(batch[i]) != BlockIterator.get_block_id(
-                    batch[i + 1]
-                )
+                return batch[i].get_block_id() != batch[i + 1].get_block_id()
 
         for i, record in enumerate(batch):
             add_record_to_block = False
-            if record["SAMPLES"][self.proband_sample_name]["GT"] in VARIANT_GENOTYPES:
-
+            if record.has_allele(self.proband_sample_name):
                 allele = get_allele_from_record(record, alleles)
                 # We might have skipped importing the record as allele due to prefiltering
                 if allele:
@@ -246,11 +230,12 @@ class BlockIterator(object):
                 # Track samples that have no coverage within a multiallelic block
                 # './.' often occurs for single records when the sample has genotype in other records,
                 # but if it is './.' in _all_ records within a block, it has no coverage at this site
-                sample_gt = record["SAMPLES"][sample_name]["GT"]
-                if "." in sample_gt:
+                sample_gt = record.sample_genotype(sample_name)
+
+                if -1 in sample_gt:
                     add_record_to_block = True
 
-                if sample_gt not in ["./.", ".|.", "."]:
+                if not all(x == -1 for x in sample_gt):
                     self.sample_has_coverage[sample_name] = True
 
             if add_record_to_block:
@@ -421,8 +406,6 @@ class DepositAnalysis(DepositFromVCF):
 
         for data in analysis_config_data["data"]:
             vi = vcfiterator.VcfIterator(data["vcf"])
-            vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
-            vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
             vcf_sample_names = vi.samples
 
@@ -460,7 +443,7 @@ class DepositAnalysis(DepositFromVCF):
             prefilter = deposit_usergroup_config.get("prefilter", False)
             # batch_records are _all_ records
             for proband_only_records, batch_records in PrefilterBatchGenerator(
-                self.session, proband_sample_name, vi.iter(), prefilter=prefilter
+                self.session, proband_sample_name, iter(vi), prefilter=prefilter
             ):
                 for record in proband_only_records:
                     self.allele_importer.add(record)

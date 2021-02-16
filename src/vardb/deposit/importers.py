@@ -18,7 +18,7 @@ from os.path import commonprefix
 
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
-from vardb.util import vcfiterator, annotationconverters
+from vardb.util import annotationconverters
 from vardb.datamodel.user import User
 
 log = logging.getLogger(__name__)
@@ -61,10 +61,10 @@ def has_diff_ignoring_order(ignore_order_for_key, obj1, obj2):
 def get_allele_from_record(record, alleles):
     for allele in alleles:
         if (
-            allele["chromosome"] == record["CHROM"]
-            and allele["vcf_pos"] == record["POS"]
-            and allele["vcf_ref"] == record["REF"]
-            and allele["vcf_alt"] == record["ALT"][0]
+            allele["chromosome"] == record.variant.CHROM
+            and allele["vcf_pos"] == record.variant.POS
+            and allele["vcf_ref"] == record.variant.REF
+            and allele["vcf_alt"] == record.variant.ALT[0]
         ):
             return allele
     return None
@@ -73,7 +73,7 @@ def get_allele_from_record(record, alleles):
 def build_allele_from_record(record, ref_genome):
     """Build database representation of alleles from a vcf record
 
-    Examples (record["POS"] - record["REF"] - record["ALT"][0]):
+    Examples (record.variant.POS - record.variant.REF - record.variant.ALT[0]):
     (showing only the non-trivial part of the returned dictionary)
 
     123-A-G -> {
@@ -110,10 +110,10 @@ def build_allele_from_record(record, ref_genome):
 
     """
     assert (
-        len(record["ALT"]) == 1
+        len(record.variant.ALT) == 1
     ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
-    vcf_ref, vcf_alt, vcf_pos = record["REF"], record["ALT"][0], record["POS"]
+    vcf_ref, vcf_alt, vcf_pos = record.variant.REF, record.variant.ALT[0], record.variant.POS
 
     ref = str(vcf_ref)
     alt = str(vcf_alt)
@@ -160,7 +160,7 @@ def build_allele_from_record(record, ref_genome):
 
     allele = {
         "genome_reference": ref_genome,
-        "chromosome": record["CHROM"],
+        "chromosome": record.variant.CHROM,
         "start_position": start_position,
         "open_end_position": open_end_position,
         "change_type": change_type,
@@ -172,27 +172,6 @@ def build_allele_from_record(record, ref_genome):
     }
 
     return allele
-
-
-def deepmerge(source, destination):
-    """
-    Deepmerge dicts.
-    http://stackoverflow.com/a/20666342
-
-    >>> a = { 'first' : { 'all_rows' : { 'pass' : 'dog', 'number' : '1' } } }
-    >>> b = { 'first' : { 'all_rows' : { 'fail' : 'cat', 'number' : '5' } } }
-    >>> merge(b, a) == { 'first' : { 'all_rows' : { 'pass' : 'dog', 'fail' : 'cat', 'number' : '5' } } }
-    True
-    """
-    for key, value in list(source.items()):
-        if isinstance(value, dict):
-            # get node or create one
-            node = destination.setdefault(key, {})
-            deepmerge(value, node)
-        else:
-            destination[key] = value
-
-    return destination
 
 
 def is_non_empty_text(input):
@@ -207,7 +186,7 @@ def batch(iterable, n):
 
 def batch_generator(generator, n):
     batch = list()
-    for item in generator():
+    for item in generator:
         batch.append(item)
         if len(batch) == n:
             yield batch
@@ -486,27 +465,20 @@ class GenotypeImporter(object):
     def __init__(self, session):
         self.session = session
         self.batch_items = list()  # [{'genotype': .., 'genotypesampledata: [...]}]
-        self.types = {
-            "0/1": "Heterozygous",
-            "1/.": "Heterozygous",
-            "./1": "Heterozygous",
-            "1/1": "Homozygous",
-            "1": "Homozygous",
-            "0/.": "Reference",  # Not applicable to proband samples
-            "0/0": "Reference",  # Not applicable to proband samples
-            "./.": "Reference",  # Note exception in add(),
-            ".": "Reference",  # Note exception in add(),
-            "0": "Reference",
-        }
 
-    def is_sample_hom(self, record):
-        if record["GT"] == "1":
-            return True
-        elif record["GT"] == "0":
-            return False
-        else:
-            gt1, gt2 = record["GT"].split("/", 1)
-            return gt1 == gt2 == "1"
+        self.types = {
+            (0, 1): "Heterozygous",  # "0/1"
+            (1, 0): "Heterozygous",  # "1/0"
+            (1, -1): "Heterozygous",  # "1/."
+            (-1, 1): "Heterozygous",  # "./1"
+            (1, 1): "Homozygous",  # "1/1"
+            (1,): "Homozygous",  # "1"
+            (0, -1): "Reference",  # Not applicable to proband samples # "0/."
+            (0, 0): "Reference",  # Not applicable to proband samples # "0/0"
+            (-1, -1): "Reference",  # Note exception in add(), # "./."
+            (-1,): "Reference",  # Note exception in add(), # "."
+            (0,): "Reference",  # "0"
+        }
 
     def add(
         self,
@@ -531,12 +503,12 @@ class GenotypeImporter(object):
         # For biallelic -> set correct first and second allele
         if len(alleles) == 2:
             for record in records:
-                record_sample = record["SAMPLES"][proband_sample_name]
-                assert record_sample["GT"] in ["1/.", "./1"]
+                record_proband_gt = record.sample_genotype(proband_sample_name)
+                assert record_proband_gt in [(1, -1), (-1, 1)]
                 allele = get_allele_from_record(record, alleles)
-                if record_sample["GT"] == "1/.":
+                if record_proband_gt == (1, -1):
                     a1 = allele
-                elif record_sample["GT"] == "./1":
+                elif record_proband_gt == (-1, 1):
                     a2 = allele
 
             assert a1 and a2
@@ -544,10 +516,10 @@ class GenotypeImporter(object):
         assert a1 != a2
 
         # FILTER and QUAL should be same for all decomposed records
-        filter_status = records[0]["FILTER"]
+        filter_status = records[0].variant.FILTER
         try:
-            qual = int(records[0]["QUAL"])
-        except ValueError:
+            qual = int(records[0].variant.QUAL)
+        except (ValueError, TypeError):
             qual = None
 
         # Create genotype item
@@ -566,19 +538,24 @@ class GenotypeImporter(object):
         sample_allele_depth = defaultdict(dict)  # {sample_name: {'REF': 12, 'A': 134, 'G': 12}}
         for sample in samples:
             for block_record in block_records:
-                block_record_sample = block_record["SAMPLES"][sample.identifier]
-                if block_record_sample.get("AD"):
-                    if len(block_record_sample["AD"]) == 2:
+                s_ad = block_record.get_format_sample("AD", sample.identifier)
+
+                # Sanity check
+                if any(x is None for x in s_ad):
+                    assert all(x is None for x in s_ad)
+
+                if not all(x is None for x in s_ad):
+                    if len(s_ad) == 2:
                         sample_allele_depth[sample.identifier].update(
                             {
-                                "REF ({})".format(block_record["REF"]): block_record_sample["AD"][
-                                    0
-                                ],
-                                block_record["ALT"][0]: block_record_sample["AD"][1],
+                                "REF ({})".format(block_record.variant.REF): int(s_ad[0]),
+                                block_record.variant.ALT[0]: int(s_ad[1]),
                             }
                         )
                     else:
-                        log.warning("AD not decomposed! Allele depth value will be empty.")
+                        log.warning(
+                            f"AD not decomposed ({s_ad})! Allele depth value will be empty."
+                        )
 
         # When normalizing a multiallelic site, we might get multiple refs. This is a double count and affects the allele ratio.
         # Therefore, there should only be one REF-key in the dict.
@@ -595,7 +572,7 @@ class GenotypeImporter(object):
         genotypesampledata_items = list()
         for sample in samples:
             for record in records:
-                assert len(record["ALT"]) == 1
+                assert len(record.variant.ALT) == 1
                 secondallele = False
 
                 # If a secondallele exists, check if this record is the secondallele
@@ -603,63 +580,58 @@ class GenotypeImporter(object):
                     allele = get_allele_from_record(record, alleles)
                     secondallele = allele == a2
 
-                record_sample = record["SAMPLES"][sample.identifier]
+                sample_genotype = record.sample_genotype(sample.identifier)
                 assert (
-                    record_sample["GT"] in self.types
+                    sample_genotype in self.types
                 ), "Not supported genotype {} for sample {}".format(
-                    record_sample["GT"], sample.identifier
+                    sample_genotype, sample.identifier
                 )
 
                 # If REF or POS is shifted, we can't trust the AD data.
                 allele_ratio = 0
                 if (
-                    len(set([r["POS"] for r in records])) != 1
-                    or len(set([r["REF"] for r in records])) != 1
+                    len(set([r.variant.POS for r in records])) != 1
+                    or len(set([r.variant.REF for r in records])) != 1
                 ):
                     allele_depth = {}
                 else:
                     allele_depth = sample_allele_depth[sample.identifier]
                     allele_sum = sum(allele_depth.values())
                     if allele_sum:
-                        allele_ratio = float(allele_depth[record["ALT"][0]]) / sum(
-                            allele_depth.values()
-                        )
+                        allele_ratio = float(allele_depth[record.variant.ALT[0]]) / allele_sum
 
-                genotype_quality = record_sample.get("GQ")
-                if not isinstance(genotype_quality, int):
-                    genotype_quality = None
-
-                sequencing_depth = record_sample.get("DP")
-                if not isinstance(sequencing_depth, int):
-                    sequencing_depth = None
-
-                multiallelic = record_sample["GT"] in [
-                    "1/.",
-                    "./1",
-                    "0/.",
-                    "./0",
+                multiallelic = sample_genotype in [
+                    (1, -1),
+                    (-1, 1),
+                    (0, -1),
+                    (-1, 0),
                 ]  # sample is multiallelic for this site
 
-                genotype_likelihood = record_sample.get("PL")
                 # PL is misleading for all samples on multiallelic sites due to decomposition
-                if not isinstance(genotype_likelihood, list) or multiallelic:
+                if multiallelic:
                     genotype_likelihood = None
+                else:
+                    genotype_likelihood = record.get_format_sample("PL", sample.identifier)
 
                 if (
-                    record_sample["GT"] in ["./.", "."]
+                    sample_genotype in [(-1, -1), (-1,)]
                     and sample.identifier in samples_missing_coverage
                 ):
                     genotype_type = "No coverage"
                 else:
-                    genotype_type = self.types[record_sample["GT"]]
+                    genotype_type = self.types[sample_genotype]
 
                 genotypesampledata_item = {
                     "type": genotype_type,
                     "secondallele": secondallele,
                     "sample_id": sample.id,
-                    "genotype_quality": genotype_quality,
+                    "genotype_quality": record.get_format_sample(
+                        "GQ", sample.identifier, scalar=True
+                    ),
                     "genotype_likelihood": genotype_likelihood,
-                    "sequencing_depth": sequencing_depth,
+                    "sequencing_depth": record.get_format_sample(
+                        "DP", sample.identifier, scalar=True
+                    ),
                     "allele_depth": allele_depth,
                     "allele_ratio": allele_ratio,
                     "multiallelic": multiallelic,
@@ -727,13 +699,22 @@ class AssessmentImporter(object):
 
     def add(self, record, allele_id, gp_name, gp_version):
         assert (
-            len(record["ALT"]) == 1
+            len(record.variant.ALT) == 1
         ), "Only decomposed variants are supported. That is, only one ALT per line/record."
 
-        all_info = record["INFO"]["ALL"]
+        all_info = record.annotation()
 
         class_raw = all_info.get(ASSESSMENT_CLASS_FIELD)
-        if not is_non_empty_text(class_raw) or class_raw not in ("1", "2", "3", "4", "5", "U"):
+        if not is_non_empty_text(class_raw) or class_raw not in (
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "DR",
+            "RF",
+            "NP",
+        ):
             logging.warning("Unknown class {}".format(class_raw))
             return
 
@@ -797,102 +778,6 @@ class AssessmentImporter(object):
         return results
 
 
-class SplitToDictInfoProcessor(vcfiterator.BaseInfoProcessor):
-    """
-    For use with VcfIterator
-    Splits keys like HGMD__HGMDMUT_key{n} to a dictionary:
-    {
-        'HGMD': {
-            'HGMDMUT': {
-                'key1': value
-                'key2': value
-            }
-        }
-    }
-    """
-
-    def __init__(self, meta):
-        self.meta = meta
-
-    def accepts(self, key, value, processed):
-        if processed:
-            return False
-        return "__" in key
-
-    def process(self, key, value, info_data, alleles, processed):
-        keys = key.split("__")
-        func = self.getConvertFunction(self.meta, key)
-
-        node = info_data["ALL"]
-        # Create or search nested structure
-        while keys:
-            k = keys.pop(0)
-            new_node = node.get(k)
-            if new_node is None:
-                node[k] = dict()
-                if keys:
-                    node = node[k]
-            else:
-                node = new_node
-        # Insert value on inner node (dict)
-        if isinstance(value, str):
-            node[k] = func(value)
-        else:
-            node[k] = value
-
-
-class HGMDInfoProcessor(SplitToDictInfoProcessor):
-    """
-    Processes HGMD data, specifically parsing the extrarefs data into a list.
-
-    Builds on top of SplitToDictInfoProcessor, since it's a special case of same functionality.
-    """
-
-    def __init__(self, meta):
-        self.meta = meta
-        self.fields = self._parseFormat()
-
-    def _parseFormat(self):
-
-        field = next((e for e in self.meta["INFO"] if e["ID"] == "HGMD__extrarefs"), None)
-        if not field:
-            return None
-        fields = field["Description"].split("(")[1].split(")")[0].split("|")
-        return fields
-
-    def accepts(self, key, value, processed):
-        if key.startswith("HGMD__"):
-            return True
-
-    def _parseExtraRef(self, value):
-        entries = [dict(list(zip(self.fields, v.split("|")))) for v in value.split(",")]
-        for e in entries:
-            for t in ["pmid"]:
-                if e.get(t):
-                    try:
-                        e[t] = int(e[t])
-                    # If value is not int, it's not valid pmid. Remove key from data.
-                    except ValueError:
-                        del e[t]
-            for k, v in dict(e).items():
-                if v == "":
-                    del e[k]
-        return entries
-
-    def process(self, key, value, info_data, alleles, processed):
-        section, hgmd_key = key.split("__", 1)
-        # Process data using SplitToDictInfoProcessor
-        super(HGMDInfoProcessor, self).process(key, value, info_data, alleles, processed)
-
-        # Now our data should be in info_dict['ALL']['HGMD']
-        # If the key is extrarefs, we overwrite it with the parsed version
-        if self.fields:
-            if hgmd_key == "extrarefs":
-                info_data["ALL"][section]["extrarefs"] = self._parseExtraRef(value)
-        elif hgmd_key == "pmid":
-            info_data["ALL"][section]["pmid"] = int(info_data["ALL"][section]["pmid"])
-
-
 class AnnotationImporter(object):
     def __init__(self, session):
         self.session = session
@@ -902,23 +787,26 @@ class AnnotationImporter(object):
     def _extract_annotation_from_record(self, record, allele):
         """Given a record, return dict with annotation to be stored in db."""
         # Deep merge 'ALL' annotation and allele specific annotation
-        merged_annotation = deepmerge(record["INFO"]["ALL"], record["INFO"][allele])
+        merged_annotation = record.annotation()
 
-        # Convert the mess of input annotation into database annotation format
+        # # Convert the mess of input annotation into database annotation format
         frequencies = dict()
-        frequencies.update(annotationconverters.exac_frequencies(merged_annotation))
         frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
         frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
-        frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
         frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
 
-        transcripts = self.csq_converter(merged_annotation)
+        transcripts = self.csq_converter(
+            merged_annotation.get("CSQ"),
+            next((x for x in record.meta.get("INFO", []) if x.get("ID") == "CSQ"), None),
+        )
 
         external = dict()
         external.update(annotationconverters.convert_hgmd(merged_annotation))
         external.update(annotationconverters.convert_clinvar(merged_annotation))
 
-        references = annotationconverters.ConvertReferences().process(merged_annotation)
+        references = annotationconverters.ConvertReferences().process(
+            merged_annotation, record.meta
+        )
 
         annotations = {
             "frequencies": frequencies,
@@ -931,10 +819,7 @@ class AnnotationImporter(object):
 
     def add(self, record, allele_id):
 
-        assert (
-            len(record["ALT"]) == 1
-        ), "Only decomposed variants are supported. That is, only one ALT per line/record."
-        allele = record["ALT"][0]
+        allele = record.variant.ALT[0]
 
         annotation_data = self._extract_annotation_from_record(record, allele)
         data = {"allele_id": allele_id, "annotations": annotation_data, "date_superceeded": None}

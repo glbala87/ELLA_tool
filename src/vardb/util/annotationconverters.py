@@ -11,20 +11,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# the annotation key is found in the VCF
-# the result key is put in our annotation database
-EXAC_ANNOTATION_KEY = "EXAC"
-EXAC_RESULT_KEY = "ExAC"
-
-GNOMAD_EXOMES_ANNOTATION_KEY = "GNOMAD_EXOMES"
-GNOMAD_EXOMES_RESULT_KEY = "GNOMAD_EXOMES"
-
-GNOMAD_GENOMES_ANNOTATION_KEY = "GNOMAD_GENOMES"
-GNOMAD_GENOMES_RESULT_KEY = "GNOMAD_GENOMES"
-
-INDB_ANNOTATION_KEY = "inDB"
-INDB_RESULT_KEY = "inDB"
-
 
 def get_hgnc_approved_symbol_maps():
     this_dir = Path(__file__).parent.absolute()
@@ -124,7 +110,48 @@ class ConvertCSQ(object):
         self.hgnc_approved_id_symbol, self.hgnc_approved_symbol_id = get_hgnc_approved_symbol_maps()
         self.ncbi_ensembl_hgnc_id = get_hgnc_ncbi_ensembl_map()
 
-    def __call__(self, annotation):
+    def convert_raw(self, raw_csq, csq_header):
+        def _parseMAF(val):
+            maf = dict()
+            alleles = val.split("&")
+            for allele in alleles:
+                v = allele.split(":")
+                for key, value in zip(v[0::2], v[1::2]):
+                    try:
+                        maf[key] = float(value)
+                    except ValueError:
+                        continue
+            return maf
+
+        converters = {
+            "AA_MAF": _parseMAF,
+            "AFR_MAF": _parseMAF,
+            "AMR_MAF": _parseMAF,
+            "ALLELE_NUM": int,
+            "ASN_MAF": _parseMAF,
+            "EA_MAF": _parseMAF,
+            "EUR_MAF": _parseMAF,
+            "EAS_MAF": _parseMAF,
+            "SAS_MAF": _parseMAF,
+            "GMAF": _parseMAF,
+            "Consequence": lambda x: [i for i in x.split("&")],
+            "Existing_variation": lambda x: [i for i in x.split("&")],
+            "DISTANCE": int,
+            "STRAND": int,
+            "PUBMED": lambda x: [int(i) for i in x.split("&")],
+        }
+
+        fields = csq_header["Description"].split("Format: ", 1)[1].split("|")
+
+        transcripts = raw_csq.split(",")
+
+        converted = [
+            {k: converters.get(k, lambda x: x)(v) for k, v in zip(fields, t.split("|")) if v != ""}
+            for t in transcripts
+        ]
+        return converted
+
+    def __call__(self, raw_csq, csq_header):
         def _get_is_last_exon(transcript_data):
             exon = transcript_data.get("exon")
             if exon:
@@ -222,8 +249,12 @@ class ConvertCSQ(object):
 
             return exon_distance, coding_region_distance
 
-        if "CSQ" not in annotation:
+        if raw_csq is None:
             return list()
+
+        assert csq_header, "Unable to parse VEP without INFO header for CSQ"
+
+        csq = self.convert_raw(raw_csq, csq_header)
 
         # Prefer refseq annotations coming from the latest annotated RefSeq release (RefSeq_gff) over the
         # RefSeq interim release (RefSeq_Interim_gff) and VEP default (RefSeq).
@@ -231,7 +262,7 @@ class ConvertCSQ(object):
 
         transcripts = list()
         # Invert CSQ data to map to transcripts
-        for data in annotation["CSQ"]:
+        for data in csq:
             # Filter out non-transcripts,
             # and only include normal RefSeq or Ensembl transcripts
             if data.get("Feature_type") != "Transcript" or not any(
@@ -376,14 +407,14 @@ def _translate_to_original(x):
 
 
 def convert_hgmd(annotation):
-    HGMD_FIELDS = ["acc_num", "codon", "disease", "tag"]
-    if "HGMD" not in annotation:
+    if not any(x.startswith("HGMD") for x in annotation):
         return dict()
+    HGMD_FIELDS = ["HGMD__acc_num", "HGMD__codon", "HGMD__disease", "HGMD__tag"]
 
     data = {
-        k: _translate_to_original(annotation["HGMD"][k])
+        k.split("__")[-1]: _translate_to_original(annotation[k])
         for k in HGMD_FIELDS
-        if k in annotation["HGMD"]
+        if k in annotation
     }
     return {"HGMD": data}
 
@@ -475,12 +506,16 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     hemi = {}
     filter_status = {}
     indications = {}
-    for key, value in annotation[annotation_key].items():
+    for full_key, value in annotation.items():
+        if not full_key.startswith(annotation_key):
+            continue
+        else:
+            key = full_key.split(annotation_key + "__")[-1]
+
         if value == ["."] or value == ".":
             continue
         if key == "AS_FilterStatus":  # gnomAD specific
-            assert len(value) == 1
-            filter_status = {"G": value[0].split("|")}
+            filter_status = {"G": value.split("|")}
         elif key.startswith("filter_"):
             pop = key.split("filter_")[1]
             filter_status[pop] = re.split(r",|\|", value)
@@ -514,14 +549,6 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
         if key in num and num[key]:
             freq[key] = float(count[key]) / num[key]
 
-    # ExAC override. ExAC naming is very misleading!
-    # ExAC should use Adj, NOT the default AC and AN!
-    if result_key == EXAC_RESULT_KEY:
-        for item in [count, num, freq]:
-            if "Adj" in item:
-                item["G"] = item["Adj"]
-                del item["Adj"]
-
     if freq:
         frequencies[result_key].update({"freq": freq})
     if hom:
@@ -540,20 +567,6 @@ def extract_annotation_frequencies(annotation, annotation_key, result_key):
     return dict(frequencies)
 
 
-def exac_frequencies(annotation):
-    """
-    Manually calculate frequencies from raw ExAC data.
-
-    :param: annotation: a dict with key 'EXAC'
-    :returns: dict with key 'ExAC'
-    """
-
-    if EXAC_ANNOTATION_KEY not in annotation:
-        return {}
-    else:
-        return extract_annotation_frequencies(annotation, EXAC_ANNOTATION_KEY, EXAC_RESULT_KEY)
-
-
 def gnomad_exomes_frequencies(annotation):
     """
     Manually calculate frequencies from raw GNOMAD Exomoes data.
@@ -561,13 +574,7 @@ def gnomad_exomes_frequencies(annotation):
     :param: annotation: a dict with key 'GNOMAD_EXOMES'
     :returns: dict with key 'GNOMAD_EXOMES'
     """
-
-    if GNOMAD_EXOMES_ANNOTATION_KEY not in annotation:
-        return {}
-    else:
-        return extract_annotation_frequencies(
-            annotation, GNOMAD_EXOMES_ANNOTATION_KEY, GNOMAD_EXOMES_RESULT_KEY
-        )
+    return extract_annotation_frequencies(annotation, "GNOMAD_EXOMES", "GNOMAD_EXOMES")
 
 
 def gnomad_genomes_frequencies(annotation):
@@ -578,12 +585,7 @@ def gnomad_genomes_frequencies(annotation):
     :returns: dict with key 'GNOMAD_GENOMES'
     """
 
-    if GNOMAD_GENOMES_ANNOTATION_KEY not in annotation:
-        return {}
-    else:
-        return extract_annotation_frequencies(
-            annotation, GNOMAD_GENOMES_ANNOTATION_KEY, GNOMAD_GENOMES_RESULT_KEY
-        )
+    return extract_annotation_frequencies(annotation, "GNOMAD_GENOMES", "GNOMAD_GENOMES")
 
 
 def indb_frequencies(annotation):
@@ -593,40 +595,8 @@ def indb_frequencies(annotation):
     :param: annotation: a dict with key 'GNOMAD_GENOMES'
     :returns: dict with key 'GNOMAD_GENOMES'
     """
-    if INDB_ANNOTATION_KEY not in annotation:
-        return {}
-    else:
-        return extract_annotation_frequencies(annotation, INDB_ANNOTATION_KEY, INDB_RESULT_KEY)
 
-
-def csq_frequencies(annotation):
-    if "CSQ" not in annotation:
-        return {}
-
-    # Get first elem which has frequency data (it's the same in all elements)
-    frequencies = dict()
-    freq_data = next((d for d in annotation["CSQ"] if any("MAF" in k for k in d)), None)
-    if freq_data:
-        # Check whether the allele provided for the frequency is the same as the one we have in our allele.
-        # VEP gives minor allele for some fields, which can be the reference instead of the allele
-        processed = {
-            k.replace("_MAF", "").replace("MAF", ""): v[freq_data["Allele"]]
-            for k, v in freq_data.items()
-            if "MAF" in k and freq_data["Allele"] in v
-        }
-        if processed:
-            # ESP6500 freqs
-            esp6500_freq = dict()
-            for f in ["AA", "EA"]:
-                if f in processed:
-                    esp6500_freq[f] = processed.pop(f)
-            if esp6500_freq:
-                frequencies["esp6500"] = {"freq": esp6500_freq}
-
-            if processed:
-                frequencies["1000g"] = {"freq": processed}
-
-    return dict(frequencies)
+    return extract_annotation_frequencies(annotation, "inDB", "inDB")
 
 
 class ConvertReferences(object):
@@ -638,29 +608,36 @@ class ConvertReferences(object):
         "SAR": "Additional report",
     }
 
-    def _hgmd_pubmeds(self, annotation):
-        if "HGMD" not in annotation:
-            return dict()
+    def _hgmd_pubmeds(self, annotation, meta):
         total = dict()
 
-        if "pmid" in annotation["HGMD"]:
-            pmid = annotation["HGMD"]["pmid"]
+        if "HGMD__pmid" in annotation:
+            pmid = annotation["HGMD__pmid"]
             reftag = "Primary literature report"
-            comments = annotation["HGMD"].get("comments", "No comments")
+            comments = annotation.get("HGMD__comments", "No comments")
             comments = "No comments." if comments == "None" else comments
             total[pmid] = [reftag, _translate_to_original(comments)]
 
-        for er in annotation["HGMD"].get("extrarefs", []):
-            if "pmid" in er:
-
-                pmid = er["pmid"]
-                reftag = ConvertReferences.REFTAG.get(er.get("reftag"), "Reftag not specified")
-                comments = er.get("comments", "No comments.")
+        if "HGMD__extrarefs" in annotation:
+            header_extrarefs = next(
+                (x for x in meta.get("INFO", []) if x["ID"] == "HGMD__extrarefs"), None
+            )
+            assert (
+                header_extrarefs is not None
+            ), "Header for HGMD__extrarefs is not defined. Unable to parse HGMD__extrarefs"
+            extraref_keys = re.findall(r"Format: \((.*?)\)", header_extrarefs["Description"])[
+                0
+            ].split("|")
+            for er in annotation["HGMD__extrarefs"].split(","):
+                er_data = dict(zip(extraref_keys, er.split("|")))
+                pmid = er_data["pmid"]
+                reftag = ConvertReferences.REFTAG.get(er_data.get("reftag"), "Reftag not specified")
+                comments = er_data.get("comments", "No comments.")
                 comments = "No comments." if comments == "None" else comments
 
                 # The comment on APR is the disease/phenotype
-                if er.get("reftag") == "APR" and comments == "No comments.":
-                    comments = er.get("disease", comments)
+                if er_data.get("reftag") == "APR" and comments == "No comments.":
+                    comments = er_data.get("disease", comments)
 
                 total[pmid] = [reftag, _translate_to_original(comments)]
 
@@ -698,8 +675,8 @@ class ConvertReferences(object):
 
         return int_pmids
 
-    def process(self, annotation):
-        hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation))
+    def process(self, annotation, meta):
+        hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation, meta))
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
 
         # Merge references and restructure to list

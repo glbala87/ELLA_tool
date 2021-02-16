@@ -235,7 +235,7 @@ def create_trigger_sql(config, for_tmp=False):
                 END IF;
                 RETURN NEW;
             ELSIF (TG_OP = 'DELETE') THEN
-                PERFORM delete_annotationshadow(allele_id);
+                PERFORM delete_annotationshadow(OLD.allele_id);
                 RETURN OLD;
             END IF;
         END;
