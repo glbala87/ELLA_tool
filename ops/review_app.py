@@ -147,7 +147,7 @@ class ExecFailed(Exception):
         self.stdout = stdout
         self.stderr = stderr
         if msg is None:
-            msg = f"Received rc {self.rc} from {self.host} while running {self.cmd}"
+            msg = f"Received rc {self.rc} from {self.host} while running {self.cmd}: {self.stderr}"
         self.msg = msg
 
 
@@ -280,7 +280,7 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
     return ssh
 
 
-@retry((SocketTimeout, PipeTimeout), err_msg="SSH cmd '{1}' failed after {max_retries}")
+@retry((SocketTimeout, PipeTimeout, ExecFailed), err_msg="SSH cmd '{1}' failed after {max_retries}")
 def ssh_exec(
     ssh: SSHClient,
     cmd: str,
@@ -311,6 +311,7 @@ def ssh_exec(
 
     if check_rc and rc:
         err = ExecFailed(**json_blob)
+        logger.exception(err)
         raise err
     else:
         logger.debug(json.dumps(json_blob))
@@ -481,7 +482,6 @@ def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
     empty_vars = [k for k, v in revapp_env.items() if v is None]
     if empty_vars:
         err = ValueError(f"Required environment variable(s) unset: {', '.join(empty_vars)}")
-        logger.exception(err)
         raise err
 
     # set up the env
