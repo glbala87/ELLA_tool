@@ -478,6 +478,6 @@ e2e-test-local: test-build
 build-singularity:
 	$(call check_defined, RELEASE_TAG)
 	# Use git archive to create docker context, to prevent modified files from entering the image.
-	git archive --format tar.gz $(RELEASE_TAG) | docker build -t local/ella-singularity-build --target production -
+	time(git archive --format tar.gz $(RELEASE_TAG) | docker build -t local/ella-singularity-build --target production -)
 	@-rm -f ella-release-$(RELEASE_TAG).sif
 	singularity build ella-release-$(RELEASE_TAG).sif docker-daemon://local/ella-singularity-build

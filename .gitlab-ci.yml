@@ -26,12 +26,13 @@ variables:
     SID_VERSION: v3.7.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
-stages:
-    - build
-    - formatting
-    - test
-    - review
-    - release
+stages: [release]
+
+# - build
+# - formatting
+# - test
+# - review
+# - release
 
 # shared settings
 .cache: &cache
@@ -82,7 +83,7 @@ stages:
 
 # jobs
 
-build:
+.build: # DEBUG_CI
     stage: build
     before_script:
         - *apk-setup
@@ -100,7 +101,7 @@ build:
     cache:
         <<: *cache-push
 
-start_review:
+.start_review: # DEBUG_CI
     extends: .revapp
     script:
         - make gitlab-review
@@ -117,7 +118,7 @@ start_review:
     except:
         - master
 
-stop_review:
+.stop_review: # DEBUG_CI
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -126,7 +127,7 @@ stop_review:
         <<: *revapp-env
         action: stop
 
-refresh_ip:
+.refresh_ip: # DEBUG_CI
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -140,13 +141,13 @@ refresh_ip:
 
 ###
 
-check_formatting:
+.check_formatting: # DEBUG_CI
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-e2e:
+.e2e: # DEBUG_CI
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -160,37 +161,37 @@ e2e:
     cache:
         <<: *cache-pull
 
-api:
+.api: # DEBUG_CI
     extends: .common-test
     script:
         - make test-api
 
-api_migration:
+.api_migration: # DEBUG_CI
     extends: .common-test
     script:
         - make test-api-migration
 
-js:
+.js: # DEBUG_CI
     extends: .common-test
     script:
         - make test-js
 
-python:
+.python: # DEBUG_CI
     extends: .common-test
     script:
         - make test-python
 
-cli:
+.cli: # DEBUG_CI
     extends: .common-test
     script:
         - make test-cli
 
-report:
+.report: # DEBUG_CI
     extends: .common-test
     script:
         - make test-report
 
-release:
+.release: # DEBUG_CI
     stage: release
     before_script:
         - *apk-setup
@@ -224,5 +225,7 @@ singularity-release:
         when: on_success
     only:
         - tags
+        - triggers
+        - branches # DEBUG_CI
     tags:
         - do-large
