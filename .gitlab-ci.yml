@@ -21,6 +21,11 @@ variables:
     # ensure breakpoints don't fire accidentally
     PYTHONBREAKPOINT: 0
 
+    # singularity-in-docker
+    SID_IMAGE: quay.io/singularity/singularity
+    SID_VERSION: v3.7.1
+    SID_SLUG: $SID_IMAGE:$SID_VERSION
+
 stages:
     - build
     - formatting
@@ -46,7 +51,7 @@ stages:
     name: review/$CI_BUILD_REF_SLUG
 
 # before_script actions
-.apk-setup: &apk-setup apk add --update make git
+.apk-setup: &apk-setup apk add --update make git bash
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
 
@@ -198,6 +203,24 @@ release:
         paths:
             - ella-release-$CI_COMMIT_REF_NAME-dist.tgz
         name: ella-release-$CI_COMMIT_REF_NAME
+        when: on_success
+    only:
+        - tags
+    tags:
+        - do-large
+
+singularity-release:
+    image:
+        name: $SID_SLUG
+        entrypoint: ['']
+    stage: release
+    before_script:
+        - *apk-setup
+    script:
+        - RELEASE_TAG=$CI_COMMIT_REF_NAME make build-singularity
+    artifacts:
+        paths:
+            - ella-release-${CI_COMMIT_REF_NAME}.sif
         when: on_success
     only:
         - tags
