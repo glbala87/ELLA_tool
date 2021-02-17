@@ -196,17 +196,6 @@ demo: demo-check-image
 kill-demo:
 	docker rm -f ella-demo
 
-define demo-start-template
-docker run -d \
-		--name $(DEMO_NAME) \
-		--user $(UID):$(GID) \
-		-e VIRTUAL_HOST=$(DEMO_NAME) \
-		-p $(DEMO_HOST_PORT):$(DEMO_PORT) \
-		$(DEMO_OPTS) \
-		$(REVAPP_IMAGE_NAME)
-	docker exec $(DEMO_NAME) make dbreset
-endef
-
 # Review apps
 define gitlab-template
 docker run --rm $(TERM_OPTS) \
