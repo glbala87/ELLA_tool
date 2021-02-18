@@ -17,6 +17,13 @@ variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
     CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
+    SIF_RELEASE: ella-release-$CI_COMMIT_REF_NAME.sif
+
+    # CI / release
+    # Value is branch name when running on a branch pipeline, tag name for tag pipelines (releases)
+    # RELEASE_TAG: $CI_COMMIT_REF_NAME
+    # use docker:// when building singularity
+    SIF_PREFIX: docker
 
     # ensure breakpoints don't fire accidentally
     PYTHONBREAKPOINT: 0
@@ -26,7 +33,7 @@ variables:
     SID_VERSION: v3.7.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
-stages: [release]
+stages: [release, singularity-release]
 
 # - build
 # - formatting
@@ -191,21 +198,21 @@ stages: [release]
     script:
         - make test-report
 
-.release: # DEBUG_CI
+docker-release:
     stage: release
     before_script:
         - *apk-setup
         - *docker-login
     script:
-        - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
-        - docker build -t $IMAGE_NAME .
-        - docker push $IMAGE_NAME
+        - make ci-release
     artifacts:
         paths:
             - ella-release-$CI_COMMIT_REF_NAME-dist.tgz
         name: ella-release-$CI_COMMIT_REF_NAME
         when: on_success
     only:
+        - triggers # DEBUG_CI
+        - branches # DEBUG_CI
         - tags
     tags:
         - do-large
@@ -214,18 +221,18 @@ singularity-release:
     image:
         name: $SID_SLUG
         entrypoint: ['']
-    stage: release
+    stage: singularity-release
     before_script:
         - *apk-setup
     script:
-        - RELEASE_TAG=$CI_COMMIT_REF_NAME make build-singularity
+        - make ci-release-singularity
     artifacts:
         paths:
-            - ella-release-${CI_COMMIT_REF_NAME}.sif
+            - $SIF_RELEASE
         when: on_success
     only:
         - tags
-        - triggers
+        - triggers # DEBUG_CI
         - branches # DEBUG_CI
     tags:
         - do-large

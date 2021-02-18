@@ -16,10 +16,11 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
 TESTSET ?= 'default'
 HYPOTHESIS_PROFILE ?= 'default'
-#RELEASE_TAG =
-WEB_BUNDLE=ella-release-$(RELEASE_TAG)-web.tgz
-API_BUNDLE=ella-release-$(RELEASE_TAG)-api.tgz
-DIST_BUNDLE=ella-release-$(RELEASE_TAG)-dist.tgz
+WEB_BUNDLE = ella-release-$(RELEASE_TAG)-web.tgz
+API_BUNDLE = ella-release-$(RELEASE_TAG)-api.tgz
+DIST_BUNDLE = ella-release-$(RELEASE_TAG)-dist.tgz
+SIF_RELEASE ?= ella-release-$(RELEASE_TAG).sif
+SIF_PREFIX ?= docker-daemon
 
 # e2e test:
 PARALLEL_INSTANCES ?= 2
@@ -34,12 +35,25 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
+# always have RELEASE_TAG set for CI
+# use tag if available, commit sha otherwise
+ifeq ($(RELEASE_TAG),)
+ifneq ($(CI_COMMIT_TAG),)
+RELEASE_TAG = $(CI_COMMIT_TAG),
+else
+ifneq ($(CI_COMMIT_SHORT_SHA),)
+RELEASE_TAG = rc-$(CI_COMMIT_SHORT_SHA)
+endif
+endif
+endif
+
 TMP_DIR ?= /tmp
 ifeq ($(CI_REGISTRY_IMAGE),)
 # running locally, use interactive
 TERM_OPTS := -it
 else
 TERM_OPTS := -t
+RELEASE_IMAGE ?= $(CI_REGISTRY_IMAGE):$(RELEASE_TAG)
 endif
 
 
@@ -475,9 +489,31 @@ e2e-test-local: test-build
 	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
 
-build-singularity:
-	$(call check_defined, RELEASE_TAG)
+#---------------------------------------------
+# CI Releases and Building Singularity images
+#---------------------------------------------
+
+# ci-release: bundle-dist _release-build-docker
+ci-release: vars _release-build-docker
+	docker push $(RELEASE_IMAGE)
+
+build-singularity: _release-build-docker _release-build-sif
+
+ci-release-singularity: vars _release-build-sif
+
+_release-build-docker:
+	$(call check_defined, RELEASE_TAG RELEASE_IMAGE)
 	# Use git archive to create docker context, to prevent modified files from entering the image.
-	time(git archive --format tar.gz $(RELEASE_TAG) | docker build -t local/ella-singularity-build --target production -)
-	@-rm -f ella-release-$(RELEASE_TAG).sif
-	singularity build ella-release-$(RELEASE_TAG).sif docker-daemon://local/ella-singularity-build
+	git archive --format tar.gz $(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG)) | docker build -t $(RELEASE_IMAGE) --target production -
+
+_release-build-sif:
+	$(call check_defined, SIF_PREFIX)
+	# -F overwrites any existing images
+	singularity build -F $(SIF_RELEASE) $(SIF_PREFIX)://$(RELEASE_IMAGE)
+
+vars:
+	@echo "SIF_RELEASE\t$(SIF_RELEASE)"
+	@echo "SIF_PREFIX\t$(SIF_PREFIX)"
+	@echo "RELEASE_TAG\t$(RELEASE_TAG)"
+	@echo "RELEASE_IMAGE\t$(RELEASE_IMAGE)"
+	@env | grep GIT | sort | tr = "\t"
