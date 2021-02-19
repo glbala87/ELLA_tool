@@ -6,7 +6,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ella-cli database compare
 
 SUPERVISOR_USERNAME=${SUPERVISOR_USERNAME:-ella}
-SUPERVISOR_PASSWORD=${SUPERVISOR_USERNAME:-alleles}
+SUPERVISOR_PASSWORD=${SUPERVISOR_PASSWORD:-alleles}
 
 # Use supervisor template with envsubst. See template for available environment variables.
 # In addition, use python's ConfigParser to remove invalid sections and empty values.
