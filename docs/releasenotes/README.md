@@ -18,14 +18,14 @@ Release date: 19.02.2021
 
 ### Highlights
 
-This release adds a bugfix. 
+This release adds a few bugfixes. 
 
 ### All changes
 
 <!-- MR !501 -->
 - Fixed a bug causing loading of certain historical analyses to fail.
-
-<!-- No explicit note: MR !494 Updated JSON schema for filterconfigs -->
+<!-- MR !494, MR !502  -->
+- Fixes to deposit and backend.
 
 ## Version 1.12.2
 
