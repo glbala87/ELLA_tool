@@ -7,7 +7,7 @@ title: Latest releases
 |Major versions|Minor versions|
 |:--|:--|
 [v1.13](#version-1-13)|
-[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2)
+[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
@@ -23,12 +23,26 @@ Release date: [TBD]
 
 <!-- 
 Probably no further release notes necessary, but adding here for reference: 
-MR !494 Updated JSON schema for filterconfigs
 MR !496 Split references from annotation in database
 MR !497 Replaced vcfiterator with cyvcf2
 MR !498 Fixes for running local demo instances 
 -->
 - Several fixes and improvements to development environment and code base. 
+
+## Version 1.12.3
+
+Release date: 19.02.2021
+
+### Highlights
+
+This release adds a few bugfixes. 
+
+### All changes
+
+<!-- MR !501 -->
+- Fixed a bug causing loading of certain historical analyses to fail.
+<!-- MR !494, MR !502  -->
+- Fixes to deposit and backend.
 
 ## Version 1.12.2
 
