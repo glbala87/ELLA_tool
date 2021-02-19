@@ -77,8 +77,9 @@ def serve_static(path=None):
 
     if not path:
         path = DEFAULT_STATIC_FILE
-
-    if not any(v == path or path.startswith(v) for v in VALID_STATIC_FILES):
+    elif path.startswith("api/v"):
+        return "Bad request", 400
+    elif not any(v == path or path.startswith(v) for v in VALID_STATIC_FILES):
         path = DEFAULT_STATIC_FILE
 
     return send_from_directory(STATIC_FILE_DIR, path, cache_timeout=-1)
