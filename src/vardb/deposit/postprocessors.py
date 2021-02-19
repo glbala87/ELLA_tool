@@ -163,6 +163,7 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         )
 
         # Finalize interpretation
+        interpretation.state = {"filterconfigId": filter_config_id}
         interpretation.status = "Done"
         interpretation.finalized = True
         interpretation.user_id = 1
