@@ -25,6 +25,8 @@ This release adds a bugfix.
 <!-- MR !501 -->
 - Fixed a bug causing loading of certain historical analyses to fail.
 
+<!-- No explicit note: MR !494 Updated JSON schema for filterconfigs -->
+
 ## Version 1.12.2
 
 Release date: 29.01.2021
