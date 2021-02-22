@@ -6,11 +6,26 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2)
+[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 [v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3](#version-1-11-3)
 [v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.12.3
+
+Release date: 19.02.2021
+
+### Highlights
+
+This release adds a few bugfixes. 
+
+### All changes
+
+<!-- MR !501 -->
+- Fixed a bug causing loading of certain historical analyses to fail.
+<!-- MR !494, MR !502  -->
+- Fixes to deposit and backend.
 
 ## Version 1.12.2
 
