@@ -633,7 +633,7 @@ class ConvertReferences(object):
                 pmid = er_data["pmid"]
                 reftag = ConvertReferences.REFTAG.get(er_data.get("reftag"), "Reftag not specified")
                 comments = er_data.get("comments", "No comments.")
-                comments = "No comments." if comments == "None" else comments
+                comments = "No comments." if not comments else comments
 
                 # The comment on APR is the disease/phenotype
                 if er_data.get("reftag") == "APR" and comments == "No comments.":

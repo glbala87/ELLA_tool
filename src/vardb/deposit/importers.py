@@ -474,6 +474,7 @@ class GenotypeImporter(object):
             (1, 1): "Homozygous",  # "1/1"
             (1,): "Homozygous",  # "1"
             (0, -1): "Reference",  # Not applicable to proband samples # "0/."
+            (-1, 0): "Reference",  # Not applicable to proband samples # "./0"
             (0, 0): "Reference",  # Not applicable to proband samples # "0/0"
             (-1, -1): "Reference",  # Note exception in add(), # "./."
             (-1,): "Reference",  # Note exception in add(), # "."
@@ -516,7 +517,7 @@ class GenotypeImporter(object):
         assert a1 != a2
 
         # FILTER and QUAL should be same for all decomposed records
-        filter_status = records[0].variant.FILTER
+        filter_status = records[0].get_raw_filter()
         try:
             qual = int(records[0].variant.QUAL)
         except (ValueError, TypeError):

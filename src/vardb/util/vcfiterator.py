@@ -45,6 +45,11 @@ class Record(object):
     def _sample_index(self, sample_name):
         return self.samples.index(sample_name)
 
+    def get_raw_filter(self):
+        """Need to implement this here, as cyvcf2 does not distinguish between 'PASS' and '.' (both return None).
+        Therefore, we need to parse the VCF line to get the raw filter status."""
+        return str(self.variant).split("\t")[6]
+
     def sample_genotype(self, sample_name):
         return tuple(self.variant.genotypes[self._sample_index(sample_name)][:-1])
 
@@ -53,17 +58,23 @@ class Record(object):
         return max(gt) == 1
 
     def get_format_sample(self, property, sample_name, scalar=False):
-        prop = self.variant.format(property)
-        if prop is not None:
-            ret = numpy_to_list(prop[self._sample_index(sample_name)])
-            if scalar:
-                assert len(ret) == 1
-                return ret[0]
-            else:
-                return ret
+        if property == "GT":
+            return self.sample_genotype(sample_name)
+        else:
+            prop = self.variant.format(property)
+            if prop is not None:
+                ret = numpy_to_list(prop[self._sample_index(sample_name)])
+                if scalar:
+                    assert len(ret) == 1
+                    return ret[0]
+                else:
+                    return ret
 
     def get_format(self, property):
-        return numpy_to_list(self.variant.format(property))
+        if property == "GT":
+            return self.variant.genotypes
+        else:
+            return numpy_to_list(self.variant.format(property))
 
     def get_block_id(self):
         return self.variant.INFO.get("OLD_MULTIALLELIC")
@@ -72,7 +83,7 @@ class Record(object):
         return self.get_block_id() is not None
 
     def is_sample_multiallelic(self, sample_name):
-        return bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
+        return self.is_multiallelic() and bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
 
     def annotation(self):
         return dict(x for x in self.variant.INFO)
@@ -83,10 +94,62 @@ class Record(object):
         if self.samples:
             genotypes = []
             for i, x in enumerate(self.variant.gt_bases):
-                genotypes.append(f"{x} ({self.samples[i]})")
+                genotypes.append(f"{x} ({str(self.samples[i])})")
 
             s += f" - Genotypes: {', '.join(genotypes)}"
         return s
+
+
+RESERVED_GT_HEADERS = {
+    "AD": {"Number": "R", "Type": "Integer", "Description": "Injected. Read depth for each allele"},
+    "ADF": {
+        "Number": "R",
+        "Type": "Integer",
+        "Description": "Injected. Read depth for each allele on the forward strand",
+    },
+    "ADR": {
+        "Number": "R",
+        "Type": "Integer",
+        "Description": "Injected. Read depth for each allele on the reverse strand",
+    },
+    "DP": {"Number": "1", "Type": "Integer", "Description": "Injected. Read depth"},
+    "EC": {
+        "Number": "A",
+        "Type": "Integer",
+        "Description": "Injected. Expected alternate allele counts",
+    },
+    "FT": {
+        "Number": "1",
+        "Type": "String",
+        "Description": "Injected. Filter indicating if this genotype was “called”",
+    },
+    "GL": {"Number": "G", "Type": "Float", "Description": "Injected. Genotype likelihoods"},
+    "GP": {
+        "Number": "G",
+        "Type": "Float",
+        "Description": "Injected. Genotype posterior probabilities",
+    },
+    "GQ": {
+        "Number": "1",
+        "Type": "Integer",
+        "Description": "Injected. Conditional genotype quality",
+    },
+    "GT": {"Number": "1", "Type": "String", "Description": "Injected. Genotype"},
+    "HQ": {"Number": "2", "Type": "Integer", "Description": "Injected. Haplotype quality"},
+    "MQ": {"Number": "1", "Type": "Integer", "Description": "Injected. RMS mapping quality"},
+    "PL": {
+        "Number": "G",
+        "Type": "Integer",
+        "Description": "Injected. Phred-scaled genotype likelihoods rounded to the closest integer",
+    },
+    "PP": {
+        "Number": "G",
+        "Type": "Integer",
+        "Description": "Injected. Phred-scaled genotype posterior probabilities rounded to the closest integer",
+    },
+    "PQ": {"Number": "1", "Type": "Integer", "Description": "Injected. Phasing quality"},
+    "PS": {"Number": "1", "Type": "Integer", "Description": "Injected. Phase"},
+}
 
 
 class VcfIterator(object):
@@ -104,67 +167,7 @@ class VcfIterator(object):
 
     def add_format_headers(self):
         "Add format headers if they do not exist. This is a subset of the reserved genotype keys from https://samtools.github.io/hts-specs/VCFv4.3.pdf (table 2)"
-
-        reserved_gt_headers = {
-            "AD": {
-                "Number": "R",
-                "Type": "Integer",
-                "Description": "Injected. Read depth for each allele",
-            },
-            "ADF": {
-                "Number": "R",
-                "Type": "Integer",
-                "Description": "Injected. Read depth for each allele on the forward strand",
-            },
-            "ADR": {
-                "Number": "R",
-                "Type": "Integer",
-                "Description": "Injected. Read depth for each allele on the reverse strand",
-            },
-            "DP": {"Number": "1", "Type": "Integer", "Description": "Injected. Read depth"},
-            "EC": {
-                "Number": "A",
-                "Type": "Integer",
-                "Description": "Injected. Expected alternate allele counts",
-            },
-            "FT": {
-                "Number": "1",
-                "Type": "String",
-                "Description": "Injected. Filter indicating if this genotype was “called”",
-            },
-            "GL": {"Number": "G", "Type": "Float", "Description": "Injected. Genotype likelihoods"},
-            "GP": {
-                "Number": "G",
-                "Type": "Float",
-                "Description": "Injected. Genotype posterior probabilities",
-            },
-            "GQ": {
-                "Number": "1",
-                "Type": "Integer",
-                "Description": "Injected. Conditional genotype quality",
-            },
-            "GT": {"Number": "1", "Type": "String", "Description": "Injected. Genotype"},
-            "HQ": {"Number": "2", "Type": "Integer", "Description": "Injected. Haplotype quality"},
-            "MQ": {
-                "Number": "1",
-                "Type": "Integer",
-                "Description": "Injected. RMS mapping quality",
-            },
-            "PL": {
-                "Number": "G",
-                "Type": "Integer",
-                "Description": "Injected. Phred-scaled genotype likelihoods rounded to the closest integer",
-            },
-            "PP": {
-                "Number": "G",
-                "Type": "Integer",
-                "Description": "Injected. Phred-scaled genotype posterior probabilities rounded to the closest integer",
-            },
-            "PQ": {"Number": "1", "Type": "Integer", "Description": "Injected. Phasing quality"},
-            "PS": {"Number": "1", "Type": "Integer", "Description": "Injected. Phase"},
-        }
-
-        for key, fmt in reserved_gt_headers.items():
+        for key, fmt in RESERVED_GT_HEADERS.items():
             if key in self.reader and self.reader.get_header_type(key) == "FORMAT":
                 existing_header_line = self.reader[key]
                 if (

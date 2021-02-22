@@ -1,3 +1,4 @@
+##fileformat=VCFv4.1
 ##VEP=v79 cache=/work/dev/vcpipe-bundle/funcAnnot/VEP/cache/homo_sapiens_merged/79_GRCh37 db=.
 ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
