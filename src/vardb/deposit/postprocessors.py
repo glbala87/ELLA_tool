@@ -7,10 +7,6 @@ from api.v1.resources.workflow import helpers
 from datalayer import AlleleDataLoader, SnapshotCreator, queries
 from vardb.datamodel import allele, annotation, assessment, workflow
 
-# callable() is usually better than isinstance(FunctionType), but that also gets (imported) class
-# objects and all functions defined here will return True
-valid_methods = [f for f in dir() if f[0] != "_" and isinstance(eval(f), FunctionType)]
-
 
 def analysis_not_ready_warnings(session, analysis, interpretation, filter_config_id):
     """
@@ -168,3 +164,8 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
         interpretation.finalized = True
         interpretation.user_id = 1
         interpretation.date_last_update = datetime.datetime.now(pytz.utc)
+
+
+# callable() is usually better than isinstance(FunctionType), but that also gets (imported) class
+# objects and all functions defined here will return True
+valid_methods = [f for f in dir() if f[0] != "_" and isinstance(eval(f), FunctionType)]
