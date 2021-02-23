@@ -4,7 +4,7 @@ import hypothesis as ht
 from hypothesis import strategies as st
 from sqlalchemy import or_
 from vardb.deposit.importers import build_allele_from_record
-from vardb.deposit.tests.conftest import mock_record, TestVcfWriter, ped_info_file
+from conftest import mock_record, MockVcfWriter, ped_info_file
 from vardb.deposit.deposit_analysis import DepositAnalysis, PrefilterBatchGenerator
 from vardb.deposit.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele, assessment
@@ -292,7 +292,7 @@ def test_analysis_multiple(session, vcf_data):
 
     variants, fmts, sample_names, ped_info = vcf_data
 
-    with TestVcfWriter() as writer, ped_info_file(ped_info or {}) as ped_file:
+    with MockVcfWriter() as writer, ped_info_file(ped_info or {}) as ped_file:
         writer.set_samples(sample_names)
         for variant, fmt in zip(variants, fmts):
             writer.add_variant(variant, fmt)

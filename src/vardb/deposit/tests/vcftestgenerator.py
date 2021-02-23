@@ -8,7 +8,7 @@ ALLELE_ALT = "T"
 def variant():
     global ALLELE_ALT
     ALLELE_ALT += "T"
-    return {"ALT": ALLELE_ALT, "QUAL": 5000, "FILTER": "PASS"}
+    return {"POS": 1, "ALT": ALLELE_ALT, "QUAL": 5000, "FILTER": "PASS"}
 
 
 @st.composite

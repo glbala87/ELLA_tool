@@ -2,7 +2,7 @@ import vardb.deposit.importers as deposit
 import hypothesis as ht
 import hypothesis.strategies as st
 from os.path import commonprefix
-from vardb.deposit.tests.conftest import mock_record
+from conftest import mock_record
 
 
 @st.composite
