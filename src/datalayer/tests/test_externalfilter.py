@@ -1,6 +1,4 @@
 import operator
-import datetime
-import pytz
 from datalayer.allelefilter.externalfilter import ExternalFilter, CLINVAR_CLINSIG_GROUPS
 from api.config.config import config
 from conftest import mock_allele_with_annotation
