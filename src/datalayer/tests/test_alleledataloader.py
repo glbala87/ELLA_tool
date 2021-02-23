@@ -5,7 +5,7 @@ import hypothesis.strategies as st
 from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
-from conftest import create_allele
+from conftest import mock_allele
 
 
 def test_get_formatted_genotypes(test_database, session):
@@ -224,9 +224,7 @@ def test_nearby_warning(session, allele_positions):
     alleles = []
 
     for i, (start, end, load) in enumerate(allele_positions):
-        a = create_allele()
-        a.start_position = start
-        a.open_end_position = end
+        a = mock_allele(session, {"start_position": start, "open_end_position": end})
         session.add(a)
         session.flush()
 

@@ -6,7 +6,7 @@ import pytest
 
 from datalayer.allelefilter.consequencefilter import ConsequenceFilter
 from vardb.datamodel import gene, annotationshadow
-from conftest import create_allele_with_annotation
+from conftest import mock_allele_with_annotation
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -157,7 +157,7 @@ class TestConsequenceFilter(object):
         all_consequences = dict()
         allele_ids = []
         for tx in transcripts:
-            al, _ = create_allele_with_annotation(session, {"transcripts": tx})
+            al, _ = mock_allele_with_annotation(session, annotations={"transcripts": tx})
             session.flush()
             allele_ids.append(al.id)
             include_tx = [t for t in tx if t["transcript"].startswith("NM_")]

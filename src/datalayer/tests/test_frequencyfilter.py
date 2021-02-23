@@ -6,7 +6,7 @@ import pytest
 
 from datalayer.allelefilter.frequencyfilter import FrequencyFilter
 from vardb.datamodel import gene, annotationshadow
-from conftest import create_allele_with_annotation
+from conftest import mock_allele_with_annotation
 
 
 # prevent screen getting filled with output (useful when testing manually)
@@ -160,9 +160,9 @@ class TestFrequencyFilter(object):
         # Test common
 
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        a1ad, _ = create_allele_with_annotation(
+        a1ad, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
                 },  # Above 0.005  # Above 2000
@@ -180,9 +180,9 @@ class TestFrequencyFilter(object):
         # Test less_common
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        a1ar, _ = create_allele_with_annotation(
+        a1ar, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.25}, "num": {"G": 9000}}
                 },  # Between 0.3 and 0.1  # Above 2000
@@ -199,9 +199,9 @@ class TestFrequencyFilter(object):
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        a1nogene, _ = create_allele_with_annotation(
+        a1nogene, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.001}, "num": {"G": 9000}}
                 },  # Less than 0.1  # Above 2000
@@ -218,9 +218,9 @@ class TestFrequencyFilter(object):
 
         # Test null_freq
 
-        a1nofreq, _ = create_allele_with_annotation(
+        a1nofreq, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {},
                 "transcripts": [
                     {
@@ -234,9 +234,9 @@ class TestFrequencyFilter(object):
         )
 
         # Test gene specific thresholds
-        a1g2, _ = create_allele_with_annotation(
+        a1g2, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.3},
@@ -256,9 +256,9 @@ class TestFrequencyFilter(object):
 
         # Test gene specific thresholds with multiple genes
         # Should hit low_freq based on GENE2 thresholds
-        a1adg2, _ = create_allele_with_annotation(
+        a1adg2, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.006},  # Less than GENE2 0.1, greater than AD default 0.005
@@ -299,9 +299,9 @@ class TestFrequencyFilter(object):
         ##
 
         # Test below threshold, one source
-        anum1, anum1anno = create_allele_with_annotation(
+        anum1, anum1anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 1999}}
                 },  # Above 0.005  # Below 2000
@@ -317,9 +317,9 @@ class TestFrequencyFilter(object):
         )
 
         # Test threshold, two sources, one above one below
-        anum2, anum2anno = create_allele_with_annotation(
+        anum2, anum2anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.0051, "FIN": 0.0051},  # Above 0.005  # Above 0.005
@@ -339,9 +339,9 @@ class TestFrequencyFilter(object):
         )
 
         # Test below threshold, two sources, one without num threshold filtering
-        anum3, anum3anno = create_allele_with_annotation(
+        anum3, anum3anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.0051},
@@ -360,9 +360,9 @@ class TestFrequencyFilter(object):
             },
         )
         # Test gene specific cutoff override
-        anum4, anum4anno = create_allele_with_annotation(
+        anum4, anum4anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.6}, "num": {"G": 2001}}
                 },  # Above 0.5  # Above 2000
@@ -395,9 +395,9 @@ class TestFrequencyFilter(object):
         # even if the different frequencies would give
         # hits in different ones
         ##
-        a2common, _ = create_allele_with_annotation(
+        a2common, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.0051},
@@ -426,9 +426,9 @@ class TestFrequencyFilter(object):
         assert not result[gp_key]["low_freq"]
         assert not result[gp_key]["null_freq"]
 
-        a2less_common, _ = create_allele_with_annotation(
+        a2less_common, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.002},  # Between 0.005 and 0.001 -> less_common
@@ -457,9 +457,9 @@ class TestFrequencyFilter(object):
         assert not result[gp_key]["low_freq"]
         assert not result[gp_key]["null_freq"]
 
-        a2low_freq, _ = create_allele_with_annotation(
+        a2low_freq, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.0001},
@@ -502,9 +502,9 @@ class TestFrequencyFilter(object):
 
         # Test external
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa1ad, pa1adanno = create_allele_with_annotation(
+        pa1ad, pa1adanno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.0051}, "num": {"G": 9000}}
                 },  # Above 0.005  # Above 2000
@@ -520,9 +520,9 @@ class TestFrequencyFilter(object):
         )
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        pa1ar, pa1aranno = create_allele_with_annotation(
+        pa1ar, pa1aranno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.31}, "num": {"G": 9000}}
                 },  # Above 0.30  # Above 2000
@@ -539,9 +539,9 @@ class TestFrequencyFilter(object):
 
         # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
         # external: 0.30/0.1 , internal: 0.05/0.01
-        pa1nogene, pa1nogeneanno = create_allele_with_annotation(
+        pa1nogene, pa1nogeneanno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.31}, "num": {"G": 9000}}
                 },  # Above 0.30  # Above 2000
@@ -558,9 +558,9 @@ class TestFrequencyFilter(object):
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        pa2, pa2anno = create_allele_with_annotation(
+        pa2, pa2anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {"internalDB": {"freq": {"AF": 0.71}}},  # Above 0.7
                 "transcripts": [
                     {
@@ -575,9 +575,9 @@ class TestFrequencyFilter(object):
 
         # Test conflicting external/internal
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa3, pa3anno = create_allele_with_annotation(
+        pa3, pa3anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {
                         "freq": {"G": 0.0051},
@@ -598,9 +598,9 @@ class TestFrequencyFilter(object):
 
         # Test right on threshold
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        pa4, pa4anno = create_allele_with_annotation(
+        pa4, pa4anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.005}, "num": {"G": 9000}}
                 },  # == 0.005  # Above 2000
@@ -616,9 +616,9 @@ class TestFrequencyFilter(object):
         )
 
         # Test with no transcripts
-        pa5, pa5anno = create_allele_with_annotation(
+        pa5, pa5anno = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {"ExAC": {"freq": {"G": 0.5}, "num": {"G": 9000}}},
                 "transcripts": [],
             },  # > 0.3
@@ -638,9 +638,9 @@ class TestFrequencyFilter(object):
 
         # Test external
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
-        na1ad, _ = create_allele_with_annotation(
+        na1ad, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.0049}, "num": {"G": 9000}}
                 },  # Below 0.005  # Above 2000
@@ -656,9 +656,9 @@ class TestFrequencyFilter(object):
         )
 
         # GENE1AR: external: 0.30/0.1 , internal: 0.05/0.01
-        na1ar, _ = create_allele_with_annotation(
+        na1ar, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {
                     "ExAC": {"freq": {"G": 0.2999}, "num": {"G": 9000}}
                 },  # Below 0.3  # Above 2000
@@ -675,9 +675,9 @@ class TestFrequencyFilter(object):
 
         # Test internal
         # GENE2: external: 0.5/0.1 , internal: 0.7/0.6
-        na2, _ = create_allele_with_annotation(
+        na2, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {"internalDB": {"freq": {"AF": 0.69}}},  # Below 0.7
                 "transcripts": [
                     {
@@ -692,9 +692,9 @@ class TestFrequencyFilter(object):
 
         # Test missing frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na3, _ = create_allele_with_annotation(
+        na3, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {},
                 "transcripts": [
                     {
@@ -709,9 +709,9 @@ class TestFrequencyFilter(object):
 
         # Test 0 frequency
         # GENE1: external: 0.005/0.001 , internal: 0.05/0.01
-        na4, _ = create_allele_with_annotation(
+        na4, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {"ExAC": {"freq": {"G": 0}, "num": {"G": 9000}}},  # Above 2000
                 "transcripts": [
                     {
@@ -725,9 +725,9 @@ class TestFrequencyFilter(object):
         )
 
         # Test with no transcripts
-        na5, _ = create_allele_with_annotation(
+        na5, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "frequencies": {"ExAC": {"freq": {"G": 0.00001}, "num": {"G": 9000}}},
                 "transcripts": [],
             },  # < 0.3
