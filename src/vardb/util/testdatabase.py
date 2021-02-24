@@ -69,9 +69,9 @@ class TestDatabase(object):
         if not self.database_exists(self.db_name + "-template"):
             self.create_dump()
         with open(os.devnull, "w") as f:
-            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True)
+            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True, stdout=f)
             subprocess.check_call(
-                f"createdb {self.db_name} --template {self.db_name}-template", shell=True
+                f"createdb {self.db_name} --template {self.db_name}-template", shell=True, stdout=f
             )
 
         # Update mapping of annotation shadow tables based on global config

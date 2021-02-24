@@ -540,10 +540,8 @@ class GenotypeImporter(object):
         for sample in samples:
             for block_record in block_records:
                 s_ad = block_record.get_format_sample("AD", sample.identifier)
-
-                # Sanity check
-                if any(x is None for x in s_ad):
-                    assert all(x is None for x in s_ad)
+                if s_ad is None:
+                    continue
 
                 if not all(x is None for x in s_ad):
                     if len(s_ad) == 2:
