@@ -21,6 +21,10 @@ API_BUNDLE = ella-release-$(RELEASE_TAG)-api.tgz
 DIST_BUNDLE = ella-release-$(RELEASE_TAG)-dist.tgz
 SIF_RELEASE ?= ella-release-$(RELEASE_TAG).sif
 SIF_PREFIX ?= docker-daemon
+RELEASE_BUCKET ?= s3://ella/releases/$(RELEASE_TAG)
+AWS ?= aws --endpoint https://fra1.digitaloceanspaces.com
+DEFAULT_AWSCLI_CONFIG = $(HOME)/.aws/config
+AWSCLI_CONFIG ?= $(DEFAULT_AWSCLI_CONFIG)
 
 # e2e test:
 PARALLEL_INSTANCES ?= 2
@@ -35,8 +39,9 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
-# always have RELEASE_TAG set for CI
-# use tag if available, commit sha otherwise
+# if RELEASE_TAG has a value, set RELEASE_IMAGE
+# ensure RELEASE_TAG, RELEASE_IMAGE are always set for CI
+# if no RELEASE_TAG, fall back to CI variables
 ifeq ($(RELEASE_TAG),)
 ifneq ($(CI_COMMIT_TAG),)
 RELEASE_TAG = $(CI_COMMIT_TAG),
@@ -45,6 +50,8 @@ ifneq ($(CI_COMMIT_SHORT_SHA),)
 RELEASE_TAG = rc-$(CI_COMMIT_SHORT_SHA)
 endif
 endif
+else
+RELEASE_IMAGE = $(IMAGE_NAME):$(RELEASE_TAG)
 endif
 
 TMP_DIR ?= /tmp
@@ -492,14 +499,21 @@ e2e-test-local: test-build
 #---------------------------------------------
 # CI Releases and Building Singularity images
 #---------------------------------------------
+.PHONY: vars _release-build-docker ci-release-upload
 
 # ci-release: bundle-dist _release-build-docker
-ci-release: vars _release-build-docker
+ci-release-docker: vars _release-build-docker
 	docker push $(RELEASE_IMAGE)
 
-build-singularity: _release-build-docker _release-build-sif
+ci-release-src: vars bundle-dist
 
 ci-release-singularity: vars _release-build-sif
+
+ci-release-upload: _release-upload-configure
+	ls -l $(DIST_BUNDLE) $(SIF_RELEASE) || (ls -lA; exit 1)
+	$(eval AWS_S3_CP = $(AWS) s3 cp --acl public-read)
+	$(AWS_S3_CP) $(DIST_BUNDLE) $(RELEASE_BUCKET)/
+	$(AWS_S3_CP) $(SIF_RELEASE) $(RELEASE_BUCKET)/
 
 _release-build-docker:
 	$(call check_defined, RELEASE_TAG RELEASE_IMAGE)
@@ -508,12 +522,20 @@ _release-build-docker:
 
 _release-build-sif:
 	$(call check_defined, SIF_PREFIX)
-	# -F overwrites any existing images
+	# NOTE: -F overwrites any existing images without prompting, take caution when running locally
 	singularity build -F $(SIF_RELEASE) $(SIF_PREFIX)://$(RELEASE_IMAGE)
 
+_release-upload-configure:
+	[ -f $(AWSCLI_CONFIG) ] || (echo "No aws config found at $(AWSCLI_CONFIG)"; exit 1)
+	mkdir -p $(HOME)/.aws
+	[ -f $(DEFAULT_AWSCLI_CONFIG) ] || cp $(AWSCLI_CONFIG) $(DEFAULT_AWSCLI_CONFIG)
+
 vars:
-	@echo "SIF_RELEASE\t$(SIF_RELEASE)"
+	@echo "DIST_BUNDLE\t$(DIST_BUNDLE)"
 	@echo "SIF_PREFIX\t$(SIF_PREFIX)"
-	@echo "RELEASE_TAG\t$(RELEASE_TAG)"
+	@echo "SIF_RELEASE\t$(SIF_RELEASE)"
 	@echo "RELEASE_IMAGE\t$(RELEASE_IMAGE)"
-	@env | grep GIT | sort | tr = "\t"
+	@echo "RELEASE_TAG\t$(RELEASE_TAG)"
+
+# build release sif locally
+build-singularity: _release-build-docker _release-build-sif

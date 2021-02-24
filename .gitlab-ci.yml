@@ -27,25 +27,33 @@ variables:
 
     # ensure breakpoints don't fire accidentally
     PYTHONBREAKPOINT: 0
+    # CI is all noninteractive
+    DEBIAN_FRONTEND: noninteractive
 
     # singularity-in-docker
     SID_IMAGE: quay.io/singularity/singularity
     SID_VERSION: v3.7.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
-stages:
-    - build
-    - formatting
-    - test
-    - review
-    - release
-    - release-singularity
+    # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
+    AWSCLI_IMAGE: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base@sha256:654cb6d3ba01f9753a4a3f20d6c39fb0b9c111d080bb6f90606cec284b4be7e9
+
+stages: ['release-docker-src', 'release-singularity', 'release-upload']
+
+# CI_DEBUG:
+# - build
+# - formatting
+# - test
+# - review
+# - release-docker
+# - release-artifacts
 
 # shared settings
 .cache: &cache
     key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
     paths:
         - images/
+        - dist/
 
 .cache-pull: &cache-pull
     <<: *cache
@@ -60,6 +68,7 @@ stages:
 
 # before_script actions
 .apk-setup: &apk-setup apk update && apk add -u make git bash
+.apt-setup: &apt-setup apt update && apt install --upgrade git make -y
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
 
@@ -90,7 +99,7 @@ stages:
 
 # jobs
 
-build:
+.build: # CI_DEBUG
     stage: build
     before_script:
         - *apk-setup
@@ -108,7 +117,7 @@ build:
     cache:
         <<: *cache-push
 
-start_review:
+.start_review: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review
@@ -125,7 +134,7 @@ start_review:
     except:
         - master
 
-stop_review:
+.stop_review: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -134,7 +143,7 @@ stop_review:
         <<: *revapp-env
         action: stop
 
-refresh_ip:
+.refresh_ip: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -148,13 +157,13 @@ refresh_ip:
 
 ###
 
-check_formatting:
+.check_formatting: # CI_DEBUG
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-e2e:
+.e2e: # CI_DEBUG
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -168,58 +177,71 @@ e2e:
     cache:
         <<: *cache-pull
 
-api:
+.api: # CI_DEBUG
     extends: .common-test
     script:
         - make test-api
 
-api_migration:
+.api_migration: # CI_DEBUG
     extends: .common-test
     script:
         - make test-api-migration
 
-js:
+.js: # CI_DEBUG
     extends: .common-test
     script:
         - make test-js
 
-python:
+.python: # CI_DEBUG
     extends: .common-test
     script:
         - make test-python
 
-cli:
+.cli: # CI_DEBUG
     extends: .common-test
     script:
         - make test-cli
 
-report:
+.report: # CI_DEBUG
     extends: .common-test
     script:
         - make test-report
 
-release:
-    stage: release
+release_docker:
+    stage: release-docker-src
     before_script:
         - *apk-setup
         - *docker-login
     script:
-        - make ci-release
-    artifacts:
-        paths:
-            - ella-release-$CI_COMMIT_REF_NAME-dist.tgz
-        name: ella-release-$CI_COMMIT_REF_NAME
-        when: on_success
+        - make ci-release-docker
     only:
+        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
 
-release-singularity:
+release_src:
+    stage: release-docker-src
+    before_script:
+        - *apk-setup
+    script:
+        - make ci-release-src
+    artifacts:
+        paths:
+            - ella-release-*-dist.tgz
+        when: on_success
+    only:
+        - branches # CI_DEBUG
+        - tags
+    tags:
+        - do-small
+
+release_singularity:
     image:
         name: $SID_SLUG
         entrypoint: ['']
     stage: release-singularity
+    dependencies: ['release_docker']
     before_script:
         - *apk-setup
     script:
@@ -227,9 +249,23 @@ release-singularity:
     artifacts:
         paths:
             - $SIF_RELEASE
-        name: ella-singularity-$CI_COMMIT_REF_NAME
         when: on_success
     only:
+        - branches # CI_DEBUG
+        - tags
+    tags:
+        - do-large
+
+release_upload:
+    stage: release-upload
+    image: $AWSCLI_IMAGE
+    before_script:
+        - *apt-setup
+    script:
+        - make ci-release-upload
+    dependencies: ['release_src', 'release_singularity']
+    only:
+        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
