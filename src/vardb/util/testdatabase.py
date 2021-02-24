@@ -10,63 +10,68 @@ from api.config import config
 
 class TestDatabase(object):
     def __init__(self):
-        self.dump_path = os.getenv("TEST_DB_DUMP")
-        if not self.dump_path:
-            self.dump_path = self.get_dump_path()
+        db_url = os.environ["DB_URL"]
+        self.db_name = db_url.rsplit("/", 1)[-1]
 
         # Reconnect with NullPool in order to avoid hanging connections
         # which prevents us from dropping/creating database
         db.disconnect()
         db.connect(engine_kwargs={"poolclass": NullPool})
-        self.create_dump()
+        if not self.database_exists(self.db_name + "-template"):
+            self.create_dump()
 
     def get_dump_path(self):
         with tempfile.NamedTemporaryFile() as tmpfile:
             return tmpfile.name
 
+    def database_exists(self, db_name):
+        # Check if database exists. This will throw an error if self.db_name doesn't exists, or
+        # evalutate to None if {self.db_name}-template does not exist. If it does exist, then we
+        # trust that it is up to date, and that we don't need to repopulate.
+        try:
+            if db.engine.execute(
+                f"SELECT 1 from pg_database WHERE datname='{self.db_name}-template'"
+            ).scalar():
+                return True
+        except:
+            pass
+
+        return False
+
     def create_dump(self):
         """
-        Creates a dump of the test database into file specified in self.dump_path.
+        Deposit testdata, and creates a dump of the test database into a template database to be used for refresh
         """
-        if os.environ.get("TEST_DB_DUMP") and os.path.exists(os.environ.get("TEST_DB_DUMP")):
-            return
+
         with open(os.devnull, "w") as f:
-            db_url = os.environ["DB_URL"]
-            db_name = db_url.rsplit("/", 1)[-1]
-            subprocess.check_call(f"dropdb --if-exists {db_name}", shell=True, stdout=f)
-            subprocess.check_call(f"createdb {db_name}", shell=True, stdout=f)
+
+            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True, stdout=f)
+            subprocess.check_call(f"createdb {self.db_name}", shell=True, stdout=f)
             subprocess.check_call("ella-cli database drop -f", shell=True, stdout=f)
             subprocess.check_call("ella-cli database make -f", shell=True, stdout=f)
             if os.getenv("MIGRATION") == "1":
                 print("Migration running")
                 subprocess.call("ella-cli database ci-migration-head -f", shell=True)
                 subprocess.call("ella-cli database refresh -f", shell=True, stdout=f)
-        DepositTestdata(db).deposit_all(test_set="integration_testing")
+            DepositTestdata(db).deposit_all(test_set="integration_testing")
 
-        # Note the --clean and --create flags, which will recreate db when run
-        subprocess.check_call(
-            "pg_dump {uri} --file={path} --clean --create".format(
-                uri=os.environ["DB_URL"], path=self.dump_path
-            ),
-            shell=True,
-        )
-        print("Temporary database file created at {}.".format(self.dump_path))
+            subprocess.check_call(f"dropdb --if-exists {self.db_name}-template", shell=True)
+            subprocess.check_call(
+                f"createdb {self.db_name}-template --template {self.db_name}", shell=True
+            )
+        print(f"Template database for testdata created in database {self.db_name}-template")
 
     def refresh(self):
         """
-        Wipes out whole database, and recreates a clean copy from the dump.
+        Wipes out whole database, and recreates a clean copy from the template.
         """
-        print("Refreshing database with data from dump")
-        if not os.path.exists(self.dump_path):
+        print("Refreshing database with data from template")
+        if not self.database_exists(self.db_name + "-template"):
             self.create_dump()
-
         with open(os.devnull, "w") as f:
-
-            # Connect to template1 so we can remove whatever db name
+            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True)
             subprocess.check_call(
-                "psql postgresql:///template1 < {path}".format(path=self.dump_path),
-                shell=True,
-                stdout=f,
+                f"createdb {self.db_name} --template {self.db_name}-template", shell=True
             )
 
         # Update mapping of annotation shadow tables based on global config
@@ -75,9 +80,3 @@ class TestDatabase(object):
     def cleanup(self):
         print("Disconnecting...")
         db.disconnect()
-        if os.getenv("TEST_DB_DUMP") != self.dump_path:
-            try:
-                os.remove(self.dump_path)
-                print("Temporary database file removed.")
-            except OSError:
-                pass

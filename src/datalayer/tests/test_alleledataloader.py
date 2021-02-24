@@ -154,6 +154,13 @@ def get_analysis_alleles(session, analysis_id):
         )
         .join(sample.Sample)
         .join(sample.Analysis)
+        .filter(sample.Analysis.id == analysis_id)
+        .order_by(
+            allele.Allele.chromosome,
+            allele.Allele.vcf_pos,
+            allele.Allele.vcf_ref,
+            allele.Allele.vcf_alt,
+        )
         .distinct()
     )
 
