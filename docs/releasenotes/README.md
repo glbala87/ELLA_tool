@@ -21,10 +21,11 @@ Release date: [TBD]
 
 ### All changes
 
+<!-- MR !497 -->
+- Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
 <!-- 
 Probably no further release notes necessary, but adding here for reference: 
 MR !496 Split references from annotation in database
-MR !497 Replaced vcfiterator with cyvcf2
 MR !498 Fixes for running local demo instances 
 -->
 - Several fixes and improvements to development environment and code base. 
