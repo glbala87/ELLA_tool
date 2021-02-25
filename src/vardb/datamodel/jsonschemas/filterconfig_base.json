@@ -68,7 +68,7 @@
             }
         },
         "filterconfig": {
-            "$ref": "filterconfig_v2.json"
+            "$ref": "filterconfig_v3.json"
         }
     }
 }
