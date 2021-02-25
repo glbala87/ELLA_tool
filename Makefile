@@ -16,10 +16,15 @@ ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
 TESTSET ?= 'default'
 HYPOTHESIS_PROFILE ?= 'default'
-WEB_BUNDLE = ella-release-$(RELEASE_TAG)-web.tgz
-API_BUNDLE = ella-release-$(RELEASE_TAG)-api.tgz
-DIST_BUNDLE = ella-release-$(RELEASE_TAG)-dist.tgz
+DIST_DIR ?= dist
+WEB_BUNDLE = $(DIST_DIR)/ella-release-$(RELEASE_TAG)-web.tgz
+WEB_BUILD = $(DIST_BUILD)/src/webui/build
+API_BUNDLE = $(DIST_DIR)/ella-release-$(RELEASE_TAG)-api.tgz
+API_BUILD = $(DIST_BUILD)/
+DIST_BUNDLE = $(DIST_DIR)/ella-release-$(RELEASE_TAG)-dist.tgz
+DIST_BUILD ?= dist-temp
 SIF_RELEASE ?= ella-release-$(RELEASE_TAG).sif
+SIF_DIST = $(DIST_DIR)/$(SIF_RELEASE)
 SIF_PREFIX ?= docker-daemon
 RELEASE_BUCKET ?= s3://ella/releases/$(RELEASE_TAG)
 AWS ?= aws --endpoint https://fra1.digitaloceanspaces.com
@@ -30,7 +35,6 @@ AWSCLI_CONFIG ?= $(DEFAULT_AWSCLI_CONFIG)
 PARALLEL_INSTANCES ?= 2
 CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
 
-
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
 DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
@@ -39,73 +43,57 @@ DIAGRAM_IMAGE = local/$(PIPELINE_ID)-diagram
 CONTAINER_NAME_BUNDLE_STATIC=$(PIPELINE_ID)-web-assets
 IMAGE_BUNDLE_STATIC=local/$(PIPELINE_ID)-web-assets
 
-# if RELEASE_TAG has a value, set RELEASE_IMAGE
-# ensure RELEASE_TAG, RELEASE_IMAGE are always set for CI
-# if no RELEASE_TAG, fall back to CI variables
-ifeq ($(RELEASE_TAG),)
-ifneq ($(CI_COMMIT_TAG),)
-RELEASE_TAG = $(CI_COMMIT_TAG),
-else
-ifneq ($(CI_COMMIT_SHORT_SHA),)
-RELEASE_TAG = rc-$(CI_COMMIT_SHORT_SHA)
-endif
-endif
-else
-RELEASE_IMAGE = $(IMAGE_NAME):$(RELEASE_TAG)
-endif
-
 TMP_DIR ?= /tmp
 ifeq ($(CI_REGISTRY_IMAGE),)
 # running locally, use interactive
 TERM_OPTS := -it
 else
 TERM_OPTS := -t
-RELEASE_IMAGE ?= $(CI_REGISTRY_IMAGE):$(RELEASE_TAG)
 endif
 
 
 .PHONY: help
 
 help :
-	@echo ""
+	@echo
 	@echo "-- DEV COMMANDS --"
-	@echo ""
+	@echo
 	@echo " Note! The help doc below is derived from value of the git BRANCH/USER/CONTAINER_NAME whose values can be set on the command line."
-	@echo ""
-	@echo "make build		- build image $(IMAGE_NAME). use BUILD_OPTIONS variable to set options for 'docker build'"
-	@echo "make dev		- run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
-	@echo "make db			- populates the db with fixture data. Use TESTSET variable to choose testset"
-	@echo "make url		- shows the url of your Ella app"
-	@echo "make kill		- stop and remove $(CONTAINER_NAME)"
-	@echo "make shell		- get a bash shell into $(CONTAINER_NAME)"
-	@echo "make logs		- tail logs from $(CONTAINER_NAME)"
-	@echo "make restart	- restart container $(CONTAINER_NAME)"
-	@echo "make any		- can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
+	@echo
+	@echo "make build    - build image $(IMAGE_NAME). use BUILD_OPTIONS variable to set options for 'docker build'"
+	@echo "make dev      - run image $(IMAGE_NAME), with container name $(CONTAINER_NAME) :: API_PORT and ELLA_OPTS available as variables"
+	@echo "make db       - populates the db with fixture data. Use TESTSET variable to choose testset"
+	@echo "make url      - shows the url of your Ella app"
+	@echo "make kill     - stop and remove $(CONTAINER_NAME)"
+	@echo "make shell    - get a bash shell into $(CONTAINER_NAME)"
+	@echo "make logs     - tail logs from $(CONTAINER_NAME)"
+	@echo "make restart  - restart container $(CONTAINER_NAME)"
+	@echo "make any      - can be prepended to target the first container with pattern ella-.*-$(USER), e.g. make any kill"
 
-	@echo ""
+	@echo
 	@echo "-- TEST COMMANDS --"
-	@echo "make test-all		- run all tests"
-	@echo "make test-js		- run Javascript tests"
-	@echo "make test-common	- run Python tests "
-	@echo "make test-api		- run backend API tests"
-	@echo "make test-api-migration	- run database migration tests"
-	@echo "make test-cli    	- run command line interface tests"
-
+	@echo "make test-all            - run all tests"
+	@echo "make test-js             - run Javascript tests"
+	@echo "make test-common         - run Python tests "
+	@echo "make test-api            - run backend API tests"
+	@echo "make test-api-migration  - run database migration tests"
+	@echo "make test-cli            - run command line interface tests"
+	@echo
 	@echo "-- END 2 END tests--"
-	@echo "make test-e2e		- Run e2e tests"
-	@echo "make e2e-test-local	- For running e2e tests locally."
-	@echo "                          Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
+	@echo "make test-e2e        - Run e2e tests"
+	@echo "make e2e-test-local  - For running e2e tests locally."
+	@echo "                       Set these vars: APP_URL, CHROME_HOST, SPEC and DEBUG."
 
-	@echo ""
+	@echo
 	@echo "-- DEMO COMMANDS --"
-	@echo "make demo		- starts a demo container with testdata at port 3114"
-	@echo "make kill-demo	- stops and removes the demo container"
-	@echo "make review		- builds a container to work in tandem with a nginx-proxy container"
-	@echo "			      Set REVIEW_NAME to assign a value to VIRTUAL_HOST"
-	@echo ""
+	@echo "make demo        - starts a demo container with testdata at port 3114"
+	@echo "make kill-demo   - stops and removes the demo container"
+	@echo "make review      - builds a container to work in tandem with a nginx-proxy container"
+	@echo "                   Set REVIEW_NAME to assign a value to VIRTUAL_HOST"
+	@echo
 
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release	           - Noop. See the README.md file"
+	@echo "make release            - Noop. See the README.md file"
 	@echo "make bundle-static      - Bundle HTML and JS into a local tgz file"
 	@echo "make bundle-api         - Bundle the backend code into a local tgz file"
 	@echo "make build-singularity  - Create release singularity image"
@@ -126,51 +114,58 @@ __check_defined = \
     $(if $(value $1),, \
       $(error Undefined $1$(if $2, ($2))))
 
+define sizeof
+$$(stat -c %s $(1))
+endef
+
+
 #---------------------------------------------
 # Production / release
 #---------------------------------------------
 
 .PHONY: release bundle-api bundle-static \
-        build-bundle-image start-bundle-container \
-        stop-bundle-container
+        build-bundle-image pull-bundle-image \
+        clean-dist
 
 release:
 	@echo "See the README.md file, section 'Production'"
 
-bundle-client: build-bundle-image start-bundle-container tar-web-build stop-bundle-container
+# CI uses image from gitlab registry, local builds fresh docker / static files
+bundle-web: build-bundle-image get-web-bundle
+bundle-web-ci: pull-bundle-image get-web-bundle
 
 build-bundle-image:
-	docker build -t $(IMAGE_BUNDLE_STATIC) --target dev .
+	docker build -t $(IMAGE_BUNDLE_STATIC) --target production .
 
-start-bundle-container:
-	-docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
-	-docker rm $(CONTAINER_NAME_BUNDLE_STATIC)
+pull-bundle-image:
+	docker pull $(IMAGE_BUNDLE_STATIC)
+
+get-web-bundle:
+	-docker rm -f $(CONTAINER_NAME_BUNDLE_STATIC)
 	docker run -d \
 		--name $(CONTAINER_NAME_BUNDLE_STATIC) \
 		$(IMAGE_BUNDLE_STATIC) \
 		sleep infinity
-
-tar-web-build:
-	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn build
-	docker exec -i $(CONTAINER_NAME_BUNDLE_STATIC)  yarn docs
-	docker exec $(CONTAINER_NAME_BUNDLE_STATIC) tar cz -C /ella/src/webui/build -f - . > $(WEB_BUNDLE)
-	@echo "Bundled static web files in $(WEB_BUNDLE)"
-
-stop-bundle-container:
+	mkdir -p $(DIST_BUILD)/src/webui
+	docker cp $(CONTAINER_NAME_BUNDLE_STATIC):/ella/src/webui/build/ $(WEB_BUILD)
+	@echo "Copied static web files to $(WEB_BUILD)"
 	docker stop $(CONTAINER_NAME_BUNDLE_STATIC)
 
-bundle-api: REF=$(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG))
 bundle-api:
-	git archive -o $(API_BUNDLE) $(REF)
+	git archive --format tar $(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG)) | tar -C $(API_BUILD) -xf -
 
-bundle-dist: bundle-api bundle-client
-	@rm -rf dist-temp
-	mkdir -p dist-temp/src/webui/build
-	tar x -C dist-temp/src/webui/build -f $(WEB_BUNDLE)
-	tar x -C dist-temp -f $(API_BUNDLE)
-	tar cz -C dist-temp -f $(DIST_BUNDLE) .
-	@echo "Created distribution $(DIST_BUNDLE) ($(shell du -k $(DIST_BUNDLE) | cut -f1))"
-	@rm -rf dist-temp
+tar-dist-bundle:
+	tar cz -C $(DIST_BUILD) -f $(DIST_BUNDLE) .
+	@echo "Created distribution $(DIST_BUNDLE) ($(call sizeof,$(DIST_BUNDLE)) bytes)"
+
+clean-dist:
+	$(call check_defined, DIST_BUILD DIST_DIR)
+	-rm -rf $(DIST_BUILD)
+	mkdir -p $(DIST_DIR) $(DIST_BUILD)
+
+bundle-dist: clean-dist bundle-api bundle-web tar-dist-bundle
+bundle-dist-ci: $(eval IMAGE_BUNDLE_STATIC = $(RELEASE_IMAGE))
+bundle-dist-ci: clean-dist bundle-api bundle-web-ci tar-dist-bundle
 
 release-notes:
 	@ops/create_release_notes_wrapper.sh
@@ -499,43 +494,36 @@ e2e-test-local: test-build
 #---------------------------------------------
 # CI Releases and Building Singularity images
 #---------------------------------------------
-.PHONY: vars _release-build-docker ci-release-upload
+.PHONY: _release-build-docker ci-release-upload
 
-# ci-release: bundle-dist _release-build-docker
-ci-release-docker: vars _release-build-docker
+ci-release-docker: _release-build-docker
 	docker push $(RELEASE_IMAGE)
 
-ci-release-src: vars bundle-dist
+ci-release-src: bundle-dist-ci
 
-ci-release-singularity: vars _release-build-sif
+ci-release-singularity: _release-build-sif
 
-ci-release-upload: _release-upload-configure
-	ls -l $(DIST_BUNDLE) $(SIF_RELEASE) || (ls -lA; exit 1)
-	$(eval AWS_S3_CP = $(AWS) s3 cp --acl public-read)
-	$(AWS_S3_CP) $(DIST_BUNDLE) $(RELEASE_BUCKET)/
-	$(AWS_S3_CP) $(SIF_RELEASE) $(RELEASE_BUCKET)/
+ci-release-upload: _release-configure-upload
+	ls -l $(DIST_BUNDLE) $(SIF_DIST) || (ls -lA . $(DIST_DIR); exit 1)
+	# mv $(SIF_DIST) $(DIST_DIR)/
+	# ls -lA $(DIST_DIR)
+	$(AWS) s3 sync --no-progress --acl public-read $(DIST_DIR) $(RELEASE_BUCKET)
 
 _release-build-docker:
 	$(call check_defined, RELEASE_TAG RELEASE_IMAGE)
 	# Use git archive to create docker context, to prevent modified files from entering the image.
-	git archive --format tar.gz $(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG)) | docker build -t $(RELEASE_IMAGE) --target production -
+	git archive --format tar $(if $(CI_COMMIT_SHA),$(CI_COMMIT_SHA),$(RELEASE_TAG)) | docker build -t $(RELEASE_IMAGE) --target production -
 
 _release-build-sif:
 	$(call check_defined, SIF_PREFIX)
+	[ -n $(DIST_DIR) ] && mkdir -p $(DIST_DIR)
 	# NOTE: -F overwrites any existing images without prompting, take caution when running locally
-	singularity build -F $(SIF_RELEASE) $(SIF_PREFIX)://$(RELEASE_IMAGE)
+	singularity build -F $(SIF_DIST) $(SIF_PREFIX)://$(RELEASE_IMAGE)
 
-_release-upload-configure:
+_release-configure-upload:
 	[ -f $(AWSCLI_CONFIG) ] || (echo "No aws config found at $(AWSCLI_CONFIG)"; exit 1)
 	mkdir -p $(HOME)/.aws
 	[ -f $(DEFAULT_AWSCLI_CONFIG) ] || cp $(AWSCLI_CONFIG) $(DEFAULT_AWSCLI_CONFIG)
-
-vars:
-	@echo "DIST_BUNDLE\t$(DIST_BUNDLE)"
-	@echo "SIF_PREFIX\t$(SIF_PREFIX)"
-	@echo "SIF_RELEASE\t$(SIF_RELEASE)"
-	@echo "RELEASE_IMAGE\t$(RELEASE_IMAGE)"
-	@echo "RELEASE_TAG\t$(RELEASE_TAG)"
 
 # build release sif locally
 build-singularity: _release-build-docker _release-build-sif

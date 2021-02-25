@@ -17,18 +17,12 @@ variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
     CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
-    SIF_RELEASE: ella-release-$CI_COMMIT_REF_NAME.sif
 
     # CI / release
     # Value is branch name when running on a branch pipeline, tag name for tag pipelines (releases)
-    # RELEASE_TAG: $CI_COMMIT_REF_NAME
-    # use docker:// when building singularity
+    RELEASE_TAG: $CI_COMMIT_REF_NAME
+    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     SIF_PREFIX: docker
-
-    # ensure breakpoints don't fire accidentally
-    PYTHONBREAKPOINT: 0
-    # CI is all noninteractive
-    DEBIAN_FRONTEND: noninteractive
 
     # singularity-in-docker
     SID_IMAGE: quay.io/singularity/singularity
@@ -38,13 +32,21 @@ variables:
     # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
     AWSCLI_IMAGE: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base@sha256:654cb6d3ba01f9753a4a3f20d6c39fb0b9c111d080bb6f90606cec284b4be7e9
 
-stages:
-    - build
-    - formatting
-    - test
-    - review
-    - release-docker
-    - release-artifacts
+    # Misc settings
+    # ensure any breakpoints don't fire
+    PYTHONBREAKPOINT: 0
+    DEBIAN_FRONTEND: noninteractive
+
+stages: ['release-docker', 'release-singularity-src', 'release-upload']
+
+# CI_DEBUG
+# - build
+# - formatting
+# - test
+# - review
+# - release-docker
+# - release-singularity-src
+# - release-upload
 
 # shared settings
 .cache: &cache
@@ -52,6 +54,7 @@ stages:
     paths:
         - images/
         - dist/
+    policy: pull-push
 
 .cache-pull: &cache-pull
     <<: *cache
@@ -88,8 +91,6 @@ stages:
         - *apk-setup
         - *docker-load
     needs: ['build']
-    cache:
-        <<: *cache-pull
     tags:
         - do-small
     except:
@@ -97,7 +98,7 @@ stages:
 
 # jobs
 
-build:
+.build: # CI_DEBUG
     stage: build
     before_script:
         - *apk-setup
@@ -115,7 +116,7 @@ build:
     cache:
         <<: *cache-push
 
-start_review:
+.start_review: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review
@@ -132,7 +133,7 @@ start_review:
     except:
         - master
 
-stop_review:
+.stop_review: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -141,7 +142,7 @@ stop_review:
         <<: *revapp-env
         action: stop
 
-refresh_ip:
+.refresh_ip: # CI_DEBUG
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -155,13 +156,13 @@ refresh_ip:
 
 ###
 
-check_formatting:
+.check_formatting: # CI_DEBUG
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-e2e:
+.e2e: # CI_DEBUG
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -175,60 +176,63 @@ e2e:
     cache:
         <<: *cache-pull
 
-api:
+.api: # CI_DEBUG
     extends: .common-test
     script:
         - make test-api
 
-api_migration:
+.api_migration: # CI_DEBUG
     extends: .common-test
     script:
         - make test-api-migration
 
-js:
+.js: # CI_DEBUG
     extends: .common-test
     script:
         - make test-js
 
-python:
+.python: # CI_DEBUG
     extends: .common-test
     script:
         - make test-python
 
-cli:
+.cli: # CI_DEBUG
     extends: .common-test
     script:
         - make test-cli
 
-report:
+.report: # CI_DEBUG
     extends: .common-test
     script:
         - make test-report
 
 release_docker:
-    stage: release-docker-src
+    stage: release-docker
     before_script:
         - *apk-setup
         - *docker-login
     script:
         - make ci-release-docker
     only:
+        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
 
 release_src:
-    stage: release-docker-src
+    stage: release-singularity-src
     before_script:
         - *apk-setup
     script:
         - make ci-release-src
+    only:
+        - branches # CI_DEBUG
+        - tags
     artifacts:
         paths:
-            - ella-release-*-dist.tgz
-        when: on_success
-    only:
-        - tags
+            - dist/ella-release-*-dist.tgz
+        name: src-$CI_COMMIT_REF_NAME
+        expire_in: 1 week
     tags:
         - do-small
 
@@ -236,30 +240,33 @@ release_singularity:
     image:
         name: $SID_SLUG
         entrypoint: ['']
-    stage: release-singularity
+    stage: release-singularity-src
     dependencies: ['release_docker']
     before_script:
         - *apk-setup
     script:
         - make ci-release-singularity
+    only:
+        - branches # CI_DEBUG
+        - tags
     artifacts:
         paths:
-            - $SIF_RELEASE
-        when: on_success
-    only:
-        - tags
+            - '**/*.sif'
+        name: singularity-$CI_COMMIT_REF_NAME
+        expire_in: 1 week
     tags:
         - do-large
 
 release_upload:
     stage: release-upload
     image: $AWSCLI_IMAGE
+    dependencies: ['release_src', 'release_singularity']
     before_script:
         - *apt-setup
     script:
         - make ci-release-upload
-    dependencies: ['release_src', 'release_singularity']
     only:
+        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
