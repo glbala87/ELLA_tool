@@ -38,15 +38,13 @@ variables:
     # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
     AWSCLI_IMAGE: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base@sha256:654cb6d3ba01f9753a4a3f20d6c39fb0b9c111d080bb6f90606cec284b4be7e9
 
-stages: ['release-docker-src', 'release-singularity', 'release-upload']
-
-# CI_DEBUG:
-# - build
-# - formatting
-# - test
-# - review
-# - release-docker
-# - release-artifacts
+stages:
+    - build
+    - formatting
+    - test
+    - review
+    - release-docker
+    - release-artifacts
 
 # shared settings
 .cache: &cache
@@ -99,7 +97,7 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
 
 # jobs
 
-.build: # CI_DEBUG
+build:
     stage: build
     before_script:
         - *apk-setup
@@ -117,7 +115,7 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
     cache:
         <<: *cache-push
 
-.start_review: # CI_DEBUG
+start_review:
     extends: .revapp
     script:
         - make gitlab-review
@@ -134,7 +132,7 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
     except:
         - master
 
-.stop_review: # CI_DEBUG
+stop_review:
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -143,7 +141,7 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
         <<: *revapp-env
         action: stop
 
-.refresh_ip: # CI_DEBUG
+refresh_ip:
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -157,13 +155,13 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
 
 ###
 
-.check_formatting: # CI_DEBUG
+check_formatting:
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-.e2e: # CI_DEBUG
+e2e:
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -177,32 +175,32 @@ stages: ['release-docker-src', 'release-singularity', 'release-upload']
     cache:
         <<: *cache-pull
 
-.api: # CI_DEBUG
+api:
     extends: .common-test
     script:
         - make test-api
 
-.api_migration: # CI_DEBUG
+api_migration:
     extends: .common-test
     script:
         - make test-api-migration
 
-.js: # CI_DEBUG
+js:
     extends: .common-test
     script:
         - make test-js
 
-.python: # CI_DEBUG
+python:
     extends: .common-test
     script:
         - make test-python
 
-.cli: # CI_DEBUG
+cli:
     extends: .common-test
     script:
         - make test-cli
 
-.report: # CI_DEBUG
+report:
     extends: .common-test
     script:
         - make test-report
@@ -215,7 +213,6 @@ release_docker:
     script:
         - make ci-release-docker
     only:
-        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
@@ -231,7 +228,6 @@ release_src:
             - ella-release-*-dist.tgz
         when: on_success
     only:
-        - branches # CI_DEBUG
         - tags
     tags:
         - do-small
@@ -251,7 +247,6 @@ release_singularity:
             - $SIF_RELEASE
         when: on_success
     only:
-        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
@@ -265,7 +260,6 @@ release_upload:
         - make ci-release-upload
     dependencies: ['release_src', 'release_singularity']
     only:
-        - branches # CI_DEBUG
         - tags
     tags:
         - do-large
