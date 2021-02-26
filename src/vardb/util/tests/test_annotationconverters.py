@@ -13,7 +13,6 @@ def test_get_pubmeds_HGMD():
     data = {"HGMD__pmid": 1, "HGMD__extrarefs": "2|||||||||||,3|||||||||||"}
 
     pubmeds = annotationconverters.ConvertReferences().process(data, meta)
-    pubmeds = annotationconverters.ConvertReferences().process(data)
     assert pubmeds[0] == {
         "pubmed_id": 1,
         "source": "HGMD",
