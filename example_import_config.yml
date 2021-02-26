@@ -1,17 +1,20 @@
 converters:
-    - converter: vep
+    - name: vep
       converter_config:
-          source: CSQ
-          target: transcripts
+          elements:
+              - source: CSQ
+                target: transcripts
 
-    # - converter: clinvar
-    #   converter_config:
-    #       source: CLINVARJSON
-    #   target: external.CLINVAR
-
-    - converter: keyvalue
+    - name: json
       converter_config:
-          sources:
+          elements:
+              - source: CLINVARJSON
+                target: external.CLINVAR
+                encoding: base16
+
+    - name: keyvalue
+      converter_config:
+          elements:
               - source: GNOMAD_EXOMES__AC
                 target: frequencies.GNOMAD_EXOMES.count.G
                 target_type: int
@@ -152,11 +155,11 @@ converters:
               - source: GNOMAD_EXOMES__AS_FilterStatus
                 target: frequencies.GNOMAD_EXOMES.filter.G
                 target_type: string
-                split: "|"
+                split: '|'
 
-    - converter: keyvalue
+    - name: keyvalue
       converter_config:
-          sources:
+          elements:
               - source: GNOMAD_GENOMES__AC
                 target: frequencies.GNOMAD_GENOMES.count.G
                 target_type: int
@@ -297,4 +300,33 @@ converters:
               - source: GNOMAD_GENOMES__AS_FilterStatus
                 target: frequencies.GNOMAD_GENOMES.filter.G
                 target_type: string
-                split: "|"
+                split: '|'
+    - name: hgmdprimaryreport
+      converter_config:
+          elements:
+              - source: HGMD__pmid
+                additional_sources:
+                    - HGMD__comments
+                target: references
+                target_mode: extend
+    - name: hgmdextrarefs
+      converter_config:
+          elements:
+              - source: HGMD__extrarefs
+                target: references
+                target_mode: extend
+    - name: clinvarreferences
+      converter_config:
+          elements:
+              - source: CLINVARJSON
+                target: references
+                target_mode: extend
+    - name: hgmd
+      converter_config:
+          elements:
+              - source: HGMD__acc_num
+                additional_sources:
+                    - HGMD__codon
+                    - HGMD__disease
+                    - HGMD__tag
+                target: external.HGMD

@@ -1,6 +1,4 @@
-from typing import Dict, Any
-import json
-import base64
+from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter
 
 import logging
 
@@ -15,66 +13,39 @@ TYPE_CONVERTERS = {
 }
 
 
-class KeyValueConverter:
-    def __init__(self, config):
-        self.config = config
+class KeyValueConverter(AnnotationConverter):
+    def __call__(self, value, **kwargs):
+        target_type = self.element_config["target_type"]
+        target_type_throw = self.element_config.get("target_type_throw", True)
+        split_operator = self.element_config.get("split")
 
-    def insert_at_path(self, obj: Dict[str, Any], path: str, item: Any) -> Any:
-        if path == ".":
-            return obj
-        parts = path.split(".")
-        next_obj = obj
-        while parts and next_obj != item:
-            p = parts.pop(0)
-            if p not in next_obj:
-                next_obj[p] = {} if parts else item
-            next_obj = next_obj[p]
+        # Workaround vcfiterator parsing Number=A as list (we always work on single allelic data)
+        if isinstance(value, list) and len(value) == 1:
+            value = value[0]
 
-    def convert(self, annotation, annotations):
+        if target_type not in TYPE_CONVERTERS:
+            raise RuntimeError(
+                f"Invalid target type: {target_type}. Available types are: {sorted(TYPE_CONVERTERS.keys())}"
+            )
 
-        for source_config in self.config["sources"]:
-            source = source_config["source"]
-            target = source_config["target"]
-            required = source_config.get("required", False)
-            target_type = source_config["target_type"]
-            target_type_throw = source_config.get("target_type_throw", True)
-            split_operator = source_config.get("split")
-
-            if source not in annotation:
-                if required:
-                    raise RuntimeError(f"Missing required source field in annotation: {source}")
-                else:
-                    continue
-
-            source_data_raw = annotation[source]
-
-            # Workaround vcfiterator parsing Number=A as list (we always work on single allelic data)
-            if isinstance(source_data_raw, list) and len(source_data_raw) == 1:
-                source_data_raw = source_data_raw[0]
-
-            if target_type not in TYPE_CONVERTERS:
+        try:
+            source_data = TYPE_CONVERTERS[target_type](value)
+        except ValueError:
+            if target_type_throw:
                 raise RuntimeError(
-                    f"Invalid target type: {target_type}. Available types are: {sorted(TYPE_CONVERTERS.keys())}"
+                    f"Couldn't convert source data {value} ({type(value)}) to target type {target_type}"
                 )
+            else:
+                log.warning(
+                    f"Couldn't convert source data {value} ({type(value)}) to target type {target_type}. target_type_throw is configured as False, continuing..."
+                )
+                return
 
-            try:
-                source_data = TYPE_CONVERTERS[target_type](source_data_raw)
-            except ValueError:
-                if target_type_throw:
-                    raise RuntimeError(
-                        f"Couldn't convert source data {source_data_raw} ({type(source_data_raw)}) to target type {target_type}"
-                    )
-                else:
-                    log.warning(
-                        f"Couldn't convert source data {source_data_raw} ({type(source_data_raw)}) to target type {target_type}. target_type_throw is configured as False, continuing..."
-                    )
-                    continue
+        if split_operator:
+            if not isinstance(source_data, str):
+                raise RuntimeError(f"Cannot split source data type: {type(source_data)}")
+            if not isinstance(split_operator, str):
+                raise RuntimeError(f"Invalid type for split delimiter: {type(split_operator)}")
+            source_data = source_data.split(split_operator)
 
-            if split_operator:
-                if not isinstance(source_data, str):
-                    raise RuntimeError(f"Cannot split source data type: {type(source_data)}")
-                if not isinstance(split_operator, str):
-                    raise RuntimeError(f"Invalid type for split delimiter: {type(split_operator)}")
-                source_data = source_data.split(split_operator)
-
-            self.insert_at_path(annotations, target, source_data)
+        return source_data

@@ -22,7 +22,7 @@ from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow
 from vardb.datamodel import annotation as annm
 from vardb.datamodel.user import User
 
-from vardb.deposit.annotationconverters import VEPConverter, JSONConverter, KeyValueConverter
+from vardb.deposit.annotationconverters import ANNOTATION_CONVERTERS
 
 log = logging.getLogger(__name__)
 
@@ -34,8 +34,6 @@ class Noop:
     def convert(self, annotation, annotations):
         ...
 
-
-ANNOTATION_CONVERTERS = {"vep": VEPConverter, "json": JSONConverter, "keyvalue": KeyValueConverter}
 
 ASSESSMENT_CLASS_FIELD = "CLASS"
 ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"
@@ -801,62 +799,136 @@ class AssessmentImporter(object):
         return results
 
 
+# T = defaultdict(float)
+# from vardb.util.old_annotationconverters import ConvertCSQ
+
+# vep_converter = ConvertCSQ()
+
+
 class AnnotationImporter(object):
-    def __init__(self, session):
+    def __init__(self, session, import_config=None):
         self.session = session
         self.batch_items = list()
-        self.converters = self._create_converters()
+        if not import_config:
+            if "ELLA_IMPORT_CONFIG" not in os.environ:
+                raise RuntimeError("Missing required env: ELLA_IMPORT_CONFIG")
+            with open(os.environ["ELLA_IMPORT_CONFIG"]) as f:
+                import_config = yaml.safe_load(f)
+        self.import_config = import_config
+        self._converters = {}
 
-    def _create_converters(self):
-        if "ELLA_IMPORT_CONFIG" not in os.environ:
-            raise RuntimeError("Missing required env: ELLA_IMPORT_CONFIG")
-        with open(os.environ["ELLA_IMPORT_CONFIG"]) as f:
-            import_config = yaml.safe_load(f)
-        converters = []
-        for converter in import_config["converters"]:
-            converters.append(
-                ANNOTATION_CONVERTERS[converter["converter"]](converter["converter_config"])
-            )
+    def reset(self):
+        self._converters = {}
 
-        return converters
+    def _get_or_create_converters(self, source, vcf_meta):
+        if source not in self._converters:
+            self._converters[source] = []
+            for converter in self.import_config["converters"]:
+                for element_config in converter["converter_config"]["elements"]:
+                    if element_config["source"] != source:
+                        continue
+                    element_config = dict(element_config)
+                    meta = next(
+                        (x for x in vcf_meta.get("INFO", []) if x.get("ID") == source), None
+                    )
+                    converter = ANNOTATION_CONVERTERS[converter["name"]](meta, element_config)
+                    converter.setup()
+                    self._converters[source].append(converter)
+
+        return self._converters[source]
 
     def _extract_annotation_from_record(self, record, allele):
         """Given a record, return dict with annotation to be stored in db."""
-        # Deep merge 'ALL' annotation and allele specific annotation
         merged_annotation = record.annotation()
 
+        def _traverse_path(obj, path):
+            if path == ".":
+                return obj
+            parts = path.split(".")
+            next_obj = obj
+            while parts:
+                p = parts.pop(0)
+                if parts:
+                    # Leaf node
+                    if p not in next_obj:
+                        next_obj[p] = {}
+                    next_obj = next_obj[p]
+                else:
+                    return p, next_obj
+
+        def insert_at_path(obj, path, item):
+            leaf, obj = _traverse_path(obj, path)
+            assert leaf not in obj
+            obj[leaf] = item
+
+        def extend_at_path(obj, path, items):
+            leaf, obj = _traverse_path(obj, path)
+            if leaf not in obj:
+                obj[leaf] = items
+            else:
+                assert isinstance(obj[leaf], list)
+                obj[leaf].extend(items)
+
+        def append_at_path(obj, path, item):
+            leaf, obj = _traverse_path(obj, path)
+            if leaf not in obj:
+                obj[leaf] = [item]
+            else:
+                assert isinstance(obj[leaf], list)
+                obj[leaf].append(item)
+
+        def merge_at_path(obj, path, item):
+            leaf, obj = _traverse_path(obj, path)
+            if leaf not in obj:
+                obj[leaf] = item
+            else:
+                assert isinstance(obj[leaf], dict)
+                obj[leaf] = {**obj[leaf], **item}
+
         annotations = {}
-        for converter in self.converters:
-            converter.convert(merged_annotation, annotations)
-        # Convert the mess of input annotation into database annotation format
-        # frequencies = dict()
-        # frequencies.update(annotationconverters.exac_frequencies(merged_annotation))
-        # frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
-        # frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
-        # frequencies.update(annotationconverters.csq_frequencies(merged_annotation))
-        # frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
-        #
-        # transcripts = self.csq_converter(merged_annotation)
-        #
-        # external = dict()
-        ## FIXME: external.update(annotationconverters.convert_hgmd(merged_annotation))
-        # external.update(annotationconverters.convert_clinvar(merged_annotation))
+        for source, value in merged_annotation.items():
+            converters = self._get_or_create_converters(source, record.meta)
+            for converter in converters:
+                element_config = converter.element_config
+                additional_sources = element_config.get("additional_sources")
+                if additional_sources:
+                    additional_values = {k: merged_annotation[k] for k in additional_sources}
+                else:
+                    additional_values = None
 
-        # references = annotationconverters.ConvertReferences().process(merged_annotation)
+                try:
+                    processed_value = converter(value, additional_values=additional_values)
+                except:
+                    print(f"Conversion failed: {element_config}, {converter.__class__}")
+                    raise
 
-        # annotations = {
-        #    "frequencies": frequencies,
-        #    "external": external,
-        #    "prediction": {},
-        #    "transcripts": sorted(transcripts, key=lambda x: x["transcript"]),
-        #    "references": references,
-        # }
-        # print(annotations)
-        print(len(annotations))
+                # if source == "CSQ":
+
+                #     processed_value2 = vep_converter(value, converter.meta)
+                #     if processed_value != processed_value2:
+                #         breakpoint()
+
+                target = element_config["target"]
+                target_mode = element_config.get("target_mode", "insert")
+                if target_mode == "insert":
+                    insert_at_path(annotations, target, processed_value)
+                elif target_mode == "extend":
+                    extend_at_path(annotations, target, processed_value)
+                elif target_mode == "append":
+                    append_at_path(annotations, target, processed_value)
+                elif target_mode == "merge":
+                    merge_at_path(annotations, target, processed_value)
+                else:
+                    raise RuntimeError(f"Unknown target mode: {target_mode}")
+
+        for converter in self.import_config["converters"]:
+            for element_config in converter["converter_config"]["elements"]:
+                if source not in merged_annotation and element_config.get("required"):
+                    raise RuntimeError(f"Missing required source field in annotation: {source}")
+
         return annotations
 
     def add(self, record, allele_id):
-
         allele = record.variant.ALT[0]
 
         annotation_data = self._extract_annotation_from_record(record, allele)

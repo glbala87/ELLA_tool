@@ -5,19 +5,42 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "http://example.com/root.json",
     "type": "object",
-    "required": ["transcripts"],
-    "additionalProperties": true,
+    "optional": ["external", "frequencies", "references", "prediction", "transcripts"],
+    "additionalProperties": false,
     "properties": {
+        "external": {
+            "type": "object",
+            "optional": ["CLINVAR", "HGMD"],
+            "additionalProperties": false,
+            "properties": {
+                "CLINVAR": {
+                    "$ref": "annotation/clinvar_v1.json"
+                },
+                "HGMD": {
+                    "$ref": "annotation/hgmd_v1.json"
+                }
+            }
+        },
         "transcripts": {
             "$ref": "annotation/transcripts_v1.json"
         },
+        "references": {
+            "$ref": "annotation/references_v1.json"
+        },
         "frequencies": {
-            "patternProperties": {
-                "[a-zA-Z]+": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "GNOMAD_EXOMES": {
+                    "$ref": "annotation/frequencies_v1.json"
+                },
+                "GNOMAD_GENOMES": {
+                    "$ref": "annotation/frequencies_v1.json"
+                },
+                "inDB": {
                     "$ref": "annotation/frequencies_v1.json"
                 }
-            },
-            "additionalProperties": false
+            }
         }
     }
 }
