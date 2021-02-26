@@ -37,23 +37,20 @@ variables:
     PYTHONBREAKPOINT: 0
     DEBIAN_FRONTEND: noninteractive
 
-stages: ['release-docker', 'release-singularity-src', 'release-upload']
-
-# CI_DEBUG
-# - build
-# - formatting
-# - test
-# - review
-# - release-docker
-# - release-singularity-src
-# - release-upload
+stages:
+    - build
+    - formatting
+    - test
+    - review
+    - release-docker
+    - release-singularity-src
+    - release-upload
 
 # shared settings
 .cache: &cache
     key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
     paths:
         - images/
-        - dist/
     policy: pull-push
 
 .cache-pull: &cache-pull
@@ -69,7 +66,7 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
 
 # before_script actions
 .apk-setup: &apk-setup apk update && apk add -u make git bash
-.apt-setup: &apt-setup apt update && apt install --upgrade git make -y
+.apt-setup: &apt-setup apt-get update -qq && apt-get install -qq --no-install-recommends git make
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
 
@@ -91,6 +88,8 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
         - *apk-setup
         - *docker-load
     needs: ['build']
+    cache:
+        <<: *cache-pull
     tags:
         - do-small
     except:
@@ -98,7 +97,7 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
 
 # jobs
 
-.build: # CI_DEBUG
+build:
     stage: build
     before_script:
         - *apk-setup
@@ -116,7 +115,7 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
     cache:
         <<: *cache-push
 
-.start_review: # CI_DEBUG
+start_review:
     extends: .revapp
     script:
         - make gitlab-review
@@ -133,7 +132,7 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
     except:
         - master
 
-.stop_review: # CI_DEBUG
+stop_review:
     extends: .revapp
     script:
         - make gitlab-review-stop
@@ -142,7 +141,7 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
         <<: *revapp-env
         action: stop
 
-.refresh_ip: # CI_DEBUG
+refresh_ip:
     extends: .revapp
     script:
         - make gitlab-review-refresh-ip
@@ -156,13 +155,13 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
 
 ###
 
-.check_formatting: # CI_DEBUG
+check_formatting:
     extends: .common-test
     stage: formatting
     script:
         - make test-formatting
 
-.e2e: # CI_DEBUG
+e2e:
     extends: .common-test
     script:
         - PARALLEL_INSTANCES=2 make test-e2e
@@ -173,35 +172,33 @@ stages: ['release-docker', 'release-singularity-src', 'release-upload']
         name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks
-    cache:
-        <<: *cache-pull
 
-.api: # CI_DEBUG
+api:
     extends: .common-test
     script:
         - make test-api
 
-.api_migration: # CI_DEBUG
+api_migration:
     extends: .common-test
     script:
         - make test-api-migration
 
-.js: # CI_DEBUG
+js:
     extends: .common-test
     script:
         - make test-js
 
-.python: # CI_DEBUG
+python:
     extends: .common-test
     script:
         - make test-python
 
-.cli: # CI_DEBUG
+cli:
     extends: .common-test
     script:
         - make test-cli
 
-.report: # CI_DEBUG
+report:
     extends: .common-test
     script:
         - make test-report
