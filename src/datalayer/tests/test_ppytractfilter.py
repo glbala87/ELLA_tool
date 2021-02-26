@@ -6,7 +6,7 @@ import pytest
 
 from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 from vardb.datamodel import gene
-from conftest import create_allele
+from conftest import mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -132,12 +132,10 @@ class TestPolypyrimidineTractFilter(object):
         """
         session.rollback()
         chromosome, vcf_position, vcf_ref, vcf_alt = positions
-        al = create_allele(
-            {"CHROM": chromosome, "POS": vcf_position, "REF": vcf_ref, "ALT": [vcf_alt]}
+        al = mock_allele(
+            session,
+            vcf_data={"CHROM": chromosome, "POS": vcf_position, "REF": vcf_ref, "ALT": vcf_alt},
         )
-        session.add(al)
-
-        session.flush()
 
         ppy_tract_region = [-20, -3]
         filter_config = {"ppy_tract_region": ppy_tract_region}

@@ -2,6 +2,7 @@ import vardb.deposit.importers as deposit
 import hypothesis as ht
 import hypothesis.strategies as st
 from os.path import commonprefix
+from conftest import mock_record
 
 
 @st.composite
@@ -107,18 +108,7 @@ def sequence(draw):
 def test_allele_from_record(session, positions, manually_curated_result):
 
     chrom, pos, ref, alt = positions
-
-    record = {
-        "ALT": [alt],
-        "CHROM": chrom,
-        "POS": pos,
-        "REF": ref,
-        "FILTER": ".",
-        "ID": "H186",
-        "INFO": {},
-        "QUAL": ".",
-        "SAMPLES": {"H01": {"GT": "0/1"}},
-    }
+    record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
 
     al = deposit.build_allele_from_record(record, ref_genome="GRCh37")
     if manually_curated_result:
@@ -209,17 +199,7 @@ def test_equivalent_vcf_representations(standard, padding):
     items = []
     for position in positions:
         chrom, pos, ref, alt = position
-        record = {
-            "ALT": [alt],
-            "CHROM": chrom,
-            "POS": pos,
-            "REF": ref,
-            "FILTER": ".",
-            "ID": "H186",
-            "INFO": {},
-            "QUAL": ".",
-            "SAMPLES": {"H01": {"GT": "0/1"}},
-        }
+        record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
         item = deposit.build_allele_from_record(record, ref_genome="dabla")
         item.pop("vcf_pos")
         item.pop("vcf_ref")

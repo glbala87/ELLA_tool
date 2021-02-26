@@ -9,7 +9,7 @@ import hypothesis.strategies as st
 
 from datalayer.allelefilter.genefilter import GeneFilter
 from vardb.datamodel import gene
-from conftest import create_allele_with_annotation
+from conftest import mock_allele_with_annotation
 
 
 def create_genepanel(hgnc_ids_transcripts):
@@ -148,7 +148,7 @@ class TestGeneFilter(object):
         allele_ids = []
         allele_id_genes = {}
         for ann in annotations:
-            al, an = create_allele_with_annotation(session, ann)
+            al, an = mock_allele_with_annotation(session, annotations=ann)
 
             session.flush()
             allele_ids.append(al.id)

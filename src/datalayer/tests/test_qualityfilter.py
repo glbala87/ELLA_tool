@@ -1,7 +1,7 @@
 import re
 from datalayer.allelefilter.qualityfilter import QualityFilter
 from vardb.datamodel import sample, genotype
-from conftest import create_allele
+from conftest import mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -35,9 +35,7 @@ def add_data(session, gt_data):
         return sample_ids[idx]
 
     for allele_gts in gt_data:
-        al = create_allele()
-        session.add(al)
-        session.flush()
+        al = mock_allele(session)
         allele_genotype_data[al.id] = []
 
         for i, data in enumerate(allele_gts):

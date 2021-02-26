@@ -5,7 +5,7 @@ and that they are populated correctly.
 import pytest
 
 from vardb.datamodel import annotationshadow
-from conftest import create_allele_with_annotation
+from conftest import mock_allele_with_annotation
 
 
 GLOBAL_CONFIG = {
@@ -85,7 +85,7 @@ def test_annotationshadowcreate(session):
             }
         ],
     }
-    a1, an1 = create_allele_with_annotation(session, a1_annotation)
+    a1, an1 = mock_allele_with_annotation(session, annotations=a1_annotation)
 
     session.add(a1)
     session.commit()
@@ -144,7 +144,7 @@ def test_annotationshadowcreate(session):
         ]
     }
 
-    a2, an2 = create_allele_with_annotation(session, a2_annotation)
+    a2, an2 = mock_allele_with_annotation(session, annotations=a2_annotation)
 
     session.add(a2)
     session.commit()
@@ -194,7 +194,7 @@ def test_annotationshadowcreate(session):
     # No transcripts -> no rows in AnnotationShadowTranscripts
     a3_annotation = {"transcripts": []}
 
-    a3, an3 = create_allele_with_annotation(session, a3_annotation)
+    a3, an3 = mock_allele_with_annotation(session, annotations=a3_annotation)
 
     session.add(a3)
     session.commit()

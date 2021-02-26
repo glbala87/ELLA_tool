@@ -15,13 +15,7 @@ import sqlalchemy.orm.exc
 
 from vardb.datamodel import gene, DB
 from vardb.util import vcfiterator
-from vardb.deposit.importers import (
-    AnnotationImporter,
-    AssessmentImporter,
-    AlleleImporter,
-    HGMDInfoProcessor,
-    SplitToDictInfoProcessor,
-)
+from vardb.deposit.importers import AnnotationImporter, AssessmentImporter, AlleleImporter
 
 log = logging.getLogger(__name__)
 
@@ -69,12 +63,10 @@ class DepositAssessments(object):
     ):
 
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
-        vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
         self.get_genepanel(genepanel_name, genepanel_version)
 
-        for record in vi.iter():
+        for record in iter(vi):
             # Import alleles for this record (regardless if it's in our specified sample set or not)
             self.allele_importer.add(record)
             alleles = self.allele_importer.process()

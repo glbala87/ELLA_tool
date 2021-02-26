@@ -1,10 +1,7 @@
 import operator
-import datetime
-import pytz
 from datalayer.allelefilter.externalfilter import ExternalFilter, CLINVAR_CLINSIG_GROUPS
 from api.config.config import config
-from vardb.datamodel import annotation
-from conftest import create_annotation
+from conftest import mock_allele_with_annotation
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -19,7 +16,7 @@ OPERATORS = {
 
 
 def create_external_annotation(
-    draw, allele_id, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
+    draw, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
 ):
     external_annotation = {}
 
@@ -94,37 +91,26 @@ def create_external_annotation(
         item.update({"rcv": "SCVXXXXXXXX", "clinical_significance_descr": "something"})
         external_annotation["CLINVAR"]["items"].append(item)
 
-    return create_annotation({"external": external_annotation}, allele_id=allele_id)
+    return {"external": external_annotation}
 
 
 @st.composite
-def annotations(draw):
-    ann = []
-    annotation_objs = []
-    for i in range(1, 10):
-        num_benign = draw(st.integers(min_value=0, max_value=5))
-        num_uncertain = draw(st.integers(min_value=0, max_value=5))
-        num_pathogenic = draw(st.integers(min_value=0, max_value=5))
-        num_stars = draw(st.integers(min_value=0, max_value=4))
-        hgmd_tag = draw(st.sampled_from([None, "FP", "DM", "DFP", "R", "DP", "DM?"]))
+def external_annotation(draw):
+    num_benign = draw(st.integers(min_value=0, max_value=5))
+    num_uncertain = draw(st.integers(min_value=0, max_value=5))
+    num_pathogenic = draw(st.integers(min_value=0, max_value=5))
+    num_stars = draw(st.integers(min_value=0, max_value=4))
+    hgmd_tag = draw(st.sampled_from([None, "FP", "DM", "DFP", "R", "DP", "DM?"]))
 
-        ann.append(
-            {
-                "allele_id": i,
-                "num_benign": num_benign,
-                "num_uncertain": num_uncertain,
-                "num_pathogenic": num_pathogenic,
-                "num_stars": num_stars,
-                "hgmd_tag": hgmd_tag,
-            }
-        )
-        annotation_objs.append(
-            create_external_annotation(
-                draw, i, num_stars, num_benign, num_uncertain, num_pathogenic, hgmd_tag
-            )
-        )
-
-    return ann, annotation_objs
+    meta_external_annotation = {
+        "num_benign": num_benign,
+        "num_uncertain": num_uncertain,
+        "num_pathogenic": num_pathogenic,
+        "num_stars": num_stars,
+        "hgmd_tag": hgmd_tag,
+    }
+    external_annotation = create_external_annotation(draw, **meta_external_annotation)
+    return meta_external_annotation, external_annotation
 
 
 @st.composite
@@ -156,7 +142,7 @@ def hgmd_strategy(draw):
 
 
 @ht.given(
-    st.one_of(annotations()),
+    st.lists(external_annotation(), min_size=1, max_size=15),
     st.lists(clinvar_strategy(), max_size=3),
     st.one_of(clinvar_stars()),
     st.one_of(st.booleans()),
@@ -166,27 +152,19 @@ def hgmd_strategy(draw):
 @ht.settings(deadline=3000)
 def test_externalfilter(
     session,
-    annotations,
+    external_annotations,
     clinvar_strategy,
     clinvar_stars,
     clinvar_inverse,
     hgmd_strategy,
     hgmd_inverse,
 ):
-    session.rollback()
-    anno_dicts, annotation_objs = annotations
-
-    for obj in annotation_objs:
-        existing = (
-            session.query(annotation.Annotation)
-            .filter(annotation.Annotation.allele_id == obj.allele_id)
-            .one()
-        )
-        existing.date_superceeded = datetime.datetime.now(pytz.utc)
-        obj.previous_annotation_id = existing.id
-
-        session.add(obj)
-    session.flush()
+    allele_ids_annotations = []
+    allele_ids = []
+    for (meta_annotation, annotation) in external_annotations:
+        al, _ = mock_allele_with_annotation(session, annotations=annotation)
+        allele_ids_annotations.append((al.id, meta_annotation))
+        allele_ids.append(al.id)
 
     filter_config = {}
     if clinvar_strategy or clinvar_stars:
@@ -203,24 +181,22 @@ def test_externalfilter(
         if hgmd_inverse:
             filter_config["hgmd"]["inverse"] = hgmd_inverse
 
-    allele_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     testdata = {"key": allele_ids}
 
     # Compute clinvar result
     if clinvar_stars or clinvar_strategy:
         clinvar_result = []
-        for ann in anno_dicts:
-            allele_id = ann["allele_id"]
+        for allele_id, meta_annotation in allele_ids_annotations:
             if clinvar_stars:
                 op, count = clinvar_stars
-                if not OPERATORS[op](ann["num_stars"], count):
+                if not OPERATORS[op](meta_annotation["num_stars"], count):
                     continue
 
             flag = False
             for c in clinvar_strategy:
                 ca, op, cb = c
-                ca = ann.get("num_" + str(ca), ca)
-                cb = ann.get("num_" + str(cb), cb)
+                ca = meta_annotation.get("num_" + str(ca), ca)
+                cb = meta_annotation.get("num_" + str(cb), cb)
                 if not OPERATORS[op](ca, cb):
                     flag = True
                     break
@@ -236,9 +212,8 @@ def test_externalfilter(
 
     if hgmd_strategy:
         hgmd_result = []
-        for ann in anno_dicts:
-            allele_id = ann["allele_id"]
-            if not ann["hgmd_tag"] in hgmd_strategy:
+        for allele_id, meta_annotation in allele_ids_annotations:
+            if not meta_annotation["hgmd_tag"] in hgmd_strategy:
                 continue
             hgmd_result.append(allele_id)
 

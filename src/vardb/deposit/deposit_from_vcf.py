@@ -62,8 +62,8 @@ class DepositFromVCF(object):
         raise RuntimeError("import_vcf must be overloaded in subclass")
 
     def is_inside_transcripts(self, record, genepanel):
-        chr = record["CHROM"]
-        pos = record["POS"] - 1  # We use zero-based transcripts
+        chr = record.variant.CHROM
+        pos = record.variant.POS - 1  # We use zero-based transcripts
         for tx in genepanel.transcripts:
             if chr == tx.chromosome and (tx.tx_start <= pos <= tx.tx_end):
                 return True

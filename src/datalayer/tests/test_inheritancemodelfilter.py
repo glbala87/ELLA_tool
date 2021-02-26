@@ -8,7 +8,7 @@ import pytest
 
 from datalayer.allelefilter.inheritancemodelfilter import InheritanceModelFilter
 from vardb.datamodel import gene, annotationshadow, sample, genotype
-from conftest import create_allele_with_annotation
+from conftest import mock_allele_with_annotation
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -163,7 +163,7 @@ def setup_fixtures(session, data):
                     "transcript": "NM_DUMMY",
                 }
             )
-        al, _ = create_allele_with_annotation(session, {"transcripts": transcripts})
+        al, _ = mock_allele_with_annotation(session, annotations={"transcripts": transcripts})
         session.flush()
         gt = genotype.Genotype(allele_id=al.id, sample_id=test_sample.id)
 

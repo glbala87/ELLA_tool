@@ -10,7 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 
 from vardb.util import vcfiterator
-from vardb.deposit.importers import batch_generator, HGMDInfoProcessor, SplitToDictInfoProcessor
+from vardb.deposit.importers import batch_generator
 
 from .deposit_from_vcf import DepositFromVCF
 
@@ -22,13 +22,11 @@ BATCH_SIZE = 1000
 class DepositAlleles(DepositFromVCF):
     def import_vcf(self, path, gp_name=None, gp_version=None, annotation_only=False):
         vi = vcfiterator.VcfIterator(path)
-        vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
-        vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
         if gp_name and gp_version:
             db_genepanel = self.get_genepanel(gp_name, gp_version)
 
-        for batch_records in batch_generator(vi.iter, BATCH_SIZE):
+        for batch_records in batch_generator(iter(vi), BATCH_SIZE):
 
             if not annotation_only:
                 is_not_inside_transcripts = []
@@ -42,11 +40,11 @@ class DepositAlleles(DepositFromVCF):
                     )
                     for record in is_not_inside_transcripts:
                         error += "%s\t%s\t%s\t%s\t%s\n" % (
-                            record["CHROM"],
-                            record["POS"],
-                            record["ID"],
-                            record["REF"],
-                            ",".join(record["ALT"]),
+                            record.variant.CHROM,
+                            record.variant.POS,
+                            record.variant.ID,
+                            record.variant.REF,
+                            ",".join(record.variant.ALT),
                         )
                     raise RuntimeError(error)
 
