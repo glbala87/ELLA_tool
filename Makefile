@@ -328,6 +328,12 @@ update-pipfile:
 		$(IMAGE_NAME) \
 		pipenv lock
 
+update-yarn:
+	docker run \
+		-v $(shell pwd):/ella \
+		$(IMAGE_NAME) \
+		yarn install
+
 
 #---------------------------------------------
 # TESTING (unit / modules)
