@@ -1,4 +1,4 @@
-from datalayer.alleledataloader.annotationprocessor import TranscriptAnnotation, AnnotationProcessor
+from datalayer.alleledataloader.annotationprocessor import TranscriptAnnotation
 
 
 def test_get_worse_consequence():
@@ -61,25 +61,3 @@ def test_get_worse_consequence():
 
     c = TranscriptAnnotation(config)._get_worst_consequence(transcripts)
     assert c == ["NM_12300.3", "NM_12303.3"]
-
-
-def test_custom_annotation_references():
-
-    # Test merging references from internal and custom annotation
-
-    annotation = {"references": [{"pubmed_id": 1234, "sources": ["VEP"]}, {"pubmed_id": 4321}]}
-    custom_annotation = {
-        "references": [
-            {"pubmed_id": 9874, "sources": ["User"]},
-            {"id": 845, "sources": ["Something"]},
-            {"pubmed_id": 1234, "sources": ["User"]},  # Also in annotation
-        ]
-    }
-
-    result = AnnotationProcessor.process(annotation, custom_annotation=custom_annotation)
-    assert len(result["references"]) == 4
-    # Fetch the one in both annotations
-    in_both_ref = [r for r in result["references"] if r.get("pubmed_id") == 1234]
-    assert len(in_both_ref) == 1
-    assert "User" in in_both_ref[0]["sources"]
-    assert "VEP" in in_both_ref[0]["sources"]

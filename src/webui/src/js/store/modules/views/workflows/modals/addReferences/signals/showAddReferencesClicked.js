@@ -9,7 +9,7 @@ const userReferencesForAllele = ({ state, props }) => {
     const userReferenceIds = state
         .get(`views.workflows.interpretation.data.alleles.${alleleId}.annotation.references`)
         .filter((ref) => {
-            return ref.sources.includes('User')
+            return ref.source === 'User'
         })
         .map((ref) => {
             const loadedRef = Object.values(loadedReferences).find(

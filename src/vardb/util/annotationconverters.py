@@ -677,23 +677,14 @@ class ConvertReferences(object):
 
     def process(self, annotation, meta):
         hgmd_pubmeds = self._ensure_int_pmids(self._hgmd_pubmeds(annotation, meta))
+        references = [
+            {"pubmed_id": pmid, "source": "HGMD", "source_info": info_string}
+            for pmid, info_string in hgmd_pubmeds.items()
+        ]
         clinvar_pubmeds = self._ensure_int_pmids(self._clinvar_pubmeds(annotation))
-
-        # Merge references and restructure to list
-        all_pubmeds = list(hgmd_pubmeds.keys()) + list(clinvar_pubmeds.keys())
-        references = list()
-        for pmid in sorted(set(all_pubmeds), key=all_pubmeds.count, reverse=True):
-            sources = []
-            sourceInfo = dict()
-            if pmid in hgmd_pubmeds:
-                sources.append("HGMD")
-                if hgmd_pubmeds[pmid] != "":
-                    sourceInfo["HGMD"] = hgmd_pubmeds[pmid]
-            if pmid in clinvar_pubmeds:
-                sources.append("CLINVAR")
-                if clinvar_pubmeds[pmid] != "":
-                    sourceInfo["CLINVAR"] = clinvar_pubmeds[pmid]
-
-            references.append({"pubmed_id": pmid, "sources": sources, "source_info": sourceInfo})
+        references += [
+            {"pubmed_id": pmid, "source": "CLINVAR", "source_info": info_string}
+            for pmid, info_string in clinvar_pubmeds.items()
+        ]
 
         return references

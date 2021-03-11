@@ -15,20 +15,20 @@ def test_get_pubmeds_HGMD():
     pubmeds = annotationconverters.ConvertReferences().process(data, meta)
     assert pubmeds[0] == {
         "pubmed_id": 1,
-        "sources": ["HGMD"],
-        "source_info": {"HGMD": "Primary literature report. No comments."},
+        "source": "HGMD",
+        "source_info": "Primary literature report. No comments.",
     }
 
     assert pubmeds[1] == {
         "pubmed_id": 2,
-        "sources": ["HGMD"],
-        "source_info": {"HGMD": "Reftag not specified. No comments."},
+        "source": "HGMD",
+        "source_info": "Reftag not specified. No comments.",
     }
 
     assert pubmeds[2] == {
         "pubmed_id": 3,
-        "sources": ["HGMD"],
-        "source_info": {"HGMD": "Reftag not specified. No comments."},
+        "source": "HGMD",
+        "source_info": "Reftag not specified. No comments.",
     }
 
 
