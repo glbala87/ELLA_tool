@@ -22,17 +22,27 @@ from .deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
 
+VALID_PREFILTER_KEYS = set(
+    [
+        "non_multiallelic",
+        "hi_frequency",
+        "position_not_nearby",
+        "no_classification",
+        "low_mapping_quality",
+    ]
+)
+
 
 class PrefilterBatchGenerator:
-    def __init__(self, session, proband_sample_name, generator, prefilter=False, batch_size=2000):
+    def __init__(self, session, proband_sample_name, generator, prefilters=None, batch_size=2000):
         self.session = session
         self.proband_sample_name = proband_sample_name
-        self.prefilter = prefilter
+        self.prefilters = prefilters
         self.batch_size = batch_size
         self.generator = generator
         self.batch = list()  # Stores the batch to submit
         self.previous_record = None
-        self.previous_record_imported = True
+        self.previous_should_import_if_nearby = False
 
     def prefilter_records(self, records):
         """
@@ -82,26 +92,44 @@ class PrefilterBatchGenerator:
                 ),
                 False,
             )
-            checks = {
+
+            all_checks = {
                 "non_multiallelic": not r.is_sample_multiallelic(self.proband_sample_name),
                 "hi_frequency": float(r.variant.INFO.get("GNOMAD_GENOMES__AF", 0.0)) > 0.05
                 and int(r.variant.INFO.get("GNOMAD_GENOMES__AN", 0)) > 5000,
-                "position_not_nearby": bool(self.previous_record)
-                and not self._is_nearby(self.previous_record, r),
+                "position_not_nearby": self.previous_record is None
+                or not self._is_nearby(self.previous_record, r),
                 "no_classification": not has_classification,
+                "low_mapping_quality": float(r.variant.INFO.get("MQ", float("inf"))) < 20,
             }
 
-            # If current record is nearby previous record, we need to ensure that
-            # the previous record also is imported
-            if not checks["position_not_nearby"] and not self.previous_record_imported:
-                result_records.append(self.previous_record)
-            if not all(checks.values()):
-                result_records.append(r)
-                self.previous_record_imported = True
-            else:
-                self.previous_record_imported = False
+            # Assertion to avoid sloppy implementation of new prefilters
+            assert set(all_checks.keys()) == VALID_PREFILTER_KEYS
 
-            self.previous_record = r
+            def check_prefilters(all_checks, prefilters):
+                for prefilter in self.prefilters:
+                    prefilter_checks = {
+                        check: value for check, value in all_checks.items() if check in prefilter
+                    }
+                    if all(prefilter_checks.values()):
+                        return True
+
+            if not all_checks["position_not_nearby"] and self.previous_should_import_if_nearby:
+                result_records.append(self.previous_record)
+
+            if not check_prefilters(all_checks, self.prefilters):
+                result_records.append(r)
+
+                self.previous_record = r
+                self.previous_should_import_if_nearby = False  # Already imported
+            else:
+                # Track if this record should be imported if the next record is nearby this record
+                self.previous_record = r
+                all_checks["position_not_nearby"] = False
+                self.previous_should_import_if_nearby = not check_prefilters(
+                    all_checks, self.prefilters
+                )
+
         return result_records
 
     @staticmethod
@@ -159,7 +187,7 @@ class PrefilterBatchGenerator:
             if record.has_allele(self.proband_sample_name):
                 proband_records.append(record)
 
-        if self.prefilter:
+        if self.prefilters:
             prefiltered_records = self.prefilter_records(proband_records)
             return prefiltered_records, batch
         else:
@@ -420,19 +448,31 @@ class DepositAnalysis(DepositFromVCF):
                         deposit_usergroup_id, deposit_usergroup_config["pattern"]
                     )
                 )
-                prefilter = deposit_usergroup_config.get("prefilter")
-                log.info("Prefilter: {}".format("Yes" if prefilter else "No"))
-                if prefilter:
-                    log.info("Prefilter criterias:")
-                    log.info("    - GNOMAD_GENOMES.AF > 0.05")
-                    log.info("    - GNOMAD_GENOMES.AN > 5000")
-                    log.info("    - Nearby variants distance > 3")
-                    log.info("    - No existing classifications")
-                    log.info(
-                        "Postprocess: {}".format(
-                            ", ".join(deposit_usergroup_config.get("postprocess", []))
+                prefilters = deposit_usergroup_config.get("prefilters")
+                log.info("Prefilter: {}".format("Yes" if prefilters else "No"))
+                if prefilters:
+                    for i, prefilter in enumerate(prefilters):
+                        assert set(prefilters) - VALID_PREFILTER_KEYS == set()
+                        if i == 0:
+                            log.info("Prefilter criterias:")
+                        else:
+                            log.info("--- OR ---")
+                        if "hi_frequency" in prefilter:
+                            log.info("    - GNOMAD_GENOMES.AF > 0.05")
+                            log.info("    - GNOMAD_GENOMES.AN > 5000")
+                        if "position_not_nearby" in prefilter:
+                            log.info("    - No other variant(s) within 3bp")
+                        if "no_classification" in prefilter:
+                            log.info("    - No existing classifications")
+                        if "low_mapping_quality" in prefilter:
+                            log.info("    - MQ less than 20")
+                        log.info(
+                            "Postprocess: {}".format(
+                                ", ".join(deposit_usergroup_config.get("postprocess", []))
+                            )
                         )
-                    )
+            else:
+                prefilters = []
 
             records_count = 0
             imported_records_count = 0
@@ -440,10 +480,9 @@ class DepositAnalysis(DepositFromVCF):
             proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
             block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
 
-            prefilter = deposit_usergroup_config.get("prefilter", False)
             # batch_records are _all_ records
             for proband_only_records, batch_records in PrefilterBatchGenerator(
-                self.session, proband_sample_name, iter(vi), prefilter=prefilter
+                self.session, proband_sample_name, iter(vi), prefilters=prefilters
             ):
                 for record in proband_only_records:
                     self.allele_importer.add(record)

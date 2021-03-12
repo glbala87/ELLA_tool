@@ -127,12 +127,12 @@
                     {
                         "pattern": "^HG002-Trio.Mendeliome_v01",
                         "postprocess": [],
-                        "prefilter": true
+                        "prefilter": [["low_mapping_quality"]]
                     },
                     {
                         "pattern": ".*Ciliopati.*",
                         "postprocess": [],
-                        "prefilter": true
+                        "prefilter": [["low_mapping_quality"]]
                     }
                 ]
             },
