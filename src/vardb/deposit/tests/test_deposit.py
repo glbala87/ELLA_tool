@@ -26,7 +26,7 @@ ANALYSIS_NUM = 0
 
 
 @st.composite
-def prefilter_batch_strategy(draw, max_size=5):
+def prefilter_batch_strategy(draw, max_size=8):
     """
     Generates batches of testdata for
     testing PrefilterBatchGenerator
@@ -42,7 +42,7 @@ def prefilter_batch_strategy(draw, max_size=5):
     batch = list()
     for idx in range(batch_size):
 
-        pos_increment = draw(st.integers(NEARBY_DISTANCE - 1, NEARBY_DISTANCE + 10))
+        pos_increment = draw(st.integers(1, NEARBY_DISTANCE + 10))
         ALLELE_POS += pos_increment
 
         info = {}
@@ -64,157 +64,153 @@ def prefilter_batch_strategy(draw, max_size=5):
         if is_multiallelic:
             info["OLD_MULTIALLELIC"] = "abc"
         batch.append([{"POS": ALLELE_POS, "INFO": info}, ["TEST_SAMPLE"], [{"GT": gt}]])
+
     return batch
 
 
-@st.composite
-def prefilters_to_apply(draw):
-    return draw(st.lists(st.lists(st.sampled_from(VALID_PREFILTER_KEYS), unique=True), unique=True))
-
-
-# # Nearby
-# @ht.example(
-#     [
-#         [
-#             {
-#                 "POS": 1,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#         [
-#             {
-#                 "POS": 3,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#     ],
-#     1,
-#     [list(VALID_PREFILTER_KEYS)],
-#     [1, 3],  # POS that should be not prefiltered
-# )
-# # Classification
-# @ht.example(
-#     [
-#         [
-#             {
-#                 "POS": 1,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#         [
-#             {
-#                 "POS": 10,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": True,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#     ],
-#     1,
-#     [list(VALID_PREFILTER_KEYS)],
-#     [1],
-# )
-# # Multiallelic
-# @ht.example(
-#     [
-#         [
-#             {
-#                 "POS": 1,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "OLD_MULTIALLELIC": "1",
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "./1"}],
-#         ],
-#         [
-#             {
-#                 "POS": 10,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "OLD_MULTIALLELIC": "1",
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "1/."}],
-#         ],
-#     ],
-#     1,
-#     [list(VALID_PREFILTER_KEYS)],
-#     [1, 10],
-# )
-# # Frequency
-# @ht.example(
-#     [
-#         [{"POS": 1, "INFO": {"__HAS_CLASSIFICATION": False}}, ["TEST_SAMPLE"], [{"GT": "0/1"}]],
-#         [
-#             {
-#                 "POS": 10,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#         [
-#             {
-#                 "POS": 100,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.049,
-#                     "GNOMAD_GENOMES__AN": 5001,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#         [
-#             {
-#                 "POS": 1000,
-#                 "INFO": {
-#                     "GNOMAD_GENOMES__AF": 0.051,
-#                     "GNOMAD_GENOMES__AN": 4999,
-#                     "__HAS_CLASSIFICATION": False,
-#                 },
-#             },
-#             ["TEST_SAMPLE"],
-#             [{"GT": "0/1"}],
-#         ],
-#     ],
-#     1,
-#     [list(VALID_PREFILTER_KEYS)],
-#     [1, 100, 1000],
-# )
+# Nearby
+@ht.example(
+    [
+        [
+            {
+                "POS": 1,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+        [
+            {
+                "POS": 3,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+    ],
+    1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
+    [1, 3],  # POS that should be not prefiltered
+)
+# Classification
+@ht.example(
+    [
+        [
+            {
+                "POS": 1,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+        [
+            {
+                "POS": 10,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": True,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+    ],
+    1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
+    [10],
+)
+# Multiallelic
+@ht.example(
+    [
+        [
+            {
+                "POS": 1,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "OLD_MULTIALLELIC": "1",
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "./1"}],
+        ],
+        [
+            {
+                "POS": 10,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "OLD_MULTIALLELIC": "1",
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "1/."}],
+        ],
+    ],
+    1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
+    [1, 10],
+)
+# Frequency
+@ht.example(
+    [
+        [{"POS": 1, "INFO": {"__HAS_CLASSIFICATION": False}}, ["TEST_SAMPLE"], [{"GT": "0/1"}]],
+        [
+            {
+                "POS": 10,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+        [
+            {
+                "POS": 100,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.049,
+                    "GNOMAD_GENOMES__AN": 5001,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+        [
+            {
+                "POS": 1000,
+                "INFO": {
+                    "GNOMAD_GENOMES__AF": 0.051,
+                    "GNOMAD_GENOMES__AN": 4999,
+                    "__HAS_CLASSIFICATION": False,
+                },
+            },
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+    ],
+    1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
+    [1, 100, 1000],
+)
 # Nearby, but one is failing MQ
 @ht.example(
     [
@@ -251,7 +247,7 @@ def test_prefilterbatchgenerator(
         batch_records.append(r)
 
     for r in batch_records:
-        if r.annotation()["__HAS_CLASSIFICATION"]:
+        if r.annotation().get("__HAS_CLASSIFICATION", False) is True:
             a = (
                 session.query(allele.Allele)
                 .filter(
@@ -264,7 +260,7 @@ def test_prefilterbatchgenerator(
             )
 
             if a is None:
-                a = allele.Allele(build_allele_from_record(r, ref_genome="foo"))
+                a = allele.Allele(**build_allele_from_record(r, ref_genome="foo"))
                 session.add(a)
                 session.flush()
 
@@ -320,7 +316,7 @@ def test_prefilterbatchgenerator(
                 and int(r.annotation().get("GNOMAD_GENOMES__AN", 0)) > 5000
             ),
             "position_not_nearby": not nearby,
-            "no_classification": not r.annotation()["__HAS_CLASSIFICATION"],
+            "no_classification": r.annotation().get("__HAS_CLASSIFICATION") is not True,
             "low_mapping_quality": float(r.annotation().get("MQ", float("inf"))) < 20,
         }
 

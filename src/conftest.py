@@ -107,12 +107,12 @@ class MockVcfWriter:
     def _get_header_for_info(k, v):
         def get_type(x):
             # Integer, Float, Flag, Character, and String.
-            if isinstance(x, int):
+            if isinstance(x, bool):
+                return "Flag"
+            elif isinstance(x, int):
                 return "Integer"
             elif isinstance(x, float):
                 return "Float"
-            elif isinstance(x, bool):
-                return "Flag"
             else:
                 return "String"
 
@@ -160,7 +160,10 @@ class MockVcfWriter:
             for k, v in info.items():
                 self.writer.add_info_to_header(self._get_header_for_info(k, v))
                 if isinstance(v, bool):
-                    annotation.append(k)
+                    if v:
+                        annotation.append(k)
+                    else:
+                        continue
                 elif isinstance(v, (list, tuple)):
                     annotation.append(f"{k}={','.join(str(x) for x in v)}")
                 else:

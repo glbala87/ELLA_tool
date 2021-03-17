@@ -38,6 +38,7 @@ class PrefilterBatchGenerator:
         self.session = session
         self.proband_sample_name = proband_sample_name
         self.prefilters = prefilters
+        assert all(set(prefilter).issubset(VALID_PREFILTER_KEYS) for prefilter in prefilters)
         self.batch_size = batch_size
         self.generator = generator
         self.batch = list()  # Stores the batch to submit
@@ -106,18 +107,19 @@ class PrefilterBatchGenerator:
             # Assertion to avoid sloppy implementation of new prefilters
             assert set(all_checks.keys()) == VALID_PREFILTER_KEYS
 
-            def check_prefilters(all_checks, prefilters):
+            def should_filter_out(all_checks, prefilters):
                 for prefilter in self.prefilters:
                     prefilter_checks = {
                         check: value for check, value in all_checks.items() if check in prefilter
                     }
                     if all(prefilter_checks.values()):
                         return True
+                return False
 
             if not all_checks["position_not_nearby"] and self.previous_should_import_if_nearby:
                 result_records.append(self.previous_record)
 
-            if not check_prefilters(all_checks, self.prefilters):
+            if not should_filter_out(all_checks, self.prefilters):
                 result_records.append(r)
 
                 self.previous_record = r
@@ -126,7 +128,7 @@ class PrefilterBatchGenerator:
                 # Track if this record should be imported if the next record is nearby this record
                 self.previous_record = r
                 all_checks["position_not_nearby"] = False
-                self.previous_should_import_if_nearby = not check_prefilters(
+                self.previous_should_import_if_nearby = not should_filter_out(
                     all_checks, self.prefilters
                 )
 
