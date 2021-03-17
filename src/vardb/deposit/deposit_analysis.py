@@ -38,7 +38,6 @@ class PrefilterBatchGenerator:
         self.session = session
         self.proband_sample_name = proband_sample_name
         self.prefilters = prefilters
-        assert all(set(prefilter).issubset(VALID_PREFILTER_KEYS) for prefilter in prefilters)
         self.batch_size = batch_size
         self.generator = generator
         self.batch = list()  # Stores the batch to submit
@@ -50,12 +49,13 @@ class PrefilterBatchGenerator:
         Checks whether a record should be prefiltered, i.e. not imported.
         We do this to reduce the amount of data to import for large analyses.
 
-        Current criteria:
+        Current available criteria:
 
         - Not multiallelic for proband
         - GnomAD GENOMES.G > 0.05, num > 5000
         - No existing classifications
         - No variants within +/- 3bp
+        - Low mapping quality (MQ<20)
         """
 
         result_records = []
@@ -84,7 +84,17 @@ class PrefilterBatchGenerator:
             .all()
         )
 
-        for idx, r in enumerate(records):
+        for r in records:
+            # If the current record is nearby the previous, and the previous record was excluded
+            # because of the nearby-check (previous_should_import_if_nearby),
+            # then include the previous record here
+            if (
+                self.previous_should_import_if_nearby
+                and self.previous_record
+                and self._is_nearby(self.previous_record, r)
+            ):
+                result_records.append(self.previous_record)
+
             has_classification = next(
                 (
                     a
@@ -94,6 +104,7 @@ class PrefilterBatchGenerator:
                 False,
             )
 
+            # Create an object with all possible criteria
             all_checks = {
                 "non_multiallelic": not r.is_sample_multiallelic(self.proband_sample_name),
                 "hi_frequency": float(r.variant.INFO.get("GNOMAD_GENOMES__AF", 0.0)) > 0.05
@@ -104,11 +115,15 @@ class PrefilterBatchGenerator:
                 "low_mapping_quality": float(r.variant.INFO.get("MQ", float("inf"))) < 20,
             }
 
-            # Assertion to avoid sloppy implementation of new prefilters
+            # Assertion to avoid sloppy implementation of new criteria
             assert set(all_checks.keys()) == VALID_PREFILTER_KEYS
 
             def should_filter_out(all_checks, prefilters):
-                for prefilter in self.prefilters:
+                """
+                Run all checks against each prefilter in turn.
+                If any of the prefilters have all their criteria fulfilled, it should be filtered out
+                """
+                for prefilter in prefilters:
                     prefilter_checks = {
                         check: value for check, value in all_checks.items() if check in prefilter
                     }
@@ -116,22 +131,17 @@ class PrefilterBatchGenerator:
                         return True
                 return False
 
-            if not all_checks["position_not_nearby"] and self.previous_should_import_if_nearby:
-                result_records.append(self.previous_record)
-
             if not should_filter_out(all_checks, self.prefilters):
                 result_records.append(r)
-
-                self.previous_record = r
                 self.previous_should_import_if_nearby = False  # Already imported
             else:
-                # Track if this record should be imported if the next record is nearby this record
-                self.previous_record = r
+                # Track if this record should be imported if the next record is nearby this record by
+                # "simulating" the current record has a nearby variant
                 all_checks["position_not_nearby"] = False
                 self.previous_should_import_if_nearby = not should_filter_out(
                     all_checks, self.prefilters
                 )
-
+            self.previous_record = r
         return result_records
 
     @staticmethod
@@ -454,7 +464,7 @@ class DepositAnalysis(DepositFromVCF):
                 log.info("Prefilter: {}".format("Yes" if prefilters else "No"))
                 if prefilters:
                     for i, prefilter in enumerate(prefilters):
-                        assert set(prefilters) - VALID_PREFILTER_KEYS == set()
+                        assert set(prefilter).issubset(VALID_PREFILTER_KEYS)
                         if i == 0:
                             log.info("Prefilter criterias:")
                         else:
