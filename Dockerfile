@@ -143,6 +143,17 @@ COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql/10 /usr/share/
 COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql/10 /usr/lib/postgresql/10
 
 USER ella-user
+# set demo defaults here, so demo/review apps can just `docker run -d`
+ENV ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
+    ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments/" \
+    DEV_IGV_CYTOBAND="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt" \
+    DEV_IGV_FASTA="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta" \
+    ELLA_CONFIG="/ella/example_config.yml" \
+    IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+    PGDATA="/pg-data" \
+    PGHOST="/socket" \
+    PORT="5000" \
+    PRODUCTION="false"
 WORKDIR /ella
 CMD ["supervisord", "-c" , "/ella/ops/demo/supervisor.cfg"]
 
