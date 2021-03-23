@@ -77,7 +77,8 @@ help :
 	@echo "                            Set REVIEW_NAME to assign a value to VIRTUAL_HOST"
 	@echo
 	@echo "-- RELEASE COMMANDS --"
-	@echo "make release              - Noop. See the README.md file"
+	@echo "make release              - Creates a new Gitlab release with release notes and artifacts from CI"
+	@echo "                            Requires: RELEASE_TAG GITLAB_TOKEN"
 	@echo "make release-docker       - Build the release Docker image locally and push to registry.gitlab.com"
 	@echo "                            Requires: RELEASE_TAG"
 	@echo "make release-src          - Bundle backend code, HTML and JS into a local tgz file"
@@ -138,10 +139,8 @@ AWSCLI_CONFIG ?= $(DEFAULT_AWSCLI_CONFIG)
 .PHONY: release build-bundle-image pull-static-image _clean-dist
 
 release:
-	@echo "See the README.md file, section 'Production'"
-
-release-notes:
-	@ops/create_release_notes_wrapper.sh
+	$(call check_defined, GITLAB_TOKEN RELEASE_TAG)
+	@ops/create_release.py $(GITLAB_TOKEN) $(RELEASE_TAG)
 
 ##
 ## CI release

@@ -169,7 +169,7 @@ class Release:
 
     def update(self, new_release: "Release") -> "Release":
         """ Updates an existing release """
-        raise NotImplemented
+        raise NotImplementedError
 
     @classmethod
     def from_tag(cls, tag: str) -> "Release":
