@@ -17,14 +17,33 @@ Release date: [TBD]
 
 ### Highlights
 
-[...]
+This release brings several improvements to variant filtering rules, as well as a number of smaller fixes.
+
+#### Improvements to variant filters in ELLA
+
+It is now possible to configure the [Classification filter](/technical/filtering.html#classification-filter) to only consider classifications that are still valid. With this option enabled it is possible to define that e.g.  class 1 and class 2 variants should be filtered only if they have a classification that is still valid (not outdated).
+
+#### Improvements to pre-filters
+
+The pre-filters (applied before import of variants into ELLA) are now configurable and has the added option of pre-filtering variants with low mapping quality (MQ<20). This latter option is relevant e.g. for variants called with Dragen-GATK, which unlike GATK does not automatically exclude variants with a low MQ. 
+
+#### Updated IGV in VISUAL
+
+`IGV.js` on the VISUAL page has been upgraded to v2.7.9. For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
 
 ### All changes
 
+<!-- MR !508 -->
+- [Added possibility for excluding outdated classifications in the Classification filter](#improvements-to-variant-filters-in-ella).
+<!-- MR !509 -->
+- [Added configurability and options for pre-filters](#improvements-to-pre-filters). 
+<!-- MR !506 -->
+- Upgraded `IGV.js` to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9) (including fix for a rare bug in bam alignments).
 <!-- MR !497 -->
 - Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
 <!-- 
 Probably no further release notes necessary, but adding here for reference: 
+MR !505 Create upload release artifacts
 MR !496 Split references from annotation in database
 MR !498 Fixes for running local demo instances 
 -->
