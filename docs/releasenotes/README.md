@@ -25,11 +25,11 @@ It is now possible to configure the [Classification filter](/technical/filtering
 
 #### Improvements to pre-filters
 
-The pre-filters (applied before import of variants into ELLA) are now configurable and has the added option of pre-filtering variants with low mapping quality (MQ<20). This latter option is relevant e.g. for variants called with Dragen-GATK, which unlike GATK does not automatically exclude variants with a low MQ. 
+The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied before import of variants into ELLA) are now configurable and has the added option of pre-filtering variants with low mapping quality (MQ<20). This latter option is relevant e.g. for variants called with Dragen-GATK, which unlike GATK does not automatically exclude variants with a low MQ. 
 
-#### Updated IGV in VISUAL
+#### Upgraded IGV in VISUAL
 
-`IGV.js` on the VISUAL page has been upgraded to v2.7.9. For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
+`IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
 
 ### All changes
 
@@ -38,7 +38,7 @@ The pre-filters (applied before import of variants into ELLA) are now configurab
 <!-- MR !509 -->
 - [Added configurability and options for pre-filters](#improvements-to-pre-filters). 
 <!-- MR !506 -->
-- Upgraded `IGV.js` to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9) (including fix for a rare bug in bam alignments).
+- [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
 <!-- MR !497 -->
 - Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
 <!-- 
