@@ -226,7 +226,10 @@ export class ImportSingleController {
      */
     findExistingAnalysis() {
         // Don't match if typed in analysis name is less than 5
-        if (this.importData.importSelection.analysisName.length < 5) {
+        if (
+            !this.importData.importSelection.analysisName ||
+            this.importData.importSelection.analysisName.length < 5
+        ) {
             this.warnings.analysisNameMatch.active = false
             return
         }
