@@ -31,9 +31,22 @@ const GLOBAL_PRE_SEQUENCE = [
 function changeView(key) {
     return sequence('changeView', [
         GLOBAL_PRE_SEQUENCE,
-        function changeView({ state }) {
-            state.set('views.current', key)
+        function changeView({ state, props, http, execution }) {
+            // Abort current http requests
+            http.abort(/.*/)
 
+            // Disable error handling of current running signals. This avoids logging (and toasting) exceptions when
+            // they throw errors because of rapid navigation around the page.
+            for (let exec of window.__cerebralRunningSignals) {
+                if (exec.id !== execution.id) {
+                    exec.errorCallback = () => {
+                        return true
+                    }
+                    exec.__ignoreError = true
+                }
+            }
+
+            state.set('views.current', key)
             // Reset other views' state when switching views.
             for (let view in VIEWS) {
                 // Don't reset if pointing to same
