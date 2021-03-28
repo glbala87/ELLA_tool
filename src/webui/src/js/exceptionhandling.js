@@ -24,7 +24,7 @@ export default class ExceptionHandling {
                 // Remove signal from window.
                 // Note the additional check to remove long-running signals (older than 1 minute).
                 // We assume they are zombies that never trigger 'end'
-                // Worst case, they are will trigger 'end', and possibly raise an unsuppressed exception
+                // Worst case, they will trigger 'end', and possibly raise an unsuppressed exception
                 window.__cerebralRunningSignals = window.__cerebralRunningSignals.filter(
                     (x) => x.id != execution.id || x.datetime < Date.now() - 60000
                 )
