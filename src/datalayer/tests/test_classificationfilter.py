@@ -33,7 +33,7 @@ def filter_data(draw):
     classes = draw(
         st.lists(elements=st.sampled_from(CLASSES + ["non-existing-class"]), unique=True)
     )
-    include_outdated = draw(st.booleans())
+    exclude_outdated = draw(st.booleans())
     allele_ids = draw(
         st.lists(
             elements=st.integers(min_value=1, max_value=len(CLASSES) * 2),
@@ -41,7 +41,7 @@ def filter_data(draw):
             unique=True,
         )
     )
-    return classes, include_outdated, allele_ids
+    return classes, exclude_outdated, allele_ids
 
 
 @st.composite
@@ -52,7 +52,7 @@ def days_since_created(draw):
 @ht.given(st.one_of(days_since_created()), st.one_of(filter_data()))
 @ht.settings(deadline=500)
 def test_classificationfilter(session, assessments, days_since_created, filter_data):
-    classes_to_filter, include_outdated, allele_ids = filter_data
+    classes_to_filter, exclude_outdated, allele_ids = filter_data
 
     has_filtered_class = set()
     has_valid_date = set()
@@ -67,7 +67,7 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
             None,
         )
         if (
-            include_outdated
+            (not exclude_outdated)
             or classification_config is None
             or "outdated_after_days" not in classification_config
             or classification_config["outdated_after_days"] > n_days
@@ -78,7 +78,7 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
 
     testdata = {("dummyname", "v01"): allele_ids}
 
-    filter_config = {"classes": classes_to_filter, "include_outdated": include_outdated}
+    filter_config = {"classes": classes_to_filter, "exclude_outdated": exclude_outdated}
 
     cf = ClassificationFilter(session, None)
     if "non-existing-class" in classes_to_filter:

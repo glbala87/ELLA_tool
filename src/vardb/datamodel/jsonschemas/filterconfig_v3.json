@@ -266,7 +266,7 @@
                     "config": {
                         "type": "object",
                         "required": ["classes"],
-                        "optional": ["include_outdated"],
+                        "optional": ["exclude_outdated"],
                         "additionalProperties": false,
                         "properties": {
                             "classes": {
@@ -276,7 +276,7 @@
                                     "enum": ["1", "2", "3", "4", "5", "DR", "NP", "RF"]
                                 }
                             },
-                            "include_outdated": {
+                            "exclude_outdated": {
                                 "type": "boolean"
                             }
                         }
