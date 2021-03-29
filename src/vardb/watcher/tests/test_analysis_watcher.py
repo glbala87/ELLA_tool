@@ -151,6 +151,35 @@ def test_check_and_import_whitelist_include(session, test_database, init_dest):
     assert "Warning" in str(analysis_stored[0].warnings)
 
 
+def test_check_and_import_blacklist_exclude(session, test_database, init_dest):
+    aw = init(session)
+
+    test_database.refresh()
+    aw = AnalysisWatcher(session, watch_path, dest_path, blacklist=[f"^{analysis_sample}$"])
+
+    analysis_config_data = AnalysisConfigData(ready_data_path)
+
+    aw.check_and_import()
+
+    analysis_stored = (
+        session.query(sm.Analysis)
+        .filter(
+            sm.Analysis.name == analysis_config_data["name"],
+            tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+            == (analysis_config_data["genepanel_name"], analysis_config_data["genepanel_version"]),
+        )
+        .all()
+    )
+
+    assert len(analysis_stored) == 0
+
+    files = os.listdir(watch_path)
+    assert len(files) == 2
+    assert set(files) == set([analysis_sample, analysis_sample2])
+
+    os.system("rm -r {}".format(watch_path))
+
+
 def test_check_and_import_whitelist_exclude(session, test_database, init_dest):
     aw = init(session)
 
