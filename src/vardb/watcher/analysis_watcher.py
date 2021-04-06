@@ -28,7 +28,6 @@ Furthermore, the name must also match the 'name' key within the .analysis json f
 """
 from typing import Set, List, Pattern
 import logging
-import json
 import shutil
 import argparse
 import time
@@ -44,16 +43,6 @@ POLL_INTERVAL = 30
 
 WATCH_PATH_ERROR = "Couldn't read from watch path {}, aborting..."
 DEST_PATH_ERROR = "Couldn't write to destination path {}, aborting..."
-ANALYSIS_FILE_MISSING = "Expected an analysis file at {}, but found none."
-VCF_FILE_MISSING = "Expected a vcf file at {}, but found none."
-ANALYSIS_FIELD_MISSING = "Missing field {} in analysis config at {}"
-ANALYSIS_FILE_MISCONFIGURED = "The file {} is corrupt or JSON structure has missing values: {}"
-
-REPORT_FILES = ["report.md", "report.txt"]
-WARNINGS_FILES = ["warnings.md", "warnings.txt"]
-ANALYSIS_POSTFIX = ".analysis"
-VCF_POSTFIX = ".vcf"
-PED_POSTFIX = ".ped"
 
 
 class AnalysisWatcher(object):
@@ -78,7 +67,8 @@ class AnalysisWatcher(object):
         self._blacklistfile = blacklistfile
         self.compiled_blacklist: List[Pattern] = []
 
-        self._update_whitelist_blacklist()
+        self._update_whitelist()
+        self._update_blacklist()
 
         self.processed: Set[str] = (
             set()
@@ -90,11 +80,11 @@ class AnalysisWatcher(object):
         if not self._check_dest_path_writable():
             raise RuntimeError(DEST_PATH_ERROR.format(self.dest_path))
 
-    def _update_whitelist_blacklist(self):
+    def _update_whitelist(self):
         if self._whitelist and not self.compiled_whitelist:
-            for w in self._whitelist:
-                log.info(f"Adding whitelist: {w}")
-                self.compiled_whitelist.append(re.compile(w))
+            for pttrn in self._whitelist:
+                log.info(f"Adding whitelist: {pttrn}")
+                self.compiled_whitelist.append(re.compile(pttrn))
         elif self._whitelistfile:
             existing_patterns = [x.pattern for x in self.compiled_whitelist]
             with open(self._whitelistfile, "r") as f_whitelist:
@@ -102,15 +92,16 @@ class AnalysisWatcher(object):
 
             if set(existing_patterns) != set(new_patterns):
                 self.compiled_whitelist = []
-                for w in new_patterns:
-                    log.info(f"Adding whitelist from {self._whitelistfile}: {w}")
-                    self.compiled_whitelist.append(re.compile(w))
+                for pttrn in new_patterns:
+                    log.info(f"Adding whitelist from {self._whitelistfile}: {pttrn}")
+                    self.compiled_whitelist.append(re.compile(pttrn))
                     self.processed = set()
 
+    def _update_blacklist(self):
         if self._blacklist and not self.compiled_blacklist:
-            for w in self._blacklist:
-                log.info(f"Adding blacklist: {w}")
-                self.compiled_blacklist.append(re.compile(w))
+            for pttrn in self._blacklist:
+                log.info(f"Adding blacklist: {pttrn}")
+                self.compiled_blacklist.append(re.compile(pttrn))
         elif self._blacklistfile:
             existing_patterns = [x.pattern for x in self.compiled_blacklist]
             with open(self._blacklistfile, "r") as f_blacklist:
@@ -118,9 +109,9 @@ class AnalysisWatcher(object):
 
             if set(existing_patterns) != set(new_patterns):
                 self.compiled_blacklist = []
-                for w in new_patterns:
-                    log.info(f"Adding blacklist from {self._blacklistfile}: {w}")
-                    self.compiled_blacklist.append(re.compile(w))
+                for pttrn in new_patterns:
+                    log.info(f"Adding blacklist from {self._blacklistfile}: {pttrn}")
+                    self.compiled_blacklist.append(re.compile(pttrn))
                     self.processed = set()
 
     def _check_watch_path_readable(self):
@@ -128,12 +119,6 @@ class AnalysisWatcher(object):
 
     def _check_dest_path_writable(self):
         return os.access(self.dest_path, os.W_OK)
-
-    def load_analysis_config(self, analysis_config_path):
-        with open(analysis_config_path) as f:
-            analysis_config = json.load(f)
-        self.check_analysis_config(analysis_config, analysis_config_path)
-        return analysis_config
 
     def import_analysis(self, analysis_config_data):
         """
@@ -161,7 +146,8 @@ class AnalysisWatcher(object):
         Poll for new samples to process.
         """
 
-        self._update_whitelist_blacklist()
+        self._update_whitelist()
+        self._update_blacklist()
 
         # The path to the root folder is the analysis folder, i.e. for our testdata
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be

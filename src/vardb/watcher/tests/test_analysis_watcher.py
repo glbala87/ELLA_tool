@@ -26,7 +26,8 @@ def misconfigured_data_path(watch_path):
     return watch_path / Path(MISCONFIGURED_DATA_SOURCE_PATH).name
 
 
-def assert_ready_moved(watch_path, dest_path):
+def assert_ready_moved_to_dest(watch_path, dest_path):
+    "Check that the folder defined by ready_path(watch_path) is not in watch_path, but is in dest_path"
     watch_files = set(os.listdir(watch_path))
     dest_files = set(os.listdir(dest_path))
     assert ready_path(watch_path).name not in watch_files
@@ -35,6 +36,7 @@ def assert_ready_moved(watch_path, dest_path):
 
 @pytest.fixture(scope="function")
 def watch_path():
+    "Create temporary directory, and create folders/symlinks as a fresh watch directory"
     _watch_path = Path(tempfile.mkdtemp())
     os.symlink(READY_DATA_SOURCE_PATH, ready_path(_watch_path))
     os.mkdir(not_ready_path(_watch_path))
@@ -47,6 +49,7 @@ def watch_path():
 
 @pytest.fixture(scope="function")
 def dest_path():
+    "Create temporary directory as a fresh destinatation directory"
     _dest_path = Path(tempfile.mkdtemp())
     yield _dest_path
     shutil.rmtree(_dest_path)
@@ -114,7 +117,7 @@ def test_check_and_import(session, test_database, watch_path, dest_path):
     )
     assert len(analysis_stored) == 1
 
-    assert_ready_moved(watch_path, dest_path)
+    assert_ready_moved_to_dest(watch_path, dest_path)
 
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)
@@ -140,7 +143,7 @@ def test_check_and_import_whitelist_include(session, test_database, watch_path, 
     )
 
     assert len(analysis_stored) == 1
-    assert_ready_moved(watch_path, dest_path)
+    assert_ready_moved_to_dest(watch_path, dest_path)
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)
 
@@ -166,7 +169,7 @@ def test_check_and_import_blacklist_exclude(session, test_database, watch_path, 
 
     assert len(analysis_stored) == 0
     with pytest.raises(AssertionError):
-        assert_ready_moved(watch_path, dest_path)
+        assert_ready_moved_to_dest(watch_path, dest_path)
 
 
 def test_check_and_import_whitelist_exclude(session, test_database, watch_path, dest_path):
@@ -190,7 +193,7 @@ def test_check_and_import_whitelist_exclude(session, test_database, watch_path, 
     assert len(analysis_stored) == 0
 
     with pytest.raises(AssertionError):
-        assert_ready_moved(watch_path, dest_path)
+        assert_ready_moved_to_dest(watch_path, dest_path)
 
 
 def test_check_and_import_whitelistfile(session, test_database, watch_path, dest_path):
@@ -220,7 +223,7 @@ def test_check_and_import_whitelistfile(session, test_database, watch_path, dest
         assert len(analysis_stored) == 0
 
         with pytest.raises(AssertionError):
-            assert_ready_moved(watch_path, dest_path)
+            assert_ready_moved_to_dest(watch_path, dest_path)
 
         wlf.write(f"\n^{analysis_config_data['name']}$")
         wlf.flush()
@@ -242,7 +245,7 @@ def test_check_and_import_whitelistfile(session, test_database, watch_path, dest
 
         assert len(analysis_stored) == 1
 
-        assert_ready_moved(watch_path, dest_path)
+        assert_ready_moved_to_dest(watch_path, dest_path)
 
 
 def test_check_and_import_blacklistfile_include(session, test_database, watch_path, dest_path):
@@ -271,7 +274,7 @@ def test_check_and_import_blacklistfile_include(session, test_database, watch_pa
 
         assert len(analysis_stored) == 1
 
-        assert_ready_moved(watch_path, dest_path)
+        assert_ready_moved_to_dest(watch_path, dest_path)
 
 
 def test_check_and_import_blacklistfile_exclude(session, test_database, watch_path, dest_path):
@@ -299,4 +302,4 @@ def test_check_and_import_blacklistfile_exclude(session, test_database, watch_pa
 
         assert len(analysis_stored) == 0
         with pytest.raises(AssertionError):
-            assert_ready_moved(watch_path, dest_path)
+            assert_ready_moved_to_dest(watch_path, dest_path)
