@@ -39,8 +39,12 @@ The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied b
 - [Added configurability and options for pre-filters](#improvements-to-pre-filters). 
 <!-- MR !506 -->
 - [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
+<!-- MR !510 -->
+- Tweaked front-end error reporting to reduce number of "An error occured ..." messages displayed to users.
 <!-- MR !497 -->
 - Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
+<!-- MR !511 -->
+- Added blacklist option in the [analysis watcher](/technical/import.html#analysis-watcher-for-automated-import), allowing exclusion of specific analyses during automated import.
 <!-- 
 Probably no further release notes necessary, but adding here for reference: 
 MR !505 Create upload release artifacts

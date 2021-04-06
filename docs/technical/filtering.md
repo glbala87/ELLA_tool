@@ -601,7 +601,7 @@ Variants removed in this way (before import) will not be visible in [FILTERED va
 
 #### Configuration
 
-Unlike the regular filters above, the pre-filter is specified in the `usergroups.json` file, under `deposit.analysis.prefilters`. 
+Unlike the regular filters above, the pre-filter is specified in the `usergroups.json` file, under `deposit.analysis.prefilters`; see also [Deposit](/technical/import.html#deposit).
 
 - To combine options with boolean `AND` (all conditions must be met), list them like this: `[["<option1>", "<option2>"]]`. 
 - To instead combine options with boolean `OR` (any condition met), nest the options like this: `[["<option1>"], ["<option2>"]]`.
