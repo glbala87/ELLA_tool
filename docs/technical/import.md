@@ -50,7 +50,7 @@ Subkey	|	Explanation |   Values
 `prefilter` |   Whether to prefilter this analysis (e.g. high-frequent variants), useful for limiting resource use for large gene panels. Note that these will not be available in the "FILTERED" variants list.    | See [Pre-filter](/technical/filtering.html#pre-filter-before-import).
 
 ::: warning NOTE
-Only one user group and one configuration can match any given analysis name.
+Only one user group and configuration can match a particular combination of analysis name and gene panel.
 :::
 
 ## Default import gene panel

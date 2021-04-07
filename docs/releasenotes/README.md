@@ -13,7 +13,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.13
 
-Release date: [TBD]
+Release date: 09.04.2021
 
 ### Highlights
 
@@ -30,6 +30,11 @@ The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied b
 #### Upgraded IGV in VISUAL
 
 `IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
+
+### Breaking changes
+
+With the [improvements to pre-filters](#improvements-to-pre-filters), the configuration in `usergroups.json` must be updated. The equivalent to the previous
+`"prefilter" = True` is now `"prefilter": [["hi_frequency", "no_nearby_variant", "no_classification", "not_multiallelic"]]`. See [pre-filters](/technical/filtering.html#pre-filter-before-import) for further details.
 
 ### All changes
 
