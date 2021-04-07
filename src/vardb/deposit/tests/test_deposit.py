@@ -5,10 +5,15 @@ from hypothesis import strategies as st
 from sqlalchemy import or_
 from vardb.deposit.importers import build_allele_from_record
 from conftest import mock_record, MockVcfWriter, ped_info_file
-from vardb.deposit.deposit_analysis import DepositAnalysis, PrefilterBatchGenerator
+from vardb.deposit.deposit_analysis import (
+    DepositAnalysis,
+    PrefilterBatchGenerator,
+    VALID_PREFILTER_KEYS,
+)
 from vardb.deposit.analysis_config import AnalysisConfigData
 from vardb.datamodel import genotype, sample, allele, assessment
 from .vcftestgenerator import vcf_family_strategy
+
 
 import logging
 
@@ -21,7 +26,7 @@ ANALYSIS_NUM = 0
 
 
 @st.composite
-def prefilter_batch_strategy(draw, max_size=5):
+def prefilter_batch_strategy(draw, max_size=8):
     """
     Generates batches of testdata for
     testing PrefilterBatchGenerator
@@ -37,7 +42,7 @@ def prefilter_batch_strategy(draw, max_size=5):
     batch = list()
     for idx in range(batch_size):
 
-        pos_increment = draw(st.integers(NEARBY_DISTANCE - 1, NEARBY_DISTANCE + 10))
+        pos_increment = draw(st.integers(1, NEARBY_DISTANCE + 10))
         ALLELE_POS += pos_increment
 
         info = {}
@@ -47,14 +52,19 @@ def prefilter_batch_strategy(draw, max_size=5):
             num_options = [NUM_THRESHOLD - 1, NUM_THRESHOLD, NUM_THRESHOLD + 1]
             info["GNOMAD_GENOMES__AN"] = draw(st.sampled_from(freq_options))
             info["GNOMAD_GENOMES__AN"] = draw(st.sampled_from(num_options))
+
+        has_mq = draw(st.booleans())
+        if has_mq:
+            info["MQ"] = draw(st.integers(min_value=0, max_value=40))
+
         info["__HAS_CLASSIFICATION"] = draw(st.booleans())
-        batch.append(
-            [
-                {"POS": ALLELE_POS, "INFO": info},
-                ["TEST_SAMPLE"],
-                [{"GT": draw(st.sampled_from(["0/1", "./.", "./1", "1/.", "1", "."]))}],
-            ]
-        )
+        gt = draw(st.sampled_from(["0/1", "./.", "./1", "1/.", "1", "."]))
+        is_multiallelic = gt in ["./1", "1/."] and draw(st.booleans())
+
+        if is_multiallelic:
+            info["OLD_MULTIALLELIC"] = "abc"
+        batch.append([{"POS": ALLELE_POS, "INFO": info}, ["TEST_SAMPLE"], [{"GT": gt}]])
+
     return batch
 
 
@@ -87,6 +97,7 @@ def prefilter_batch_strategy(draw, max_size=5):
         ],
     ],
     1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
     [1, 3],  # POS that should be not prefiltered
 )
 # Classification
@@ -118,7 +129,8 @@ def prefilter_batch_strategy(draw, max_size=5):
         ],
     ],
     1,
-    [1],
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
+    [10],
 )
 # Multiallelic
 @ht.example(
@@ -151,6 +163,7 @@ def prefilter_batch_strategy(draw, max_size=5):
         ],
     ],
     1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
     [1, 10],
 )
 # Frequency
@@ -195,10 +208,37 @@ def prefilter_batch_strategy(draw, max_size=5):
         ],
     ],
     1,
+    [["hi_frequency", "position_not_nearby", "no_classification", "non_multiallelic"]],
     [1, 100, 1000],
 )
-@ht.given(prefilter_batch_strategy(), st.integers(1, 5), st.just(None))
-def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_result):
+# Nearby, but one is failing MQ
+@ht.example(
+    [
+        [{"POS": 1, "INFO": {"__HAS_CLASSIFICATION": False}}, ["TEST_SAMPLE"], [{"GT": "0/1"}]],
+        [
+            {"POS": 3, "INFO": {"MQ": 0, "__HAS_CLASSIFICATION": False}},
+            ["TEST_SAMPLE"],
+            [{"GT": "0/1"}],
+        ],
+        [{"POS": 5, "INFO": {"__HAS_CLASSIFICATION": False}}, ["TEST_SAMPLE"], [{"GT": "0/1"}]],
+    ],
+    1,
+    [["low_mapping_quality"], ["position_not_nearby"]],
+    [1, 5],  # Will include both 1 and 5, even though the nearby variant is not included
+)
+@ht.given(
+    prefilter_batch_strategy(),
+    st.integers(1, 5),
+    st.lists(
+        st.lists(st.sampled_from(elements=list(VALID_PREFILTER_KEYS)), min_size=1, unique=True),
+        unique_by=lambda x: tuple(sorted(x)),
+        max_size=4,
+    ),
+    st.just(None),
+)
+def test_prefilterbatchgenerator(
+    session, batch, batch_size, prefilters_to_use, manually_curated_result
+):
     # Insert classifications if applicable
     session.execute("DELETE FROM alleleassessment")
     batch_records = []
@@ -207,7 +247,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
         batch_records.append(r)
 
     for r in batch_records:
-        if r.annotation()["__HAS_CLASSIFICATION"]:
+        if r.annotation().get("__HAS_CLASSIFICATION", False) is True:
             a = (
                 session.query(allele.Allele)
                 .filter(
@@ -220,7 +260,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
             )
 
             if a is None:
-                a = allele.Allele(build_allele_from_record(r, ref_genome="foo"))
+                a = allele.Allele(**build_allele_from_record(r, ref_genome="foo"))
                 session.add(a)
                 session.flush()
 
@@ -236,7 +276,7 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
 
     batch_generator = (r for r in batch_records)
     pbg = PrefilterBatchGenerator(
-        session, "TEST_SAMPLE", batch_generator, prefilter=True, batch_size=batch_size
+        session, "TEST_SAMPLE", batch_generator, prefilters=prefilters_to_use, batch_size=batch_size
     )
 
     total_prefiltered_pos = list()
@@ -251,11 +291,14 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
     proband_batch = [
         r for r in batch_records if r.sample_genotype("TEST_SAMPLE") not in [(-1, -1), (-1,)]
     ]
+
     for idx, r in enumerate(proband_batch):
+        if not prefilters_to_use:
+            included.append(r.variant.POS)
+            continue
 
         if idx == 0:
-            # Implementation always includes first record due to no previous
-            prev_pos = r.variant.POS
+            prev_pos = -1000
         else:
             prev_pos = proband_batch[idx - 1].variant.POS
 
@@ -265,16 +308,24 @@ def test_prefilterbatchgenerator(session, batch, batch_size, manually_curated_re
             next_pos = -1000
 
         nearby = abs(r.variant.POS - prev_pos) <= 3 or abs(r.variant.POS - next_pos) <= 3
+
         checks = {
-            "not_multiallelic": r.sample_genotype("TEST_SAMPLE") in [(0, 1), (1, 1), (1,)],
-            "hi_freq": (
+            "non_multiallelic": r.annotation().get("OLD_MULTIALLELIC") is None,
+            "hi_frequency": (
                 float(r.annotation().get("GNOMAD_GENOMES__AF", 0.0)) > 0.05
                 and int(r.annotation().get("GNOMAD_GENOMES__AN", 0)) > 5000
             ),
-            "not_nearby": not nearby,
-            "no_classification": not r.annotation()["__HAS_CLASSIFICATION"],
+            "position_not_nearby": not nearby,
+            "no_classification": r.annotation().get("__HAS_CLASSIFICATION") is not True,
+            "low_mapping_quality": float(r.annotation().get("MQ", float("inf"))) < 20,
         }
-        if not all(checks.values()):
+
+        assert set(checks.keys()) == set(VALID_PREFILTER_KEYS)
+
+        for prefilter in prefilters_to_use:
+            if all(v for k, v in checks.items() if k in prefilter):
+                break
+        else:
             included.append(r.variant.POS)
 
     assert included == total_prefiltered_pos

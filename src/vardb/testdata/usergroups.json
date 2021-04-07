@@ -127,12 +127,26 @@
                     {
                         "pattern": "^HG002-Trio.Mendeliome_v01",
                         "postprocess": [],
-                        "prefilter": true
+                        "prefilters": [
+                            [
+                                "hi_frequency",
+                                "position_not_nearby",
+                                "no_classification",
+                                "non_multiallelic"
+                            ]
+                        ]
                     },
                     {
                         "pattern": ".*Ciliopati.*",
                         "postprocess": [],
-                        "prefilter": true
+                        "prefilters": [
+                            [
+                                "hi_frequency",
+                                "position_not_nearby",
+                                "no_classification",
+                                "non_multiallelic"
+                            ]
+                        ]
                     }
                 ]
             },
