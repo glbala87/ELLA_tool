@@ -6,7 +6,7 @@ GID ?= 1000
 PIPELINE_ID ?= ella-$(BRANCH)# Configured on the outside when running in gitlab
 
 CONTAINER_NAME ?= ella-$(BRANCH)
-export IMAGE_NAME ?= local/ella-$(BRANCH)
+export IMAGE_NAME ?= local/ella-$(BRANCH):latest
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -119,6 +119,10 @@ endef
 DIST_DIR ?= dist
 DIST_BUILD ?= dist-temp
 
+# release settings - docker
+# Normally set in CI, default to IMAGE_NAME for local builds
+RELEASE_IMAGE ?= $(IMAGE_NAME)
+
 # release settings - src
 STATIC_CONTAINER_NAME = ella-release-static-files
 STATIC_BUILD = $(DIST_BUILD)/src/webui/build
@@ -133,8 +137,7 @@ SIF_PREFIX ?= docker-daemon
 # release settings - upload to digitalocean
 RELEASE_BUCKET ?= s3://ella/releases/$(RELEASE_TAG)
 AWS ?= aws --endpoint https://fra1.digitaloceanspaces.com
-DEFAULT_AWSCLI_CONFIG = $(HOME)/.aws/config
-AWSCLI_CONFIG ?= $(DEFAULT_AWSCLI_CONFIG)
+AWS_CONFIG_FILE ?= $(HOME)/.aws/config
 
 .PHONY: release build-bundle-image pull-static-image _clean-dist
 
@@ -183,10 +186,9 @@ build-singularity: _release-build-docker release-singularity
 ## shared
 ##
 
+# CI has creds stored at 
 _ci-release-configure-upload:
-	[ -f $(AWSCLI_CONFIG) ] || (echo "No aws config found at $(AWSCLI_CONFIG)"; exit 1)
-	mkdir -p $(HOME)/.aws
-	[ -f $(DEFAULT_AWSCLI_CONFIG) ] || cp $(AWSCLI_CONFIG) $(DEFAULT_AWSCLI_CONFIG)
+	[ -f $(AWS_CONFIG_FILE) ] || (echo "No aws config found at $(AWSCLI_CONFIG)"; exit 1)
 
 _clean-dist:
 	$(call check_defined, DIST_BUILD DIST_DIR)
