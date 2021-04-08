@@ -439,6 +439,7 @@ test-python:
 	  --name $(CONTAINER_NAME)-common \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
 	  ops/test/run_python_tests.sh
@@ -449,6 +450,7 @@ test-api:
 	  --name $(CONTAINER_NAME)-api \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_api_tests.sh
@@ -460,6 +462,7 @@ test-api-migration:
 	  --name $(CONTAINER_NAME)-api-migration \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e PRODUCTION=false \
 	  -e MIGRATION=1 \
 	  $(IMAGE_NAME) \
@@ -471,6 +474,7 @@ test-cli:
 	  --name $(CONTAINER_NAME)-cli \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_cli_tests.sh
@@ -481,6 +485,7 @@ test-report:
 	  --name $(CONTAINER_NAME)-report \
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
 	  $(IMAGE_NAME) \
@@ -499,6 +504,7 @@ test-e2e:
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
@@ -534,6 +540,7 @@ e2e-test-local: test-build
        -it \
        -v $(shell pwd):/ella \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ELLA_IMPORT_CONFIG=$(ELLA_IMPORT_CONFIG) \
 	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e PRODUCTION=false \
 	   -e DB_URL=postgresql:///postgres \
