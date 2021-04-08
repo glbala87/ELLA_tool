@@ -1,11 +1,14 @@
-attachments
 .git/
+attachments
+dist/
+IGV_DATA/
 images/
 node_modules/
-IGV_DATA/
-**/*.pyc
-**/*.simg
 src/webui/build
+**/*.pyc
+**/*.sif
+**/*.simg
+
 # made by e2e tests:
 src/webui/tests/node_modules/
 src/webui/dev
