@@ -116,11 +116,11 @@ describe('Sample workflow', function() {
         // Classify first three alleles with visual and quick classification
         analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
-        alleleSidebar.quickSetTechnical('c.1233dupA')
+        alleleSidebar.quickSetTechnical('c.1233dup')
         // Allele is selected automatically when setting technical
         let selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInTechnical(selected_allele)).toBe(true)
-        alleleSidebar.setTechnicalComment('c.1233dupA', 'TECHNICAL_ROUND_1')
+        alleleSidebar.setTechnicalComment('c.1233dup', 'TECHNICAL_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
             technical: true,
             analysisComment: 'TECHNICAL_ROUND_1'
@@ -128,10 +128,10 @@ describe('Sample workflow', function() {
 
         analysisPage.classificationTypeQuickButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeQuickButton.click()
-        alleleSidebar.quickSetNotRelevant('c.925dupT')
+        alleleSidebar.quickSetNotRelevant('c.925dup')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInNotRelevant(selected_allele)).toBe(true)
-        alleleSidebar.setNotRelevantComment('c.925dupT', 'NOTRELEVANT_ROUND_1')
+        alleleSidebar.setNotRelevantComment('c.925dup', 'NOTRELEVANT_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
             notRelevant: true,
             analysisComment: 'NOTRELEVANT_ROUND_1'
