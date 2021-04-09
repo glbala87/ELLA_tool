@@ -1501,14 +1501,20 @@ class TestInheritanceFilter(object):
         sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
         sf.denovo = lambda a, b, c, d, e: set([DENOVO])
         sf.parental_mosaicism = lambda a, b, c, d: set([PARENTAL_MOSAICISM])
-        sf.compound_heterozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
-            [COMPOUND_HETEROZYGOUS]
+        sf.compound_heterozygous = (
+            lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+                [COMPOUND_HETEROZYGOUS]
+            )
         )
-        sf.autosomal_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
-            [AUTOSOMAL_RECESSIVE_HOMOZYGOUS]
+        sf.autosomal_recessive_homozygous = (
+            lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+                [AUTOSOMAL_RECESSIVE_HOMOZYGOUS]
+            )
         )
-        sf.xlinked_recessive_homozygous = lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
-            [XLINKED_RECESSIVE_HOMOZYGOUS]
+        sf.xlinked_recessive_homozygous = (
+            lambda a, b, c, d, affected_sibling_sample_ids, unaffected_sibling_sample_ids: set(
+                [XLINKED_RECESSIVE_HOMOZYGOUS]
+            )
         )
         sf.homozygous_unaffected_siblings = lambda a, b, c: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])
 

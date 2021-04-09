@@ -51,8 +51,7 @@ class CliLogger(object):
 
 def cli_logger(prompt_reason=False):
     def wrapped(f):
-        """Decorator for logging cli commands to database.
-        """
+        """Decorator for logging cli commands to database."""
 
         def new_func(*args, **kwargs):
             ctx = click.get_current_context()
@@ -77,8 +76,7 @@ def cli_logger(prompt_reason=False):
 
 
 def session(f):
-    """Decorator providing a database session.
-    """
+    """Decorator providing a database session."""
 
     def new_func(*args, **kwargs):
         ctx = click.get_current_context()

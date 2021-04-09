@@ -65,7 +65,10 @@ def load_transcripts(transcripts_path):
                 )
             data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
             data["HGNC"] = int(data["HGNC"])
-            data["txStart"], data["txEnd"], = int(data["txStart"]), int(data["txEnd"])
+            data["txStart"], data["txEnd"], = (
+                int(data["txStart"]),
+                int(data["txEnd"]),
+            )
             data["cdsStart"], data["cdsEnd"] = (int(data["cdsStart"]), int(data["cdsEnd"]))
             data["exonsStarts"] = list(map(int, data["exonsStarts"].split(",")))
             data["exonEnds"] = list(map(int, data["exonEnds"].split(",")))
