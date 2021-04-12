@@ -15,13 +15,17 @@ def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
         ad_hgnc_ids = [a[0] for a in ad_hgnc_ids]
 
         # Make sure all genes are actually part of input genepanel
-        assert session.query(gene.Transcript.gene_id).join(gene.Genepanel.transcripts).join(
-            gene.Gene
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
-            gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
-        ).distinct().count() == len(
-            ad_hgnc_ids
+        assert (
+            session.query(gene.Transcript.gene_id)
+            .join(gene.Genepanel.transcripts)
+            .join(gene.Gene)
+            .filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+                gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
+            )
+            .distinct()
+            .count()
+            == len(ad_hgnc_ids)
         )
 
         # Test that AD matches only has 'AD' phenotypes

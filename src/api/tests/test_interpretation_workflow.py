@@ -22,9 +22,7 @@ workflow specific test fixture and branching based on workflow.
 """
 
 ANALYSIS_ID = 2  # analysis_id = 2, allele 1-6
-ALLELE_ID = (
-    18
-)  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+ALLELE_ID = 18  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
 FILTERCONFIG_ID = 1
 
 ANALYSIS_ALLELE_IDS = [1, 3, 4, 7, 12, 13]

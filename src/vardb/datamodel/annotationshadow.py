@@ -265,7 +265,7 @@ def check_filterconfig(filterconfig, config):
 
 def check_usergroup_config(usergroup, config):
     """Verify that the ACMG frequency groups are a subset of the global frequency groups, used to
-     build the annotationshadowfrequency table"""
+    build the annotationshadowfrequency table"""
     if usergroup.config is not None:
         amcg_freq_config = usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {})
         missing_freq_groups = set(iter_freq_groups(amcg_freq_config)) - set(

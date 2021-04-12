@@ -318,26 +318,26 @@ class RegionFilter(object):
         self, gp_allele_ids: Dict[Tuple[str, str], List[int]], filter_config: Dict[str, Any]
     ) -> Dict[Tuple[str, str], Set[int]]:
         """
-         Filter alleles outside regions of interest.
-         Regions of interest are based on these criteria:
-          - Coding region
-          - Splice region
-          - UTR region (upstream/downstream of coding start/coding end)
+        Filter alleles outside regions of interest.
+        Regions of interest are based on these criteria:
+         - Coding region
+         - Splice region
+         - UTR region (upstream/downstream of coding start/coding end)
 
-         These are all based on the transcript definition of the genepanel
-         transcripts with genomic coordinates for
-         - Transcript (tx) start and end
-         - Coding region (cds) start and end
-         - Exon start and end
+        These are all based on the transcript definition of the genepanel
+        transcripts with genomic coordinates for
+        - Transcript (tx) start and end
+        - Coding region (cds) start and end
+        - Exon start and end
 
-         UTR regions are upstream/downstream of cds start/end, with padding specified in config
-         Splice regions are upstream/downstream of exon start/end, with padding specified in config
+        UTR regions are upstream/downstream of cds start/end, with padding specified in config
+        Splice regions are upstream/downstream of exon start/end, with padding specified in config
 
-           |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-           |----------+              |            +-----------+                        +-------------+           |       +--------|
-           |          +--------------+------------+           +------------------------+             +-----------+-------+        |
-          tx        exon           coding        exon        exon                     exon          exon       coding   exon     tx
-          start     start          start         end         start                    end           start       end     end      end
+          |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+          |----------+              |            +-----------+                        +-------------+           |       +--------|
+          |          +--------------+------------+           +------------------------+             +-----------+-------+        |
+         tx        exon           coding        exon        exon                     exon          exon       coding   exon     tx
+         start     start          start         end         start                    end           start       end     end      end
 
         """
 

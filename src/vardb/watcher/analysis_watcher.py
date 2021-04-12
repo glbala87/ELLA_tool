@@ -70,9 +70,9 @@ class AnalysisWatcher(object):
         self._update_whitelist()
         self._update_blacklist()
 
-        self.processed: Set[str] = (
-            set()
-        )  # Keeping tracked of failed or ignored analyses to prevent log spamming
+        self.processed: Set[
+            str
+        ] = set()  # Keeping tracked of failed or ignored analyses to prevent log spamming
 
         if not self._check_watch_path_readable():
             raise RuntimeError(WATCH_PATH_ERROR.format(self.watch_path))

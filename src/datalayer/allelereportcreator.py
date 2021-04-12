@@ -94,9 +94,9 @@ class AlleleReportCreator(object):
         else:  # create a new report
             result_reused = False
             assert "id" not in allelereport
-            report_object_to_create: assessment.AlleleReport = AlleleReportSchema(strict=True).load(
-                allelereport
-            ).data
+            report_object_to_create: assessment.AlleleReport = (
+                AlleleReportSchema(strict=True).load(allelereport).data
+            )
             report_object_to_create.user_id = user_id
             report_object_to_create.usergroup_id = usergroup_id
 
