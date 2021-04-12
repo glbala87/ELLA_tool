@@ -13,14 +13,14 @@ if __name__ == "__main__":
         with path.open("rt") as existing:
             unannotated = []
 
-            for l in existing:
-                l = l.rstrip("\n")
-                if l.startswith("##INFO") or l.startswith("##VEP"):
+            for line in existing:
+                line = line.rstrip("\n")
+                if line.startswith("##INFO") or line.startswith("##VEP"):
                     continue
-                elif l.startswith("#"):
-                    unannotated.append(l)
+                elif line.startswith("#"):
+                    unannotated.append(line)
                 else:
-                    ls = l.split("\t")
+                    ls = line.split("\t")
                     ls[7] = "."
                     unannotated.append("\t".join(ls))
         response = requests.request(
@@ -33,4 +33,3 @@ if __name__ == "__main__":
             continue
         with path.open("wt") as f:
             f.write(response.text)
-
