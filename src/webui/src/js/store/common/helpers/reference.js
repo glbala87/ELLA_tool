@@ -49,7 +49,7 @@ export function findReferencesFromIds(references, ids) {
             }
             if (reference) {
                 result.references.push(reference)
-            } else if (pmid) {
+            } else if (pmid && !result.missing.some((r) => r.pubmed_id === pmid)) {
                 result.missing.push(rid)
             } else {
                 console.warn(

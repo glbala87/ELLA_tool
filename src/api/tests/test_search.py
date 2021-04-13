@@ -14,7 +14,11 @@ def client():
         ({"type": "analyses", "freetext": "brca_sample"}, [2, 3, 4], []),
         ({"type": "alleles", "freetext": "c.12"}, [], []),
         ({"type": "alleles", "gene": {"hgnc_id": 1101}, "freetext": "c.12"}, [], [18, 24]),
-        ({"type": "alleles", "gene": {"hgnc_id": 1101}, "freetext": "p.glu"}, [], [12, 14, 15, 17]),
+        (
+            {"type": "alleles", "gene": {"hgnc_id": 1101}, "freetext": "p.glu"},
+            [],
+            [12, 14, 15, 17, 18],
+        ),
         ({"type": "alleles", "gene": {"hgnc_id": 1101}, "freetext": "13:32890607"}, [], [1]),
         (
             {"type": "alleles", "gene": {"hgnc_id": 1101}, "freetext": "13:32890607-32890650"},
