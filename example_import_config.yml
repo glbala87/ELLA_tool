@@ -326,7 +326,6 @@ converters:
           elements:
               - source: HGMD__acc_num
                 additional_sources:
-                    - HGMD__codon
                     - HGMD__disease
                     - HGMD__tag
                 target: external.HGMD
