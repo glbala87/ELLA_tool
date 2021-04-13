@@ -24,10 +24,14 @@ The import page has the following sections:
 
 ## Import variant data
 
-- In the NEW IMPORT section, select the `VARIANTS` option if not already the case: <img src="./img/import_source_variants.png">
-- Paste text containing the variants to be imported into the `PASTE VARIANT DATA HERE` field (see [supported import formats](#supported-import-formats)), then click `+ PARSE DATA`: <img src="./img/parse_data_btn.png">
-- To go back and edit the import data, click the `EDIT VARIANT DATA` button (note that this will also reset any options selected): <img src="./img/edit_variant_data_btn.png">
-- See [options](#import-options) for configuring the import. When ready (and no warnings are displayed), click `+ IMPORT`: <img src="./img/plus_import_btn.png">
+- In the NEW IMPORT section, select the `VARIANTS` option if not already the case:</br>
+<img src="./img/import_source_variants.png">
+- Paste text containing the variants to be imported into the `PASTE VARIANT DATA HERE` field (see [supported import formats](#supported-import-formats)), then click `+ PARSE DATA`:</br>
+<img src="./img/parse_data_btn.png">
+- To go back and edit the import data, click the `EDIT VARIANT DATA` button (note that this will also reset any options selected):</br>
+<img src="./img/edit_variant_data_btn.png">
+- See [options](#import-options) for configuring the import. When ready (and no warnings are displayed), click `+ IMPORT`:</br>
+<img src="./img/plus_import_btn.png">
 
 Submitted jobs are listed in the ACTIVE IMPORTS section:
 

@@ -6,11 +6,57 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.13](#version-1-13)|
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
-[v1.11](#version-1-11)|[v1.11.1](#version-1-11-1), [v1.11.2](#version-1-11-2), [v1.11.3](#version-1-11-3)
-[v1.10](#version-1-10)|[v1.10.1](#version-1-10-1)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.13
+
+Release date: 09.04.2021
+
+### Highlights
+
+This release brings several improvements to variant filtering rules, as well as a number of smaller fixes.
+
+#### Improvements to variant filters in ELLA
+
+It is now possible to configure the [Classification filter](/technical/filtering.html#classification-filter) to only consider classifications that are still valid. With this option enabled it is possible to define that e.g.  class 1 and class 2 variants should be filtered only if they have a classification that is still valid (not outdated).
+
+#### Improvements to pre-filters
+
+The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied before import of variants into ELLA) are now configurable and has the added option of pre-filtering variants with low mapping quality (MQ<20). This latter option is relevant e.g. for variants called with Dragen-GATK, which unlike GATK does not automatically exclude variants with a low MQ. 
+
+#### Upgraded IGV in VISUAL
+
+`IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
+
+### Breaking changes
+
+With the [improvements to pre-filters](#improvements-to-pre-filters), the configuration in `usergroups.json` must be updated. The equivalent to the previous
+`"prefilter" = True` is now `"prefilter": [["hi_frequency", "no_nearby_variant", "no_classification", "not_multiallelic"]]`. See [pre-filters](/technical/filtering.html#pre-filter-before-import) for further details.
+
+### All changes
+
+<!-- MR !508 -->
+- [Added possibility for excluding outdated classifications in the Classification filter](#improvements-to-variant-filters-in-ella).
+<!-- MR !509 -->
+- [Added configurability and options for pre-filters](#improvements-to-pre-filters). 
+<!-- MR !506 -->
+- [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
+<!-- MR !510 -->
+- Tweaked front-end error reporting to reduce number of "An error occured ..." messages displayed to users.
+<!-- MR !497 -->
+- Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
+<!-- MR !511 -->
+- Added blacklist option in the [analysis watcher](/technical/import.html#analysis-watcher-for-automated-import), allowing exclusion of specific analyses during automated import.
+<!-- 
+Probably no further release notes necessary, but adding here for reference: 
+MR !505 Create upload release artifacts
+MR !496 Split references from annotation in database
+MR !498 Fixes for running local demo instances 
+-->
+- Several fixes and improvements to development environment and code base. 
 
 ## Version 1.12.3
 
@@ -164,173 +210,5 @@ To better support custom gene panel imports that should be available to more tha
 - Fixed a bug that caused errors in loading of historical data.
 <!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478, !483, !484 -->
 - Many fixes and improvements to development environment and code base.
-
-
-## Version 1.11.3
-
-Release date 11.11.2020
-
-### Highlights
-
-This release adds a bugfix for the frequency filter. 
-
-### All changes
-
-<!-- MR !466 -->
-- Fixed a bug that caused a timeout in the frequency filter and failed loading of the associated analysis.
-
-## Version 1.11.2
-
-Release date: 27.10.2020
-
-### Highlights
-
-This release adds bugfixes related to manually appending results to an analysis.
-
-### All changes
-
-<!-- MR !449 -->
-- Fixed a bug where filters using `inheritance_mode` failed to load when there are more than two proband samples in an analysis (e.g. on manual appending import). 
-<!-- MR !452-->
-- Fixed a bug where manually appending an import to a finalized analysis fails. 
-<!-- !442, !447 and !461: no release notes necessary -->
-
-## Version 1.11.1
-
-Release date: 21.08.2020
-
-### Highlights
-
-This release adds a few bugfixes and improvements. 
-
-### All changes
-
-<!-- MR !440 -->
-- Implemented a workaround for an [igv.js bug](https://github.com/igvteam/igv.js/issues/136) to properly distinguish reads with mapping quality 0 from other reads (these will be now be shown with lighter colors). 
-<!-- MR !437 -->
-- Added support for haploid genotypes.
-<!-- MR !436-->
-- Added CLI support for [deleting allele interpretations](/technical/production-tasks.html#delete-allele-interpretation) and [deleting analyses with associated allele assessments](/technical/production-tasks.html#delete-analysis).
-<!-- MR !441-->
-- Fixed bug causing incorrect calculation of class with ACMG criteria PS* + 2 PM*.
-
-## Version 1.11
-
-Release date: 25.06.2020
-
-### Highlights
-
-This release brings an improved gene information popup with editing possibilities, and several changes and improvements to the OVERVIEW page. 
-
-#### User-editable gene information
-
-The [gene information popup](/manual/top-bar.html#gene-information) (click the gene name in the top bar) has been improved, with the possibility to add and edit comments about the gene. This can be used for information that is important for evaluating variants in this gene, and is available for all analyses where the gene is included.  
-
-<div class="figure_text">
-    <img src="./img/1-11-gene-info.png">
-    <p><strong>Figure: </strong>User-editable gene information.</p>
-</div>
-
-If a comment has been added, an `INFO` tag is shown next to the gene name. 
-
-#### New OVERVIEW filter feature
-
-A new [filter feature](/manual/choosing-sample-variant.html#filter-the-overview) was added to the ANALYSES OVERVIEW page to quickly locate subsets of analyses. You can filter by these parameters: 
-
-- Analysis name
-- Comment text (e.g. useful with [auto-comments](#custom-overview-sections-replaced-with-auto-comments))
-- Date requested (ranges up to current date)
-- Show only 
-    - HTS/Sanger
-    - Priorities Normal/High/Urgent
-
-Any combination of these filters is allowed.
-
-<div class="figure_text">
-    <img src="./img/1-11-overview-filter.png">
-    <p><strong>Figure: </strong>User-editable gene information.</p>
-</div>
-
-Note that the filters do _not_ include finalized analyses. 
-
-#### Optional OVERVIEW sections replaced with auto-comments
-
-This release retires the optional classification status sections on the OVERVIEW page and replaces them with a possibility to [auto-add comments](/manual/choosing-sample-variant.html#optional-auto-comments) (`ALL CLASSIFIED`/`NO VARIANTS`) upon deposit of new analyses to the ELLA database. In addition, the [VARIANTS OVERVIEW](/manual/choosing-sample-variant.html#variants-worklist) page has been limited to manually imported, stand-alone variants or individual variants opened from search. 
-
-#### Option to set GQ thresholds for de novo candidates
-
-To remove false positive de novo predictions in the segregation filter, it is now possible to set a genotype quality (GQ) threshold. This will disregard any de novo prediction where the proband, father or mother in a trio has a GQ value below the given thresholds. 
-
-### All changes
-
-<!-- MR !422 -->
-- [Added possibility to edit and save gene information](#user-editable-gene-information).
-<!-- MR !420 -->
-- [Added filtering feature in the ANALYSES OVERVIEW](#new-overview-filter-feature).
-<!-- MR !426 -->
-- [Replaced optional ANALYSES OVERVIEW sections with auto-comments](#optional-overview-sections-replaced-with-auto-comments)
-<!-- MR !431 -->
-- [Added option for GQ threshold for de novo candidates](#option-to-set-gq-thresholds-for-de-novo-candidates)
-<!-- MR !426 -->
-- Fixed a bug causing previously cleared warning tags to remain in the Finalized section and in search results.
-
-
-## Version 1.10.1
-
-Release data: 15.06.2020
-
-### Highlights
-
-This release fixes a few bugs bugs related to references and reference assessments.
-
-### All changes
-<!-- MR !424 -->
-- Fixed a bug where existing reference assessments would not show if no longer part of annotation
-<!-- MR !427 -->
-- Fixed a bug where ClinVar references would not be recognized during import of ClinVar annotation
-<!-- MR !428 -->
-- Fixed a bug where HGMD reference comments would display un-translated character sequences
-
-## Version 1.10
-
-Release date: 09.06.2020
-
-### Highlights
-
-This release brings improvements to the variant filters, a new version of IGV for Visual mode, as well as several smaller improvements and fixes. 
-
-#### Improved variant filters
-
-All criteria in the [segregation filter](/technical/filtering.html#segregation-filter) can now be enabled/disabled separately, allowing for increased flexibility. In addition, the [quality filter](/technical/filtering.html#quality-filter) can now use the VCF `FILTER` status (`PASS`/...) as a parameter. 
-
-### All changes
-
-<!-- MR !409; also updated filtering.md --> 
-- [Added configuration for segregation filter](#improved-variant-filters).
-<!-- MR !416; also updated filtering.md -->
-- Renamed "Inherited mosaicism" to "[Parental mosaicism](/technical/filtering.html#parental-mosaicism)"; The associated [`M` tag](/manual/side-bar.html#variant-tags) can now appear together with other Segregation tags in the sidebar if multiple conditions are true.
-<!-- MR !368; also updated filtering.md -->
-- [Added possibility for using VCF `FILTER` status in quality filter](#improved-variant-filters).
-<!-- MR !417; also updated evidence-sections.md -->
-- Removed `QUAL`≤300 as a criterion for the [NEEDS VERIFICATION warning](/manual/evidence-sections.html#warning-needs-verification) and the [`Q` tag](/manual/side-bar.html#variant-tags).
-<!-- MR !397 -->  
-- Upgraded IGV (in Visual mode) to version 2.5.4, with several minor improvements.
-<!-- MR !419; also updated top-bar.md -->
-- The number shown on the `WORK LOG` button now includes a count of all user added messages, including from previously finalized analysis rounds.
-<!-- MR !370 -->
-- Removed `VARIANT REPORT` button from OVERVIEW.
-<!-- MR !410 -->  
-- Open the previously selected overview page when returning from search.
-<!-- MR !407 --> 
-- Fixed a bug causing wrong open-end position for insertions.
-<!-- MR !411 -->
-- Fixed a bug causing incorrect filtering for regions with 1 base.
-<!-- MR !421 --> 
-- Fixed a bug causing incorrect rescue of variants annotated with non-standard terms in the ClinVar database.
-<!-- MR !412 --> 
-- Fixed a bug causing a wide sidebar with long indication comments.
-<!-- MR !418 -->
-- Fixed a bug causing missing word wrap in comment fields.
-<!-- MR !377 Add flake8: no release note necessary -->
 
 

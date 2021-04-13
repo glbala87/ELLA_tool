@@ -58,7 +58,7 @@ For REQs, you can also define which ACMG criteria the REQ relates to in this fil
 
 ## Classification
 
-Sort order and time to outdated (how long an interpretation is considered valid) for clinical classifications is given in:
+Sort order and how long an interpretation should be considered valid (`outdated_after_days`) for clinical classifications is given in:
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment)) 
 - Key: `classification.options`
