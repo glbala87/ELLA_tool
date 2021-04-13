@@ -37,10 +37,16 @@ def upgrade():
 
     # Drop trigger that cause a massive overhead
     # Need to update schemas after migration, so that the trigger is reinsterted
-    conn.execute("DELETE from jsonschema where name='annotation'")
+    # In addition, Filterconfig schema is updated, but is fully backward compatible. Therefore, replace the changed schema
+    # by first dropping it, and update_schemas again
+    conn.execute(
+        "DELETE from jsonschema where name='annotation' OR (name='filterconfig' and version=3)"
+    )
     conn.execute("DROP TRIGGER IF EXISTS annotation_schema_version ON annotation")
     for tbl in [Annotation, CustomAnnotation]:
-        annotations = conn.execute(sa.select([tbl.c.id, tbl.c.annotations]))
+        annotations = conn.execution_options(stream_results=True).execute(
+            sa.select([tbl.c.id, tbl.c.annotations])
+        )
         for a in annotations:
             if "references" not in a.annotations:
                 continue
@@ -68,6 +74,7 @@ def upgrade():
     # Add back triggers
     conn.execute(create_trigger_sql(config))
     update_schemas(session)
+    session.commit()
 
 
 def downgrade():
