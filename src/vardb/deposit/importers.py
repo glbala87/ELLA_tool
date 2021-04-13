@@ -892,7 +892,7 @@ class AnnotationImporter(object):
                 element_config = converter.element_config
                 additional_sources = element_config.get("additional_sources")
                 if additional_sources:
-                    additional_values = {k: merged_annotation[k] for k in additional_sources}
+                    additional_values = {k: merged_annotation.get(k) for k in additional_sources}
                 else:
                     additional_values = None
 
