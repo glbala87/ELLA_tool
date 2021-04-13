@@ -1,11 +1,10 @@
-import glob
 from pathlib import Path
 import os
 import requests
 
 if __name__ == "__main__":
     annotation_service_url = os.environ["ANNOTATION_SERVICE"]
-    vcf_files = [Path(x) for x in glob.glob("analyses/*/*/*.vcf")]
+    vcf_files = list(Path(__file__).parent.glob("analyses/*/*/*.vcf"))
     for path in vcf_files:
         if not path.is_file():
             continue
@@ -23,8 +22,7 @@ if __name__ == "__main__":
                     ls = line.split("\t")
                     ls[7] = "."
                     unannotated.append("\t".join(ls))
-        response = requests.request(
-            "POST",
+        response = requests.post(
             f"{annotation_service_url}/api/v1/annotate?wait=True",
             json={"input": "\n".join(unannotated)},
         )
