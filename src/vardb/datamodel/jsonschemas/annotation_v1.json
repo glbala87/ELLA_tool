@@ -21,6 +21,10 @@
                 }
             }
         },
+        "prediction": {
+            "type": "object",
+            "additionalProperties": false
+        },
         "transcripts": {
             "$ref": "annotation/transcripts_v1.json"
         },
