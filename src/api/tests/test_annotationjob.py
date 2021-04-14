@@ -20,14 +20,19 @@ GENEPANEL_VERSION = "v01"
 
 @pytest.fixture(scope="session")
 def unannotated_vcf():
-    filename = ANALYSIS + ".vcf"
-    full_path = subprocess.check_output(
-        "find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True
-    ).strip()
-    with open(full_path, "r") as f:
-        vcf = f.read()
-
-    return vcf
+    return "\n".join(
+        [
+            "##fileformat=VCFv4.1",
+            "##contig=<ID=13>",
+            "#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	brca_sample_3",
+            "13	32899256	CD101423	GA	G	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+            "13	32900236	CS1213347	A	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+            "13	32900261	CM065022	A	G	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+            "13	32900280	CD031824	TAA	T	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+            "13	32900290	CS994297	A	G	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+            "13	32972760	CD101423	G	A	5000.0	PASS	.	GT:AD:DP:GQ:PL	0/1:107,80:187:99:2048,0,2917",
+        ]
+    )
 
 
 @pytest.fixture(scope="session")
@@ -196,9 +201,21 @@ def get_alleles(vcf, session):
     return alleles
 
 
+def get_allele_keys(vcf):
+    keys = []
+    for l in vcf.split("\n"):
+        if not l or l.startswith("#"):
+            continue
+        else:
+            chrom, pos, _, ref, alt = l.split("\t")[:5]
+            keys.append((chrom, pos, ref, alt))
+
+    return keys
+
+
 def test_deposit_independent_variants(test_database, session, client, annotated_vcf):
     test_database.refresh()
-    alleles = get_alleles(annotated_vcf, session)
+    alleles = get_allele_keys(annotated_vcf)
 
     data = {
         "mode": "Variants",
@@ -221,30 +238,15 @@ def test_deposit_independent_variants(test_database, session, client, annotated_
     session.commit()
 
     # Check that annotation job is deposited
-    deposited_allele_values = list()
-    for al in alleles:
-        deposited_allele_values.append(
-            (
-                al["chromosome"],
-                al["start_position"],
-                al["open_end_position"],
-                al["change_from"],
-                al["change_to"],
-                al["change_type"],
-            )
-        )
-
     deposited_alleles_count = (
         session.query(allele.Allele)
         .filter(
             tuple_(
                 allele.Allele.chromosome,
-                allele.Allele.start_position,
-                allele.Allele.open_end_position,
-                allele.Allele.change_from,
-                allele.Allele.change_to,
-                allele.Allele.change_type,
-            ).in_(deposited_allele_values)
+                allele.Allele.vcf_pos,
+                allele.Allele.vcf_ref,
+                allele.Allele.vcf_alt,
+            ).in_(alleles)
         )
         .count()
     )

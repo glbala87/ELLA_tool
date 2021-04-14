@@ -1,134 +1,92 @@
 # coding=utf-8
 import pytest
 from itertools import permutations
+import re
 
 from .. import annotationconverters
-from .. import GNOMAD_EXOMES_RESULT_KEY, GNOMAD_EXOMES_ANNOTATION_KEY
-from .. import GNOMAD_GENOMES_RESULT_KEY, GNOMAD_GENOMES_ANNOTATION_KEY
-from .. import EXAC_RESULT_KEY, EXAC_ANNOTATION_KEY
 
 
-class TestReferences:
-    def test_get_pubmeds_HGMD(self):
-        data = {"HGMD": {"pmid": 1, "extrarefs": [{"pmid": 2}, {"pmid": 3}]}}
+def test_get_pubmeds_HGMD():
 
-        pubmeds = annotationconverters.ConvertReferences().process(data)
-        assert pubmeds[0] == {
-            "pubmed_id": 1,
-            "sources": ["HGMD"],
-            "source_info": {"HGMD": "Primary literature report. No comments."},
-        }
+    HGMD_EXTRAREFS_META = '##INFO=<ID=HGMD__extrarefs,Number=.,Type=String,Description="Format: (pmid|title|author|fullname|year|vol|issue|page|reftag|gene|disease|comments) (from /anno/data/variantDBs/HGMD/hgmd-2018.1_norm.vcf.gz)">'
+    meta = {"INFO": [{"ID": "HGMD__extrarefs", "Description": HGMD_EXTRAREFS_META}]}
+    data = {"HGMD__pmid": 1, "HGMD__extrarefs": "2|||||||||||,3|||||||||||"}
 
-        assert pubmeds[1] == {
-            "pubmed_id": 2,
-            "sources": ["HGMD"],
-            "source_info": {"HGMD": "Reftag not specified. No comments."},
-        }
+    pubmeds = annotationconverters.ConvertReferences().process(data, meta)
+    assert pubmeds[0] == {
+        "pubmed_id": 1,
+        "source": "HGMD",
+        "source_info": "Primary literature report. No comments.",
+    }
 
-        assert pubmeds[2] == {
-            "pubmed_id": 3,
-            "sources": ["HGMD"],
-            "source_info": {"HGMD": "Reftag not specified. No comments."},
-        }
+    assert pubmeds[1] == {
+        "pubmed_id": 2,
+        "source": "HGMD",
+        "source_info": "Reftag not specified. No comments.",
+    }
+
+    assert pubmeds[2] == {
+        "pubmed_id": 3,
+        "source": "HGMD",
+        "source_info": "Reftag not specified. No comments.",
+    }
 
 
 class TestFrequencyAnnotation:
-    def test_csq_no_gmaf(self):
-        """
-        Don't include GMAF if given for the REF allele only.
-        """
-
-        data = {"CSQ": [{"GMAF": {"C": 0.122}, "SAS_MAF": {"G": 0.123}, "Allele": "G"}]}
-        freq = annotationconverters.csq_frequencies(data)
-        assert "GMAF" not in freq["1000g"]["freq"]
-
-    def test_frequency_strip_maf_from_name(self):
-        """
-        Don't include MAF part of name
-        """
-        data = {"CSQ": [{"GMAF": {"G": 0.122}, "EUR_MAF": {"G": 0.123}, "Allele": "G"}, {}]}
-        freq = annotationconverters.csq_frequencies(data)
-        assert "G" in freq["1000g"]["freq"]
-        assert "GMAF" not in freq["1000g"]["freq"]
-        assert "EUR" in freq["1000g"]["freq"]
-        assert "EUR_MAF" not in freq["1000g"]["freq"]
-
-    def test_exac_conversion(self):
-        annotation_source = {
-            EXAC_ANNOTATION_KEY: {"AC_TEST": [13], "AN_TEST": 2, "AC_ZERO": [0], "AN_ZERO": 0}
-        }
-
-        converted = annotationconverters.exac_frequencies(annotation_source)[EXAC_RESULT_KEY]
-        assert "TEST" in converted["freq"]
-        assert float(13) / 2 == converted["freq"]["TEST"]
-        assert "ZERO" not in converted["freq"]
-
     def test_gnomad_exomes_conversion(self):
-
         annotation_source = {
-            GNOMAD_EXOMES_ANNOTATION_KEY: {
-                "AC_TEST": [13],
-                "AN_TEST": 2,
-                "AC_ZERO": [0],
-                "AN_ZERO": 0,
-            }
+            "GNOMAD_EXOMES__AC_TEST": 13,
+            "GNOMAD_EXOMES__AN_TEST": 2,
+            "GNOMAD_EXOMES__AC_ZERO": 0,
+            "GNOMAD_EXOMES__AN_ZERO": 0,
         }
 
         converted = annotationconverters.gnomad_exomes_frequencies(annotation_source)[
-            GNOMAD_EXOMES_RESULT_KEY
+            "GNOMAD_EXOMES"
         ]
         assert "TEST" in converted["freq"]
         assert float(13) / 2 == converted["freq"]["TEST"]
         assert "ZERO" not in converted["freq"]
 
     def test_gnomad_genomes_conversion(self):
-
         annotation_source = {
-            GNOMAD_GENOMES_ANNOTATION_KEY: {
-                "AC_TEST": [13],
-                "AN_TEST": 2,
-                "AC_ZERO": [0],
-                "AN_ZERO": 0,
-            }
+            "GNOMAD_GENOMES__AC_TEST": 13,
+            "GNOMAD_GENOMES__AN_TEST": 2,
+            "GNOMAD_GENOMES__AC_ZERO": 0,
+            "GNOMAD_GENOMES__AN_ZERO": 0,
         }
 
         converted = annotationconverters.gnomad_genomes_frequencies(annotation_source)[
-            GNOMAD_GENOMES_RESULT_KEY
+            "GNOMAD_GENOMES"
         ]
         assert "TEST" in converted["freq"]
         assert float(13) / 2 == converted["freq"]["TEST"]
         assert "ZERO" not in converted["freq"]
 
-    def test_exac_hom_count_inclusion(self):
-        annotation_source = {"EXAC": {"Hom_TEST": [13]}}
 
-        converted = annotationconverters.exac_frequencies(annotation_source)[EXAC_RESULT_KEY]
-        assert "TEST" in converted["hom"]
-        assert 13 == converted["hom"]["TEST"]
+CSQ_META = {
+    "Description": "onsequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|ALLELE_NUM|DISTANCE|STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|CANONICAL|ENSP|REFSEQ_MATCH|SOURCE|GIVEN_REF|USED_REF|BAM_EDIT|SIFT|PolyPhen|DOMAINS|HGVS_OFFSET|HGVSg|CLIN_SIG|SOMATIC|PHENO|PUBMED|MOTIF_NAME|MOTIF_POS|HIGH_INF_POS|MOTIF_SCORE_CHANGE|RefSeq_gff|RefSeq_Interim_gff"
+}
+CSQ_KEYS = re.findall('Format: ([^"]*)', CSQ_META["Description"])[0].split("|")
+CSQ_TEMPLATE = "|".join("{" + k + "}" for k in CSQ_KEYS)
+BASE_CSQ_DATA = {
+    **{k: "" for k in CSQ_KEYS},
+    **{
+        "Feature_type": "Transcript",
+        "Feature": "NM_SOMETHING",
+        "SYMBOL": "SomeSymbol",
+        "HGNC_ID": 1100,
+    },
+}
 
-    def test_esp_hom_count_inclusion(self):
 
-        data = {"CSQ": [{"EA_MAF": {"G": 0.122}, "AA_MAF": {"G": 0.123}, "Allele": "G"}, {}]}
-
-        freqs = annotationconverters.csq_frequencies(data)
-        assert 0.122 == freqs["esp6500"]["freq"]["EA"]
-        assert 0.123 == freqs["esp6500"]["freq"]["AA"]
+def generate_raw_csq(modifications):
+    csq_data = {**BASE_CSQ_DATA, **modifications}
+    return CSQ_TEMPLATE.format(**csq_data)
 
 
 class TestTranscriptAnnotation:
     def test_distance_computation(self):
-        def generate_data(hgvsc):
-            return {
-                "CSQ": [
-                    {
-                        "Feature_type": "Transcript",
-                        "HGVSc": hgvsc,
-                        "Feature": "NM_SOMETHING",
-                        "SYMBOL": "SomeSymbol",
-                        "HGNC_ID": 1,
-                    }
-                ]
-            }
 
         cases = [
             ("NM_007294.3:c.4535-213G>T", -213, None),
@@ -194,7 +152,8 @@ class TestTranscriptAnnotation:
         ]
 
         for hgvsc, exon_distance, coding_region_distance in cases:
-            csq = annotationconverters.ConvertCSQ()(generate_data(hgvsc))[0]
+            csq_modification = {"HGVSc": hgvsc}
+            csq = annotationconverters.ConvertCSQ()(generate_raw_csq(csq_modification), CSQ_META)[0]
             assert csq["exon_distance"] == exon_distance, "{} failed {}!={}".format(
                 hgvsc, csq["exon_distance"], exon_distance
             )
@@ -205,45 +164,31 @@ class TestTranscriptAnnotation:
             )
 
     def test_get_is_last_exon(self):
-        def generate_data(additions):
-            data = {
-                "CSQ": [
-                    {
-                        "Feature_type": "Transcript",
-                        "Feature": "NM_SOMETHING",
-                        "SYMBOL": "SomeSymbol",
-                        "HGNC_ID": 1,
-                    }
-                ]
-            }
-            data["CSQ"][0].update(additions)
-            return data
-
         csq_converter = annotationconverters.ConvertCSQ()
-        assert csq_converter(generate_data({"EXON": "20/20"}))[0]["in_last_exon"] == "yes"
-        assert csq_converter(generate_data({"EXON": "1/20"}))[0]["in_last_exon"] == "no"
-        assert csq_converter(generate_data({}))[0]["in_last_exon"] == "no"
-        assert csq_converter(generate_data({}))[0]["in_last_exon"] == "no"
+        assert (
+            csq_converter(generate_raw_csq({"EXON": "20/20"}), CSQ_META)[0]["in_last_exon"] == "yes"
+        )
+        assert (
+            csq_converter(generate_raw_csq({"EXON": "1/20"}), CSQ_META)[0]["in_last_exon"] == "no"
+        )
+        assert csq_converter(generate_raw_csq({}), CSQ_META)[0]["in_last_exon"] == "no"
+        assert csq_converter(generate_raw_csq({}), CSQ_META)[0]["in_last_exon"] == "no"
         with pytest.raises(IndexError):
-            csq_converter(generate_data({"EXON": "20__20"}))
+            csq_converter(generate_raw_csq({"EXON": "20__20"}), CSQ_META)
 
     def test_csq_transcripts(self):
         csq_converter = annotationconverters.ConvertCSQ()
-        data = {
-            "CSQ": [
-                {"Feature": "NM_000090.3", "HGNC_ID": 1100, "Feature_type": "Transcript"},
-                {"Feature": "ENST123456", "HGNC_ID": 1100, "Feature_type": "Transcript"},
-                {"Feature": "NM_000091.2", "HGNC_ID": 1100, "Feature_type": "Transcript"},
-                {
-                    "Feature": "NOT_NM_OR_ENST__I_WILL_BE_FILTERED",
-                    "HGNC_ID": 1100,
-                    "Feature_type": "Transcript",
-                },
-                {"Feature": "NotTranscript", "HGNC_ID": 1100, "Feature_type": "Other"},
+        data = ",".join(
+            [
+                generate_raw_csq({"Feature": "NM_000090.3"}),
+                generate_raw_csq({"Feature": "ENST123456"}),
+                generate_raw_csq({"Feature": "NM_000091.2"}),
+                generate_raw_csq({"Feature": "NOT_NM_OR_ENST__I_WILL_BE_FILTERED"}),
+                generate_raw_csq({"Feature": "NotTranscript", "Feature_type": "Other"}),
             ]
-        }
+        )
 
-        transcripts = csq_converter(data)
+        transcripts = csq_converter(data, CSQ_META)
 
         # Only NM_ or ENST transcripts are included.
         assert len(transcripts) == 3
@@ -251,33 +196,31 @@ class TestTranscriptAnnotation:
         assert transcripts[1]["transcript"] == "NM_000090.3"
         assert transcripts[2]["transcript"] == "NM_000091.2"
 
-        # Test HGNC ID fetching
-        data = {
-            "CSQ": [
-                {
-                    "Feature": "NM_000000.1",
-                    "Gene": "GENE_WITHOUT_HGNC_ID",
-                    "Feature_type": "Transcript",
-                },
-                {
-                    "Feature": "NM_000001.1",
-                    "SYMBOL": "BRCA1",
-                    "Feature_type": "Transcript",
-                },  # Will fetch HGNC id from symbol
-                {
-                    "Feature": "NM_000002.1",
-                    "Gene": "672",
-                    "Feature_type": "Transcript",
-                },  # Will fetch HGNC id from Gene (NCBI gene id 672 = BRCA1)
-                {
-                    "Feature": "NM_000003.1",
-                    "Gene": "ENSG00000139618",
-                    "Feature_type": "Transcript",
-                },  # Will fetch HGNC id from Gene (NCBI gene id ENSG00000139618 = BRCA2)
+    def test_hgnc_id_fetching(self):
+        data = ",".join(
+            [
+                generate_raw_csq(
+                    {"Feature": "NM_000000.1", "Gene": "GENE_WITHOUT_HGNC_ID", "HGNC_ID": ""}
+                ),
+                generate_raw_csq(
+                    {"Feature": "NM_000001.1", "SYMBOL": "BRCA1", "HGNC_ID": ""}
+                ),  # Will fetch HGNC id from symbol
+                generate_raw_csq(
+                    {"Feature": "NM_000002.1", "Gene": "672", "HGNC_ID": "", "SYMBOL": ""}
+                ),  # Will fetch HGNC id from Gene (NCBI gene id 672 = BRCA1)
+                generate_raw_csq(
+                    {
+                        "Feature": "NM_000003.1",
+                        "Gene": "ENSG00000139618",
+                        "HGNC_ID": "",
+                        "SYMBOL": "",
+                    }
+                ),  # Will fetch HGNC id from Gene (NCBI gene id ENSG00000139618 = BRCA2)
             ]
-        }
+        )
 
-        transcripts = csq_converter(data)
+        transcripts = annotationconverters.ConvertCSQ()(data, CSQ_META)
+
         assert len(transcripts) == 3
         assert transcripts[0]["transcript"] == "NM_000001.1"
         assert transcripts[0]["symbol"] == "BRCA1"
@@ -289,61 +232,59 @@ class TestTranscriptAnnotation:
         assert transcripts[2]["symbol"] == "BRCA2"
         assert transcripts[2]["hgnc_id"] == 1101
 
+    def test_refseq_priority(self):
         # Test RefSeq priority
-        data = {
-            "CSQ": [
-                {
-                    "Feature": "NM_000001.1",
-                    "SYMBOL": "RefSeq",
-                    "HGNC_ID": 1100,
-                    "Feature_type": "Transcript",
-                    "SOURCE": "RefSeq",
-                },
-                {
-                    "Feature": "NM_000001.1",
-                    "SYMBOL": "RefSeq_Interim_gff",
-                    "HGNC_ID": 1100,
-                    "Feature_type": "Transcript",
-                    "SOURCE": "RefSeq_Interim_gff",
-                },
-                {
-                    "Feature": "NM_000001.1",
-                    "SYMBOL": "RefSeq_gff",
-                    "HGNC_ID": 1100,
-                    "Feature_type": "Transcript",
-                    "SOURCE": "RefSeq_gff",
-                },
-                {
-                    "Feature": "NM_000002.1",
-                    "HGNC_ID": 1100,
-                    "Feature_type": "Transcript",
-                },  # Different transcript, should not affect priority
-            ]
-        }
+
+        base = [
+            {
+                "Feature": "NM_000001.1",
+                "SYMBOL": "RefSeq",
+                "Feature_type": "Transcript",
+                "SOURCE": "RefSeq",
+            },
+            {
+                "Feature": "NM_000001.1",
+                "SYMBOL": "RefSeq_Interim_gff",
+                "Feature_type": "Transcript",
+                "SOURCE": "RefSeq_Interim_gff",
+            },
+            {
+                "Feature": "NM_000001.1",
+                "SYMBOL": "RefSeq_gff",
+                "Feature_type": "Transcript",
+                "SOURCE": "RefSeq_gff",
+            },
+            {
+                "Feature": "NM_000002.1",
+                "Feature_type": "Transcript",
+            },  # Different transcript, should not affect priority
+        ]
 
         # Order shouldn't matter, check all 4!=24 permutations
-        for p in permutations(data["CSQ"]):
-            transcripts = csq_converter({"CSQ": p})
+        csq_converter = annotationconverters.ConvertCSQ()
+        for p in permutations(base):
+            raw_csq = ",".join(generate_raw_csq(x) for x in p)
+            transcripts = csq_converter(raw_csq, CSQ_META)
             assert len(transcripts) == 2
             assert transcripts[0]["transcript"] == "NM_000001.1"
             assert transcripts[0]["symbol"] == "RefSeq_gff"
             assert transcripts[1]["transcript"] == "NM_000002.1"
 
         # Remove top priority source
-        data["CSQ"] = [tx_data for tx_data in data["CSQ"] if tx_data.get("SYMBOL") != "RefSeq_gff"]
-        assert len(data["CSQ"]) == 3
-        transcripts = csq_converter(data)
+        base = [tx_data for tx_data in base if tx_data.get("SYMBOL") != "RefSeq_gff"]
+        assert len(base) == 3
+        raw_csq = ",".join(generate_raw_csq(x) for x in base)
+        transcripts = csq_converter(raw_csq, CSQ_META)
         assert len(transcripts) == 2
         assert transcripts[0]["transcript"] == "NM_000001.1"
         assert transcripts[0]["symbol"] == "RefSeq_Interim_gff"
         assert transcripts[1]["transcript"] == "NM_000002.1"
 
         # Remove second top priority source
-        data["CSQ"] = [
-            tx_data for tx_data in data["CSQ"] if tx_data.get("SYMBOL") != "RefSeq_Interim_gff"
-        ]
-        assert len(data["CSQ"]) == 2
-        transcripts = csq_converter(data)
+        base = [tx_data for tx_data in base if tx_data.get("SYMBOL") != "RefSeq_Interim_gff"]
+        assert len(base) == 2
+        raw_csq = ",".join(generate_raw_csq(x) for x in base)
+        transcripts = csq_converter(raw_csq, CSQ_META)
         assert len(transcripts) == 2
         assert transcripts[0]["transcript"] == "NM_000001.1"
         assert transcripts[0]["symbol"] == "RefSeq"
@@ -360,21 +301,8 @@ class TestTranscriptAnnotation:
         ],
     )
     def test_long_variant_names(self, hgvsc, hgvsc_short, insertion):
-        def generate_data(hgvsc):
-            transcript = "NM_007294.3"
-            return {
-                "CSQ": [
-                    {
-                        "Feature_type": "Transcript",
-                        "Feature": transcript,
-                        "HGNC_ID": 1,
-                        "SYMBOL": "SomeGeneSymbol",
-                        "HGVSc": transcript + ":" + hgvsc,
-                    }
-                ]
-            }
-
-        converted = annotationconverters.ConvertCSQ()(generate_data(hgvsc))[0]
+        raw_csq = generate_raw_csq({"HGVSc": "NM_000000.1:" + hgvsc, "HGNC_ID": 1})
+        converted = annotationconverters.ConvertCSQ()(raw_csq, CSQ_META)[0]
         assert converted["HGVSc"] == hgvsc
         assert converted["HGVSc_short"] == hgvsc_short
         assert converted.get("HGVSc_insertion") == insertion

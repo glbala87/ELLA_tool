@@ -22,13 +22,15 @@ import { Directive, Inject } from '../ng-decorators'
             showCursorTrackingGuide: true,
             doubleClickDelay: 300,
             minimumBases: 50,
-            promisified: true
+            promisified: true,
+            loadDefaultGenomes: false
         }
 
         let options = {
             tracks: [],
             reference: scope.reference,
             locus: scope.locus,
+            showKaryo: true,
             search: {
                 url: '/api/v1/igv/search/?q=$FEATURE$',
                 coords: 0
@@ -62,8 +64,8 @@ import { Directive, Inject } from '../ng-decorators'
                 // IGV has two internal tracks with empty string as track names
                 // These should be left alone...
                 const currentTrackNames = browser.trackViews
+                    .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
                     .map((tv) => tv.track.name)
-                    .filter((t) => t != '')
                 const removedNames = currentTrackNames.filter(
                     (name) => !scope.tracks.find((t) => t.name === name)
                 )

@@ -1,78 +1,88 @@
-import os
-import pytest
 from sqlalchemy import tuple_
+import os
 from pathlib import Path
+import pytest
+import shutil
+import tempfile
 from vardb.deposit.analysis_config import AnalysisConfigData
 from vardb.datamodel import sample as sm
 from vardb.watcher.analysis_watcher import AnalysisWatcher, WATCH_PATH_ERROR, DEST_PATH_ERROR
 
-
-non_existing_path = "123nonexistingpath"
-
-watch_path = "/tmp/test-ella-watcher-analyses"
-dest_path = "/tmp/test-ella-watcher-destination"
-
-ready_data_source_path = "/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001"
-ready_data_path = os.path.join(watch_path, "TestAnalysis-001")
-empty_data_path = os.path.join(watch_path, "TestAnalysis-002")
-
-analysis_sample = "TestAnalysis-001"
-analysis_sample2 = "TestAnalysis-002"
-
-misconfigured_data_path = "/ella/src/vardb/watcher/testdata/analysis_with_error/TestAnalysis-003"
-misconfigured_analysis_sample = "TestAnalysis-003"
+READY_DATA_SOURCE_PATH = "/ella/src/vardb/watcher/testdata/analyses/TestAnalysis-001"
+MISCONFIGURED_DATA_SOURCE_PATH = (
+    "/ella/src/vardb/watcher/testdata/analysis_with_error/TestAnalysis-003"
+)
 
 
-@pytest.fixture(scope="function", autouse=True)
-def init_dest():
-    print("cleaning up paths ..")
-    os.system("rm -rf {}".format(empty_data_path))
-    os.system("rm -rf {}".format(dest_path))
-    os.system("rm -rf {}".format(watch_path))
-    os.mkdir(watch_path)
-    os.mkdir(dest_path)
-    os.mkdir(empty_data_path)
-
-    os.system("cp -r {} {}".format(ready_data_source_path, ready_data_path))
-
-    print("paths are ready ..")
-    os.system("touch {}/READY".format(ready_data_path))
-    yield "dest_created"
-    os.system("rm -rf {}".format(empty_data_path))
-    os.system("rm -rf {}".format(dest_path))
+def ready_path(watch_path):
+    return watch_path / Path(READY_DATA_SOURCE_PATH).name
 
 
-def init(session, analysis_path=watch_path, destination_path=dest_path):
-    aw = AnalysisWatcher(session, analysis_path, destination_path)
-    return aw
+def not_ready_path(watch_path):
+    return watch_path / "TestAnalysis-002-not-ready"
+
+
+def misconfigured_data_path(watch_path):
+    return watch_path / Path(MISCONFIGURED_DATA_SOURCE_PATH).name
+
+
+def assert_ready_moved_to_dest(watch_path, dest_path):
+    "Check that the folder defined by ready_path(watch_path) is not in watch_path, but is in dest_path"
+    watch_files = set(os.listdir(watch_path))
+    dest_files = set(os.listdir(dest_path))
+    assert ready_path(watch_path).name not in watch_files
+    assert ready_path(watch_path).name in dest_files
+
+
+@pytest.fixture(scope="function")
+def watch_path():
+    "Create temporary directory, and create folders/symlinks as a fresh watch directory"
+    _watch_path = Path(tempfile.mkdtemp())
+    os.symlink(READY_DATA_SOURCE_PATH, ready_path(_watch_path))
+    os.mkdir(not_ready_path(_watch_path))
+    os.symlink(MISCONFIGURED_DATA_SOURCE_PATH, misconfigured_data_path(_watch_path))
+
+    yield _watch_path
+
+    shutil.rmtree(_watch_path)
+
+
+@pytest.fixture(scope="function")
+def dest_path():
+    "Create temporary directory as a fresh destinatation directory"
+    _dest_path = Path(tempfile.mkdtemp())
+    yield _dest_path
+    shutil.rmtree(_dest_path)
 
 
 def test_analysispath_throws_exception(session):
-    with pytest.raises(RuntimeError, match=WATCH_PATH_ERROR.format(non_existing_path)):
-        AnalysisWatcher(session, non_existing_path, "")
+    with pytest.raises(RuntimeError, match=WATCH_PATH_ERROR.format("nonexisting")):
+        AnalysisWatcher(session, "nonexisting", "")
 
 
-def test_destinationpath_throws_exception(session, init_dest):
-    with pytest.raises(RuntimeError, match=DEST_PATH_ERROR.format(non_existing_path)):
-        AnalysisWatcher(session, watch_path, non_existing_path)
+def test_destinationpath_throws_exception(session, watch_path):
+    with pytest.raises(RuntimeError, match=DEST_PATH_ERROR.format("nonexisting")):
+        AnalysisWatcher(session, watch_path, "nonexisting")
 
 
-def test_ready_filepath(session, init_dest):
-    aw = init(session)
-    assert aw.is_ready(Path(ready_data_path)) is True
-    assert aw.is_ready(Path(empty_data_path)) is False
+def test_ready_filepath(session, watch_path, dest_path):
+    aw = AnalysisWatcher(session, watch_path, dest_path)
+    assert aw.is_ready(ready_path(watch_path)) is True
+    assert aw.is_ready(not_ready_path(watch_path)) is False
 
 
-def test_import_analysis(session, test_database, init_dest):
+def test_import_analysis(session, test_database, watch_path, dest_path):
     test_database.refresh()
     aw = AnalysisWatcher(session, watch_path, dest_path)
 
-    analysis_config_data = AnalysisConfigData(ready_data_path)
+    analysis_config_data = AnalysisConfigData(ready_path(watch_path))
     aw.import_analysis(analysis_config_data)
 
     session.flush()
 
-    with pytest.raises(RuntimeError, match="Analysis TestAnalysis-001 is already imported."):
+    with pytest.raises(
+        RuntimeError, match=f"Analysis {analysis_config_data['name']} is already imported."
+    ):
         aw.import_analysis(analysis_config_data)
 
     analysis_stored = (
@@ -88,13 +98,11 @@ def test_import_analysis(session, test_database, init_dest):
     assert len(analysis_stored) == 1
 
 
-def test_check_and_import(session, test_database, init_dest):
-    aw = init(session)
-
+def test_check_and_import(session, test_database, watch_path, dest_path):
     test_database.refresh()
     aw = AnalysisWatcher(session, watch_path, dest_path)
 
-    analysis_config_data = AnalysisConfigData(ready_data_path)
+    analysis_config_data = AnalysisConfigData(ready_path(watch_path))
 
     aw.check_and_import()
 
@@ -109,23 +117,18 @@ def test_check_and_import(session, test_database, init_dest):
     )
     assert len(analysis_stored) == 1
 
-    files = os.listdir(watch_path)
-    assert len(files) == 1
-    assert files == [analysis_sample2]
-
-    os.system("rm -r {}".format(watch_path))
+    assert_ready_moved_to_dest(watch_path, dest_path)
 
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)
 
 
-def test_check_and_import_whitelist_include(session, test_database, init_dest):
-    aw = init(session)
-
+def test_check_and_import_whitelist_include(session, test_database, watch_path, dest_path):
     test_database.refresh()
-    aw = AnalysisWatcher(session, watch_path, dest_path, whitelist=[f"^{analysis_sample}$"])
-
-    analysis_config_data = AnalysisConfigData(ready_data_path)
+    analysis_config_data = AnalysisConfigData(ready_path(watch_path))
+    aw = AnalysisWatcher(
+        session, watch_path, dest_path, whitelist=[f"^{analysis_config_data['name']}$"]
+    )
 
     aw.check_and_import()
 
@@ -140,24 +143,40 @@ def test_check_and_import_whitelist_include(session, test_database, init_dest):
     )
 
     assert len(analysis_stored) == 1
-
-    files = os.listdir(watch_path)
-    assert len(files) == 1
-    assert files == [analysis_sample2]
-
-    os.system("rm -r {}".format(watch_path))
-
+    assert_ready_moved_to_dest(watch_path, dest_path)
     assert "Report" in str(analysis_stored[0].report)
     assert "Warning" in str(analysis_stored[0].warnings)
 
 
-def test_check_and_import_whitelist_exclude(session, test_database, init_dest):
-    aw = init(session)
+def test_check_and_import_blacklist_exclude(session, test_database, watch_path, dest_path):
+    test_database.refresh()
+    analysis_config_data = AnalysisConfigData(ready_path(watch_path))
+    aw = AnalysisWatcher(
+        session, watch_path, dest_path, blacklist=[f"^{analysis_config_data['name']}$"]
+    )
 
+    aw.check_and_import()
+
+    analysis_stored = (
+        session.query(sm.Analysis)
+        .filter(
+            sm.Analysis.name == analysis_config_data["name"],
+            tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+            == (analysis_config_data["genepanel_name"], analysis_config_data["genepanel_version"]),
+        )
+        .all()
+    )
+
+    assert len(analysis_stored) == 0
+    with pytest.raises(AssertionError):
+        assert_ready_moved_to_dest(watch_path, dest_path)
+
+
+def test_check_and_import_whitelist_exclude(session, test_database, watch_path, dest_path):
     test_database.refresh()
     aw = AnalysisWatcher(session, watch_path, dest_path, whitelist=["^NonExisting$"])
 
-    analysis_config_data = AnalysisConfigData(ready_data_path)
+    analysis_config_data = AnalysisConfigData(ready_path(watch_path))
 
     aw.check_and_import()
 
@@ -173,8 +192,114 @@ def test_check_and_import_whitelist_exclude(session, test_database, init_dest):
 
     assert len(analysis_stored) == 0
 
-    files = os.listdir(watch_path)
-    assert len(files) == 2
-    assert set(files) == set([analysis_sample, analysis_sample2])
+    with pytest.raises(AssertionError):
+        assert_ready_moved_to_dest(watch_path, dest_path)
 
-    os.system("rm -r {}".format(watch_path))
+
+def test_check_and_import_whitelistfile(session, test_database, watch_path, dest_path):
+    with tempfile.NamedTemporaryFile(mode="wt") as wlf:
+        wlf.write("^NonExisting$")
+        wlf.flush()
+        test_database.refresh()
+        aw = AnalysisWatcher(session, watch_path, dest_path, whitelistfile=wlf.name)
+
+        analysis_config_data = AnalysisConfigData(ready_path(watch_path))
+
+        aw.check_and_import()
+
+        analysis_stored = (
+            session.query(sm.Analysis)
+            .filter(
+                sm.Analysis.name == analysis_config_data["name"],
+                tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+                == (
+                    analysis_config_data["genepanel_name"],
+                    analysis_config_data["genepanel_version"],
+                ),
+            )
+            .all()
+        )
+
+        assert len(analysis_stored) == 0
+
+        with pytest.raises(AssertionError):
+            assert_ready_moved_to_dest(watch_path, dest_path)
+
+        wlf.write(f"\n^{analysis_config_data['name']}$")
+        wlf.flush()
+
+        aw.check_and_import()
+
+        analysis_stored = (
+            session.query(sm.Analysis)
+            .filter(
+                sm.Analysis.name == analysis_config_data["name"],
+                tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+                == (
+                    analysis_config_data["genepanel_name"],
+                    analysis_config_data["genepanel_version"],
+                ),
+            )
+            .all()
+        )
+
+        assert len(analysis_stored) == 1
+
+        assert_ready_moved_to_dest(watch_path, dest_path)
+
+
+def test_check_and_import_blacklistfile_include(session, test_database, watch_path, dest_path):
+    with tempfile.NamedTemporaryFile(mode="wt") as blf:
+        blf.write("^NonExisting$")
+        blf.flush()
+        test_database.refresh()
+        aw = AnalysisWatcher(session, watch_path, dest_path, blacklistfile=blf.name)
+
+        analysis_config_data = AnalysisConfigData(ready_path(watch_path))
+
+        aw.check_and_import()
+
+        analysis_stored = (
+            session.query(sm.Analysis)
+            .filter(
+                sm.Analysis.name == analysis_config_data["name"],
+                tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+                == (
+                    analysis_config_data["genepanel_name"],
+                    analysis_config_data["genepanel_version"],
+                ),
+            )
+            .all()
+        )
+
+        assert len(analysis_stored) == 1
+
+        assert_ready_moved_to_dest(watch_path, dest_path)
+
+
+def test_check_and_import_blacklistfile_exclude(session, test_database, watch_path, dest_path):
+    with tempfile.NamedTemporaryFile(mode="wt") as blf:
+        analysis_config_data = AnalysisConfigData(ready_path(watch_path))
+        blf.write(f"^{analysis_config_data['name']}$")
+        blf.flush()
+        test_database.refresh()
+        aw = AnalysisWatcher(session, watch_path, dest_path, blacklistfile=blf.name)
+
+        aw.check_and_import()
+
+        analysis_stored = (
+            session.query(sm.Analysis)
+            .filter(
+                sm.Analysis.name == analysis_config_data["name"],
+                tuple_(sm.Analysis.genepanel_name, sm.Analysis.genepanel_version)
+                == (
+                    analysis_config_data["genepanel_name"],
+                    analysis_config_data["genepanel_version"],
+                ),
+            )
+            .all()
+        )
+
+        assert len(analysis_stored) == 0
+        with pytest.raises(AssertionError):
+            assert_ready_moved_to_dest(watch_path, dest_path)

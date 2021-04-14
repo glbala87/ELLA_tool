@@ -28,7 +28,7 @@ describe(`Adding reference in variant workflow`, function() {
         analysisPage.startButton.click()
         alleleSectionBox.classifyAsNP()
 
-        expect(alleleSectionBox.getReferences().length).toEqual(1)
+        expect(alleleSectionBox.getReferences().length).toEqual(3)
 
         // add a reference using XML format
         console.log(`adding XML reference`)
@@ -42,10 +42,10 @@ describe(`Adding reference in variant workflow`, function() {
         expect(afterCount).toEqual(beforeCount + 1)
         customAnnotationModal.saveBtn.click()
         customAnnotationModal.waitForClose()
-        browser.waitUntil(() => alleleSectionBox.getReferences().length === 2, {
+        browser.waitUntil(() => alleleSectionBox.getReferences().length === 4, {
             timeout: 5000
         })
-        expect(alleleSectionBox.getReferences().length).toEqual(2)
+        expect(alleleSectionBox.getReferences().length).toEqual(4)
 
         // add a reference using RIS format
         console.log(`adding RIS reference`)
@@ -65,12 +65,12 @@ describe(`Adding reference in variant workflow`, function() {
         // browser.debug()
         // browser.pause(3000)
         const wait_start = new Date()
-        browser.waitUntil(() => alleleSectionBox.getReferences().length === 3, {
+        browser.waitUntil(() => alleleSectionBox.getReferences().length === 5, {
             timeout: 5000
         })
         const wait_end = new Date()
         console.log(`success after waiting ${(wait_end - wait_start) / 1000}s`)
-        expect(alleleSectionBox.getReferences().length).toEqual(3)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
 
         alleleSectionBox.classSelection.selectByVisibleText('Class 1')
         analysisPage.finishButton.click()
@@ -83,9 +83,9 @@ describe(`Adding reference in variant workflow`, function() {
         loginPage.loginAs('testuser2')
         variantSelectionPage.expandReviewSection()
         variantSelectionPage.selectTopReview()
-        expect(alleleSectionBox.getReferences().length).toEqual(3)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
         analysisPage.startButton.click()
-        expect(alleleSectionBox.getReferences().length).toEqual(3)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
         alleleSectionBox.finalize()
         analysisPage.finishButton.click()
         analysisPage.finalizeButton.click()
@@ -97,7 +97,7 @@ describe(`Adding reference in variant workflow`, function() {
         loginPage.loginAs('testuser2')
         variantSelectionPage.expandFinishedSection()
         variantSelectionPage.selectFinished(1)
-        expect(alleleSectionBox.getReferences().length).toEqual(3)
+        expect(alleleSectionBox.getReferences().length).toEqual(5)
     })
 })
 

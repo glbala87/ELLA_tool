@@ -14,11 +14,7 @@ import logging
 from sqlalchemy import tuple_
 from datalayer import queries
 from vardb.util import vcfiterator
-from vardb.deposit.importers import (
-    HGMDInfoProcessor,
-    SplitToDictInfoProcessor,
-    get_allele_from_record,
-)
+from vardb.deposit.importers import get_allele_from_record
 
 from vardb.datamodel import sample, user, gene, assessment, allele
 
@@ -26,37 +22,47 @@ from .deposit_from_vcf import DepositFromVCF
 
 log = logging.getLogger(__name__)
 
-
-VARIANT_GENOTYPES = ["0/1", "1/.", "./1", "1/1", "0|1", "1|0", "1|.", ".|1", "1|1", "1"]
+VALID_PREFILTER_KEYS = set(
+    [
+        "non_multiallelic",
+        "hi_frequency",
+        "position_not_nearby",
+        "no_classification",
+        "low_mapping_quality",
+    ]
+)
 
 
 class PrefilterBatchGenerator:
-    def __init__(self, session, proband_sample_name, generator, prefilter=False, batch_size=2000):
+    def __init__(self, session, proband_sample_name, generator, prefilters=None, batch_size=2000):
         self.session = session
         self.proband_sample_name = proband_sample_name
-        self.prefilter = prefilter
+        self.prefilters = prefilters
         self.batch_size = batch_size
         self.generator = generator
         self.batch = list()  # Stores the batch to submit
         self.previous_record = None
-        self.previous_record_imported = True
+        self.previous_should_import_if_nearby = False
 
     def prefilter_records(self, records):
         """
         Checks whether a record should be prefiltered, i.e. not imported.
         We do this to reduce the amount of data to import for large analyses.
 
-        Current criteria:
+        Current available criteria:
 
         - Not multiallelic for proband
         - GnomAD GENOMES.G > 0.05, num > 5000
         - No existing classifications
         - No variants within +/- 3bp
+        - Low mapping quality (MQ<20)
         """
 
         result_records = []
 
-        allele_data = [(r["CHROM"], r["POS"], r["REF"], r["ALT"][0]) for r in records]
+        allele_data = [
+            (r.variant.CHROM, r.variant.POS, r.variant.REF, r.variant.ALT[0]) for r in records
+        ]
 
         alleles_classifications = (
             self.session.query(
@@ -78,46 +84,72 @@ class PrefilterBatchGenerator:
             .all()
         )
 
-        for idx, r in enumerate(records):
+        for r in records:
+            # If the current record is nearby the previous, and the previous record was excluded
+            # because of the nearby-check (previous_should_import_if_nearby),
+            # then include the previous record here
+            if (
+                self.previous_should_import_if_nearby
+                and self.previous_record
+                and self._is_nearby(self.previous_record, r)
+            ):
+                result_records.append(self.previous_record)
+
             has_classification = next(
                 (
                     a
                     for a in alleles_classifications
-                    if a == (r["CHROM"], r["POS"], r["REF"], r["ALT"][0])
+                    if a == (r.variant.CHROM, r.variant.POS, r.variant.REF, r.variant.ALT[0])
                 ),
                 False,
             )
-            checks = {
-                "non_multiallelic": r["SAMPLES"][self.proband_sample_name]["GT"]
-                in ["0/1", "1/1", "1|0", "0|1", "1|1", "1"],
-                "hi_frequency": "GNOMAD_GENOMES" in r["INFO"]["ALL"]
-                and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AF"][0] > 0.05
-                and r["INFO"]["ALL"]["GNOMAD_GENOMES"]["AN"] > 5000,
-                "position_not_nearby": bool(self.previous_record)
-                and not self._is_nearby(self.previous_record, r),
+
+            # Create an object with all possible criteria
+            all_checks = {
+                "non_multiallelic": not r.is_sample_multiallelic(self.proband_sample_name),
+                "hi_frequency": float(r.variant.INFO.get("GNOMAD_GENOMES__AF", 0.0)) > 0.05
+                and int(r.variant.INFO.get("GNOMAD_GENOMES__AN", 0)) > 5000,
+                "position_not_nearby": self.previous_record is None
+                or not self._is_nearby(self.previous_record, r),
                 "no_classification": not has_classification,
+                "low_mapping_quality": float(r.variant.INFO.get("MQ", float("inf"))) < 20,
             }
 
-            # If current record is nearby previous record, we need to ensure that
-            # the previous record also is imported
-            if not checks["position_not_nearby"] and not self.previous_record_imported:
-                result_records.append(self.previous_record)
-            if not all(checks.values()):
-                result_records.append(r)
-                self.previous_record_imported = True
-            else:
-                self.previous_record_imported = False
+            # Assertion to avoid sloppy implementation of new criteria
+            assert set(all_checks.keys()) == VALID_PREFILTER_KEYS
 
+            def should_filter_out(all_checks, prefilters):
+                """
+                Run all checks against each prefilter in turn.
+                If any of the prefilters have all their criteria fulfilled, it should be filtered out
+                """
+                for prefilter in prefilters:
+                    prefilter_checks = {
+                        check: value for check, value in all_checks.items() if check in prefilter
+                    }
+                    if all(prefilter_checks.values()):
+                        return True
+                return False
+
+            if not should_filter_out(all_checks, self.prefilters):
+                result_records.append(r)
+                self.previous_should_import_if_nearby = False  # Already imported
+            else:
+                # Track if this record should be imported if the next record is nearby this record by
+                # "simulating" the current record has a nearby variant
+                all_checks["position_not_nearby"] = False
+                self.previous_should_import_if_nearby = not should_filter_out(
+                    all_checks, self.prefilters
+                )
             self.previous_record = r
         return result_records
 
     @staticmethod
     def _is_nearby(prev, current):
-        return abs(prev["POS"] - current["POS"]) <= 3 and prev["CHROM"] == current["CHROM"]
-
-    @staticmethod
-    def _is_multiallelic(current):
-        return BlockIterator.get_block_id(current) is not None
+        return (
+            abs(prev.variant.POS - current.variant.POS) <= 3
+            and prev.variant.CHROM == current.variant.CHROM
+        )
 
     def __next__(self):
 
@@ -155,7 +187,7 @@ class PrefilterBatchGenerator:
             if (
                 len(batch) >= (self.batch_size - 1)
                 and not is_nearby
-                and not self._is_multiallelic(current)
+                and not current.is_multiallelic()
             ):  # Batch size influences no. of db queries
                 batch.append(current)
                 break
@@ -163,10 +195,11 @@ class PrefilterBatchGenerator:
         proband_records = list()
         # We only import variants found in proband
         for record in batch:
-            if record["SAMPLES"][self.proband_sample_name]["GT"] in VARIANT_GENOTYPES:
+
+            if record.has_allele(self.proband_sample_name):
                 proband_records.append(record)
 
-        if self.prefilter:
+        if self.prefilters:
             prefiltered_records = self.prefilter_records(proband_records)
             return prefiltered_records, batch
         else:
@@ -211,28 +244,19 @@ class BlockIterator(object):
             []
         )  # Stores all records for the whole "block". GenotypeImporter needs some metadata from here.
 
-    @staticmethod
-    def get_block_id(record):
-        return record["INFO"]["ALL"].get("OLD_MULTIALLELIC")
-
     def iter_blocks(self, batch, alleles):
         def is_end_of_block(batch, i):
-            # print(i, len(batch), BlockIterator.get_block_id(batch[i]))
-
             if i == len(batch) - 1:  # End of batch -> end of block
                 return True
-            elif BlockIterator.get_block_id(batch[i]) is None:  # Not on a multiallelic block
+            elif not batch[i].is_multiallelic():  # Not on a multiallelic block
                 return True
             else:
                 # If the next item is on the same multiallelic block, then we need to continue block
-                return BlockIterator.get_block_id(batch[i]) != BlockIterator.get_block_id(
-                    batch[i + 1]
-                )
+                return batch[i].get_block_id() != batch[i + 1].get_block_id()
 
         for i, record in enumerate(batch):
             add_record_to_block = False
-            if record["SAMPLES"][self.proband_sample_name]["GT"] in VARIANT_GENOTYPES:
-
+            if record.has_allele(self.proband_sample_name):
                 allele = get_allele_from_record(record, alleles)
                 # We might have skipped importing the record as allele due to prefiltering
                 if allele:
@@ -246,11 +270,12 @@ class BlockIterator(object):
                 # Track samples that have no coverage within a multiallelic block
                 # './.' often occurs for single records when the sample has genotype in other records,
                 # but if it is './.' in _all_ records within a block, it has no coverage at this site
-                sample_gt = record["SAMPLES"][sample_name]["GT"]
-                if "." in sample_gt:
+                sample_gt = record.sample_genotype(sample_name)
+
+                if -1 in sample_gt:
                     add_record_to_block = True
 
-                if sample_gt not in ["./.", ".|.", "."]:
+                if not all(x == -1 for x in sample_gt):
                     self.sample_has_coverage[sample_name] = True
 
             if add_record_to_block:
@@ -421,8 +446,6 @@ class DepositAnalysis(DepositFromVCF):
 
         for data in analysis_config_data["data"]:
             vi = vcfiterator.VcfIterator(data["vcf"])
-            vi.addInfoProcessor(HGMDInfoProcessor(vi.getMeta()))
-            vi.addInfoProcessor(SplitToDictInfoProcessor(vi.getMeta()))
 
             vcf_sample_names = vi.samples
 
@@ -437,19 +460,31 @@ class DepositAnalysis(DepositFromVCF):
                         deposit_usergroup_id, deposit_usergroup_config["pattern"]
                     )
                 )
-                prefilter = deposit_usergroup_config.get("prefilter")
-                log.info("Prefilter: {}".format("Yes" if prefilter else "No"))
-                if prefilter:
-                    log.info("Prefilter criterias:")
-                    log.info("    - GNOMAD_GENOMES.AF > 0.05")
-                    log.info("    - GNOMAD_GENOMES.AN > 5000")
-                    log.info("    - Nearby variants distance > 3")
-                    log.info("    - No existing classifications")
-                    log.info(
-                        "Postprocess: {}".format(
-                            ", ".join(deposit_usergroup_config.get("postprocess", []))
+                prefilters = deposit_usergroup_config.get("prefilters")
+                log.info("Prefilter: {}".format("Yes" if prefilters else "No"))
+                if prefilters:
+                    for i, prefilter in enumerate(prefilters):
+                        assert set(prefilter).issubset(VALID_PREFILTER_KEYS)
+                        if i == 0:
+                            log.info("Prefilter criterias:")
+                        else:
+                            log.info("--- OR ---")
+                        if "hi_frequency" in prefilter:
+                            log.info("    - GNOMAD_GENOMES.AF > 0.05")
+                            log.info("    - GNOMAD_GENOMES.AN > 5000")
+                        if "position_not_nearby" in prefilter:
+                            log.info("    - No other variant(s) within 3bp")
+                        if "no_classification" in prefilter:
+                            log.info("    - No existing classifications")
+                        if "low_mapping_quality" in prefilter:
+                            log.info("    - MQ less than 20")
+                        log.info(
+                            "Postprocess: {}".format(
+                                ", ".join(deposit_usergroup_config.get("postprocess", []))
+                            )
                         )
-                    )
+            else:
+                prefilters = []
 
             records_count = 0
             imported_records_count = 0
@@ -457,10 +492,9 @@ class DepositAnalysis(DepositFromVCF):
             proband_sample_name = next(s.identifier for s in db_samples if s.proband is True)
             block_iterator = BlockIterator(proband_sample_name, vcf_sample_names)
 
-            prefilter = deposit_usergroup_config.get("prefilter", False)
             # batch_records are _all_ records
             for proband_only_records, batch_records in PrefilterBatchGenerator(
-                self.session, proband_sample_name, vi.iter(), prefilter=prefilter
+                self.session, proband_sample_name, iter(vi), prefilters=prefilters
             ):
                 for record in proband_only_records:
                     self.allele_importer.add(record)

@@ -1,40 +1,29 @@
-*.log
-*.pot
-*.pyc
-*~
-local_settings.py
-.cache/
-__pycache__/
-ops/builder/venv
-images/
-
 # Packages
-*.egg
-*.egg-info
-dist
+.installed.cfg
 build
 builder.retry
+develop-eggs
+dist
 eggs
 parts
-var
 sdist
-develop-eggs
-.installed.cfg
+var
+*.egg
+*.egg-info
 
 # Installer logs
 pip-log.txt
 
 # Unit test / coverage reports
 .coverage
-coverage.xml
 .tox
+coverage.xml
 
 #Translations
 *.mo
 
 #Mr Developer
 .mr.developer.cfg
-
 
 #Mac OSX
 .DS_Store
@@ -47,8 +36,8 @@ coverage.xml
 *.pydevproject
 
 #BAM
-*.bam
 *.bai
+*.bam
 *.BAM
 
 #Eclipse
@@ -60,21 +49,26 @@ coverage.xml
 #R
 .Rhistory
 
-src/webui/node_modules
-
-node_modules
-
-src/webui/dest
-
-src/package
-
-/attachments/
-src/webui/build
-src/webui/dev
-vardb-schema.png
-errorShots
+__pycache__
 _book
-
+.cache
 .hypothesis
 .mypy_cache
+.pytest_cache
 .vscode
+attachments
+errorShots
+images
+local_settings.py
+node_modules
+ops/builder/venv
+src/package
+src/webui/build
+src/webui/dest
+src/webui/dev
+src/webui/node_modules
+vardb-schema.png
+*.log
+*.pot
+*.pyc
+*~

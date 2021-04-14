@@ -18,18 +18,40 @@ variables:
     REVAPP_IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-review
     CI_CACHE_IMAGE_FILE: images/ella-ci-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.tar
 
+    # CI / release
+    # Value is branch name when running on a branch pipeline, tag name for tag pipelines (releases)
+    RELEASE_TAG: $CI_COMMIT_REF_NAME
+    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    SIF_PREFIX: docker
+
+    # singularity-in-docker
+    SID_IMAGE: quay.io/singularity/singularity
+    SID_VERSION: v3.7.1
+    SID_SLUG: $SID_IMAGE:$SID_VERSION
+
+    # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
+    AWSCLI_IMAGE: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base@sha256:654cb6d3ba01f9753a4a3f20d6c39fb0b9c111d080bb6f90606cec284b4be7e9
+
+    # Misc settings
+    # ensure any breakpoints don't fire
+    PYTHONBREAKPOINT: 0
+    DEBIAN_FRONTEND: noninteractive
+
 stages:
     - build
     - formatting
     - test
     - review
-    - release
+    - release-docker
+    - release-singularity-src
+    - release-upload
 
 # shared settings
 .cache: &cache
     key: 'ella-$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID'
     paths:
         - images/
+    policy: pull-push
 
 .cache-pull: &cache-pull
     <<: *cache
@@ -43,7 +65,8 @@ stages:
     name: review/$CI_BUILD_REF_SLUG
 
 # before_script actions
-.apk-setup: &apk-setup apk add --update make git
+.apk-setup: &apk-setup apk update && apk add -u make git bash
+.apt-setup: &apt-setup apt-get update -qq && apt-get install -qq --no-install-recommends git make
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
 
@@ -149,8 +172,6 @@ e2e:
         name: ella-e2e-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks
-    cache:
-        <<: *cache-pull
 
 api:
     extends: .common-test
@@ -182,20 +203,62 @@ report:
     script:
         - make test-report
 
-release:
-    stage: release
+release_docker:
+    stage: release-docker
     before_script:
         - *apk-setup
         - *docker-login
     script:
-        - RELEASE_TAG=$CI_COMMIT_REF_NAME make bundle-dist
-        - docker build -t $IMAGE_NAME .
-        - docker push $IMAGE_NAME
+        - make ci-release-docker
+    only:
+        - tags
+    tags:
+        - do-large
+
+release_src:
+    stage: release-singularity-src
+    before_script:
+        - *apk-setup
+    script:
+        - make ci-release-src
+    only:
+        - tags
     artifacts:
         paths:
-            - ella-release-$CI_COMMIT_REF_NAME-dist.tgz
-        name: ella-release-$CI_COMMIT_REF_NAME
-        when: on_success
+            - dist/ella-release-*-dist.tgz
+        name: src-$CI_COMMIT_REF_NAME
+        expire_in: 1 week
+    tags:
+        - do-small
+
+release_singularity:
+    image:
+        name: $SID_SLUG
+        entrypoint: ['']
+    stage: release-singularity-src
+    dependencies: ['release_docker']
+    before_script:
+        - *apk-setup
+    script:
+        - make ci-release-singularity
+    only:
+        - tags
+    artifacts:
+        paths:
+            - '**/*.sif'
+        name: singularity-$CI_COMMIT_REF_NAME
+        expire_in: 1 week
+    tags:
+        - do-large
+
+release_upload:
+    stage: release-upload
+    image: $AWSCLI_IMAGE
+    dependencies: ['release_src', 'release_singularity']
+    before_script:
+        - *apt-setup
+    script:
+        - make ci-release-upload
     only:
         - tags
     tags:

@@ -189,8 +189,8 @@ class Reference(Base, SearchQueryMixin):
 
 class AlleleReport(Base):
     """Represents a report for one allele. The report is aimed at the
-       clinicians as compared to alleleassessment which is aimed at fellow
-       interpreters. The report might not change as often as the alleleassessment."""
+    clinicians as compared to alleleassessment which is aimed at fellow
+    interpreters. The report might not change as often as the alleleassessment."""
 
     __tablename__ = "allelereport"
 

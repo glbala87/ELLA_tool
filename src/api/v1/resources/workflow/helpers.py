@@ -137,9 +137,7 @@ def get_alleles(
         .one()
     )
 
-    link_filter = (
-        None
-    )  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
+    link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
     if not current_allele_data and interpretation.status == "Done":
         # Serve using context data from snapshot
         snapshots = (

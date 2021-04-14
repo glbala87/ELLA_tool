@@ -5,7 +5,7 @@ import postCustomAnnotation from '../../../../workflows/interpretation/sequences
 const extractPayload = ({ props }) => {
     const { customAnnotationData } = props
     customAnnotationData.references = Object.values(customAnnotationData.references).map((x) => {
-        return { sources: ['User'], id: x.id, pubmed_id: x.pubmed_id }
+        return { source: 'User', id: x.id, pubmed_id: x.pubmed_id }
     })
     return { customAnnotationData }
 }

@@ -235,7 +235,7 @@ def create_trigger_sql(config, for_tmp=False):
                 END IF;
                 RETURN NEW;
             ELSIF (TG_OP = 'DELETE') THEN
-                PERFORM delete_annotationshadow(allele_id);
+                PERFORM delete_annotationshadow(OLD.allele_id);
                 RETURN OLD;
             END IF;
         END;
@@ -265,7 +265,7 @@ def check_filterconfig(filterconfig, config):
 
 def check_usergroup_config(usergroup, config):
     """Verify that the ACMG frequency groups are a subset of the global frequency groups, used to
-     build the annotationshadowfrequency table"""
+    build the annotationshadowfrequency table"""
     if usergroup.config is not None:
         amcg_freq_config = usergroup.config.get("acmg", {}).get("frequency", {}).get("groups", {})
         missing_freq_groups = set(iter_freq_groups(amcg_freq_config)) - set(

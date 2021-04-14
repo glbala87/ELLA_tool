@@ -1,7 +1,7 @@
 from sqlalchemy import tuple_
 from datalayer import queries
-from vardb.datamodel import gene, allele
-from conftest import create_annotation
+from vardb.datamodel import gene
+from conftest import mock_allele_with_annotation
 
 
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
@@ -15,13 +15,17 @@ def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
         ad_hgnc_ids = [a[0] for a in ad_hgnc_ids]
 
         # Make sure all genes are actually part of input genepanel
-        assert session.query(gene.Transcript.gene_id).join(gene.Genepanel.transcripts).join(
-            gene.Gene
-        ).filter(
-            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
-            gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
-        ).distinct().count() == len(
-            ad_hgnc_ids
+        assert (
+            session.query(gene.Transcript.gene_id)
+            .join(gene.Genepanel.transcripts)
+            .join(gene.Gene)
+            .filter(
+                tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+                gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
+            )
+            .distinct()
+            .count()
+            == len(ad_hgnc_ids)
         )
 
         # Test that AD matches only has 'AD' phenotypes
@@ -72,66 +76,26 @@ def test_annotation_transcripts_genepanel(session, test_database):
         g1 = gene.Gene(hgnc_id=1, hgnc_symbol="GENE1")
         g2 = gene.Gene(hgnc_id=2, hgnc_symbol="GENE2")
         g3 = gene.Gene(hgnc_id=3, hgnc_symbol="GENE3")
+        transcript_base = {
+            "type": "RefSeq",
+            "genome_reference": "123",
+            "chromosome": "123",
+            "tx_start": 123,
+            "tx_end": 123,
+            "strand": "+",
+            "cds_start": 123,
+            "cds_end": 123,
+            "exon_starts": [123, 321],
+            "exon_ends": [123, 321],
+        }
 
-        t1 = gene.Transcript(
-            gene=g1,
-            transcript_name="NM_1.1",
-            type="RefSeq",
-            genome_reference="123",
-            chromosome="123",
-            tx_start=123,
-            tx_end=123,
-            strand="+",
-            cds_start=123,
-            cds_end=123,
-            exon_starts=[123, 321],
-            exon_ends=[123, 321],
-        )
+        t1 = gene.Transcript(gene=g1, transcript_name="NM_1.1", **transcript_base)
 
-        t21 = gene.Transcript(
-            gene=g2,
-            transcript_name="NM_2.1",
-            type="RefSeq",
-            genome_reference="123",
-            chromosome="123",
-            tx_start=123,
-            tx_end=123,
-            strand="+",
-            cds_start=123,
-            cds_end=123,
-            exon_starts=[123, 321],
-            exon_ends=[123, 321],
-        )
+        t21 = gene.Transcript(gene=g2, transcript_name="NM_2.1", **transcript_base)
 
-        t22 = gene.Transcript(
-            gene=g2,
-            transcript_name="NM_2.2",
-            type="RefSeq",
-            genome_reference="123",
-            chromosome="123",
-            tx_start=123,
-            tx_end=123,
-            strand="+",
-            cds_start=123,
-            cds_end=123,
-            exon_starts=[123, 321],
-            exon_ends=[123, 321],
-        )
+        t22 = gene.Transcript(gene=g2, transcript_name="NM_2.2", **transcript_base)
 
-        t3 = gene.Transcript(
-            gene=g3,
-            transcript_name="NM_3.1",
-            type="RefSeq",
-            genome_reference="123",
-            chromosome="123",
-            tx_start=123,
-            tx_end=123,
-            strand="+",
-            cds_start=123,
-            cds_end=123,
-            exon_starts=[123, 321],
-            exon_ends=[123, 321],
-        )
+        t3 = gene.Transcript(gene=g3, transcript_name="NM_3.1", **transcript_base)
 
         genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
         genepanel1.transcripts = [t1, t21]
@@ -144,89 +108,56 @@ def test_annotation_transcripts_genepanel(session, test_database):
         genepanel1.phenotypes = []
         session.add(genepanel2)
 
-        a1 = allele.Allele(
-            genome_reference="GRCh37",
-            chromosome="1",
-            start_position=1,
-            open_end_position=2,
-            change_from="A",
-            change_to="T",
-            change_type="SNP",
-            vcf_pos=1,
-            vcf_ref="A",
-            vcf_alt="T",
+        a1, _ = mock_allele_with_annotation(
+            session,
+            annotations={
+                "transcripts": [
+                    {"transcript": "NM_1.1", "hgnc_id": 1},  # In genepanel
+                    {"transcript": "NM_1", "hgnc_id": 1},  # In genepanel, no version
+                    {
+                        "transcript": "NM_2.2",
+                        "hgnc_id": 2,
+                    },  # In two genepanels, different version in one
+                    {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in genepanel
+                    {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in genepanel, no version
+                ]
+            },
         )
 
-        annotations = {
-            "transcripts": [
-                {"transcript": "NM_1.1", "hgnc_id": 1},  # In genepanel
-                {"transcript": "NM_1", "hgnc_id": 1},  # In genepanel, no version
-                {
-                    "transcript": "NM_2.2",
-                    "hgnc_id": 2,
-                },  # In two genepanels, different version in one
-                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in genepanel
-                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in genepanel, no version
-            ]
-        }
-        anno1 = create_annotation(annotations, allele=a1)
-        session.add(anno1)
-
-        a2 = allele.Allele(
-            genome_reference="GRCh37",
-            chromosome="1",
-            start_position=2,
-            open_end_position=3,
-            change_from="A",
-            change_to="T",
-            change_type="SNP",
-            vcf_pos=2,
-            vcf_ref="A",
-            vcf_alt="T",
+        a2, _ = mock_allele_with_annotation(
+            session,
+            annotations={
+                "transcripts": [
+                    {"transcript": "NM_3.1", "hgnc_id": 3},  # In one genepanel
+                    {"transcript": "NM_3", "hgnc_id": 3},  # In one genepanel, no version
+                    {
+                        "transcript": "NM_2.2",
+                        "hgnc_id": 2,
+                    },  # In two genepanels, different version in one
+                    {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in any genepanel
+                    {
+                        "transcript": "NM_NOT_IN_PANEL",
+                        "hgnc_id": 2,
+                    },  # Not in any genepanel, no version
+                ]
+            },
         )
 
-        annotations = {
-            "transcripts": [
-                {"transcript": "NM_3.1", "hgnc_id": 3},  # In one genepanel
-                {"transcript": "NM_3", "hgnc_id": 3},  # In one genepanel, no version
-                {
-                    "transcript": "NM_2.2",
-                    "hgnc_id": 2,
-                },  # In two genepanels, different version in one
-                {"transcript": "NM_NOT_IN_PANEL.1", "hgnc_id": 1},  # Not in any genepanel
-                {"transcript": "NM_NOT_IN_PANEL", "hgnc_id": 2},  # Not in any genepanel, no version
-            ]
-        }
-        anno2 = create_annotation(annotations, allele=a2)
-        session.add(anno2)
-
-        a3 = allele.Allele(
-            genome_reference="GRCh37",
-            chromosome="1",
-            start_position=3,
-            open_end_position=4,
-            change_from="A",
-            change_to="T",
-            change_type="SNP",
-            vcf_pos=3,
-            vcf_ref="A",
-            vcf_alt="T",
+        a3, _ = mock_allele_with_annotation(
+            session,
+            annotations={
+                "transcripts": [
+                    {"transcript": "NM_1.2", "hgnc_id": 1},
+                    {"transcript": "NM_1.3", "hgnc_id": 1},
+                    {"transcript": "NM_2.1", "hgnc_id": 2},
+                    {"transcript": "NM_2.2", "hgnc_id": 2},
+                    {"transcript": "NM_3.1_sometext", "hgnc_id": 3},
+                    {"transcript": "NM_3.2", "hgnc_id": 3},
+                    {"transcript": "NM_3.3_sometext", "hgnc_id": 3},
+                    {"transcript": "NM_3", "hgnc_id": 3},
+                ]
+            },
         )
-
-        annotations = {
-            "transcripts": [
-                {"transcript": "NM_1.2", "hgnc_id": 1},
-                {"transcript": "NM_1.3", "hgnc_id": 1},
-                {"transcript": "NM_2.1", "hgnc_id": 2},
-                {"transcript": "NM_2.2", "hgnc_id": 2},
-                {"transcript": "NM_3.1_sometext", "hgnc_id": 3},
-                {"transcript": "NM_3.2", "hgnc_id": 3},
-                {"transcript": "NM_3.3_sometext", "hgnc_id": 3},
-                {"transcript": "NM_3", "hgnc_id": 3},
-            ]
-        }
-        anno3 = create_annotation(annotations, allele=a3)
-        session.add(anno3)
 
         return a1, a2, a3
 

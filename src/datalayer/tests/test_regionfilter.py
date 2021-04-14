@@ -7,7 +7,7 @@ import pytest
 
 from datalayer.allelefilter.regionfilter import RegionFilter
 from vardb.datamodel import gene
-from conftest import create_allele_with_annotation, create_allele
+from conftest import mock_allele_with_annotation, mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
@@ -216,13 +216,14 @@ class TestRegionFilter(object):
         session.rollback()
 
         chromosome, start_position, open_end_position = positions
-        # al, _ = create_allele_with_annotation(session, None)
-        al = create_allele()
-        al.chromosome = chromosome
-        al.start_position = start_position
-        al.open_end_position = open_end_position
-        session.add(al)
-        session.flush()
+        al = mock_allele(
+            session,
+            {
+                "chromosome": chromosome,
+                "start_position": start_position,
+                "open_end_position": open_end_position,
+            },
+        )
 
         allele_ids = [al.id]
         gp_key = ("testpanel", "v01")
@@ -296,9 +297,9 @@ class TestRegionFilter(object):
         with exon_distance or coding_region_distance within splice_region/utr_region
         """
         # Should be saved as annotated with exon_distance -10
-        a1, _ = create_allele_with_annotation(
+        a1, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "transcripts": [
                     {
                         "symbol": "GENE1",
@@ -309,13 +310,12 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with exon_distance +5
-        a2, _ = create_allele_with_annotation(
+        a2, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "transcripts": [
                     {
                         "symbol": "GENE1",
@@ -326,13 +326,12 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with coding_region_distance -12
-        a3, _ = create_allele_with_annotation(
+        a3, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "transcripts": [
                     {
                         "symbol": "GENE1",
@@ -343,13 +342,12 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"CHROM": "HGSVC"},
         )
 
         # Should be saved as annotated with coding_region_distance +20
-        a4, _ = create_allele_with_annotation(
+        a4, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "transcripts": [
                     {
                         "symbol": "GENE1",
@@ -360,12 +358,11 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"CHROM": "HGSVC"},
         )
 
-        na1, _ = create_allele_with_annotation(
+        na1, _ = mock_allele_with_annotation(
             session,
-            {
+            annotations={
                 "transcripts": [
                     {
                         "symbol": "GENE1",
@@ -376,7 +373,6 @@ class TestRegionFilter(object):
                     }
                 ]
             },
-            {"CHROM": "HGSVC"},
         )
 
         session.flush()
@@ -572,15 +568,18 @@ def test_regions(
 
     genepanel.transcripts = [transcript]
     genepanel.phenotypes = []
-
-    # Add one allele within transcript (+ padding)
-    al = create_allele()
-    allele_offset = allele_offset % (transcript.tx_end - 1 - transcript.tx_start + 2 * max_padding)
-    al.start_position = transcript.tx_start - max_padding + allele_offset
-    al.open_end_position = transcript.tx_start + allele_offset + 1
-    session.add(al)
     session.add(genepanel)
     session.flush()
+
+    # Add one allele within transcript (+ padding)
+    allele_offset = allele_offset % (transcript.tx_end - 1 - transcript.tx_start + 2 * max_padding)
+    al = mock_allele(
+        session,
+        {
+            "start_position": transcript.tx_start - max_padding + allele_offset,
+            "open_end_position": transcript.tx_start + allele_offset + 1,
+        },
+    )
 
     rf = RegionFilter(session, None)
     tmp_gene_padding = rf.create_gene_padding_table(

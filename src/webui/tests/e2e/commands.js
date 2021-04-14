@@ -7,37 +7,16 @@ function waitForCerebral() {
             const MAX_WAIT = 1000
             const CHECK_INTERVAL = 10
 
-            // use 'window.'' to work around weird bug when testing for undefined..
-            if (!('__cerebralRunningSignals' in window)) {
-                if (window.angular) {
-                    window.__cerebralRunningSignals = 0
-                    const cerebral = angular
-                        .element(document.body)
-                        .injector()
-                        .get('cerebral')
-                    cerebral.controller.on('start', (execution, payload) => {
-                        window.__cerebralRunningSignals += 1
-                    })
-                    cerebral.controller.on('end', (execution, payload) => {
-                        window.__cerebralRunningSignals -= 1
-                        // If we were injected too late, we might have missed a few start events
-                        // This can make counter go negative
-                        if (window.__cerebralRunningSignals < 0) {
-                            window.__cerebralRunningSignals = 0
-                        }
-                    })
-                } else {
-                    done()
-                    return
-                }
-            }
+            // See code for exception handling to see how window.__cerebralRunningSignals is implemented.
+
             let checkCnt = 0
             const checkInterval = window.setInterval(
                 () => {
                     checkCnt += 1
                     // Timeout: some signals can running stay for a long time by design, we don't want to wait for those
                     if (
-                        window.__cerebralRunningSignals === 0 ||
+                        ('__cerebralRunningSignals' in window &&
+                            window.__cerebralRunningSignals.length) === 0 ||
                         checkCnt > MAX_WAIT / CHECK_INTERVAL
                     ) {
                         window.clearInterval(checkInterval)
@@ -47,7 +26,10 @@ function waitForCerebral() {
                 CHECK_INTERVAL,
                 false
             )
-            if (window.__cerebralRunningSignals === 0) {
+            if (
+                '__cerebralRunningSignals' in window &&
+                window.__cerebralRunningSignals.length === 0
+            ) {
                 window.clearInterval(checkInterval)
                 done()
                 return
