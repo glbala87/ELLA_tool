@@ -125,7 +125,7 @@ class WorkflowHelper(object):
                 )
             )
 
-            annotation_references = allele["annotation"]["references"]
+            annotation_references = allele["annotation"].get("references", [])
             ref_ids = [r["pubmed_id"] for r in annotation_references]
             q = {"pubmed_id": ref_ids}
             references = ih.get_entities_by_query("references", q).get_json()

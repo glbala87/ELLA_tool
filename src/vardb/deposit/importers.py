@@ -923,6 +923,7 @@ class AnnotationImporter(object):
 
         for converter in self.import_config["converters"]:
             for element_config in converter["converter_config"]["elements"]:
+                source = element_config["source"]
                 if source not in merged_annotation and element_config.get("required"):
                     raise RuntimeError(f"Missing required source field in annotation: {source}")
 
