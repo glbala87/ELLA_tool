@@ -88,7 +88,7 @@ class AnalysisWatcher(object):
         elif self._whitelistfile:
             existing_patterns = [x.pattern for x in self.compiled_whitelist]
             with open(self._whitelistfile, "r") as f_whitelist:
-                new_patterns = f_whitelist.readlines()
+                new_patterns = f_whitelist.read().splitlines()
 
             if set(existing_patterns) != set(new_patterns):
                 self.compiled_whitelist = []
@@ -105,7 +105,7 @@ class AnalysisWatcher(object):
         elif self._blacklistfile:
             existing_patterns = [x.pattern for x in self.compiled_blacklist]
             with open(self._blacklistfile, "r") as f_blacklist:
-                new_patterns = f_blacklist.readlines()
+                new_patterns = f_blacklist.read().splitlines()
 
             if set(existing_patterns) != set(new_patterns):
                 self.compiled_blacklist = []
@@ -190,6 +190,13 @@ class AnalysisWatcher(object):
                         self.processed.add(analysis_dir)
                         continue
 
+                if (self.dest_path / analysis_dir.name).exists():
+                    log.warning(
+                        f"{analysis_dir.name} already exists in {self.dest_path}. Skipping."
+                    )
+                    self.processed.add(analysis_dir)
+                    continue
+
                 # Import analysis
                 self.import_analysis(analysis_config_data)
 
@@ -205,7 +212,9 @@ class AnalysisWatcher(object):
 
             # Catch all exceptions and carry on, otherwise one bad analysis can block all of them
             except Exception:
-                log.exception("An exception occured while importing a new analysis. Skipping...")
+                log.exception(
+                    f"An exception occured while importing {analysis_dir.name}. Skipping..."
+                )
                 self.session.rollback()
                 self.processed.add(analysis_dir)
 
@@ -225,8 +234,8 @@ def start_polling(
         destination_path,
         whitelist=whitelist,
         blacklist=blacklist,
-        whitelistfile=None,
-        blacklistfile=None,
+        whitelistfile=whitelistfile,
+        blacklistfile=blacklistfile,
     )
     while True:
         aw.check_and_import()
