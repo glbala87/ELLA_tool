@@ -33,7 +33,8 @@ function changeView(key) {
         GLOBAL_PRE_SEQUENCE,
         function changeView({ state, props, http, execution }) {
             // Abort current http requests
-            http.abort(/.*/)
+            // Avoid if not properly propagated to backend. This will cause gunicorn backlog to fill up.
+            // http.abort(/.*/)
 
             // Disable error handling of current running signals. This avoids logging (and toasting) exceptions when
             // they throw errors because of rapid navigation around the page.
