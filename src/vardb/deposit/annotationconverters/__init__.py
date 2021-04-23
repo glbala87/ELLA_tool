@@ -1,3 +1,4 @@
+from .clinvarjsonconverter import CLINVARJSONConverter
 from .vepconverter import VEPConverter
 from .keyvalueconverter import KeyValueConverter
 from .jsonconverter import JSONConverter
@@ -12,4 +13,5 @@ ANNOTATION_CONVERTERS = {
     "hgmdprimaryreport": HGMDPrimaryReport,
     "clinvarreferences": ClinVarReferences,
     "hgmd": HGMDConverter,
+    "clinvarjson": CLINVARJSONConverter,
 }
