@@ -39,11 +39,11 @@ class HGMDPrimaryReport(AnnotationConverter):
             return []
 
         reftag = "Primary literature report"
-        if "HGMD__comments" in additional_values:
+        if additional_values.get("HGMD__comments"):
             comments = additional_values["HGMD__comments"]
-            comments = "No comments." if comments == "None" else comments
+            comments = "No comments." if comments == "None" or not comments else comments
         else:
-            comments = "No comments"
+            comments = "No comments."
         info_string = f"{reftag}. {_translate_hgmd(comments)}"
 
         return [{"pubmed_id": pmid, "source": "HGMD", "source_info": info_string}]

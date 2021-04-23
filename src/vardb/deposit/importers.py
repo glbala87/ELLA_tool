@@ -17,7 +17,7 @@ from collections import defaultdict
 from sqlalchemy import or_, and_
 from os.path import commonprefix
 
-
+from api.util.util import dict_merge
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
 from vardb.datamodel.user import User
@@ -809,7 +809,7 @@ class AnnotationImporter(object):
     def __init__(self, session, import_config=None):
         self.session = session
         self.batch_items = list()
-        if not import_config:
+        if import_config is None:
             if "ELLA_IMPORT_CONFIG" not in os.environ:
                 raise RuntimeError("Missing required env: ELLA_IMPORT_CONFIG")
             with open(os.environ["ELLA_IMPORT_CONFIG"]) as f:
@@ -823,7 +823,7 @@ class AnnotationImporter(object):
     def _get_or_create_converters(self, source, vcf_meta):
         if source not in self._converters:
             self._converters[source] = []
-            for converter in self.import_config["converters"]:
+            for converter in self.import_config:
                 for element_config in converter["converter_config"]["elements"]:
                     if element_config["source"] != source:
                         continue
@@ -837,12 +837,12 @@ class AnnotationImporter(object):
 
         return self._converters[source]
 
-    def _extract_annotation_from_record(self, record, allele):
+    def _extract_annotation_from_record(self, record):
         """Given a record, return dict with annotation to be stored in db."""
         merged_annotation = record.annotation()
 
         def _traverse_path(obj, path):
-            if path == ".":
+            if not path or path == ".":
                 return obj
             parts = path.split(".")
             next_obj = obj
@@ -862,6 +862,11 @@ class AnnotationImporter(object):
             obj[leaf] = item
 
         def extend_at_path(obj, path, items):
+            if isinstance(items, tuple):
+                items = list(items)
+            assert isinstance(
+                items, list
+            ), f"Trying to extend with {type(items)}. Must be of instance list."
             leaf, obj = _traverse_path(obj, path)
             if leaf not in obj:
                 obj[leaf] = items
@@ -883,45 +888,54 @@ class AnnotationImporter(object):
                 obj[leaf] = item
             else:
                 assert isinstance(obj[leaf], dict)
-                obj[leaf] = {**obj[leaf], **item}
+                dict_merge(obj[leaf], item)
+
+        target_mode_funcs = {
+            "insert": insert_at_path,
+            "extend": extend_at_path,
+            "append": append_at_path,
+            "merge": merge_at_path,
+        }
 
         annotations = {}
         for source, value in merged_annotation.items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
-                element_config = converter.element_config
-                additional_sources = element_config.get("additional_sources")
-                if additional_sources:
-                    additional_values = {k: merged_annotation.get(k) for k in additional_sources}
-                else:
-                    additional_values = None
-
                 try:
-                    processed_value = converter(value, additional_values=additional_values)
-                except:
-                    print(f"Conversion failed: {element_config}, {converter.__class__}")
-                    raise
+                    element_config = converter.element_config
+                    additional_sources = element_config.get("additional_sources")
+                    if additional_sources:
+                        additional_values = {
+                            k: merged_annotation.get(k) for k in additional_sources
+                        }
+                    else:
+                        additional_values = None
 
-                # if source == "CSQ":
+                    try:
+                        processed_value = converter(value, additional_values=additional_values)
+                    except:
+                        print(f"Conversion failed: {element_config}, {converter.__class__}")
+                        raise
 
-                #     processed_value2 = vep_converter(value, converter.meta)
-                #     if processed_value != processed_value2:
-                #         breakpoint()
+                    # if source == "CSQ":
 
-                target = element_config["target"]
-                target_mode = element_config.get("target_mode", "insert")
-                if target_mode == "insert":
-                    insert_at_path(annotations, target, processed_value)
-                elif target_mode == "extend":
-                    extend_at_path(annotations, target, processed_value)
-                elif target_mode == "append":
-                    append_at_path(annotations, target, processed_value)
-                elif target_mode == "merge":
-                    merge_at_path(annotations, target, processed_value)
-                else:
-                    raise RuntimeError(f"Unknown target mode: {target_mode}")
+                    #     processed_value2 = vep_converter(value, converter.meta)
+                    #     if processed_value != processed_value2:
+                    #         breakpoint()
 
-        for converter in self.import_config["converters"]:
+                    target = element_config["target"]
+                    target_mode = element_config.get("target_mode", "insert")
+                    assert (
+                        target_mode in target_mode_funcs
+                    ), f"Unknown target mode: {target_mode}. Available target modes are {list(target_mode_funcs.keys())}"
+                    target_mode_funcs[target_mode](annotations, target, processed_value)
+
+                except Exception:
+                    raise RuntimeError(
+                        f"Error when trying to convert source '{source}' with value {value} ({type(value)}), using converter {element_config}"
+                    )
+
+        for converter in self.import_config:
             for element_config in converter["converter_config"]["elements"]:
                 source = element_config["source"]
                 if source not in merged_annotation and element_config.get("required"):
@@ -930,9 +944,7 @@ class AnnotationImporter(object):
         return annotations
 
     def add(self, record, allele_id):
-        allele = record.variant.ALT[0]
-
-        annotation_data = self._extract_annotation_from_record(record, allele)
+        annotation_data = self._extract_annotation_from_record(record)
         data = {"allele_id": allele_id, "annotations": annotation_data, "date_superceeded": None}
         self.batch_items.append(data)
         return data
