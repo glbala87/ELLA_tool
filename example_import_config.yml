@@ -4,7 +4,7 @@
           - source: CSQ
             target: transcripts
 
-- name: json
+- name: clinvarjson
   converter_config:
       elements:
           - source: CLINVARJSON
