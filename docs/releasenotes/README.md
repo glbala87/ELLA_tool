@@ -6,10 +6,23 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.14](#version-1-14)|
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.14
+
+Release date: TBD
+
+### Highlights
+
+### Breaking changes
+
+### All changes
+<!-- MR !520-->
+- Made track selection section in VISUAL collapsible.
 
 ## Version 1.13.1
 
@@ -22,7 +35,7 @@ This release adds a single bufix.
 ### All changes
 
 <!-- MR !517 -->
-- Fixed a bug causing excessive load on backend
+- Fixed a bug causing excessive load on backend.
 
 ## Version 1.13
 
