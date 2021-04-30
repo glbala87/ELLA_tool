@@ -11,7 +11,7 @@
         "external": {
             "type": "object",
             "optional": ["CLINVAR", "HGMD"],
-            "additionalProperties": false,
+            "additionalProperties": true,
             "properties": {
                 "CLINVAR": {
                     "$ref": "annotation/clinvar_v1.json"
@@ -22,8 +22,7 @@
             }
         },
         "prediction": {
-            "type": "object",
-            "additionalProperties": false
+            "type": "object"
         },
         "transcripts": {
             "$ref": "annotation/transcripts_v1.json"

@@ -1,3 +1,14 @@
+from distutils.util import strtobool
+
+TYPE_CONVERTERS = {
+    "int": lambda x: int(x),
+    "float": lambda x: float(x),
+    "string": lambda x: str(x),
+    "bool": lambda x: bool(strtobool(x) if isinstance(x, str) else x),
+    "identity": lambda x: x,
+}
+
+
 class AnnotationConverter:
     def __init__(self, meta, element_config):
         self.meta = meta
