@@ -328,3 +328,28 @@
                 - HGMD__disease
                 - HGMD__tag
             target: external.HGMD
+- name: meta
+  converter_config:
+      elements:
+          - source: SpliceAI
+            target: prediction.spliceai
+            list_separator: ','
+            subelements:
+                - source: SYMBOL
+                  target_type: string
+                - source: DS_AG
+                  target_type: float
+                - source: DS_AL
+                  target_type: float
+                - source: DS_DG
+                  target_type: float
+                - source: DS_DL
+                  target_type: float
+                - source: DP_AG
+                  target_type: int
+                - source: DP_AL
+                  target_type: int
+                - source: DP_DG
+                  target_type: int
+                - source: DP_DL
+                  target_type: int

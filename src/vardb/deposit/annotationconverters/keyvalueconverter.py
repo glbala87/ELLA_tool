@@ -1,18 +1,12 @@
-from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter
+from vardb.deposit.annotationconverters.annotationconverter import (
+    AnnotationConverter,
+    TYPE_CONVERTERS,
+)
 
 import logging
-from distutils.util import strtobool
+
 
 log = logging.getLogger(__name__)
-
-
-TYPE_CONVERTERS = {
-    "int": lambda x: int(x),
-    "float": lambda x: float(x),
-    "string": lambda x: str(x),
-    "bool": lambda x: bool(strtobool(x) if isinstance(x, str) else x),
-    "identity": lambda x: x,
-}
 
 
 class KeyValueConverter(AnnotationConverter):
