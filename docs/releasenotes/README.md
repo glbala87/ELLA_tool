@@ -6,10 +6,23 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.13](#version-1-13)|[v1.13.1](#version-1-13-1)
+[v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.13.2
+
+Release date: 04.05.2021
+
+### Highlights
+
+This release adds a single bufix.
+
+### All changes
+
+<!-- MR !523 -->
+- Fixed a bug causing de novo calculation to fail.
 
 ## Version 1.13.1
 
