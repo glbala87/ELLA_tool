@@ -29,7 +29,17 @@ IGV_DEFAULT_TRACK_CONFIGS = {
         "visibilityWindow": 20000,
         "order": 300,
     },
+    "cram": {
+        "format": "cram",
+        "colorBy": "strand",
+        "negStrandColor": "rgb(150,150,230)",
+        "posStrandColor": "rgb(230,150,150)",
+        "alignmentRowHeight": 12,
+        "visibilityWindow": 20000,
+        "order": 310,
+    },
     "bed": {"format": "bed", "displayMode": "EXPANDED", "order": 100},
+    "bigWig": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
 }
 
 
@@ -298,7 +308,7 @@ class AnalysisVariantTrack(LogRequestResource):
 
 def _search_path_for_tracks(tracks_path, url_func):
 
-    index_extensions = [".fai", ".idx", ".index", ".bai", ".tbi"]
+    index_extensions = [".fai", ".idx", ".index", ".bai", ".tbi", ".crai"]
 
     track_files = [
         f
