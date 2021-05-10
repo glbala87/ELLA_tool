@@ -76,7 +76,7 @@ def test_needs_verification_positive(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Heterozygous"
     genotype["allele_depth"] = {"A": 70, "REF": 50}
-    genotype["sequencing_depth"] = 21
+    genotype["sequencing_depth"] = 20
     genotype["filter_status"] = "PASS"
 
     result = genotype_calculate_qc(allele, genotype, "HTS")
@@ -93,7 +93,7 @@ def test_needs_verification_positive(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Homozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 10}
-    genotype["sequencing_depth"] = 21
+    genotype["sequencing_depth"] = 20
     genotype["filter_status"] = "PASS"
 
     result = genotype_calculate_qc(allele, genotype, "HTS")
@@ -131,7 +131,7 @@ def test_needs_verification_negative(allele, genotype):
     allele["change_type"] = "indel"
     genotype["type"] = "Heterozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 1}
-    genotype["sequencing_depth"] = 20
+    genotype["sequencing_depth"] = 19
     genotype["filter_status"] = "FAIL"
 
     result = genotype_calculate_qc(allele, genotype, "HTS")
@@ -165,7 +165,7 @@ def test_needs_verification_negative(allele, genotype):
     allele["change_type"] = "SNP"
     genotype["type"] = "Homozygous"
     genotype["allele_depth"] = {"A": 100, "REF": 10}
-    genotype["sequencing_depth"] = 20  # Fail
+    genotype["sequencing_depth"] = 19  # Fail
     genotype["filter_status"] = "PASS"
 
     result = genotype_calculate_qc(allele, genotype, "HTS")
