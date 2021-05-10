@@ -51,8 +51,8 @@ HTS variants with quality issues are marked with `NEEDS VERIFICATION` in red in 
 
 - Not an SNP (e.g. insertion/deletion).
 - Filter not `PASS`
-- Depth ≤20
-- Allele ratio ≤0.9 if homozygous, ≤0.3 or ≥0.6 if heterozygous
+- Depth <20
+- Allele ratio ≤0.9 if homozygous, ≤0.3 or ≥0.7 if heterozygous
 
 ### Mark as verified/technical/not relevant
 

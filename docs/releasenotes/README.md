@@ -13,16 +13,18 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.13.2
 
-Release date: 04.05.2021
+Release date: 10.05.2021
 
 ### Highlights
 
-This release adds a single bufix.
+This release changes thresholds for verification warnings and adds a small bugfix.
 
 ### All changes
 
+<!-- MR !526-->
+- Thresholds for the ["Needs verification" warning](/manual/evidence-sections.html#warning-needs-verification) was adjusted to depth <20 (was ≤20) and allele ratio (heterozygous) ≤0.3 or ≥0.7 (was ≥0.6).
 <!-- MR !523 -->
-- Fixed a bug causing de novo calculation to fail.
+- Fixed a bug causing de novo likelihood calculation to fail in certain instances.
 
 ## Version 1.13.1
 
@@ -30,7 +32,7 @@ Release date: 16.04.2021
 
 ### Highlights
 
-This release adds a single bufix.
+This release adds a single bugfix.
 
 ### All changes
 
@@ -71,7 +73,7 @@ With the [improvements to pre-filters](#improvements-to-pre-filters), the config
 <!-- MR !506 -->
 - [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
 <!-- MR !510 -->
-- Tweaked front-end error reporting to reduce number of "An error occured ..." messages displayed to users.
+- Tweaked front-end error reporting to reduce number of "An error occurred ..." messages displayed to users.
 <!-- MR !497 -->
 - Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
 <!-- MR !511 -->
