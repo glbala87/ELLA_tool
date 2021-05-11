@@ -39,9 +39,6 @@
                 },
                 "GNOMAD_GENOMES": {
                     "$ref": "annotation/frequencies_v1.json"
-                },
-                "inDB": {
-                    "$ref": "annotation/frequencies_v1.json"
                 }
             }
         }
