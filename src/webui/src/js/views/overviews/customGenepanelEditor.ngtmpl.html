@@ -32,6 +32,8 @@
                     type="text"
                     maxlength="20"
                     placeholder="NAME"
+                    title="Max 20 characters. No underscores or spaces."
+                    oninput="this.value = this.value.replace(/[_\s]/g, '')"
                     ng-model="$ctrl.modelCustomGenepanelName"
                     ng-model-watch="$ctrl.addedGenepanel.name"
                     ng-change="$ctrl.customGenepanelNameChanged({name: $ctrl.modelCustomGenepanelName})"
