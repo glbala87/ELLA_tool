@@ -1,0 +1,20 @@
+<contentbox boxtitle="{{ $ctrl.title }}" disabled="!$ctrl.data">
+    {{ $ctrl.frequencies }}
+    <cbbody>
+        <div class="cb-warning" ng-if="$ctrl.getFilterFail().length">
+            FILTER: {{ $ctrl.getFilterFail().join(', ') }}
+        </div>
+        <div class="cb-table id-frequency-{{ $ctrl.group }}" ng-repeat="value in $ctrl.wrapData()">
+            <div class="tabular-row" ng-repeat="(key, keyName) in $ctrl.viewConfig.names">
+                <div class="cell">
+                    <h5>{{ keyName }}:</h5>
+                </div>
+                <div class="cell">
+                    <p>
+                        {{ value[key] }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </cbbody>
+</contentbox>

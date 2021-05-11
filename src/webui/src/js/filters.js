@@ -60,6 +60,27 @@ class Filters {
             return $sce.trustAsHtml(html)
         }
     }
+
+    @Filter({
+        filterName: 'formatNumber'
+    })
+    formatNumber() {
+        // Revert to scientific notation for float
+        // Call with arguments like {{ input | formatNumber:precision:scientific_threshold}}
+        return (input, precision, scientificThreshold) => {
+            precision = precision === undefined ? 6 : precision
+            scientificThreshold = scientificThreshold === undefined ? 4 : scientificThreshold
+            if (isNaN(input)) {
+                return 'N/A'
+            } else if (Number.isInteger(input)) {
+                return input
+            } else if (input < Math.pow(10, -scientificThreshold)) {
+                return input.toExponential(precision - scientificThreshold + 1)
+            } else {
+                return input.toFixed(precision)
+            }
+        }
+    }
 }
 
 export default Filter

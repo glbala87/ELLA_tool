@@ -1,43 +1,56 @@
-<div class="cb-warning" ng-if="$ctrl.getFilterFail().length">
-    FILTER: {{ $ctrl.getFilterFail().join(', ') }}
-</div>
-<div
-    class="cb-table id-frequency-{{ $ctrl.group }}"
-    ng-if="$ctrl.frequencies.frequencies.length > 0"
+<contentbox
+    boxtitle="gnomAD Exomes"
+    title-url="{{ $ctrl.allele.urls.gnomad }}"
+    disabled="!$ctrl.frequencies"
 >
-    <div class="tabular-row">
-        <div class="cell"><h4 class="faded-title">Pop</h4></div>
-        <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
-            <!-- table headers -->
-            <h4 class="faded-title">{{ field }}</h4>
+    {{ $ctrl.frequencies }}
+    <cbbody>
+        <div class="cb-warning" ng-if="$ctrl.getFilterFail().length">
+            FILTER: {{ $ctrl.getFilterFail().join(', ') }}
         </div>
-    </div>
-    <div class="tabular-row exac" ng-repeat="freqData in $ctrl.frequencies.frequencies">
-        <div class="cell">
-            <h5>{{ freqData.name }}:</h5>
+        <div class="cb-table id-frequency-{{ $ctrl.group }}">
+            <div class="tabular-row">
+                <h4 class="faded-title">{{ $ctrl.viewConfig.key_column }}</h4>
+                <div class="cell" ng-repeat="(columnKey, columnName) in $ctrl.viewConfig.columns">
+                    <!-- table headers -->
+                    <h4 class="faded-title">{{ columnName }}</h4>
+                </div>
+            </div>
+            <div class="tabular-row exac" ng-repeat="(rowKey, rowName) in $ctrl.viewConfig.rows">
+                <div class="cell">
+                    <h5>{{ rowName }}:</h5>
+                </div>
+                <div class="cell" ng-repeat="(columnKey, columnName) in $ctrl.viewConfig.columns">
+                    <p>
+                        {{
+                            $ctrl.frequencies[columnKey][rowKey]
+                                | formatNumber
+                                    : $ctrl.viewConfig.precision
+                                    : $ctrl.viewConfig.scientific_threshold
+                        }}
+                    </p>
+                </div>
+            </div>
         </div>
-        <div class="cell" ng-repeat="field in $ctrl.frequencies.fields">
-            <p>{{ freqData[field] }}</p>
+        <div
+            class="cb-table"
+            ng-repeat="indications in $ctrl.frequencies.indications"
+            ng-if="$ctrl.frequencies.indications.length"
+        >
+            <div class="tabular-row">
+                <div class="cell">
+                    <h5>{{ indications.name }} indications:</h5>
+                </div>
+                <div class="cell"></div>
+            </div>
+            <div class="tabular-row" ng-repeat="i in indications.indications">
+                <div class="cell">
+                    <p>- {{ i.name }}:</p>
+                </div>
+                <div class="cell">
+                    <p>{{ i.value }}</p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<div
-    class="cb-table"
-    ng-repeat="indications in $ctrl.frequencies.indications"
-    ng-if="$ctrl.frequencies.indications.length"
->
-    <div class="tabular-row">
-        <div class="cell">
-            <h5>{{ indications.name }} indications:</h5>
-        </div>
-        <div class="cell"></div>
-    </div>
-    <div class="tabular-row" ng-repeat="i in indications.indications">
-        <div class="cell">
-            <p>- {{ i.name }}:</p>
-        </div>
-        <div class="cell">
-            <p>{{ i.value }}</p>
-        </div>
-    </div>
-</div>
+    </cbbody>
+</contentbox>

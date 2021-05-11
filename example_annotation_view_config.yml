@@ -7,8 +7,8 @@ testgroup02:
           columns:
               count: COUNT
               num: NUM
-              freq: FREQ
               hom: HOM
+              freq: FREQ
           rows:
               AFR: AFR
               AMR: AMR
