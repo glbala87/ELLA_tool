@@ -1,4 +1,7 @@
 import copy
+import os
+
+import yaml
 from api.config import config
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
@@ -23,5 +26,10 @@ class ConfigResource(LogRequestResource):
         c = copy.deepcopy(config)
         if user_config:
             c["user"]["user_config"] = user_config
+
+        if user:
+            with open(os.environ["ELLA_ANNOTATION_VIEW_CONFIG"]) as f:
+                view_config = yaml.load(f)
+            c["annotation"]["view"] = view_config[user.group.name]
 
         return c
