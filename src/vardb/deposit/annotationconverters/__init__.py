@@ -9,6 +9,7 @@ from vardb.deposit.annotationconverters.references import (
     ClinVarReferences,
 )
 from vardb.deposit.annotationconverters.hgmd import HGMDConverter
+from vardb.deposit.annotationconverters.flatjsonconverter import FlatJSONConverter
 
 ANNOTATION_CONVERTERS = {
     "vep": VEPConverter,
@@ -20,4 +21,5 @@ ANNOTATION_CONVERTERS = {
     "hgmd": HGMDConverter,
     "clinvarjson": CLINVARJSONConverter,
     "meta": MetaConverter,
+    "flatjson": FlatJSONConverter,
 }

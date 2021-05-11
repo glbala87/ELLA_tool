@@ -300,6 +300,60 @@
             target: frequencies.GNOMAD_GENOMES.filter.G
             target_type: string
             split: '|'
+- name: keyvalue
+  converter_config:
+      elements:
+          - source: inDB__Het_OUSWES
+            target: frequencies.inDB.het.OUSWES
+            target_type: int
+          - source: inDB__Het_OUSWGS
+            target: frequencies.inDB.het.OUSWGS
+            target_type: int
+          - source: inDB__Hom_OUSWES
+            target: frequencies.inDB.hom.OUSWES
+            target_type: int
+          - source: inDB__Hom_OUSWGS
+            target: frequencies.inDB.hom.OUSWGS
+            target_type: int
+          - source: inDB__AC_OUSWES
+            target: frequencies.inDB.count.OUSWES
+            target_type: int
+          - source: inDB__AC_OUSWGS
+            target: frequencies.inDB.count.OUSWGS
+            target_type: int
+          - source: inDB__AF_OUSWES
+            target: frequencies.inDB.freq.OUSWES
+            target_type: float
+          - source: inDB__AF_OUSWGS
+            target: frequencies.inDB.freq.OUSWGS
+            target_type: float
+          - source: inDB__AN_OUSWES
+            target: frequencies.inDB.num.OUSWES
+            target_type: int
+          - source: inDB__AN_OUSWGS
+            target: frequencies.inDB.num.OUSWGS
+            target_type: int
+          - source: inDB__filter_OUSWES
+            target: frequencies.inDB.filter.OUSWES
+            target_type: string
+            split: ','
+          - source: inDB__filter_OUSWGS
+            target: frequencies.inDB.filter.OUSWGS
+            target_type: string
+            split: ','
+- name: flatjson
+  converter_config:
+      elements:
+          - source: inDB__indications_OUSWES
+            target: frequencies.inDB.indications.OUSWES
+            item_separator: ','
+            keyvalue_separator: ':'
+            value_target_type: string
+          - source: inDB__indications_OUSWGS
+            target: frequencies.inDB.indications.OUSWGS
+            item_separator: ','
+            keyvalue_separator: ':'
+            value_target_type: string
 - name: hgmdprimaryreport
   converter_config:
       elements:
