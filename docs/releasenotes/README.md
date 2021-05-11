@@ -13,16 +13,18 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.13.2
 
-Release date: 10.05.2021
+Release date: 11.05.2021
 
 ### Highlights
 
-This release changes thresholds for verification warnings and adds a small bugfix.
+This release changes thresholds for verification warnings, adds a tweak to the IMPORT module and fixes a small bug.
 
 ### All changes
 
 <!-- MR !526-->
 - Thresholds for the ["Needs verification" warning](/manual/evidence-sections.html#warning-needs-verification) was adjusted to depth <20 (was ≤20) and allele ratio (heterozygous) ≤0.3 or ≥0.7 (was ≥0.6).
+<!-- MR !527 -->
+- Disallow spaces and underscores in custom gene panel names when [ordering reanalyses](/manual/data-import-reanalyses.html#use-custom-gene-panel) in the IMPORT module.
 <!-- MR !523 -->
 - Fixed a bug causing de novo likelihood calculation to fail in certain instances.
 
