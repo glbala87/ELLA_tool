@@ -72,7 +72,7 @@ const BASE_SECTIONS = {
             name: 'frequency'
         },
         content: [
-            { tag: 'allele-info-frequency-gnomad-exomes' },
+            //     { tag: 'allele-info-frequency-gnomad-exomes' },
             { tag: 'allele-info-frequency-gnomad-genomes' },
             { tag: 'allele-info-frequency-exac' },
             { tag: 'allele-info-frequency-indb' },
@@ -193,6 +193,23 @@ const COMPONENTS = {
 
 function prepareComponents({ state, resolve }) {
     let components = COMPONENTS[state.get('views.workflows.type')]
+
+    // Add components from the view config
+    let annotationViewConfig = state.get('app.config.annotation.view')
+    for (let i in annotationViewConfig) {
+        let vc = annotationViewConfig[i]
+        function CamelCaseToDash(s) {
+            return s.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`)
+        }
+        const template = vc['template']
+        const section = vc['section']
+
+        components.components.Classification.sections[section].content.push({
+            tag: CamelCaseToDash(template),
+            source: vc['source'],
+            configIdx: i
+        })
+    }
     // TODO: Add IGV button to analysis frequency section
     state.set('views.workflows.components', components.components)
     state.set('views.workflows.componentKeys', components.componentKeys)

@@ -6,13 +6,18 @@ import template from './frequencyDetailsWidget.ngtmpl.html' // eslint-disable-li
 
 app.component('frequencyDetails', {
     bindings: {
+        source: '@',
+        title: '@',
         allelePath: '<',
-        group: '=' // e.g. name of data set, like ExAC or GNOMAD_EXOMES
+        configIdx: '@',
+        columns: '=', // e.g. name of data set, like ExAC or GNOMAD_EXOMES
+        rows: '='
     },
     templateUrl: 'frequencyDetailsWidget.ngtmpl.html',
     controller: connect(
         {
-            frequencies: getFrequencyAnnotation(state`${props`allelePath`}`, props`group`)
+            frequencies: state`${props`allelePath`}.annotation.${props`source`}`,
+            viewConfig: state`app.config.annotation.view.${props`configIdx`}.config`
         },
         'FrequencyDetails',
         [
@@ -24,7 +29,11 @@ app.component('frequencyDetails', {
                         if (!($ctrl.frequencies && 'filter' in $ctrl.frequencies)) {
                             return []
                         }
-                        return $ctrl.frequencies.filter.filter((f) => f !== 'PASS')
+                        const filterValues = [].concat.apply(
+                            [],
+                            Object.values($ctrl.frequencies.filter)
+                        )
+                        return filterValues.filter((f) => f !== 'PASS')
                     }
                 })
             }
