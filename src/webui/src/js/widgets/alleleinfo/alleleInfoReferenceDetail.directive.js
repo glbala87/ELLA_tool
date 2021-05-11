@@ -42,13 +42,9 @@ app.component('alleleInfoReferenceDetail', {
                         return 'Evaluate'
                     },
                     getSources() {
-                        const annotationReference = $ctrl.allele.annotation.references.find(
-                            (a) => a.pubmed_id === $ctrl.reference.pubmed_id
-                        )
-                        if (!annotationReference) {
-                            return []
-                        }
-                        return annotationReference.sources
+                        return $ctrl.allele.annotation.references
+                            .filter((a) => a.pubmed_id === $ctrl.reference.pubmed_id)
+                            .map((x) => x.source)
                     }
                 })
             }
