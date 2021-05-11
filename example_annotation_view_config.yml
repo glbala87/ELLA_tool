@@ -1,0 +1,38 @@
+testgroup02:
+    - section: frequency
+      template: frequencyDetails
+      source: frequencies.GNOMAD_EXOMES
+      config:
+          key_column: pop
+          columns:
+              count: COUNT
+              num: NUM
+              freq: FREQ
+              hom: HOM
+          rows:
+              AFR: AFR
+              AMR: AMR
+              ASJ: ASJ
+              EAS: EA
+              FIN: E(F)
+              NFE: E(NF)
+              OTH: OTH
+              SAS: SA
+              G: TOT
+          precision: 6
+          scientific_threshold: 4
+          warnings: filter
+    - section: prediction
+      template: keyValue
+      source: prediction.spliceai
+      config:
+          names:
+              SYMBOL: Transcript/gene
+              DS_AG: Delta score (acceptor gain)
+              DS_AL: Delta score (acceptor loss)
+              DS_DG: Delta score (donor gain)
+              DS_DL: Delta score (donor loss)
+              DP_AG: Delta position (acceptor gain)
+              DP_AL: Delta position (acceptor loss)
+              DP_DG: Delta position (donor gain)
+              DP_DL: Delta position (donor loss)
