@@ -17,7 +17,7 @@ Release date: 11.05.2021
 
 ### Highlights
 
-This release changes thresholds for verification warnings, adds a tweak to the IMPORT module and fixes a small bug.
+This release changes thresholds for verification warnings and adds a few other tweaks and bugfixes.
 
 ### All changes
 
@@ -27,6 +27,8 @@ This release changes thresholds for verification warnings, adds a tweak to the I
 - Disallow spaces and underscores in custom gene panel names when [ordering reanalyses](/manual/data-import-reanalyses.html#use-custom-gene-panel) in the IMPORT module.
 <!-- MR !523 -->
 - Fixed a bug causing de novo likelihood calculation to fail in certain instances.
+- <!-- MR !528 -->
+- Fixed a bug causing missing source information for studies and references.
 
 ## Version 1.13.1
 
