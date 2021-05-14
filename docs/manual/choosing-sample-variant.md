@@ -99,18 +99,31 @@ To search for any variant or analysis (past or present), use the search section 
 
 <div class="figure"><img src="./img/search.png"></div>
 
-Possible searches include HGVS cDNA or protein variant name with or without reference ID, genomic position/range and analysis ID. Examples:
+Possible searches include HGVS cDNA or protein variant name, with or without reference ID, genomic position/range and analysis ID. Examples:
 
-  - `c.198A>G`
+- Variant search: 
+  - `c.198A>G` (note that a gene must also be selected for searches without a reference)
   - `NP_075561.3:p.Gly1248Asp`
   - `13:32890607`
   - `13:32890500-32890800`
-  - `NA12878`
 
-Search results may be narrowed further by selecting gene or user, or by ignoring excluded variants (see figure above).
+- Analysis search:
+  - `NA12878` (any part of an analysis name may be used)
 
-Clicking on a variant search result will open the variant in a VARIANTS workflow. Note that to (re-)interpret the variant, ELLA has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
+Search results may be narrowed further by selecting gene and/or user (see figure above).
+
+#### Open a search result
+
+Clicking on a search result will open the analysis/variant. Individual variants are opened in a VARIANTS workflow; note that to (re-)interpret the variant, ELLA has to tie the interpretation to a gene panel. Check that the correct gene panel is chosen in the dropdown next to the `START` button, *before* you start:
 
 <div class="figure"><img src="./img/choose_genepanel.png"></div>
 
+#### Show analyses containing a variant
 
+When searching for variants, a `SHOW ANALYSES` button next to each search result allows you to view any existing analyses containing the variant.  
+
+::: warning NOTE
+For patient privacy reasons, investigating other analyses containing a variant should only be done when absolutely necessary (you will need to confirm this with an `I ACCEPT` button), and all actions will be logged.
+::: 
+
+Click on an analysis name in the resulting list to open it for further details. To quickly export the list of analyses shown (e.g. if performing an audit), click the `COPY TO CLIPBOARD` button.
