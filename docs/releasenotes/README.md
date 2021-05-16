@@ -13,7 +13,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.13.2
 
-Release date: 11.05.2021
+Release date: 19.05.2021
 
 ### Highlights
 
