@@ -1,6 +1,7 @@
 <contentbox
-    boxtitle="gnomAD Exomes"
-    title-url="{{ $ctrl.allele.urls.gnomad }}"
+    boxtitle="{{ $ctrl.title }}"
+    title-url="{{ $ctrl.viewConfig.url }}"
+    disabled-title-url="{{ $ctrl.viewConfig.url_empty }}"
     disabled="!$ctrl.frequencies"
 >
     {{ $ctrl.frequencies }}
@@ -12,7 +13,6 @@
             <div class="tabular-row">
                 <h4 class="faded-title">{{ $ctrl.viewConfig.key_column }}</h4>
                 <div class="cell" ng-repeat="(columnKey, columnName) in $ctrl.viewConfig.columns">
-                    <!-- table headers -->
                     <h4 class="faded-title">{{ columnName }}</h4>
                 </div>
             </div>
@@ -34,21 +34,21 @@
         </div>
         <div
             class="cb-table"
-            ng-repeat="indications in $ctrl.frequencies.indications"
-            ng-if="$ctrl.frequencies.indications.length"
+            ng-repeat="(key, indications) in $ctrl.frequencies.indications"
+            ng-if="$ctrl.shouldShowIndications(key)"
         >
             <div class="tabular-row">
                 <div class="cell">
-                    <h5>{{ indications.name }} indications:</h5>
+                    <h5>{{ key }} indications:</h5>
                 </div>
                 <div class="cell"></div>
             </div>
-            <div class="tabular-row" ng-repeat="i in indications.indications">
+            <div class="tabular-row" ng-repeat="(indication, value) in indications">
                 <div class="cell">
-                    <p>- {{ i.name }}:</p>
+                    <p>- {{ indication }}:</p>
                 </div>
                 <div class="cell">
-                    <p>{{ i.value }}</p>
+                    <p>{{ value }}</p>
                 </div>
             </div>
         </div>

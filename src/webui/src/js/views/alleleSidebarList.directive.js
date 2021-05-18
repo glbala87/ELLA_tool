@@ -18,7 +18,6 @@ import getExternalSummaryById from '../store/modules/views/workflows/alleleSideb
 import getClassificationById from '../store/modules/views/workflows/alleleSidebar/computed/getClassificationById'
 import getAlleleAssessmentsById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessmentsById'
 import getVerificationStatusById from '../store/modules/views/workflows/alleleSidebar/computed/getVerificationStatusById'
-import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import getAlleleStateById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStateById'
 import isReviewedById from '../store/modules/views/workflows/alleleSidebar/computed/isReviewedById'
 import getWarningById from '../store/modules/views/workflows/alleleSidebar/computed/getWarningById'
@@ -305,13 +304,7 @@ app.component('alleleSidebarList', {
                             hiFreqData.maxMeetsThresholdValue !== null
                                 ? hiFreqData.maxMeetsThresholdValue
                                 : hiFreqData.maxValue
-                        if (value !== null) {
-                            const formatted = formatFreqValue(value, $ctrl.config)
-                            return hiFreqData.maxMeetsThresholdValue !== null
-                                ? formatted
-                                : `(${formatted})`
-                        }
-                        return '-'
+                        return value === null ? '-' : value
                     },
                     getHiFreqColumnTitle() {
                         let title = ''

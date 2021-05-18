@@ -71,7 +71,7 @@ class Filters {
             precision = precision === undefined ? 6 : precision
             scientificThreshold = scientificThreshold === undefined ? 4 : scientificThreshold
             if (isNaN(input)) {
-                return 'N/A'
+                return input
             } else if (Number.isInteger(input)) {
                 return input
             } else if (input < Math.pow(10, -scientificThreshold)) {

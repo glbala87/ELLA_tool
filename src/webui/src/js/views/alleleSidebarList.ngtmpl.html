@@ -367,9 +367,11 @@
                     tippy-popover="alleleSidebarFrequencyPopover.ngtmpl.html"
                     tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
-                    <span class="clickable">{{
-                        $ctrl.formatFreqValue($ctrl.hiFreq[allele.id])
-                    }}</span>
+                    <span
+                        class="clickable"
+                        ng-class="{parenthesised: $ctrl.hiFreq[allele.id].maxMeetsThreshold === null}"
+                        >{{ $ctrl.formatFreqValue($ctrl.hiFreq[allele.id]) | formatNumber }}</span
+                    >
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('hi-count')"
@@ -377,9 +379,11 @@
                     tippy-popover="alleleSidebarFrequencyPopover.ngtmpl.html"
                     tippy-popover-title="{{ $ctrl.getHGVScTitle(allele) }}"
                 >
-                    <span class="clickable">{{
-                        $ctrl.formatCountValue($ctrl.hiCount[allele.id])
-                    }}</span>
+                    <span
+                        class="clickable"
+                        ng-class="{parenthesised: $ctrl.hiFreq[allele.id].maxMeetsThreshold === null}"
+                        >{{ $ctrl.formatFreqValue($ctrl.hiCount[allele.id]) }}</span
+                    >
                 </div>
                 <div
                     ng-if="$ctrl.showColumn('external')"

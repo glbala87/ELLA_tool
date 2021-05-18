@@ -13,6 +13,7 @@ import template from './contentbox.ngtmpl.html' // eslint-disable-line no-unused
         color: '@',
         boxtitle: '@?',
         titleUrl: '@?',
+        disabledTitleUrl: '@?',
         disabled: '=?'
     },
     transclude: { cbbody: 'cbbody' },
@@ -26,5 +27,8 @@ export class ContentboxController {
         let color = this.color ? this.color : 'blue'
         let disabled = this.disabled ? 'no-content' : ''
         return `${color} ${disabled}`
+    }
+    getUrl() {
+        return this.disabled ? this.disabledTitleUrl : this.titleUrl
     }
 }
