@@ -1,7 +1,6 @@
 import app from '../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
-import getFrequencyAnnotation from '../store/common/computes/getFrequencyAnnotation'
 import template from './frequencyDetailsWidget.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('frequencyDetails', {
@@ -9,9 +8,7 @@ app.component('frequencyDetails', {
         source: '@',
         title: '@',
         allelePath: '<',
-        configIdx: '@',
-        columns: '=', // e.g. name of data set, like ExAC or GNOMAD_EXOMES
-        rows: '='
+        configIdx: '@'
     },
     templateUrl: 'frequencyDetailsWidget.ngtmpl.html',
     controller: connect(
@@ -34,6 +31,23 @@ app.component('frequencyDetails', {
                             Object.values($ctrl.frequencies.filter)
                         )
                         return filterValues.filter((f) => f !== 'PASS')
+                    },
+                    shouldShowIndications(key) {
+                        if (
+                            'indications' in $ctrl.viewConfig &&
+                            $ctrl.viewConfig.indications.keys.includes(key)
+                        ) {
+                            let threshold = $ctrl.viewConfig.indications.threshold || Infinity
+                            if (threshold === Infinity) {
+                                return true
+                            } else {
+                                return (
+                                    'count' in $ctrl.frequencies &&
+                                    key in $ctrl.frequencies.count &&
+                                    $ctrl.frequencies.count[key] < threshold
+                                )
+                            }
+                        }
                     }
                 })
             }

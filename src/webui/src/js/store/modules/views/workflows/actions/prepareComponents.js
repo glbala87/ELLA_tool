@@ -71,13 +71,7 @@ const BASE_SECTIONS = {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
         },
-        content: [
-            //     { tag: 'allele-info-frequency-gnomad-exomes' },
-            { tag: 'allele-info-frequency-gnomad-genomes' },
-            { tag: 'allele-info-frequency-exac' },
-            { tag: 'allele-info-frequency-indb' },
-            { tag: 'allele-info-dbsnp' }
-        ]
+        content: [{ tag: 'allele-info-dbsnp' }]
     },
     prediction: {
         title: 'Prediction',

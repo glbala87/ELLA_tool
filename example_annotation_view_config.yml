@@ -3,6 +3,8 @@ testgroup02:
       template: frequencyDetails
       source: frequencies.GNOMAD_EXOMES
       config:
+          url: http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}
+          url_empty: http://gnomad.broadinstitute.org/region/${allele.chromosome}-${allele.vcf_pos-10}-${allele.open_end_position+10}
           key_column: pop
           columns:
               count: COUNT
@@ -22,6 +24,72 @@ testgroup02:
           precision: 6
           scientific_threshold: 4
           warnings: filter
+    - section: frequency
+      template: frequencyDetails
+      source: frequencies.GNOMAD_GENOMES
+      config:
+          url: http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}
+          url_empty: http://gnomad.broadinstitute.org/region/${allele.chromosome}-${allele.vcf_pos-10}-${allele.open_end_position+10}
+          key_column: pop
+          columns:
+              count: COUNT
+              num: NUM
+              hom: HOM
+              freq: FREQ
+          rows:
+              AFR: AFR
+              AMR: AMR
+              ASJ: ASJ
+              EAS: EA
+              FIN: E(F)
+              NFE: E(NF)
+              OTH: OTH
+              SAS: SA
+              G: TOT
+          precision: 6
+          scientific_threshold: 4
+    - section: frequency
+      template: frequencyDetails
+      source: frequencies.ExAC
+      config:
+          url: http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}
+          key_column: pop
+          columns:
+              count: COUNT
+              num: NUM
+              hom: HOM
+              freq: FREQ
+          rows:
+              AFR: AFR
+              FIN: E(F)
+              NFE: E(NF)
+              EAS: EA
+              AMR: LAT
+              OTH: OTH
+              SAS: SA
+              G: TOT
+          precision: 6
+          scientific_threshold: 4
+    - section: frequency
+      template: frequencyDetails
+      source: frequencies.inDB
+      config:
+          key_column: pop
+          columns:
+              count: COUNT
+              num: NUM
+              hom: HOM
+              freq: FREQ
+          rows:
+              OUSWES: OUSWES
+              OUSWGS: OUSWGS
+          precision: 6
+          scientific_threshold: 4
+          indications:
+              keys:
+                  - OUSWES
+                  - OUSWGS
+              threshold: 10
     - section: prediction
       template: keyValue
       source: prediction.spliceai
