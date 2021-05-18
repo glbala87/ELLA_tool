@@ -38,6 +38,20 @@ const getAlleles = (alleleIds, alleles) => {
     })
 }
 
+const sectionContents = Compute(
+    state`views.workflows.components.Classification.sections`,
+    (classificationSections) => {
+        const contents = {}
+        if (classificationSections === undefined) {
+            return contents
+        }
+
+        for (let section of Object.keys(classificationSections)) {
+            contents[section] = classificationSections[section].content
+        }
+        return contents
+    }
+)
 app.component('alleleSidebarList', {
     bindings: {
         sectionTitle: '@?',
@@ -62,6 +76,7 @@ app.component('alleleSidebarList', {
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
+            sectionContents,
             reviewed: isReviewedById(state`${props`allelesPath`}`),
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
