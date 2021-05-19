@@ -55,7 +55,8 @@
         "report",
         "transcripts",
         "igv",
-        "import"
+        "import",
+        "similar_alleles"
     ],
     "properties": {
         "app": {
@@ -494,6 +495,19 @@
                 },
                 "preimport_script": {
                     "type": "string"
+                }
+            }
+        },
+        "similar_alleles": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["max_variants", "max_genomic_distance"],
+            "properties": {
+                "max_variants": {
+                    "type": "integer"
+                },
+                "max_genomic_distance": {
+                    "type": "integer"
                 }
             }
         }
