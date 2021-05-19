@@ -9,6 +9,7 @@ import logging
 import json
 import re
 import datetime
+import yaml
 
 from vardb.datamodel import DB
 from vardb.deposit.deposit_genepanel import DepositGenepanel
@@ -18,6 +19,7 @@ from vardb.deposit.deposit_users import import_users, import_groups
 from vardb.deposit.deposit_analysis import DepositAnalysis
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_filterconfigs import deposit_filterconfigs
+from vardb.deposit.deposit_annotationconfig import deposit_annotationconfig
 from vardb.watcher.analysis_watcher import AnalysisConfigData
 
 from vardb.util import vcfiterator
@@ -37,6 +39,7 @@ FIXTURES = "../testdata/test-fixtures"
 USERS = "../testdata/users.json"
 USERGROUPS = "../testdata/usergroups.json"
 FILTERCONFIGS = "../testdata/filterconfigs.json"
+ANNOTATIONCONFIG = "../testdata/annotation-config.yml"
 
 REPORT_EXAMPLE = """
 ### Gene list for genes having below 100% coverage:
@@ -142,6 +145,12 @@ class DepositTestdata(object):
             deposit_filterconfigs(self.session, filter_configs)
             log.info("Added {} filter configs".format(len(filter_configs)))
 
+    def deposit_annotation_config(self):
+        with open(os.path.join(SCRIPT_DIR, ANNOTATIONCONFIG)) as f:
+            annotation_config = yaml.safe_load(f)
+            deposit_annotationconfig(self.session, annotation_config)
+            log.info("Added annotation config")
+
     def deposit_analyses(self, test_set=None):
         """
         :param test_set: Which set to import.
@@ -223,6 +232,7 @@ class DepositTestdata(object):
         log.info("Starting a DB reset")
         log.info("on {}".format(os.getenv("DB_URL", "DB_URL NOT SET, BAD")))
         log.info("--------------------")
+        self.deposit_annotation_config()
         self.deposit_genepanels()
         self.deposit_users()
         self.deposit_filter_configs()

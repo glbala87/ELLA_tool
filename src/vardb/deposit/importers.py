@@ -809,12 +809,16 @@ class AnnotationImporter(object):
     def __init__(self, session, import_config=None):
         self.session = session
         self.batch_items = list()
+
+        self.annotation_config = (
+            self.session.query(annm.AnnotationConfig)
+            .order_by(annm.AnnotationConfig.id.desc())
+            .first()
+        )
         if import_config is None:
-            if "ELLA_IMPORT_CONFIG" not in os.environ:
-                raise RuntimeError("Missing required env: ELLA_IMPORT_CONFIG")
-            with open(os.environ["ELLA_IMPORT_CONFIG"]) as f:
-                import_config = yaml.safe_load(f)
-        self.import_config = import_config
+            self.import_config = self.annotation_config.deposit
+        else:
+            self.import_config = import_config
         self._converters = {}
 
     def reset(self):
@@ -945,7 +949,13 @@ class AnnotationImporter(object):
 
     def add(self, record, allele_id):
         annotation_data = self._extract_annotation_from_record(record)
-        data = {"allele_id": allele_id, "annotations": annotation_data, "date_superceeded": None}
+
+        data = {
+            "allele_id": allele_id,
+            "annotations": annotation_data,
+            "date_superceeded": None,
+            "annotation_config_id": self.annotation_config.id,
+        }
         self.batch_items.append(data)
         return data
 
