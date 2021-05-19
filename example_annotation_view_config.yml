@@ -113,3 +113,20 @@ testgroup02:
               - type: objects
                 key: dbsnp
                 url: http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${attrs.linkText}
+
+    - section: external
+      template: clinvarDetails
+      source: external.CLINVAR
+      config:
+          url: https://www.ncbi.nlm.nih.gov/clinvar/variation/${allele.annotation.external.CLINVAR.variant_id}
+          url_empty: https://www.ncbi.nlm.nih.gov/clinvar/?term=${allele.chromosome}[chr]+AND+${allele.vcf_pos-100}%3A${allele.vcf_pos+100}[chrpos37]
+    - section: external
+      template: itemList
+      source: external.HGMD
+      title: HGMD PRO
+      config:
+          url: https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=${allele.annotation.external.HGMD.acc_num}
+          items:
+              - subsource: tag
+              - subsource: disease
+              - subsource: acc_num

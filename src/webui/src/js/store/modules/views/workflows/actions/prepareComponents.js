@@ -99,11 +99,7 @@ const BASE_SECTIONS = {
             placeholder: 'EXTERNAL DB-COMMENTS',
             name: 'external'
         },
-        content: [
-            { tag: 'allele-info-hgmd' },
-            { tag: 'allele-info-clinvar' },
-            { tag: 'allele-info-external-other' }
-        ]
+        content: [{ tag: 'allele-info-external-other' }]
     },
     references: {
         title: 'Studies & References',

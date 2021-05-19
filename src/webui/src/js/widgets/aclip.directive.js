@@ -48,8 +48,9 @@ var generateTemplateString = (function() {
 
 const interpolatedUrl = Compute(
     props`href`,
+    props`attrs`,
     state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
-    (url, allele) => {
+    (url, attrs, allele) => {
         /** Interpolate urls from
          * https://.../${allele.chromosome}/${allele.annotation.external.CLINVAR.variant_id}/${allele.vcf_pos+10}
          * to
@@ -57,7 +58,12 @@ const interpolatedUrl = Compute(
          */
         url = url.replace(/\s/g, '')
         const templateString = generateTemplateString(url)
-        return templateString({ allele })
+        try {
+            const r = templateString({ allele, attrs })
+            return r
+        } catch (err) {
+            return url
+        }
     }
 )
 
@@ -65,7 +71,8 @@ app.component('aClip', {
     bindings: {
         href: '@?',
         title: '@?',
-        toClipboard: '=?'
+        toClipboard: '=?',
+        linkText: '@?'
     },
     transclude: true,
     template: `<span><a title="{{title}}" ng-if="::!$ctrl.shouldCopy()" ng-href="{{$ctrl.interpolatedUrl}}" target="{{$ctrl.interpolatedUrl}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::$ctrl.shouldCopy()" title="{{title}}" ng-click="$ctrl.copyToClipboard()" ng-transclude></a></span>`,
@@ -79,7 +86,11 @@ app.component('aClip', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
+
                 Object.assign($ctrl, {
+                    attrs: {
+                        linkText: $ctrl.linkText
+                    },
                     copyToClipboard() {
                         copy($ctrl.interpolatedUrl)
                         toastr.info('Copied link to clipboard.', null, 1000)
