@@ -4,7 +4,7 @@ title: Variant warnings
 
 # Variant warnings
 
-Variant warnings are shown for certain conditions that require special attention, and are triggered when you select the variant. The list of warnings includes:
+Variant warnings are shown as a banner for certain conditions that require special attention, and are triggered when you select the variant. The list of warnings includes:
 
 [[toc]]
 
@@ -18,6 +18,8 @@ Warnings include:
 
 - Worse consequences found in other transcripts, e.g. intron variant in default transcript, exon variant in alternative transcript. See the PREDICTION section for further details.
 - Other variants are within 2 bp of the variant in the analysis (often indicative of technically challenging regions or that annotation should be manually verified).
+
+Note that a distinct ["Needs verification" warning](/manual/evidence-sections.html#warning-needs-verification) is shown in the QUALITY card for variants of questionable variant calling quality. 
 
 ## Collision warnings
 
