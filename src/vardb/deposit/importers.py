@@ -611,6 +611,17 @@ class GenotypeImporter(object):
                     genotype_likelihood = None
                 else:
                     genotype_likelihood = record.get_format_sample("PL", sample.identifier)
+                    # genotype_likelihood might have None values, if either
+                    # a) Sample has no data ('.')
+                    # b) Sample has fewer possible genotypes than other samples (e.g. father vs mother on X)
+                    # This is because cyvcf2 return a N*M matrix of values for "PL", where N is the number of samples
+                    # and M is the largest number of values for PL, which are filled with None-values where applicable
+                    #
+                    # Strip out None values from the list, and set to None if list is empty
+                    if genotype_likelihood is not None:
+                        genotype_likelihood = [x for x in genotype_likelihood if x is not None]
+                        if not genotype_likelihood:
+                            genotype_likelihood = None
 
                 if (
                     sample_genotype in [(-1, -1), (-1,)]
