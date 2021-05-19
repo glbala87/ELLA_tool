@@ -104,3 +104,12 @@ testgroup02:
               DP_AL: Delta position (acceptor loss)
               DP_DG: Delta position (donor gain)
               DP_DL: Delta position (donor loss)
+    - section: frequency
+      template: itemList
+      source: filtered
+      title: dbSNP
+      config:
+          items:
+              - type: objects
+                key: dbsnp
+                url: http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=${attrs.linkText}

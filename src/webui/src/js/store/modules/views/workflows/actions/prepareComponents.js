@@ -71,7 +71,7 @@ const BASE_SECTIONS = {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
         },
-        content: [{ tag: 'allele-info-dbsnp' }]
+        content: []
     },
     prediction: {
         title: 'Prediction',
@@ -201,7 +201,8 @@ function prepareComponents({ state, resolve }) {
         components.components.Classification.sections[section].content.push({
             tag: CamelCaseToDash(template),
             source: vc['source'],
-            configIdx: i
+            configIdx: i,
+            title: vc['title']
         })
     }
     // TODO: Add IGV button to analysis frequency section
