@@ -85,7 +85,10 @@ const BASE_SECTIONS = {
             placeholder: 'PREDICTION-COMMENTS',
             name: 'prediction'
         },
-        content: [{ tag: 'allele-info-consequence' }, { tag: 'allele-info-prediction-other' }]
+        content: [
+            { tag: 'allele-info-consequence', order: 'first' },
+            { tag: 'allele-info-prediction-other', order: 'last' }
+        ]
     },
     external: {
         title: 'External',
@@ -99,7 +102,7 @@ const BASE_SECTIONS = {
             placeholder: 'EXTERNAL DB-COMMENTS',
             name: 'external'
         },
-        content: [{ tag: 'allele-info-external-other' }]
+        content: [{ tag: 'allele-info-external-other', order: 'last' }]
     },
     references: {
         title: 'Studies & References',
@@ -197,8 +200,22 @@ function prepareComponents({ state, resolve }) {
         components.components.Classification.sections[section].content.push({
             tag: CamelCaseToDash(template),
             source: vc['source'],
+            order: vc['order'],
             configIdx: i,
             title: vc['title']
+        })
+    }
+
+    // Sort sectionboxes to appear in order (if defined)
+    for (let section of Object.values(components.components.Classification.sections)) {
+        section.content.sort((a, b) => {
+            if (a.order === b.order) {
+                return 0
+            } else if (a.order === 'first' || b.order === 'last') {
+                return -1
+            } else if (a.order === 'last' || b.order === 'first') {
+                return 1
+            }
         })
     }
     // TODO: Add IGV button to analysis frequency section
