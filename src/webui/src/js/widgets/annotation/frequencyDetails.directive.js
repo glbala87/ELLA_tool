@@ -1,7 +1,7 @@
-import app from '../ng-decorators'
+import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
-import template from './frequencyDetailsWidget.ngtmpl.html' // eslint-disable-line no-unused-vars
+import template from './frequencyDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('frequencyDetails', {
     bindings: {
@@ -10,7 +10,7 @@ app.component('frequencyDetails', {
         allelePath: '<',
         configIdx: '@'
     },
-    templateUrl: 'frequencyDetailsWidget.ngtmpl.html',
+    templateUrl: 'frequencyDetails.ngtmpl.html',
     controller: connect(
         {
             frequencies: state`${props`allelePath`}.annotation.${props`source`}`,

@@ -1,0 +1,19 @@
+<contentbox
+    boxtitle="{{ $ctrl.title }}"
+    title-url="{{ $ctrl.viewConfig.url }}"
+    disabled-title-url="{{ $ctrl.viewConfig.url_empty }}"
+    disabled="!$ctrl.data || !$ctrl.data.length"
+>
+    <cbbody>
+        <div ng-repeat="value in $ctrl.data">
+            <p>
+                <a-clip ng-if="value.url" href="{{ value.url }}" link-text="{{ value.item }}">
+                    {{ value.item }}
+                </a-clip>
+            </p>
+            <p ng-if="!value.url">
+                {{ value.item }}
+            </p>
+        </div>
+    </cbbody>
+</contentbox>
