@@ -43,14 +43,14 @@ def genotype_calculate_qc(allele_data, genotype_data, sample_type):
         "snp": allele_data["change_type"] == "SNP",
         "pass": genotype_data["filter_status"] == "PASS",
         "dp": genotype_data["sequencing_depth"] is not None
-        and genotype_data["sequencing_depth"] > 20,
+        and genotype_data["sequencing_depth"] >= 20,
     }
 
     if allele_ratio:
         if genotype_data["type"] == "Homozygous":
             needs_verification_checks["allele_ratio"] = allele_ratio > 0.9
         elif genotype_data["type"] == "Heterozygous":
-            needs_verification_checks["allele_ratio"] = allele_ratio > 0.3 and allele_ratio < 0.6
+            needs_verification_checks["allele_ratio"] = allele_ratio > 0.3 and allele_ratio < 0.7
         # If reference allele, failing quality on ratio makes no sense
         elif genotype_data["type"] == "Reference":
             needs_verification_checks["allele_ratio"] = True

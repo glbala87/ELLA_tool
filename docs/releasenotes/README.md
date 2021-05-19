@@ -7,7 +7,7 @@ title: Latest releases
 |Major versions|Minor versions|
 |:--|:--|
 [v1.14](#version-1-14)|
-[v1.13](#version-1-13)|[v1.13.1](#version-1-13-1)
+[v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
@@ -24,13 +24,32 @@ Release date: TBD
 <!-- MR !520-->
 - Made track selection section in VISUAL collapsible.
 
+## Version 1.13.2
+
+Release date: 19.05.2021
+
+### Highlights
+
+This release changes thresholds for verification warnings and adds a few other tweaks and bugfixes.
+
+### All changes
+
+<!-- MR !526-->
+- Thresholds for the ["Needs verification" warning](/manual/evidence-sections.html#warning-needs-verification) was adjusted to depth <20 (was ≤20) and allele ratio (heterozygous) ≤0.3 or ≥0.7 (was ≥0.6).
+<!-- MR !527 -->
+- Disallow spaces and underscores in custom gene panel names when [ordering reanalyses](/manual/data-import-reanalyses.html#use-custom-gene-panel) in the IMPORT module.
+<!-- MR !523 -->
+- Fixed a bug causing de novo likelihood calculation to fail in certain instances.
+<!-- MR !528 -->
+- Fixed a bug causing missing source information for studies and references.
+
 ## Version 1.13.1
 
 Release date: 16.04.2021
 
 ### Highlights
 
-This release adds a single bufix.
+This release adds a single bugfix.
 
 ### All changes
 
@@ -71,7 +90,7 @@ With the [improvements to pre-filters](#improvements-to-pre-filters), the config
 <!-- MR !506 -->
 - [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
 <!-- MR !510 -->
-- Tweaked front-end error reporting to reduce number of "An error occured ..." messages displayed to users.
+- Tweaked front-end error reporting to reduce number of "An error occurred ..." messages displayed to users.
 <!-- MR !497 -->
 - Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
 <!-- MR !511 -->
