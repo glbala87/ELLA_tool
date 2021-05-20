@@ -1,4 +1,7 @@
 <div style="display: flex">
-    <allele-info-hgmd allele-path="$ctrl.allelesPath + '.' + allele.id"></allele-info-hgmd>
-    <allele-info-clinvar allele-path="$ctrl.allelesPath + '.' + allele.id"></allele-info-clinvar>
+    <allele-sectionbox-content
+        style="display: flex; flex-wrap: wrap; max-width: 100rem !important;"
+        allele-path="$ctrl.allelesPath + '.' + allele.id"
+        boxes="$ctrl.sectionContents[allele.id].external"
+    ></allele-sectionbox-content>
 </div>

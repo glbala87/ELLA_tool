@@ -2,6 +2,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './clinvarDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
+import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
 
 const NUM_STARS = {
     'no assertion criteria provided': 0,
@@ -19,12 +20,13 @@ app.component('clinvarDetails', {
         source: '@',
         title: '@',
         allelePath: '<',
-        configIdx: '@'
+        annotationConfigId: '=',
+        annotationConfigItemIdx: '='
     },
     controller: connect(
         {
             data: state`${props`allelePath`}.annotation.${props`source`}`,
-            viewConfig: state`app.config.annotation.view.${props`configIdx`}.config`
+            viewConfig: getAnnotationConfigItem
         },
         'ClinvarDetails',
         [
