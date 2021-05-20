@@ -1,5 +1,4 @@
 import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
-import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
 export default [
     ({ state, props }) => {
@@ -13,6 +12,5 @@ export default [
             throw Error(`Allele id ${props.alleleId} is not included`)
         }
     },
-    loadExcludedAlleles,
-    loadIncludedAlleles
+    loadExcludedAlleles
 ]
