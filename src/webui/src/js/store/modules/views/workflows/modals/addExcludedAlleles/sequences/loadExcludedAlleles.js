@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import { set } from 'cerebral/operators'
+import { set, concat } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAlleleIdsForGene from '../computed/getAlleleIdsForGene'
 import getAlleleIdsSlice from '../computed/getAlleleIdsSlice'
@@ -17,7 +17,14 @@ export default sequence('loadExcludedAlleles', [
     {
         success: [
             set(state`views.workflows.modals.addExcludedAlleles.data.genepanel`, props`result`),
-            set(props`alleleIds`, state`views.workflows.modals.addExcludedAlleles.viewAlleleIds`),
+            ({ state, props }) => {
+                const allAlleleIds = state
+                    .get('views.workflows.modals.addExcludedAlleles.viewAlleleIds')
+                    .concat(
+                        state.get('views.workflows.modals.addExcludedAlleles.includedAlleleIds')
+                    )
+                props.alleleIds = allAlleleIds
+            },
             getAlleles,
             {
                 success: [
