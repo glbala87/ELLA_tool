@@ -1,7 +1,6 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
-import getClinvarAnnotation from '../../store/common/computes/getClinvarAnnotation'
 import template from './clinvarDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const NUM_STARS = {
