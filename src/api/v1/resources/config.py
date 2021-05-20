@@ -1,10 +1,10 @@
 import copy
-import os
-
-import yaml
+from flask import request
 from api.config import config
+from api.schemas.annotations import AnnotationConfigSchema
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
+from vardb.datamodel import annotation
 
 
 class ConfigResource(LogRequestResource):
@@ -27,9 +27,17 @@ class ConfigResource(LogRequestResource):
         if user_config:
             c["user"]["user_config"] = user_config
 
-        if user:
-            with open(os.environ["ELLA_ANNOTATION_VIEW_CONFIG"]) as f:
-                view_config = yaml.load(f)
-            c["annotation"]["view"] = view_config[user.group.name]
-
         return c
+
+
+class AnnotationConfigListResource(LogRequestResource):
+    @authenticate()
+    def get(self, session, user=None):
+        annotation_config_ids = request.args.get("annotation_config_ids").split(",")
+        annotation_configs = (
+            session.query(annotation.AnnotationConfig)
+            .filter(annotation.AnnotationConfig.id.in_(annotation_config_ids))
+            .all()
+        )
+
+        return [AnnotationConfigSchema().dump(x).data for x in annotation_configs]
