@@ -955,6 +955,9 @@ class AlleleDataLoader(object):
                 final_allele[KEY_ANNOTATION]["schema_version"] = data[KEY_ANNOTATION][
                     "schema_version"
                 ]
+                final_allele[KEY_ANNOTATION]["annotation_config_id"] = data[KEY_ANNOTATION][
+                    "annotation_config_id"
+                ]
                 if KEY_CUSTOM_ANNOTATION in data:
                     final_allele[KEY_ANNOTATION]["custom_annotation_id"] = data[
                         KEY_CUSTOM_ANNOTATION
