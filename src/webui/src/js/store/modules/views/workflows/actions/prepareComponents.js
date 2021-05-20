@@ -1,3 +1,5 @@
+import { Compute } from 'cerebral'
+
 import getWarningCleared from '../worklog/computed/getWarningCleared'
 const ALLELE_SECTION_KEYS = [
     'classification',
@@ -226,19 +228,30 @@ function prepareClassificationContent(annotationConfig) {
     return content
 }
 
+const classificationSectionContent = (alleles, annotationConfigs) => {
+    return Compute(alleles, annotationConfigs, (alleles, annotationConfigs) => {
+        if (!alleles) {
+            return {}
+        }
+        const sectionContent = {}
+        for (let [id, allele] of Object.entries(alleles)) {
+            const annotationConfigId = allele.annotation.annotation_config_id
+            const annotationConfig = annotationConfigs.find((x) => x.id === annotationConfigId)
+            sectionContent[id] = prepareClassificationContent(annotationConfig)
+        }
+
+        return sectionContent
+    })
+}
+
 function prepareComponents({ state, resolve }) {
     let components = COMPONENTS[state.get('views.workflows.type')]
 
     const annotationConfigs = state.get('views.workflows.data.annotationConfigs')
-
     const alleles = state.get('views.workflows.interpretation.data.alleles')
-    for (let [id, allele] of Object.entries(alleles)) {
-        const annotationConfigId = allele.annotation.annotation_config_id
-        const annotationConfig = annotationConfigs.find((x) => x.id === annotationConfigId)
-        components.components.Classification.sectionContent[id] = prepareClassificationContent(
-            annotationConfig
-        )
-    }
+    components.components.Classification.sectionContent = resolve.value(
+        classificationSectionContent(alleles, annotationConfigs)
+    )
 
     // TODO: Add IGV button to analysis frequency section
     state.set('views.workflows.components', components.components)
@@ -257,3 +270,4 @@ function prepareComponents({ state, resolve }) {
 }
 
 export default prepareComponents
+export { classificationSectionContent }

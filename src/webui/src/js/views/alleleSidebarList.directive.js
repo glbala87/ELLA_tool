@@ -39,10 +39,10 @@ const getAlleles = (alleleIds, alleles) => {
 }
 
 const sectionContents = Compute(
-    state`views.workflows.components.Classification.sections`,
-    (classificationSections) => {
+    state`views.workflows.components.Classification.sectionContent`,
+    (classificationSectionContent) => {
         const contents = {}
-        if (classificationSections === undefined) {
+        if (classificationSectionContent === undefined) {
             return contents
         }
 
@@ -58,6 +58,7 @@ app.component('alleleSidebarList', {
         commentType: '@?', // none, 'analysis' or 'evaluation'
         alleleIdsPath: '<', // path on Cerebral store
         allelesPath: '<', // path on Cerebral store
+        sectionContentPath: '<', // path on Cerebral store
         rowClickedPath: '<', // signal path on Cerebral store
         toggleClickedPath: '<', // signal path on Cerebral store
         orderByPath: '<?', // path to orderBy object on Cerebral store
@@ -76,7 +77,7 @@ app.component('alleleSidebarList', {
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
-            sectionContents,
+            sectionContents: state`${props`sectionContentPath`}`,
             reviewed: isReviewedById(state`${props`allelesPath`}`),
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
