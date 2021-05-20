@@ -12,16 +12,17 @@ class SimilarAllelesResource(LogRequestResource):
     @authenticate()
     def get(self, session, genepanel_name, genepanel_version, user=None):
         # get genepanel
-        genepanel = (
-            session.query(gene.Genepanel)
-            .filter(
-                and_(
-                    gene.Genepanel.name == genepanel_name,
-                    gene.Genepanel.version == genepanel_version,
-                )
+        genepanel_result = session.query(gene.Genepanel).filter(
+            and_(
+                gene.Genepanel.name == genepanel_name,
+                gene.Genepanel.version == genepanel_version,
             )
-            .one()
         )
+        if genepanel_result.count() != 1:
+            raise ApiError(
+                f"Found {genepanel_result.count()} genepanels machting name={genepanel_name} version={genepanel_version}"
+            )
+        genepanel = genepanel_result.one()
         # get input allele IDs
         arg_name: str = "allele_ids"
         if request.args.get(arg_name) is None:
