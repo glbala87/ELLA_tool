@@ -33,7 +33,9 @@ class SimilarAllelesResource(LogRequestResource):
             if query_result.count() != 1:
                 raise ApiError(f'Found {query_result.count()} alleles with ID "{aid}"')
             query_allele = query_result.one()
-            assessed_allele_ids = session.query(assessment.AlleleAssessment.allele_id)
+            assessed_allele_ids = session.query(assessment.AlleleAssessment.allele_id).filter(
+                assessment.AlleleAssessment.date_superceeded.is_(None)
+            )
             similar_alleles = (
                 session.query(allele.Allele)
                 .filter(
