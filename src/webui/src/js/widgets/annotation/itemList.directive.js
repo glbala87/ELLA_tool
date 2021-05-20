@@ -4,14 +4,16 @@ import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './itemList.ngtmpl.html' // eslint-disable-line no-unused-vars
+import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
 
 const extractedData = Compute(
     state`${props`allelePath`}.annotation.${props`source`}`,
-    state`app.config.annotation.view.${props`configIdx`}.config`,
+    getAnnotationConfigItem,
     (rawData, viewConfig) => {
         if (rawData === undefined) {
             return []
         }
+
         let processed = []
 
         for (let subconfig of viewConfig.items) {
@@ -49,7 +51,6 @@ const extractedData = Compute(
                 }
             }
         }
-        console.log(processed)
         return processed
     }
 )
@@ -59,25 +60,12 @@ app.component('itemList', {
         source: '@',
         title: '@',
         allelePath: '<',
-        configIdx: '@'
+        annotationConfigId: '=',
+        annotationConfigItemIdx: '='
     },
     templateUrl: 'itemList.ngtmpl.html',
-    controller: connect(
-        {
-            data: extractedData,
-            viewConfig: state`app.config.annotation.view.${props`configIdx`}.config`
-        },
-        'itemList',
-        [
-            '$scope',
-            function($scope) {
-                const $ctrl = $scope.$ctrl
-                console.log($ctrl)
-
-                Object.assign($ctrl, {
-                    isLink(key) {}
-                })
-            }
-        ]
-    )
+    controller: connect({
+        data: extractedData,
+        viewConfig: getAnnotationConfigItem
+    })
 })
