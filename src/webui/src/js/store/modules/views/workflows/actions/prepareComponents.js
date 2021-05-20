@@ -28,8 +28,7 @@ const BASE_SECTIONS = {
         analysisComment: {
             placeholder: 'ANALYSIS-SPECIFIC-COMMENTS'
         },
-        controls: ['validation', 'not-relevant'],
-        content: [{ tag: 'allele-info-quality' }]
+        controls: ['validation', 'not-relevant']
     },
     classification: {
         title: 'Classification',
@@ -46,8 +45,7 @@ const BASE_SECTIONS = {
         },
         reportComment: {
             placeholder: 'REPORT'
-        },
-        content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
+        }
     },
     similar: {
         title: 'Region',
@@ -70,8 +68,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
-        },
-        content: []
+        }
     },
     prediction: {
         title: 'Prediction',
@@ -84,11 +81,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'PREDICTION-COMMENTS',
             name: 'prediction'
-        },
-        content: [
-            { tag: 'allele-info-consequence', order: 'first' },
-            { tag: 'allele-info-prediction-other', order: 'last' }
-        ]
+        }
     },
     external: {
         title: 'External',
@@ -101,8 +94,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'EXTERNAL DB-COMMENTS',
             name: 'external'
-        },
-        content: [{ tag: 'allele-info-external-other', order: 'last' }]
+        }
     },
     references: {
         title: 'Studies & References',
@@ -115,42 +107,53 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'STUDIES-COMMENTS',
             name: 'reference'
-        },
-        content: [
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Evaluated',
-                    type: 'evaluated'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Pending',
-                    type: 'pending'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Not relevant',
-                    type: 'notrelevant'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Ignored',
-                    type: 'ignored'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            }
-        ]
+        }
     }
+}
+
+const CLASSIFICATION_BASE_CONTENT = {
+    analysis: [{ tag: 'allele-info-quality' }],
+    classification: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }],
+    frequency: [],
+    prediction: [
+        { tag: 'allele-info-consequence', order: 'first' },
+        { tag: 'allele-info-prediction-other', order: 'last' }
+    ],
+    external: [{ tag: 'allele-info-external-other', order: 'last' }],
+    references: [
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Evaluated',
+                type: 'evaluated'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Pending',
+                type: 'pending'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Not relevant',
+                type: 'notrelevant'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Ignored',
+                type: 'ignored'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        }
+    ]
 }
 
 const COMPONENTS = {
@@ -163,7 +166,8 @@ const COMPONENTS = {
             Classification: {
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: ANALYSIS_SECTION_KEYS.slice()
+                sectionKeys: ANALYSIS_SECTION_KEYS.slice(),
+                sectionContent: {}
             },
             Report: {
                 title: 'Report',
@@ -178,37 +182,38 @@ const COMPONENTS = {
                 name: 'classification',
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: ALLELE_SECTION_KEYS.slice()
+                sectionKeys: ALLELE_SECTION_KEYS.slice(),
+                sectionContent: {}
             }
         }
     }
 }
 
-function prepareComponents({ state, resolve }) {
-    let components = COMPONENTS[state.get('views.workflows.type')]
-
+function prepareClassificationContent(annotationConfig) {
+    // const annotationViewConfig = annotationConfigs[annotationConfigIdx].view
     // Add components from the view config
-    let annotationViewConfig = state.get('app.config.annotation.view')
-    for (let i in annotationViewConfig) {
-        let vc = annotationViewConfig[i]
+    const content = JSON.parse(JSON.stringify(CLASSIFICATION_BASE_CONTENT))
+    for (let i in annotationConfig.view) {
+        let vc = annotationConfig.view[i]
         function CamelCaseToDash(s) {
             return s.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`)
         }
         const template = vc['template']
         const section = vc['section']
 
-        components.components.Classification.sections[section].content.push({
+        content[section].push({
             tag: CamelCaseToDash(template),
-            source: vc['source'],
             order: vc['order'],
-            configIdx: i,
-            title: vc['title']
+            annotationConfigId: annotationConfig.id,
+            annotationConfigItemIdx: parseInt(i),
+            title: vc['title'],
+            source: vc['source']
         })
     }
 
     // Sort sectionboxes to appear in order (if defined)
-    for (let section of Object.values(components.components.Classification.sections)) {
-        section.content.sort((a, b) => {
+    Object.values(content).forEach((x) =>
+        x.sort((a, b) => {
             if (a.order === b.order) {
                 return 0
             } else if (a.order === 'first' || b.order === 'last') {
@@ -217,7 +222,24 @@ function prepareComponents({ state, resolve }) {
                 return 1
             }
         })
+    )
+    return content
+}
+
+function prepareComponents({ state, resolve }) {
+    let components = COMPONENTS[state.get('views.workflows.type')]
+
+    const annotationConfigs = state.get('views.workflows.data.annotationConfigs')
+
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
+    for (let [id, allele] of Object.entries(alleles)) {
+        const annotationConfigId = allele.annotation.annotation_config_id
+        const annotationConfig = annotationConfigs.find((x) => x.id === annotationConfigId)
+        components.components.Classification.sectionContent[id] = prepareClassificationContent(
+            annotationConfig
+        )
     }
+
     // TODO: Add IGV button to analysis frequency section
     state.set('views.workflows.components', components.components)
     state.set('views.workflows.componentKeys', components.componentKeys)
