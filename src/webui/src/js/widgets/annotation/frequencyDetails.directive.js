@@ -2,19 +2,21 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './frequencyDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
+import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
 
 app.component('frequencyDetails', {
     bindings: {
         source: '@',
         title: '@',
         allelePath: '<',
-        configIdx: '@'
+        annotationConfigId: '=',
+        annotationConfigItemIdx: '='
     },
     templateUrl: 'frequencyDetails.ngtmpl.html',
     controller: connect(
         {
             frequencies: state`${props`allelePath`}.annotation.${props`source`}`,
-            viewConfig: state`app.config.annotation.view.${props`configIdx`}.config`
+            viewConfig: getAnnotationConfigItem
         },
         'FrequencyDetails',
         [
