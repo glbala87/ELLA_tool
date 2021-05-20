@@ -30,7 +30,7 @@ import { Directive, Inject } from '../../ng-decorators'
         allelePath: '<',
         boxes: '=' // Array of objects.
     },
-    link: (scope, elem, attrs, ctrl) => {
+    link: (scope, elem) => {
         // Dynamically create the html for the content-boxes
         let html = ''
         if (scope.boxes) {
@@ -59,13 +59,16 @@ import { Directive, Inject } from '../../ng-decorators'
                     class="${classes.join(' ')}"
                     allele-path="vm.allelePath"
                     source="${box.source}"
-                    config-idx="${box.configIdx}"
                     title="${title}"
+                    annotation-config-id="${box.annotationConfigId}"
+                    annotation-config-item-idx="${box.annotationConfigItemIdx}"
                     ${attrs}
                 ></${box.tag}>`
             }
-            let compiled = scope.vm.compile(html)(scope)
-            elem.append(compiled)
+            if (html) {
+                let compiled = scope.vm.compile(html)(scope)
+                elem.append(compiled)
+            }
         }
     }
 })

@@ -18,7 +18,7 @@ import {
     findReferencesFromIds,
     isIgnored
 } from '../../store/common/helpers/reference'
-import { deepCopy, deepEquals } from '../../util'
+import { deepCopy } from '../../util'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getNotRelevant from '../../store/modules/views/workflows/interpretation/computed/getNotRelevant'
 import template from './allelesectionbox.ngtmpl.html' // eslint-disable-line no-unused-vars
@@ -60,6 +60,23 @@ const getSection = Compute(
     }
 )
 
+const getSectionBoxContents = Compute(
+    state`views.workflows.selectedComponent`,
+    state`views.workflows.components`,
+    state`views.workflows.selectedAllele`,
+    props`sectionKey`,
+    (selectedComponent, components, selectedAllele, sectionKey) => {
+        if (!selectedComponent) {
+            return []
+        }
+        if (selectedComponent in components && components[selectedComponent].sectionContent) {
+            return components[selectedComponent].sectionContent[selectedAllele][sectionKey]
+        } else {
+            return []
+        }
+    }
+)
+
 const isCollapsed = Compute(
     state`views.workflows.interpretation.userState`,
     state`views.workflows.selectedAllele`,
@@ -95,6 +112,7 @@ app.component('alleleSectionbox', {
             collapsed: isCollapsed,
             readOnly: isReadOnly,
             section: getSection,
+            sectionBoxContents: getSectionBoxContents,
             config: state`app.config`,
             canFinalizeSelectedAllele: canFinalizeAllele(state`views.workflows.selectedAllele`),
             commentTemplates: state`app.commentTemplates`,
