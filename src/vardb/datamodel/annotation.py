@@ -2,7 +2,7 @@
 import datetime
 import pytz
 from sqlalchemy import Column, Integer, DateTime, Index, FetchedValue
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, JSON
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -85,8 +85,8 @@ Index(
 class AnnotationConfig(Base):
     __tablename__ = "annotationconfig"
     id = Column(Integer, primary_key=True)
-    deposit = Column(JSONMutableList.as_mutable(JSONB), nullable=False, default=lambda: {})
-    view = Column(JSONMutableList.as_mutable(JSONB), nullable=False, default=lambda: {})
+    deposit = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
+    view = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )
