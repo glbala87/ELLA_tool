@@ -1,5 +1,5 @@
 import { sequence } from 'cerebral'
-import { set, concat } from 'cerebral/operators'
+import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import getAlleleIdsForGene from '../computed/getAlleleIdsForGene'
 import getAlleleIdsSlice from '../computed/getAlleleIdsSlice'

@@ -37,7 +37,8 @@ export default sequence('loadInterpretationData', [
         success: [
             set(state`views.workflows.interpretation.data.filteredAlleleIds`, props`result`),
             updateLoadingPhase('variants'),
-            parallel([[loadAlleles], [loadGenepanel]]),
+            loadGenepanel,
+            loadAlleles,
             progress('inc'),
             parallel([[loadReferences, loadAcmg, autoIgnoreReferences], loadAttachments]),
             updateLoadingPhase('done'),
