@@ -19,8 +19,12 @@ export default sequence('loadAlleles', [
             set(state`views.workflows.interpretation.data.alleles`, props`result`),
             parallel([
                 // Annotation configs and interpretationlogs are required for prepareComponents
-                [loadAnnotationConfigs, loadInterpretationLogs, prepareComponents],
-                [prepareInterpretationState, allelesChanged],
+                [
+                    parallel([loadAnnotationConfigs, loadInterpretationLogs]),
+                    prepareComponents,
+                    prepareInterpretationState,
+                    allelesChanged
+                ],
                 [loadCollisions],
                 [loadSimilarAlleles]
             ]),
