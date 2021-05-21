@@ -1,8 +1,16 @@
 import getWarningCleared from '../worklog/computed/getWarningCleared'
-const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'prediction', 'external', 'references']
+const ALLELE_SECTION_KEYS = [
+    'classification',
+    'frequency',
+    'similar',
+    'prediction',
+    'external',
+    'references'
+]
 const ANALYSIS_SECTION_KEYS = [
     'analysis',
     'classification',
+    'similar',
     'frequency',
     'prediction',
     'external',
@@ -40,6 +48,15 @@ const BASE_SECTIONS = {
             placeholder: 'REPORT'
         },
         content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
+    },
+    similar: {
+        title: 'Similar variants',
+        color: 'purple',
+        content: [{ tag: 'allele-info-similar-alleles' }],
+        alleleassessmentComment: {
+            placeholder: 'SIMILAR-VARIANTS-COMMENTS',
+            name: 'similar'
+        }
     },
     frequency: {
         title: 'Frequency',
