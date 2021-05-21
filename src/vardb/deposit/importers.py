@@ -7,12 +7,10 @@ Use one transaction for whole file, and prompts user before committing.
 Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
-import os
 import base64
 import logging
 import datetime
 import pytz
-import yaml
 from collections import defaultdict
 from sqlalchemy import or_, and_
 from os.path import commonprefix
