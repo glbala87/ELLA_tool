@@ -89,6 +89,7 @@ def _create_annotation(annotations, allele=None, allele_id=None):
         kwargs["allele"] = allele
     elif allele_id:
         kwargs["allele_id"] = allele_id
+    kwargs["annotation_config_id"] = 1
     return annotation.Annotation(**kwargs)
 
 
