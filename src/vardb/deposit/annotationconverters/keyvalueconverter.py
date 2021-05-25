@@ -10,14 +10,15 @@ log = logging.getLogger(__name__)
 
 
 class KeyValueConverter(AnnotationConverter):
+    """Converts value to given type, and optionally splits on split_operator
+    TODO: Rename to ValueConverter? Key is only used when adding the result from this
+    to the resulting json.
+    """
+
     def __call__(self, value, **kwargs):
         target_type = self.element_config.get("target_type", "identity")
         target_type_throw = self.element_config.get("target_type_throw", True)
         split_operator = self.element_config.get("split")
-
-        # # Workaround vcfiterator parsing Number=A as list (we always work on single allelic data)
-        # if isinstance(value, list) and len(value) == 1:
-        #     value = value[0]
 
         if target_type not in TYPE_CONVERTERS:
             raise RuntimeError(

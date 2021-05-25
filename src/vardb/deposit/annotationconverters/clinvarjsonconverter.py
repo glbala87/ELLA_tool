@@ -56,6 +56,8 @@ def _convert_clinvar_v1(clinvarjson):
 
 class CLINVARJSONConverter(JSONConverter):
     def __call__(self, value, additional_values=None):
+        # TODO: The ClinVar data is a mess. We convert data in the new format (conforming to the schema)
+        # to the "old" format. This should get a proper overhaul.
         data = super(self.__class__, self).__call__(value, additional_values)
         try:
             jsonschema.validate(data, CLINVAR_V1_INCOMING_SCHEMA)

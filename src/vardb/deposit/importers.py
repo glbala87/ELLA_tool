@@ -24,15 +24,6 @@ from vardb.deposit.annotationconverters import ANNOTATION_CONVERTERS
 
 log = logging.getLogger(__name__)
 
-
-class Noop:
-    def __init__(self, config):
-        ...
-
-    def convert(self, annotation, annotations):
-        ...
-
-
 ASSESSMENT_CLASS_FIELD = "CLASS"
 ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"
 ASSESSMENT_DATE_FIELD = "DATE"
@@ -797,12 +788,6 @@ class AssessmentImporter(object):
         return results
 
 
-# T = defaultdict(float)
-# from vardb.util.old_annotationconverters import ConvertCSQ
-
-# vep_converter = ConvertCSQ()
-
-
 class AnnotationImporter(object):
     def __init__(self, session, import_config=None):
         self.session = session
@@ -844,6 +829,9 @@ class AnnotationImporter(object):
         merged_annotation = record.annotation()
 
         def _traverse_path(obj, path):
+            """Walk through object to find (and create if it does not exist) a
+            compound path like `this.is.a.path` in a dict-like object.
+            """
             if not path or path == ".":
                 return obj
             parts = path.split(".")
@@ -916,14 +904,8 @@ class AnnotationImporter(object):
                     try:
                         processed_value = converter(value, additional_values=additional_values)
                     except:
-                        print(f"Conversion failed: {element_config}, {converter.__class__}")
+                        logging.error(f"Conversion failed: {element_config}, {converter.__class__}")
                         raise
-
-                    # if source == "CSQ":
-
-                    #     processed_value2 = vep_converter(value, converter.meta)
-                    #     if processed_value != processed_value2:
-                    #         breakpoint()
 
                     target = element_config["target"]
                     target_mode = element_config.get("target_mode", "insert")
