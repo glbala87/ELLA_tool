@@ -85,6 +85,7 @@ Index(
 class AnnotationConfig(Base):
     __tablename__ = "annotationconfig"
     id = Column(Integer, primary_key=True)
+    # Use JSON instead of JSONB, to preserve order of keys
     deposit = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
     view = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
     date_created = Column(
