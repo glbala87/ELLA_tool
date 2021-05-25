@@ -224,28 +224,23 @@ def import_config_from_template(elements):
 
 def test_annotationimport_target_paths(session):
     record = mock_record({"INFO": {"SOURCE": "dabla"}})
-
-    import_config = import_config_from_template(
-        [
-            {
-                "source": "SOURCE",
-                "target": "key",
-            }
-        ]
-    )
+    import_config = [
+        {
+            "name": "keyvalue",
+            "converter_config": {"elements": [{"source": "SOURCE", "target": "key"}]},
+        }
+    ]
 
     annotation_importer = deposit.AnnotationImporter(session, import_config)
     data = annotation_importer.add(record, None)
     assert data["annotations"] == {"key": "dabla"}
 
-    import_config = import_config_from_template(
-        [
-            {
-                "source": "SOURCE",
-                "target": "path.to.target",
-            }
-        ]
-    )
+    import_config = [
+        {
+            "name": "keyvalue",
+            "converter_config": {"elements": [{"source": "SOURCE", "target": "path.to.target"}]},
+        }
+    ]
 
     annotation_importer = deposit.AnnotationImporter(session, import_config)
     data = annotation_importer.add(record, None)
@@ -266,6 +261,7 @@ def test_annotationimport_target_mode(session):
             }
         ]
 
+    # Extend
     TARGET_MODE = "extend"
     record = mock_record({"INFO": {"SOURCE1": [1, 3], "SOURCE2": [2, 4]}})
     annotation_importer = deposit.AnnotationImporter(
@@ -274,6 +270,7 @@ def test_annotationimport_target_mode(session):
     data = annotation_importer.add(record, None)
     assert data["annotations"] == {"key": [1, 3, 2, 4]}
 
+    # Append
     TARGET_MODE = "append"
     record = mock_record({"INFO": {"SOURCE1": [1, 3], "SOURCE2": 2}})
     annotation_importer = deposit.AnnotationImporter(
@@ -282,6 +279,7 @@ def test_annotationimport_target_mode(session):
     data = annotation_importer.add(record, None)
     assert data["annotations"] == {"key": [(1, 3), 2]}
 
+    # Merge
     TARGET_MODE = "merge"
     record = mock_record(
         {

@@ -12,14 +12,16 @@ from vardb.deposit.annotationconverters.hgmd import HGMDConverter
 from vardb.deposit.annotationconverters.flatjsonconverter import FlatJSONConverter
 
 ANNOTATION_CONVERTERS = {
-    "vep": VEPConverter,
+    # Generic converters
     "json": JSONConverter,
     "keyvalue": KeyValueConverter,
+    "meta": MetaConverter,
+    "flatjson": FlatJSONConverter,
+    # Specific converters
+    "vep": VEPConverter,
+    "clinvarjson": CLINVARJSONConverter,
+    "hgmd": HGMDConverter,
     "hgmdextrarefs": HGMDExtraRefs,
     "hgmdprimaryreport": HGMDPrimaryReport,
     "clinvarreferences": ClinVarReferences,
-    "hgmd": HGMDConverter,
-    "clinvarjson": CLINVARJSONConverter,
-    "meta": MetaConverter,
-    "flatjson": FlatJSONConverter,
 }

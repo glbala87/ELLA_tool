@@ -1,6 +1,9 @@
 import re
 from .annotationconverter import AnnotationConverter
 
+
+# HGMD data can come with character sequences to represent characters with
+# special meaning in VCF
 _HGMD_SUBSTITUTE = [
     (re.compile(r"@#EQ"), "="),
     (re.compile(r"@#CM"), ","),

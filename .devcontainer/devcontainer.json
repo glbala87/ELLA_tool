@@ -69,7 +69,6 @@
         "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
         "ANALYSES_PATH": "/ella/src/vardb/testdata/analyses/default/",
         "DB_URL": "postgresql:///postgres",
-        "ELLA_IMPORT_CONFIG": "/ella/example_import_config.yml"
     },
 
     "build": {
