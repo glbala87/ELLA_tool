@@ -1,4 +1,5 @@
 from distutils.util import strtobool
+from typing import Any, Dict, Optional
 
 TYPE_CONVERTERS = {
     "int": lambda x: int(x),
@@ -10,7 +11,7 @@ TYPE_CONVERTERS = {
 
 
 class AnnotationConverter:
-    def __init__(self, meta, element_config):
+    def __init__(self, meta: Dict[str, Any], element_config: Dict[str, Any]):
         self.meta = meta
         self.element_config = element_config
 
@@ -18,5 +19,5 @@ class AnnotationConverter:
         "Code here will be executed before first __call__"
         pass
 
-    def __call__(self, value, additional_values=None):
+    def __call__(self, value: str, additional_values: Optional[Dict[str, str]] = None):
         raise NotImplementedError("Must be implemented in subclass")
