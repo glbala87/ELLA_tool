@@ -1,3 +1,4 @@
+from typing import Dict, Tuple, Union
 import cyvcf2
 import logging
 import numpy as np
@@ -85,7 +86,9 @@ class Record(object):
     def is_sample_multiallelic(self, sample_name):
         return self.is_multiallelic() and bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
 
-    def annotation(self):
+    def annotation(
+        self,
+    ) -> Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]]:
         return dict(x for x in self.variant.INFO)
 
     def __str__(self):

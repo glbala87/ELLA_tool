@@ -1,5 +1,5 @@
 import jsonschema
-
+from typing import Dict
 from vardb.deposit.annotationconverters.jsonconverter import JSONConverter
 
 CLINVAR_V1_INCOMING_SCHEMA = {
@@ -55,7 +55,11 @@ def _convert_clinvar_v1(clinvarjson):
 
 
 class CLINVARJSONConverter(JSONConverter):
-    def __call__(self, value, additional_values=None):
+    def __call__(
+        self,
+        value: str,
+        additional_values: None = None,
+    ) -> Dict:
         # TODO: The ClinVar data is a mess. We convert data in the new format (conforming to the schema)
         # to the "old" format. This should get a proper overhaul.
         data = super(self.__class__, self).__call__(value, additional_values)

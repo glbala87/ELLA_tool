@@ -26,7 +26,7 @@ DECODERS = {
 class JSONConverter(AnnotationConverter):
     "Decode base16/base32/base64 encoded JSON strings"
 
-    def __call__(self, value, additional_values=None):
+    def __call__(self, value: str, additional_values: None = None) -> Dict:
         decoder_name = self.element_config.get("encoding", "base16")
         assert (
             decoder_name in DECODERS
