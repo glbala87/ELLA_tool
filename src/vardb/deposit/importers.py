@@ -10,7 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import base64
 import logging
 import datetime
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import pytz
 from collections import defaultdict
 from sqlalchemy import or_, and_
@@ -20,6 +20,8 @@ from api.util.util import dict_merge
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
 from vardb.datamodel.user import User
+from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter
+from vardb.util.vcfiterator import Record
 
 from vardb.deposit.annotationconverters import ANNOTATION_CONVERTERS
 
@@ -790,9 +792,9 @@ class AssessmentImporter(object):
 
 
 class AnnotationImporter(object):
-    def __init__(self, session, import_config=None):
+    def __init__(self, session, import_config: Optional[Dict] = None):
         self.session = session
-        self.batch_items = list()
+        self.batch_items: List[Dict] = list()
 
         self.annotation_config = (
             self.session.query(annm.AnnotationConfig)
@@ -803,12 +805,14 @@ class AnnotationImporter(object):
             self.import_config = self.annotation_config.deposit
         else:
             self.import_config = import_config
+        self._converters: Dict[str, List[AnnotationConverter]] = {}
+
+    def reset(self) -> None:
         self._converters = {}
 
-    def reset(self):
-        self._converters = {}
-
-    def _get_or_create_converters(self, source, vcf_meta):
+    def _get_or_create_converters(
+        self, source: str, vcf_meta: Dict[str, List[Dict[str, Any]]]
+    ) -> List[AnnotationConverter]:
         if source not in self._converters:
             self._converters[source] = []
             for converter in self.import_config:
@@ -826,12 +830,11 @@ class AnnotationImporter(object):
         return self._converters[source]
 
     @staticmethod
-    def _traverse_path(obj, path):
+    def _traverse_path(obj: Dict, path: str) -> Tuple[str, Dict]:
         """Walk through object to find (and create if it does not exist) a
         compound path like `this.is.a.path` in a dict-like object.
         """
-        if not path or path == ".":
-            return obj
+        assert path and path != ".", f"No path provided: {path}."
         parts = path.split(".")
         next_obj = obj
         while parts:
@@ -841,17 +844,17 @@ class AnnotationImporter(object):
                 if p not in next_obj:
                     next_obj[p] = {}
                 next_obj = next_obj[p]
-            else:
-                return p, next_obj
+
+        return p, next_obj
 
     @staticmethod
-    def insert_at_target(obj: Dict, target: str, item: Any):
+    def insert_at_target(obj: Dict, target: str, item: Any) -> None:
         leaf, obj = AnnotationImporter._traverse_path(obj, target)
         assert leaf not in obj
         obj[leaf] = item
 
     @staticmethod
-    def extend_at_target(obj: Dict, target: str, items: Union[Tuple, List]):
+    def extend_at_target(obj: Dict, target: str, items: Union[Tuple, List]) -> None:
         assert isinstance(
             items, (list, tuple)
         ), f"Trying to extend with {type(items)}. Must be of instance list or tuple."
@@ -883,28 +886,37 @@ class AnnotationImporter(object):
             assert isinstance(obj[leaf], dict)
             dict_merge(obj[leaf], item)
 
-    def _extract_annotation_from_record(self, record):
+    def _extract_annotation_from_record(self, record: Record) -> Dict[str, Any]:
         """Given a record, return dict with annotation to be stored in db."""
-        target_mode_funcs = {
+
+        target_mode_funcs: Dict[str, Callable[..., None]] = {
             "insert": self.insert_at_target,
             "extend": self.extend_at_target,
             "append": self.append_at_target,
             "merge": self.merge_at_target,
         }
 
-        annotations = {}
+        annotations: Dict[str, Any] = {}
         for source, value in record.annotation().items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
                 try:
                     element_config = converter.element_config
-                    additional_sources = element_config.get("additional_sources")
+                    additional_sources: Optional[List[str]] = element_config.get(
+                        "additional_sources"
+                    )
+                    additional_values: Optional[
+                        Dict[
+                            str,
+                            Optional[
+                                Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]
+                            ],
+                        ]
+                    ] = None
                     if additional_sources:
                         additional_values = {
                             k: record.annotation().get(k) for k in additional_sources
                         }
-                    else:
-                        additional_values = None
 
                     try:
                         processed_value = converter(value, additional_values=additional_values)
@@ -913,8 +925,8 @@ class AnnotationImporter(object):
                             f"Conversion failed with source {source}={value}: {element_config}, {converter.__class__}"
                         )
 
-                    target = element_config["target"]
-                    target_mode = element_config.get("target_mode", "insert")
+                    target: str = element_config["target"]
+                    target_mode: str = element_config.get("target_mode", "insert")
                     assert (
                         target_mode in target_mode_funcs
                     ), f"Unknown target mode: {target_mode}. Available target modes are {list(target_mode_funcs.keys())}"
@@ -925,8 +937,8 @@ class AnnotationImporter(object):
                         f"Error when trying to convert source '{source}' with value {value} ({type(value)}), using converter {element_config}"
                     )
 
-        for converter in self.import_config:
-            for element_config in converter["converter_config"]["elements"]:
+        for converter_config in self.import_config:
+            for element_config in converter_config["converter_config"]["elements"]:
                 source = element_config["source"]
                 if source not in record.annotation() and element_config.get("required"):
                     raise RuntimeError(f"Missing required source field in annotation: {source}")

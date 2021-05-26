@@ -1,6 +1,7 @@
-from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter
-from vardb.deposit.annotationconverters.keyvalueconverter import KeyValueConverter
 import re
+from typing import Dict, List, Optional, Union
+from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter, Primitives
+from vardb.deposit.annotationconverters.keyvalueconverter import KeyValueConverter
 
 
 class MetaConverter(AnnotationConverter):
@@ -30,9 +31,13 @@ class MetaConverter(AnnotationConverter):
             self.keys
         ), f"Did not find description for key(s) {set(self.subconfigs.keys()) - set(self.keys)} in description {self.meta['Description']}"
 
-    def __call__(self, value, **kwargs):
-        list_separator = self.element_config.get("list_separator")
-        value_separator = self.element_config.get("value_separator", "|")
+    def __call__(
+        self,
+        value: str,
+        additional_values: None = None,
+    ) -> Union[Dict[str, Primitives], List[Dict[str, Primitives]]]:
+        list_separator: Optional[str] = self.element_config.get("list_separator")
+        value_separator: str = self.element_config.get("value_separator", "|")
 
         def parse_item(item):
             d = {}

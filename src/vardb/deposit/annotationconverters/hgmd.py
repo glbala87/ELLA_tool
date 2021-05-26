@@ -1,5 +1,6 @@
 import re
 from .annotationconverter import AnnotationConverter
+from typing import Dict
 
 
 # HGMD data can come with character sequences to represent characters with
@@ -13,7 +14,7 @@ _HGMD_SUBSTITUTE = [
 ]
 
 
-def _translate_to_original(x):
+def _translate_to_original(x: str) -> str:
     if not isinstance(x, str):
         return x
     for regexp, substitution in _HGMD_SUBSTITUTE:
@@ -22,7 +23,8 @@ def _translate_to_original(x):
 
 
 class HGMDConverter(AnnotationConverter):
-    def __call__(self, acc_num, additional_values=None):
+    def __call__(self, acc_num: str, additional_values: Dict[str, str] = None) -> Dict[str, str]:
+        assert additional_values is not None
         disease = additional_values["HGMD__disease"]
         tag = additional_values["HGMD__tag"]
 

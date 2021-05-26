@@ -1,7 +1,7 @@
 import re
 import gzip
 from pathlib import Path
-from typing import Any, Tuple, Dict, Optional
+from typing import Any, Tuple, Dict, Optional, List
 
 import logging
 
@@ -308,7 +308,11 @@ class VEPConverter(AnnotationConverter):
             **self._convert_optional(full_tx_data),
         }
 
-    def __call__(self, raw_csq, **kwargs):
+    def __call__(
+        self,
+        raw_csq: str,
+        additional_values: None = None,
+    ) -> List[Dict[str, Any]]:
 
         if raw_csq is None:
             return list()
@@ -317,7 +321,7 @@ class VEPConverter(AnnotationConverter):
         # RefSeq interim release (RefSeq_Interim_gff) and VEP default (RefSeq).
         refseq_priority = ["RefSeq_gff", "RefSeq_Interim_gff", "RefSeq"]
 
-        transcripts = list()
+        transcripts: List[Dict[str, Any]] = list()
         # Invert CSQ data to map to transcripts
         for raw_transcript_data in raw_csq.split(","):
             full_tx_data = {k: v for k, v in zip(self.csq_fields, raw_transcript_data.split("|"))}
