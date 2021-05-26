@@ -6,6 +6,7 @@ import toast from '../../../../common/factories/toast'
 import prepareInterpretationState from './prepareInterpretationState'
 import allelesChanged from '../alleleSidebar/sequences/allelesChanged'
 import loadCollisions from './loadCollisions'
+import loadSimilarAlleles from './loadSimilarAlleles'
 import selectedAlleleChanged from './selectedAlleleChanged'
 
 export default sequence('loadAlleles', [
@@ -16,6 +17,7 @@ export default sequence('loadAlleles', [
             prepareInterpretationState,
             allelesChanged, // Update alleleSidebar
             loadCollisions,
+            loadSimilarAlleles,
             when(state`views.workflows.selectedAllele`),
             {
                 true: [

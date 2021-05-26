@@ -5,7 +5,7 @@ function getSimilarAlleles({ http, path, state }) {
     const genepanel = state.get('views.workflows.interpretation.data.genepanel')
     const aIds = Object.keys(alleles)
 
-    if (Object.keys(alleles).length) {
+    if (aIds.length) {
         return http
             .get(`workflows/similar_alleles/${genepanel.name}/${genepanel.version}/`, {
                 allele_ids: aIds.join(',')

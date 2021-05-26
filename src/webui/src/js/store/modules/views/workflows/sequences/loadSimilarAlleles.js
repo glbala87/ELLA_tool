@@ -2,10 +2,10 @@ import { sequence } from 'cerebral'
 import { set } from 'cerebral/operators'
 import { props, state } from 'cerebral/tags'
 import toast from '../../../../common/factories/toast'
-import loadSimilarAlleles from '../actions/getSimilarAlleles'
+import getSimilarAlleles from '../actions/getSimilarAlleles'
 
 export default sequence('loadSimilarAlleles', [
-    loadSimilarAlleles,
+    getSimilarAlleles,
     {
         success: [
             ({ props, state }) => {
