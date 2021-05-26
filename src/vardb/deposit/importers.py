@@ -10,6 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import base64
 import logging
 import datetime
+from typing import Any, Dict, List, Tuple, Union
 import pytz
 from collections import defaultdict
 from sqlalchemy import or_, and_
@@ -844,13 +845,13 @@ class AnnotationImporter(object):
                 return p, next_obj
 
     @staticmethod
-    def insert_at_target(obj, target, item):
+    def insert_at_target(obj: Dict, target: str, item: Any):
         leaf, obj = AnnotationImporter._traverse_path(obj, target)
         assert leaf not in obj
         obj[leaf] = item
 
     @staticmethod
-    def extend_at_target(obj, target, items):
+    def extend_at_target(obj: Dict, target: str, items: Union[Tuple, List]):
         assert isinstance(
             items, (list, tuple)
         ), f"Trying to extend with {type(items)}. Must be of instance list or tuple."
@@ -865,7 +866,7 @@ class AnnotationImporter(object):
             obj[leaf] += items
 
     @staticmethod
-    def append_at_target(obj, target, item):
+    def append_at_target(obj: Dict, target: str, item: Any):
         leaf, obj = AnnotationImporter._traverse_path(obj, target)
         if leaf not in obj:
             obj[leaf] = []
@@ -874,7 +875,7 @@ class AnnotationImporter(object):
         obj[leaf].append(item)
 
     @staticmethod
-    def merge_at_target(obj, target, item):
+    def merge_at_target(obj: Dict, target: str, item: Dict):
         leaf, obj = AnnotationImporter._traverse_path(obj, target)
         if leaf not in obj:
             obj[leaf] = item
@@ -884,8 +885,6 @@ class AnnotationImporter(object):
 
     def _extract_annotation_from_record(self, record):
         """Given a record, return dict with annotation to be stored in db."""
-        merged_annotation = record.annotation()
-
         target_mode_funcs = {
             "insert": self.insert_at_target,
             "extend": self.extend_at_target,
@@ -894,7 +893,7 @@ class AnnotationImporter(object):
         }
 
         annotations = {}
-        for source, value in merged_annotation.items():
+        for source, value in record.annotation().items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
                 try:
@@ -902,7 +901,7 @@ class AnnotationImporter(object):
                     additional_sources = element_config.get("additional_sources")
                     if additional_sources:
                         additional_values = {
-                            k: merged_annotation.get(k) for k in additional_sources
+                            k: record.annotation().get(k) for k in additional_sources
                         }
                     else:
                         additional_values = None
@@ -929,7 +928,7 @@ class AnnotationImporter(object):
         for converter in self.import_config:
             for element_config in converter["converter_config"]["elements"]:
                 source = element_config["source"]
-                if source not in merged_annotation and element_config.get("required"):
+                if source not in record.annotation() and element_config.get("required"):
                     raise RuntimeError(f"Missing required source field in annotation: {source}")
 
         return annotations
