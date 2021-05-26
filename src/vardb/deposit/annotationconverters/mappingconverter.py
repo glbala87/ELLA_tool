@@ -8,7 +8,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class FlatJSONConverter(AnnotationConverter):
+class MappingConverter(AnnotationConverter):
     def __call__(self, value, additional_values=None):
         item_separator = self.element_config.get("item_separator", ",")
         keyvalue_separator = self.element_config.get("keyvalue_separator", ":")

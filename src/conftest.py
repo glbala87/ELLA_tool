@@ -117,7 +117,7 @@ class MockVcfWriter:
             else:
                 return "String"
 
-        if isinstance(v, list):
+        if isinstance(v, (list, tuple)):
             N = len(v)
             value_type = get_type(v[0])
             assert all(get_type(x) == value_type for x in v)

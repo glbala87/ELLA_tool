@@ -15,13 +15,15 @@ class MetaConverter(AnnotationConverter):
         ), f"Unable to parse without meta info for {self.element_config['source']} in VCF header"
 
         pattern = self.element_config.get("meta_pattern", r"(?i)[a-z_]+\|[a-z_\|]+")
-        pipe_format = re.findall(pattern, self.meta["Description"])
+        pattern_format = re.findall(pattern, self.meta["Description"])
         assert (
-            pipe_format is not None
+            pattern_format is not None
         ), f"Did not find a match to regex {pattern} in description {self.meta['Description']}."
-        assert len(pipe_format) == 1, "Found multiple pipe separated"
+        assert (
+            len(pattern_format) == 1
+        ), f"Found multiple patterns matching {pattern} in {self.meta['Description']}"
 
-        self.keys = pipe_format[0].split(self.element_config.get("value_separator", "|"))
+        self.keys = pattern_format[0].split(self.element_config.get("value_separator", "|"))
 
         self.subconfigs = {x["source"]: x for x in self.element_config["subelements"]}
         assert set(self.subconfigs.keys()).issubset(
