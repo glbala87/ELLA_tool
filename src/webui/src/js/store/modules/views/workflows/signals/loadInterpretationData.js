@@ -7,7 +7,6 @@ import loadAlleles from '../sequences/loadAlleles'
 import loadReferences from '../sequences/loadReferences'
 import loadAttachments from '../sequences/loadAttachments'
 import loadAcmg from '../sequences/loadAcmg'
-import loadSimilarAlleles from '../sequences/loadSimilarAlleles'
 import getFilteredAlleles from '../actions/getFilteredAlleles'
 import toast from '../../../../common/factories/toast'
 import updateLoadingPhase from '../factories/updateLoadingPhase'
@@ -41,11 +40,7 @@ export default sequence('loadInterpretationData', [
             loadGenepanel,
             loadAlleles,
             progress('inc'),
-            parallel([
-                [loadReferences, loadAcmg, autoIgnoreReferences],
-                loadAttachments,
-                loadSimilarAlleles
-            ]),
+            parallel([[loadReferences, loadAcmg, autoIgnoreReferences], loadAttachments]),
             updateLoadingPhase('done'),
             progress('done')
         ]
