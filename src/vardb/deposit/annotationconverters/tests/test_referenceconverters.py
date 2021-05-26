@@ -1,9 +1,9 @@
 # from vardb.deposit.annotationconverters.keyvalueconverter import KeyValueConverter
 # from .. import ANNOTATION_CONVERTERS
-from vardb.deposit.annotationconverters.references import (
-    ClinVarReferences,
-    HGMDExtraRefs,
-    HGMDPrimaryReport,
+from vardb.deposit.annotationconverters.referenceconverters import (
+    ClinVarReferencesConverter,
+    HGMDExtraRefsConverter,
+    HGMDPrimaryReportConverter,
     _HGMD_SUBSTITUTE,
     REFTAG,
 )
@@ -56,7 +56,7 @@ def test_get_HGMD_extrarefs(extraref_format, references):
         data[i][comment_idx] = ref["comments"]
         data[i][reftag_idx] = ref["reftag"]
 
-    converter = HGMDExtraRefs(meta, None)
+    converter = HGMDExtraRefsConverter(meta, None)
     converter.setup()
     raw = ",".join("|".join(x) for x in data)
     converted = converter(raw)
@@ -74,7 +74,7 @@ def test_get_HGMD_extrarefs(extraref_format, references):
 
 @ht.given(st.one_of(st.integers(min_value=1, max_value=1e7)), st.one_of(hgmd_text()))
 def test_HGMD_primaryreport(pmid, comments):
-    converter = HGMDPrimaryReport(None, None)
+    converter = HGMDPrimaryReportConverter(None, None)
     expected_source_info = "Primary literature report. No comments."
     for additional_values in [
         {},
@@ -106,7 +106,7 @@ def test_HGMD_primaryreport(pmid, comments):
 
 @ht.given(st.lists(st.integers(min_value=1, max_value=1e7), min_size=1, max_size=10))
 def test_clinvar_reference(pmids):
-    converter = ClinVarReferences(None, None)
+    converter = ClinVarReferencesConverter(None, None)
     for key in ["pubmeds", "pubmed_ids"]:
         clinvarjson = {key: pmids}
         data = base64.b16encode(json.dumps(clinvarjson).encode())

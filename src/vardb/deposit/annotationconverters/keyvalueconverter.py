@@ -10,10 +10,7 @@ log = logging.getLogger(__name__)
 
 
 class KeyValueConverter(AnnotationConverter):
-    """Converts value to given type, and optionally splits on split_operator
-    TODO: Rename to ValueConverter? Key is only used when adding the result from this
-    to the resulting json.
-    """
+    """Converts value to given type, and optionally splits on split_operator"""
 
     def __call__(self, value, **kwargs):
         target_type = self.element_config.get("target_type", "identity")

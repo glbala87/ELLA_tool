@@ -824,67 +824,73 @@ class AnnotationImporter(object):
 
         return self._converters[source]
 
+    @staticmethod
+    def _traverse_path(obj, path):
+        """Walk through object to find (and create if it does not exist) a
+        compound path like `this.is.a.path` in a dict-like object.
+        """
+        if not path or path == ".":
+            return obj
+        parts = path.split(".")
+        next_obj = obj
+        while parts:
+            p = parts.pop(0)
+            if parts:
+                # Leaf node
+                if p not in next_obj:
+                    next_obj[p] = {}
+                next_obj = next_obj[p]
+            else:
+                return p, next_obj
+
+    @staticmethod
+    def insert_at_target(obj, target, item):
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        assert leaf not in obj
+        obj[leaf] = item
+
+    @staticmethod
+    def extend_at_target(obj, target, items):
+        assert isinstance(
+            items, (list, tuple)
+        ), f"Trying to extend with {type(items)}. Must be of instance list or tuple."
+
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = items
+        else:
+            assert isinstance(
+                obj[leaf], type(items)
+            ), f"Type mismatch. Existing type is {type(obj[leaf])}, trying to extend with items of type {type(items)}"
+            obj[leaf] += items
+
+    @staticmethod
+    def append_at_target(obj, target, item):
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = []
+
+        assert isinstance(obj[leaf], list)
+        obj[leaf].append(item)
+
+    @staticmethod
+    def merge_at_target(obj, target, item):
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = item
+        else:
+            assert isinstance(obj[leaf], dict)
+            dict_merge(obj[leaf], item)
+
     def _extract_annotation_from_record(self, record):
         """Given a record, return dict with annotation to be stored in db."""
         merged_annotation = record.annotation()
 
-        def _traverse_path(obj, path):
-            """Walk through object to find (and create if it does not exist) a
-            compound path like `this.is.a.path` in a dict-like object.
-            """
-            if not path or path == ".":
-                return obj
-            parts = path.split(".")
-            next_obj = obj
-            while parts:
-                p = parts.pop(0)
-                if parts:
-                    # Leaf node
-                    if p not in next_obj:
-                        next_obj[p] = {}
-                    next_obj = next_obj[p]
-                else:
-                    return p, next_obj
-
-        def insert_at_path(obj, path, item):
-            leaf, obj = _traverse_path(obj, path)
-            assert leaf not in obj
-            obj[leaf] = item
-
-        def extend_at_path(obj, path, items):
-            if isinstance(items, tuple):
-                items = list(items)
-            assert isinstance(
-                items, list
-            ), f"Trying to extend with {type(items)}. Must be of instance list."
-            leaf, obj = _traverse_path(obj, path)
-            if leaf not in obj:
-                obj[leaf] = items
-            else:
-                assert isinstance(obj[leaf], list)
-                obj[leaf].extend(items)
-
-        def append_at_path(obj, path, item):
-            leaf, obj = _traverse_path(obj, path)
-            if leaf not in obj:
-                obj[leaf] = [item]
-            else:
-                assert isinstance(obj[leaf], list)
-                obj[leaf].append(item)
-
-        def merge_at_path(obj, path, item):
-            leaf, obj = _traverse_path(obj, path)
-            if leaf not in obj:
-                obj[leaf] = item
-            else:
-                assert isinstance(obj[leaf], dict)
-                dict_merge(obj[leaf], item)
-
         target_mode_funcs = {
-            "insert": insert_at_path,
-            "extend": extend_at_path,
-            "append": append_at_path,
-            "merge": merge_at_path,
+            "insert": self.insert_at_target,
+            "extend": self.extend_at_target,
+            "append": self.append_at_target,
+            "merge": self.merge_at_target,
         }
 
         annotations = {}
@@ -904,8 +910,9 @@ class AnnotationImporter(object):
                     try:
                         processed_value = converter(value, additional_values=additional_values)
                     except:
-                        logging.error(f"Conversion failed: {element_config}, {converter.__class__}")
-                        raise
+                        logging.exception(
+                            f"Conversion failed with source {source}={value}: {element_config}, {converter.__class__}"
+                        )
 
                     target = element_config["target"]
                     target_mode = element_config.get("target_mode", "insert")

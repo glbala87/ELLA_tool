@@ -30,7 +30,7 @@ def _translate_hgmd(x):
     return x
 
 
-class HGMDPrimaryReport(AnnotationConverter):
+class HGMDPrimaryReportConverter(AnnotationConverter):
     def __call__(self, value, additional_values=None):
         try:
             pmid = int(value)
@@ -49,7 +49,7 @@ class HGMDPrimaryReport(AnnotationConverter):
         return [{"pubmed_id": pmid, "source": "HGMD", "source_info": info_string}]
 
 
-class HGMDExtraRefs(AnnotationConverter):
+class HGMDExtraRefsConverter(AnnotationConverter):
     def setup(self):
         assert (
             self.meta is not None
@@ -84,7 +84,7 @@ class HGMDExtraRefs(AnnotationConverter):
         return references
 
 
-class ClinVarReferences(AnnotationConverter):
+class ClinVarReferencesConverter(AnnotationConverter):
     def __call__(self, value, **kwargs):
         clinvarjson = json.loads(base64.b16decode(value).decode(encoding="utf-8", errors="strict"))
 

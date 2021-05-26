@@ -30,7 +30,7 @@ class Annotation(Base):
     annotation_config_id = Column(
         Integer, ForeignKey("annotationconfig.id"), index=True, nullable=False
     )
-    genotype = relationship("AnnotationConfig", backref="annotations")
+    annotation_config = relationship("AnnotationConfig", backref="annotations")
 
     def __repr__(self):
         return "<Annotation('%s', '%s', '%s')>" % (
