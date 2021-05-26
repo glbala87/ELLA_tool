@@ -18,32 +18,6 @@ app.component('similarAllelesList', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    getGene(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) => (t.symbol ? t.symbol : '-'))
-                                .join(' | ')
-                        }
-                        return 'chr' + allele.chromosome
-                    },
-                    getHGVSc(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) =>
-                                    t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
-                                )
-                                .join(' | ')
-                        }
-                        return allele.formatted.hgvsg
-                    },
-                    getHGVSp(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) => (t.HGVSp ? t.HGVSp : 'TODO FIXME'))
-                                .join(' | ')
-                        }
-                        return 'TODO FIXME'
-                    },
                     getClassificationText(allele) {
                         if ('allele_assessment' in allele) {
                             return `CLASS ${allele.allele_assessment.classification}`

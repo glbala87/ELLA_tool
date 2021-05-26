@@ -3,17 +3,15 @@
         ng-repeat="item in $ctrl.similar_alleles track by [item.id]"
         style="vertical-align: baseline; display: flex; flex-wrap: nowrap; align-content: space-between; align-items: baseline;"
     >
-        <div>
+        <div style="flex-grow: 1;">
             <a
                 class="id-variant list-item clickable"
                 href="{{ item.links.workflow }}"
                 ng-attr-target="_blank"
-                title="{{ $ctrl.getGene(item) }} {{ $ctrl.getHGVSc(item) }}({{
-                    $ctrl.getHGVSp(item)
-                }})"
+                title="{{ item.formatted.display }}"
                 style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 300;"
             >
-                {{ $ctrl.getGene(item) }} {{ $ctrl.getHGVSc(item) }}({{ $ctrl.getHGVSp(item) }})
+                {{ item.formatted.display }}
             </a>
         </div>
         <div style="margin-left: 10px; margin-right: 10px; white-space: nowrap;">
