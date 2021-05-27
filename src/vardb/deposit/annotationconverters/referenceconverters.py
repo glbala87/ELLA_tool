@@ -77,7 +77,11 @@ class HGMDExtraRefsConverter(AnnotationConverter):
             try:
                 pmid = int(er_data["pmid"])
             except ValueError:
-                log.warning("Cannot convert pubmed id from annotation to integer: {}".format(pmid))
+                log.warning(
+                    "Cannot convert pubmed id from annotation to integer: {}".format(
+                        er_data["pmid"]
+                    )
+                )
                 continue
 
             reftag = REFTAG.get(er_data.get("reftag", "N/A"), "Reftag not specified")

@@ -857,7 +857,7 @@ class AnnotationImporter(object):
     def extend_at_target(obj: Dict, target: str, items: Union[Tuple, List]) -> None:
         assert isinstance(
             items, (list, tuple)
-        ), f"Trying to extend with {type(items)}. Must be of instance list or tuple."
+        ), f"Trying to extend with {type(items)}. Must be of instance list or tuple. {items}"
 
         leaf, obj = AnnotationImporter._traverse_path(obj, target)
         if leaf not in obj:
@@ -924,6 +924,7 @@ class AnnotationImporter(object):
                         logging.exception(
                             f"Conversion failed with source {source}={value}: {element_config}, {converter.__class__}"
                         )
+                        raise
 
                     target: str = element_config["target"]
                     target_mode: str = element_config.get("target_mode", "insert")
