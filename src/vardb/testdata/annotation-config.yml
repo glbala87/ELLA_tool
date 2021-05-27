@@ -431,8 +431,6 @@ view:
               OTH: OTH
               SAS: SA
               G: TOT
-          precision: 6
-          scientific_threshold: 4
           warnings: filter
     - section: frequency
       template: frequencyDetails
@@ -456,8 +454,6 @@ view:
               OTH: OTH
               SAS: SA
               G: TOT
-          precision: 6
-          scientific_threshold: 4
     - section: frequency
       template: frequencyDetails
       source: frequencies.ExAC
@@ -478,8 +474,6 @@ view:
               OTH: OTH
               SAS: SA
               G: TOT
-          precision: 6
-          scientific_threshold: 4
     - section: frequency
       template: frequencyDetails
       source: frequencies.inDB
@@ -493,8 +487,6 @@ view:
           rows:
               OUSWES: OUSWES
               OUSWGS: OUSWGS
-          precision: 6
-          scientific_threshold: 4
           indications:
               keys:
                   - OUSWES
