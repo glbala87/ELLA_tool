@@ -94,6 +94,107 @@
                 },
                 "additionalProperties": false
             }
+        },
+        "view": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["section", "template", "source", "config"],
+                "optional": ["title"],
+                "properties": {
+                    "section": {
+                        "enum": ["frequency", "prediction", "external"]
+                    },
+                    "template": {
+                        "enum": ["keyValue", "itemList", "frequencyDetails", "clinvarDetails"]
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "optional": [
+                            "url",
+                            "url_empty",
+                            "columns",
+                            "rows",
+                            "warnings",
+                            "key_column",
+                            "indications",
+                            "items",
+                            "names",
+                            "precision",
+                            "scientific_threshold"
+                        ],
+                        "patternProperties": {
+                            "^url|url_empty|title$": {
+                                "type": "string"
+                            },
+                            "^warnings|key_column$": {
+                                "type": "string"
+                            },
+                            "^columns|rows$": {
+                                "type": "object",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "^precision|scientific_threshold$": {
+                                "type": "integer",
+                                "minimum": 0
+                            }
+                        },
+                        "properties": {
+                            "indications": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "keys": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "threshold": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                }
+                            },
+                            "names": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^subsource|url$": {
+                                            "type": "string"
+                                        },
+                                        "^type$": {
+                                            "enum": ["primitives", "objects"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
