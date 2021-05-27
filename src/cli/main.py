@@ -11,6 +11,7 @@ from cli.commands.export.export import export
 from cli.commands.references.references import references
 from cli.commands.users.users import users
 from cli.commands.filterconfigs.filterconfigs import filterconfigs
+from cli.commands.annotationconfig.annotationconfig import annotationconfig
 from cli.commands.delete.delete import delete
 
 
@@ -37,6 +38,7 @@ cli_group.add_command(export)
 cli_group.add_command(references)
 cli_group.add_command(users)
 cli_group.add_command(filterconfigs)
+cli_group.add_command(annotationconfig)
 
 if __name__ == "__main__":
     from applogger import setup_logger
