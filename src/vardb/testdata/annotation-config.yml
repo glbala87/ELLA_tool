@@ -349,12 +349,12 @@ deposit:
                 target: frequencies.inDB.indications.OUSWES
                 item_separator: ','
                 keyvalue_separator: ':'
-                value_target_type: string
+                target_type: string
               - source: inDB__indications_OUSWGS
                 target: frequencies.inDB.indications.OUSWGS
                 item_separator: ','
                 keyvalue_separator: ':'
-                value_target_type: string
+                target_type: string
     - name: hgmdprimaryreport
       converter_config:
           elements:

@@ -14,8 +14,8 @@ class MappingConverter(AnnotationConverter):
     def __call__(self, value: str, additional_values=None) -> Mapping[str, Primitives]:
         item_separator: str = self.element_config.get("item_separator", ",")
         keyvalue_separator: str = self.element_config.get("keyvalue_separator", ":")
-        value_target_type: str = self.element_config.get("value_target_type", "string")
-        value_target_type_throw: bool = self.element_config.get("value_target_type_throw", True)
+        value_target_type: str = self.element_config.get("target_type", "string")
+        value_target_type_throw: bool = self.element_config.get("target_type_throw", True)
         data = {}
         for kv in value.split(item_separator):
             k, v = kv.split(keyvalue_separator, 1)
