@@ -1,7 +1,4 @@
-import pytest
-import json
-from .util import FlaskClientProxy
-from vardb.datamodel import allele, assessment
+from vardb.datamodel import assessment
 
 
 def test_similaralleles(session, test_database, client):
