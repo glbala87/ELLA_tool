@@ -342,7 +342,7 @@ deposit:
                 target: frequencies.inDB.filter.OUSWGS
                 target_type: string
                 split: ','
-    - name: flatjson
+    - name: mapping
       converter_config:
           elements:
               - source: inDB__indications_OUSWES
