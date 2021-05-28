@@ -16,7 +16,14 @@ export function prepareAlleleAssessmentModel(alleleAssessment) {
     }
 
     let evaluation = alleleAssessment.evaluation
-    for (let key of ['prediction', 'classification', 'external', 'frequency', 'reference']) {
+    for (let key of [
+        'prediction',
+        'classification',
+        'external',
+        'frequency',
+        'reference',
+        'similar'
+    ]) {
         if (!(key in evaluation)) {
             evaluation[key] = {
                 comment: ''
