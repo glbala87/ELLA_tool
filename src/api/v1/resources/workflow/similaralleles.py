@@ -43,7 +43,7 @@ class SimilarAllelesResource(LogRequestResource):
                     and_(
                         allele.Allele.id.in_(assessed_allele_ids),
                         allele.Allele.chromosome == query_allele.chromosome,
-                        # allele.Allele.start_position != query_allele.start_position,
+                        allele.Allele.id != query_allele.id,
                         allele.Allele.start_position.between(
                             query_allele.start_position
                             - config["similar_alleles"]["max_genomic_distance"],
