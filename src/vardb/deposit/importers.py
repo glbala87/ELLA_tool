@@ -10,7 +10,18 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import base64
 import logging
 import datetime
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 import pytz
 from collections import defaultdict
 from sqlalchemy import or_, and_
@@ -20,7 +31,10 @@ from api.util.util import dict_merge
 from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
 from vardb.datamodel import annotation as annm
 from vardb.datamodel.user import User
-from vardb.deposit.annotationconverters.annotationconverter import AnnotationConverter
+from vardb.deposit.annotationconverters.annotationconverter import (
+    AnnotationConverter,
+    ConverterArgs,
+)
 from vardb.util.vcfiterator import Record
 
 from vardb.deposit.annotationconverters import ANNOTATION_CONVERTERS
@@ -792,7 +806,7 @@ class AssessmentImporter(object):
 
 
 class AnnotationImporter(object):
-    def __init__(self, session, import_config: Optional[Dict] = None):
+    def __init__(self, session, import_config: Optional[Mapping] = None):
         self.session = session
         self.batch_items: List[Dict] = list()
 
@@ -811,7 +825,7 @@ class AnnotationImporter(object):
         self._converters = {}
 
     def _get_or_create_converters(
-        self, source: str, vcf_meta: Dict[str, List[Dict[str, Any]]]
+        self, source: str, vcf_meta: Mapping[str, Sequence[Mapping[str, Any]]]
     ) -> List[AnnotationConverter]:
         if source not in self._converters:
             self._converters[source] = []
@@ -819,7 +833,9 @@ class AnnotationImporter(object):
                 for element_config in converter["converter_config"]["elements"]:
                     if element_config["source"] != source:
                         continue
-                    element_config = dict(element_config)
+                    converter_class = AnnotationConverter[converter["name"]]
+
+                    converterelement_config = converter_class.ElementConfig(**element_config)
                     meta = next(
                         (x for x in vcf_meta.get("INFO", []) if x.get("ID") == source), None
                     )
@@ -886,40 +902,32 @@ class AnnotationImporter(object):
             assert isinstance(obj[leaf], dict)
             dict_merge(obj[leaf], item)
 
-    def _extract_annotation_from_record(self, record: Record) -> Dict[str, Any]:
+    def _extract_annotation_from_record(self, record: Record) -> Mapping[str, Any]:
         """Given a record, return dict with annotation to be stored in db."""
 
-        target_mode_funcs: Dict[str, Callable[..., None]] = {
+        target_mode_funcs: Mapping[str, Callable[..., None]] = {
             "insert": self.insert_at_target,
             "extend": self.extend_at_target,
             "append": self.append_at_target,
             "merge": self.merge_at_target,
         }
 
-        annotations: Dict[str, Any] = {}
+        annotations: Mapping[str, Any] = {}
         for source, value in record.annotation().items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
                 try:
                     element_config = converter.element_config
                     additional_sources: Optional[List[str]] = element_config.get(
-                        "additional_sources"
+                        "additional_sources", []
                     )
-                    additional_values: Optional[
-                        Dict[
-                            str,
-                            Optional[
-                                Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]
-                            ],
-                        ]
-                    ] = None
-                    if additional_sources:
-                        additional_values = {
-                            k: record.annotation().get(k) for k in additional_sources
-                        }
+
+                    converter_args = ConverterArgs(
+                        value, {k: record.annotation().get(k) for k in additional_sources}
+                    )
 
                     try:
-                        processed_value = converter(value, additional_values=additional_values)
+                        processed_value = converter(converter_args)
                     except:
                         logging.exception(
                             f"Conversion failed with source {source}={value}: {element_config}, {converter.__class__}"

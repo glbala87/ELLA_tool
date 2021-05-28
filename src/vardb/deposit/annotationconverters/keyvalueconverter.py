@@ -1,6 +1,7 @@
 from typing import Union, Optional, Sequence
 from vardb.deposit.annotationconverters.annotationconverter import (
     AnnotationConverter,
+    ElementConfig,
     TYPE_CONVERTERS,
     Primitives,
 )
@@ -14,13 +15,17 @@ log = logging.getLogger(__name__)
 class KeyValueConverter(AnnotationConverter):
     """Converts value to given type, and optionally splits on split_operator"""
 
-    def __call__(
-        self,
-        value: Primitives,
-        additional_values: None = None,
-    ) -> Optional[Union[Primitives, Sequence[Primitives]]]:
+    element_config: "ElementConfig"
+
+    class ElementConfig(AnnotationConverter.ElementConfig):
+        target_type: str = "identity"
+        target_type_throw: bool = True
+
+    def __call__(self, value: Primitives) -> Optional[Union[Primitives, Sequence[Primitives]]]:
         target_type: str = self.element_config.get("target_type", "identity")
-        target_type_throw: bool = self.element_config.get("target_type_throw", True)
+
+        # target_type_throw: bool = self.element_config.get("target_type_throw", True)
+        target_type_throw = self.element_config.target_type_throw
         split_operator: Optional[str] = self.element_config.get("split")
 
         if target_type not in TYPE_CONVERTERS:

@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Union
+from typing import Any, Dict, Mapping, Sequence, Tuple, Union
 import cyvcf2
 import logging
 import numpy as np
@@ -38,7 +38,7 @@ def numpy_to_list(a):
 
 
 class Record(object):
-    def __init__(self, variant, samples, meta):
+    def __init__(self, variant: str, samples: Sequence, meta: Mapping[str, Any]):
         self.variant = variant
         self.samples = samples
         self.meta = meta
@@ -88,7 +88,7 @@ class Record(object):
 
     def annotation(
         self,
-    ) -> Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]]:
+    ) -> Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool], ...]]]:
         return dict(x for x in self.variant.INFO)
 
     def __str__(self):
