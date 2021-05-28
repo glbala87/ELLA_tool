@@ -26,6 +26,9 @@ const EMPTY_EVALUATION = {
     },
     reference: {
         comment: ''
+    },
+    similar: {
+        comment: ''
     }
 }
 
@@ -76,7 +79,7 @@ describe('Handling of allele state', () => {
             id: 1
         })
         // AlleleAssessments
-        // allele 1: no existing - Should be initialized for editing
+        // allele 1: not existing - Should be initialized for editing
         // allele 2: new existing - Should be reused
         // allele 3: new existing, outdated - Should be copied into state, not reused
         // allele 4: new existing, with already old copied - Should be reused, previous data cleaned out
@@ -88,7 +91,7 @@ describe('Handling of allele state', () => {
         // allele 2, reference 1: new existing, alleleassessment reused -> Should be reused
 
         // AlleleReport
-        // allele 1: no existing - Should be initialized for editing
+        // allele 1: not existing - Should be initialized for editing
         // allele 2: new existing - Should be copied
         // allele 3: same existing - State should be left intact
         // allele 4: new existing, with already old copied - Should be copied
@@ -525,7 +528,8 @@ describe('Handling of allele state', () => {
                             external: { comment: '' },
                             frequency: { comment: '' },
                             prediction: { comment: '' },
-                            reference: { comment: '' }
+                            reference: { comment: '' },
+                            similar: { comment: '' }
                         },
                         reuse: false
                     },
@@ -589,7 +593,8 @@ describe('Handling of allele state', () => {
                             external: { comment: '' },
                             frequency: { comment: '' },
                             prediction: { comment: '' },
-                            reference: { comment: '' }
+                            reference: { comment: '' },
+                            similar: { comment: '' }
                         },
                         presented_alleleassessment_id: 3,
                         reuse: false
@@ -1043,6 +1048,9 @@ describe('Handling of allele state', () => {
                     },
                     classification: {
                         comment: ''
+                    },
+                    similar: {
+                        comment: ''
                     }
                 },
                 attachment_ids: [],
@@ -1090,6 +1098,9 @@ describe('Handling of allele state', () => {
                         comment: ''
                     },
                     classification: {
+                        comment: ''
+                    },
+                    similar: {
                         comment: ''
                     }
                 },
@@ -1149,6 +1160,9 @@ describe('Handling of allele state', () => {
                     },
                     classification: {
                         comment: 'TEST2'
+                    },
+                    similar: {
+                        comment: ''
                     }
                 },
                 attachment_ids: [],
