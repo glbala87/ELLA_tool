@@ -1,15 +1,15 @@
-<article class="sectionbox-content allele-list">
+<article class="sectionbox-content" style="display: flex; flex-direction: column;">
     <div
         ng-repeat="item in $ctrl.similar_alleles track by [item.id]"
         style="vertical-align: baseline; display: flex; flex-wrap: nowrap; align-content: space-between; align-items: baseline;"
     >
         <div style="flex-grow: 1;">
             <a
-                class="id-variant list-item clickable"
+                class="id-variant clickable"
                 href="{{ item.links.workflow }}"
                 ng-attr-target="_blank"
                 title="{{ item.formatted.display }}"
-                style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 300;"
+                style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 300; font-size: 1.4rem;"
             >
                 {{ item.formatted.display }}
             </a>
