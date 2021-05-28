@@ -9,6 +9,7 @@ from cli.decorators import cli_logger, session
 
 @click.group(help="Annotation config management")
 def annotationconfig():
+    # noop
     ...
 
 

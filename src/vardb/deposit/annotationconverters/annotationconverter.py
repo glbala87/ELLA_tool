@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from distutils.util import strtobool
-from typing import Any, Dict, Callable, Union, Optional
+from typing import Any, Callable, Mapping, Union, Optional
 
 Primitives = Union[str, int, float, bool]
-TYPE_CONVERTERS: Dict[str, Callable[[Primitives], Primitives]] = {
+TYPE_CONVERTERS: Mapping[str, Callable[[Primitives], Primitives]] = {
     "int": lambda x: int(x),
     "float": lambda x: float(x),
     "string": lambda x: str(x),
@@ -11,8 +12,22 @@ TYPE_CONVERTERS: Dict[str, Callable[[Primitives], Primitives]] = {
 }
 
 
+@dataclass(frozen=True)
+class ConverterArgs:
+    value: Any
+    additional_values: Mapping[str, Any]
+
+
 class AnnotationConverter:
-    def __init__(self, meta: Optional[Dict[str, str]], element_config: Dict[str, Any]):
+    @dataclass
+    class ElementConfig:
+        def __init__(self, *args, **kwargs) -> None:
+            raise NotImplementedError("aadsgsadhds")
+
+    meta: Optional[Mapping[str, str]]
+    element_config: ElementConfig
+
+    def __init__(self, meta: Optional[Mapping[str, str]], element_config: ElementConfig):
         self.meta = meta
         self.element_config = element_config
 
@@ -25,7 +40,6 @@ class AnnotationConverter:
     # additional_values type: Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]]
     def __call__(
         self,
-        value,
-        additional_values=None,
+        args: ConverterArgs,
     ):
         raise NotImplementedError("Must be implemented in subclass")
