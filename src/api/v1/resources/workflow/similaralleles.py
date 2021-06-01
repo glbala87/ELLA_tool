@@ -1,6 +1,6 @@
 from api.config import config
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from api import ApiError
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
@@ -30,18 +30,39 @@ def nearby_alleles(session, genepanel_name, genepanel_version, allele_ids):
         assessed_allele_ids = session.query(assessment.AlleleAssessment.allele_id).filter(
             assessment.AlleleAssessment.date_superceeded.is_(None)
         )
+
+        max_dist = config["similar_alleles"]["max_genomic_distance"]
         similar_alleles = (
             session.query(allele.Allele)
             .filter(
                 and_(
-                    allele.Allele.id.in_(assessed_allele_ids),
                     allele.Allele.chromosome == query_allele.chromosome,
+                    allele.Allele.id.in_(assessed_allele_ids),
                     allele.Allele.id != query_allele.id,
-                    allele.Allele.start_position.between(
-                        query_allele.start_position
-                        - config["similar_alleles"]["max_genomic_distance"],
-                        query_allele.start_position
-                        + config["similar_alleles"]["max_genomic_distance"],
+                    or_(
+                        # query region contained
+                        and_(
+                            allele.Allele.start_position <= query_allele.start_position,
+                            allele.Allele.open_end_position >= query_allele.open_end_position,
+                        ),
+                        # allele region contained within query region
+                        and_(
+                            allele.Allele.start_position >= query_allele.start_position,
+                            allele.Allele.open_end_position <= query_allele.open_end_position,
+                        ),
+                        # overlapping regions
+                        and_(
+                            allele.Allele.start_position >= query_allele.start_position - max_dist,
+                            allele.Allele.start_position
+                            <= query_allele.open_end_position + max_dist,
+                        ),
+                        # overlapping regions
+                        and_(
+                            allele.Allele.open_end_position
+                            > query_allele.start_position - max_dist,
+                            allele.Allele.open_end_position
+                            < query_allele.open_end_position + max_dist,
+                        ),
                     ),
                 )
             )
