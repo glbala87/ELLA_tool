@@ -8,59 +8,63 @@ from flask import request
 from vardb.datamodel import allele, gene, assessment
 
 
+def nearby_alleles(session, genepanel_name, genepanel_version, allele_ids):
+    result = {}
+    # get genepanel
+    genepanel_result = session.query(gene.Genepanel).filter(
+        and_(
+            gene.Genepanel.name == genepanel_name,
+            gene.Genepanel.version == genepanel_version,
+        )
+    )
+    if genepanel_result.count() != 1:
+        raise ApiError(
+            f"Found {genepanel_result.count()} genepanels machting name={genepanel_name} version={genepanel_version}"
+        )
+    genepanel = genepanel_result.one()
+    for aid in allele_ids:
+        query_result = session.query(allele.Allele).filter(allele.Allele.id == aid)
+        if query_result.count() != 1:
+            raise ApiError(f'Found {query_result.count()} alleles with ID "{aid}"')
+        query_allele = query_result.one()
+        assessed_allele_ids = session.query(assessment.AlleleAssessment.allele_id).filter(
+            assessment.AlleleAssessment.date_superceeded.is_(None)
+        )
+        similar_alleles = (
+            session.query(allele.Allele)
+            .filter(
+                and_(
+                    allele.Allele.id.in_(assessed_allele_ids),
+                    allele.Allele.chromosome == query_allele.chromosome,
+                    allele.Allele.id != query_allele.id,
+                    allele.Allele.start_position.between(
+                        query_allele.start_position
+                        - config["similar_alleles"]["max_genomic_distance"],
+                        query_allele.start_position
+                        + config["similar_alleles"]["max_genomic_distance"],
+                    ),
+                )
+            )
+            .limit(config["similar_alleles"]["max_variants"])
+            .all()
+        )
+        result[aid] = AlleleDataLoader(session).from_objs(
+            similar_alleles,
+            genepanel=genepanel,
+            include_annotation=True,
+            include_custom_annotation=False,
+            include_allele_assessment=True,
+            include_reference_assessments=False,
+        )
+    return result
+
+
 class SimilarAllelesResource(LogRequestResource):
     @authenticate()
     def get(self, session, genepanel_name, genepanel_version, user=None):
-        # get genepanel
-        genepanel_result = session.query(gene.Genepanel).filter(
-            and_(
-                gene.Genepanel.name == genepanel_name,
-                gene.Genepanel.version == genepanel_version,
-            )
-        )
-        if genepanel_result.count() != 1:
-            raise ApiError(
-                f"Found {genepanel_result.count()} genepanels machting name={genepanel_name} version={genepanel_version}"
-            )
-        genepanel = genepanel_result.one()
         # get input allele IDs
         arg_name: str = "allele_ids"
         if request.args.get(arg_name) is None:
             raise ApiError(f'Missing required arg "{arg_name}"')
         allele_ids = request.args.get(arg_name).split(",")
-        data = {}
-        for aid in allele_ids:
-            query_result = session.query(allele.Allele).filter(allele.Allele.id == aid)
-            if query_result.count() != 1:
-                raise ApiError(f'Found {query_result.count()} alleles with ID "{aid}"')
-            query_allele = query_result.one()
-            assessed_allele_ids = session.query(assessment.AlleleAssessment.allele_id).filter(
-                assessment.AlleleAssessment.date_superceeded.is_(None)
-            )
-            similar_alleles = (
-                session.query(allele.Allele)
-                .filter(
-                    and_(
-                        allele.Allele.id.in_(assessed_allele_ids),
-                        allele.Allele.chromosome == query_allele.chromosome,
-                        allele.Allele.id != query_allele.id,
-                        allele.Allele.start_position.between(
-                            query_allele.start_position
-                            - config["similar_alleles"]["max_genomic_distance"],
-                            query_allele.start_position
-                            + config["similar_alleles"]["max_genomic_distance"],
-                        ),
-                    )
-                )
-                .limit(config["similar_alleles"]["max_variants"])
-                .all()
-            )
-            data[aid] = AlleleDataLoader(session).from_objs(
-                similar_alleles,
-                genepanel=genepanel,
-                include_annotation=True,
-                include_custom_annotation=False,
-                include_allele_assessment=True,
-                include_reference_assessments=False,
-            )
-        return data
+        return nearby_alleles(session, genepanel_name, genepanel_version, allele_ids)
