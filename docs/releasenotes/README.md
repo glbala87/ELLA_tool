@@ -23,6 +23,8 @@ Release date: TBD
 ### All changes
 <!-- MR !520-->
 - Made track selection section in VISUAL collapsible.
+<!-- MR !525-->
+- Added support for `bigWig` and `cram` track file formats in VISUAL.
 
 ## Version 1.13.2
 
