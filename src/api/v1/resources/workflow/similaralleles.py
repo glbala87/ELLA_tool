@@ -54,7 +54,7 @@ def nearby_alleles(session, genepanel_name, genepanel_version, allele_ids):
                         and_(
                             allele.Allele.start_position >= query_allele.start_position - max_dist,
                             allele.Allele.start_position
-                            <= query_allele.open_end_position + max_dist,
+                            < query_allele.open_end_position + max_dist,
                         ),
                         # overlapping regions
                         and_(
