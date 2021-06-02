@@ -1,3 +1,6 @@
+from typing import Any, Dict, List
+
+from sqlalchemy.dialects.postgresql.array import Any
 from api.config import config
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from sqlalchemy import and_, or_
@@ -8,7 +11,9 @@ from flask import request
 from vardb.datamodel import allele, gene, assessment
 
 
-def nearby_alleles(session, genepanel_name, genepanel_version, allele_ids):
+def nearby_alleles(
+    session, genepanel_name, genepanel_version, allele_ids: List[int]
+) -> Dict[int, Any]:
     result = {}
     # get genepanel
     genepanel_result = session.query(gene.Genepanel).filter(
