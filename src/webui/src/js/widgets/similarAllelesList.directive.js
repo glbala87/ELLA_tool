@@ -7,9 +7,7 @@ app.component('similarAllelesList', {
     templateUrl: 'similarAllelesList.ngtmpl.html',
     controller: connect(
         {
-            similar_alleles: state`views.workflows.interpretation.data.similar.${state`views.workflows.selectedAllele`}`, //TODO: only relevant data
-            all_similar_alleles: state`views.workflows.interpretation.data.similar`,
-            selectedAllele: state`views.workflows.selectedAllele`
+            similarAlleles: state`views.workflows.interpretation.data.similar.${state`views.workflows.selectedAllele`}`
         },
         'SimilarAllelesList',
         [
