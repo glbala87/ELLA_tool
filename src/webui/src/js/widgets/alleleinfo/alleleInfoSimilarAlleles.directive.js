@@ -5,23 +5,8 @@ import template from './alleleInfoSimilarAlleles.ngtmpl.html' // eslint-disable-
 
 app.component('alleleInfoSimilarAlleles', {
     templateUrl: 'alleleInfoSimilarAlleles.ngtmpl.html',
-    controller: connect(
-        {
-            similar_alleles: state`views.workflows.interpretation.data.similar.${state`views.workflows.selectedAllele`}`,
-            config: state`app.config.similar_alleles`
-        },
-        'AlleleInfoSimilarAlleles',
-        [
-            '$scope',
-            function($scope) {
-                const $ctrl = $scope.$ctrl
-
-                Object.assign($ctrl, {
-                    hasContent() {
-                        return $ctrl.similar_alleles.length > 0
-                    }
-                })
-            }
-        ]
-    )
+    controller: connect({
+        similar_alleles: state`views.workflows.interpretation.data.similar.${state`views.workflows.selectedAllele`}`,
+        config: state`app.config.similar_alleles`
+    })
 })
