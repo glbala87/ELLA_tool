@@ -1,5 +1,4 @@
-from typing import Any, Dict, List
-
+from typing import Dict, List
 from sqlalchemy.dialects.postgresql.array import Any
 from api.config import config
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
