@@ -25,11 +25,9 @@ def test_nearbyalleles(session, test_database, client):
             session.add(aa)
         return a
 
-    def _assert_contains_exclusively(a_res: List[int], a_exp: List[allele.Allele]):
-        # same length
-        assert len(a_res) == len(a_exp)
-        # compare elements
-        assert set(a_res) == set(a_exp)
+    def _test_nearby(input: allele.Allele, expected_output: List[allele.Allele]):
+        res = nearby_alleles(session, input.id)
+        assert set(map(lambda x: x.id, res)) == set(map(lambda x: x.id, expected_output))
 
     #       0         1         2         3         4         5         6         7
     #       012345678901234567890123456789012345678901234567890123456789012345678901234567
@@ -58,48 +56,28 @@ def test_nearbyalleles(session, test_database, client):
     session.flush()
 
     config["similar_alleles"]["max_genomic_distance"] = 0
-    res = nearby_alleles(session, aq_1.id)
-    _assert_contains_exclusively(res, [aa_1])
-    res = nearby_alleles(session, aq_2.id)
-    _assert_contains_exclusively(res, [aa_1])
-    res = nearby_alleles(session, aq_3.id)
-    _assert_contains_exclusively(res, [])
-    res = nearby_alleles(session, aq_4.id)
-    _assert_contains_exclusively(res, [aa_2])
-    res = nearby_alleles(session, aq_5.id)
-    _assert_contains_exclusively(res, [])
-    res = nearby_alleles(session, aq_6.id)
-    _assert_contains_exclusively(res, [aa_2])
-    res = nearby_alleles(session, aq_7.id)
-    _assert_contains_exclusively(res, [])
-    res = nearby_alleles(session, aq_8.id)
-    _assert_contains_exclusively(res, [])
-    res = nearby_alleles(session, aq_9.id)
-    _assert_contains_exclusively(res, [aa_3, aa_4])
-    res = nearby_alleles(session, aq_a.id)
-    _assert_contains_exclusively(res, [aa_3])
+    _test_nearby(aq_1, [aa_1])
+    _test_nearby(aq_2, [aa_1])
+    _test_nearby(aq_3, [])
+    _test_nearby(aq_4, [aa_2])
+    _test_nearby(aq_5, [])
+    _test_nearby(aq_6, [aa_2])
+    _test_nearby(aq_7, [])
+    _test_nearby(aq_8, [])
+    _test_nearby(aq_9, [aa_3, aa_4])
+    _test_nearby(aq_a, [aa_3])
 
     config["similar_alleles"]["max_genomic_distance"] = 5
-    res = nearby_alleles(session, aq_1.id)
-    _assert_contains_exclusively(res, [aa_1])
-    res = nearby_alleles(session, aq_2.id)
-    _assert_contains_exclusively(res, [aa_1, aa_2])
-    res = nearby_alleles(session, aq_3.id)
-    _assert_contains_exclusively(res, [aa_1, aa_2])
-    res = nearby_alleles(session, aq_4.id)
-    _assert_contains_exclusively(res, [aa_1, aa_2, aa_3, aa_4])
-    res = nearby_alleles(session, aq_5.id)
-    _assert_contains_exclusively(res, [aa_1, aa_2])
-    res = nearby_alleles(session, aq_6.id)
-    _assert_contains_exclusively(res, [aa_2, aa_3, aa_4])
-    res = nearby_alleles(session, aq_7.id)
-    _assert_contains_exclusively(res, [aa_2, aa_3, aa_4])
-    res = nearby_alleles(session, aq_8.id)
-    _assert_contains_exclusively(res, [aa_2, aa_3, aa_4])
-    res = nearby_alleles(session, aq_9.id)
-    _assert_contains_exclusively(res, [aa_2, aa_3, aa_4])
-    res = nearby_alleles(session, aq_a.id)
-    _assert_contains_exclusively(res, [aa_3, aa_4])
+    _test_nearby(aq_1, [aa_1])
+    _test_nearby(aq_2, [aa_1, aa_2])
+    _test_nearby(aq_3, [aa_1, aa_2])
+    _test_nearby(aq_4, [aa_1, aa_2, aa_3, aa_4])
+    _test_nearby(aq_5, [aa_1, aa_2])
+    _test_nearby(aq_6, [aa_2, aa_3, aa_4])
+    _test_nearby(aq_7, [aa_2, aa_3, aa_4])
+    _test_nearby(aq_8, [aa_2, aa_3, aa_4])
+    _test_nearby(aq_9, [aa_2, aa_3, aa_4])
+    _test_nearby(aq_a, [aa_3, aa_4])
 
 
 def test_similaralleles(session, test_database, client):
