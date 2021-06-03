@@ -1,8 +1,8 @@
 import getWarningCleared from '../worklog/computed/getWarningCleared'
 const ALLELE_SECTION_KEYS = [
     'classification',
-    'frequency',
     'similar',
+    'frequency',
     'prediction',
     'external',
     'references'
