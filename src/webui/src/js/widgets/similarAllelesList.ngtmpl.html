@@ -1,23 +1,22 @@
-<article class="sectionbox-content" style="display: flex; flex-direction: column;">
+<article class="sectionbox-content similar-alleles-list">
     <div
         ng-repeat="item in $ctrl.similarAlleles track by [item.id]"
-        style="vertical-align: baseline; display: flex; flex-wrap: nowrap; align-content: space-between; align-items: baseline;"
+        class="similar-alleles-list-item"
     >
-        <div style="flex-grow: 1;">
+        <div>
             <a
                 class="id-variant clickable"
                 href="{{ item.links.workflow }}"
                 ng-attr-target="_blank"
                 title="{{ item.formatted.display }}"
-                style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 300; font-size: 1.4rem;"
             >
                 {{ item.formatted.display }}
             </a>
         </div>
-        <div style="margin-left: 10px; margin-right: 10px; white-space: nowrap;">
+        <div>
             <span class="tag id-assessment">{{ $ctrl.getClassificationText(item) }}</span>
         </div>
-        <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+        <div>
             <p>
                 {{ item.allele_assessment.date_created | date: 'yyyy-MM-dd' }}
             </p>
