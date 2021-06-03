@@ -9,7 +9,7 @@ from flask import request
 from vardb.datamodel import allele, gene, assessment
 
 
-def nearby_alleles(session, allele_id: int) -> List[int]:
+def nearby_alleles(session, allele_id: int) -> List[allele.Allele]:
     query_result = session.query(allele.Allele).filter(allele.Allele.id == allele_id)
     if query_result.count() != 1:
         raise ApiError(f'Found {query_result.count()} alleles with ID "{allele_id}"')
