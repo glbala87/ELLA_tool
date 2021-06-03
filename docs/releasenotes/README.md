@@ -18,7 +18,7 @@ Release date: TBD
 
 ### Highlights
 
-### Breaking changes
+### :small_red_triangle: Breaking changes
 
 ### All changes
 <!-- MR !520-->
@@ -78,7 +78,7 @@ The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied b
 
 `IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
 
-### Breaking changes
+### :small_red_triangle: Breaking changes
 
 With the [improvements to pre-filters](#improvements-to-pre-filters), the configuration in `usergroups.json` must be updated. The equivalent to the previous
 `"prefilter" = True` is now `"prefilter": [["hi_frequency", "no_nearby_variant", "no_classification", "not_multiallelic"]]`. See [pre-filters](/technical/filtering.html#pre-filter-before-import) for further details.
