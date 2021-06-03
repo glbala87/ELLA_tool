@@ -766,3 +766,43 @@ allele-info-classification * cbbody {
         }
     }
 }
+
+.similar-alleles-list {
+    display: flex;
+    flex-direction: column;
+
+    .similar-alleles-list-item {
+        vertical-align: baseline;
+        display: flex;
+        flex-wrap: nowrap;
+        align-content: space-between;
+        align-items: baseline;
+
+        a {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-weight: 300;
+            font-size: 1.4rem;
+        }
+        div:nth-child(1) {
+            flex-grow: 1;
+            a {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                font-weight: 300;
+                font-size: 1.4rem;
+            }
+        }
+        div:nth-child(2) {
+            margin-left: 10px;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        div:nth-child(3) {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    }
+}
