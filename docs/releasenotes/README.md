@@ -25,6 +25,11 @@ Release date: TBD
 - Made track selection section in VISUAL collapsible.
 <!-- MR !525-->
 - Added support for `bigWig` and `cram` track file formats in VISUAL.
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !534 Add typing stubs
+-->
+- Fixes and improvements to development environment and code base. 
 
 ## Version 1.13.2
 
@@ -98,7 +103,7 @@ With the [improvements to pre-filters](#improvements-to-pre-filters), the config
 <!-- MR !511 -->
 - Added blacklist option in the [analysis watcher](/technical/import.html#analysis-watcher-for-automated-import), allowing exclusion of specific analyses during automated import.
 <!-- 
-Probably no further release notes necessary, but adding here for reference: 
+No further release notes necessary, but adding here for reference: 
 MR !505 Create upload release artifacts
 MR !496 Split references from annotation in database
 MR !498 Fixes for running local demo instances 
