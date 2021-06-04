@@ -52,6 +52,7 @@ const BASE_SECTIONS = {
     similar: {
         title: 'Similar variants',
         color: 'purple',
+        alleleAssessmentReusedColor: 'green',
         content: [{ tag: 'allele-info-similar-alleles' }],
         alleleassessmentComment: {
             placeholder: 'SIMILAR-VARIANTS-COMMENTS',
