@@ -18,9 +18,15 @@ Release date: TBD
 
 ### Highlights
 
+#### Support for configurable annotation
+<!-- Relevant MRs: !405 and !532 -->
+TODO
+
 ### :small_red_triangle: Breaking changes
 
 ### All changes
+<!-- MR !405, !532 -->
+- Added support for configurable annotation.
 <!-- MR !520-->
 - Made track selection section in VISUAL collapsible.
 <!-- MR !525-->
