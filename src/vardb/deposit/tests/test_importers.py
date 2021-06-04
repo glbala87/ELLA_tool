@@ -1,14 +1,17 @@
 import base64
 import json
-import vardb.deposit.importers as deposit
+from os.path import commonprefix
+from typing import Tuple
+
 import hypothesis as ht
 import hypothesis.strategies as st
-from os.path import commonprefix
+import vardb.deposit.importers as deposit
 from conftest import mock_record
+from sqlalchemy.orm import scoped_session
 
 
 @st.composite
-def positions(draw):
+def positions(draw) -> Tuple[str, int, str, str]:
     def commonsuffix(strs):
         return commonprefix([s[::-1] for s in strs])[::-1]
 
@@ -33,7 +36,7 @@ def positions(draw):
 
 
 @st.composite
-def sequence(draw):
+def sequence(draw) -> str:
     return draw(st.text(alphabet=["A", "C", "G", "T"], min_size=1, max_size=4))
 
 
@@ -238,8 +241,8 @@ def test_annotationimport_target_paths(session):
     assert data["annotations"] == {"path": {"to": {"target": "dabla"}}}
 
 
-def test_annotationimport_target_mode(session):
-    def get_import_config(name, target_mode, **kwargs):
+def test_annotationimport_target_mode(session: scoped_session):
+    def get_import_config(name: str, target_mode: str, **kwargs):
         return [
             {
                 "name": name,

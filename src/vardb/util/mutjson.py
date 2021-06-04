@@ -8,6 +8,7 @@ Should be tested and understood more deeply (how functions are called is somewha
 """
 
 import collections
+from collections.abc import Iterable
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.mutable import MutableDict, Mutable
@@ -80,7 +81,7 @@ class MutableList(Mutable, list):
     @classmethod
     def coerce(cls, key, value):
         if not isinstance(value, MutableList):
-            if isinstance(value, collections.Iterable):
+            if isinstance(value, Iterable):
                 return MutableList(value)
             return Mutable.coerce(key, value)
         return value

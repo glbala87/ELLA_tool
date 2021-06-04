@@ -1,9 +1,41 @@
+from typing import Any, List, Mapping, Sequence
 import jsonschema
+from dataclasses import dataclass, field
+from sqlalchemy.orm import scoped_session
 from vardb.datamodel.jsonschemas.load_schema import load_schema
 from vardb.datamodel import annotation
 
 
-def deposit_annotationconfig(session, annotationconfig):
+@dataclass
+class ConverterConfig:
+    elements: Sequence[Mapping[str, Any]]
+
+
+@dataclass(init=False)
+class AnnotationImportConfig:
+    name: str
+    converter_config: ConverterConfig
+
+    def __init__(self, name: str, converter_config: Mapping[str, Any]) -> None:
+        self.name = name
+        self.converter_config = ConverterConfig(**converter_config)
+
+
+@dataclass(init=False)
+class AnnotationConfig:
+    deposit: Sequence[AnnotationImportConfig]
+    view: List = field(default_factory=list)
+
+    def __init__(self, deposit: Sequence[Mapping[str, Any]], view: List) -> None:
+        self.view = view
+        self.deposit = list()
+        for sub_conf in deposit:
+            self.deposit.append(AnnotationImportConfig(**sub_conf))
+
+
+def deposit_annotationconfig(
+    session: scoped_session, annotationconfig: Mapping[str, Any]
+) -> annotation.AnnotationConfig:
     schema = load_schema("annotationconfig.json")
     jsonschema.validate(annotationconfig, schema)
 

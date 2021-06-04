@@ -1,62 +1,51 @@
-from typing import Union, Optional, Sequence
+import logging
+from dataclasses import dataclass
+from typing import Optional, Sequence, Union
+
 from vardb.deposit.annotationconverters.annotationconverter import (
     AnnotationConverter,
-    ElementConfig,
-    TYPE_CONVERTERS,
+    ConverterArgs,
     Primitives,
+    TypeConverter,
 )
-
-import logging
-
 
 log = logging.getLogger(__name__)
 
 
 class KeyValueConverter(AnnotationConverter):
-    """Converts value to given type, and optionally splits on split_operator"""
+    """Converts value to given type, and optionally splits on self.config.split"""
 
-    element_config: "ElementConfig"
+    config: "Config"
 
-    class ElementConfig(AnnotationConverter.ElementConfig):
+    @dataclass(frozen=True)
+    class Config(AnnotationConverter.Config):
+        target_mode: str = "insert"
+        split: Optional[str] = None
         target_type: str = "identity"
         target_type_throw: bool = True
 
-    def __call__(self, value: Primitives) -> Optional[Union[Primitives, Sequence[Primitives]]]:
-        target_type: str = self.element_config.get("target_type", "identity")
-
-        # target_type_throw: bool = self.element_config.get("target_type_throw", True)
-        target_type_throw = self.element_config.target_type_throw
-        split_operator: Optional[str] = self.element_config.get("split")
-
-        if target_type not in TYPE_CONVERTERS:
-            raise RuntimeError(
-                f"Invalid target type: {target_type}. Available types are: {sorted(TYPE_CONVERTERS.keys())}"
+    def __call__(self, args: ConverterArgs) -> Optional[Union[Primitives, Sequence[Primitives]]]:
+        try:
+            converter = TypeConverter[self.config.target_type]
+        except KeyError:
+            raise KeyError(
+                f"Invalid target type: {self.config.target_type}. Available types are: {sorted(c.name for c in TypeConverter)}"
             )
 
-        if split_operator:
-            assert isinstance(value, str), f"Cannot split source data type: {type(value)}"
-            assert isinstance(
-                split_operator, str
-            ), f"Invalid type for split delimiter: {type(split_operator)}"
-            values: Sequence[Primitives] = value.split(split_operator)
-
         try:
-            if split_operator:
-                values = [TYPE_CONVERTERS[target_type](x) for x in values]
+            if self.config.split:
+                assert isinstance(
+                    args.value, str
+                ), f"KeyValueConverter cannot split non-string on {self.config.split}: {args.value} ({type(args.value)})"
+                return [converter(x) for x in args.value.split(self.config.split)]
             else:
-                value = TYPE_CONVERTERS[target_type](value)
+                return converter(args.value)
         except (ValueError, TypeError):
-            if target_type_throw:
-                raise ValueError(
-                    f"Couldn't convert source data {value} ({type(value)}) to target type {target_type}"
-                )
+            err = ValueError(
+                f"Couldn't convert source data {args.value!r} ({type(args.value)}) to target type {self.config.target_type}"
+            )
+            if self.config.target_type_throw:
+                raise err
             else:
-                log.warning(
-                    f"Couldn't convert source data {value} ({type(value)}) to target type {target_type}. target_type_throw is configured as False, continuing..."
-                )
+                log.warning(f"{err}, but target_type_throw is configured as False, continuing...")
                 return None
-
-        if split_operator:
-            return values
-        else:
-            return value
