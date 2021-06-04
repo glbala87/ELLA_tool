@@ -112,7 +112,10 @@ With the [improvements to pre-filters](#improvements-to-pre-filters), the config
 No further release notes necessary, but adding here for reference: 
 MR !505 Create upload release artifacts
 MR !496 Split references from annotation in database
-MR !498 Fixes for running local demo instances 
+MR !498 Fixes for running local demo instances
+MR !512 Update testdata
+MR !513 Update black, and run black on code base
+MR !514 Fix memory issue in migration script. Reorder migrations.
 -->
 - Several fixes and improvements to development environment and code base. 
 
