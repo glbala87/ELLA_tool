@@ -19,9 +19,11 @@ from typing import (
     Dict,
     List,
     Mapping,
+    MutableSequence,
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
 )
 
@@ -37,9 +39,9 @@ from vardb.datamodel import sample as sm
 from vardb.datamodel import workflow as wf
 from vardb.datamodel.user import User
 from vardb.deposit.annotation_config import AnnotationImportConfig
-from vardb.deposit.annotationconverters import AnnotationConverters
-from vardb.deposit.annotationconverters.annotationconverter import (
+from vardb.deposit.annotationconverters import (
     AnnotationConverter,
+    AnnotationConverters,
     ConverterArgs,
 )
 from vardb.util.vcfiterator import Record
@@ -825,7 +827,7 @@ class AnnotationImporter(object):
     batch_items: List[Mapping[str, Any]]
     import_config: List[AnnotationImportConfig]
     session: scoped_session
-    _converters: Dict[str, List[AnnotationConverter]]
+    _converters: Dict[str, MutableSequence[AnnotationConverter]]
 
     def __init__(self, session: scoped_session, import_config: Optional[Sequence[Mapping]] = None):
         self.session = session
@@ -849,21 +851,22 @@ class AnnotationImporter(object):
 
     def _get_or_create_converters(
         self, source: str, vcf_meta: Mapping[str, Sequence[Mapping[str, Any]]]
-    ) -> List[AnnotationConverter]:
+    ) -> MutableSequence[AnnotationConverter]:
         if source not in self._converters:
             self._converters[source] = []
             for converter_config in self.import_config:
                 for element_config in converter_config.converter_config.elements:
                     if element_config["source"] != source:
                         continue
-                    converter_class = AnnotationConverters[converter_config.name].value
+                    converter_class: Type[AnnotationConverter] = AnnotationConverters[
+                        converter_config.name
+                    ].value
 
                     converterelement_config = converter_class.Config(**element_config)
                     meta = next(
                         (x for x in vcf_meta.get("INFO", []) if x.get("ID") == source), None
                     )
 
-                    converter: AnnotationConverter
                     if meta:
                         converter = converter_class(config=converterelement_config, meta=meta)
                     else:
@@ -918,7 +921,6 @@ class AnnotationImporter(object):
         if leaf not in obj:
             obj[leaf] = []
 
-        assert isinstance(obj[leaf], list)
         obj[leaf].append(item)
 
     @staticmethod
@@ -956,7 +958,7 @@ class AnnotationImporter(object):
                         processed_value = converter(converter_args)
                     except:
                         logging.exception(
-                            f"Conversion failed with source {source}={value}: {element_config}, {converter.__class__}"
+                            f"Conversion failed with source {source!r}={value!r}: {element_config}, {converter.__class__}"
                         )
                         raise
 
@@ -967,11 +969,13 @@ class AnnotationImporter(object):
                     ), f"Unknown target mode: {target_mode}. Available target modes are {list(target_mode_funcs.keys())}"
                     target_mode_funcs[target_mode](annotations, target, processed_value)
 
-                except Exception as e:
-                    log.exception(e)
-                    raise RuntimeError(
-                        f"Error when trying to convert source '{source}' with value {value} ({type(value)}), using converter {element_config}"
+                except Exception:
+                    err_str = (
+                        f"Error when trying to convert source '{source!r}' with value {value!r}"
+                        f" ({type(value)}), using converter {element_config}"
                     )
+                    log.exception(err_str)
+                    raise RuntimeError(err_str)
 
         for converter_config in self.import_config:
             for el_config in converter_config.converter_config.elements:

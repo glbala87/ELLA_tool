@@ -423,18 +423,13 @@ class VEPConverter(AnnotationConverter):
             # by incoming transcript_data based on refseq_priority. We do not want multiple annotations
             # on the same transcript. Chances are that the annotations (HGVSc, HGVSp, consequences) are equal,
             # but in a small percentage of cases the different sources can give different annotations.
-            if tx_data.transcript in transcripts:
-                existing_tx_data = transcripts[tx_data.transcript]
-
-                try:
-                    assert (
-                        existing_tx_data._source and tx_data._source
-                    ), "Unable to determine priority of transcript {}, as source is not defined".format(
-                        tx_data.transcript
-                    )
-                except AssertionError as e:
-                    breakpoint()
-                    raise e
+            existing_tx_data = transcripts.get(tx_data.transcript)
+            if existing_tx_data:
+                assert (
+                    existing_tx_data._source and tx_data._source
+                ), "Unable to determine priority of transcript {}, as source is not defined".format(
+                    tx_data.transcript
+                )
 
                 existing_source = existing_tx_data._source
                 incoming_source = tx_data._source
@@ -445,7 +440,8 @@ class VEPConverter(AnnotationConverter):
                 if refseq_priority.index(existing_source) <= refseq_priority.index(incoming_source):
                     # Existing has priority, discard incoming
                     continue
-            # new or higher priority transcript
+
+            # add new or higher priority transcript
             transcripts[tx_data.transcript] = tx_data
 
         # VEP output is not deterministic, but we need it to be so

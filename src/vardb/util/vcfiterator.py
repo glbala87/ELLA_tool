@@ -5,6 +5,10 @@ import numpy as np
 
 log = logging.getLogger(__name__)
 
+# have to re-declare here since only exist in cyvcf2 stub and fails on execution
+Text = Union[str, bytes]
+Primitives = Union[int, float, bool, Text]
+
 
 def _numpy_unknown_to_none(a: np.ndarray) -> list:
     """
@@ -92,7 +96,7 @@ class Record(object):
 
     def annotation(
         self,
-    ) -> Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool], ...]]]:
+    ) -> Dict[str, Union[Primitives, Tuple[Primitives, ...]]]:
         return dict(x for x in self.variant.INFO)
 
     def __str__(self):

@@ -273,7 +273,13 @@ def ped_info_file(ped_info):
 
 
 class ConverterConfig:
-    "Uses keys from AnnotationConverters to create corresponding Config objects with default values"
+    """
+    Shortcut class to create Config objects for all members of AnnotationConverters, which should
+    be all of them.
+
+    e.g., cc.vep(), cc.keyvalue(), ...
+    """
+
     defaults = {
         "source": "test source",
         "target": "test target",
@@ -285,6 +291,7 @@ class ConverterConfig:
     }
 
     def __init__(self) -> None:
+        # dynamically sets attributes based on member name, see class def for full list
         for ac in AnnotationConverters:
             default_args = {**self.defaults, **self.custom.get(ac.name, {})}
             setattr(
