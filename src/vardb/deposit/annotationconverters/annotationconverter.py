@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
-from enum import Enum, auto
 from distutils.util import strtobool
-from typing import Any, List, Mapping, Sequence, Union, Optional
+from enum import Enum, auto
+from typing import Any, List, Mapping, Optional, Sequence, Union
 
-Primitives = Union[str, int, float, bool, bytes]
+from vardb.util.vcfiterator import Primitives
 
 
 class TypeConverter(Enum):
