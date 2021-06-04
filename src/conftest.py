@@ -1,18 +1,21 @@
+import os
+import tempfile
 from contextlib import contextmanager, nullcontext
+from functools import partial, update_wrapper
+
 import cyvcf2
 import hypothesis as ht
-import os
 import pytest
-import tempfile
+
 from api.tests.util import FlaskClientProxy
-from vardb.util.testdatabase import TestDatabase
-from vardb.util import DB
 from vardb.datamodel import allele, annotation
+from vardb.deposit.annotationconverters import AnnotationConverters
 from vardb.deposit.importers import build_allele_from_record
-from vardb.util.vcfiterator import VcfIterator, RESERVED_GT_HEADERS
+from vardb.util import DB
+from vardb.util.testdatabase import TestDatabase
+from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
 
-
-ht.settings.register_profile("default")
+ht.settings.register_profile("default", deadline=600)
 ht.settings.register_profile("small", max_examples=20)
 ht.settings.register_profile(
     "extensive",
@@ -267,3 +270,28 @@ def ped_info_file(ped_info):
         ped_str += PED_LINE.format(**ped_info) + "\n"
 
     return tempinput(ped_str)
+
+
+class ConverterConfig:
+    "Uses keys from AnnotationConverters to create corresponding Config objects with default values"
+    defaults = {
+        "source": "test source",
+        "target": "test target",
+    }
+    custom = {
+        "clinvarjson": {"source": "CLINVARJSON"},
+        "hgmdprimaryreport": {"source": "HGMD__pmid"},
+        "vep": {"source": "CSQ"},
+    }
+
+    def __init__(self) -> None:
+        for ac in AnnotationConverters:
+            default_args = {**self.defaults, **self.custom.get(ac.name, {})}
+            setattr(
+                self,
+                ac.name,
+                update_wrapper(partial(ac.value.Config, **default_args), ac.value.Config),
+            )
+
+
+cc = ConverterConfig()

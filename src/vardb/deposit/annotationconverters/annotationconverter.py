@@ -1,45 +1,61 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum, auto
 from distutils.util import strtobool
-from typing import Any, Callable, Mapping, Union, Optional
+from typing import Any, List, Mapping, Sequence, Union, Optional
 
-Primitives = Union[str, int, float, bool]
-TYPE_CONVERTERS: Mapping[str, Callable[[Primitives], Primitives]] = {
-    "int": lambda x: int(x),
-    "float": lambda x: float(x),
-    "string": lambda x: str(x),
-    "bool": lambda x: bool(strtobool(x) if isinstance(x, str) else x),
-    "identity": lambda x: x,
-}
+Primitives = Union[str, int, float, bool, bytes]
+
+
+class TypeConverter(Enum):
+    int = auto()
+    float = auto()
+    str = auto()
+    bool = auto()
+    identity = auto()
+    # use string as alias for str so can use builtin func directly
+    # i.e., TypeConverter.string.name == "str"
+    string = str
+
+    def __call__(self, val: Any) -> Primitives:
+        if self is TypeConverter.identity:
+            return val
+        elif self is TypeConverter.bool:
+            return bool(strtobool(val) if isinstance(val, str) else val)
+        else:
+            if isinstance(val, str):
+                # eval f-string needs quotes so value of val not interpreted as variable name
+                return eval(f"{self.name}('{val}')")
+            else:
+                return eval(f"{self.name}({val})")
 
 
 @dataclass(frozen=True)
 class ConverterArgs:
-    value: Any
-    additional_values: Mapping[str, Any]
+    value: Union[Primitives, Sequence[Primitives]]
+    additional_values: Optional[Mapping[str, Any]] = None
 
 
 class AnnotationConverter:
-    @dataclass
-    class ElementConfig:
-        def __init__(self, *args, **kwargs) -> None:
-            raise NotImplementedError("aadsgsadhds")
-
     meta: Optional[Mapping[str, str]]
-    element_config: ElementConfig
+    config: "Config"
 
-    def __init__(self, meta: Optional[Mapping[str, str]], element_config: ElementConfig):
+    @dataclass(frozen=True, init=False)
+    class Config:
+        source: str
+        target: str
+        target_mode: str = "insert"
+        additional_sources: List[str] = field(default_factory=list)
+
+        def __init__(self, *args, **kwargs) -> None:
+            raise NotImplementedError("Config class must be implemented in subclasss")
+
+    def __init__(self, config: Config, meta: Mapping[str, str] = None):
+        self.config = config
         self.meta = meta
-        self.element_config = element_config
 
     def setup(self):
         "Code here will be executed before first __call__"
         pass
 
-    # Type hints omitted to avoid stupid mypy errors
-    # value type: Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]
-    # additional_values type: Dict[str, Union[int, str, float, bool, Tuple[Union[int, str, float, bool]]]]
-    def __call__(
-        self,
-        args: ConverterArgs,
-    ):
+    def __call__(self, args: ConverterArgs):
         raise NotImplementedError("Must be implemented in subclass")

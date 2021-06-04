@@ -18,7 +18,7 @@ from sqlalchemy.dialects import postgresql
 from pathlib import Path
 import yaml
 from sqlalchemy.orm.session import Session
-from vardb.deposit.deposit_annotationconfig import deposit_annotationconfig
+from vardb.deposit.annotation_config import deposit_annotationconfig
 
 
 def upgrade():

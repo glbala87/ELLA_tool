@@ -1,10 +1,13 @@
-import click
 import json
-import yaml
+from logging import Logger
+from typing import Any, Dict
 
-from vardb.datamodel import annotation
-from vardb.deposit.deposit_annotationconfig import deposit_annotationconfig
+import click
+import yaml
 from cli.decorators import cli_logger, session
+from sqlalchemy.orm import scoped_session
+from vardb.datamodel import annotation
+from vardb.deposit.annotation_config import deposit_annotationconfig
 
 
 @click.group(help="Annotation config management")
@@ -17,20 +20,20 @@ def annotationconfig():
 @click.argument("annotationconfig", type=click.File("r"))
 @session
 @cli_logger(prompt_reason=True)
-def cmd_update_annotationconfig(logger, session, annotationconfig):
+def cmd_update_annotationconfig(logger: Logger, session: scoped_session, annotationconfig: str):
     """
-    Updates filterconfigs from the input JSON file.
+    Updates annotationconfigs from the input YAML file.
     """
 
-    annotationconfig = yaml.safe_load(annotationconfig)
-    deposit_annotationconfig(session, annotationconfig)
+    config_obj: Dict[str, Any] = yaml.safe_load(annotationconfig)
+    deposit_annotationconfig(session, config_obj)
     session.commit()
     print("Updated annotation config")
 
 
 @annotationconfig.command("list")
 @session
-def list(session):
+def list(session: scoped_session):
 
     print("\nCurrent active annotationconfig:\n")
 

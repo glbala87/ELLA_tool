@@ -1,15 +1,22 @@
-from itertools import permutations
 import re
-from typing import Any
+from itertools import permutations
+from typing import Dict, List, Mapping, Union
+
 import pytest
-from vardb.deposit.annotationconverters.vepconverter import VEPConverter
+from conftest import cc
+from vardb.deposit.annotationconverters import ConverterArgs, VEPConverter
 
 CSQ_META = {
-    "Description": "onsequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|ALLELE_NUM|DISTANCE|STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|CANONICAL|ENSP|REFSEQ_MATCH|SOURCE|GIVEN_REF|USED_REF|BAM_EDIT|SIFT|PolyPhen|DOMAINS|HGVS_OFFSET|HGVSg|CLIN_SIG|SOMATIC|PHENO|PUBMED|MOTIF_NAME|MOTIF_POS|HIGH_INF_POS|MOTIF_SCORE_CHANGE|RefSeq_gff|RefSeq_Interim_gff"
+    "Description": "onsequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|"
+    "SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|"
+    "CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|ALLELE_NUM|DISTANCE|"
+    "STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|CANONICAL|ENSP|REFSEQ_MATCH|SOURCE|GIVEN_REF|USED_REF|"
+    "BAM_EDIT|SIFT|PolyPhen|DOMAINS|HGVS_OFFSET|HGVSg|CLIN_SIG|SOMATIC|PHENO|PUBMED|MOTIF_NAME|"
+    "MOTIF_POS|HIGH_INF_POS|MOTIF_SCORE_CHANGE|RefSeq_gff|RefSeq_Interim_gff"
 }
-CSQ_KEYS = re.findall('Format: ([^"]*)', CSQ_META["Description"])[0].split("|")
+CSQ_KEYS: List[str] = re.findall('Format: ([^"]*)', CSQ_META["Description"])[0].split("|")
 CSQ_TEMPLATE = "|".join("{" + k + "}" for k in CSQ_KEYS)
-BASE_CSQ_DATA: Any = {
+BASE_CSQ_DATA: Dict[str, Union[str, int]] = {
     **{k: "" for k in CSQ_KEYS},
     **{
         "Feature_type": "Transcript",
@@ -21,7 +28,7 @@ BASE_CSQ_DATA: Any = {
 }
 
 
-def generate_raw_csq(modifications):
+def generate_raw_csq(modifications: Mapping[str, str]) -> str:
     csq_data = {**BASE_CSQ_DATA, **modifications}
     return CSQ_TEMPLATE.format(**csq_data)
 
@@ -92,42 +99,41 @@ def generate_raw_csq(modifications):
     ],
 )
 def test_distance_computation(hgvsc, expected_exon_distance, expected_coding_region_distance):
-
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
     raw_csq = generate_raw_csq({"HGVSc": hgvsc})
-    processed = converter(raw_csq)
+    processed = converter(ConverterArgs(raw_csq))
     assert len(processed) == 1
     assert processed[0]["exon_distance"] == expected_exon_distance
     assert processed[0]["coding_region_distance"] == expected_coding_region_distance
 
 
 def test_get_is_last_exon():
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
 
     raw_csq = generate_raw_csq({"EXON": "20/20"})
-    processed = converter(raw_csq)
+    processed = converter(ConverterArgs(raw_csq))
     assert len(processed) == 1
     assert processed[0]["in_last_exon"] == "yes"
 
     raw_csq = generate_raw_csq({"EXON": "19/20"})
-    processed = converter(raw_csq)
+    processed = converter(ConverterArgs(raw_csq))
     assert len(processed) == 1
     assert processed[0]["in_last_exon"] == "no"
 
     raw_csq = generate_raw_csq({})
-    processed = converter(raw_csq)
+    processed = converter(ConverterArgs(raw_csq))
     assert len(processed) == 1
     assert processed[0]["in_last_exon"] == "no"
 
     raw_csq = generate_raw_csq({"EXON": "20__20"})
     with pytest.raises(IndexError):
-        converter(raw_csq)
+        converter(ConverterArgs(raw_csq))
 
 
 def test_csq_transcripts():
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
     data = ",".join(
         [
@@ -139,7 +145,7 @@ def test_csq_transcripts():
         ]
     )
 
-    processed = converter(data)
+    processed = converter(ConverterArgs(data))
 
     # Only NM_ or ENST transcripts are included.
     assert len(processed) == 3
@@ -149,7 +155,7 @@ def test_csq_transcripts():
 
 
 def test_hgnc_id_fetching():
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
     data = ",".join(
         [
@@ -173,7 +179,7 @@ def test_hgnc_id_fetching():
         ]
     )
 
-    processed = converter(data)
+    processed = converter(ConverterArgs(data))
 
     assert len(processed) == 3
     assert processed[0]["transcript"] == "NM_000001.1"
@@ -188,7 +194,7 @@ def test_hgnc_id_fetching():
 
 
 def test_refseq_priority():
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
 
     base = [
@@ -219,7 +225,7 @@ def test_refseq_priority():
     # Order shouldn't matter, check all 4!=24 permutations
     for p in permutations(base):
         raw_csq = ",".join(generate_raw_csq(x) for x in p)
-        transcripts = converter(raw_csq)
+        transcripts = converter(ConverterArgs(raw_csq))
         assert len(transcripts) == 2
         assert transcripts[0]["transcript"] == "NM_000001.1"
         assert transcripts[0]["symbol"] == "RefSeq_gff"
@@ -229,7 +235,7 @@ def test_refseq_priority():
     base = [tx_data for tx_data in base if tx_data.get("SYMBOL") != "RefSeq_gff"]
     assert len(base) == 3
     raw_csq = ",".join(generate_raw_csq(x) for x in base)
-    transcripts = converter(raw_csq)
+    transcripts = converter(ConverterArgs(raw_csq))
     assert len(transcripts) == 2
     assert transcripts[0]["transcript"] == "NM_000001.1"
     assert transcripts[0]["symbol"] == "RefSeq_Interim_gff"
@@ -239,7 +245,7 @@ def test_refseq_priority():
     base = [tx_data for tx_data in base if tx_data.get("SYMBOL") != "RefSeq_Interim_gff"]
     assert len(base) == 2
     raw_csq = ",".join(generate_raw_csq(x) for x in base)
-    transcripts = converter(raw_csq)
+    transcripts = converter(ConverterArgs(raw_csq))
     assert len(transcripts) == 2
     assert transcripts[0]["transcript"] == "NM_000001.1"
     assert transcripts[0]["symbol"] == "RefSeq"
@@ -257,10 +263,10 @@ def test_refseq_priority():
     ],
 )
 def test_long_variant_names(hgvsc, hgvsc_short, insertion):
-    converter = VEPConverter(CSQ_META, None)
+    converter = VEPConverter(config=cc.vep(), meta=CSQ_META)
     converter.setup()
     raw_csq = generate_raw_csq({"HGVSc": "NM_000000.1:" + hgvsc, "HGNC_ID": 1})
-    processed = converter(raw_csq)
+    processed = converter(ConverterArgs(raw_csq))
     assert len(processed) == 1
     assert processed[0]["HGVSc"] == hgvsc
     assert processed[0]["HGVSc_short"] == hgvsc_short

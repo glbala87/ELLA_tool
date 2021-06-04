@@ -1,19 +1,35 @@
-import re
-import logging
-import json
 import base64
-from typing import Dict, List, Union
+import json
+import logging
+import re
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Union
 
-from .annotationconverter import AnnotationConverter
+from vardb.deposit.annotationconverters.annotationconverter import (
+    AnnotationConverter,
+    ConverterArgs,
+)
 
 log = logging.getLogger(__name__)
 
-REFTAG: Dict[str, str] = {
-    "APR": "Additional phenotype",
-    "FCR": "Functional characterisation",
-    "MCR": "Molecular characterisation",
-    "SAR": "Additional report",
-}
+
+class RefTag(str, Enum):
+    def __str__(self) -> str:
+        return self.value
+
+    @classmethod
+    def tag_strings(cls) -> List[str]:
+        """ Lists tags as they appear in HGMD, only used in testing """
+        return ["" if rt is RefTag.NA else rt.name for rt in cls]
+
+    NA = "Reftag not specified"
+    APR = "Additional phenotype"
+    FCR = "Functional characterisation"
+    MCR = "Molecular characterisation"
+    SAR = "Additional report"
+    # NOTE: Have also seen ACR in test data, but no definition. How should this be treated?
+
 
 _HGMD_SUBSTITUTE = [
     (re.compile(r"@#EQ"), "="),
@@ -33,20 +49,28 @@ def _translate_hgmd(x: str) -> str:
 
 
 class HGMDPrimaryReportConverter(AnnotationConverter):
-    def __call__(
-        self,
-        value: str,
-        additional_values: Dict[str, str] = None,
-    ) -> List[Dict[str, Union[str, int]]]:
+    config: "Config"
+
+    @dataclass(frozen=True)
+    class Config(AnnotationConverter.Config):
+        pass
+
+    def __call__(self, args: ConverterArgs) -> List[Dict[str, Union[str, int]]]:
+        assert isinstance(
+            args.value, (int, str)
+        ), f"Invalid parameter for HGMDPrimaryReportConverter: {args.value} ({type(args.value)})"
+        assert args.additional_values is not None
         try:
-            pmid = int(value)
+            pmid = int(args.value)
         except ValueError:
-            log.warning("Cannot convert pubmed id from annotation to integer: {}".format(value))
+            log.warning(
+                "Cannot convert pubmed id from annotation to integer: {}".format(args.value)
+            )
             return []
 
         reftag = "Primary literature report"
-        if additional_values and additional_values.get("HGMD__comments"):
-            comments = additional_values["HGMD__comments"]
+        if args.additional_values.get("HGMD__comments"):
+            comments = args.additional_values["HGMD__comments"]
             comments = "No comments." if comments == "None" or not comments else comments
         else:
             comments = "No comments."
@@ -56,6 +80,12 @@ class HGMDPrimaryReportConverter(AnnotationConverter):
 
 
 class HGMDExtraRefsConverter(AnnotationConverter):
+    config: "Config"
+
+    @dataclass(frozen=True)
+    class Config(AnnotationConverter.Config):
+        pass
+
     def setup(self):
         assert (
             self.meta is not None
@@ -64,15 +94,13 @@ class HGMDExtraRefsConverter(AnnotationConverter):
             "|"
         )
 
-    def __call__(
-        self,
-        value: str,
-        additional_values: None = None,
-    ) -> List[Dict[str, Union[str, int]]]:
-
+    def __call__(self, args: ConverterArgs) -> List[Dict[str, Union[str, int]]]:
+        assert isinstance(
+            args.value, str
+        ), f"Invalid parameter for HGMDExtraRefsConverter: {args.value} ({type(args.value)})"
         references: List[Dict[str, Union[str, int]]] = []
 
-        for extraref in value.split(","):
+        for extraref in args.value.split(","):
             er_data = dict(zip(self.extraref_keys, extraref.split("|")))
             try:
                 pmid = int(er_data["pmid"])
@@ -84,12 +112,22 @@ class HGMDExtraRefsConverter(AnnotationConverter):
                 )
                 continue
 
-            reftag = REFTAG.get(er_data.get("reftag", "N/A"), "Reftag not specified")
+            reftag_str = er_data.get("reftag")
+            if reftag_str:
+                try:
+                    reftag = RefTag[reftag_str]
+                except KeyError:
+                    log.warning(f"Got unknown reftag: {reftag_str}, treating like NA")
+                    reftag = RefTag.NA
+            else:
+                # empty string, None
+                reftag = RefTag.NA
+
             comments = er_data.get("comments", "No comments.")
             comments = "No comments." if not comments else comments
 
             # The comment on APR is the disease/phenotype
-            if er_data.get("reftag") == "APR" and comments == "No comments.":
+            if reftag is RefTag.APR and comments == "No comments.":
                 comments = er_data.get("disease", comments)
 
             info_string = f"{reftag}. {_translate_hgmd(comments)}"
@@ -100,12 +138,20 @@ class HGMDExtraRefsConverter(AnnotationConverter):
 
 
 class ClinVarReferencesConverter(AnnotationConverter):
-    def __call__(
-        self,
-        value: str,
-        additional_values: None = None,
-    ) -> List[Dict[str, Union[int, str]]]:
-        clinvarjson = json.loads(base64.b16decode(value).decode(encoding="utf-8", errors="strict"))
+    config: "Config"
+
+    @dataclass(frozen=True)
+    class Config(AnnotationConverter.Config):
+        pass
+
+    def __call__(self, args: ConverterArgs) -> List[Dict[str, Union[int, str]]]:
+        assert isinstance(
+            args.value, (str, bytes)
+        ), f"Invalid parameter for ClinVarReferencesConverter: {args.value} ({type(args.value)})"
+
+        clinvarjson: Dict[str, Any] = json.loads(
+            base64.b16decode(args.value).decode(encoding="utf-8", errors="strict")
+        )
 
         pubmeds: List[str] = clinvarjson.get("pubmeds", [])
         pubmeds += clinvarjson.get("pubmed_ids", [])

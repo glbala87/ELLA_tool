@@ -1,35 +1,47 @@
-from vardb.deposit.annotationconverters.annotationconverter import (
-    AnnotationConverter,
-    Primitives,
-    TYPE_CONVERTERS,
-)
+import logging
+from dataclasses import dataclass
 from typing import Mapping
 
-import logging
+from vardb.deposit.annotationconverters.annotationconverter import (
+    AnnotationConverter,
+    ConverterArgs,
+    Primitives,
+    TypeConverter,
+)
 
 log = logging.getLogger(__name__)
 
 
 class MappingConverter(AnnotationConverter):
-    def __call__(self, value: str, additional_values=None) -> Mapping[str, Primitives]:
-        item_separator: str = self.element_config.get("item_separator", ",")
-        keyvalue_separator: str = self.element_config.get("keyvalue_separator", ":")
-        value_target_type: str = self.element_config.get("target_type", "string")
-        value_target_type_throw: bool = self.element_config.get("target_type_throw", True)
+    config: "Config"
+
+    @dataclass(frozen=True)
+    class Config(AnnotationConverter.Config):
+        item_separator: str = ","
+        keyvalue_separator: str = ":"
+        target_type: str = "string"
+        target_type_throw: bool = True
+
+    def __call__(self, args: ConverterArgs) -> Mapping[str, Primitives]:
+        assert isinstance(
+            args.value, str
+        ), f"Invalid parameter for MappingConverter: {args.value} ({type(args.value)})"
+
         data = {}
-        for kv in value.split(item_separator):
-            k, v = kv.split(keyvalue_separator, 1)
+        converter = TypeConverter[self.config.target_type]
+        for kv in args.value.split(self.config.item_separator):
+            k, v = kv.split(self.config.keyvalue_separator, 1)
             try:
-                v = TYPE_CONVERTERS[value_target_type](v)  # type: ignore
+                data[k] = converter(v)
             except (ValueError, TypeError):
-                if value_target_type_throw:
-                    raise ValueError(
-                        f"Couldn't convert source data {v} ({type(v)}) to target type {value_target_type}"
-                    )
+                err = ValueError(
+                    f"Couldn't convert source data {v} ({type(v)}) to target type {self.config.target_type}"
+                )
+                if self.config.target_type_throw:
+                    raise err
                 else:
                     log.warning(
-                        f"Couldn't convert source data {v} ({type(v)}) to target type {value_target_type}. target_type_throw is configured as False, continuing..."
+                        f"{err}, but target_type_throw is configured as False, continuing..."
                     )
                     continue
-            data[k] = v
         return data

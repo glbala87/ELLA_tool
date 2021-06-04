@@ -1,7 +1,8 @@
 import base64
 import json
 import pytest
-from vardb.deposit.annotationconverters.jsonconverter import JSONConverter
+from conftest import cc
+from vardb.deposit.annotationconverters import ConverterArgs, JSONConverter
 
 
 @pytest.mark.parametrize("encoding", ["base16", "base32", "base64"])
@@ -13,11 +14,10 @@ def test_jsonconverter(encoding):
     }[encoding]
     data_dict = {"a1": {"b1": {"c": [1, 2, 3]}, "b2": {"d": "dabla"}}, "a2": ["foo", "bar", "baz"]}
     data_encoded = encoder(json.dumps(data_dict).encode())
-    element_config = {"encoding": encoding}
-    converter = JSONConverter(None, element_config)
+    element_config = cc.json(encoding=encoding)
+    converter = JSONConverter(config=element_config)
 
-    element_config = {"encoding": encoding}
-    processed = converter(data_encoded)
+    processed = converter(ConverterArgs(data_encoded))
     assert processed == data_dict
 
     subpaths = {
@@ -32,7 +32,7 @@ def test_jsonconverter(encoding):
     }
 
     for subpath, expected_result in subpaths.items():
-        element_config = {"encoding": encoding, "subpath": subpath}
-        converter = JSONConverter(None, element_config)
-        processed = converter(data_encoded)
+        element_config = cc.json(encoding=encoding, subpath=subpath)
+        converter = JSONConverter(config=element_config)
+        processed = converter(ConverterArgs(data_encoded))
         assert processed == expected_result, f"{subpath}"

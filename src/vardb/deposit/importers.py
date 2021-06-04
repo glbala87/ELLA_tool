@@ -8,36 +8,41 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 import base64
-import logging
 import datetime
+import logging
+from collections import defaultdict
+from os.path import commonprefix
 from typing import (
     Any,
     Callable,
+    DefaultDict,
     Dict,
     List,
     Mapping,
-    MutableMapping,
     Optional,
     Sequence,
     Tuple,
     Union,
 )
-import pytz
-from collections import defaultdict
-from sqlalchemy import or_, and_
-from os.path import commonprefix
 
+import pytz
 from api.util.util import dict_merge
-from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
+from sqlalchemy import and_, or_
+from sqlalchemy.orm import scoped_session
+from vardb.datamodel import allele as am
 from vardb.datamodel import annotation as annm
+from vardb.datamodel import assessment
+from vardb.datamodel import genotype as gm
+from vardb.datamodel import sample as sm
+from vardb.datamodel import workflow as wf
 from vardb.datamodel.user import User
+from vardb.deposit.annotation_config import AnnotationImportConfig
+from vardb.deposit.annotationconverters import AnnotationConverters
 from vardb.deposit.annotationconverters.annotationconverter import (
     AnnotationConverter,
     ConverterArgs,
 )
 from vardb.util.vcfiterator import Record
-
-from vardb.deposit.annotationconverters import ANNOTATION_CONVERTERS
 
 log = logging.getLogger(__name__)
 
@@ -213,7 +218,7 @@ def batch_generator(generator, n):
 
 
 def bulk_insert_nonexisting(
-    session,
+    session: scoped_session,
     model,
     rows,
     all_new=False,
@@ -316,7 +321,10 @@ class SampleImporter(object):
     They can have been run on different regions.
     """
 
-    def __init__(self, session):
+    session: scoped_session
+    counter: DefaultDict[str, int]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.counter = defaultdict(int)
 
@@ -479,7 +487,10 @@ class SampleImporter(object):
 
 
 class GenotypeImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.batch_items = list()  # [{'genotype': .., 'genotypesampledata: [...]}]
 
@@ -719,7 +730,11 @@ class GenotypeImporter(object):
 
 
 class AssessmentImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+    counter: DefaultDict[str, int]
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.counter = defaultdict(int)
         self.batch_items = list()
@@ -806,7 +821,13 @@ class AssessmentImporter(object):
 
 
 class AnnotationImporter(object):
-    def __init__(self, session, import_config: Optional[Mapping] = None):
+    annotation_config: annm.AnnotationConfig
+    batch_items: List[Mapping[str, Any]]
+    import_config: List[AnnotationImportConfig]
+    session: scoped_session
+    _converters: Dict[str, List[AnnotationConverter]]
+
+    def __init__(self, session: scoped_session, import_config: Optional[Sequence[Mapping]] = None):
         self.session = session
         self.batch_items: List[Dict] = list()
 
@@ -816,10 +837,12 @@ class AnnotationImporter(object):
             .first()
         )
         if import_config is None:
-            self.import_config = self.annotation_config.deposit
+            self.import_config = [
+                AnnotationImportConfig(**c) for c in self.annotation_config.deposit
+            ]
         else:
-            self.import_config = import_config
-        self._converters: Dict[str, List[AnnotationConverter]] = {}
+            self.import_config = [AnnotationImportConfig(**c) for c in import_config]
+        self._converters = {}
 
     def reset(self) -> None:
         self._converters = {}
@@ -829,17 +852,22 @@ class AnnotationImporter(object):
     ) -> List[AnnotationConverter]:
         if source not in self._converters:
             self._converters[source] = []
-            for converter in self.import_config:
-                for element_config in converter["converter_config"]["elements"]:
+            for converter_config in self.import_config:
+                for element_config in converter_config.converter_config.elements:
                     if element_config["source"] != source:
                         continue
-                    converter_class = AnnotationConverter[converter["name"]]
+                    converter_class = AnnotationConverters[converter_config.name].value
 
-                    converterelement_config = converter_class.ElementConfig(**element_config)
+                    converterelement_config = converter_class.Config(**element_config)
                     meta = next(
                         (x for x in vcf_meta.get("INFO", []) if x.get("ID") == source), None
                     )
-                    converter = ANNOTATION_CONVERTERS[converter["name"]](meta, element_config)
+
+                    converter: AnnotationConverter
+                    if meta:
+                        converter = converter_class(config=converterelement_config, meta=meta)
+                    else:
+                        converter = converter_class(config=converterelement_config)
                     converter.setup()
                     self._converters[source].append(converter)
 
@@ -917,10 +945,8 @@ class AnnotationImporter(object):
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
                 try:
-                    element_config = converter.element_config
-                    additional_sources: Optional[List[str]] = element_config.get(
-                        "additional_sources", []
-                    )
+                    element_config = converter.config
+                    additional_sources = element_config.additional_sources
 
                     converter_args = ConverterArgs(
                         value, {k: record.annotation().get(k) for k in additional_sources}
@@ -934,22 +960,23 @@ class AnnotationImporter(object):
                         )
                         raise
 
-                    target: str = element_config["target"]
-                    target_mode: str = element_config.get("target_mode", "insert")
+                    target = element_config.target
+                    target_mode = element_config.target_mode
                     assert (
                         target_mode in target_mode_funcs
                     ), f"Unknown target mode: {target_mode}. Available target modes are {list(target_mode_funcs.keys())}"
                     target_mode_funcs[target_mode](annotations, target, processed_value)
 
-                except Exception:
+                except Exception as e:
+                    log.exception(e)
                     raise RuntimeError(
                         f"Error when trying to convert source '{source}' with value {value} ({type(value)}), using converter {element_config}"
                     )
 
         for converter_config in self.import_config:
-            for element_config in converter_config["converter_config"]["elements"]:
-                source = element_config["source"]
-                if source not in record.annotation() and element_config.get("required"):
+            for el_config in converter_config.converter_config.elements:
+                source = el_config["source"]
+                if source not in record.annotation() and el_config.get("required"):
                     raise RuntimeError(f"Missing required source field in annotation: {source}")
 
         return annotations
@@ -1033,7 +1060,12 @@ class AnnotationImporter(object):
 
 
 class AlleleImporter(object):
-    def __init__(self, session, ref_genome="GRCh37"):
+    session: scoped_session
+    ref_genome: str
+    counter: DefaultDict[str, int]
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session, ref_genome: str = "GRCh37"):
         self.session = session
         self.ref_genome = ref_genome
         self.counter = defaultdict(int)
@@ -1068,7 +1100,9 @@ class AlleleImporter(object):
 
 
 class AnalysisImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, analysis_name, genepanel, report, warnings, date_requested=None):
@@ -1104,7 +1138,9 @@ class AnalysisImporter(object):
 
 
 class AnalysisInterpretationImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, db_analysis, priority, reopen_if_exists=False):
@@ -1146,7 +1182,9 @@ class AnalysisInterpretationImporter(object):
 
 
 class AlleleInterpretationImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, genepanel, allele_id):
