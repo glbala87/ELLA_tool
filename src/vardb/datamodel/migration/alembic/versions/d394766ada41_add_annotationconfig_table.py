@@ -28,8 +28,8 @@ def upgrade():
     op.create_table(
         "annotationconfig",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("deposit", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
-        sa.Column("view", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("deposit", postgresql.JSON(astext_type=sa.Text()), nullable=False),
+        sa.Column("view", postgresql.JSON(astext_type=sa.Text()), nullable=False),
         sa.Column("date_created", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_annotationconfig")),
     )
@@ -48,7 +48,6 @@ def upgrade():
         ["id"],
     )
 
-    # TODO: Add legacy annotation config, and migrate all annotation to use this
     session = Session(bind=op.get_bind())
     with (Path(__file__).parent.parent / "data/annotation-config-legacy.yml").open() as f:
         annotation_config = yaml.safe_load(f)
