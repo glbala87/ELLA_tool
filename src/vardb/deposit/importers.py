@@ -19,6 +19,7 @@ from typing import (
     Dict,
     List,
     Mapping,
+    MutableMapping,
     MutableSequence,
     Optional,
     Sequence,
@@ -942,7 +943,7 @@ class AnnotationImporter(object):
             "merge": self.merge_at_target,
         }
 
-        annotations: Mapping[str, Any] = {}
+        annotations: MutableMapping[str, Any] = {}
         for source, value in record.annotation().items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
@@ -986,7 +987,9 @@ class AnnotationImporter(object):
         # TODO: Get a generic sorting/diffing to ensure all lists are sorted,
         # or that sorting is not taken into account when comparing json structures
         if "references" in annotations:
-            annotations["references"] = sorted(annotations["references"], key=lambda x: x["pubmed_id"])
+            annotations["references"] = sorted(
+                annotations["references"], key=lambda x: x["pubmed_id"]
+            )
         return annotations
 
     def add(self, record, allele_id):
