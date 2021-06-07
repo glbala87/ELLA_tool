@@ -60,6 +60,8 @@ import { Directive, Inject } from '../../ng-decorators'
                     allele-path="vm.allelePath"
                     source="${box.source}"
                     title="${title}"
+                    url="${box.url}"
+                    url_empty="${box.url_empty}"
                     annotation-config-id="${box.annotationConfigId}"
                     annotation-config-item-idx="${box.annotationConfigItemIdx}"
                     ${attrs}

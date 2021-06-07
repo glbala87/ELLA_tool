@@ -8,6 +8,8 @@ app.component('keyValue', {
     bindings: {
         source: '@',
         title: '@',
+        url: '@',
+        urlEmpty: '@',
         allelePath: '<',
         annotationConfigId: '=',
         annotationConfigItemIdx: '='

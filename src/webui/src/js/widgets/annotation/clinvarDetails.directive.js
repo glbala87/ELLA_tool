@@ -19,6 +19,8 @@ app.component('clinvarDetails', {
     bindings: {
         source: '@',
         title: '@',
+        url: '@',
+        urlEmpty: '@',
         allelePath: '<',
         annotationConfigId: '=',
         annotationConfigItemIdx: '='

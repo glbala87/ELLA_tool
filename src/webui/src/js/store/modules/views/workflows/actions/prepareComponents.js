@@ -205,11 +205,13 @@ function prepareClassificationContent(annotationConfig) {
 
         content[section].push({
             tag: CamelCaseToDash(template),
+            title: vc['title'],
+            source: vc['source'],
+            url: vc['url'],
+            url_empty: vc['url_empty'],
             order: vc['order'],
             annotationConfigId: annotationConfig.id,
-            annotationConfigItemIdx: parseInt(i),
-            title: vc['title'],
-            source: vc['source']
+            annotationConfigItemIdx: parseInt(i)
         })
     }
 
