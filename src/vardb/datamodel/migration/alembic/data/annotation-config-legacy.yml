@@ -503,8 +503,7 @@ view:
       template: frequencyDetails
       source: frequencies.ExAC
       config:
-          url: http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vc
-_ref}-${allele.vcf_alt}
+          url: http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vc_ref}-${allele.vcf_alt}
           key_column: pop
           columns:
               count: COUNT
