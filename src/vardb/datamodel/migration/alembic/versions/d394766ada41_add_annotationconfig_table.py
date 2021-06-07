@@ -19,6 +19,7 @@ from pathlib import Path
 import yaml
 from sqlalchemy.orm.session import Session
 from vardb.deposit.annotation_config import deposit_annotationconfig
+from vardb.datamodel.jsonschemas.update_schemas import update_schemas
 
 
 def upgrade():
@@ -30,7 +31,7 @@ def upgrade():
         sa.Column("date_created", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_annotationconfig")),
     )
-    op.add_column("annotation", sa.Column("annotation_config_id", sa.Integer(), nullable=False))
+    op.add_column("annotation", sa.Column("annotation_config_id", sa.Integer(), nullable=True))
     op.create_index(
         op.f("ix_annotation_annotation_config_id"),
         "annotation",
@@ -53,6 +54,9 @@ def upgrade():
     op.execute("UPDATE annotation SET annotation_config_id=1")
 
     op.alter_column("annotation", "annotation_config_id", nullable=False)
+
+    op.execute("DELETE FROM jsonschema WHERE name='annotation'")
+    update_schemas(session)
 
 
 def downgrade():
