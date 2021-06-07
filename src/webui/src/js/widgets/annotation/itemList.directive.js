@@ -59,6 +59,8 @@ app.component('itemList', {
     bindings: {
         source: '@',
         title: '@',
+        url: '@',
+        urlEmpty: '@',
         allelePath: '<',
         annotationConfigId: '=',
         annotationConfigItemIdx: '='

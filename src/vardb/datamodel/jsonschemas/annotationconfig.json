@@ -101,7 +101,7 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": ["section", "template", "source", "config"],
-                "optional": ["title"],
+                "optional": ["title", "url", "url_empty"],
                 "properties": {
                     "section": {
                         "enum": ["frequency", "prediction", "external"]
@@ -115,12 +115,16 @@
                     "title": {
                         "type": "string"
                     },
+                    "url": {
+                        "type": "string"
+                    },
+                    "url_empty": {
+                        "type": "string"
+                    },
                     "config": {
                         "type": "object",
                         "additionalProperties": false,
                         "optional": [
-                            "url",
-                            "url_empty",
                             "columns",
                             "rows",
                             "warnings",
@@ -132,9 +136,6 @@
                             "scientific_threshold"
                         ],
                         "patternProperties": {
-                            "^url|url_empty|title$": {
-                                "type": "string"
-                            },
                             "^warnings|key_column$": {
                                 "type": "string"
                             },

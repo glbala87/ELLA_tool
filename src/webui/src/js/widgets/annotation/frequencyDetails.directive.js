@@ -8,6 +8,8 @@ app.component('frequencyDetails', {
     bindings: {
         source: '@',
         title: '@',
+        url: '@',
+        urlEmpty: '@',
         allelePath: '<',
         annotationConfigId: '=',
         annotationConfigItemIdx: '='
