@@ -983,6 +983,10 @@ class AnnotationImporter(object):
                 if source not in record.annotation() and el_config.get("required"):
                     raise RuntimeError(f"Missing required source field in annotation: {source}")
 
+        # TODO: Get a generic sorting/diffing to ensure all lists are sorted,
+        # or that sorting is not taken into account when comparing json structures
+        if "references" in annotations:
+            annotations["references"] = sorted(annotations["references"], key=lambda x: x["pubmed_id"])
         return annotations
 
     def add(self, record, allele_id):
@@ -1015,7 +1019,10 @@ class AnnotationImporter(object):
                 and_(
                     *[
                         annm.Annotation.allele_id == item["allele_id"],
-                        annm.Annotation.annotations != item["annotations"],
+                        or_(
+                            annm.Annotation.annotations != item["annotations"],
+                            annm.Annotation.annotation_config_id != item["annotation_config_id"],
+                        ),
                         annm.Annotation.date_superceeded.is_(None),
                     ]
                 )
@@ -1039,7 +1046,7 @@ class AnnotationImporter(object):
             annm.Annotation,
             self.batch_items,
             include_pk="id",
-            compare_keys=["allele_id", "annotations", "date_superceeded"],
+            compare_keys=["allele_id", "annotations", "date_superceeded", "annotation_config_id"],
             replace=False,
             batch_size=len(self.batch_items),  # Insert whole batch
         ):
