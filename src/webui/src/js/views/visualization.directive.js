@@ -11,8 +11,7 @@ const getPresetIds = (tracks) => {
         if (!tracks) {
             return []
         }
-        const r = Object.keys(tracks)
-            .map((k) => tracks[k])
+        const r = Object.values(tracks)
             .flat()
             .map((e) => e.preset)
             .flat()
