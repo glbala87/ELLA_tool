@@ -14,7 +14,7 @@ const _getPresetIds = (tracks) => {
         }
         const r = Object.values(tracks)
             .flat()
-            .map((e) => e.preset)
+            .map((e) => e.config.presets)
             .flat()
             .filter((e) => e !== undefined)
         return [...new Set(r)]
@@ -35,10 +35,10 @@ const _getCurrPresetModel = (tracks) => {
             }
             Object.keys(tracks).forEach((trackCatId) => {
                 tracks[trackCatId].forEach((track, trackIdx) => {
-                    if (track.preset === undefined) {
+                    if (track.config.presets === undefined) {
                         return
                     }
-                    track.preset.forEach((presetId) => {
+                    track.config.presets.forEach((presetId) => {
                         if (!r.hasOwnProperty(presetId)) {
                             r[presetId] = new Set()
                         }
@@ -83,8 +83,9 @@ const _updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) =>
     console.log('_updateTrackSelections')
     Object.keys(tracks).forEach((k) => {
         tracks[k].forEach((track) => {
-            const sel = track.preset !== undefined && track.preset.includes(setectedPresetId)
-            //track.selected = sel
+            const sel =
+                track.config.presets !== undefined &&
+                track.config.presets.includes(setectedPresetId)
             shownTracksChanged({ type: k, id: track.id, show: sel })
         })
     })

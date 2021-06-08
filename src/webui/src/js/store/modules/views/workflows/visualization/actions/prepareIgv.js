@@ -25,9 +25,9 @@ export default async function prepareIgv({ state, http }) {
                     indexed: false,
                     displayMode: 'EXPANDED',
                     order: 10,
-                    height: 60
-                },
-                preset: ['Test 1', 'Test 2']
+                    height: 60,
+                    presets: ['Test 1', 'Test 2']
+                }
             },
             {
                 id: 'classifications',
@@ -38,9 +38,9 @@ export default async function prepareIgv({ state, http }) {
                     format: 'bed',
                     indexed: false,
                     order: 11,
-                    visibilityWindow: Number.MAX_VALUE
-                },
-                preset: ['Test 1', 'Test 3']
+                    visibilityWindow: Number.MAX_VALUE,
+                    presets: ['Test 1', 'Test 3']
+                }
             }
         ],
         user: [],
@@ -56,9 +56,9 @@ export default async function prepareIgv({ state, http }) {
                     format: 'vcf',
                     indexed: false,
                     order: 12,
-                    visibilityWindow: Number.MAX_VALUE
-                },
-                preset: ['Test 3']
+                    visibilityWindow: Number.MAX_VALUE,
+                    presets: ['Test 3']
+                }
             }
         ]
     }
