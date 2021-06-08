@@ -6,7 +6,8 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
-const getPresetIds = (tracks) => {
+// array of unique preset ids
+const _getPresetIds = (tracks) => {
     return Compute(tracks, (tracks) => {
         if (!tracks) {
             return []
@@ -21,65 +22,70 @@ const getPresetIds = (tracks) => {
 }
 
 const _getCurrPresetModel = (tracks) => {
-    console.log(`_getCurrPresetModel`)
-    const _getTrackId = (categoryId, trackIdx) => {
-        return `${categoryId}_${trackIdx}`
-    }
-    const _getPresetTracks = () => {
-        const r = {}
-        if (!tracks) {
-            return r
+    return Compute(tracks, (tracks) => {
+        console.log(`_getCurrPresetModel`)
+        const _getTrackId = (categoryId, trackIdx) => {
+            return `${categoryId}_${trackIdx}`
         }
-        Object.keys(tracks).forEach((trackCatId) => {
-            tracks[trackCatId].forEach((track, trackIdx) => {
-                if (track.preset === undefined) {
-                    return
-                }
-                track.preset.forEach((presetId) => {
-                    if (!r.hasOwnProperty(presetId)) {
-                        r[presetId] = new Set()
+        // object: preset_ID -> Set[track_ID_1, track_ID_2, ... ]
+        const _getPresetTracks = () => {
+            const r = {}
+            if (!tracks) {
+                return r
+            }
+            Object.keys(tracks).forEach((trackCatId) => {
+                tracks[trackCatId].forEach((track, trackIdx) => {
+                    if (track.preset === undefined) {
+                        return
                     }
-                    r[presetId].add(_getTrackId(trackCatId, trackIdx))
+                    track.preset.forEach((presetId) => {
+                        if (!r.hasOwnProperty(presetId)) {
+                            r[presetId] = new Set()
+                        }
+                        r[presetId].add(_getTrackId(trackCatId, trackIdx))
+                    })
                 })
             })
-        })
-        return r
-    }
-    const _getSelectedTracks = () => {
-        const r = new Set()
-        if (!tracks) {
             return r
         }
-        Object.keys(tracks).forEach((trackCatId) => {
-            tracks[trackCatId].forEach((track, trackIdx) => {
-                if (track.selected) {
-                    r.add(_getTrackId(trackCatId, trackIdx))
-                }
+        // set of track IDs: Set[track_ID_1, track_ID_2, ... ]
+        const _getSelectedTracks = () => {
+            const r = new Set()
+            if (!tracks) {
+                return r
+            }
+            Object.keys(tracks).forEach((trackCatId) => {
+                tracks[trackCatId].forEach((track, trackIdx) => {
+                    if (track.selected) {
+                        r.add(_getTrackId(trackCatId, trackIdx))
+                    }
+                })
             })
-        })
-        return r
-    }
-    const _equalSet = (a, b) => a.size === b.size && [...a].every((value) => b.has(value))
-    const presetTracks = _getPresetTracks()
-    const currTrackSelection = _getSelectedTracks()
-    console.log(currTrackSelection)
-    for (let presetId of Object.keys(presetTracks)) {
-        if (_equalSet(currTrackSelection, presetTracks[presetId])) {
-            console.log(`_getCurrPresetModel selected: ${presetId}`)
-            return presetId
+            return r
         }
-    }
-    // no preset selected
-    console.log(`_getCurrPresetModel selected: ${null}`)
-    return null
+        const _equalSet = (a, b) => a.size === b.size && [...a].every((value) => b.has(value))
+        const presetTracks = _getPresetTracks()
+        const currTrackSelection = _getSelectedTracks()
+        console.log(currTrackSelection)
+        for (let presetId of Object.keys(presetTracks)) {
+            if (_equalSet(currTrackSelection, presetTracks[presetId])) {
+                console.log(`_getCurrPresetModel selected: ${presetId}`)
+                return presetId
+            }
+        }
+        // no preset selected
+        console.log(`_getCurrPresetModel selected: ${null}`)
+        return null
+    })
 }
 
-const _updateTrackSelections = (tracks, setectedPresetId) => {
+const _updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) => {
     console.log('_updateTrackSelections')
     Object.keys(tracks).forEach((k) => {
         tracks[k].forEach((track) => {
             const sel = track.preset !== undefined && track.preset.includes(setectedPresetId)
-            track.selected = sel
+            //track.selected = sel
+            shownTracksChanged({ type: k, id: track.id, show: sel })
         })
     })
 }
@@ -92,7 +98,8 @@ app.component('visualization', {
             igvTracks: state`views.workflows.visualization.igv.tracks`,
             igvReference: state`views.workflows.visualization.igv.reference`,
             tracks: state`views.workflows.visualization.tracks`,
-            presetIds: getPresetIds(state`views.workflows.visualization.tracks`),
+            presetIds: _getPresetIds(state`views.workflows.visualization.tracks`),
+            presetModel: _getCurrPresetModel(state`views.workflows.visualization.tracks`),
             shownTracksChanged: signal`views.workflows.visualization.igvTrackViewChanged`
         },
         'Visualization',
@@ -101,19 +108,19 @@ app.component('visualization', {
             ($scope) => {
                 const $ctrl = $scope.$ctrl
 
-                let _model = null
-
                 Object.assign($ctrl, {
                     activePresetId: function(newPresetId) {
-                        console.log(`activePresetId ${arguments.length}`)
+                        console.log(
+                            `activePresetId args=${arguments.length} ctrl.presetModel=${$ctrl.presetModel}`
+                        )
                         if (arguments.length) {
-                            _model = newPresetId
-                            _updateTrackSelections($ctrl.tracks, newPresetId)
-                        } else {
-                            _model = _getCurrPresetModel($ctrl.tracks)
+                            _updateTrackSelections(
+                                $ctrl.tracks,
+                                newPresetId,
+                                $ctrl.shownTracksChanged
+                            )
                         }
-                        console.log(`activePresetId ${_model}`)
-                        return _model
+                        return $ctrl.presetModel
                     }
                 })
             }
