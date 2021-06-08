@@ -2,6 +2,19 @@
     <sectionbox>
         <maintitle>Track selection</maintitle>
         <contentwrapper>
+            <h4 class="section-title">Presets</h4>
+            <div class="bttn-set">
+                <label
+                    tabindex="0"
+                    class="bttn"
+                    uib-btn-radio="presetId"
+                    ng-repeat="presetId in $ctrl.presetIds"
+                    ng-model="$ctrl.activePresetId"
+                    ng-model-options="{ getterSetter: true }"
+                    >{{ presetId }}</label
+                >
+            </div>
+            
             <h4 class="section-title">Global tracks</h4>
             <div class="bttn-set">
                 <label
