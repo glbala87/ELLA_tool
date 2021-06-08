@@ -73,5 +73,16 @@ export default async function prepareIgv({ state, http }) {
         }
         tracks[category].sort(thenBy((t) => t.config.order || 99999))
     }
+    Object.values(tracks).forEach((trackCategory) => {
+        trackCategory.forEach((track) => {
+            if (track.selected) {
+                const presetIdDefault = 'Default'
+                track.config.presets =
+                    track.config.presets !== undefined
+                        ? [presetIdDefault, ...track.config.presets]
+                        : [presetIdDefault]
+            }
+        })
+    })
     state.set('views.workflows.visualization.tracks', tracks)
 }
