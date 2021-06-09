@@ -6,50 +6,42 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
+const _getTrackId = (categoryId, trackIdx) => {
+    // stich track index to track category ID
+    return `${categoryId}_${trackIdx}`
+}
+
+// object: preset_ID -> Set[track_ID_1, track_ID_2, ... ]
+const _getPresetTracks = (tracks) => {
+    const r = {}
+    if (!tracks) {
+        return r
+    }
+    Object.keys(tracks).forEach((trackCatId) => {
+        tracks[trackCatId].forEach((track, trackIdx) => {
+            if (track.config.presets === undefined) {
+                return
+            }
+            track.config.presets.forEach((presetId) => {
+                if (!r.hasOwnProperty(presetId)) {
+                    r[presetId] = new Set()
+                }
+                r[presetId].add(_getTrackId(trackCatId, trackIdx))
+            })
+        })
+    })
+    return r
+}
+
 // array of unique preset ids
 const _getPresetIds = (tracks) => {
-    return Compute(tracks, (tracks) => {
-        if (!tracks) {
-            return []
-        }
-        const r = Object.values(tracks)
-            .flat()
-            .map((e) => e.config.presets)
-            .flat()
-            .filter((e) => e !== undefined)
-        return [...new Set(r)]
-    })
+    return Compute(tracks, (tracks) => Object.keys(_getPresetTracks(tracks)))
 }
 
 const _getCurrPresetModel = (tracks) => {
     return Compute(tracks, (tracks) => {
-        console.log(`_getCurrPresetModel`)
-        const _getTrackId = (categoryId, trackIdx) => {
-            return `${categoryId}_${trackIdx}`
-        }
-        // object: preset_ID -> Set[track_ID_1, track_ID_2, ... ]
-        const _getPresetTracks = () => {
-            const r = {}
-            if (!tracks) {
-                return r
-            }
-            Object.keys(tracks).forEach((trackCatId) => {
-                tracks[trackCatId].forEach((track, trackIdx) => {
-                    if (track.config.presets === undefined) {
-                        return
-                    }
-                    track.config.presets.forEach((presetId) => {
-                        if (!r.hasOwnProperty(presetId)) {
-                            r[presetId] = new Set()
-                        }
-                        r[presetId].add(_getTrackId(trackCatId, trackIdx))
-                    })
-                })
-            })
-            return r
-        }
         // set of track IDs: Set[track_ID_1, track_ID_2, ... ]
-        const _getSelectedTracks = () => {
+        const _getSelectedTracks = (tracks) => {
             const r = new Set()
             if (!tracks) {
                 return r
@@ -64,23 +56,19 @@ const _getCurrPresetModel = (tracks) => {
             return r
         }
         const _equalSet = (a, b) => a.size === b.size && [...a].every((value) => b.has(value))
-        const presetTracks = _getPresetTracks()
-        const currTrackSelection = _getSelectedTracks()
-        console.log(currTrackSelection)
+        const presetTracks = _getPresetTracks(tracks)
+        const currTrackSelection = _getSelectedTracks(tracks)
         for (let presetId of Object.keys(presetTracks)) {
             if (_equalSet(currTrackSelection, presetTracks[presetId])) {
-                console.log(`_getCurrPresetModel selected: ${presetId}`)
                 return presetId
             }
         }
         // no preset selected
-        console.log(`_getCurrPresetModel selected: ${null}`)
         return null
     })
 }
 
 const _updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) => {
-    console.log('_updateTrackSelections')
     Object.keys(tracks).forEach((k) => {
         tracks[k].forEach((track) => {
             const sel =
@@ -111,9 +99,6 @@ app.component('visualization', {
 
                 Object.assign($ctrl, {
                     activePresetId: function(newPresetId) {
-                        console.log(
-                            `activePresetId args=${arguments.length} ctrl.presetModel=${$ctrl.presetModel}`
-                        )
                         if (arguments.length) {
                             _updateTrackSelections(
                                 $ctrl.tracks,
