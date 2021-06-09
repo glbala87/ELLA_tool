@@ -6,6 +6,41 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
+app.component('visualization', {
+    templateUrl: 'visualization.ngtmpl.html',
+    controller: connect(
+        {
+            igvLocus: state`views.workflows.visualization.igv.locus`,
+            igvTracks: state`views.workflows.visualization.igv.tracks`,
+            igvReference: state`views.workflows.visualization.igv.reference`,
+            tracks: state`views.workflows.visualization.tracks`,
+            presetIds: _getPresetIds(state`views.workflows.visualization.tracks`),
+            presetModel: _getCurrPresetModel(state`views.workflows.visualization.tracks`),
+            shownTracksChanged: signal`views.workflows.visualization.igvTrackViewChanged`
+        },
+        'Visualization',
+        [
+            '$scope',
+            ($scope) => {
+                const $ctrl = $scope.$ctrl
+
+                Object.assign($ctrl, {
+                    activePresetId: function(newPresetId) {
+                        if (arguments.length) {
+                            _updateTrackSelections(
+                                $ctrl.tracks,
+                                newPresetId,
+                                $ctrl.shownTracksChanged
+                            )
+                        }
+                        return $ctrl.presetModel
+                    }
+                })
+            }
+        ]
+    )
+})
+
 const _getTrackId = (categoryId, trackIdx) => {
     // stich track index to track category ID
     return `${categoryId}_${trackIdx}`
@@ -78,38 +113,3 @@ const _updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) =>
         })
     })
 }
-
-app.component('visualization', {
-    templateUrl: 'visualization.ngtmpl.html',
-    controller: connect(
-        {
-            igvLocus: state`views.workflows.visualization.igv.locus`,
-            igvTracks: state`views.workflows.visualization.igv.tracks`,
-            igvReference: state`views.workflows.visualization.igv.reference`,
-            tracks: state`views.workflows.visualization.tracks`,
-            presetIds: _getPresetIds(state`views.workflows.visualization.tracks`),
-            presetModel: _getCurrPresetModel(state`views.workflows.visualization.tracks`),
-            shownTracksChanged: signal`views.workflows.visualization.igvTrackViewChanged`
-        },
-        'Visualization',
-        [
-            '$scope',
-            ($scope) => {
-                const $ctrl = $scope.$ctrl
-
-                Object.assign($ctrl, {
-                    activePresetId: function(newPresetId) {
-                        if (arguments.length) {
-                            _updateTrackSelections(
-                                $ctrl.tracks,
-                                newPresetId,
-                                $ctrl.shownTracksChanged
-                            )
-                        }
-                        return $ctrl.presetModel
-                    }
-                })
-            }
-        ]
-    )
-})
