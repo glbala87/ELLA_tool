@@ -75,12 +75,14 @@ const getCurrPresetModel = (tracks) => {
 }
 
 const updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) => {
+    const tracksToUpdate = []
     Object.keys(tracks).forEach((k) => {
         tracks[k].forEach((track) => {
             const sel = track.presets !== undefined && track.presets.includes(setectedPresetId)
-            shownTracksChanged({ type: k, id: track.id, show: sel })
+            tracksToUpdate.push({ type: k, id: track.id, show: sel })
         })
     })
+    shownTracksChanged({ tracksToUpdate })
 }
 
 app.component('visualization', {
