@@ -8,7 +8,13 @@ import template from './visualization.ngtmpl.html' // eslint-disable-line no-unu
 
 // array of unique preset ids
 const _getPresetIds = (tracks) => {
-    return Compute(tracks, (tracks) => Object.keys(_getPresetTracks(tracks)))
+    // sort default element to the front
+    return Compute(tracks, (tracks) =>
+        Object.keys(_getPresetTracks(tracks)).reduce(
+            (acc, e) => (e == 'Default' ? [e, ...acc] : [...acc, e]),
+            []
+        )
+    )
 }
 
 const _getCurrPresetModel = (tracks) => {
@@ -89,10 +95,10 @@ const _getPresetTracks = (tracks) => {
     }
     Object.keys(tracks).forEach((trackCatId) => {
         tracks[trackCatId].forEach((track, trackIdx) => {
-            if (track.config.presets === undefined) {
+            if (track.presets === undefined) {
                 return
             }
-            track.config.presets.forEach((presetId) => {
+            track.presets.forEach((presetId) => {
                 if (!r.hasOwnProperty(presetId)) {
                     r[presetId] = new Set()
                 }
@@ -106,9 +112,7 @@ const _getPresetTracks = (tracks) => {
 const _updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) => {
     Object.keys(tracks).forEach((k) => {
         tracks[k].forEach((track) => {
-            const sel =
-                track.config.presets !== undefined &&
-                track.config.presets.includes(setectedPresetId)
+            const sel = track.presets !== undefined && track.presets.includes(setectedPresetId)
             shownTracksChanged({ type: k, id: track.id, show: sel })
         })
     })
