@@ -1,6 +1,6 @@
 import { deepCopy } from '../../../../../../util'
 
-export default function showHideTrack({ state, props }) {
+export default function showHideTracks({ state, props }) {
     const { tracksToUpdate } = props
     if (!tracksToUpdate || tracksToUpdate.length == 0) {
         return
