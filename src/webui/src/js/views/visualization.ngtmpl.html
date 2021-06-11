@@ -7,10 +7,10 @@
                 <label
                     tabindex="0"
                     class="bttn"
-                    uib-btn-radio="presetId"
+                    uib-btn-checkbox="presetId"
                     ng-repeat="presetId in $ctrl.presetIds"
-                    ng-model="$ctrl.activePresetId"
-                    ng-model-options="{ getterSetter: true }"
+                    ng-model="$ctrl.presetModel[presetId]"
+                    ng-change="$ctrl.togglePreset(presetId)"
                     >{{ presetId }}</label
                 >
             </div>

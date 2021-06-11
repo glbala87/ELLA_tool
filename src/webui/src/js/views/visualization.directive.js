@@ -61,28 +61,17 @@ const getCurrPresetModel = (tracks) => {
             })
             return r
         }
-        const _equalSet = (a, b) => a.size === b.size && [...a].every((value) => b.has(value))
+        const _setContains = (a, b) => a.size >= b.size && [...b].every((value) => a.has(value))
         const presetTracks = getPresetTracks(tracks)
         const currTrackSelection = _getSelectedTracks(tracks)
+        // init model
+        const presetModel = {}
+        // set status
         for (let presetId of Object.keys(presetTracks)) {
-            if (_equalSet(currTrackSelection, presetTracks[presetId])) {
-                return presetId
-            }
+            presetModel[presetId] = _setContains(currTrackSelection, presetTracks[presetId])
         }
-        // no preset selected
-        return null
+        return presetModel
     })
-}
-
-const updateTrackSelections = (tracks, setectedPresetId, shownTracksChanged) => {
-    const tracksToUpdate = []
-    Object.keys(tracks).forEach((k) => {
-        tracks[k].forEach((track) => {
-            const sel = track.presets !== undefined && track.presets.includes(setectedPresetId)
-            tracksToUpdate.push({ type: k, id: track.id, show: sel })
-        })
-    })
-    shownTracksChanged({ tracksToUpdate })
 }
 
 app.component('visualization', {
@@ -104,15 +93,42 @@ app.component('visualization', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    activePresetId: function(newPresetId) {
-                        if (arguments.length) {
-                            updateTrackSelections(
-                                $ctrl.tracks,
-                                newPresetId,
-                                $ctrl.shownTracksChanged
-                            )
-                        }
-                        return $ctrl.presetModel
+                    togglePreset: function(presetId) {
+                        const show = $ctrl.presetModel[presetId] // no need to negate, model is already changed
+                        const tracksToUpdate = []
+                        const _equalSet = (a, b) =>
+                            a.size === b.size && [...a].every((value) => b.has(value))
+                        Object.keys($ctrl.tracks).forEach((trackCategory) => {
+                            $ctrl.tracks[trackCategory].forEach((track, trackIdx) => {
+                                if (track.presets === undefined) {
+                                    return
+                                }
+                                if (!track.presets.includes(presetId)) {
+                                    return
+                                }
+                                if (show) {
+                                    // activate track
+                                    tracksToUpdate.push({
+                                        type: trackCategory,
+                                        id: track.id,
+                                        show: true
+                                    })
+                                } else {
+                                    // only deactivate if not referenced anymore
+                                    const associatedActivePresets = track.presets.filter(
+                                        (e) => $ctrl.presetModel[e]
+                                    )
+                                    if (associatedActivePresets.length == 0) {
+                                        tracksToUpdate.push({
+                                            type: trackCategory,
+                                            id: track.id,
+                                            show: false
+                                        })
+                                    }
+                                }
+                            })
+                        })
+                        $ctrl.shownTracksChanged({ tracksToUpdate })
                     }
                 })
             }
