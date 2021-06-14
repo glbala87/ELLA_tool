@@ -1,3 +1,4 @@
+from functools import lru_cache, wraps
 import os
 import mimetypes
 import json
@@ -13,7 +14,7 @@ from api.config import config
 from vardb.datamodel import sample, gene, allele, assessment, user as user_model
 
 from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, logger
+from api.util.util import authenticate, logger, lru_cache_ttl
 from datalayer import AlleleDataLoader
 
 log = logging.getLogger()
@@ -308,6 +309,7 @@ class AnalysisVariantTrack(LogRequestResource):
 
 
 def _search_path_for_tracks(tracks_path, url_func):
+    print(tracks_path, url_func)
 
     index_extensions = [".fai", ".idx", ".index", ".bai", ".tbi", ".crai"]
 
@@ -396,6 +398,7 @@ def _get_analysis_tracks_path(analysis_name):
     return None
 
 
+@lru_cache_ttl(max_age=3600, maxsize=300)
 def get_global_tracks():
     global_tracks_path = _get_global_tracks_path()
     if not global_tracks_path:
@@ -407,17 +410,19 @@ def get_global_tracks():
     return _search_path_for_tracks(global_tracks_path, url_func)
 
 
-def get_user_tracks(user):
-    user_tracks_path = _get_usergroup_tracks_path(user.group.name)
+@lru_cache_ttl(max_age=3600, maxsize=300)
+def get_usergroup_tracks(group_id, groupname):
+    user_tracks_path = _get_usergroup_tracks_path(groupname)
     if not user_tracks_path:
         return []
 
     def url_func(name):
-        return "/api/v1/igv/tracks/usergroups/{}/{}".format(user.group.id, name)
+        return "/api/v1/igv/tracks/usergroups/{}/{}".format(group_id, name)
 
     return _search_path_for_tracks(user_tracks_path, url_func)
 
 
+@lru_cache_ttl(max_age=3600, maxsize=300)
 def get_analysis_tracks(analysis_id, analysis_name):
     analysis_tracks_path = _get_analysis_tracks_path(analysis_name)
     if not analysis_tracks_path:
@@ -451,13 +456,17 @@ class IgvResource(LogRequestResource):
 class AnalysisTrackList(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
+        print(os.getpid())
+        print(get_global_tracks.cache_info())
+        print(get_usergroup_tracks.cache_info())
+        print(get_analysis_tracks.cache_info())
         analysis_name = (
             session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).scalar()
         )
 
         result = {
             "global": get_global_tracks(),
-            "user": get_user_tracks(user),
+            "user": get_usergroup_tracks(user.group.id, user.group.name),
             "analysis": get_analysis_tracks(analysis_id, analysis_name),
         }
         return result

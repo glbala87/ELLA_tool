@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import wraps, lru_cache
 import os
 import json
 import datetime
@@ -466,3 +466,32 @@ def get_nested(dct, keys, default=None):
         if not isinstance(dct, dict):
             return default
     return default
+
+
+def lru_cache_ttl(*lru_cache_args, max_age=3600, **lru_cache_kwargs):
+    """Least-recently-used cache decorator with time-based cache invalidation.
+
+    Extension of `functools.lru_cache`
+
+    Args:
+        max_age: Time to live for cached results (in seconds, default 1 hour)
+        lru_cache_args: Args passed to lru_cache.
+        lru_cache_kwargs: kwargs passed to lru_cache.
+    """
+
+    def _decorator(func):
+        @lru_cache(*lru_cache_args, **lru_cache_kwargs)
+        def _new(*args, __time_salt, **kwargs):
+            return func(*args, **kwargs)
+
+        func.cache_info = _new.cache_info
+        func.cache_clear = _new.cache_clear
+
+        @wraps(func)
+        def _wrapped(*args, **kwargs):
+
+            return _new(*args, **kwargs, __time_salt=int(time.monotonic() / max_age))
+
+        return _wrapped
+
+    return _decorator
