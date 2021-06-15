@@ -113,7 +113,7 @@ The `classification` filter filters out or rescues alleles that have an existing
 Option | Key | Description
 :--|:--|:--
 Classes | `classes` | List classifications to consider. Must be a subset of the available classes in ELLA.
-Exclude outdated | `exclude_outdated` | Optionally disregard variant classifications if they are past the corresponding validity period defined in the [ELLA config](/technical/acmg.html#classification) (`True`/`False` (default)).
+Exclude outdated | `exclude_outdated` | Optionally disregard variant classifications if they are past the corresponding validity period defined in the [ELLA config](/technical/acmg.html#classification) (`true`/`false` (default)).
 
 ##### Example
 
@@ -124,7 +124,7 @@ This configuration will filter out alleles previously classified as class 1 or 2
     "name": "classification",
     "config": {
         "classes": ["1", "2"], 
-        "exclude_outdated": True
+        "exclude_outdated": true
     }
 }
 ```
@@ -138,7 +138,7 @@ The `consequence` filter filters out or rescues alleles that are annotated with 
 Option | Key | Description
 :--|:--|:--
 Consequences | `consequences` | List consequences to use. Must be a subset of the available [VEP consequences](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
-Gene panel only | `genepanel_only` | Specify if only consequences in genes within the current gene panel should be included (`True`/`False`)
+Gene panel only | `genepanel_only` | Specify if only consequences in genes within the current gene panel should be included (`true`/`false`)
 
 ::: tip TIP
 Since any given variant can be annotated with many different consequences, this is typically also used as a filter exception _on itself_. This is done to avoid filtering out variants that are e.g. `synonymous_variant` in one transcript, but `stop_gained` in another.
@@ -169,10 +169,10 @@ Source | Option | Key | Description
 *ClinVar*||`clinvar`|
 ||Number of stars | `num_stars` | Specify a comparison operator (>/</=) and a number (1-4) corresponding to [number of stars in ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/docs/details/#review_status).
 ||Combinations | `combinations` | Specify combinations of criteria to compare. Given as source, operator and target.
-||Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (`True`/`False` (default)).
+||Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (`true`/`false` (default)).
 *HGMD*||`hgmd`|
 ||Tags | `tags` || List HGMD variant tags to use (one or more of `DM`/`DM?`/`FTV`/`DP`/`DFP`/`FP`).
-||Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (`True`/`False` (default)).
+||Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (`true`/`false` (default)).
 
 ::: tip TIP
 If you only want to use one of the databases, just omit the other key (`hgmd` or `clinvar`).
@@ -193,11 +193,11 @@ This configuration is useful for exceptions, and will rescue alleles where _each
         "clinvar": {
             "num_stars": [">=", 2],
             "combinations": [["pathogenic", ">", "benign"]],
-            "inverse" False,
+            "inverse" false,
         },
         "hgmd": {
             "tags": ["DM", "DM?"],
-            "inverse" False,
+            "inverse" false,
         }
     }
 }
@@ -283,7 +283,7 @@ Genes | `genes` | List of HGNC IDs to apply filter to.
 Filter mode | `mode` | Either: 
 || `all` | (default) Variant must be annotated with genes specified in `genes` *only*. This is useful for filtering out variants.
 || `one` | Variant must be annotated with _at least_ one gene from `genes` (but could be annotated with other genes). This is useful for exceptions.
-Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (default `False`)
+Inverse | `inverse` | Apply to alleles **NOT** fulfilling the given criteria (default `false`)
 
 ##### Examples
 
@@ -307,7 +307,7 @@ This configuration will filter out all variants _not_ annotated with either *BRC
     "config": {
       "genes": [1100, 1101],
       "mode": "one",
-      "inverse": True,
+      "inverse": true,
    }
 }
 ```
@@ -386,8 +386,8 @@ Option | Key | Description
 :--|:--|:--
 Filter status | `filter_status` | Filter based on values in the VCF `FILTER` field.
 ||`pattern` | Regex pattern to look for (e.g. `PASS`, `.*VQSRTranche.*`). 
-||`filter_empty` | Filter out if value is empty (`True`/`False` (default)).
-||`inverse` | Apply to alleles **NOT** fulfilling the given criteria (`True`/`False` (default)).
+||`filter_empty` | Filter out if value is empty (`true`/`false` (default)).
+||`inverse` | Apply to alleles **NOT** fulfilling the given criteria (`true`/`false` (default)).
 Quality | `qual` | Set threshold value (integer) for the VCF `QUAL` field, below which a variant should be filtered.
 Allele ratio | `allele_ratio` | Set threshold value (0-1), below which a variant should be filtered.
 
@@ -409,7 +409,7 @@ This configuration will filter out any variant with `QUAL` <100 AND allele ratio
         "allele_ratio": 0.25,
         "filter_status" : {
             "pattern": "PASS",
-            "inverse": True,
+            "inverse": true,
         }
     }
 }
@@ -423,7 +423,7 @@ This configuration will filter out any variant that has empty `FILTER` status or
     "config": {
         "filter_status" : {
             "pattern": ".*VQSRTranche.*",
-            "filter_empty": True,
+            "filter_empty": true,
         }
     }
 }
@@ -481,7 +481,7 @@ The `segregation` filter requires family data, and presents powerful options to 
 
 #### Configuration
 
-This filter works in reverse and considers criteria in an `OR` fashion, i.e. variants where conditions for *any* of the enabled (`True`) options are met will *not* be filtered. See the links in the table for further explanation. 
+This filter works in reverse and considers criteria in an `OR` fashion, i.e. variants where conditions for *any* of the enabled (`true`) options are met will *not* be filtered. See the links in the table for further explanation. 
 
 Option | Key | Description
 :--|:--|:--
