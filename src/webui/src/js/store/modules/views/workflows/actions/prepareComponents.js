@@ -50,12 +50,12 @@ const BASE_SECTIONS = {
         content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
     },
     similar: {
-        title: 'Similar variants',
+        title: 'Region',
         color: 'purple',
         alleleAssessmentReusedColor: 'green',
         content: [{ tag: 'allele-info-similar-alleles' }],
         alleleassessmentComment: {
-            placeholder: 'SIMILAR-VARIANTS-COMMENTS',
+            placeholder: 'REGION-COMMENTS',
             name: 'similar'
         }
     },
