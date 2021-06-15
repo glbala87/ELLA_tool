@@ -18,19 +18,43 @@ Release date: TBD
 
 ### Highlights
 
+The most significant change in this release is the addition of support for configurable annotation. In addition, several improvements have been made in the UI in prepration for CNV support. 
+
 #### Support for configurable annotation
-<!-- Relevant MRs: !405 and !532 -->
-TODO
+<!-- Relevant MRs: !405, !522 and !532 -->
+Adding new kinds of variant annotation in ELLA and its associated annotation service anno has up until now required changes to the source code, and has been a major limitation in the software. Starting with this release, however, new annotation can be added with a few changes to configuration. This allows much more flexibility and ease when adding new variant annotation resources. See the technical docs for more information on how to use the new configuration.
+
+TODO: Update technical docs
+
+#### Changes in UI: New REGION section and improved track selection
+<!-- Relevant MRs: !520, !531, !535 -->
+In preparation for adding CNV support in ELLA, an extra section has been added on the CLASSIFICATION page, and tracks management on the VISUAL page has been improved. 
+
+The new section is termed REGION and currently shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
+
+<div class="figure_text">
+    <img src="./img/1-14-nearby-variants.png"><br>
+    <p><strong>Figure: </strong>New section with nearby classified variants.</p>
+</div> 
+
+In addition, the track selection section on top of the VISUAL page is now collapsible and have the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
+
+TODO: Screenshot
+TODO: Update technical docs
 
 ### :small_red_triangle: Breaking changes
 
 ### All changes
-<!-- MR !405, !532 -->
+<!-- MR !405, !522, !532 -->
 - Added support for configurable annotation.
-<!-- MR !520-->
+<!-- MR !520 -->
 - Made track selection section in VISUAL collapsible.
-<!-- MR !525-->
+<!-- MR !525 -->
 - Added support for `bigWig` and `cram` track file formats in VISUAL.
+<!-- MR !531 -->
+- Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments. 
+<!-- MR !535 -->
+- Added support for track selection presets in VISUAL.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs

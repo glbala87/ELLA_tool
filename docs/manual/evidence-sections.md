@@ -70,6 +70,11 @@ In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFI
 Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalization of the analysis.
 :::
 
+
+## Region
+
+This section displays other, previously classified variants within a predefined, genomic distance from the selected variant. Click on the link to open the other variant evaluation in a new tab. 
+
 ## Frequency
 
 This section displays population frequencies reported in external or internal datasets (if any). Note that variants with a population frequency exceeding the threshold for ACMG criterion BA1 have already been [filtered out](/manual/top-bar.html#excluded-variants).
