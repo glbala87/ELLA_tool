@@ -59,25 +59,33 @@ import { Directive, Inject } from '../ng-decorators'
                 }
             )
 
+            let loadTrackPromises = []
             // Watch changes to shown tracks
             scope.$watchCollection('tracks', () => {
-                // IGV has two internal tracks with empty string as track names
-                // These should be left alone...
-                const currentTrackNames = browser.trackViews
-                    .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
-                    .map((tv) => tv.track.name)
-                const removedNames = currentTrackNames.filter(
-                    (name) => !scope.tracks.find((t) => t.name === name)
-                )
-                const toAddTracks = scope.tracks.filter((t) => !currentTrackNames.includes(t.name))
+                // wait for tracks to be loaded
+                Promise.all(loadTrackPromises).then(() => {
+                    // IGV has two internal tracks with empty string as track names
+                    // These should be left alone...
+                    loadTrackPromises = []
+                    const currentTrackNames = browser.trackViews
+                        .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
+                        .map((tv) => tv.track.name)
+                    const removedNames = currentTrackNames.filter(
+                        (name) => !scope.tracks.find((t) => t.name === name)
+                    )
+                    const toAddTracks = scope.tracks.filter(
+                        (t) => !currentTrackNames.includes(t.name)
+                    )
 
-                for (const name of removedNames) {
-                    browser.removeTrackByName(name)
-                }
+                    for (const name of removedNames) {
+                        browser.removeTrackByName(name)
+                    }
 
-                for (const track of toAddTracks) {
-                    browser.loadTrack(track)
-                }
+                    for (const track of toAddTracks) {
+                        const p = browser.loadTrack(track)
+                        loadTrackPromises.push(p)
+                    }
+                })
             })
         })
     }
