@@ -100,6 +100,9 @@ import { Directive, Inject } from '../ng-decorators'
                             if (d.name == 'Name') {
                                 d.name = 'Class'
                             }
+                            if (d.name == 'date_created') {
+                                d.name = 'Created'
+                            }
                             _addRow(ep, d.name, document.createTextNode(d.value), d.value)
                         } else if (typeof d === 'string') {
                             const erow = document.createElement('div')
