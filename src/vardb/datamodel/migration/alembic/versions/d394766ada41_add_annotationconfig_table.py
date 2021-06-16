@@ -51,9 +51,14 @@ def upgrade():
     with (Path(__file__).parent.parent / "data/annotation-config-legacy.yml").open() as f:
         annotation_config = yaml.safe_load(f)
         deposit_annotationconfig(session, annotation_config)
-    op.execute("UPDATE annotation SET annotation_config_id=1")
 
+    op.execute("DROP TRIGGER IF EXISTS annotation_to_annotationshadow ON annotation;")
+    op.execute("DROP TRIGGER IF EXISTS annotation_schema_version ON annotation;")
+
+    op.execute("UPDATE annotation SET annotation_config_id=1")
     op.alter_column("annotation", "annotation_config_id", nullable=False)
+
+    op.execute(create_trigger_sql(config))
 
     op.execute("DELETE FROM jsonschema WHERE name='annotation'")
     update_schemas(session)
