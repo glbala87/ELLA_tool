@@ -46,7 +46,7 @@ import { Directive, Inject } from '../ng-decorators'
                 if (!popupData || !popupData.length) {
                     return false
                 }
-                if (track.id == 'classifications') {
+                if (track.id == 'Classifications') {
                     const ep = document.createElement('div')
                     const alleleUrlInfo = {
                         chromosome: null,
