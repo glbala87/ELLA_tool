@@ -85,6 +85,7 @@ import { Directive, Inject } from '../ng-decorators'
                                         `${alleleId}` +
                                         `?gp_name=${alleleUrlInfo.genepanel_name}&gp_version=${alleleUrlInfo.genepanel_version}`
                                     ea.innerHTML = alleleId
+                                    ea.target = '_blank'
                                     _addRow(ep, 'Workflow', ea)
                                     // reset buffer
                                     Object.keys(alleleUrlInfo).forEach(
