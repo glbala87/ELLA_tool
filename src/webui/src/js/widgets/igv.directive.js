@@ -152,6 +152,13 @@ const onTrackclick = (track, popupData) => {
                     browser.loadTrack(track)
                 }
             })
+
+            // allow zoom with mouse wheel
+            document.querySelector('.igv-track-container').onwheel = (event) => {
+                event.preventDefault()
+                const scaleFactor = 1.2
+                browser.zoom(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
+            }
         })
     }
 })
