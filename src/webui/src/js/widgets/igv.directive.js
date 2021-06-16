@@ -80,10 +80,8 @@ import { Directive, Inject } from '../ng-decorators'
                     for (const name of removedNames) {
                         browser.removeTrackByName(name)
                     }
-
-                    for (const track of toAddTracks) {
-                        const p = browser.loadTrack(track)
-                        loadTrackPromises.push(p)
+                    if (toAddTracks.length) {
+                        loadTrackPromises.push(browser.loadTrackList(toAddTracks))
                     }
                 })
             })
