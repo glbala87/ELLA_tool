@@ -8,7 +8,7 @@ Create Date: 2021-05-19 13:46:46.719537
 
 # revision identifiers, used by Alembic.
 revision = "d394766ada41"
-down_revision = "611d46cd83b4"
+down_revision = "1a6024944723"
 branch_labels = None
 depends_on = None
 
@@ -20,6 +20,8 @@ import yaml
 from sqlalchemy.orm.session import Session
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
+from api.config import config
+from vardb.datamodel.annotationshadow import create_trigger_sql
 
 
 def upgrade():
