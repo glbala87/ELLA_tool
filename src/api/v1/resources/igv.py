@@ -133,7 +133,8 @@ def get_classification_bed(session):
         "vcf_ref={vcf_ref};"
         "vcf_alt={vcf_alt};"
         "genepanel_name={genepanel_name};"
-        "genepanel_version={genepanel_version}\t"
+        "genepanel_version={genepanel_version};"
+        "date_created={date_created}\t"
         "1\t"
         "-\t"
         "{start}"
@@ -152,6 +153,7 @@ def get_classification_bed(session):
             allele.Allele.vcf_alt,
             assessment.AlleleAssessment.genepanel_name,
             assessment.AlleleAssessment.genepanel_version,
+            assessment.AlleleAssessment.date_created,
         )
         .join(assessment.AlleleAssessment)
         .filter(assessment.AlleleAssessment.date_superceeded.is_(None))
@@ -172,6 +174,7 @@ def get_classification_bed(session):
         vcf_alt,
         genepanel_name,
         genepanel_version,
+        date_created,
     ) in all_aa:
         lines.append(
             template.format(
@@ -186,6 +189,7 @@ def get_classification_bed(session):
                 vcf_alt=vcf_alt,
                 genepanel_name=genepanel_name,
                 genepanel_version=genepanel_version,
+                date_created=date_created.strftime("%Y-%m-%d"),
             )
         )
     result += "\n".join(lines)
