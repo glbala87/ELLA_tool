@@ -99,7 +99,7 @@ const onTrackclick = (track, popupData) => {
         let options = {
             tracks: [],
             reference: scope.reference,
-            locus: scope.locus,
+            locus: getIgvLocus(scope.locus),
             showKaryo: true,
             search: {
                 url: '/api/v1/igv/search/?q=$FEATURE$',
@@ -127,7 +127,7 @@ const onTrackclick = (track, popupData) => {
                 },
                 () => {
                     if (scope.locus) {
-                        browser.search(scope.locus)
+                        browser.search(getIgvLocus(scope.locus))
                     }
                 }
             )
