@@ -3,6 +3,8 @@
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
+const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
+
 /**
  * Directive for displaying igv.js
  */
@@ -29,7 +31,7 @@ import { Directive, Inject } from '../ng-decorators'
         let options = {
             tracks: [],
             reference: scope.reference,
-            locus: scope.locus,
+            locus: getIgvLocus(scope.locus),
             showKaryo: true,
             search: {
                 url: '/api/v1/igv/search/?q=$FEATURE$',
@@ -54,7 +56,7 @@ import { Directive, Inject } from '../ng-decorators'
                 },
                 () => {
                     if (scope.locus) {
-                        browser.search(scope.locus)
+                        browser.search(getIgvLocus(scope.locus))
                     }
                 }
             )
