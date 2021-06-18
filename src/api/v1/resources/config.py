@@ -39,5 +39,5 @@ class AnnotationConfigListResource(LogRequestResource):
             .filter(annotation.AnnotationConfig.id.in_(annotation_config_ids))
             .all()
         )
-
+        assert len(annotation_config_ids) == len(annotation_configs)
         return [AnnotationConfigSchema().dump(x).data for x in annotation_configs]

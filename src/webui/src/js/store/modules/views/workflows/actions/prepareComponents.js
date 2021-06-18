@@ -194,6 +194,9 @@ const COMPONENTS = {
 function prepareClassificationContent(annotationConfig) {
     // const annotationViewConfig = annotationConfigs[annotationConfigIdx].view
     // Add components from the view config
+    if (annotationConfig === undefined) {
+        return null
+    }
     const content = JSON.parse(JSON.stringify(CLASSIFICATION_BASE_CONTENT))
     for (let i in annotationConfig.view) {
         let vc = annotationConfig.view[i]
