@@ -6,6 +6,9 @@ export default Compute(
     props`annotationConfigId`,
     props`annotationConfigItemIdx`,
     (annotationConfigs, annotationConfigId, annotationConfigItemIdx) => {
+        if (annotationConfigs === undefined) {
+            return null
+        }
         return annotationConfigs.find((x) => x.id === annotationConfigId).view[
             annotationConfigItemIdx
         ].config

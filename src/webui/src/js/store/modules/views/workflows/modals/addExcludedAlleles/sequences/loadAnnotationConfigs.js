@@ -6,7 +6,7 @@ import { classificationSectionContent } from '../../../actions/prepareComponents
 import toast from '../../../../../../common/factories/toast'
 
 export default sequence('loadAnnotationConfigs', [
-    getAnnotationConfigs(state`views.workflows.modals.addExcludedAlleles.data.alleles`),
+    getAnnotationConfigs(`views.workflows.modals.addExcludedAlleles.data.alleles`),
     {
         success: [
             set(

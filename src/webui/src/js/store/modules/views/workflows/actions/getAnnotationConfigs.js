@@ -1,6 +1,6 @@
-const getAnnotationConfigs = (alleles) => {
-    return ({ http, path, resolve }) => {
-        alleles = resolve.value(alleles)
+const getAnnotationConfigs = (allelePath) => {
+    return ({ http, path, state }) => {
+        const alleles = state.get(allelePath)
         if (!alleles || !Object.keys(alleles).length) {
             return path.success({ result: [] })
         }
