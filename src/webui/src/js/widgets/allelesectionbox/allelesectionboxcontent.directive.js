@@ -32,46 +32,53 @@ import { Directive, Inject } from '../../ng-decorators'
     },
     link: (scope, elem) => {
         // Dynamically create the html for the content-boxes
-        let html = ''
-        if (scope.boxes) {
-            for (let box of scope.boxes) {
-                let classes = ['cb-wrapper']
-                let attrs = ''
+        // Watch required to handle different boxes, determined in part by annotation config
+        scope.$watch(
+            () => scope.boxes,
+            () => {
+                let html = ''
+                elem.empty()
+                if (scope.boxes) {
+                    for (let box of scope.boxes) {
+                        let classes = ['cb-wrapper']
+                        let attrs = ''
 
-                if ('class' in box) {
-                    classes = classes.concat(box.class)
-                }
-                if ('attr' in box) {
-                    for (let [k, v] of Object.entries(box.attr)) {
-                        attrs += `${k}="${v}"`
+                        if ('class' in box) {
+                            classes = classes.concat(box.class)
+                        }
+                        if ('attr' in box) {
+                            for (let [k, v] of Object.entries(box.attr)) {
+                                attrs += `${k}="${v}"`
+                            }
+                        }
+
+                        // If title not specified in config, use the source (if available)
+                        // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
+                        let title = box.title
+                        if (!title && 'source' in box) {
+                            title = box.source.split(/\./).pop()
+                        }
+
+                        html += `
+                        <${box.tag}
+                            class="${classes.join(' ')}"
+                            allele-path="vm.allelePath"
+                            source="${box.source}"
+                            title="${title}"
+                            url="${box.url}"
+                            url_empty="${box.url_empty}"
+                            annotation-config-id="${box.annotationConfigId}"
+                            annotation-config-item-idx="${box.annotationConfigItemIdx}"
+                            ${attrs}
+                        ></${box.tag}>`
+                    }
+                    if (html) {
+                        let compiled = scope.vm.compile(html)(scope)
+                        elem.append(compiled)
                     }
                 }
-
-                // If title not specified in config, use the source (if available)
-                // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
-                let title = box.title
-                if (!title && 'source' in box) {
-                    title = box.source.split(/\./).pop()
-                }
-
-                html += `
-                <${box.tag}
-                    class="${classes.join(' ')}"
-                    allele-path="vm.allelePath"
-                    source="${box.source}"
-                    title="${title}"
-                    url="${box.url}"
-                    url_empty="${box.url_empty}"
-                    annotation-config-id="${box.annotationConfigId}"
-                    annotation-config-item-idx="${box.annotationConfigItemIdx}"
-                    ${attrs}
-                ></${box.tag}>`
             }
-            if (html) {
-                let compiled = scope.vm.compile(html)(scope)
-                elem.append(compiled)
-            }
-        }
+        )
     }
 })
 @Inject('Config', '$compile')
