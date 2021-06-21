@@ -26,7 +26,7 @@ Global tracks are available to all users. These currently include:
 - `REFGENE`: Transcripts from RefGene.
 - `GENE PANEL`: Regions covered by the current gene panel.
 - `VARIANTS`: All variants in the same sample (analysis) _after_ filtering.
-- `CLASSIFICATIONS`: All existing classifications present in the database.
+- `CLASSIFICATIONS`: All existing (finalized) classifications present in the database. Clicking on a variant in this track gives a link to the associated allele assessment.
 	
 ### Group tracks
 
@@ -39,6 +39,13 @@ Analysis tracks are specific to the analysis (depending on configuration). These
 - `BAM` files: Raw alignments (HTS data only), split by family members if relevant
 - `VCF`: All variants called in the VCF file (HTS data only, within gene panel, no filtering)
 - `CNV`: Called CNVs (HTS data only)
+
+## Navigating the view
+
+Options when navigating the view in VISUAL: 
+- Zooming: Use the mouse wheel, or the +/- buttons for more fine-grained control.
+- Panning: Click and hold the mouse button anywhere in the alignment and drag left or right. 
+- Recenter: You can quickly recenter on a variant (after panning) by selecting it again. Note that this also resets the zoom level to the default.
 
 ## Side bar: Mark as TECHNICAL
 

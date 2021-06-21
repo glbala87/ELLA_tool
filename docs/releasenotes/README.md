@@ -33,9 +33,9 @@ A new section termed REGION has been added to the CLASSIFICATION page. This show
     <p><strong>Figure: </strong>New section with nearby classified variants.</p>
 </div> 
 
-#### Improved track selection
-<!-- Relevant MRs: !520, !535 -->
-The track selection section on top of the VISUAL page is now collapsible and has the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
+#### Improvements to VISUAL
+<!-- Relevant MRs: !520, !535, !541, !542 -->
+This version adds several improvements to how the VISUAL mode (with IGV.js) works. Most significantly, the track selection section on top of the VISUAL page is now collapsible and has the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
 
 <div class="figure_text">
     <img src="./img/1-14-track-selection.png"><br>
@@ -43,6 +43,15 @@ The track selection section on top of the VISUAL page is now collapsible and has
 </div> 
 
 TODO: Update technical docs
+
+In addition, the Classification track now includes links to existing allele assessments. Click a variant in the track, then the link in the resulting popover to go to the variant: 
+
+<div class="figure_text">
+    <img src="./img/1-14-classification-link.png"><br>
+    <p><strong>Figure: </strong>Classification track now has links to existing allele assessments.</p>
+</div> 
+
+Lastly, it is now possible to zoom the view quickly using the mouse wheel, and clicking a selected variant in the side bar recenters the view on the variant. 
 
 ### :small_red_triangle: Breaking changes
 
@@ -61,6 +70,10 @@ The following changes must be made to use this version:
 - Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments. 
 <!-- MR !535 -->
 - Added support for track selection presets in VISUAL.
+<!-- MR !541 -->
+- Enabled links to existing classifications in VISUAL.
+<!-- MR !542 -->
+- Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs
