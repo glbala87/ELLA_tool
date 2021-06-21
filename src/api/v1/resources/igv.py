@@ -473,6 +473,81 @@ def get_analysis_tracks(analysis_id, analysis_name):
     return _search_path_for_tracks(analysis_tracks_path, url_func)
 
 
+def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_ids):
+    global_tracks_path = _get_global_tracks_path()
+    # global_tracks_path / genepanel.json
+    # global_tracks_path / classifications.json
+    # global_tracks_path / analysis_variants.json
+
+    GENEPANEL_DEFAULT_CONFIG = {
+        "id": "genepanel",
+        "show": False,
+        "name": "Genepanel",
+        "type": "annotation",
+        "url": f"/api/v1/igv/genepanel/{genepanel_name}/{genepanel_version}/",
+        "format": "bed",
+        "indexed": False,
+        "displayMode": "EXPANDED",
+        "order": 10,
+        "height": 60,
+        "presets": [],
+    }
+
+    CLASSIFICATIONS_DEFAULT_CONFIG = {
+        "id": "classifications",
+        "show": False,
+        "name": "Classifications",
+        "url": "/api/v1/igv/classifications/",
+        "format": "bed",
+        "indexed": False,
+        "order": 11,
+        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "presets": [],
+    }
+    ANALYSIS_VARIANTS_DEFAULT_CONFIG = {
+        "id": "variants",
+        "show": True,
+        "name": "Variants",
+        "url": f"/api/v1/igv/variants/{analysis_id}/?allele_ids={','.join(allele_ids)}",
+        "format": "vcf",
+        "indexed": False,
+        "order": 12,
+        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "presets": [],
+    }
+
+    if global_tracks_path and os.path.isfile(os.path.join(global_tracks_path, "genepanel.json")):
+        with open(os.path.join(global_tracks_path, "genepanel.json")) as f:
+            # a = {"a": 1, "b": 2}
+            # b = {"b": 3, "c": 3}
+            # {**a, **b} -> {"a": 1, "b": 2, "b": 3, "c": 3} -> {"a": 1, "b": 3, "c": 3}
+            genepanel_config = {**GENEPANEL_DEFAULT_CONFIG, **json.load(f)}
+    else:
+        genepanel_config = GENEPANEL_DEFAULT_CONFIG
+
+    if global_tracks_path and os.path.isfile(
+        os.path.join(global_tracks_path, "classifications.json")
+    ):
+        with open(os.path.join(global_tracks_path, "classifications.json")) as f:
+            classifications_config = {**CLASSIFICATIONS_DEFAULT_CONFIG, **json.load(f)}
+    else:
+        classifications_config = CLASSIFICATIONS_DEFAULT_CONFIG
+
+    if global_tracks_path and os.path.isfile(
+        os.path.join(global_tracks_path, "analysis_variants.json")
+    ):
+        with open(os.path.join(global_tracks_path, "analysis_variants.json")) as f:
+            analysis_variants_config = {**ANALYSIS_VARIANTS_DEFAULT_CONFIG, **json.load(f)}
+    else:
+        analysis_variants_config = ANALYSIS_VARIANTS_DEFAULT_CONFIG
+
+    return {
+        "global": [genepanel_config, classifications_config],
+        "user": [],
+        "analysis": [analysis_variants_config],
+    }
+
+
 class IgvResource(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
@@ -495,16 +570,32 @@ class IgvResource(LogRequestResource):
 class AnalysisTrackList(LogRequestResource):
     @authenticate()
     def get(self, session, analysis_id, user=None):
-        analysis_name = (
-            session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).scalar()
+        analysis_name, genepanel_name, genepanel_version = (
+            session.query(
+                sample.Analysis.name,
+                sample.Analysis.genepanel_name,
+                sample.Analysis.genepanel_version,
+            )
+            .filter(sample.Analysis.id == analysis_id)
+            .one()
         )
 
-        result = {
+        allele_ids = [aid for aid in request.args.get("allele_ids", "").split(",")]
+
+        filebased_tracks = {
             "global": get_global_tracks(),
             "user": get_user_tracks(user),
             "analysis": get_analysis_tracks(analysis_id, analysis_name),
         }
-        return result
+        dynamic_tracks = get_dynamic_tracks(
+            analysis_id, genepanel_name, genepanel_version, allele_ids
+        )
+
+        return {
+            "global": filebased_tracks["global"] + dynamic_tracks["global"],
+            "user": filebased_tracks["user"] + dynamic_tracks["user"],
+            "analysis": filebased_tracks["analysis"] + dynamic_tracks["analysis"],
+        }
 
 
 class GlobalTrack(LogRequestResource):
