@@ -18,31 +18,37 @@ Release date: TBD
 
 ### Highlights
 
-The most significant change in this release is the addition of support for configurable annotation. In addition, several improvements have been made in the UI in prepration for CNV support. 
+The most significant change in this release is the addition of support for configurable annotation. In addition, several improvements have been made in the UI in preparation for CNV support. 
 
 #### Support for configurable annotation
 <!-- Relevant MRs: !405, !522 and !532 -->
-Adding new kinds of variant annotation in ELLA and its associated annotation service anno has up until now required changes to the source code, and has been a major limitation in the software. Starting with this release, however, new annotation can be added with a few changes to configuration. This allows much more flexibility and ease when adding new variant annotation resources. See the technical docs for more information on how to use the new configuration.
+Adding new kinds of variant annotation in ELLA has up until now required changes to the source code, and has been a major limitation in the software. Starting with this release, however, new annotation can be added with a few changes to configuration. This allows much more flexibility and ease when adding new variant annotation resources. See the [technical docs](/technical/annotation.html#annotation-converters) for more information on how to use the new configuration.
 
-TODO: Update technical docs
-
-#### Changes in UI: New REGION section and improved track selection
-<!-- Relevant MRs: !520, !531, !535 -->
-In preparation for adding CNV support in ELLA, an extra section has been added on the CLASSIFICATION page, and tracks management on the VISUAL page has been improved. 
-
-The new section is termed REGION and currently shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
+#### New REGION section
+<!-- Relevant MRs: !531 -->
+A new section termed REGION has been added to the CLASSIFICATION page. This shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
 
 <div class="figure_text">
     <img src="./img/1-14-nearby-variants.png"><br>
     <p><strong>Figure: </strong>New section with nearby classified variants.</p>
 </div> 
 
-In addition, the track selection section on top of the VISUAL page is now collapsible and have the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
+#### Improved track selection
+<!-- Relevant MRs: !520, !535 -->
+The track selection section on top of the VISUAL page is now collapsible and has the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
 
-TODO: Screenshot
+<div class="figure_text">
+    <img src="./img/1-14-track-selection.png"><br>
+    <p><strong>Figure: </strong>Improved track selection with possibility for presets.</p>
+</div> 
+
 TODO: Update technical docs
 
 ### :small_red_triangle: Breaking changes
+
+The following changes must be made to use this version: 
+- Remove the `frequencies.view` from `ella-config.yml` (this is now set in the new `annotation-config.yml`).
+- TODO: review if other changes should be listed here.
 
 ### All changes
 <!-- MR !405, !522, !532 -->
