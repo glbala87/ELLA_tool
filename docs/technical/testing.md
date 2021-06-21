@@ -87,12 +87,12 @@ Maximize the Chrome window to reduce the number of 'element-not-clickable' error
 
 ##### Misc
 
-The best way to get and test selectors in Chrome is to use the [CSS Selector Helper for Chrome](https://chrome.google.com/webstore/detail/css-selector-helper-for-c/gddgceinofapfodcekopkjjelkbjodin) extension. Another way is to use the search (`Ctrl+F`) functionality in the Developer Tools to test your selector.
+To get and test selectors in Chrome, use an extension, or search (`Ctrl+F`) in the Developer Tools.
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
 Use `browser.debug()` in a test file to pause the execution of the tests. This will present a REPL (webdriverio >= 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
 
-Hit `Ctrl-C` in the REPL to continue the test run. See more on <http://webdriver.io/guide/usage/repl.html>
+Hit `Ctrl-C` in the REPL to continue the test run. See more on <https://webdriver.io/docs/repl/>.
 
-More info at <http://webdriver.io/guide/testrunner/debugging.html>
+More info at <https://webdriver.io/docs/debugging>

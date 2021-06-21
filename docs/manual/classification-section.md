@@ -145,7 +145,7 @@ The variant classification choices should be interpreted in line with [ClinVar's
 
 Option  | Explanation
 :--- | :---
-`CLASS 1-5` | In accordance with [ACMG guidelines](https://www.nature.com/articles/gim201530).
+`CLASS 1-5` | In accordance with [ACMG guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868/).
 `RISK FACTOR` | For variants that are interpreted not to cause a disorder but to increase the risk.
 `DRUG RESPONSE` | For variants that affect a drug response, not a disease.
 `NOT PROVIDED` | For recording various information (e.g. literature findings, research into functional significance, observed phenotypes) without interpreting clinical significance.
