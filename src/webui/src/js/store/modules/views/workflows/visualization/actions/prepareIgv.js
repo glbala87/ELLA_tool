@@ -11,39 +11,34 @@ export default async function prepareIgv({ state, http }) {
     const analysis = state.get('views.workflows.data.analysis')
     const alleles = state.get('views.workflows.interpretation.data.alleles')
 
-    const dynamicTracksResult = await http.get(
+    const trackConfigs = await http.get(
         `igv/tracks/${analysis.id}?allele_ids=${Object.keys(alleles).join(',')}`
     )
 
-    const _appendFinalizedTracks = (tracks, cfgTracks) => {
-        for (const [category, categoryTracks] of Object.entries(cfgTracks)) {
-            for (const track of categoryTracks) {
-                const finalizedTrack = {
-                    id: track.id,
-                    selected: 'show' in track ? track.show : false,
-                    config: track,
-                    presets: track.presets !== undefined ? track.presets : []
-                }
-                // cleanup
-                delete finalizedTrack.config.show
-                delete finalizedTrack.config.presets
-                // derive default preset
-                if (finalizedTrack.selected) {
-                    const presetIdDefault = 'Default'
-                    finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
-                }
-                // append
-                if (!tracks.hasOwnProperty(category)) {
-                    tracks[category] = []
-                }
-                tracks[category].push(finalizedTrack)
+    const finalizedTracks = {}
+    for (const [category, categoryTracks] of Object.entries(trackConfigs.result)) {
+        for (const track of categoryTracks) {
+            const finalizedTrack = {
+                id: track.id,
+                selected: 'show' in track ? track.show : false,
+                config: track,
+                presets: track.presets !== undefined ? track.presets : []
             }
+            // cleanup
+            delete finalizedTrack.config.show
+            delete finalizedTrack.config.presets
+            // derive default preset
+            if (finalizedTrack.selected) {
+                const presetIdDefault = 'Default'
+                finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
+            }
+            // append
+            if (!finalizedTracks.hasOwnProperty(category)) {
+                finalizedTracks[category] = []
+            }
+            finalizedTracks[category].push(finalizedTrack)
         }
     }
-
-    const finalizedTracks = {}
-    _appendFinalizedTracks(finalizedTracks, dynamicTracksResult.result)
-
     for (const categoryTracks of Object.values(finalizedTracks)) {
         categoryTracks.sort(thenBy((t) => t.config.order || 99999))
     }
