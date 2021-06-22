@@ -62,7 +62,7 @@ The following changes must be made to `ella-config.yml` to use this version:
 ### All changes
 <!-- MR !405 -->
 - [Added support for configurable annotation](#support-for-configurable-annotation).
-<!-- MR !531 -->
+<!-- MR !531, !544, !546 -->
 - [Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments](#new-region-section). 
 <!-- MR !535 -->
 - [Added support for track selection presets in VISUAL](#improvements-to-visual).
@@ -74,6 +74,8 @@ The following changes must be made to `ella-config.yml` to use this version:
 - [Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL](#improvements-to-visual).
 <!-- MR !525 -->
 - Added support for `bigWig` and `cram` track file formats in VISUAL.
+<!-- MR !545 -->
+- Fixed a bug causing inability to update REPORT.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs
