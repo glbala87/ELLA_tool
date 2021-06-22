@@ -14,15 +14,17 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.14
 
-Release date: TBD
+Release date: 28.06.2021
 
 ### Highlights
 
 The most significant change in this release is the addition of support for configurable annotation. In addition, several improvements have been made in the UI in preparation for CNV support. 
 
 #### Support for configurable annotation
-<!-- Relevant MRs: !405, !522 and !532 -->
+<!-- Relevant MRs: !405 -->
 Adding new kinds of variant annotation in ELLA has up until now required changes to the source code, and has been a major limitation in the software. Starting with this release, however, new annotation can be added with a few changes to configuration. This allows much more flexibility and ease when adding new variant annotation resources. See the [technical docs](/technical/annotation.html#annotation-converters) for more information on how to use the new configuration.
+
+Unless new annotation is added, no changes will be visible to the end user, except a very minor change in the sorting of ClinVar entries (now sorted on date only).
 
 #### New REGION section
 <!-- Relevant MRs: !531 -->
@@ -42,8 +44,6 @@ This version adds several improvements to how the VISUAL mode (with IGV.js) work
     <p><strong>Figure: </strong>Improved track selection with possibility for presets.</p>
 </div> 
 
-TODO: Update technical docs
-
 In addition, the Classification track now includes links to existing allele assessments. Click a variant in the track, then the link in the resulting popover to go to the variant: 
 
 <div class="figure_text">
@@ -55,25 +55,25 @@ Lastly, it is now possible to zoom the view quickly using the mouse wheel, and c
 
 ### :small_red_triangle: Breaking changes
 
-The following changes must be made to use this version: 
-- Remove the `frequencies.view` from `ella-config.yml` (this is now set in the new `annotation-config.yml`).
-- TODO: review if other changes should be listed here.
+The following changes must be made to `ella-config.yml` to use this version: 
+- Remove `frequencies.view` and instead add to the new `annotation-config.yml` (see [Annotation](/technical/annotation.md)).
+- Add `similar_alleles` with subkeys `max_variants` and `max_genomic_distance` (see [Region](/technical/annotation.html#region)).
 
 ### All changes
-<!-- MR !405, !522, !532 -->
-- Added support for configurable annotation.
+<!-- MR !405 -->
+- [Added support for configurable annotation](#support-for-configurable-annotation).
+<!-- MR !531 -->
+- [Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments](#new-region-section). 
+<!-- MR !535 -->
+- [Added support for track selection presets in VISUAL](#improvements-to-visual).
 <!-- MR !520 -->
-- Made track selection section in VISUAL collapsible.
+- [Made track selection section in VISUAL collapsible](#improvements-to-visual).
+<!-- MR !541 -->
+- [Enabled links to existing classifications in VISUAL](#improvements-to-visual).
+<!-- MR !542 -->
+- [Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL](#improvements-to-visual).
 <!-- MR !525 -->
 - Added support for `bigWig` and `cram` track file formats in VISUAL.
-<!-- MR !531 -->
-- Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments. 
-<!-- MR !535 -->
-- Added support for track selection presets in VISUAL.
-<!-- MR !541 -->
-- Enabled links to existing classifications in VISUAL.
-<!-- MR !542 -->
-- Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs

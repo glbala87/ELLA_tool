@@ -1,18 +1,15 @@
 # Annotation
 
-::: warning NOTE
-This documentation is a work in progress and is incomplete.
-
-Please contact developers for more details.
-:::
-
 [[toc]]
 
-Configuration of both deposit and view of annotation is defined using a YAML-file (see `src/vardb/testdata/annotation-config.yml` for an example), deposited in the database using the [CLI](/technical/production). The file should contain two keys;  `deposit` and `view`. The configuration under the `deposit`-key define how the VCF data in the INFO-column should be imported into the database. The configuration under the `view`-key define how the resulting annotation JSON (the `annotations` column in the `annotation`-table) should be shown in the user interface. 
+Configuration of both deposit and view of annotation is defined using a YAML-file (see `src/vardb/testdata/annotation-config.yml` for an example), deposited in the database using the [ella-cli](/technical/production-tasks.html). This file should contain two keys: 
 
-Using the CLI to deposit this file, a row is inserted into the `annotationconfig` table. This table is created and populated by the migration script, using an import config that reflects the legacy annotation import (see `src/vardb/datamodel/migration/alembic/data/annotation-config-legacy.yml`).
+- `deposit`: Defines how the VCF data in the `INFO` column should be imported into the database.
+- `view`: Defines how the resulting annotation JSON (the `annotations` column in the `annotation` table) should be shown in the user interface. 
 
-Subsequently, for each variant in the VCF, the latest inserted row in the `annotationconfig`-table determines how it's INFO field should be deconstructed, and further, how it should be displayed in the front end.
+Using the ella-cli to deposit this file, a row is inserted into the `annotationconfig` table. This table is created and populated by the migration script, using an import config that reflects the legacy annotation import (see `src/vardb/datamodel/migration/alembic/data/annotation-config-legacy.yml`).
+
+Subsequently, for each variant in the VCF, the latest inserted row in the `annotationconfig` table determines how its `INFO` field should be deconstructed, and further, how it should be displayed in the front end.
 
 In addition to the config provided in this table, some configuration relevant for annotation (frequency groups) is defined in the [application configuration](#application-configuration) (`ella-config.yml`).
 
@@ -23,20 +20,20 @@ In addition to the config provided in this table, some configuration relevant fo
 
 All current annotation converters read info from the VCF `INFO` field. The [generic converters](#generic-annotation-converters) should be able to handle most annotation, but [specific converters](#specific-annotation-converters) are necessary in some cases. 
 
-The list described under this key, follows the following structure:
+The list under this key follows this structure:
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
 `name` | Name of the annotation converter to use.  | [string] (See available options below)
 `converter_config`  | Config for the annotation converter specified | [object]
 
-The `converter_config.elements` list describes where to get annotation from, and where in the annotation JSON the results should go.
+The `converter_config.elements` list describes where to get annotation from, and where in the annotation JSON the results should go:
 
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
-`source` | VCF INFO field to fetch raw annotation from  | [string]
+`source` | VCF `INFO` field to fetch raw annotation from  | [string]
 `target`  | JSON path describing where the converted annotation should end up | [string] Paths are split on `.`
-`additional_sources` | Additional VCF INFO fields used | List of string (optional, only used in specific converters)
+`additional_sources` | Additional VCF `INFO` fields used | List of string (optional, only used in specific converters)
 [converter specific] | Various converter specific keys | See description for each of the converters below
 
 
@@ -74,8 +71,8 @@ All of the examples below generate the same output structure to the column `anno
 
 Read key/value pairs from annotation. 
 
-
 Specific configuration:
+
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
 `target_mode` | How the processed data should be inserted into the JSON | `insert` (default), `extend`, `append`, `merge`
@@ -84,9 +81,7 @@ Subkey	|	Explanation |   Values
 `split`**  | String to split raw annotation value on | [string] (optional)
 
 *: If `target_type_throw` is set to False, it will be treated as no annotation found if casting fails.
-
 **: If `split` is defined, the returned value be a list of `target_type` elements.
-
 
 Example config using annotation values `FOO=1;BAR=2`: 
 
@@ -111,7 +106,6 @@ Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
 `encoding` | Which encoding the raw data is encoded in | `base16` (default), `base32`, `base64`
 `subpath` | Subpath to extract data from | [string] Path split on `.`
-
 
 Example config using annotation value `MYJSON=7B22666F6F223A20312C2022626172223A20327D`:
 
@@ -141,7 +135,6 @@ Subkey	|	Explanation |   Values
 
 *: If `target_type_throw` is set to False, it will be treated as no annotation found if casting fails.
 
-
 Example config using annotation value `DABLA=foo:1,bar:2`:
 
 ``` yml
@@ -166,7 +159,6 @@ Subkey	|	Explanation |   Values
 `value_separator` | String that values are split on | [string] Default `\|`
 `meta_pattern` | Regex used to fetch keys from the meta description field | Regex string, default: `r"(?i)[a-z_]+\|[a-z_\|]+"`
 `subelements` | List of configs | Valid [keyvalue](#keyvalue-keyvalueconverterpy) configs
-
 
 Example config using header line (meta information) `##INFO=<ID=DABLA,Number=.,Type=String,Description="Format: foo|bar">` and annotation value `DABLA=1|2`:
 
@@ -201,7 +193,7 @@ In addition to the generic annotation converters, the following specific convert
 - File: `annotation-config.yml` 
 - Key: `view`
 
-With the annotation JSON structure built by the `deposit`-key, the `view`-key determines what and how the annotation should displayed in the front end's [Classification](/manual/classification-page) page.
+With the annotation JSON structure built by the `deposit` key, the `view` key determines what and how the annotation should displayed in the front end's [Classification](/manual/classification-page) page.
 
 The list defined under this key defines the key components required for showing annotation:
 
@@ -215,8 +207,7 @@ Subkey	|	Explanation |   Values
 `url_empty`*  | Link target of the title when no annotation is available | [string] (optional)
 `config`  | Configuration of the view, specific to each template | [object]
 
-*: URLs can be written as template strings, using the `allele`-object and `attrs.linkText`. See example config.
-
+*: URLs can be written as template strings, using the `allele` object and `attrs.linkText`. See `src/vardb/testdata/annotation-config.yml` for examples.
 
 
 ### Templates
@@ -238,7 +229,6 @@ Shows frequency details in table form. Expects the data for the table to be a ne
         ...
     }
 }
-
 ```
 
 Subkey	|	Explanation |   Values
@@ -249,8 +239,6 @@ Subkey	|	Explanation |   Values
 `filter` | JSON key to fetch filter values | [string] (optional) Filter values not equal to `PASS` will show as a warning
 `precision`  |  Float precision (for strings).  |   [integer] (Default: 6)
 `scientific_threshold`  |   Convert to scientific notation for frequencies below 10^-[x]. |   [integer] (Default: 4)
-
-        
 
 #### itemList
 
@@ -271,16 +259,13 @@ Fetches key/value pairs and displays them.
 
 On the config object, under they key `names` an object of this structure is expected:
 
-
 Subkey	|	Explanation |   Values
 :---	|	:---    |	:---
 `names` | Mapping of keys to display names | Key is used to fetch data from `source`, display name is what is shown in the UI
 
-
 #### clinvarDetails
 
 Shows data from ClinVar in a format defined by [ella-anno](https://gitlab.com/alleles/ella-anno) and the [ClinVar converter](#specific-annotation-converters). This does not require a special config (should be set to `{}`).
-
 
 ## Application configuration
 
