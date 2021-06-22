@@ -53,21 +53,14 @@ const onTrackclick = (track, popupData) => {
                     }
                     return
                 }
-                switch (d.name) {
-                    case 'Name':
-                        d.name = 'Class'
-                        break
-                    case 'date_created':
-                        d.name = 'Created'
-                        break
-                    case 'first_name':
-                        d.name = 'First name'
-                        break
-                    case 'last_name':
-                        d.name = 'Last name'
-                        break
-                    default:
-                        return
+                if (d.name == 'Score') {
+                    return
+                }
+                if (d.name == 'Name') {
+                    d.name = 'Class'
+                }
+                if (d.name == 'date_created') {
+                    d.name = 'Created'
                 }
                 _addRow(ep, d.name, document.createTextNode(d.value), d.value)
             } else if (typeof d === 'string') {
