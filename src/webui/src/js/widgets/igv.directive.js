@@ -3,6 +3,8 @@
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
+const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
+
 const onTrackclick = (track, popupData) => {
     if (!popupData || !popupData.length) {
         return false
