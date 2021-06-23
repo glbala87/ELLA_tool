@@ -122,13 +122,38 @@ def get_classification_bed(session):
 
     result = 'track name="Classifications" description="ella classifications" itemRgb="On"\n'
 
-    template = """{chrom}\t{start}\t{end}\t{name}\t0\t-\t{start}\t{end}\t{color}"""
+    template = (
+        "{chrom}\t"
+        "{start}\t"
+        "{end}\t"
+        "Name={name};"
+        "genome_reference={genome_reference};"
+        "chromosome={chrom};"
+        "vcf_pos={vcf_pos};"
+        "vcf_ref={vcf_ref};"
+        "vcf_alt={vcf_alt};"
+        "genepanel_name={genepanel_name};"
+        "genepanel_version={genepanel_version};"
+        "date_created={date_created}\t"
+        "1\t"
+        "-\t"
+        "{start}"
+        "\t{end}"
+        "\t{color}"
+    )
     all_aa = (
         session.query(
             allele.Allele.chromosome,
             allele.Allele.start_position,
             allele.Allele.open_end_position,
             assessment.AlleleAssessment.classification,
+            allele.Allele.genome_reference,
+            allele.Allele.vcf_pos,
+            allele.Allele.vcf_ref,
+            allele.Allele.vcf_alt,
+            assessment.AlleleAssessment.genepanel_name,
+            assessment.AlleleAssessment.genepanel_version,
+            assessment.AlleleAssessment.date_created,
         )
         .join(assessment.AlleleAssessment)
         .filter(assessment.AlleleAssessment.date_superceeded.is_(None))
@@ -138,7 +163,19 @@ def get_classification_bed(session):
     COLORS = {"1": "#76B100", "2": "#6BA100", "3": "#FFAA3C", "4": "#FE5B5B", "5": "#D00000"}
 
     lines = []
-    for chrom, start, end, classification in all_aa:
+    for (
+        chrom,
+        start,
+        end,
+        classification,
+        genome_reference,
+        vcf_pos,
+        vcf_ref,
+        vcf_alt,
+        genepanel_name,
+        genepanel_version,
+        date_created,
+    ) in all_aa:
         lines.append(
             template.format(
                 chrom=chrom,
@@ -146,6 +183,13 @@ def get_classification_bed(session):
                 end=end,
                 name=classification,
                 color=COLORS.get(classification, "#007ED0"),
+                genome_reference=genome_reference,
+                vcf_pos=vcf_pos,
+                vcf_ref=vcf_ref,
+                vcf_alt=vcf_alt,
+                genepanel_name=genepanel_name,
+                genepanel_version=genepanel_version,
+                date_created=date_created.strftime("%Y-%m-%d"),
             )
         )
     result += "\n".join(lines)
