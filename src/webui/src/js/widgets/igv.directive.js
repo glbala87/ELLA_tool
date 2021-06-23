@@ -3,6 +3,8 @@
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
+const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
+
 const onTrackclick = (track, popupData) => {
     if (!popupData || !popupData.length) {
         return false
@@ -99,7 +101,7 @@ const onTrackclick = (track, popupData) => {
         let options = {
             tracks: [],
             reference: scope.reference,
-            locus: scope.locus,
+            locus: getIgvLocus(scope.locus),
             showKaryo: true,
             search: {
                 url: '/api/v1/igv/search/?q=$FEATURE$',
@@ -127,7 +129,7 @@ const onTrackclick = (track, popupData) => {
                 },
                 () => {
                     if (scope.locus) {
-                        browser.search(scope.locus)
+                        browser.search(getIgvLocus(scope.locus))
                     }
                 }
             )
@@ -152,6 +154,13 @@ const onTrackclick = (track, popupData) => {
                     browser.loadTrack(track)
                 }
             })
+
+            // allow zoom with mouse wheel
+            document.querySelector('.igv-track-container').onwheel = (event) => {
+                event.preventDefault()
+                const scaleFactor = 1.2
+                browser.zoom(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
+            }
         })
     }
 })
