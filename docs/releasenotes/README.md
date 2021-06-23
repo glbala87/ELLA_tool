@@ -14,7 +14,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.14
 
-Release date: 28.06.2021
+Release date: 30.06.2021
 
 ### Highlights
 
@@ -27,7 +27,7 @@ Adding new kinds of variant annotation in ELLA has up until now required changes
 Unless new annotation is added, no changes will be visible to the end user, except a very minor change in the sorting of ClinVar entries (now sorted on date only).
 
 #### New REGION section
-<!-- Relevant MRs: !531 -->
+<!-- Relevant MRs: !531,!544, !546 -->
 A new section termed REGION has been added to the CLASSIFICATION page. This shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
 
 <div class="figure_text">
@@ -79,6 +79,7 @@ The following changes must be made to `ella-config.yml` to use this version:
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs
+MR !548 Minor fixes
 -->
 - Fixes and improvements to development environment and code base. 
 
