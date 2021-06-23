@@ -138,7 +138,7 @@ function getFormatted(allele, genepanel) {
             .map((a) => {
                 return `${a.symbol} ${includeTranscript ? a.transcript + ' ' : ''}${
                     a.HGVSc ? a.HGVSc : formatted.hgvsg
-                }`
+                }${a.HGVSp ? ' (' + a.HGVSp + ')' : ''}`
             })
             .join('; ')
     }
