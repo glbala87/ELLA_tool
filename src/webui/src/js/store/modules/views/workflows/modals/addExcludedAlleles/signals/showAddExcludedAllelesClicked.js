@@ -4,7 +4,7 @@ import toast from '../../../../../../common/factories/toast'
 import getAlleleIdsByGene from '../actions/getAlleleIdsByGene'
 import getAlleleIdsCategory from '../computed/getAlleleIdsCategory'
 import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
-import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
+import loadAnnotationConfigs from '../sequences/loadAnnotationConfigs'
 
 export default [
     set(state`views.workflows.modals.addExcludedAlleles.analysisId`, props`analysisId`),
@@ -37,8 +37,7 @@ export default [
                 props`result`
             ),
             loadExcludedAlleles,
-            // Cannot be parallell since genepanel is loaded in loadExcludedAlleles
-            loadIncludedAlleles
+            loadAnnotationConfigs
         ],
         error: [toast('error', 'Failed to load variants')]
     }

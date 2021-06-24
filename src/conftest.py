@@ -1,18 +1,21 @@
+import os
+import tempfile
 from contextlib import contextmanager, nullcontext
+from functools import partial, update_wrapper
+
 import cyvcf2
 import hypothesis as ht
-import os
 import pytest
-import tempfile
+
 from api.tests.util import FlaskClientProxy
-from vardb.util.testdatabase import TestDatabase
-from vardb.util import DB
 from vardb.datamodel import allele, annotation
+from vardb.deposit.annotationconverters import AnnotationConverters
 from vardb.deposit.importers import build_allele_from_record
-from vardb.util.vcfiterator import VcfIterator, RESERVED_GT_HEADERS
+from vardb.util import DB
+from vardb.util.testdatabase import TestDatabase
+from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
 
-
-ht.settings.register_profile("default")
+ht.settings.register_profile("default", deadline=600)
 ht.settings.register_profile("small", max_examples=20)
 ht.settings.register_profile(
     "extensive",
@@ -89,6 +92,7 @@ def _create_annotation(annotations, allele=None, allele_id=None):
         kwargs["allele"] = allele
     elif allele_id:
         kwargs["allele_id"] = allele_id
+    kwargs["annotation_config_id"] = 1
     return annotation.Annotation(**kwargs)
 
 
@@ -116,7 +120,7 @@ class MockVcfWriter:
             else:
                 return "String"
 
-        if isinstance(v, list):
+        if isinstance(v, (list, tuple)):
             N = len(v)
             value_type = get_type(v[0])
             assert all(get_type(x) == value_type for x in v)
@@ -266,3 +270,35 @@ def ped_info_file(ped_info):
         ped_str += PED_LINE.format(**ped_info) + "\n"
 
     return tempinput(ped_str)
+
+
+class ConverterConfig:
+    """
+    Shortcut class to create Config objects for all members of AnnotationConverters, which should
+    be all of them.
+
+    e.g., cc.vep(), cc.keyvalue(), ...
+    """
+
+    defaults = {
+        "source": "test source",
+        "target": "test target",
+    }
+    custom = {
+        "clinvarjson": {"source": "CLINVARJSON"},
+        "hgmdprimaryreport": {"source": "HGMD__pmid"},
+        "vep": {"source": "CSQ"},
+    }
+
+    def __init__(self) -> None:
+        # dynamically sets attributes based on member name, see class def for full list
+        for ac in AnnotationConverters:
+            default_args = {**self.defaults, **self.custom.get(ac.name, {})}
+            setattr(
+                self,
+                ac.name,
+                update_wrapper(partial(ac.value.Config, **default_args), ac.value.Config),
+            )
+
+
+cc = ConverterConfig()

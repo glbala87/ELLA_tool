@@ -13,58 +13,11 @@ export default function processAlleles(alleles, genepanel = null) {
             allele.annotation.filtered = allele.annotation.transcripts.sort(thenBy('transcript'))
         }
 
-        allele.urls = getUrls(allele)
         allele.formatted = getFormatted(allele, genepanel)
         allele.links = getLinks(allele, genepanel)
     }
 
     return alleles
-}
-
-function getUrls(allele) {
-    let urls = {
-        exac: `http://exac.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`,
-        '1000g': `http://browser.1000genomes.org/Homo_sapiens/Location/View?db=core;r=${
-            allele.chromosome
-        }:${allele.start_position + 1}-${allele.open_end_position}`,
-        ensembl: `http://grch37.ensembl.org/Homo_sapiens/Location/View?r=${
-            allele.chromosome
-        }%3A${allele.start_position + 1}-${allele.open_end_position}`
-    }
-
-    if (
-        'GNOMAD_EXOMES' in allele.annotation.frequencies ||
-        'GNOMAD_GENOMES' in allele.annotation.frequencies
-    ) {
-        urls.gnomad = `http://gnomad.broadinstitute.org/variant/${allele.chromosome}-${allele.vcf_pos}-${allele.vcf_ref}-${allele.vcf_alt}`
-    } else {
-        urls.gnomad = `http://gnomad.broadinstitute.org/region/${
-            allele.chromosome
-        }-${allele.vcf_pos - 10}-${allele.open_end_position + 10}`
-    }
-
-    if ('HGMD' in allele.annotation.external && 'acc_num' in allele.annotation.external.HGMD) {
-        urls.hgmd = `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/mut.php?acc=${allele.annotation.external.HGMD.acc_num}`
-    } else {
-        const gene_symbols = allele.annotation.transcripts
-            .filter((t) => allele.annotation.filtered_transcripts.indexOf(t.transcript) > -1)
-            .map((t) => t.symbol)
-        if (gene_symbols.length) {
-            // HGMD only support one gene symbol for specific search
-            const gene_symbol = gene_symbols[0]
-            urls.hgmd = `https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/gene.php?gene=${gene_symbol}`
-        }
-    }
-
-    if ('CLINVAR' in allele.annotation.external) {
-        urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/variation/${allele.annotation.external.CLINVAR.variant_id}`
-    } else {
-        urls.clinvar = `https://www.ncbi.nlm.nih.gov/clinvar/?term=${
-            allele.chromosome
-        }[chr]%E2%80%8C+AND+${allele.vcf_pos - 10}:${allele.open_end_position + 10}[chrpos37]`
-    }
-
-    return urls
 }
 
 function getLinks(allele, genepanel) {

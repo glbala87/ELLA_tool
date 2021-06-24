@@ -446,6 +446,7 @@ class DepositAnalysis(DepositFromVCF):
 
         for data in analysis_config_data["data"]:
             vi = vcfiterator.VcfIterator(data["vcf"])
+            self.annotation_importer.reset()
 
             vcf_sample_names = vi.samples
 

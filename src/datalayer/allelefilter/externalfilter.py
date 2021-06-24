@@ -40,6 +40,17 @@ CLINVAR_CLINSIG_GROUPS = {
     ],
 }
 
+CLINVAR_NUM_STARS = {
+    "no assertion criteria provided": 0,
+    "no assertion provided": 0,
+    "criteria provided, conflicting interpretations": 1,
+    "criteria provided, single submitter": 1,
+    "criteria provided, multiple submitters, no conflicts": 2,
+    "reviewed by expert panel": 3,
+    "practice guideline": 4,
+}
+
+
 # Ensure everything is lowercase
 CLINVAR_CLINSIG_GROUPS = {
     k.lower(): [x.lower() for x in v] for k, v in CLINVAR_CLINSIG_GROUPS.items()
@@ -85,11 +96,7 @@ class ExternalFilter(object):
         # Extract clinical_significance_status that matches the num_stars criteria
         # The clinical_significance_status to stars mapping is given in the config
         filter_signifiance_descr = [
-            k
-            for k, v in list(
-                self.config["annotation"]["clinvar"]["clinical_significance_status"].items()
-            )
-            if star_op(v, num_stars)
+            k for k, v in list(CLINVAR_NUM_STARS.items()) if star_op(v, num_stars)
         ]
 
         combinations = clinvar_config.get("combinations", [])

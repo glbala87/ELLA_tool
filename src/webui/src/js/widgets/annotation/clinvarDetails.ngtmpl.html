@@ -1,0 +1,56 @@
+<contentbox
+    boxtitle="{{ $ctrl.boxTitle }}"
+    title-url="{{ $ctrl.url }}"
+    disabled-title-url="{{ $ctrl.urlEmpty }}"
+    disabled="!$ctrl.data"
+>
+    <cbbody>
+        <div class="cb-table" ng-if="$ctrl.data">
+            <div class="tabular-row">
+                <div class="cell">
+                    <h5 class="wrap">
+                        Review status: &nbsp; &nbsp;
+                        <span ng-repeat="i in [0,1,2,3]">
+                            <svg
+                                id="i-star"
+                                class="star"
+                                ng-class="$ctrl.getStarClass(i)"
+                                viewBox="0 0 32 32"
+                                width="32"
+                                height="32"
+                                fill="none"
+                                stroke="currentcolor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="6.25%"
+                            >
+                                <path
+                                    d="M16 2 L20 12 30 12 22 19 25 30 16 23 7 30 10 19 2 12 12 12 Z"
+                                />
+                            </svg>
+                        </span>
+                        &nbsp;&nbsp;({{ $ctrl.data.variant_description }})
+                    </h5>
+                </div>
+            </div>
+            <div class="cell">
+                <h5 class="wrap">
+                    Submissions:
+                </h5>
+            </div>
+            <div
+                class="tabular-row"
+                ng-repeat="c in $ctrl.data.items | orderBy:'last_evaluated':true"
+            >
+                <div ng-if="c.rcv.startsWith('SCV')" class="cell">
+                    <p>
+                        {{ c.last_evaluated }} -
+                        {{ c.clinical_significance_descr || 'not specified' }} -
+                        {{ c.traitnames || 'not specified' }} -
+                        {{ c.submitter }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </cbbody>
+</contentbox>

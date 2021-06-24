@@ -1,0 +1,21 @@
+<contentbox
+    boxtitle="{{ $ctrl.boxTitle }}"
+    title-url="{{ $ctrl.url }}"
+    disabled-title-url="{{ $ctrl.urlEmpty }}"
+    disabled="!$ctrl.data || !$ctrl.wrapData().length"
+>
+    <cbbody>
+        <div class="cb-table" ng-repeat="value in $ctrl.wrapData()">
+            <div class="tabular-row" ng-repeat="(key, keyName) in $ctrl.viewConfig.names">
+                <div class="cell">
+                    <h5>{{ keyName }}:</h5>
+                </div>
+                <div class="cell">
+                    <p>
+                        {{ value[key] }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </cbbody>
+</contentbox>

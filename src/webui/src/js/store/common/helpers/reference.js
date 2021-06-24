@@ -1,6 +1,6 @@
 export function getReferencesIdsForAllele(allele) {
     const ids = []
-    if (allele.annotation) {
+    if (allele.annotation && allele.annotation.references) {
         for (let ref of allele.annotation.references) {
             let obj = {}
             if (ref.id) {

@@ -33,7 +33,7 @@ if __name__ == "__main__":
         action="store",
         dest="testset",
         help="Name of testset to import",
-        default="small",
+        default="default",
     )
 
     args = parser.parse_args()

@@ -2,7 +2,6 @@ import { set, when } from 'cerebral/operators'
 import { state, props, string } from 'cerebral/tags'
 import getAlleleByIdentifier from '../actions/getAlleleByIdentifier'
 import getGenepanels from '../actions/getGenepanels'
-import prepareComponents from '../actions/prepareComponents'
 import loadInterpretations from '../sequences/loadInterpretations'
 import toast from '../../../../common/factories/toast'
 import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
@@ -48,7 +47,6 @@ export default [
                     }
                 ]
             },
-            prepareComponents,
             loadInterpretations,
             // We need the formatted allele, so postpone setting title until here.
             setNavbarTitle(getWorkflowTitle)

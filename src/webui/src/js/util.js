@@ -132,3 +132,23 @@ export function sanitize(dirtyHTML) {
         // img: ['src']
     })
 }
+
+// Get nested items in object.
+// Used like
+// let obj = {a: {b: {c: 1}}}
+// getNested(obj, "a.b.c") // Returns 1
+// getNested(obj, "a") // Returns {b: {c: 1}} (obj.a)
+export function getNested(obj, key) {
+    if (typeof key === 'string') {
+        key = key.split('.')
+    }
+    let nextKey = key[0]
+    let remainingKeys = key.slice(1, key.length)
+    if (!(nextKey in obj)) {
+        return
+    } else if (remainingKeys.length) {
+        return getNested(obj[nextKey], remainingKeys)
+    } else {
+        return obj[nextKey]
+    }
+}

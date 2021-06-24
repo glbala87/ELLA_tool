@@ -23,6 +23,28 @@
     fill: $black-75;
 }
 
+.star.unavailable {
+    stroke: $black-75;
+    background: linear-gradient(
+            45deg,
+            transparent,
+            transparent 48%,
+            black 48%,
+            black 52%,
+            transparent 52%,
+            transparent
+        ),
+        linear-gradient(
+            -45deg,
+            transparent,
+            transparent 48%,
+            black 48%,
+            black 52%,
+            transparent 52%,
+            transparent
+        );
+}
+
 .acmg-body {
     margin-top: 1.3rem;
     margin-bottom: 0.7rem;

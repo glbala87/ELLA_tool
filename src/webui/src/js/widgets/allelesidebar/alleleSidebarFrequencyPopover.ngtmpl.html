@@ -1,16 +1,9 @@
 <div class="sectionbox">
-    <div style="display: flex; flex-wrap: wrap; max-width: 80rem !important;">
-        <allele-info-frequency-gnomad-exomes
+    <contentwrapper>
+        <allele-sectionbox-content
+            style="display: flex; flex-wrap: wrap; max-width: 100rem !important;"
             allele-path="$ctrl.allelesPath + '.' + allele.id"
-        ></allele-info-frequency-gnomad-exomes>
-        <allele-info-frequency-gnomad-genomes
-            allele-path="$ctrl.allelesPath + '.' + allele.id"
-        ></allele-info-frequency-gnomad-genomes>
-        <allele-info-frequency-exac
-            allele-path="$ctrl.allelesPath + '.' + allele.id"
-        ></allele-info-frequency-exac>
-        <allele-info-frequency-indb
-            allele-path="$ctrl.allelesPath + '.' + allele.id"
-        ></allele-info-frequency-indb>
-    </div>
+            boxes="$ctrl.sectionContents[allele.id].frequency"
+        ></allele-sectionbox-content>
+    </contentwrapper>
 </div>

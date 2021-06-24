@@ -7,11 +7,13 @@ function getReferences({ http, path, state }) {
     let ids = []
     let pubmedIds = []
     for (let allele of Object.values(alleles)) {
-        for (let ref of getReferencesIdsForAllele(allele)) {
-            if (ref.id) {
-                ids.push(ref.id)
-            } else if (ref.pubmed_id) {
-                pubmedIds.push(ref.pubmed_id)
+        if (allele.annotation.references) {
+            for (let ref of allele.annotation.references) {
+                if (ref.id) {
+                    ids.push(ref.id)
+                } else if (ref.pubmed_id) {
+                    pubmedIds.push(ref.pubmed_id)
+                }
             }
         }
     }

@@ -2,11 +2,11 @@
 import datetime
 import pytz
 from sqlalchemy import Column, Integer, DateTime, Index, FetchedValue
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, JSON
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
-from vardb.util.mutjson import JSONMutableDict
+from vardb.util.mutjson import JSONMutableDict, JSONMutableList
 from vardb.datamodel import Base
 
 
@@ -27,6 +27,10 @@ class Annotation(Base):
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
     )
+    annotation_config_id = Column(
+        Integer, ForeignKey("annotationconfig.id"), index=True, nullable=False
+    )
+    annotation_config = relationship("AnnotationConfig", backref="annotations")
 
     def __repr__(self):
         return "<Annotation('%s', '%s', '%s')>" % (
@@ -76,3 +80,14 @@ Index(
     postgresql_where=(CustomAnnotation.date_superceeded.is_(None)),
     unique=True,
 )
+
+
+class AnnotationConfig(Base):
+    __tablename__ = "annotationconfig"
+    id = Column(Integer, primary_key=True)
+    # Use JSON instead of JSONB, to preserve order of keys
+    deposit = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
+    view = Column(JSONMutableList.as_mutable(JSON), nullable=False, default=lambda: {})
+    date_created = Column(
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
+    )
