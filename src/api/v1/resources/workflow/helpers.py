@@ -620,11 +620,13 @@ def finalize_allele(
         finalize_requirements = get_nested(
             user_config, ["workflows", workflow_type, "finalize_requirements"]
         )
+
         if finalize_requirements.get("workflow_status"):
             if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
                 raise ApiError(
-                    "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
-                        ", ".join(finalize_requirements["workflow_status"])
+                    "Cannot finalize: interpretation workflow status is {}, but must be one of: {}".format(
+                        interpretation.workflow_status,
+                        ", ".join(finalize_requirements["workflow_status"]),
                     )
                 )
 
@@ -737,8 +739,9 @@ def finalize_workflow(
     if finalize_requirements.get("workflow_status"):
         if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
             raise ApiError(
-                "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
-                    ", ".join(finalize_requirements["workflow_status"])
+                "Cannot finalize: interpretation workflow status is {}, but must be one of: {}".format(
+                    interpretation.workflow_status,
+                    ", ".join(finalize_requirements["workflow_status"]),
                 )
             )
 

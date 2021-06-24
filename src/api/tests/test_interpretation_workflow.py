@@ -378,7 +378,7 @@ class TestFinalizationRequirements:
         )
         assert r.status_code == 500
         assert (
-            "Cannot finalize: Interpretation's workflow status is in one of required ones"
+            "Cannot finalize: interpretation workflow status is Interpretation, but must be one of: Review"
             in r.get_json()["message"]
         )
 
@@ -400,7 +400,7 @@ class TestFinalizationRequirements:
 
         assert r.status_code == 500
         assert (
-            "Cannot finalize: Interpretation's workflow status is in one of required ones"
+            "Cannot finalize: interpretation workflow status is Interpretation, but must be one of: Review"
             in r.get_json()["message"]
         )
 
@@ -469,7 +469,9 @@ class TestFinalizationRequirements:
         # Default user id is 1
         user_config = {
             "workflows": {
-                "analysis": {"finalize_requirements": {"workflow_status": ["Medical review"]}}
+                "analysis": {
+                    "finalize_requirements": {"workflow_status": ["Review", "Medical review"]}
+                }
             }
         }
         update_user_config(session, "testuser1", user_config)
@@ -505,7 +507,7 @@ class TestFinalizationRequirements:
         )
         assert r.status_code == 500
         assert (
-            "Cannot finalize: Interpretation's workflow status is in one of required ones"
+            "Cannot finalize: interpretation workflow status is Interpretation, but must be one of: Review, Medical review"
             in r.get_json()["message"]
         )
 
