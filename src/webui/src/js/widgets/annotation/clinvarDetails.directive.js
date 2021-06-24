@@ -18,7 +18,7 @@ app.component('clinvarDetails', {
     templateUrl: 'clinvarDetails.ngtmpl.html',
     bindings: {
         source: '@',
-        title: '@',
+        boxTitle: '@',
         url: '@',
         urlEmpty: '@',
         allelePath: '<',

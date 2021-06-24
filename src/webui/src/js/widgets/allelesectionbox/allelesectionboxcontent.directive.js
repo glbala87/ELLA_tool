@@ -48,7 +48,7 @@ import { Directive, Inject } from '../../ng-decorators'
                         }
                         if ('attr' in box) {
                             for (let [k, v] of Object.entries(box.attr)) {
-                                attrs += `${k}="${v}"`
+                                attrs += ` ${k}="${v}"`
                             }
                         }
 
@@ -64,7 +64,7 @@ import { Directive, Inject } from '../../ng-decorators'
                             class="${classes.join(' ')}"
                             allele-path="vm.allelePath"
                             source="${box.source}"
-                            title="${title}"
+                            box-title="${title}"
                             url="${box.url}"
                             url_empty="${box.url_empty}"
                             annotation-config-id="${box.annotationConfigId}"

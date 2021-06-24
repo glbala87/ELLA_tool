@@ -58,7 +58,7 @@ const extractedData = Compute(
 app.component('itemList', {
     bindings: {
         source: '@',
-        title: '@',
+        boxTitle: '@',
         url: '@',
         urlEmpty: '@',
         allelePath: '<',

@@ -7,7 +7,7 @@ import getAnnotationConfigItem from '../../store/modules/views/workflows/compute
 app.component('keyValue', {
     bindings: {
         source: '@',
-        title: '@',
+        boxTitle: '@',
         url: '@',
         urlEmpty: '@',
         allelePath: '<',
