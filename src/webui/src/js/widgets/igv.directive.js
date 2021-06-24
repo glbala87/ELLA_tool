@@ -9,7 +9,7 @@ const onTrackclick = (track, popupData) => {
     if (!popupData || !popupData.length) {
         return false
     }
-    if (track.id == 'Classifications') {
+    if (track.id === 'classifications') {
         const ep = document.createElement('div')
         const alleleUrlInfo = {
             chromosome: null,
