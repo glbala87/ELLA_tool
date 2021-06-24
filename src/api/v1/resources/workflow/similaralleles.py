@@ -1,7 +1,7 @@
-from typing import List, Mapping
+from typing import List, Mapping, Dict
 from api.config import config
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 from api import ApiError
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
@@ -73,6 +73,12 @@ def get_nearby_allele_ids(session, allele_ids: List[int]) -> Mapping[int, List[i
         .filter(
             allele.Allele.id.in_(assessed_allele_ids),
         )
+        .order_by(
+            func.abs(
+                (allele.Allele.start_position + allele.Allele.open_end_position) / 2
+                - (regions.c.start_position + regions.c.open_end_position) / 2
+            )
+        )
     ).all()
 
     # Dictionary of query allele ids to nearby assessed allele ids
@@ -82,9 +88,13 @@ def get_nearby_allele_ids(session, allele_ids: List[int]) -> Mapping[int, List[i
     #     4: [],
     #     6: [5,8],
     # }
-    ret: Mapping[int, List[int]] = {a_id: [] for a_id in allele_ids}
+    ret: Dict[int, List[int]] = {a_id: [] for a_id in allele_ids}
     for allele_id, assessed_allele_id in nearby_alleles:
         ret[allele_id].append(assessed_allele_id)
+
+    # Limit the number of variants returned per allele id
+    max_variants = config["similar_alleles"]["max_variants"]
+    ret = {k: v[:max_variants] for k, v in ret.items()}
     return ret
 
 
