@@ -1,5 +1,5 @@
 from vardb.datamodel import allele, assessment
-from api.v1.resources.workflow.similaralleles import nearby_alleles
+from api.v1.resources.workflow.similaralleles import get_nearby_allele_ids
 from conftest import mock_allele
 from api.config import config
 from typing import List
@@ -26,8 +26,8 @@ def test_nearbyalleles(session, test_database, client):
         return a
 
     def _test_nearby(input: allele.Allele, expected_output: List[allele.Allele]):
-        res = nearby_alleles(session, input.id)
-        assert set(map(lambda x: x.id, res)) == set(map(lambda x: x.id, expected_output))
+        res = get_nearby_allele_ids(session, [input.id])
+        assert set(res[input.id]) == set(map(lambda x: x.id, expected_output))
 
     #       0         1         2         3         4         5         6         7
     #       012345678901234567890123456789012345678901234567890123456789012345678901234567
