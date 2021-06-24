@@ -53,7 +53,6 @@ const BASE_SECTIONS = {
         title: 'Region',
         color: 'purple',
         alleleAssessmentReusedColor: 'green',
-        content: [{ tag: 'allele-info-similar-alleles' }],
         alleleassessmentComment: {
             placeholder: 'REGION-COMMENTS',
             name: 'similar'
@@ -116,6 +115,7 @@ const BASE_SECTIONS = {
 const CLASSIFICATION_BASE_CONTENT = {
     analysis: [{ tag: 'allele-info-quality' }],
     classification: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }],
+    similar: [{ tag: 'allele-info-similar-alleles' }],
     frequency: [],
     prediction: [
         { tag: 'allele-info-consequence', order: 'first' },
