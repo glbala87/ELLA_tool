@@ -1,3 +1,4 @@
+import loadAnnotationConfigs from '../sequences/loadAnnotationConfigs'
 import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 
 export default [
@@ -12,5 +13,6 @@ export default [
             throw Error(`Allele id ${props.alleleId} is not included`)
         }
     },
-    loadExcludedAlleles
+    loadExcludedAlleles,
+    loadAnnotationConfigs
 ]
