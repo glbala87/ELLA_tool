@@ -3,6 +3,8 @@
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
+var IGVBrowser = null
+
 const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
 
 const onTrackclick = (track, popupData) => {
@@ -113,8 +115,14 @@ const onTrackclick = (track, popupData) => {
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
+            // Set exported variable, so it can be accessed elsewhere
+            IGVBrowser = browser
+
             // custom popover
             browser.on('trackclick', onTrackclick)
+
+            // Load initial tracks
+            browser.loadTrackList(scope.tracks)
 
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
@@ -134,32 +142,28 @@ const onTrackclick = (track, popupData) => {
                 }
             )
 
-            let loadTrackPromises = []
-            // Watch changes to shown tracks
-            scope.$watchCollection('tracks', () => {
-                // wait for tracks to be loaded
-                Promise.all(loadTrackPromises).then(() => {
-                    // IGV has two internal tracks with empty string as track names
-                    // These should be left alone...
-                    loadTrackPromises = []
-                    const currentTrackNames = browser.trackViews
+            // Watch for duplicated tracks, and remove duplicates
+            // This can happen because loadTrack and loadTrackList are async functions,
+            // and rapid clicking can cause the track to be added multiple times
+            // The following checks for duplicates, and removes them if there are any
+            scope.$watchCollection(
+                () => {
+                    return browser.trackViews
                         .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
                         .map((tv) => tv.track.name)
-                    const removedNames = currentTrackNames.filter(
-                        (name) => !scope.tracks.find((t) => t.name === name)
+                },
+                (n, o) => {
+                    const duplicatedTrackNames = n.filter(
+                        (item, index) => n.indexOf(item) !== index
                     )
-                    const toAddTracks = scope.tracks.filter(
-                        (t) => !currentTrackNames.includes(t.name)
-                    )
+                    for (let trackName of duplicatedTrackNames) {
+                        console.log('Removing ', trackName)
 
-                    for (const name of removedNames) {
-                        browser.removeTrackByName(name)
+                        let track = browser.trackViews.find((t) => t.track.name === trackName).track
+                        browser.removeTrack(track)
                     }
-                    if (toAddTracks.length) {
-                        loadTrackPromises.push(browser.loadTrackList(toAddTracks))
-                    }
-                })
-            })
+                }
+            )
 
             // allow zoom with mouse wheel
             document.querySelector('.igv-track-container').onwheel = (event) => {
@@ -171,6 +175,8 @@ const onTrackclick = (track, popupData) => {
     }
 })
 @Inject('Config')
-export class IgvController {
+class IgvController {
     constructor() {}
 }
+
+export { IgvController, IGVBrowser }
