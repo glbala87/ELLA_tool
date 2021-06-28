@@ -55,7 +55,7 @@ In an analysis workflow, you may want to update the REPORT for a previously clas
 ::: warning NOTES
 Finalization is not possible if there are unsaved changes to a REPORT field (you will get an error message if you try). To correct this, either submit or undo the changes you made.
 
-Also note that this feature is not intended for the VARIANTS workflow or for variants with outdated classifications. Although updating the REPORT this way is possible in these cases, other configured workflow requirements must also be fulfilled before you are allowed to finalize (e.g. mandatory REVIEW step, all variants  classified).
+Also note that this feature is not intended for the VARIANTS workflow or for variants with outdated classifications. Although updating the REPORT this way is possible in these cases, other configured workflow requirements must also be fulfilled before you are allowed to finalize (e.g. mandatory REVIEW step, all variants classified).
 :::
 
 ### Interpretations that are outdated
