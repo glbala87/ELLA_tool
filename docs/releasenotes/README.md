@@ -80,6 +80,7 @@ The following changes must be made to `ella-config.yml` to use this version:
 No further release notes necessary, but adding here for reference: 
 MR !534 Add typing stubs
 MR !548 Minor fixes
+MR !549 Load tracks in cerebral to avoid JS promises in watch. Remove duplicate tracks with AngularJS watch.
 -->
 - Fixes and improvements to development environment and code base. 
 
