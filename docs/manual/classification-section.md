@@ -46,21 +46,16 @@ It is still possible to do a re-evaluation of these variants by clicking the `RE
 Pushing the `RE-EVALUATION` button also resets the classification. To be able to finalize the variant, you must first reselect a class in the dropdown. 
 :::
 
-### Update/submit REPORT only
+#### Update/submit REPORT only
 
-Edits can be made to the REPORT field without resetting the validity period for a previously evaluated, still valid variant. To do this: 
-
-- Click the `START INTERPRETATION` button if you haven't already done so. For variants that are still valid, this makes the REPORT field writeable, whereas other fields/choices are kept read-only (to make a full re-evaluation with validity reset, click `RE-EVALUATE`).
-- Make your changes and push the `SUBMIT REPORT` button, or undo with the `UNDO REPORT CHANGES` button (followed by `CONFIRM`): 
+In an analysis workflow, you may want to update the REPORT for a previously classified, still valid variant, without resetting the validity period. To do this, in an analysis that has already been started, make your changes to the REPORT field and push the `SUBMIT REPORT` button. Changes can be reverted with the `UNDO REPORT CHANGES` button (followed by `CONFIRM`): 
 
 <div class="figure"><img src="./img/update_report.png"></div>
 
 ::: warning NOTES
-Finalization of an analysis or interpretation is not possible if there are unsaved changes to a REPORT field (you will get an error message if you try). To correct this, click the `SUBMIT REPORT` button or undo the changes you made.
+Finalization is not possible if there are unsaved changes to a REPORT field (you will get an error message if you try). To correct this, either submit or undo the changes you made.
 
-Also note these limitations: 
-- Updating only the report for a variant with an outdated classification is not possible. In this case, you must do a full re-evaluation. 
-- If you open a variant in VARIANTS mode, the variant must fulfil the configured finalization requirements (e.g. mandatory REVIEW step), even if only the REPORT was changed. 
+Also note that this feature is not intended for the VARIANTS workflow or for variants with outdated classifications. Although updating the REPORT this way is possible in these cases, other configured workflow requirements must also be fulfilled before you are allowed to finalize (e.g. mandatory REVIEW step, all variants  classified).
 :::
 
 ### Interpretations that are outdated
