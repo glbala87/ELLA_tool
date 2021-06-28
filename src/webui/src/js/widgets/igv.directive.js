@@ -45,10 +45,7 @@ const onTrackclick = (track, popupData) => {
                         // create allele link
                         const ea = document.createElement('a')
                         const alleleId = `${alleleUrlInfo.chromosome}-${alleleUrlInfo.vcf_pos}-${alleleUrlInfo.vcf_ref}-${alleleUrlInfo.vcf_alt}`
-                        ea.href =
-                            `/workflows/variants/${alleleUrlInfo.genome_reference}/` +
-                            `${alleleId}` +
-                            `?gp_name=${alleleUrlInfo.genepanel_name}&gp_version=${alleleUrlInfo.genepanel_version}`
+                        ea.href = `/workflows/variants/${alleleUrlInfo.genome_reference}/${alleleId}`
                         ea.innerHTML = alleleId
                         ea.target = '_blank'
                         _addRow(ep, 'Assessment', ea)
