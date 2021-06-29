@@ -13,7 +13,7 @@ function getSimilarAlleles({ http, path, state }) {
             .then((response) => {
                 const similar_alleles = response.result
                 for (let allele_id of Object.keys(similar_alleles)) {
-                    processAlleles(similar_alleles[allele_id], genepanel)
+                    processAlleles(similar_alleles[allele_id], null)
                 }
                 return path.success({ result: similar_alleles })
             })
