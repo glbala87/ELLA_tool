@@ -27,7 +27,7 @@ Adding new kinds of variant annotation in ELLA has up until now required changes
 Unless new annotation is added, no changes will be visible to the end user, except a very minor change in the sorting of ClinVar entries (now sorted on date only).
 
 #### New REGION section
-<!-- Relevant MRs: !531,!544, !546 -->
+<!-- Relevant MRs: !531, !544, !546, !551 -->
 A new section termed REGION has been added to the CLASSIFICATION page. This shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
 
 <div class="figure_text">
@@ -36,7 +36,7 @@ A new section termed REGION has been added to the CLASSIFICATION page. This show
 </div> 
 
 #### Improvements to VISUAL
-<!-- Relevant MRs: !520, !535, !541, !542 -->
+<!-- Relevant MRs: !520, !535, !541, !542, !550 -->
 This version adds several improvements to how the VISUAL mode (with IGV.js) works. Most significantly, the track selection section on top of the VISUAL page is now collapsible and has the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
 
 <div class="figure_text">
@@ -62,13 +62,13 @@ The following changes must be made to `ella-config.yml` to use this version:
 ### All changes
 <!-- MR !405 -->
 - [Added support for configurable annotation](#support-for-configurable-annotation).
-<!-- MR !531, !544, !546 -->
+<!-- MR !531, !544, !546, !551 -->
 - [Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments](#new-region-section). 
 <!-- MR !535 -->
 - [Added support for track selection presets in VISUAL](#improvements-to-visual).
 <!-- MR !520 -->
 - [Made track selection section in VISUAL collapsible](#improvements-to-visual).
-<!-- MR !541 -->
+<!-- MR !541, !550 -->
 - [Enabled links to existing classifications in VISUAL](#improvements-to-visual).
 <!-- MR !542 -->
 - [Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL](#improvements-to-visual).
