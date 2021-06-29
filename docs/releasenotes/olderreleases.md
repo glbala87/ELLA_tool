@@ -653,7 +653,7 @@ Release date: 14.11.2018
 
 #### Visualization *(analysis workflow)*
 
-As part of this release, [igv.js](https://igv.org/doc/doc.html) has been integrated into ELLA as part of a new visualization feature. ELLA now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
+As part of this release, [igv.js](https://github.com/igvteam/igv.js) has been integrated into ELLA as part of a new visualization feature. ELLA now let's you visualize all variants in an analysis, along with user customizable tracks at three different levels: global (all users), user group and analysis.
 
 ELLA provides a few special tracks by default:
 
@@ -724,7 +724,7 @@ A new, online user manual is now available from within ELLA itself. You can acce
 - Workflows can now be finalized with technical, not relevant and/or missing classifications (depending on configuration). Workflows can still force valid classifications for all variants if desired (old behavior). *(analysis workflow)*
 - `Requested date` is now read from input `.analysis` file and used in overview.
 - Too wide images in comments will not make the page scrollable in the horizontal direction.
-- Overview comment is now visible for `Finalised` analyses and variants in overview.
+- Overview comment is now visible for `Finalized` analyses and variants in overview.
 - Low quality warning is removed for Sanger variants, as there is no quality data.
 - HTML content is now properly sanitized when pasted into comment fields.
 - Fix issue where technical status was not reflected in the `TECHNICAL` button in the `QUALITY` card under certain conditions.
@@ -776,7 +776,7 @@ All options in the work log can be changed at any time, without having to start 
     <p><strong>Figure: </strong>Work log example.</p>
 </div>
 
-If there are any messages since last time the workflow was `Finalised`, the work log button will appear in purple, along with the current message count.
+If there are any messages since last time the workflow was `Finalized`, the work log button will appear in purple, along with the current message count.
 
 <div class="figure_text">
     <img src="./img/1-2-worklog-button.png">

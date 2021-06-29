@@ -6,7 +6,7 @@ title: Evidence sections
 
 [[toc]]
 
-In FULL (default) mode, the main view of the CLASSIFICATION page contains a number of different sections (shown here as [collapsed](http://manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)):  
+In FULL (default) mode, the main view of the CLASSIFICATION page contains a number of different sections (shown here as [collapsed](/manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)):  
 
 <div class="figure"><img src="./img/classification_sections.png"></div>
 <br>
@@ -70,6 +70,13 @@ In the header of the ANALYSIS SPECIFIC section, you can mark variants as `VERIFI
 Variants marked as `TECHNICAL` or `NOT RELEVANT` can, depending on the your configuration, be left without a selected class upon finalization of the analysis.
 :::
 
+
+## Region
+
+This section displays other, previously classified variants within a predefined, genomic distance from the selected variant. Click on the link to open the other variant evaluation in a new tab. 
+
+If there are more than a preset max number of variants (e.g., 10), only the closest variants are shown. 
+
 ## Frequency
 
 This section displays population frequencies reported in external or internal datasets (if any). Note that variants with a population frequency exceeding the threshold for ACMG criterion BA1 have already been [filtered out](/manual/top-bar.html#excluded-variants).
@@ -95,7 +102,7 @@ This section displays various predicted effects of the variant.
 
 #### VEP consequence
 
-[Variant Effect Predictor (VEP)](http://www.ensembl.org/info/genome/variation/predicted_data.html#consequences) provides basic information about the location and expected effect of a variant within a transcript and protein. VEP uses [Sequence Ontology terms](http://www.sequenceontology.org/).
+[Variant Effect Predictor (VEP)](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html) provides basic information about the location and expected effect of a variant within a transcript and protein. VEP uses [Sequence Ontology terms](http://www.sequenceontology.org/).
 
 By default, only effects in the default transcript(s) specified in the gene panel are shown. However, if there are worse consequences in other, alternative RefSeq (NM\_) transcripts, this will also be displayed together with a warning. To view consequences in all alternative RefSeq transcripts, click the given consequence(s).
 

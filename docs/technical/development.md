@@ -14,9 +14,9 @@ If you want something else than the default data. See vardb/deposit/deposit_test
 
 Now, ELLA should be available on http://localhost:5000, and one can log in with credentials `testuser1:demo`, `testuser2:demo`,...,`testuser8:demo`. The environments for the test users are slightly different.
 
-To get visibility into what's happening in the browser client, start the Cerebral debugger (<https://cerebraljs.com/docs/introduction/debugger.html>).
+To get visibility into what's happening in the browser client, start the [Cerebral debugger](https://cerebraljs.com/docs/introduction/devtools.html).
 Enter any name ('ella' is a good name) and port 8585. This sets up a server listening on that part port.
-Open the app in the browser (refresh if the app was openen before starting Cerebral). The browser will connect
+Open the app in the browser (refresh if the app was opened before starting Cerebral). The browser will connect
 to the Cerebral. Make sure the server port match the port configured in webui/src/js/index.js
 
 \* On subsequent runs, it is sufficient to run `Remote-Containers: Reopen in Container`
