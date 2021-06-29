@@ -19,6 +19,6 @@ Most functionality is baked into a Makefile, run `make help` to see a quick over
 - [Demo](/technical/demo.md)
 - [Production](/technical/production.md)
 - [Logging](/technical/logging.md)
-- [Development](/technical/dev.md)
+- [Development](/technical/development.md)
 - [Testing](/technical/testing.md)
 

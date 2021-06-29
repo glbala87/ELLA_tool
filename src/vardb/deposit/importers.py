@@ -8,21 +8,46 @@ Adds annotation if supplied annotation is different than what is already in db.
 Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 import base64
-import logging
 import datetime
-import pytz
+import logging
 from collections import defaultdict
-from sqlalchemy import or_, and_
 from os.path import commonprefix
+from typing import (
+    Any,
+    Callable,
+    DefaultDict,
+    Dict,
+    List,
+    Mapping,
+    MutableMapping,
+    MutableSequence,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
-
-from vardb.datamodel import allele as am, sample as sm, genotype as gm, workflow as wf, assessment
+import pytz
+from api.util.util import dict_merge
+from sqlalchemy import and_, or_
+from sqlalchemy.orm import scoped_session
+from vardb.datamodel import allele as am
 from vardb.datamodel import annotation as annm
-from vardb.util import annotationconverters
+from vardb.datamodel import assessment
+from vardb.datamodel import genotype as gm
+from vardb.datamodel import sample as sm
+from vardb.datamodel import workflow as wf
 from vardb.datamodel.user import User
+from vardb.deposit.annotation_config import AnnotationImportConfig
+from vardb.deposit.annotationconverters import (
+    AnnotationConverter,
+    AnnotationConverters,
+    ConverterArgs,
+)
+from vardb.util.vcfiterator import Record
 
 log = logging.getLogger(__name__)
-
 
 ASSESSMENT_CLASS_FIELD = "CLASS"
 ASSESSMENT_COMMENT_FIELD = "ASSESSMENT_COMMENT"
@@ -196,7 +221,7 @@ def batch_generator(generator, n):
 
 
 def bulk_insert_nonexisting(
-    session,
+    session: scoped_session,
     model,
     rows,
     all_new=False,
@@ -299,7 +324,10 @@ class SampleImporter(object):
     They can have been run on different regions.
     """
 
-    def __init__(self, session):
+    session: scoped_session
+    counter: DefaultDict[str, int]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.counter = defaultdict(int)
 
@@ -462,7 +490,10 @@ class SampleImporter(object):
 
 
 class GenotypeImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.batch_items = list()  # [{'genotype': .., 'genotypesampledata: [...]}]
 
@@ -702,7 +733,11 @@ class GenotypeImporter(object):
 
 
 class AssessmentImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+    counter: DefaultDict[str, int]
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session):
         self.session = session
         self.counter = defaultdict(int)
         self.batch_items = list()
@@ -789,50 +824,183 @@ class AssessmentImporter(object):
 
 
 class AnnotationImporter(object):
-    def __init__(self, session):
+    annotation_config: annm.AnnotationConfig
+    batch_items: List[Mapping[str, Any]]
+    import_config: List[AnnotationImportConfig]
+    session: scoped_session
+    _converters: Dict[str, MutableSequence[AnnotationConverter]]
+
+    def __init__(self, session: scoped_session, import_config: Optional[Sequence[Mapping]] = None):
         self.session = session
-        self.batch_items = list()
-        self.csq_converter = annotationconverters.ConvertCSQ()
+        self.batch_items: List[Dict] = list()
 
-    def _extract_annotation_from_record(self, record, allele):
+        self.annotation_config = (
+            self.session.query(annm.AnnotationConfig)
+            .order_by(annm.AnnotationConfig.id.desc())
+            .first()
+        )
+        if import_config is None:
+            self.import_config = [
+                AnnotationImportConfig(**c) for c in self.annotation_config.deposit
+            ]
+        else:
+            self.import_config = [AnnotationImportConfig(**c) for c in import_config]
+        self._converters = {}
+
+    def reset(self) -> None:
+        self._converters = {}
+
+    def _get_or_create_converters(
+        self, source: str, vcf_meta: Mapping[str, Sequence[Mapping[str, Any]]]
+    ) -> MutableSequence[AnnotationConverter]:
+        if source not in self._converters:
+            self._converters[source] = []
+            for converter_config in self.import_config:
+                for element_config in converter_config.converter_config.elements:
+                    if element_config["source"] != source:
+                        continue
+                    converter_class: Type[AnnotationConverter] = AnnotationConverters[
+                        converter_config.name
+                    ].value
+
+                    converterelement_config = converter_class.Config(**element_config)
+                    meta = next(
+                        (x for x in vcf_meta.get("INFO", []) if x.get("ID") == source), None
+                    )
+
+                    if meta:
+                        converter = converter_class(config=converterelement_config, meta=meta)
+                    else:
+                        converter = converter_class(config=converterelement_config)
+                    converter.setup()
+                    self._converters[source].append(converter)
+
+        return self._converters[source]
+
+    @staticmethod
+    def _traverse_path(obj: Dict, path: str) -> Tuple[str, Dict]:
+        """Walk through object to find (and create if it does not exist) a
+        compound path like `this.is.a.path` in a dict-like object.
+        """
+        assert path and path != ".", f"No path provided: {path}."
+        parts = path.split(".")
+        next_obj = obj
+        while parts:
+            p = parts.pop(0)
+            if parts:
+                # Leaf node
+                if p not in next_obj:
+                    next_obj[p] = {}
+                next_obj = next_obj[p]
+
+        return p, next_obj
+
+    @staticmethod
+    def insert_at_target(obj: Dict, target: str, item: Any) -> None:
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        assert leaf not in obj
+        obj[leaf] = item
+
+    @staticmethod
+    def extend_at_target(obj: Dict, target: str, items: Union[Tuple, List]) -> None:
+        assert isinstance(
+            items, (list, tuple)
+        ), f"Trying to extend with {type(items)}. Must be of instance list or tuple. {items}"
+
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = items
+        else:
+            assert isinstance(
+                obj[leaf], type(items)
+            ), f"Type mismatch. Existing type is {type(obj[leaf])}, trying to extend with items of type {type(items)}"
+            obj[leaf] += items
+
+    @staticmethod
+    def append_at_target(obj: Dict, target: str, item: Any):
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = []
+
+        obj[leaf].append(item)
+
+    @staticmethod
+    def merge_at_target(obj: Dict, target: str, item: Dict):
+        leaf, obj = AnnotationImporter._traverse_path(obj, target)
+        if leaf not in obj:
+            obj[leaf] = item
+        else:
+            assert isinstance(obj[leaf], dict)
+            dict_merge(obj[leaf], item)
+
+    def _extract_annotation_from_record(self, record: Record) -> Mapping[str, Any]:
         """Given a record, return dict with annotation to be stored in db."""
-        # Deep merge 'ALL' annotation and allele specific annotation
-        merged_annotation = record.annotation()
 
-        # # Convert the mess of input annotation into database annotation format
-        frequencies = dict()
-        frequencies.update(annotationconverters.gnomad_genomes_frequencies(merged_annotation))
-        frequencies.update(annotationconverters.gnomad_exomes_frequencies(merged_annotation))
-        frequencies.update(annotationconverters.indb_frequencies(merged_annotation))
-
-        transcripts = self.csq_converter(
-            merged_annotation.get("CSQ"),
-            next((x for x in record.meta.get("INFO", []) if x.get("ID") == "CSQ"), None),
-        )
-
-        external = dict()
-        external.update(annotationconverters.convert_hgmd(merged_annotation))
-        external.update(annotationconverters.convert_clinvar(merged_annotation))
-
-        references = annotationconverters.ConvertReferences().process(
-            merged_annotation, record.meta
-        )
-
-        annotations = {
-            "frequencies": frequencies,
-            "external": external,
-            "prediction": {},
-            "transcripts": sorted(transcripts, key=lambda x: x["transcript"]),
-            "references": references,
+        target_mode_funcs: Mapping[str, Callable[..., None]] = {
+            "insert": self.insert_at_target,
+            "extend": self.extend_at_target,
+            "append": self.append_at_target,
+            "merge": self.merge_at_target,
         }
+
+        annotations: MutableMapping[str, Any] = {}
+        for source, value in record.annotation().items():
+            converters = self._get_or_create_converters(source, record.meta)
+            for converter in converters:
+                try:
+                    element_config = converter.config
+                    additional_sources = element_config.additional_sources
+
+                    converter_args = ConverterArgs(
+                        value, {k: record.annotation().get(k) for k in additional_sources}
+                    )
+
+                    try:
+                        processed_value = converter(converter_args)
+                    except:
+                        logging.exception(
+                            f"Conversion failed with source {source!r}={value!r}: {element_config}, {converter.__class__}"
+                        )
+                        raise
+
+                    target = element_config.target
+                    target_mode = element_config.target_mode
+                    assert (
+                        target_mode in target_mode_funcs
+                    ), f"Unknown target mode: {target_mode}. Available target modes are {list(target_mode_funcs.keys())}"
+                    target_mode_funcs[target_mode](annotations, target, processed_value)
+
+                except Exception:
+                    err_str = (
+                        f"Error when trying to convert source '{source!r}' with value {value!r}"
+                        f" ({type(value)}), using converter {element_config}"
+                    )
+                    log.exception(err_str)
+                    raise RuntimeError(err_str)
+
+        for converter_config in self.import_config:
+            for el_config in converter_config.converter_config.elements:
+                source = el_config["source"]
+                if source not in record.annotation() and el_config.get("required"):
+                    raise RuntimeError(f"Missing required source field in annotation: {source}")
+
+        # TODO: Get a generic sorting/diffing to ensure all lists are sorted,
+        # or that sorting is not taken into account when comparing json structures
+        if "references" in annotations:
+            annotations["references"] = sorted(
+                annotations["references"], key=lambda x: x["pubmed_id"]
+            )
         return annotations
 
     def add(self, record, allele_id):
+        annotation_data = self._extract_annotation_from_record(record)
 
-        allele = record.variant.ALT[0]
-
-        annotation_data = self._extract_annotation_from_record(record, allele)
-        data = {"allele_id": allele_id, "annotations": annotation_data, "date_superceeded": None}
+        data = {
+            "allele_id": allele_id,
+            "annotations": annotation_data,
+            "date_superceeded": None,
+            "annotation_config_id": self.annotation_config.id,
+        }
         self.batch_items.append(data)
         return data
 
@@ -854,7 +1022,10 @@ class AnnotationImporter(object):
                 and_(
                     *[
                         annm.Annotation.allele_id == item["allele_id"],
-                        annm.Annotation.annotations != item["annotations"],
+                        or_(
+                            annm.Annotation.annotations != item["annotations"],
+                            annm.Annotation.annotation_config_id != item["annotation_config_id"],
+                        ),
                         annm.Annotation.date_superceeded.is_(None),
                     ]
                 )
@@ -878,7 +1049,7 @@ class AnnotationImporter(object):
             annm.Annotation,
             self.batch_items,
             include_pk="id",
-            compare_keys=["allele_id", "annotations", "date_superceeded"],
+            compare_keys=["allele_id", "annotations", "date_superceeded", "annotation_config_id"],
             replace=False,
             batch_size=len(self.batch_items),  # Insert whole batch
         ):
@@ -903,7 +1074,12 @@ class AnnotationImporter(object):
 
 
 class AlleleImporter(object):
-    def __init__(self, session, ref_genome="GRCh37"):
+    session: scoped_session
+    ref_genome: str
+    counter: DefaultDict[str, int]
+    batch_items: List[Dict[str, Any]]
+
+    def __init__(self, session: scoped_session, ref_genome: str = "GRCh37"):
         self.session = session
         self.ref_genome = ref_genome
         self.counter = defaultdict(int)
@@ -938,7 +1114,9 @@ class AlleleImporter(object):
 
 
 class AnalysisImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, analysis_name, genepanel, report, warnings, date_requested=None):
@@ -974,7 +1152,9 @@ class AnalysisImporter(object):
 
 
 class AnalysisInterpretationImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, db_analysis, priority, reopen_if_exists=False):
@@ -1016,7 +1196,9 @@ class AnalysisInterpretationImporter(object):
 
 
 class AlleleInterpretationImporter(object):
-    def __init__(self, session):
+    session: scoped_session
+
+    def __init__(self, session: scoped_session):
         self.session = session
 
     def process(self, genepanel, allele_id):

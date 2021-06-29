@@ -6,10 +6,83 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.14](#version-1-14)|
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.14
+
+Release date: 30.06.2021
+
+### Highlights
+
+The most significant change in this release is the addition of support for configurable annotation. In addition, several improvements have been made in the UI in preparation for CNV support. 
+
+#### Support for configurable annotation
+<!-- Relevant MRs: !405 -->
+Adding new kinds of variant annotation in ELLA has up until now required changes to the source code, and has been a major limitation in the software. Starting with this release, however, new annotation can be added with a few changes to configuration. This allows much more flexibility and ease when adding new variant annotation resources. See the [technical docs](/technical/annotation.html) for more information on how to use the new configuration.
+
+Unless new annotation is added, no changes will be visible to the end user, except a very minor change in the sorting of ClinVar entries (now sorted on date only).
+
+#### New REGION section
+<!-- Relevant MRs: !531, !544, !546, !551 -->
+A new section termed REGION has been added to the CLASSIFICATION page. This shows previously classified SNVs from the internal database VarDB that are within a [preconfigured](/technical/annotation.html#region) genomic distance from the currently selected variant: 
+
+<div class="figure_text">
+    <img src="./img/1-14-nearby-variants.png"><br>
+    <p><strong>Figure: </strong>New section with nearby classified variants.</p>
+</div> 
+
+#### Improvements to VISUAL
+<!-- Relevant MRs: !520, !535, !541, !542, !550 -->
+This version adds several improvements to how the VISUAL mode (with IGV.js) works. Most significantly, the track selection section on top of the VISUAL page is now collapsible and has the possibility for adding presets that allow quick selection/deselection of groups of tracks: 
+
+<div class="figure_text">
+    <img src="./img/1-14-track-selection.png"><br>
+    <p><strong>Figure: </strong>Improved track selection with possibility for presets.</p>
+</div> 
+
+In addition, the Classification track now includes links to existing allele assessments. Click a variant in the track, then the link in the resulting popover to go to the variant: 
+
+<div class="figure_text">
+    <img src="./img/1-14-classification-link.png"><br>
+    <p><strong>Figure: </strong>Classification track now has links to existing allele assessments.</p>
+</div> 
+
+Lastly, it is now possible to zoom the view quickly using the mouse wheel, and clicking a selected variant in the side bar recenters the view on the variant. 
+
+### :small_red_triangle: Breaking changes
+
+The following changes must be made to `ella-config.yml` to use this version: 
+- Remove `frequencies.view` and instead add to the new `annotation-config.yml` (see [Annotation](/technical/annotation.md)).
+- Add `similar_alleles` with subkeys `max_variants` and `max_genomic_distance` (see [Region](/technical/annotation.html#region)).
+
+### All changes
+<!-- MR !405 -->
+- [Added support for configurable annotation](#support-for-configurable-annotation).
+<!-- MR !531, !544, !546, !551 -->
+- [Added new section REGION on CLASSIFICATION page, showing nearby SNV assessments](#new-region-section). 
+<!-- MR !535 -->
+- [Added support for track selection presets in VISUAL](#improvements-to-visual).
+<!-- MR !520 -->
+- [Made track selection section in VISUAL collapsible](#improvements-to-visual).
+<!-- MR !541, !550 -->
+- [Enabled links to existing classifications in VISUAL](#improvements-to-visual).
+<!-- MR !542 -->
+- [Added mouse wheel zoom and possibility to recenter on selected variant in VISUAL](#improvements-to-visual).
+<!-- MR !525 -->
+- Added support for `bigWig` and `cram` track file formats in VISUAL.
+<!-- MR !545 -->
+- Fixed a bug causing inability to update REPORT.
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !534 Add typing stubs
+MR !548 Minor fixes
+MR !549 Load tracks in cerebral to avoid JS promises in watch. Remove duplicate tracks with AngularJS watch.
+-->
+- Fixes and improvements to development environment and code base. 
 
 ## Version 1.13.2
 
@@ -27,7 +100,7 @@ This release changes thresholds for verification warnings and adds a few other t
 - Disallow spaces and underscores in custom gene panel names when [ordering reanalyses](/manual/data-import-reanalyses.html#use-custom-gene-panel) in the IMPORT module.
 <!-- MR !523 -->
 - Fixed a bug causing de novo likelihood calculation to fail in certain instances.
-- <!-- MR !528 -->
+<!-- MR !528 -->
 - Fixed a bug causing missing source information for studies and references.
 
 ## Version 1.13.1
@@ -41,7 +114,7 @@ This release adds a single bugfix.
 ### All changes
 
 <!-- MR !517 -->
-- Fixed a bug causing excessive load on backend
+- Fixed a bug causing excessive load on backend.
 
 ## Version 1.13
 
@@ -63,7 +136,7 @@ The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied b
 
 `IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
 
-### Breaking changes
+### :small_red_triangle: Breaking changes
 
 With the [improvements to pre-filters](#improvements-to-pre-filters), the configuration in `usergroups.json` must be updated. The equivalent to the previous
 `"prefilter" = True` is now `"prefilter": [["hi_frequency", "no_nearby_variant", "no_classification", "not_multiallelic"]]`. See [pre-filters](/technical/filtering.html#pre-filter-before-import) for further details.
@@ -83,10 +156,13 @@ With the [improvements to pre-filters](#improvements-to-pre-filters), the config
 <!-- MR !511 -->
 - Added blacklist option in the [analysis watcher](/technical/import.html#analysis-watcher-for-automated-import), allowing exclusion of specific analyses during automated import.
 <!-- 
-Probably no further release notes necessary, but adding here for reference: 
+No further release notes necessary, but adding here for reference: 
 MR !505 Create upload release artifacts
 MR !496 Split references from annotation in database
-MR !498 Fixes for running local demo instances 
+MR !498 Fixes for running local demo instances
+MR !512 Update testdata
+MR !513 Update black, and run black on code base
+MR !514 Fix memory issue in migration script. Reorder migrations.
 -->
 - Several fixes and improvements to development environment and code base. 
 

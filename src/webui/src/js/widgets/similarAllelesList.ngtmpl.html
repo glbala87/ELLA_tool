@@ -1,0 +1,25 @@
+<article class="sectionbox-content similar-alleles-list">
+    <div
+        ng-repeat="item in $ctrl.similarAlleles track by [item.id]"
+        class="similar-alleles-list-item"
+    >
+        <div>
+            <a
+                class="id-variant clickable"
+                href="{{ item.links.workflow }}"
+                ng-attr-target="_blank"
+                title="{{ item.formatted.display }}"
+            >
+                {{ item.formatted.display }}
+            </a>
+        </div>
+        <div>
+            <span class="tag id-assessment">{{ $ctrl.getClassificationText(item) }}</span>
+        </div>
+        <div>
+            <p>
+                {{ item.allele_assessment.date_created | date: 'yyyy-MM-dd' }}
+            </p>
+        </div>
+    </div>
+</article>

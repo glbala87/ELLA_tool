@@ -94,6 +94,7 @@ class ApiV1(object):
         self._add_resource(r.customannotation.CustomAnnotationList, "/api/v1/customannotations/")
 
         self._add_resource(r.config.ConfigResource, "/api/v1/config/")
+        self._add_resource(r.config.AnnotationConfigListResource, "/api/v1/annotationconfigs/")
 
         self._add_resource(
             r.filterconfig.FilterconfigResource, "/api/v1/filterconfigs/<int:filterconfig_id>"
@@ -343,6 +344,15 @@ class ApiV1(object):
         self._add_resource(
             r.workflow.analysis.AnalysisFilterConfigResource,
             "/api/v1/workflows/analyses/<int:analysis_id>/filterconfigs/",
+        )
+
+        # ---------------------------------------------------------------------------------------------------------
+        # Workflow other
+        # ---------------------------------------------------------------------------------------------------------
+
+        self._add_resource(
+            r.workflow.similaralleles.SimilarAllelesResource,
+            "/api/v1/workflows/similar_alleles/<genepanel_name>/<genepanel_version>/",
         )
 
         # ---------------------------------------------------------------------------------------------------------

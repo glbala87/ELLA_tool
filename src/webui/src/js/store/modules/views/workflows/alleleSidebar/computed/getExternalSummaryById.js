@@ -8,11 +8,13 @@ export default (alleles) => {
         }
         for (let [alleleId, allele] of Object.entries(alleles)) {
             const sourcesWithData = []
-            if (allele.annotation.external.HGMD) {
-                sourcesWithData.push('HGMD')
-            }
-            if (allele.annotation.external.CLINVAR) {
-                sourcesWithData.push('Clinvar')
+            if (allele.annotation.external) {
+                if (allele.annotation.external.HGMD) {
+                    sourcesWithData.push('HGMD')
+                }
+                if (allele.annotation.external.CLINVAR) {
+                    sourcesWithData.push('Clinvar')
+                }
             }
             result[alleleId] = sourcesWithData
         }

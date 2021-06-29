@@ -600,19 +600,6 @@ def finalize_allele(
             "Cannot finalize: provided custom_annotation_id does not match latest annotation id"
         )
 
-    # Check that we can finalize allele
-    workflow_type = "allele" if workflow_allele_id else "analysis"
-    finalize_requirements = get_nested(
-        user_config, ["workflows", workflow_type, "finalize_requirements"]
-    )
-    if finalize_requirements.get("workflow_status"):
-        if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
-            raise ApiError(
-                "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
-                    ", ".join(finalize_requirements["workflow_status"])
-                )
-            )
-
     # Create/reuse assessments
     assessment_result = AssessmentCreator(session).create_from_data(
         user_id,
@@ -626,6 +613,22 @@ def finalize_allele(
         data["referenceassessments"],
         analysis_id=workflow_analysis_id,
     )
+
+    if assessment_result.created_alleleassessment or assessment_result.created_referenceassessments:
+        # Check that we can finalize allele
+        workflow_type = "allele" if workflow_allele_id else "analysis"
+        finalize_requirements = get_nested(
+            user_config, ["workflows", workflow_type, "finalize_requirements"]
+        )
+
+        if finalize_requirements.get("workflow_status"):
+            if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
+                raise ApiError(
+                    "Cannot finalize: interpretation workflow status is {}, but must be one of: {}".format(
+                        interpretation.workflow_status,
+                        ", ".join(finalize_requirements["workflow_status"]),
+                    )
+                )
 
     alleleassessment = None
     if assessment_result.created_alleleassessment:
@@ -650,6 +653,7 @@ def finalize_allele(
     )
 
     if report_result.created_allelereport:
+        # Do not check if finalize is allowed, report updates are always allowed
         session.add(report_result.created_allelereport)
 
     session.flush()
@@ -735,8 +739,9 @@ def finalize_workflow(
     if finalize_requirements.get("workflow_status"):
         if interpretation.workflow_status not in finalize_requirements["workflow_status"]:
             raise ApiError(
-                "Cannot finalize: Interpretation's workflow status is in one of required ones: {}".format(
-                    ", ".join(finalize_requirements["workflow_status"])
+                "Cannot finalize: interpretation workflow status is {}, but must be one of: {}".format(
+                    interpretation.workflow_status,
+                    ", ".join(finalize_requirements["workflow_status"]),
                 )
             )
 

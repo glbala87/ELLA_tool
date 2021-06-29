@@ -23,6 +23,28 @@
     fill: $black-75;
 }
 
+.star.unavailable {
+    stroke: $black-75;
+    background: linear-gradient(
+            45deg,
+            transparent,
+            transparent 48%,
+            black 48%,
+            black 52%,
+            transparent 52%,
+            transparent
+        ),
+        linear-gradient(
+            -45deg,
+            transparent,
+            transparent 48%,
+            black 48%,
+            black 52%,
+            transparent 52%,
+            transparent
+        );
+}
+
 .acmg-body {
     margin-top: 1.3rem;
     margin-bottom: 0.7rem;
@@ -763,6 +785,46 @@ allele-info-classification * cbbody {
         > p {
             white-space: nowrap;
             padding-top: 1.5rem;
+        }
+    }
+}
+
+.similar-alleles-list {
+    display: flex;
+    flex-direction: column;
+
+    .similar-alleles-list-item {
+        vertical-align: baseline;
+        display: flex;
+        flex-wrap: nowrap;
+        align-content: space-between;
+        align-items: baseline;
+
+        a {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-weight: 300;
+            font-size: 1.4rem;
+        }
+        div:nth-child(1) {
+            flex-grow: 1;
+            a {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                font-weight: 300;
+                font-size: 1.4rem;
+            }
+        }
+        div:nth-child(2) {
+            margin-left: 10px;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        div:nth-child(3) {
+            overflow: hidden;
+            white-space: nowrap;
         }
     }
 }

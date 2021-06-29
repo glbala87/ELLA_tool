@@ -1,4 +1,4 @@
-import showHideTrack from '../actions/showHideTrack'
+import showHideTracks from '../actions/showHideTracks'
 import updateIgvTracks from '../actions/updateIgvTracks'
 
-export default [showHideTrack, updateIgvTracks]
+export default [showHideTracks, updateIgvTracks]

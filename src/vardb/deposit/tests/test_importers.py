@@ -1,12 +1,17 @@
-import vardb.deposit.importers as deposit
+import base64
+import json
+from os.path import commonprefix
+from typing import Tuple
+
 import hypothesis as ht
 import hypothesis.strategies as st
-from os.path import commonprefix
+import vardb.deposit.importers as deposit
 from conftest import mock_record
+from sqlalchemy.orm import scoped_session
 
 
 @st.composite
-def positions(draw):
+def positions(draw) -> Tuple[str, int, str, str]:
     def commonsuffix(strs):
         return commonprefix([s[::-1] for s in strs])[::-1]
 
@@ -31,7 +36,7 @@ def positions(draw):
 
 
 @st.composite
-def sequence(draw):
+def sequence(draw) -> str:
     return draw(st.text(alphabet=["A", "C", "G", "T"], min_size=1, max_size=4))
 
 
@@ -209,3 +214,78 @@ def test_equivalent_vcf_representations(standard, padding):
     standard_item = items.pop(0)
     for x in items:
         assert x == standard_item
+
+
+def test_annotationimport_target_paths(session):
+    record = mock_record({"INFO": {"SOURCE": "dabla"}})
+    import_config = [
+        {
+            "name": "keyvalue",
+            "converter_config": {"elements": [{"source": "SOURCE", "target": "key"}]},
+        }
+    ]
+
+    annotation_importer = deposit.AnnotationImporter(session, import_config)
+    data = annotation_importer.add(record, None)
+    assert data["annotations"] == {"key": "dabla"}
+
+    import_config = [
+        {
+            "name": "keyvalue",
+            "converter_config": {"elements": [{"source": "SOURCE", "target": "path.to.target"}]},
+        }
+    ]
+
+    annotation_importer = deposit.AnnotationImporter(session, import_config)
+    data = annotation_importer.add(record, None)
+    assert data["annotations"] == {"path": {"to": {"target": "dabla"}}}
+
+
+def test_annotationimport_target_mode(session: scoped_session):
+    def get_import_config(name: str, target_mode: str, **kwargs):
+        return [
+            {
+                "name": name,
+                "converter_config": {
+                    "elements": [
+                        dict(source="SOURCE1", target="key", target_mode=target_mode, **kwargs),
+                        dict(source="SOURCE2", target="key", target_mode=target_mode, **kwargs),
+                    ]
+                },
+            }
+        ]
+
+    # Extend
+    record = mock_record({"INFO": {"SOURCE1": (1, 3), "SOURCE2": (2, 4)}})
+    annotation_importer = deposit.AnnotationImporter(
+        session, get_import_config("keyvalue", "extend")
+    )
+    data = annotation_importer.add(record, None)
+    assert data["annotations"] == {"key": (1, 3, 2, 4)}
+
+    # Append
+    record = mock_record({"INFO": {"SOURCE1": (1, 3), "SOURCE2": 2}})
+    annotation_importer = deposit.AnnotationImporter(
+        session, get_import_config("keyvalue", "append")
+    )
+    data = annotation_importer.add(record, None)
+    assert data["annotations"] == {"key": [(1, 3), 2]}
+
+    # Merge
+    record = mock_record(
+        {
+            "INFO": {
+                "SOURCE1": base64.b16encode(
+                    json.dumps({"foobar": {"a": 1, "b": 1}}).encode()
+                ).decode(),
+                "SOURCE2": base64.b16encode(
+                    json.dumps({"foobar": {"a": 2, "c": 2}}).encode()
+                ).decode(),
+            }
+        }
+    )
+    annotation_importer = deposit.AnnotationImporter(
+        session, get_import_config("json", "merge", encoding="base16")
+    )
+    data = annotation_importer.add(record, None)
+    assert data["annotations"] == {"key": {"foobar": {"a": 2, "b": 1, "c": 2}}}

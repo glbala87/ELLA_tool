@@ -53,6 +53,8 @@ Subkey	|	Explanation |   Values
 Only one user group and configuration can match a particular combination of analysis name and gene panel.
 :::
 
+See also [Annotation configuration](/docs/technical/annotation.html#annotation-deposit). 
+
 ## Default import gene panel
 
 Gene panel that should be pre-selected when importing data through the [IMPORT function](/manual/data-import-reanalyses.html#import-variant-data), configured per [user group](/technical/users.html#user-groups). See `/src/vardb/testdata/usergroups.json` for examples. : 

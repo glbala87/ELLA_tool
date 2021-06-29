@@ -7,13 +7,11 @@ import setNavbarTitle from '../../../../common/factories/setNavbarTitle'
 import toast from '../../../../common/factories/toast'
 import getAnalysis from '../actions/getAnalysis'
 import getAnalysisStats from '../actions/getAnalysisStats'
-import prepareComponents from '../actions/prepareComponents'
 import prepareSelectedAllele from '../alleleSidebar/actions/prepareSelectedAllele'
 import getWorkflowTitle from '../computed/getWorkflowTitle'
 import loadInterpretations from '../sequences/loadInterpretations'
 import showExitWarning from '../showExitWarning'
 import loadVisualization from '../visualization/sequences/loadVisualization'
-import loadInterpretationLogs from '../worklog/sequences/loadInterpretationLogs'
 import selectedAlleleChanged from '../sequences/selectedAlleleChanged'
 
 const EXIT_WARNING = 'You have unsaved work. Do you really want to exit application?'
@@ -48,9 +46,6 @@ export default [
                         parallel([
                             loadVisualization,
                             [
-                                loadInterpretationLogs,
-                                // Interpretation logs are needed in prepareComponents for analysis
-                                prepareComponents,
                                 prepareSelectedAllele,
                                 when(state`views.workflows.selectedAllele`),
                                 {

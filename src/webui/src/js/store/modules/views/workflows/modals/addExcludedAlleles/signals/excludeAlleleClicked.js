@@ -1,5 +1,5 @@
+import loadAnnotationConfigs from '../sequences/loadAnnotationConfigs'
 import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
-import loadIncludedAlleles from '../sequences/loadIncludedAlleles'
 
 export default [
     ({ state, props }) => {
@@ -14,5 +14,5 @@ export default [
         }
     },
     loadExcludedAlleles,
-    loadIncludedAlleles
+    loadAnnotationConfigs
 ]

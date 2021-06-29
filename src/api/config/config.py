@@ -115,21 +115,6 @@ config.setdefault("transcripts", {})["consequences"] = [
 ]
 
 
-config["annotation"] = {
-    "clinvar": {
-        "clinical_significance_status": {
-            "criteria provided, conflicting interpretations": 1,
-            "criteria provided, multiple submitters, no conflicts": 2,
-            "criteria provided, single submitter": 1,
-            "no assertion criteria provided": 0,
-            "no assertion provided": 0,
-            "practice guideline": 4,
-            "reviewed by expert panel": 3,
-        }
-    }
-}
-
-
 config["acmg"] = acmgconfig
 config["custom_annotation"] = customannotationconfig
 

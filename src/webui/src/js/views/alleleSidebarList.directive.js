@@ -18,7 +18,6 @@ import getExternalSummaryById from '../store/modules/views/workflows/alleleSideb
 import getClassificationById from '../store/modules/views/workflows/alleleSidebar/computed/getClassificationById'
 import getAlleleAssessmentsById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleAssessmentsById'
 import getVerificationStatusById from '../store/modules/views/workflows/alleleSidebar/computed/getVerificationStatusById'
-import { formatFreqValue } from '../store/common/computes/getFrequencyAnnotation'
 import getAlleleStateById from '../store/modules/views/workflows/alleleSidebar/computed/getAlleleStateById'
 import isReviewedById from '../store/modules/views/workflows/alleleSidebar/computed/isReviewedById'
 import getWarningById from '../store/modules/views/workflows/alleleSidebar/computed/getWarningById'
@@ -39,12 +38,27 @@ const getAlleles = (alleleIds, alleles) => {
     })
 }
 
+const sectionContents = Compute(
+    state`views.workflows.components.Classification.sectionContent`,
+    (classificationSectionContent) => {
+        const contents = {}
+        if (classificationSectionContent === undefined) {
+            return contents
+        }
+
+        for (let section of Object.keys(classificationSections)) {
+            contents[section] = classificationSections[section].content
+        }
+        return contents
+    }
+)
 app.component('alleleSidebarList', {
     bindings: {
         sectionTitle: '@?',
         commentType: '@?', // none, 'analysis' or 'evaluation'
         alleleIdsPath: '<', // path on Cerebral store
         allelesPath: '<', // path on Cerebral store
+        sectionContentPath: '<', // path on Cerebral store
         rowClickedPath: '<', // signal path on Cerebral store
         toggleClickedPath: '<', // signal path on Cerebral store
         orderByPath: '<?', // path to orderBy object on Cerebral store
@@ -63,6 +77,7 @@ app.component('alleleSidebarList', {
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
+            sectionContents: state`${props`sectionContentPath`}`,
             reviewed: isReviewedById(state`${props`allelesPath`}`),
             consequence: getConsequenceById(state`${props`allelesPath`}`),
             isMultipleInGene: isMultipleInGeneById(state`${props`allelesPath`}`),
@@ -305,13 +320,7 @@ app.component('alleleSidebarList', {
                             hiFreqData.maxMeetsThresholdValue !== null
                                 ? hiFreqData.maxMeetsThresholdValue
                                 : hiFreqData.maxValue
-                        if (value !== null) {
-                            const formatted = formatFreqValue(value, $ctrl.config)
-                            return hiFreqData.maxMeetsThresholdValue !== null
-                                ? formatted
-                                : `(${formatted})`
-                        }
-                        return '-'
+                        return value === null ? '-' : value
                     },
                     getHiFreqColumnTitle() {
                         let title = ''

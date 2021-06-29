@@ -1,0 +1,201 @@
+{
+    "schema_name": "annotation",
+    "version": 1,
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "required": ["view", "deposit"],
+    "properties": {
+        "deposit": {
+            "type": "array",
+            "items": {
+                "required": ["name", "converter_config"],
+                "properties": {
+                    "name": {
+                        "enum": [
+                            "keyvalue",
+                            "mapping",
+                            "json",
+                            "meta",
+                            "vep",
+                            "clinvarjson",
+                            "clinvarreferences",
+                            "hgmd",
+                            "hgmdprimaryreport",
+                            "hgmdextrarefs"
+                        ]
+                    },
+                    "converter_config": {
+                        "type": "object",
+                        "required": ["elements"],
+                        "additionalProperties": false,
+                        "properties": {
+                            "elements": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": ["source", "target"],
+                                    "patternProperties": {
+                                        "^source|target$": {
+                                            "type": "string"
+                                        },
+                                        "^split|keyvalue_separator|item_separator|list_separator$": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "properties": {
+                                        "additional_sources": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "target_type": {
+                                            "enum": ["int", "string", "float", "bool"]
+                                        },
+                                        "encoding": {
+                                            "enum": ["base16", "base32", "base64"]
+                                        },
+                                        "target_mode": {
+                                            "enum": ["insert", "extend", "append", "merge"]
+                                        },
+                                        "target_type_throw": {
+                                            "type": "boolean"
+                                        },
+                                        "subelements": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["source"],
+                                                "properties": {
+                                                    "source": {
+                                                        "type": "string"
+                                                    },
+                                                    "target_type": {
+                                                        "enum": ["int", "string", "float", "bool"]
+                                                    },
+                                                    "target_type_throw": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "split": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "view": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["section", "template", "source", "config"],
+                "optional": ["title", "url", "url_empty"],
+                "properties": {
+                    "section": {
+                        "enum": ["frequency", "prediction", "external"]
+                    },
+                    "template": {
+                        "enum": ["keyValue", "itemList", "frequencyDetails", "clinvarDetails"]
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "url_empty": {
+                        "type": "string"
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "optional": [
+                            "columns",
+                            "rows",
+                            "warnings",
+                            "key_column",
+                            "indications",
+                            "items",
+                            "names",
+                            "precision",
+                            "scientific_threshold"
+                        ],
+                        "patternProperties": {
+                            "^warnings|key_column$": {
+                                "type": "string"
+                            },
+                            "^columns|rows$": {
+                                "type": "object",
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "^precision|scientific_threshold$": {
+                                "type": "integer",
+                                "minimum": 0
+                            }
+                        },
+                        "properties": {
+                            "indications": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "keys": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "threshold": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                }
+                            },
+                            "names": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "patternProperties": {
+                                    ".*": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "patternProperties": {
+                                        "^subsource|url$": {
+                                            "type": "string"
+                                        },
+                                        "^type$": {
+                                            "enum": ["primitives", "objects"]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

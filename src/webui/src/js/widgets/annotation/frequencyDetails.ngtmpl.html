@@ -1,0 +1,56 @@
+<contentbox
+    boxtitle="{{ $ctrl.boxTitle }}"
+    title-url="{{ $ctrl.url }}"
+    disabled-title-url="{{ $ctrl.urlEmpty }}"
+    disabled="!$ctrl.frequencies"
+>
+    {{ $ctrl.frequencies }}
+    <cbbody>
+        <div class="cb-warning" ng-if="$ctrl.getFilterFail().length">
+            FILTER: {{ $ctrl.getFilterFail().join(', ') }}
+        </div>
+        <div class="cb-table id-frequency-{{ $ctrl.group }}">
+            <div class="tabular-row">
+                <h4 class="faded-title">{{ $ctrl.viewConfig.key_column }}</h4>
+                <div class="cell" ng-repeat="(columnKey, columnName) in $ctrl.viewConfig.columns">
+                    <h4 class="faded-title">{{ columnName }}</h4>
+                </div>
+            </div>
+            <div class="tabular-row exac" ng-repeat="(rowKey, rowName) in $ctrl.viewConfig.rows">
+                <div class="cell">
+                    <h5>{{ rowName }}:</h5>
+                </div>
+                <div class="cell" ng-repeat="(columnKey, columnName) in $ctrl.viewConfig.columns">
+                    <p>
+                        {{
+                            $ctrl.frequencies[columnKey][rowKey]
+                                | formatNumber
+                                    : $ctrl.viewConfig.precision
+                                    : $ctrl.viewConfig.scientific_threshold
+                        }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div
+            class="cb-table"
+            ng-repeat="(key, indications) in $ctrl.frequencies.indications"
+            ng-if="$ctrl.shouldShowIndications(key)"
+        >
+            <div class="tabular-row">
+                <div class="cell">
+                    <h5>{{ key }} indications:</h5>
+                </div>
+                <div class="cell"></div>
+            </div>
+            <div class="tabular-row" ng-repeat="(indication, value) in indications">
+                <div class="cell">
+                    <p>- {{ indication }}:</p>
+                </div>
+                <div class="cell">
+                    <p>{{ value }}</p>
+                </div>
+            </div>
+        </div>
+    </cbbody>
+</contentbox>

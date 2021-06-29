@@ -23,7 +23,7 @@ Phenotypes linked to each gene, based on [OMIM](http://omim.org/). Tied to:
 
 ## Inheritance
 
-The inheritance mode to use for each gene, based on [OMIM](http://omim.org/). These are important for certain rules in [variant filtering](/concepts/filtering.html#filters) and suggesting [ACMG criteria](/concepts/acmg-rule-engine.html). 
+The inheritance mode to use for each gene, based on [OMIM](http://omim.org/). These are important for certain rules in [variant filtering](/manual/filtered-variants.md) and suggesting [ACMG criteria](/manual/acmg-rule-engine.md). 
 
 The modes are grouped like this for the purpose of both filtering and ACMG suggestions:
 

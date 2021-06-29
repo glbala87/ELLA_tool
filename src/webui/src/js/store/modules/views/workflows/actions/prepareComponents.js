@@ -1,8 +1,18 @@
+import { Compute } from 'cerebral'
+
 import getWarningCleared from '../worklog/computed/getWarningCleared'
-const ALLELE_SECTION_KEYS = ['classification', 'frequency', 'prediction', 'external', 'references']
+const ALLELE_SECTION_KEYS = [
+    'classification',
+    'similar',
+    'frequency',
+    'prediction',
+    'external',
+    'references'
+]
 const ANALYSIS_SECTION_KEYS = [
     'analysis',
     'classification',
+    'similar',
     'frequency',
     'prediction',
     'external',
@@ -20,8 +30,7 @@ const BASE_SECTIONS = {
         analysisComment: {
             placeholder: 'ANALYSIS-SPECIFIC-COMMENTS'
         },
-        controls: ['validation', 'not-relevant'],
-        content: [{ tag: 'allele-info-quality' }]
+        controls: ['validation', 'not-relevant']
     },
     classification: {
         title: 'Classification',
@@ -38,8 +47,16 @@ const BASE_SECTIONS = {
         },
         reportComment: {
             placeholder: 'REPORT'
-        },
-        content: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }]
+        }
+    },
+    similar: {
+        title: 'Region',
+        color: 'purple',
+        alleleAssessmentReusedColor: 'green',
+        alleleassessmentComment: {
+            placeholder: 'REGION-COMMENTS',
+            name: 'similar'
+        }
     },
     frequency: {
         title: 'Frequency',
@@ -52,14 +69,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'FREQUENCY-COMMENTS',
             name: 'frequency'
-        },
-        content: [
-            { tag: 'allele-info-frequency-gnomad-exomes' },
-            { tag: 'allele-info-frequency-gnomad-genomes' },
-            { tag: 'allele-info-frequency-exac' },
-            { tag: 'allele-info-frequency-indb' },
-            { tag: 'allele-info-dbsnp' }
-        ]
+        }
     },
     prediction: {
         title: 'Prediction',
@@ -72,8 +82,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'PREDICTION-COMMENTS',
             name: 'prediction'
-        },
-        content: [{ tag: 'allele-info-consequence' }, { tag: 'allele-info-prediction-other' }]
+        }
     },
     external: {
         title: 'External',
@@ -86,12 +95,7 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'EXTERNAL DB-COMMENTS',
             name: 'external'
-        },
-        content: [
-            { tag: 'allele-info-hgmd' },
-            { tag: 'allele-info-clinvar' },
-            { tag: 'allele-info-external-other' }
-        ]
+        }
     },
     references: {
         title: 'Studies & References',
@@ -104,42 +108,54 @@ const BASE_SECTIONS = {
         alleleassessmentComment: {
             placeholder: 'STUDIES-COMMENTS',
             name: 'reference'
-        },
-        content: [
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Evaluated',
-                    type: 'evaluated'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Pending',
-                    type: 'pending'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Not relevant',
-                    type: 'notrelevant'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            },
-            {
-                tag: 'allele-info-references',
-                attr: {
-                    title: 'Ignored',
-                    type: 'ignored'
-                },
-                class: ['max-width', 'reference-detail-margin-top']
-            }
-        ]
+        }
     }
+}
+
+const CLASSIFICATION_BASE_CONTENT = {
+    analysis: [{ tag: 'allele-info-quality' }],
+    classification: [{ tag: 'allele-info-acmg-selection' }, { tag: 'allele-info-classification' }],
+    similar: [{ tag: 'allele-info-similar-alleles' }],
+    frequency: [],
+    prediction: [
+        { tag: 'allele-info-consequence', order: 'first' },
+        { tag: 'allele-info-prediction-other', order: 'last' }
+    ],
+    external: [{ tag: 'allele-info-external-other', order: 'last' }],
+    references: [
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Evaluated',
+                type: 'evaluated'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Pending',
+                type: 'pending'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Not relevant',
+                type: 'notrelevant'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        },
+        {
+            tag: 'allele-info-references',
+            attr: {
+                title: 'Ignored',
+                type: 'ignored'
+            },
+            class: ['max-width', 'reference-detail-margin-top']
+        }
+    ]
 }
 
 const COMPONENTS = {
@@ -152,7 +168,8 @@ const COMPONENTS = {
             Classification: {
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: ANALYSIS_SECTION_KEYS.slice()
+                sectionKeys: ANALYSIS_SECTION_KEYS.slice(),
+                sectionContent: {}
             },
             Report: {
                 title: 'Report',
@@ -167,14 +184,80 @@ const COMPONENTS = {
                 name: 'classification',
                 title: 'Classification',
                 sections: JSON.parse(JSON.stringify(BASE_SECTIONS)),
-                sectionKeys: ALLELE_SECTION_KEYS.slice()
+                sectionKeys: ALLELE_SECTION_KEYS.slice(),
+                sectionContent: {}
             }
         }
     }
 }
 
+function prepareClassificationContent(annotationConfig) {
+    // const annotationViewConfig = annotationConfigs[annotationConfigIdx].view
+    // Add components from the view config
+    if (annotationConfig === undefined) {
+        return null
+    }
+    const content = JSON.parse(JSON.stringify(CLASSIFICATION_BASE_CONTENT))
+    for (let i in annotationConfig.view) {
+        let vc = annotationConfig.view[i]
+        function CamelCaseToDash(s) {
+            return s.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`)
+        }
+        const template = vc['template']
+        const section = vc['section']
+
+        content[section].push({
+            tag: CamelCaseToDash(template),
+            title: vc['title'],
+            source: vc['source'],
+            url: vc['url'],
+            url_empty: vc['url_empty'],
+            order: vc['order'],
+            annotationConfigId: annotationConfig.id,
+            annotationConfigItemIdx: parseInt(i)
+        })
+    }
+
+    // Sort sectionboxes to appear in order (if defined)
+    Object.values(content).forEach((x) =>
+        x.sort((a, b) => {
+            if (a.order === b.order) {
+                return 0
+            } else if (a.order === 'first' || b.order === 'last') {
+                return -1
+            } else if (a.order === 'last' || b.order === 'first') {
+                return 1
+            }
+        })
+    )
+    return content
+}
+
+const classificationSectionContent = (alleles, annotationConfigs) => {
+    return Compute(alleles, annotationConfigs, (alleles, annotationConfigs) => {
+        if (!alleles) {
+            return {}
+        }
+        const sectionContent = {}
+        for (let [id, allele] of Object.entries(alleles)) {
+            const annotationConfigId = allele.annotation.annotation_config_id
+            const annotationConfig = annotationConfigs.find((x) => x.id === annotationConfigId)
+            sectionContent[id] = prepareClassificationContent(annotationConfig)
+        }
+
+        return sectionContent
+    })
+}
+
 function prepareComponents({ state, resolve }) {
     let components = COMPONENTS[state.get('views.workflows.type')]
+
+    const annotationConfigs = state.get('views.workflows.data.annotationConfigs')
+    const alleles = state.get('views.workflows.interpretation.data.alleles')
+    components.components.Classification.sectionContent = resolve.value(
+        classificationSectionContent(alleles, annotationConfigs)
+    )
+
     // TODO: Add IGV button to analysis frequency section
     state.set('views.workflows.components', components.components)
     state.set('views.workflows.componentKeys', components.componentKeys)
@@ -192,3 +275,4 @@ function prepareComponents({ state, resolve }) {
 }
 
 export default prepareComponents
+export { classificationSectionContent }

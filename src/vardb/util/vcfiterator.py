@@ -1,11 +1,16 @@
+from typing import Any, Dict, IO, Mapping, Optional, Sequence, Tuple, Union
 import cyvcf2
 import logging
 import numpy as np
 
 log = logging.getLogger(__name__)
 
+# have to re-declare here since only exist in cyvcf2 stub and fails on execution
+Text = Union[str, bytes]
+Primitives = Union[int, float, bool, Text]
 
-def _numpy_unknown_to_none(a):
+
+def _numpy_unknown_to_none(a: np.ndarray) -> list:
     """
     Unknown values ('.') in integer arrays are assigned as '-inf' (e.g. for in32 the value is -2^31)
     Convert array to list, and replace these values with None
@@ -27,7 +32,7 @@ def _numpy_unknown_to_none(a):
     return b
 
 
-def numpy_to_list(a):
+def numpy_to_list(a: Optional[np.ndarray]):
     if a is None:
         return None
     if np.issubdtype(a.dtype, np.integer):
@@ -37,12 +42,16 @@ def numpy_to_list(a):
 
 
 class Record(object):
-    def __init__(self, variant, samples, meta):
+    variant: cyvcf2.Variant
+    samples: Sequence[str]
+    meta: Mapping[str, Any]
+
+    def __init__(self, variant: cyvcf2.Variant, samples: Sequence[str], meta: Mapping[str, Any]):
         self.variant = variant
         self.samples = samples
         self.meta = meta
 
-    def _sample_index(self, sample_name):
+    def _sample_index(self, sample_name: str):
         return self.samples.index(sample_name)
 
     def get_raw_filter(self):
@@ -50,14 +59,14 @@ class Record(object):
         Therefore, we need to parse the VCF line to get the raw filter status."""
         return str(self.variant).split("\t")[6]
 
-    def sample_genotype(self, sample_name):
+    def sample_genotype(self, sample_name: str):
         return tuple(self.variant.genotypes[self._sample_index(sample_name)][:-1])
 
-    def has_allele(self, sample_name):
+    def has_allele(self, sample_name: str):
         gt = self.sample_genotype(sample_name)
         return max(gt) == 1
 
-    def get_format_sample(self, property, sample_name, scalar=False):
+    def get_format_sample(self, property: str, sample_name: str, scalar: bool = False):
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:
@@ -70,7 +79,7 @@ class Record(object):
                 else:
                     return ret
 
-    def get_format(self, property):
+    def get_format(self, property: str):
         if property == "GT":
             return self.variant.genotypes
         else:
@@ -82,10 +91,12 @@ class Record(object):
     def is_multiallelic(self):
         return self.get_block_id() is not None
 
-    def is_sample_multiallelic(self, sample_name):
+    def is_sample_multiallelic(self, sample_name: str):
         return self.is_multiallelic() and bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
 
-    def annotation(self):
+    def annotation(
+        self,
+    ) -> Dict[str, Union[Primitives, Tuple[Primitives, ...]]]:
         return dict(x for x in self.variant.INFO)
 
     def __str__(self):
@@ -153,13 +164,13 @@ RESERVED_GT_HEADERS = {
 
 
 class VcfIterator(object):
-    def __init__(self, path_or_fileobject, include_raw=False):
+    def __init__(self, path_or_fileobject: Union[str, IO], include_raw: bool = False):
         self.path_or_fileobject = path_or_fileobject
         self.reader = cyvcf2.Reader(self.path_or_fileobject, gts012=True)
         self.include_raw = include_raw
         self.samples = self.reader.samples
         self.add_format_headers()
-        self.meta = {}
+        self.meta: Dict[str, list] = {}
         for h in self.reader.header_iter():
             if h.type not in self.meta:
                 self.meta[h.type] = []
@@ -181,6 +192,7 @@ class VcfIterator(object):
                 self.reader.add_format_to_header({**fmt, **{"ID": key}})
 
     def __iter__(self):
+        variant: cyvcf2.Variant
         if self.include_raw:
             for variant in self.reader:
                 yield str(variant), variant

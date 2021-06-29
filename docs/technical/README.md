@@ -17,7 +17,7 @@ Detailed descriptions of various technical aspects of ELLA are found in these se
 
 ## About ELLA
 
-ELLA is a tool for clinical interpretation of genetic variants, where the user either interprets a **single variant**, or several variants belonging together in an analysis. The result of the interpretation work are **assessments** that include the classification of the variant (Class 1-5, Drug reponse, Risk factor or Not provided). The interpretation must be approved by another person in a multi-step **workflow**.
+ELLA is a tool for clinical interpretation of genetic variants, where the user either interprets a **single variant**, or several variants belonging together in an analysis. The result of the interpretation work are **assessments** that include the classification of the variant (Class 1-5, Drug response, Risk factor or Not provided). The interpretation must be approved by another person in a multi-step **workflow**.
 
 The assessments are the main product of ELLA. When the same variant(s) is seen in other samples, the previous interpretation can be reused, saving valuable time.
 
@@ -48,5 +48,5 @@ ELLA uses a relational [PostgreSQL](https://www.postgresql.org/) database with t
 
 ## Command line interface (ella-cli)
 
-Most admin tasks in ELLA are handled using the ELLA command line interface (ella-cli). This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image. For available options, type `ella-cli --help`.
+Most admin tasks in ELLA are handled using the ELLA command line interface (ella-cli). This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image. For available options, [Production tasks using the ella-cli](/technical/production-tasks.md) or type `ella-cli --help`.
 

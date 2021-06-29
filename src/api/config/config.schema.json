@@ -55,7 +55,8 @@
         "report",
         "transcripts",
         "igv",
-        "import"
+        "import",
+        "similar_alleles"
     ],
     "properties": {
         "app": {
@@ -295,7 +296,7 @@
         "frequencies": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["groups", "view"],
+            "required": ["groups"],
             "properties": {
                 "groups": {
                     "type": "object",
@@ -324,49 +325,6 @@
                                         "type": "string"
                                     }
                                 }
-                            }
-                        }
-                    }
-                },
-                "view": {
-                    "type": "object",
-                    "required": [
-                        "groups",
-                        "precision",
-                        "scientific_threshold",
-                        "indications_threshold"
-                    ],
-                    "properties": {
-                        "groups": {
-                            "type": "object",
-                            "patternProperties": {
-                                ".*": {
-                                    "type": "array",
-                                    "additionalItems": false,
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "precision": {
-                            "type": "integer",
-                            "minimum": 0
-                        },
-                        "scientific_threshold": {
-                            "type": "integer",
-                            "minimum": 0
-                        },
-                        "indications_threshold": {
-                            "type": "integer",
-                            "minimum": 0
-                        }
-                    },
-                    "additionalProperties": {
-                        "type": "object",
-                        "patternProperties": {
-                            ".*": {
-                                "type": "string"
                             }
                         }
                     }
@@ -494,6 +452,19 @@
                 },
                 "preimport_script": {
                     "type": "string"
+                }
+            }
+        },
+        "similar_alleles": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["max_variants", "max_genomic_distance"],
+            "properties": {
+                "max_variants": {
+                    "type": "integer"
+                },
+                "max_genomic_distance": {
+                    "type": "integer"
                 }
             }
         }
