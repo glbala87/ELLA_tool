@@ -147,11 +147,10 @@ const onTrackclick = (track, popupData) => {
                 const currentTrackNames = browser.trackViews
                     .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
                     .map((tv) => tv.track.name)
-                // remove tracks
+                // remove tracks that are not in the state anymore
                 currentTrackNames
                     .filter((name) => !scope.tracks.find((t) => t.name === name))
                     .forEach((name) => {
-                        console.log('removeTrackByName', name)
                         browser.removeTrackByName(name)
                     })
                 // add tracks
@@ -162,9 +161,7 @@ const onTrackclick = (track, popupData) => {
                     browser.loadTrackList(toAddTracks).then(() => {
                         loading = false
                         // recheck whenever we previously had a change
-                        if (toAddTracks.length) {
-                            updateTracks()
-                        }
+                        updateTracks()
                     })
                 }
             }
