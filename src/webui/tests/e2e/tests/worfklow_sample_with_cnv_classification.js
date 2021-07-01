@@ -175,13 +175,13 @@ describe('Sample workflow', function() {
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1)
 
             // Add prediction annotation
-            console.log('Adding prediction annotation')
-            alleleSectionBox.addPredictionBtn.click()
-            customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
-            customAnnotationModal.saveBtn.click()
-            customAnnotationModal.waitForClose()
-            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
-            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
+            // console.log('Adding prediction annotation')
+            // alleleSectionBox.addPredictionBtn.click()
+            // customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
+            // customAnnotationModal.saveBtn.click()
+            // customAnnotationModal.waitForClose()
+            // expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
+            // expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
 
             // Set comments/classification
             console.log('Adding comments')
