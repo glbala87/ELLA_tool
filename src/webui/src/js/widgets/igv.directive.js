@@ -163,10 +163,33 @@ const onTrackclick = (track, popupData) => {
             )
 
             // allow zoom with mouse wheel
+            let bpMouse = undefined
+            browser.setCustomCursorGuideMouseHandler((e) => {
+                bpMouse = e.bp
+            })
             document.querySelector('.igv-track-container').onwheel = (event) => {
                 event.preventDefault()
                 const scaleFactor = 1.2
-                browser.zoom(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
+                if (event.deltaY > 0) {
+                    browser.zoomWithScaleFactor(scaleFactor)
+                } else if (event.deltaY < 0) {
+                    const viewport = browser.trackViews[0].viewports[0]
+                    const referenceFrame = viewport.referenceFrame
+                    const bp0Width = referenceFrame.toBP(viewport.$viewport.width())
+                    const bp0Start = referenceFrame.start
+                    // current mouse offset relative to bpWidth
+                    const bpMouseRelOffset = (bpMouse - bp0Start) / bp0Width
+                    // values for zoomed-in frame
+                    const bp1Width = bp0Width / scaleFactor
+                    const bp1Start = bpMouse - bpMouseRelOffset * bp1Width
+                    const bp1End = bp1Start + bp1Width
+                    const bp1Center = (bp1Start + bp1End) / 2
+                    // use new center if not on max zoom
+                    browser.zoomWithScaleFactor(
+                        1 / scaleFactor,
+                        bp1Width > browser.minimumBases() ? bp1Center : undefined
+                    )
+                }
             }
         })
     }
