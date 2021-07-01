@@ -10,7 +10,6 @@ import pytest
 from api.tests.util import FlaskClientProxy
 from vardb.datamodel import allele, annotation
 from vardb.deposit.annotationconverters import AnnotationConverters
-from vardb.deposit.importers import build_allele_from_record
 from vardb.util import DB
 from vardb.util.testdatabase import TestDatabase
 from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator

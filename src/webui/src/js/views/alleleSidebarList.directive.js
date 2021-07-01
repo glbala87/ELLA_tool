@@ -175,7 +175,13 @@ app.component('alleleSidebarList', {
                         )}-${this.getEndPos(allele)}`
                     },
                     getSvType(allele) {
-                        return allele.change_type.toUpperCase()
+                        const map = Array.prototype.map
+                        return map
+                            .call(allele.change_type.toUpperCase(), (chr) => {
+                                if (chr == '_') return ':'
+                                else return chr
+                            })
+                            .join('')
                     },
                     getVariantLength(allele) {
                         return allele.length

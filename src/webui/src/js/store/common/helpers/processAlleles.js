@@ -10,7 +10,11 @@ export default function processAlleles(alleles, genepanel = null) {
                 )
             )
         } else {
-            allele.annotation.filtered = allele.annotation.transcripts.sort(thenBy('transcript'))
+            if (allele.annotation.transcripts) {
+                allele.annotation.filtered = allele.annotation.transcripts.sort(
+                    thenBy('transcript')
+                )
+            } else allele.annotation.filtered = []
         }
 
         allele.formatted = getFormatted(allele, genepanel)
