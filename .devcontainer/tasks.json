@@ -28,7 +28,7 @@
         },
         {
           "type": "shell",
-          "label": "Run e2e test",
+          "label": "Run e2e cnv test",
           "command" : [
             "${workspaceRoot}/node_modules/.bin/wdio",
             "run",

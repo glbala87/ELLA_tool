@@ -59,7 +59,7 @@ class DepositAlleles(DepositFromVCF):
             alleles = self.allele_importer.process()
 
             for record in batch_records:
-                allele = record.get_alleles(alleles)
+                allele = record.get_allele(alleles)
                 self.annotation_importer.add(record, allele["id"])
 
             # Import annotation for these alleles
