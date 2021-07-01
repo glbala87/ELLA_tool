@@ -10,7 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 
 from vardb.util import vcfiterator
-from vardb.deposit.importers import batch_generator, get_allele_from_record
+from vardb.deposit.importers import batch_generator
 
 from .deposit_from_vcf import DepositFromVCF
 
@@ -59,7 +59,7 @@ class DepositAlleles(DepositFromVCF):
             alleles = self.allele_importer.process()
 
             for record in batch_records:
-                allele = get_allele_from_record(record, alleles)
+                allele = record.get_alleles(alleles)
                 self.annotation_importer.add(record, allele["id"])
 
             # Import annotation for these alleles
