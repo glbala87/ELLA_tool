@@ -60,6 +60,13 @@
                     Copy variant to alamut
                 </button>
                 <button
+                    class="blue"
+                    ng-if="$ctrl.workflowType == 'allele'"
+                    ng-click="$ctrl.showAnalysesForAlleleClicked({allele: $ctrl.allele}); $event.preventDefault();"
+                >
+                    Show analyses
+                </button>
+                <button
                     class="id-add-references"
                     ng-click="$ctrl.addReferencesClicked({alleleId: $ctrl.selectedAlleleId})"
                     ng-disabled="$ctrl.readOnly || !$ctrl.workflowLoaded || $ctrl.isCurrentAlleleReused"
