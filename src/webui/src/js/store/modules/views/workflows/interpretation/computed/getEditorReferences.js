@@ -14,25 +14,31 @@ const CATEGORIES = [
 ]
 
 export default Compute(
-    state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`,
+    state`views.workflows.interpretation.data.alleles`,
+    state`views.workflows.selectedAllele`,
     state`views.workflows.interpretation.data.references`,
-    (allele, references, get) => {
+    (alleles, alleleIdSelected, references, get) => {
         const result = []
-        if (!allele || !references) {
+        if (!references) {
             return result
         }
-        for (const category of CATEGORIES) {
-            const { published, unpublished } = get(
-                getReferenceAnnotation(category.type, allele, references)
-            )[category.type]
-            const allReferences = published.concat(unpublished)
-            if (allReferences.length) {
-                result.push({
-                    name: category.name,
-                    references: allReferences
-                })
+        // use selected allele, if set - all alleles otherwise
+        ;(alleleIdSelected != null ? [alleles[alleleIdSelected]] : Object.values(alleles)).forEach(
+            (allele) => {
+                for (const category of CATEGORIES) {
+                    const { published, unpublished } = get(
+                        getReferenceAnnotation(category.type, allele, references)
+                    )[category.type]
+                    const allReferences = published.concat(unpublished)
+                    if (allReferences.length) {
+                        result.push({
+                            name: category.name,
+                            references: allReferences
+                        })
+                    }
+                }
             }
-        }
+        )
         return result
     }
 )
