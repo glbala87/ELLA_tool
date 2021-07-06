@@ -71,7 +71,7 @@
                     <div class="sectionbox-content general-list">
                         <span
                             class="list-item"
-                            ng-repeat="genepanel in $ctrl.user.group.genepanels"
+                            ng-repeat="genepanel in $ctrl.user.group.genepanels | filter: { official: true }"
                         >
                             <span class="full-title"
                                 >{{ genepanel.name }} {{ genepanel.version }}</span
