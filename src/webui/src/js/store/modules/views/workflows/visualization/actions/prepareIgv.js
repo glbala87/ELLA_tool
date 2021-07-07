@@ -12,7 +12,7 @@ export default async function prepareIgv({ state, http }) {
     const alleles = state.get('views.workflows.interpretation.data.alleles')
 
     const trackConfigs = await http.get(
-        `igv/tracks/${analysis.id}?allele_ids=${Object.keys(alleles).join(',')}`
+        `igv/tracks/${analysis.id}?allele_ids=${alleles ? Object.keys(alleles).join(',') : ''}`
     )
 
     const finalizedTracks = {}

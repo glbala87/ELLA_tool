@@ -18,10 +18,11 @@ app.component('alleleInfoExternalOther', {
 
                 Object.assign($ctrl, {
                     hasContent() {
-                        return this.config.custom_annotation.external.some((group) => {
+                        return $ctrl.config.custom_annotation.external.some((group) => {
                             return (
-                                'external' in this.allele.annotation &&
-                                group.key in this.allele.annotation.external
+                                $ctrl.allele &&
+                                'external' in $ctrl.allele.annotation &&
+                                group.key in $ctrl.allele.annotation.external
                             )
                         })
                     }
