@@ -198,11 +198,11 @@ app.component('alleleSectionbox', {
                             )
                         }
                     },
-                    collapseChangedWrapper(collapsed, section) {
+                    collapseChangedWrapper(collapsed) {
                         $ctrl.collapseAlleleSectionboxChanged({
                             alleleId: $ctrl.selectedAllele,
-                            collapsed,
-                            section
+                            collapsed: collapsed,
+                            section: $ctrl.sectionKey
                         })
                     },
                     getAllelePath() {

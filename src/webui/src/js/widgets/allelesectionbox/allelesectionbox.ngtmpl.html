@@ -1,7 +1,7 @@
 <sectionbox
     class="id-sectionbox-{{ $ctrl.sectionKey }}"
     color="{{ $ctrl.getCardColor() }}"
-    on-collapse="$ctrl.collapseChangedWrapper(collapsed, $ctrl.sectionKey)"
+    on-collapse="$ctrl.collapseChangedWrapper(collapsed)"
     collapsed="$ctrl.collapsed"
 >
     <maintitle> {{ $ctrl.section.title }} </maintitle>
