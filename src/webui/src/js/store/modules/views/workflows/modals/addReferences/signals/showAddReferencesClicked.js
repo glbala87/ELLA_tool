@@ -6,8 +6,14 @@ import { deepCopy } from '../../../../../../../util'
 const userReferencesForAllele = ({ state, props }) => {
     const { alleleId } = props
     const loadedReferences = state.get(`views.workflows.interpretation.data.references`)
-    const userReferenceIds = state
-        .get(`views.workflows.interpretation.data.alleles.${alleleId}.annotation.references`)
+    const alleleReferences = state.get(
+        `views.workflows.interpretation.data.alleles.${alleleId}.annotation.references`
+    )
+
+    if (alleleReferences === undefined) {
+        return { userReferenceIds: [] }
+    }
+    const userReferenceIds = alleleReferences
         .filter((ref) => {
             return ref.source === 'User'
         })

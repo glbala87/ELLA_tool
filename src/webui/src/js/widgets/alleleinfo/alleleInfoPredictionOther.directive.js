@@ -22,6 +22,7 @@ app.component('alleleInfoPredictionOther', {
                     hasContent() {
                         return $ctrl.config.custom_annotation.prediction.some((group) => {
                             return (
+                                $ctrl.allele &&
                                 'prediction' in $ctrl.allele.annotation &&
                                 group.key in $ctrl.allele.annotation.prediction
                             )
