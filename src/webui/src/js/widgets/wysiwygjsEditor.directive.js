@@ -29,8 +29,11 @@ export class WysiwygEditorController {
         this.scope = $scope
         this.element = $element[0]
         this.editorelement = $element.children()[0]
-        this.placeholderelement = $element.children()[1]
-        this.buttonselement = $element.children()[2]
+        this.previewelement = $element.children()[1]
+        this.placeholderelement = $element.children()[2]
+        this.buttonselement = $element.children()[3]
+        this.editorelement.hidden = this.scope.collapsed
+        this.previewelement.hidden = !this.scope.collapsed
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
 
@@ -104,6 +107,13 @@ export class WysiwygEditorController {
         this.setupEditor()
         this.setupEventListeners()
 
+        this.scope.$watch('collapsed', () => {
+            const hasPlaceholder = !this.placeholderelement.hidden
+            this.editorelement.hidden = hasPlaceholder || this.scope.collapsed
+            this.previewelement.hidden = hasPlaceholder || !this.scope.collapsed
+            this.updatePreview()
+        })
+
         // Watch readOnly status of editor
         this.scope.$watch('ngDisabled', () => {
             this.editor.readOnly(this.ngDisabled)
@@ -111,6 +121,7 @@ export class WysiwygEditorController {
 
         // Attach existing $viewValue to editor
         this.ngModelController.$render = () => {
+            this.updatePreview()
             // Update view value from input should not re-render (it occasionaly does)
             // From the angular source code:
             // * The value referenced by `ng-model` is changed programmatically and both the `$modelValue` and
@@ -232,6 +243,9 @@ export class WysiwygEditorController {
             this.focus()
         })
         eventListeners.add(this.placeholderelement, 'click', () => {
+            this.focus()
+        })
+        eventListeners.add(this.previewelement, 'click', () => {
             this.focus()
         })
 
@@ -391,7 +405,8 @@ export class WysiwygEditorController {
     placeholderEvent(showPlaceholder) {
         if (document.activeElement !== this.editorelement || !showPlaceholder) {
             this.placeholderelement.hidden = !showPlaceholder
-            this.editorelement.hidden = showPlaceholder
+            this.editorelement.hidden = this.scope.collapsed || showPlaceholder
+            this.previewelement.hidden = !this.scope.collapsed || showPlaceholder
             if (showPlaceholder) {
                 // Placeholder updates can trigger for certain changes to the editor content
                 // outside the normal flow. If wysiwyg module tells us to show placeholder,
@@ -410,6 +425,17 @@ export class WysiwygEditorController {
         // Ignore all whitespace
         html = html.replace(/s+/g, '')
         return html
+    }
+
+    updatePreview() {
+        const parser = new DOMParser()
+        const editorHtml = parser.parseFromString(this.ngModelController.$viewValue, 'text/html')
+        this.previewelement.innerText = editorHtml.getElementsByTagName('body')[0].innerText
+        const maxChar = 40
+        this.previewelement.innerText =
+            this.previewelement.innerText.length <= maxChar
+                ? this.previewelement.innerText
+                : this.previewelement.innerText.substring(0, maxChar) + ' ...'
     }
 
     blur() {
