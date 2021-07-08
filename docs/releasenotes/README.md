@@ -6,11 +6,24 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.14](#version-1-14)|
+[v1.14](#version-1-14)|[v1.14.1](#version-1-14-1)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.14.1
+
+Release date: 08.07.2021
+
+### Highlights
+
+This release adds a single bugfix.
+
+### All changes
+
+<!-- MR !559 -->
+- Fixed a bug causing front end to break in some edge cases.
 
 ## Version 1.14
 
