@@ -3,6 +3,7 @@
     color="{{ $ctrl.getCardColor() }}"
     on-collapse="$ctrl.collapseChangedWrapper(collapsed)"
     collapsed="$ctrl.collapsed"
+    ng-watch="$ctrl.collapsed"
 >
     <maintitle> {{ $ctrl.section.title }} </maintitle>
     <subtitle ng-if="$ctrl.section.subtitle">{{ $ctrl.section.subtitle }}</subtitle>
@@ -150,6 +151,8 @@
             templates="$ctrl.getAlleleassessmentCommentTemplates()"
             references="$ctrl.editorReferences"
             class="control-comment id-comment-{{ $ctrl.section.alleleassessmentComment.name }}"
+            collapsed="$ctrl.collapsed"
+            expand-fn="$ctrl.collapseChangedWrapper(collapsed)"
             ng-disabled="$ctrl.isAlleleAssessmentReused || $ctrl.readOnly"
             placeholder="{{ $ctrl.section.alleleassessmentComment.placeholder }}"
             ng-change="$ctrl.evaluationCommentChanged({alleleId: $ctrl.selectedAllele, name: $ctrl.section.alleleassessmentComment.name, comment: $ctrl.modelSectionEvaluationComment})"
@@ -162,6 +165,8 @@
             templates="$ctrl.getAnalysisSpecificCommentTemplates()"
             references="$ctrl.editorReferences"
             class="control-comment id-comment-analysis"
+            collapsed="$ctrl.collapsed"
+            expand-fn="$ctrl.collapseChangedWrapper(collapsed)"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.analysisComment.placeholder }}"
             ng-change="$ctrl.analysisCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.modelAnalysisComment})"
@@ -174,6 +179,8 @@
             templates="$ctrl.getAlleleReportCommentTemplates()"
             references="$ctrl.editorReferences"
             class="control-comment id-comment-report"
+            collapsed="$ctrl.collapsed"
+            expand-fn="$ctrl.collapseChangedWrapper(collapsed)"
             ng-disabled="$ctrl.readOnly"
             placeholder="{{ $ctrl.section.reportComment.placeholder }}"
             ng-change="$ctrl.alleleReportCommentChanged({alleleId: $ctrl.selectedAllele, comment: $ctrl.modelAlleleReportComment})"

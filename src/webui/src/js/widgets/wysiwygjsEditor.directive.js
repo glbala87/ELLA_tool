@@ -15,7 +15,9 @@ import template from './wysiwygEditor.ngtmpl.html' // eslint-disable-line no-unu
         ngDisabled: '=?',
         showControls: '<?',
         templates: '=?',
-        references: '=?' // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        references: '=?', // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        collapsed: '=?',
+        expandFn: '&'
     },
     require: '?ngModel', // get a hold of NgModelController
     template
@@ -443,6 +445,9 @@ export class WysiwygEditorController {
 
     focus() {
         if (!this.editor.readOnly()) {
+            if (this.scope.collapsed !== undefined && this.scope.collapsed) {
+                this.scope.expandFn({ collapsed: false })
+            }
             this.isBlurred = false
             this.placeholderEvent(false)
             this.editorelement.focus()
