@@ -4,11 +4,6 @@
     ng-if="$ctrl.hasContent() && !($ctrl.type == 'ignored' && !$ctrl.showExcluded)"
 >
     <cbbody>
-        <h3
-            ng-if="$ctrl.references[$ctrl.type].unpublished.length > 0 && $ctrl.type === 'evaluated'"
-        >
-            Unpublished studies
-        </h3>
         <article
             class="id-reference-{{ $ctrl.type }}-unpublished"
             ng-repeat="ref in $ctrl.references[$ctrl.type].unpublished track by ref.id"
@@ -16,9 +11,6 @@
             <allele-info-reference-detail reference-id="ref.id"></allele-info-reference-detail>
             <referenceassessment reference-id="ref.id"></referenceassessment>
         </article>
-        <h3 ng-if="$ctrl.references[$ctrl.type].published.length > 0 && $ctrl.type === 'evaluated'">
-            Published studies
-        </h3>
         <article
             class="id-reference-{{ $ctrl.type }}-published"
             ng-repeat="ref in $ctrl.references[$ctrl.type].published track by ref.id"

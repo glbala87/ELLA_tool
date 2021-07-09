@@ -741,6 +741,12 @@ analysis-selection {
             white-space: nowrap;
         }
 
+        .reference-emph {
+            color: red;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
         .reference-controls {
             justify-self: flex-start;
             white-space: nowrap;
