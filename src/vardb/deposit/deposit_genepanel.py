@@ -89,7 +89,6 @@ class DepositGenepanel(object):
                 (
                     t["HGNC"],
                     t["geneSymbol"],
-                    t["eGeneID"],
                     int(t["Omim gene entry"]) if t.get("Omim gene entry") else None,
                 )
             )
@@ -100,8 +99,7 @@ class DepositGenepanel(object):
                 {
                     "hgnc_id": d[0],
                     "hgnc_symbol": d[1],
-                    "ensembl_gene_id": d[2],
-                    "omim_entry_id": d[3],
+                    "omim_entry_id": d[2],
                 }
             )
 
@@ -111,7 +109,7 @@ class DepositGenepanel(object):
             self.session,
             gm.Gene,
             gene_rows,
-            compare_keys=["hgnc_id", "hgnc_symbol", "ensembl_gene_id"],
+            compare_keys=["hgnc_id", "hgnc_symbol"],
         ):
             gene_inserted_count += len(created)
             gene_reused_count += len(existing)
@@ -128,7 +126,6 @@ class DepositGenepanel(object):
                     "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
                     "type": "RefSeq",
                     "corresponding_refseq": None,
-                    "corresponding_ensembl": t["eTranscriptID"],
                     "corresponding_lrg": None,
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],

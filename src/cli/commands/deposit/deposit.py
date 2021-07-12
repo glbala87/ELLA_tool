@@ -149,8 +149,8 @@ def cmd_deposit_genepanel(
     if folder:
         p = Path(folder)
         prefix = p.parts[-1]
-        transcripts_path = p / Path(prefix + ".transcripts.csv")
-        phenotypes_path = p / Path(prefix + ".phenotypes.csv")
+        transcripts_path = p / Path(prefix + "_genes_transcripts_regions.tsv")
+        phenotypes_path = p / Path(prefix + "_phenotypes.tsv")
         genepanel_name, genepanel_version = prefix.split("_", 1)
         assert genepanel_version.startswith("v")
 
