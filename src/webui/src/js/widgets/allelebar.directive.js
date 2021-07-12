@@ -90,9 +90,9 @@ app.component('allelebar', {
                             .join('/')
                     },
                     hasGeneAssessment(hgnc_id) {
-                        return $ctrl.genepanel.geneassessments.filter(
-                            (ga) => ga.gene_id === hgnc_id
-                        ).length
+                        return $ctrl.genepanel.geneassessments
+                            .filter((ga) => ga.gene_id === hgnc_id)
+                            .filter((ga) => ga.evaluation && ga.evaluation.comment).length
                     }
                 })
             }
