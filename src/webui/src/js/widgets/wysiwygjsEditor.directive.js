@@ -178,7 +178,9 @@ export class WysiwygEditorController {
     }
 
     updateViewValue() {
-        this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
+        let s = this.editor.getHTML()
+        s = s == '<br>' ? '' : s // fix empty editor returning <br>
+        this.scope.$evalAsync(this.ngModelController.$setViewValue(s))
         this.positionPopovers()
     }
 
