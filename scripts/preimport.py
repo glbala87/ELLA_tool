@@ -25,6 +25,7 @@ Transcript = table(
     column("transcript_name", sa.String()),
     column("type", sa.String()),
     column("corresponding_refseq", sa.String()),
+    column("corresponding_refseq_source", sa.String()),
     column("corresponding_ensembl", sa.String()),
     column("corresponding_lrg", sa.String()),
     column("genome_reference", sa.String()),
