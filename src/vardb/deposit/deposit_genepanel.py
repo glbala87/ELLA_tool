@@ -126,6 +126,7 @@ class DepositGenepanel(object):
                     "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
                     "type": "RefSeq",
                     "corresponding_refseq": None,
+                    "corresponding_refseq_source": None if t["source"] == "N/A" else t["source"],
                     "corresponding_lrg": None,
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
