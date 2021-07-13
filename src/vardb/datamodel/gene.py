@@ -45,6 +45,7 @@ class Transcript(Base):
     transcript_source = Column(String())
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
     corresponding_refseq = Column(String())
+    corresponding_refseq_source = Column(String())
     corresponding_ensembl = Column(String())
     corresponding_lrg = Column(String())
     inheritance_mode = Column(String())
