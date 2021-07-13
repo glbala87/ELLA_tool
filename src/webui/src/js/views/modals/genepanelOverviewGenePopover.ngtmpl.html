@@ -1,8 +1,28 @@
-<h4 class="section-title">Inheritance:</h4>
+<!-- TODO: This should reflect the popover in src/webui/src/js/widgets/geneInformation.ngtmpl.html.
+    Ideally, one would want to re-use the same piece of code for both.
+-->
+<h4 class="section-title id_inheritance">
+    Inheritance
+</h4>
 {{ $ctrl.formatInheritance(gene) }}
-<h4 class="section-title">Indications:</h4>
-<div ng-repeat="p in $ctrl.formatPhenotypes(gene)">{{ p }}</div>
-<h4 class="section-title">Transcripts:</h4>
-<div ng-repeat="t in gene.transcripts">
-    {{ t.transcript_name }}
-</div>
+<h4 class="section-title">Phenotypes</h4>
+<ul class="popover-list indented">
+    <li ng-repeat="pheno in gene.phenotypes">
+        {{ pheno.description }} ({{ pheno.inheritance || '?' }})
+    </li>
+</ul>
+<h4 class="section-title">Transcripts</h4>
+<ul class="popover-list indented">
+    <li>
+        Default transcript(s):
+        <span ng-repeat="tx in gene.transcripts">
+            {{ tx.transcript_name }}
+        </span>
+    </li>
+    <li>
+        Default transcript source(s):
+        <span ng-repeat="tx in gene.transcripts">
+            {{ tx.corresponding_refseq_source || 'n/a' }}
+        </span>
+    </li>
+</ul>
