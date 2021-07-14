@@ -1225,16 +1225,18 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
         - filter_config_id not provided: Return snapshot results. Requires interpretation to be 'Done'-
         - filter_config_id provided: Run filter on analysis, and return results.
     """
+    print(filter_config_id)
     if isinstance(interpretation, workflow.AlleleInterpretation):
         return [interpretation.allele_id], None
-
     elif isinstance(interpretation, workflow.AnalysisInterpretation):
 
         if filter_config_id is None:
             if interpretation.status != "Done":
                 raise RuntimeError("Interpretation is not done, and no filter config is provided.")
 
-            if not interpretation.snapshots:
+            # snapshots will be empty if there are no variants
+            has_variants = len(interpretation.state["allele"].keys())
+            if not interpretation.snapshots and has_variants:
                 raise RuntimeError("Missing snapshots for interpretation.")
 
             categories = {
