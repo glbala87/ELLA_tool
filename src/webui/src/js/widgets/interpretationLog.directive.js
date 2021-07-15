@@ -8,6 +8,7 @@ import getPriority from '../store/modules/views/workflows/worklog/computed/getPr
 import getReviewComment from '../store/modules/views/workflows/worklog/computed/getReviewComment'
 import canClearWarning from '../store/modules/views/workflows/worklog/computed/canClearWarning'
 import canCreateInterpretationLog from '../store/modules/views/workflows/worklog/computed/canCreateInterpretationLog'
+import getEditorReferences from '../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './interpretationLog.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const getPriorityOptions = Compute(state`app.config`, (config) => {
@@ -37,7 +38,8 @@ app.component('interpretationLog', {
             addMessageClicked: signal`views.workflows.worklog.addMessageClicked`,
             messageChanged: signal`views.workflows.worklog.messageChanged`,
             updateReviewCommentClicked: signal`views.workflows.worklog.updateReviewCommentClicked`,
-            showMessagesOnlyChanged: signal`views.workflows.worklog.showMessagesOnlyChanged`
+            showMessagesOnlyChanged: signal`views.workflows.worklog.showMessagesOnlyChanged`,
+            editorReferences: getEditorReferences('report')
         },
         'InterpretationLog',
         [

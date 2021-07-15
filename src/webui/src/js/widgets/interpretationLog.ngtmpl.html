@@ -81,6 +81,7 @@
         <wysiwyg-editor
             class="control-comment"
             templates="$ctrl.getWorkLogCommentTemplates()"
+            references="$ctrl.editorReferences"
             ng-model="$ctrl.message"
             placeholder="NEW MESSAGE"
             ng-change="$ctrl.messageChanged({message: $ctrl.message})"
