@@ -81,7 +81,7 @@ app.component('reportCard', {
             reportAlleles: getReportAlleleData,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
             reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`,
-            editorReferences: getEditorReferences
+            editorReferences: getEditorReferences('report')
         },
         'ReportCard',
         [
