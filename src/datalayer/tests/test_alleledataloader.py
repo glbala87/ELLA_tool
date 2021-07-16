@@ -263,7 +263,7 @@ def test_worse_consequence_warning(test_database, session):
     return
 
 
-def test_inconsistent_ensembl_transcript(test_database, session):
+def deactivated_test_inconsistent_ensembl_transcript(test_database, session):
     test_database.refresh()
     analysis_id = 1
 
