@@ -17,6 +17,7 @@ app.component('geneInformation', {
             genepanelValues: getGenepanelValues(
                 state`views.workflows.interpretation.data.genepanel`
             ),
+            externalInfo: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}.annotation.external`,
             commentTemplates: state`app.commentTemplates`,
             geneAssessment: getGeneAssessment(props`hgncId`),
             userGeneAssessment: state`views.workflows.interpretation.geneInformation.geneassessment.${props`hgncId`}`,
