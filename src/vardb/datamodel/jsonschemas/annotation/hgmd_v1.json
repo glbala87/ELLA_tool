@@ -4,7 +4,7 @@
     "$id": "http://example.com/root.json",
     "type": "object",
     "required": ["tag", "acc_num", "disease"],
-    "optional": ["codon"],
+    "optional": ["codon", "transcript"],
     "additionalProperties": false,
     "properties": {
         "tag": {
@@ -18,6 +18,9 @@
             "type": "string"
         },
         "disease": {
+            "type": "string"
+        },
+        "transcript": {
             "type": "string"
         }
     }

@@ -406,6 +406,7 @@ deposit:
                 additional_sources:
                     - HGMD__disease
                     - HGMD__tag
+                    - HGMD__transcript
                 target: external.HGMD
     - name: meta
       converter_config:
@@ -558,3 +559,4 @@ view:
               - subsource: tag
               - subsource: disease
               - subsource: acc_num
+              - subsource: transcript

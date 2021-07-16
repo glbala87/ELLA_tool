@@ -43,8 +43,13 @@ class HGMDConverter(AnnotationConverter):
 
         disease: str = args.additional_values["HGMD__disease"]
         tag: str = args.additional_values["HGMD__tag"]
+        transcript: str = args.additional_values["HGMD__transcript"]
 
         assert tag == _translate_to_original(tag)
         assert args.value == _translate_to_original(args.value)
 
-        return {"acc_num": args.value, "disease": _translate_to_original(disease), "tag": tag}
+        r = {"acc_num": args.value, "disease": _translate_to_original(disease), "tag": tag}
+        if transcript is not None:
+            r["transcript"] = transcript
+
+        return r
