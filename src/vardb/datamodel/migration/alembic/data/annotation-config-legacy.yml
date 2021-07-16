@@ -520,3 +520,4 @@ view:
               - subsource: tag
               - subsource: disease
               - subsource: acc_num
+              - subsource: transcript
