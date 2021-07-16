@@ -146,8 +146,6 @@ def _get_transcript_data(transcripts):
     transcript_columns["geneSymbol"] = lambda t: t["hgnc_symbol"]
     transcript_columns["HGNC"] = lambda t: str(t["hgnc_id"])
     transcript_columns["geneAlias"] = lambda t: ""
-    transcript_columns["eGeneID"] = lambda t: t["ensembl_gene_id"]
-    transcript_columns["eTranscriptID"] = lambda t: t["corresponding_ensembl"]
     transcript_columns["cdsStart"] = lambda t: str(t["cds_start"])
     transcript_columns["cdsEnd"] = lambda t: str(t["cds_end"])
     transcript_columns["exonsStarts"] = lambda t: ",".join(str(es) for es in t["exon_starts"])
