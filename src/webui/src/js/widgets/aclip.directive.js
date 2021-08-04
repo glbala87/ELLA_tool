@@ -75,7 +75,7 @@ app.component('aClip', {
         linkText: '@?'
     },
     transclude: true,
-    template: `<span><a title="{{title}}" ng-if="::!$ctrl.shouldCopy()" ng-href="{{$ctrl.interpolatedUrl}}" target="{{$ctrl.interpolatedUrl}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::$ctrl.shouldCopy()" title="{{title}}" ng-click="$ctrl.copyToClipboard()" ng-transclude></a></span>`,
+    template: `<span><a title="{{$ctrl.title}}" ng-if="::!$ctrl.shouldCopy()" ng-href="{{$ctrl.interpolatedUrl}}" target="{{$ctrl.interpolatedUrl}}" ng-transclude></a><a style="cursor: pointer;" ng-if="::$ctrl.shouldCopy()" title="{{$ctrl.title}}" ng-click="$ctrl.copyToClipboard()" ng-transclude></a></span>`,
     controller: connect(
         {
             interpolatedUrl,
