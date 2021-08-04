@@ -10,7 +10,7 @@ The top bar contains information about the current user, selected variant, as we
 
 <div class="figure"><img src="./img/top_bar.png"></div>
 
-The view in VARIANTS workflow is almost the same but contains no sample-specific information, and has an extra button to show analyses containing the variant.
+The view in VARIANTS workflow is almost the same but contains no sample-specific information, and has an extra button to [show analyses](/manual/choosing-sample-variant.html#show-analyses-containing-a-variant) containing the variant.
 
 ::: warning NOTE
 If available, the RefSeq transcript and version used in the HGVSc variant name in the top bar (NM_175629.2 in the example above) matches what is specified in the gene panel. However: 
