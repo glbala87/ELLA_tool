@@ -48,6 +48,8 @@ Release date: TBD
 
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
+<!-- MR !572 -->
+- Fixed a bug causing incorrect sorting of unpublished studies
 
 ## Version 1.14.1
 
