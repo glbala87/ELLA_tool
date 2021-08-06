@@ -431,7 +431,7 @@ export class WysiwygEditorController {
         const parser = new DOMParser()
         const editorHtml = parser.parseFromString(this.ngModelController.$viewValue, 'text/html')
         this.previewelement.innerText = editorHtml.getElementsByTagName('body')[0].innerText
-        const maxChar = 40
+        const maxChar = 135
         this.previewelement.innerText =
             this.previewelement.innerText.length <= maxChar
                 ? this.previewelement.innerText
