@@ -552,7 +552,7 @@ export class WysiwygEditorController {
 
     insertSignature() {
         const d = new Date().toISOString().substring(0, 10)
-        this.editor.insertHTML(`<font color="#0000ff">[${this.username}, ${d}]</font>`)
+        this.editor.insertHTML(`[<font color="#0000ff">${this.username}, ${d}</font>]`)
     }
 
     insertReference(ref) {
