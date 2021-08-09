@@ -57,6 +57,8 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !565 -->
 - Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
+<!-- MR !566 -->
+- Gene INFO tag in top bar is now removed if gene comment is emptied.
 <!-- MR !568 -->
 - Filtered variants are now sorted by genomic position.
 <!-- MR !569 -->
