@@ -57,6 +57,8 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !565 -->
 - Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
+<!-- MR !569 -->
+- Re-added tooltip for reference title.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
 
