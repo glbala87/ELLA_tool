@@ -44,12 +44,21 @@ Release date: TBD
 
 [TODO]
 
+It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`) to any comment field, using either the keyboard shortcut `Alt + S` or a button on the formatting toolbar: 
+
+<div class="figure_text">
+    <img src="./img/1-15-quick-add-signature.png"><br>
+    <p><strong>Figure: </strong>Quick add signature to any comment field.</p>
+</div> 
+
 ### All changes
 
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
+<!-- MR !565 -->
+- Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
 <!-- MR !572 -->
-- Fixed a bug causing incorrect sorting of unpublished studies
+- Fixed a bug causing incorrect sorting of unpublished studies.
 
 ## Version 1.14.1
 
