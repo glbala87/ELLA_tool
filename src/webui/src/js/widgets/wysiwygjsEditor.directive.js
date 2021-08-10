@@ -430,12 +430,18 @@ export class WysiwygEditorController {
     updatePreview() {
         const parser = new DOMParser()
         const editorHtml = parser.parseFromString(this.ngModelController.$viewValue, 'text/html')
-        this.previewelement.innerText = editorHtml.getElementsByTagName('body')[0].innerText
+        const eBody0 = editorHtml.getElementsByTagName('body')[0]
+        this.previewelement.innerText = eBody0.innerText
         const maxChar = 135
+        const ellipsis = '...'
         this.previewelement.innerText =
             this.previewelement.innerText.length <= maxChar
                 ? this.previewelement.innerText
-                : this.previewelement.innerText.substring(0, maxChar) + ' ...'
+                : this.previewelement.innerText.substring(0, maxChar) + ` ${ellipsis}`
+        // force-show ellipsis if the orgiginal innerHTML was not empty
+        if (this.previewelement.innerText.trim() == '' && eBody0.innerHTML != '') {
+            this.previewelement.innerText = ellipsis
+        }
     }
 
     blur() {
