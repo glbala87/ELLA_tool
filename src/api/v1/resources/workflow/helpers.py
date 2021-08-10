@@ -816,9 +816,12 @@ def get_genepanels(session, allele_ids, user=None):
 
     allele_genepanels = queries.allele_genepanels(session, gp_keys, allele_ids=allele_ids)
     allele_genepanels = allele_genepanels.subquery()
-
     candidate_genepanels = (
-        session.query(allele_genepanels.c.name, allele_genepanels.c.version).distinct().all()
+        session.query(
+            allele_genepanels.c.name, allele_genepanels.c.version, allele_genepanels.c.official
+        )
+        .distinct()
+        .all()
     )
 
     # TODO: Sort by previously used interpretations
