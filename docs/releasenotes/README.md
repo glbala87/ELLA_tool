@@ -42,7 +42,7 @@ Release date: TBD
 
 ### Highlights
 
-[TODO]
+This version ... [TODO; summary of UI/UX improvements]
 
 It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`) to any comment field, using either the keyboard shortcut `Alt + S` or a button on the formatting toolbar: 
 
@@ -55,6 +55,8 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
 
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
+<!-- MR !562 -->
+- Collapsing sections on the CLASSIFICATION page now also truncates comments, improving overview when comments are lengthy.
 <!-- MR !565 -->
 - Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
 <!-- MR !566 -->
