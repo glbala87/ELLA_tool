@@ -57,6 +57,8 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !562 -->
 - Collapsing sections on the CLASSIFICATION page now also truncates comments, improving overview when comments are lengthy.
+<!-- MR !564 -->
+- Layout in Studies & references section is improved, removing some headers and adding an `UNPUBLISHED` tag when relevant.
 <!-- MR !565 -->
 - Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
 <!-- MR !566 -->
