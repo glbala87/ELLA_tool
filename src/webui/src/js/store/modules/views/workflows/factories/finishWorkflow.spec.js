@@ -67,7 +67,7 @@ describe('finishWorkflow', function() {
                         data: {
                             filteredAlleleIds: {
                                 allele_ids: [1, 2],
-                                excluded_allele_ids: {
+                                excluded_alleles_by_caller_type: {
                                     testFilter: [3]
                                 }
                             },
@@ -121,8 +121,10 @@ describe('finishWorkflow', function() {
                     allele_ids: [1, 2, 3],
                     technical_allele_ids: [2],
                     notrelevant_allele_ids: [3],
-                    excluded_allele_ids: {
-                        testFilter: [3]
+                    excluded_alleles_by_caller_type: {
+                        snv: {
+                            testFilter: [3]
+                        }
                     }
                 })
 
