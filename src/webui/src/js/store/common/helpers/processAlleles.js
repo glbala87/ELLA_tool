@@ -127,15 +127,15 @@ function getFormatted(allele, genepanel) {
             formatted.genomicPosition = `${allele.chromosome}:${start}-${end}`
             break
         case 'dup':
-            formatted.hgsvg = `g.${start + 1}dup`
+            formatted.hgvsg = `g.${start + 1}dup`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         case 'dup_tandem':
-            formatted.hgsvg = `g.${start + 1}dup_tandem`
+            formatted.hgvsg = `g.${start + 1}dup_tandem`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         case 'del_me':
-            formatted.hgsvg = `g.${start + 1}dup_me`
+            formatted.hgvsg = `g.${start + 1}dup_me`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         default:
