@@ -4,7 +4,7 @@
             "type": "shell",
             "label": "reset db",
             "command": [
-                "make dbreset TESTSET=e2e"
+                "TESTSET=default make dbreset"
             ],
             "problemMatcher": []
         },

@@ -44,9 +44,11 @@ class SnapshotCreator(object):
     ) -> Sequence[Dict]:
 
         excluded: Dict = {}
+
         if interpretation_snapshot_model == "analysis":
             assert excluded_allele_ids is not None
             excluded = excluded_allele_ids
+
             all_allele_ids = list(
                 set(allele_ids).union(set(itertools.chain(*list(excluded.values()))))
             )
