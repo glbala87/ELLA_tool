@@ -1,6 +1,33 @@
 import thenBy from 'thenby'
 import { formatInheritance } from './genepanel'
 
+/**
+ *  Troubleshooting:
+ *
+ * This seems to be called with alleles not containing annoation, I
+ * see two possibilities:
+ *
+ * 1. There is no annotation data, but this worked before the major
+ *    refactoring, so may not be the cause, alternatively something wasn't
+ *    properly tested previously.
+ * 2. There is something wrong in this workflow test. Could be related
+ *    to the filter modal, but it is hard to see the correlation between
+ *    that and annotion. Might be some forgiving undefined value in Javascript,
+ *    but still, this should have crashed in the state store.
+ *
+ * There seemes to be multiple paths to filteredAlleles in the cerebral store
+ * active in the workflows.modals.addExcludedAlleles and other places.
+ *
+ * The loadExcludedAlleles seems to be initiated from multiple places,
+ * we need a way to assure that we then load the filteredAlleles based
+ * upon the caller type.
+ *
+ * Excluded alleles and Filtered alleles is the same concept or not?
+ *
+ * This is confusing for sure...
+ *
+ */
+
 export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
         if (allele.annotation.filtered_transcripts.length) {
@@ -10,11 +37,14 @@ export default function processAlleles(alleles, genepanel = null) {
                 )
             )
         } else {
-            if (allele.annotation.transcripts) {
+            if ('transcripts' in allele.annotation) {
                 allele.annotation.filtered = allele.annotation.transcripts.sort(
                     thenBy('transcript')
                 )
-            } else allele.annotation.filtered = []
+            } else {
+                allele.annotation.transcripts = []
+                allele.annotation.filtered = []
+            }
         }
 
         allele.formatted = getFormatted(allele, genepanel)
@@ -53,6 +83,7 @@ function getFormatted(allele, genepanel) {
     // Database is 0-based, hgvsg uses 1-based index
     let start = allele.start_position
     let end = allele.open_end_position
+
     switch (allele.change_type) {
         case 'SNP':
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}`
@@ -81,20 +112,21 @@ function getFormatted(allele, genepanel) {
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end + 1}`
             break
         case 'dup':
-            formatted.hgsvg = `g.${start + 1}dup`
+            formatted.hgvsg = `g.${start + 1}dup`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         case 'dup_tandem':
-            formatted.hgsvg = `g.${start + 1}dup_tandem`
+            formatted.hgvsg = `g.${start + 1}dup_tandem`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         case 'del_me':
-            formatted.hgsvg = `g.${start + 1}dup_me`
+            formatted.hgvsg = `g.${start + 1}dup_me`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         default:
             throw Error(`Unsupported change type detected (${allele.id}): ${allele.change_type}`)
     }
+
     formatted.alamut = `Chr${allele.chromosome}(${allele.genome_reference}):${formatted.hgvsg}`
 
     //

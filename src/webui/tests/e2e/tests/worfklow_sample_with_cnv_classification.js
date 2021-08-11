@@ -95,7 +95,7 @@ describe('Sample workflow', function() {
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
-        analysisPage.startButton.click()
+        //analysisPage.startButton.click()
 
         cnvSelector = analysisPage.cnvSelector
         cnvSelector.waitForExist()

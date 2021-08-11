@@ -34,10 +34,11 @@ class AnnotationConfigListResource(LogRequestResource):
     @authenticate()
     def get(self, session, user=None):
         annotation_config_ids = request.args.get("annotation_config_ids").split(",")
+        annotation_config_ids_filtered = list(filter(None, annotation_config_ids))
         annotation_configs = (
             session.query(annotation.AnnotationConfig)
-            .filter(annotation.AnnotationConfig.id.in_(annotation_config_ids))
+            .filter(annotation.AnnotationConfig.id.in_(annotation_config_ids_filtered))
             .all()
         )
-        assert len(annotation_config_ids) == len(annotation_configs)
+        assert len(annotation_config_ids_filtered) == len(annotation_configs)
         return [AnnotationConfigSchema().dump(x).data for x in annotation_configs]
