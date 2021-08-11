@@ -8,6 +8,7 @@ import toast from '../../../../../../common/factories/toast'
 import progress from '../../../../../../common/factories/progress'
 import getGenepanel from '../actions/getGenepanel'
 
+//TODO: load alleles based upon callerType selected
 export default sequence('loadExcludedAlleles', [
     progress('start'),
     progress('set', 70),
