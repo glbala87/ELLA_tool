@@ -21,7 +21,7 @@ export default Compute(
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
             !filteredAlleleIds ||
-            !filteredAlleleIds.excluded_allele_ids ||
+            !filteredAlleleIds.excluded_alleles_by_caller_type ||
             !callerTypeSelected
         ) {
             return []
@@ -31,7 +31,9 @@ export default Compute(
             interpretationState.manuallyAddedAlleles[callerTypeSelected]
         const alleleIds = filteredAlleleIds.allele_ids
         let allExcludedAlleleIds = []
-        for (const excludedAlleleIds of Object.values(filteredAlleleIds.excluded_allele_ids)) {
+        for (const excludedAlleleIds of Object.values(
+            filteredAlleleIds.excluded_alleles_by_caller_type[callerTypeSelected]
+        )) {
             allExcludedAlleleIds = allExcludedAlleleIds.concat(excludedAlleleIds)
         }
 

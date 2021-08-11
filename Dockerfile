@@ -84,6 +84,7 @@ RUN apt-get update && \
 # Add our requirements files
 COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 
+RUN mkdir -p /bio
 USER ella-user
 
 # Standalone python

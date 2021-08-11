@@ -203,9 +203,11 @@ app.component('alleleSidebarList', {
                         else if (size && size > 1) return `${size} genes`
                         else return 'none'
                     },
+
                     getHGVSc(allele) {
                         if (allele.annotation.filtered.length) {
                             return allele.annotation.filtered
+                                .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
                                 .map((t) =>
                                     t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
                                 )
@@ -216,6 +218,7 @@ app.component('alleleSidebarList', {
                     getHGVScTitle(allele) {
                         if (allele.annotation.filtered.length) {
                             return allele.annotation.filtered
+                                .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
                                 .map((t) => {
                                     const transcript = t.transcript
                                     const hgvs = t.HGVSc_short

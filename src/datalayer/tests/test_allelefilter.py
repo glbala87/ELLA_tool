@@ -108,7 +108,10 @@ class TestAlleleFilter(object):
 
         result = allele_filter.filter_alleles(filter_config_id, testdata)
         expected_result = {
-            "key": {"allele_ids": [], "excluded_allele_ids": {"allele_one_two": [1, 2]}},
+            "key": {
+                "allele_ids": [],
+                "excluded_allele_ids": {"allele_one_two": [1, 2]},
+            },
             "key2": {"allele_ids": [4], "excluded_allele_ids": {"allele_one_two": [1]}},
         }
 
@@ -161,7 +164,10 @@ class TestAlleleFilter(object):
         result = allele_filter.filter_alleles(filter_config_id, testdata)
 
         expected_result = {
-            "key": {"allele_ids": [1, 3, 4], "excluded_allele_ids": {"allele_one_two": [2]}}
+            "key": {
+                "allele_ids": [1, 3, 4],
+                "excluded_allele_ids": {"allele_one_two": [2]},
+            }
         }
 
         assert result == expected_result
@@ -193,7 +199,10 @@ class TestAlleleFilter(object):
         expected_result = {
             "key": {
                 "allele_ids": [],
-                "excluded_allele_ids": {"allele_one_two": [1, 2], "allele_three_four": [3, 4]},
+                "excluded_allele_ids": {
+                    "allele_one_two": [1, 2],
+                    "allele_three_four": [3, 4],
+                },
             }
         }
 
@@ -310,7 +319,10 @@ class TestAlleleFilter(object):
 
         expected_result = {
             "allele_ids": [1, 2],
-            "excluded_allele_ids": {"analysis_one_two": [], "analysis_three_four": [3, 4]},
+            "excluded_allele_ids": {
+                "analysis_one_two": [],
+                "analysis_three_four": [3, 4],
+            },
         }
 
         assert result == expected_result
@@ -397,6 +409,9 @@ class TestAlleleFilter(object):
         result = allele_filter.filter_analysis(filter_config_id, 1, testdata)
         expected_result = {
             "allele_ids": [3, 4],
-            "excluded_allele_ids": {"allele_one_two": [1, 2], "allele_filter_one_three_if_one": []},
+            "excluded_allele_ids": {
+                "allele_one_two": [1, 2],
+                "allele_filter_one_three_if_one": [],
+            },
         }
         assert result == expected_result
