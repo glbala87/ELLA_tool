@@ -15,8 +15,8 @@ var defaultCapabilities = [
                 '--window-size=1440,1080',
                 '--disable-dev-shm-usage' // Important per Chrome/Chromedriver v75
             ]
-            // binary:
-            //     '/nix/store/a4viiwfgwf90khh68fby2lbpz15mpn3x-google-chrome-91.0.4472.77/bin/google-chrome-stable'
+            //            binary:
+            //               '/nix/store/6rr7zryw0lxc69kwg4vz5ww5771jy28f-google-chrome-92.0.4515.107/bin/google-chrome-stable'
         },
         maxInstances: 1,
         browserName: 'chrome'
@@ -31,8 +31,8 @@ var debugCapabilities = [
     {
         'goog:chromeOptions': {
             args: ['--window-size=1440,1080']
-            // binary:
-            //     '/nix/store/a4viiwfgwf90khh68fby2lbpz15mpn3x-google-chrome-91.0.4472.77/bin/google-chrome-stable'
+            //            binary:
+            //                '/nix/store/6rr7zryw0lxc69kwg4vz5ww5771jy28f-google-chrome-92.0.4515.107/bin/google-chrome-stable'
         },
         maxInstances: 1,
         browserName: 'chrome'

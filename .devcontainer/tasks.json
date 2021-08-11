@@ -3,7 +3,7 @@
         {
             "type": "shell",
             "label": "reset db",
-            "command": ["make dbreset TESTSET=e2e"],
+            "command": ["TESTSET=default make dbreset"],
             "problemMatcher": []
         },
         {
