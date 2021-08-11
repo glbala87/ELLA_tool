@@ -892,7 +892,7 @@ workflow-buttons {
 allelebar {
     width: 100%;
     display: grid;
-    max-height: 10rem;
+    max-height: 9rem;
     overflow-y: auto;
     .genotype-display {
         &:not(:last-child) {
@@ -1140,14 +1140,12 @@ nav.warning {
             display: table-cell;
             white-space: nowrap;
             vertical-align: middle;
-            font-weight: 600;
             padding: 0 0.3rem;
             text-overflow: ellipsis;
             overflow: hidden;
             &.sample-type {
                 min-width: 3rem;
                 width: 3rem;
-                font-weight: 400;
                 font-style: normal;
                 font-size: 1.25rem;
                 margin-right: 1.3rem;
@@ -1156,7 +1154,6 @@ nav.warning {
                 min-width: 6rem;
                 width: 6rem;
                 max-width: 4rem;
-                font-weight: 400;
                 font-style: normal;
                 font-size: 1.25rem;
                 margin-right: 1.3rem;
@@ -1167,7 +1164,6 @@ nav.warning {
                 max-width: 6rem;
                 text-overflow: ellipsis;
                 overflow: hidden;
-                font-weight: 400;
                 font-style: normal;
                 font-size: 1.25rem;
                 margin-right: 1.3rem;
@@ -1184,6 +1180,7 @@ nav.warning {
                 width: 10rem;
                 max-width: 10rem;
                 &.hit {
+                    font-weight: 600;
                     color: $red-75;
                 }
             }

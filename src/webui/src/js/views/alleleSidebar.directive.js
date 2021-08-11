@@ -90,10 +90,6 @@ app.component('alleleSidebar', {
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
             classificationType, // effective classification type, see Compute
             showControls,
-            excludedAlleleCounts: getExcludedAlleleCountsByCallerType(
-                state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids_by_caller_type`,
-                state`views.workflows.alleleSidebar.callerTypeSelected`
-            ),
             selectedGenepanel: state`views.workflows.selectedGenepanel`,
             indicationsComment: state`views.workflows.interpretation.state.report.indicationscomment`,
             commentTemplates: state`app.commentTemplates`,
@@ -101,7 +97,10 @@ app.component('alleleSidebar', {
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
             manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
-            excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
+            excludedAlleleIds: getExcludedAlleleCountsByCallerType(
+                state`views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type`,
+                state`views.workflows.alleleSidebar.callerTypeSelected`
+            ),
             selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`,
             isTogglable,
             isToggled,
@@ -122,7 +121,7 @@ app.component('alleleSidebar', {
 
                 Object.assign($ctrl, {
                     getExcludedAlleleCount: () => {
-                        return Object.values($ctrl.excludedAlleleCounts)
+                        return Object.values($ctrl.excludedAlleleIds)
                             .map((excluded_group) => excluded_group.length)
                             .reduce((total_length, length) => total_length + length)
                     },

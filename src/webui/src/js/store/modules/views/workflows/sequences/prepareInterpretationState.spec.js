@@ -92,7 +92,7 @@ describe('prepareInterpretationState', () => {
                     },
                     filteredAlleleIds: {
                         allele_ids: [1],
-                        excluded_allele_ids: [2, 3]
+                        excluded_alleles_by_caller_type: [2, 3]
                     }
                 },
                 userState: {},

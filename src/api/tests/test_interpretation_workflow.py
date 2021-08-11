@@ -3,7 +3,10 @@ import pytest
 
 from vardb.datamodel import assessment, user as user_model
 
-from api.tests.workflow_helper import WorkflowHelper
+from api.tests.workflow_helper import (
+    WorkflowHelper,
+    make_frontend_excluded_allele_backend_compliant,
+)
 from api.tests import interpretation_helper as ih
 
 """
@@ -339,6 +342,7 @@ class TestFinalizationRequirements:
         Test finalizing when in and when not in the required workflow status.
         """
 
+        excluded_allele_ids = {}
         test_database.refresh()
 
         # Default user id is 1
@@ -455,6 +459,7 @@ class TestFinalizationRequirements:
             [alleleassessment_id],
             [],
             "testuser1",
+            excluded_allele_ids,
         )
         assert r.status_code == 200
 
@@ -493,7 +498,6 @@ class TestFinalizationRequirements:
         alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v01")
         referenceassessments = []
         allelereport = ih.allele_report_template(allele_id)
-
         r = ih.finalize_allele(
             "analysis",
             allele_id,
@@ -513,6 +517,11 @@ class TestFinalizationRequirements:
 
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         allele_ids = [a["id"] for a in alleles]
+
+        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
+            filtered_allele_ids["excluded_alleles_by_caller_type"]
+        )
+
         # Send to medical review, and try again
         ih.mark_medicalreview(
             "analysis",
@@ -520,7 +529,7 @@ class TestFinalizationRequirements:
             ih.round_template(
                 allele_ids=allele_ids,
                 annotation_ids=annotation_ids,
-                excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+                excluded_allele_ids=flattened_excluded_allele_ids,
             ),
             "testuser1",
         )
@@ -562,7 +571,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
         )
         assert r.status_code == 200
 
@@ -623,6 +632,10 @@ class TestFinalizationRequirements:
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         custom_annotation_ids = []
 
+        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
+            filtered_allele_ids["excluded_alleles_by_caller_type"]
+        )
+
         # allow_technical is False, so it should fail
         r = ih.finalize(
             "analysis",
@@ -633,7 +646,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -666,7 +679,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -728,6 +741,9 @@ class TestFinalizationRequirements:
         allelereport_ids = []
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         custom_annotation_ids = []
+        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
+            filtered_allele_ids["excluded_alleles_by_caller_type"]
+        )
 
         # allow_notrelevant is False, so it should fail
         r = ih.finalize(
@@ -739,7 +755,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -772,7 +788,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -834,6 +850,9 @@ class TestFinalizationRequirements:
         allelereport_ids = []
         annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
         custom_annotation_ids = []
+        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
+            filtered_allele_ids["excluded_alleles_by_caller_type"]
+        )
 
         # allow_unclassified is False, so it should fail
         r = ih.finalize(
@@ -845,7 +864,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
@@ -878,7 +897,7 @@ class TestFinalizationRequirements:
             alleleassessment_ids,
             allelereport_ids,
             "testuser1",
-            excluded_allele_ids=filtered_allele_ids["excluded_allele_ids"],
+            excluded_allele_ids=flattened_excluded_allele_ids,
             technical_allele_ids=technical_allele_ids,
             notrelevant_allele_ids=notrelevant_allele_ids,
         )
