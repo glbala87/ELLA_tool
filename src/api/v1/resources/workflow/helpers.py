@@ -777,9 +777,9 @@ def finalize_workflow(
 
     # Create interpretation snapshot objects
     if workflow_type == "analysis":
-        excluded_allele_ids = data["excluded_allele_ids"]
+        excluded_alleles_by_caller_type = data["excluded_allele_ids"]
     else:
-        excluded_allele_ids = None
+        excluded_alleles_by_caller_type = None
 
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
@@ -789,7 +789,7 @@ def finalize_workflow(
         data["custom_annotation_ids"],
         data["alleleassessment_ids"],
         data["allelereport_ids"],
-        excluded_allele_ids=excluded_allele_ids,
+        excluded_allele_ids=excluded_alleles_by_caller_type,
     )
 
     # Update interpretation
@@ -1230,7 +1230,9 @@ def fetch_allele_ids(session, excluded_alleles, caller_type):
     )
 
 
-def _filtered_by_caller_type(session, filtered_alleles):
+# Liste med allele id'er og splitte de
+# def allele_ids_by_caller_type(allele_ids: List) -> Dict[str, List]
+def filtered_by_caller_type(session, filtered_alleles):
 
     """
     This invokes many unecessary roundtrips to the database, however, it is
@@ -1256,6 +1258,7 @@ def _filtered_by_caller_type(session, filtered_alleles):
     return filtered_by_caller_type
 
 
+# Revert to old way
 def get_filtered_alleles(session, interpretation, filter_config_id=None):
     """
     Return filter results for interpretation.
@@ -1306,7 +1309,6 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
             return (
                 allele_ids,
                 excluded_allele_ids,
-                _filtered_by_caller_type(session, excluded_allele_ids),
             )
         else:
             analysis_id = interpretation.analysis_id
@@ -1322,10 +1324,6 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 filter_config_id, analysis_id, analysis_allele_ids
             )
 
-            return (
-                filtered_alleles["allele_ids"],
-                filtered_alleles["excluded_allele_ids"],
-                _filtered_by_caller_type(session, filtered_alleles["excluded_allele_ids"]),
-            )
+            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))

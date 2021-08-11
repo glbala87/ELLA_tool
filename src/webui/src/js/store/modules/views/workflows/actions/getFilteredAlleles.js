@@ -32,7 +32,7 @@ function getFilteredAlleles({ http, path, state, resolve }) {
         return path.success({
             result: {
                 allele_ids: [state.get('views.workflows.id')],
-                excluded_allele_ids: null
+                excluded_alleles_by_caller_type: null
             }
         })
     }
