@@ -29,7 +29,11 @@ describe('setManuallyAddedAlleleIds', function() {
     it('adds included to empty existing', async function() {
         const testState = createState([], {
             allele_ids: [],
-            excluded_allele_ids: { test: [1, 2, 3] }
+            excluded_alleles_by_caller_type: {
+                snv: {
+                    test: [1, 2, 3]
+                }
+            }
         })
         const props = {
             includedAlleleIds: [1, 2, 3]
@@ -45,7 +49,11 @@ describe('setManuallyAddedAlleleIds', function() {
     it("doesn't duplicate existing", async function() {
         const testState = createState([1, 2, 3], {
             allele_ids: [],
-            excluded_allele_ids: { test: [1, 2, 3] }
+            excluded_alleles_by_caller_type: {
+                snv: {
+                    test: [1, 2, 3]
+                }
+            }
         })
         const props = {
             includedAlleleIds: [1, 2, 3]
@@ -61,7 +69,11 @@ describe('setManuallyAddedAlleleIds', function() {
     it("doesn't remove existing", async function() {
         const testState = createState([1, 2, 3], {
             allele_ids: [1, 2],
-            excluded_allele_ids: { test: [3, 4, 5] }
+            excluded_alleles_by_caller_type: {
+                snv: {
+                    test: [3, 4, 5]
+                }
+            }
         })
         const props = {
             includedAlleleIds: [3, 4, 5]
@@ -79,7 +91,11 @@ describe('setManuallyAddedAlleleIds', function() {
     it("doesn't remove existing when empty list", async function() {
         const testState = createState([1, 2, 3], {
             allele_ids: [1, 2, 3],
-            excluded_allele_ids: { test: [] }
+            excluded_alleles_by_caller_type: {
+                snv: {
+                    test: []
+                }
+            }
         })
         const props = {
             includedAlleleIds: []
@@ -95,7 +111,11 @@ describe('setManuallyAddedAlleleIds', function() {
     it('removes ids that were removed', async function() {
         const testState = createState([1, 2, 3], {
             allele_ids: [],
-            excluded_allele_ids: { test: [1, 2, 3] }
+            excluded_alleles_by_caller_type: {
+                snv: {
+                    test: [1, 2, 3]
+                }
+            }
         })
         const props = {
             includedAlleleIds: [1, 2]

@@ -306,7 +306,7 @@ describe('Handling of allele state', () => {
                     references: [{ id: 1 }, { id: 2 }, { id: 3 }],
                     filteredAlleleIds: {
                         allele_ids: [1, 2, 3, 4],
-                        excluded_allele_ids: []
+                        excluded_alleles_by_caller_type: []
                     }
                 },
                 isOngoing: true,

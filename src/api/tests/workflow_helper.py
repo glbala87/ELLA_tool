@@ -48,6 +48,17 @@ def _build_dummy_annotations(allele_ids):
     return annotations, custom_annotations
 
 
+def make_frontend_excluded_allele_backend_compliant(excluded_alleles_by_caller_type):
+    flattened_excluded_allele_ids = {}
+    if "snv" in excluded_alleles_by_caller_type:
+        snv_filtered = excluded_alleles_by_caller_type["snv"]
+        cnv_filtered = excluded_alleles_by_caller_type["cnv"]
+        flattened_excluded_allele_ids = {**snv_filtered, **cnv_filtered}
+    else:
+        flattened_excluded_allele_ids = excluded_alleles_by_caller_type
+    return flattened_excluded_allele_ids
+
+
 class WorkflowHelper(object):
     def __init__(
         self, workflow_type, workflow_id, genepanel_name, genepanel_version, filterconfig_id=None
@@ -211,7 +222,8 @@ class WorkflowHelper(object):
                 self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
             ).get_json()
             allele_ids = filtered_allele_ids["allele_ids"]
-            excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
+            # excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
+            excluded_allele_ids = filtered_allele_ids["excluded_alleles_by_caller_type"]
         else:
             allele_ids = [self.id]
             excluded_allele_ids = {}
@@ -263,6 +275,13 @@ class WorkflowHelper(object):
             alleleassessment_ids.append(created_alleleassessment_id)
             allelereport_ids.append(created_allelereport_id)
 
+        if "snv" in excluded_allele_ids:
+            snv_filtered = excluded_allele_ids["snv"]
+            cnv_filtered = excluded_allele_ids["cnv"]
+            flattened_excluded_allele_ids = {**snv_filtered, **cnv_filtered}
+        else:
+            flattened_excluded_allele_ids = excluded_allele_ids
+
         # Finalize workflow
         r = ih.finalize(
             self.type,
@@ -273,7 +292,7 @@ class WorkflowHelper(object):
             alleleassessment_ids,
             allelereport_ids,
             interpretation["user"]["username"],
-            excluded_allele_ids=excluded_allele_ids,
+            excluded_allele_ids=flattened_excluded_allele_ids,
         )
 
         assert r.status_code == 200
@@ -310,7 +329,9 @@ class WorkflowHelper(object):
                 self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
             ).get_json()
             allele_ids = filtered_allele_ids["allele_ids"]
-            excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
+            excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
+                filtered_allele_ids["excluded_alleles_by_caller_type"]
+            )
         else:
             allele_ids = [self.id]
             excluded_allele_ids = None
@@ -394,6 +415,7 @@ class WorkflowHelper(object):
         ih.save_interpretation_state(
             self.type, interpretation, self.id, interpretation["user"]["username"]
         )
+
         r = ih.finalize(
             self.type,
             self.id,
