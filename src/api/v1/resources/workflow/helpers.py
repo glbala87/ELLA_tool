@@ -1225,9 +1225,9 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
         - filter_config_id not provided: Return snapshot results. Requires interpretation to be 'Done'-
         - filter_config_id provided: Run filter on analysis, and return results.
     """
-    print(filter_config_id)
     if isinstance(interpretation, workflow.AlleleInterpretation):
         return [interpretation.allele_id], None
+
     elif isinstance(interpretation, workflow.AnalysisInterpretation):
 
         if filter_config_id is None:
