@@ -134,10 +134,9 @@ class SimilarAllelesResource(LogRequestResource):
             include_allele_assessment=True,
             include_reference_assessments=False,
         )
-
+        # loaded_alleles has it's own order, thus reapply order from nearby_allele_ids
+        loaded_alleles_dict = dict((x["id"], x) for x in loaded_alleles)
         result = {}
-        for aid_query, aids_nearby in nearby_allele_ids.items():
-            # use order from nearby_allele_ids
-            r = list(filter(lambda x: x["id"] in aids_nearby, loaded_alleles))
-            result[str(aid_query)] = r
+        for aid in allele_ids:
+            result[str(aid)] = [loaded_alleles_dict[x] for x in nearby_allele_ids[aid]]
         return result
