@@ -5,14 +5,13 @@ import { deepCopy } from '../../../../../../../util'
 export default [
     ({ state, props }) => {
         const { alleleId } = props
-        state.set(
-            `views.workflows.modals.addPrediction.selection`,
-            deepCopy(
-                state.get(
-                    `views.workflows.interpretation.data.alleles.${alleleId}.annotation.prediction`
-                )
-            )
+        const annotation = state.get(
+            `views.workflows.interpretation.data.alleles.${alleleId}.annotation`
         )
+        const annotationExt = annotation.hasOwnProperty('prediction')
+            ? deepCopy(annotation.prediction)
+            : {}
+        state.set(`views.workflows.modals.addPrediction.selection`, annotationExt)
     },
     set(
         state`views.workflows.modals.addPrediction.annotationGroups`,
