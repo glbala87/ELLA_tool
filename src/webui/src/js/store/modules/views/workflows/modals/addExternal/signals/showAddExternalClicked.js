@@ -6,14 +6,13 @@ export default [
     // Copy current selection from loaded data
     ({ state, props }) => {
         const { alleleId } = props
-        state.set(
-            `views.workflows.modals.addExternal.selection`,
-            deepCopy(
-                state.get(
-                    `views.workflows.interpretation.data.alleles.${alleleId}.annotation.external`
-                )
-            )
+        const annotation = state.get(
+            `views.workflows.interpretation.data.alleles.${alleleId}.annotation`
         )
+        const annotationExt = annotation.hasOwnProperty('external')
+            ? deepCopy(annotation.external)
+            : {}
+        state.set(`views.workflows.modals.addExternal.selection`, annotationExt)
     },
     // Filter down list to external databases for this allele's gene(s) only
     ({ state, props }) => {
