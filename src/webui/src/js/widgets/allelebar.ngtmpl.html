@@ -53,8 +53,17 @@
                             tippy-title="{{ gt.title }}"
                         >
                             <span ng-if="$ctrl.genotypeDisplay.length > 1"
-                                >{{ gt.sample_label }}: </span
-                            >{{ gt.display }}
+                                >{{ gt.sample_label }}:
+                            </span>
+                            <!-- poor mans if/else -->
+                            <ng-container
+                                ng-switch="$ctrl.isTruncateGenotypeDisplay(gt.display).toString()"
+                            >
+                                <span ng-switch-when="true"
+                                    >{{ $ctrl.truncatedGenotypeDisplay(gt.display) }}&#x2026;</span
+                                >
+                                <span ng-switch-default>{{ gt.display }}</span>
+                            </ng-container>
                             <span
                                 tippy-title="Homozygous"
                                 class="tag red"
