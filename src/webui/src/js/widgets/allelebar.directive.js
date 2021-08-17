@@ -9,6 +9,8 @@ import genePopover from './allelebar/genePopover.ngtmpl.html'
 import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
 import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
 
+const GENOTYPE_DISPLAY_MAX_CHAR = 15
+
 const genotypeDisplay = Compute(state`${props`allelePath`}`, (allele) => {
     const genotypes = []
     if (allele && allele.samples) {
@@ -93,6 +95,12 @@ app.component('allelebar', {
                         return $ctrl.genepanel.geneassessments
                             .filter((ga) => ga.gene_id === hgnc_id)
                             .filter((ga) => ga.evaluation && ga.evaluation.comment).length
+                    },
+                    isTruncateGenotypeDisplay(str) {
+                        return str.length > GENOTYPE_DISPLAY_MAX_CHAR
+                    },
+                    truncatedGenotypeDisplay(str) {
+                        return str.substring(0, GENOTYPE_DISPLAY_MAX_CHAR)
                     }
                 })
             }
