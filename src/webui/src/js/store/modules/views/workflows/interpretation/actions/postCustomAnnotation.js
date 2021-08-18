@@ -1,7 +1,23 @@
+import { deepCopy } from '../../../../../../util'
+
 export default function postCustomAnnotation({ state, http, path, props }) {
+    // filter - use only enrties that have non-null sub-properties
+    //   example: `{prediction: {ortholog_conservation: null, dna_conservation: null}}`
+    //        =>  `{}`
+    const customAnnotationData = Object.entries(deepCopy(props.customAnnotationData))
+        .filter((kgrp, vgrp) => {
+            return Object.values(vgrp).some((e) => e !== null)
+        })
+        .reduce((obj, key) => {
+            return {
+                ...obj,
+                [key]: raw[key]
+            }
+        }, {})
+
     const payload = {
         allele_id: props.alleleId,
-        annotations: props.customAnnotationData,
+        annotations: customAnnotationData,
         user_id: state.get('app.user.id')
     }
 
