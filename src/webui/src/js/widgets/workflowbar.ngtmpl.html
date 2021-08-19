@@ -18,6 +18,7 @@
             <label
                 tabindex="0"
                 class="bttn"
+                id="caller-type-selector-{{ ct | lowercase }}"
                 uib-btn-radio="ct"
                 ng-repeat="ct in $ctrl.callerTypes"
                 ng-model="$ctrl.callerTypeSelected"
