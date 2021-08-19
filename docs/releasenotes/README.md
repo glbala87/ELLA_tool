@@ -51,8 +51,27 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
     <p><strong>Figure: </strong>Quick add signature to any comment field.</p>
 </div> 
 
+#### Improved track selection in VISUAL
+
+Selecting tracks in VISUAL has been further improved by splitting off presets in one section and the individual tracks in another, with the latter section collapsed by default. Tracks are now also organized under headers determined by preset names instead of the previous "Global", "Group" and "Analysis" headers. 
+
+<div class="figure_text">
+    <img src="./img/1-15-improved-track-selection.png"><br>
+    <p><strong>Figure: </strong>Improved track selection presets, with tracks organized by preset name.</p>
+</div> 
+
+[TODO] 
+
+- Update with screenshots that include previous default tracks; 
+- Check visual.html#default-tracks is correct; 
+- Update technical docs 
+ 
+[/TODO]
+
 ### All changes
 
+<!-- MR !553 -->
+- [Improved track selection in VISUAL with grouping of tracks under preset names](#improved-track-selection-in-visual).
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !562 -->
