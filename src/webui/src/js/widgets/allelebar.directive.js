@@ -101,7 +101,16 @@ app.component('allelebar', {
                     },
                     truncatedGenotypeDisplay(str) {
                         return str.substring(0, GENOTYPE_DISPLAY_MAX_CHAR)
-                    }
+                    },
+                    escapeHtmlTags: (str) =>
+                        str.replace(
+                            /[<>]/g,
+                            (c) =>
+                                ({
+                                    '<': '&lt;',
+                                    '>': '&gt;'
+                                }[c])
+                        )
                 })
             }
         ]
