@@ -65,7 +65,10 @@ app.component('workflowbar', {
             addReferencesClicked: signal`views.workflows.modals.addReferences.showAddReferencesClicked`,
             allele: state`views.workflows.allele`,
             alleles: state`views.workflows.interpretation.data.alleles`,
-            showAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.showAnalysesForAlleleClicked`
+            showAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.showAnalysesForAlleleClicked`,
+            callerTypes: state`views.workflows.alleleSidebar.callerTypes`,
+            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'Workflow',
         [
