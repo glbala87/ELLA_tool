@@ -14,6 +14,18 @@
                 >{{ c }}</label
             >
         </div>
+        <div class="bttn-set">
+            <label
+                tabindex="0"
+                class="bttn"
+                uib-btn-radio="ct"
+                ng-repeat="ct in $ctrl.callerTypes"
+                ng-model="$ctrl.callerTypeSelected"
+                ng-disabled="!$ctrl.workflowLoaded"
+                ng-change="$ctrl.callerTypeSelectedChanged( { callerTypeSelected: ct } )"
+                >{{ ct }}</label
+            >
+        </div>
     </div>
     <section>
         <button
