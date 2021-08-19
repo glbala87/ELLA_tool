@@ -82,8 +82,6 @@ app.component('alleleSidebar', {
         {
             config: state`app.config`,
             analysisId: state`views.workflows.data.analysis.id`,
-            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
-            callerTypes: state`views.workflows.alleleSidebar.callerTypes`,
             classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
             constrainSize,
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
@@ -108,7 +106,6 @@ app.component('alleleSidebar', {
             filterConfigs,
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
             classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
-            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`
         },
         'AlleleSidebar',
