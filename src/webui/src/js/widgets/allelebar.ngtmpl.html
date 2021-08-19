@@ -50,7 +50,7 @@
                         <span
                             class="genotype-display"
                             ng-repeat="gt in $ctrl.genotypeDisplay"
-                            tippy-title="{{ gt.title }}"
+                            tippy-title="{{ $ctrl.escapeHtmlTags(gt.title) }}"
                         >
                             <span ng-if="$ctrl.genotypeDisplay.length > 1"
                                 >{{ gt.sample_label }}:
