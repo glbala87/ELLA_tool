@@ -83,8 +83,6 @@ app.component('alleleSidebar', {
         {
             config: state`app.config`,
             analysisId: state`views.workflows.data.analysis.id`,
-            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
-            callerTypes: state`views.workflows.alleleSidebar.callerTypes`,
             classificationTypes: state`views.workflows.alleleSidebar.classificationTypes`,
             constrainSize,
             selectedClassificationType: state`views.workflows.alleleSidebar.classificationType`,
@@ -111,8 +109,7 @@ app.component('alleleSidebar', {
             classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
             editorReferences: getEditorReferences('report'),
-            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`,
-            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'AlleleSidebar',
         [
