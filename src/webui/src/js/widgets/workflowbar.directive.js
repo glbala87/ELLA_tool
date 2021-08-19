@@ -62,7 +62,10 @@ app.component('workflowbar', {
             copySelectedAlamutClicked: signal`views.workflows.copySelectedAlamutClicked`,
             selectedGenepanelChanged: signal`views.workflows.selectedGenepanelChanged`,
             addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
-            addReferencesClicked: signal`views.workflows.modals.addReferences.showAddReferencesClicked`
+            addReferencesClicked: signal`views.workflows.modals.addReferences.showAddReferencesClicked`,
+            callerTypes: state`views.workflows.alleleSidebar.callerTypes`,
+            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'Workflow',
         [
