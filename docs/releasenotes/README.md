@@ -86,6 +86,8 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
 - Filtered variants are now sorted by genomic position.
 <!-- MR !569 -->
 - Re-added tooltip for reference title.
+<!-- MR !570 -->
+- Fixed a bug causing incorrect sorting of variants in the Region section.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
 
