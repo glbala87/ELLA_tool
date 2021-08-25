@@ -91,4 +91,17 @@ describe('Sample workflow with an empty anaysis', function() {
         console.log('Changing to classification page')
         analysisPage.selectSectionClassification()
     })
+    
+    it(`cycle through old interpretations (${ANALYSIS_NAME})`, function() {
+        loginPage.open()
+        loginPage.loginAs('testuser1')
+        overview.open()
+        overview.selectFinished(1)
+        expect(analysisPage.getRounds().length).toBe(4) // 'Current data' "round" is added at end
+        analysisPage.chooseRound(4) // current
+        analysisPage.chooseRound(3)
+        analysisPage.chooseRound(2)
+        analysisPage.chooseRound(1)
+    })
+        
 })
