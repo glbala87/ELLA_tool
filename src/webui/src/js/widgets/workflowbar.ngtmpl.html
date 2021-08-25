@@ -61,7 +61,7 @@
                 </button>
                 <button
                     ng-if="$ctrl.workflowType == 'allele'"
-                    ng-click="$ctrl.showAnalysesForAlleleClicked({allele: $ctrl.allele}); $event.preventDefault();"
+                    ng-click="$ctrl.showAnalysesForAlleleClicked({allele: $ctrl.alleles[$ctrl.allele.id]}); $event.preventDefault();"
                 >
                     Show analyses
                 </button>

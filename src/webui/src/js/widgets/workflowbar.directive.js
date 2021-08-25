@@ -64,6 +64,7 @@ app.component('workflowbar', {
             addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
             addReferencesClicked: signal`views.workflows.modals.addReferences.showAddReferencesClicked`,
             allele: state`views.workflows.allele`,
+            alleles: state`views.workflows.interpretation.data.alleles`,
             showAnalysesForAlleleClicked: signal`search.modals.showAnalysesForAllele.showAnalysesForAlleleClicked`
         },
         'Workflow',
