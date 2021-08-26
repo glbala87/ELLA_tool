@@ -32,7 +32,8 @@ This release adds a few bugfixes.
 - Fixed a bug causing display of info from currently selected variant instead of filtered variant in Filtered variants modal.
 <!-- MR !576 -->
 - Fixed a bug causing inability to manually add External or Prediction info in certain instances.
-
+<!-- MR !578 -->
+- Fixed a bug causing missing hemizygous counts for legacy/default frequency annotation.
 
 ## Version 1.14.1
 
