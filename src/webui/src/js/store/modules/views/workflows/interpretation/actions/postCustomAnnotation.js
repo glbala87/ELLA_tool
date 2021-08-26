@@ -6,12 +6,14 @@ export default function postCustomAnnotation({ state, http, path, props }) {
     //   example: `{prediction: {ortholog_conservation: null, dna_conservation: null}}`
     //        =>  `{prediction: {}}`
     Object.keys(customAnnotationDataPruned).forEach((grpk) => {
-        customAnnotationDataPruned[grpk] = Object.entries(customAnnotationDataPruned[grpk])
-            .filter(([k, v]) => v !== null)
-            .reduce((obj, [k, v]) => {
-                obj[k] = v
-                return obj
-            }, {})
+        if (!Array.isArray(customAnnotationDataPruned[grpk])) {
+            customAnnotationDataPruned[grpk] = Object.entries(customAnnotationDataPruned[grpk])
+                .filter(([k, v]) => v !== null)
+                .reduce((obj, [k, v]) => {
+                    obj[k] = v
+                    return obj
+                }, {})
+        }
     })
 
     const payload = {
