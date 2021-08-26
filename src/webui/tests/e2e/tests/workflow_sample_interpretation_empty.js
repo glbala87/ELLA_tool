@@ -91,7 +91,7 @@ describe('Sample workflow with an empty anaysis', function() {
         console.log('Changing to classification page')
         analysisPage.selectSectionClassification()
     })
-    
+
     it(`cycle through old interpretations (${ANALYSIS_NAME})`, function() {
         loginPage.open()
         loginPage.loginAs('testuser1')
@@ -103,5 +103,4 @@ describe('Sample workflow with an empty anaysis', function() {
         analysisPage.chooseRound(2)
         analysisPage.chooseRound(1)
     })
-        
 })
