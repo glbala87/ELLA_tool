@@ -6,7 +6,7 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.14](#version-1-14)|[v1.14.1](#version-1-14-1)|[v1.14.2](#version-1-14-2)
+[v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
