@@ -25,6 +25,7 @@ from api.config import config
 from vardb.datamodel.jsonschemas.update_schemas import update_schemas
 from vardb.datamodel.annotationshadow import create_trigger_sql
 from api.config.customannotationconfig import customannotationconfig
+import copy
 
 customAnnotationTbl = table(
     "customannotation", column("id", sa.Integer), column("annotations", JSONB)
@@ -38,25 +39,25 @@ def upgrade():
     annotations = conn.execution_options(stream_results=True).execute(
         sa.select([customAnnotationTbl.c.id, customAnnotationTbl.c.annotations])
     )
-    for a in annotations:
-        # look over keys of a
-        for a_grp_k in a.annotations.keys():
-            # check if key exsits in customannotationconfig
+    for row in annotations:
+        # edit only copy - keep org
+        a_mod = copy.deepcopy(row.annotations)
+        # loop over keys of annotation
+        for a_grp_k in a_mod.keys():
+            # check if key exists in customannotationconfig
             if a_grp_k not in customannotationconfig.keys():
-                # TODO: how to handle this?
+                # "references" entry will go here
                 continue
             # use only sub_keys that are found as sub_keys in customannotationconfig
             valid_keys = [e["key"] for e in customannotationconfig[a_grp_k]]
-            a.annotations[a_grp_k] = {
-                k: v for k, v in a.annotations[a_grp_k].items() if k in valid_keys
-            }
-        conn.execute(
-            sa.update(customAnnotationTbl)
-            .where(customAnnotationTbl.c.id == a.id)
-            .values({"annotations": a.annotations})
-        )
-    conn.execute(create_trigger_sql(config))
-    update_schemas(session)
+            a_mod[a_grp_k] = {k: v for k, v in a_mod[a_grp_k].items() if k in valid_keys}
+        # has annotation changed
+        if a_mod != row.annotations:
+            conn.execute(
+                sa.update(customAnnotationTbl)
+                .where(customAnnotationTbl.c.id == row.id)
+                .values({"annotations": a_mod})
+            )
     session.commit()
 
 
