@@ -1235,7 +1235,13 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 raise RuntimeError("Interpretation is not done, and no filter config is provided.")
 
             if not interpretation.snapshots:
-                raise RuntimeError("Missing snapshots for interpretation.")
+                # snapshots will be empty if there are no variants
+                has_alleles = any(
+                    [s.genotypes for s in interpretation.analysis.samples if s.proband]
+                )
+
+                if has_alleles:
+                    raise RuntimeError("Missing snapshots for interpretation.")
 
             categories = {
                 "CLASSIFICATION": "classification",
