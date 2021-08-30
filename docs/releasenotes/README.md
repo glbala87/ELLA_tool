@@ -8,34 +8,11 @@ title: Latest releases
 |:--|:--|
 [v1.15](#version-1-15)|
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
-[v1.14](#version-1-14)|[v1.14.1](#version-1-14-1)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
-## Version 1.14.2
-
-Release date: 31.08.2021
-
-### Highlights
-
-This release adds a few bugfixes.
-
-### All changes
-
-<!-- MR !567 -->
-- Fixed a bug causing inability to import VCFs with no variants.
-<!-- MR !569 -->
-- Fixed missing tooltip for reference title.
-<!-- MR !570 -->
-- Fixed a bug causing incorrect sorting of variants in the Region section.
-<!-- MR !573 -->
-- Fixed a bug causing display of info from currently selected variant instead of filtered variant in Filtered variants modal.
-<!-- MR !576 -->
-- Fixed a bug causing inability to manually add External or Prediction info in certain instances.
-<!-- MR !578 -->
-- Fixed a bug causing missing hemizygous counts for legacy/default frequency annotation.
 ## Version 1.15
 
 Release date: TBD
@@ -86,6 +63,29 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
 - Filtered variants are now sorted by genomic position.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
+
+## Version 1.14.2
+
+Release date: 31.08.2021
+
+### Highlights
+
+This release adds a few bugfixes.
+
+### All changes
+
+<!-- MR !567 -->
+- Fixed a bug causing inability to import VCFs with no variants.
+<!-- MR !569 -->
+- Fixed missing tooltip for reference title.
+<!-- MR !570 -->
+- Fixed a bug causing incorrect sorting of variants in the Region section.
+<!-- MR !573 -->
+- Fixed a bug causing display of info from currently selected variant instead of filtered variant in Filtered variants modal.
+<!-- MR !576 -->
+- Fixed a bug causing inability to manually add External or Prediction info in certain instances.
+<!-- MR !578 -->
+- Fixed a bug causing missing hemizygous counts for legacy/default frequency annotation.
 
 ## Version 1.14.1
 
