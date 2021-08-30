@@ -395,6 +395,7 @@ view:
               count: COUNT
               num: NUM
               hom: HOM
+              hemi: HEMI
               freq: FREQ
           rows:
               AFR: AFR
@@ -420,6 +421,7 @@ view:
               count: COUNT
               num: NUM
               hom: HOM
+              hemi: HEMI
               freq: FREQ
           rows:
               AFR: AFR
@@ -443,6 +445,7 @@ view:
               count: COUNT
               num: NUM
               hom: HOM
+              hemi: HEMI
               freq: FREQ
           rows:
               AFR: AFR
