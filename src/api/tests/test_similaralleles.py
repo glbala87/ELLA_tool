@@ -117,7 +117,7 @@ def test_similaralleles(session, test_database, client):
     # specific checks
     assert list(map(lambda x: x["id"], similar_alleles["1"])) == [2]
     assert list(map(lambda x: x["id"], similar_alleles["2"])) == [1]
-    assert list(map(lambda x: x["id"], similar_alleles["3"])) == [1, 2]
-    assert list(map(lambda x: x["id"], similar_alleles["4"])) == [1, 2]
-    assert list(map(lambda x: x["id"], similar_alleles["5"])) == [1, 2]
+    assert list(map(lambda x: x["id"], similar_alleles["3"])) == [2, 1]
+    assert list(map(lambda x: x["id"], similar_alleles["4"])) == [2, 1]
+    assert list(map(lambda x: x["id"], similar_alleles["5"])) == [2, 1]
     assert list(map(lambda x: x["id"], similar_alleles["6"])) == []
