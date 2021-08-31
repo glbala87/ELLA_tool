@@ -28,6 +28,7 @@ Transcript = table(
     column("corresponding_refseq", sa.String()),
     column("corresponding_ensembl", sa.String()),
     column("corresponding_lrg", sa.String()),
+    column("inheritance_mode", sa.String()),
     column("genome_reference", sa.String()),
     column("chromosome", sa.String()),
     column("tx_start", sa.Integer()),

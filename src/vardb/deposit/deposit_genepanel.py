@@ -129,6 +129,7 @@ class DepositGenepanel(object):
                     "corresponding_ensembl": None,
                     "corresponding_refseq": None,
                     "corresponding_lrg": None,
+                    "inheritance_mode": None if t["inheritance"] == "N/A" else t["inheritance"],
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
                     "tx_end": t["txEnd"],
