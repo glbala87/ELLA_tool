@@ -28,7 +28,6 @@ class TranscriptFullSchema(Schema):
             "transcript_name",
             "transcript_source",
             "corresponding_refseq",
-            "corresponding_refseq_source",
             "corresponding_ensembl",
             "corresponding_lrg",
             "inheritance_mode",
