@@ -63,6 +63,8 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
 - Filtered variants are now sorted by genomic position.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
+<!-- MR !581 -->
+- Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
 
 ## Version 1.14.2
 
