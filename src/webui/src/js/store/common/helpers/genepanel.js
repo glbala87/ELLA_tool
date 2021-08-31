@@ -1,4 +1,18 @@
-export function getInheritanceCodes(hgncId, genepanel) {
+export function getConfigInheritanceCodes(hgncId, genepanel) {
+    if (!genepanel.transcripts) {
+        return null
+    }
+    const transcripts = genepanel.transcripts.filter((t) => t.gene.hgnc_id === hgncId)
+    if (transcripts) {
+        const codes = transcripts.map((tx) => tx.inheritance_mode).filter((i) => i && i.length > 0) // remove empty
+        const uniqueCodes = new Set(codes)
+        return Array.from(uniqueCodes.values()).sort()
+    } else {
+        return []
+    }
+}
+
+export function getOtherInheritanceCodes(hgncId, genepanel) {
     if (!genepanel.phenotypes) {
         return null
     }
@@ -13,7 +27,7 @@ export function getInheritanceCodes(hgncId, genepanel) {
 }
 
 export function formatInheritance(hgncId, genepanel) {
-    return (getInheritanceCodes(hgncId, genepanel) || ['']).join('/')
+    return (getConfigInheritanceCodes(hgncId, genepanel) || ['']).join('/')
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
