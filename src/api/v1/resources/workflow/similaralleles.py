@@ -121,7 +121,6 @@ class SimilarAllelesResource(LogRequestResource):
         allele_ids = [int(x) for x in request.args.get(arg_name).split(",")]
 
         nearby_allele_ids = get_nearby_allele_ids(session, allele_ids)
-
         allele_ids_to_load = set(sum((x for x in nearby_allele_ids.values()), []))
 
         allele_objs = (
@@ -135,9 +134,9 @@ class SimilarAllelesResource(LogRequestResource):
             include_allele_assessment=True,
             include_reference_assessments=False,
         )
-
+        # loaded_alleles has it's own order, thus reapply order from nearby_allele_ids
+        loaded_alleles_dict = dict((x["id"], x) for x in loaded_alleles)
         result = {}
         for aid in allele_ids:
-            result[str(aid)] = [x for x in loaded_alleles if x["id"] in nearby_allele_ids[aid]]
-
+            result[str(aid)] = [loaded_alleles_dict[x] for x in nearby_allele_ids[aid]]
         return result

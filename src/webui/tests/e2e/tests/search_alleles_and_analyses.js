@@ -23,7 +23,7 @@ describe('Search functionality', function() {
         search.open()
         search.selectType('analyses')
         search.searchFreetext('brca')
-        expect(search.getNumberOfAnalyses(true)).toBe(3)
+        expect(search.getNumberOfAnalyses(true)).toBe(4)
         // Start an analysis from search
         search.selectFirstAnalysis()
         analysisPage.startButton.click()
@@ -130,20 +130,20 @@ describe('Search functionality', function() {
 
         // check initial data is as expected
         analysesSelectionPage.open()
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         // check name filter
         analysesSelectionPage.filterAnalysisName('test02')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
 
         // check clear filter
         analysesSelectionPage.filterClear()
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
 
         // test multiple priorities
         analysesSelectionPage.toggleFilterPriority('normal')
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         analysesSelectionPage.toggleFilterPriority('urgent')
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         analysesSelectionPage.toggleFilterPriority('normal')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(0)
 
@@ -158,24 +158,24 @@ describe('Search functionality', function() {
 
         // test tech
         analysesSelectionPage.filterClear()
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         analysesSelectionPage.toggleFilterTechnology('HTS')
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(2)
-        analysesSelectionPage.toggleFilterTechnology('Sanger')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        analysesSelectionPage.toggleFilterTechnology('Sanger')
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         analysesSelectionPage.toggleFilterTechnology('HTS')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
 
         // test dateRange
         analysesSelectionPage.filterClear()
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
         analysesSelectionPage.filterDateRange('lt:-7:d')
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
-        analysesSelectionPage.filterDateRange('lt:-1:m')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(2)
+        analysesSelectionPage.filterDateRange('lt:-1:m')
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
         analysesSelectionPage.filterDateRange('ge:-3:m')
         expect(analysesSelectionPage.filteredAnalyses.length).toBe(1)
         analysesSelectionPage.filterClear()
-        expect(analysesSelectionPage.filteredAnalyses.length).toBe(3)
+        expect(analysesSelectionPage.filteredAnalyses.length).toBe(4)
     })
 })

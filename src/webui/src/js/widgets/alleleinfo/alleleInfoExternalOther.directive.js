@@ -1,14 +1,17 @@
 import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
-import { state } from 'cerebral/tags'
+import { state, props } from 'cerebral/tags'
 import template from './alleleInfoExternalOther.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 app.component('alleleInfoExternalOther', {
     templateUrl: 'alleleInfoExternalOther.ngtmpl.html',
+    bindings: {
+        allelePath: '<'
+    },
     controller: connect(
         {
             config: state`app.config`,
-            allele: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
+            allele: state`${props`allelePath`}`
         },
         'AlleleInfoExternalOther',
         [
