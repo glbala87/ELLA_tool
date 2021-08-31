@@ -26,7 +26,6 @@ Transcript = table(
     column("transcript_source", sa.String()),
     column("type", sa.String()),
     column("corresponding_refseq", sa.String()),
-    column("corresponding_refseq_source", sa.String()),
     column("corresponding_ensembl", sa.String()),
     column("corresponding_lrg", sa.String()),
     column("inheritance_mode", sa.String()),
