@@ -30,6 +30,7 @@ class TranscriptFullSchema(Schema):
             "corresponding_refseq",
             "corresponding_ensembl",
             "corresponding_lrg",
+            "inheritance_mode",
             "genome_reference",
             "chromosome",
             "tx_start",
