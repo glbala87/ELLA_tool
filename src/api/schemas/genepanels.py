@@ -26,8 +26,8 @@ class TranscriptFullSchema(Schema):
         title = "Transcript"
         fields = (
             "transcript_name",
+            "transcript_source",
             "corresponding_refseq",
-            "corresponding_refseq_source",
             "corresponding_ensembl",
             "corresponding_lrg",
             "genome_reference",
