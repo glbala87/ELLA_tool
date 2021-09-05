@@ -96,6 +96,13 @@ app.component('allelebar', {
                             (ga) => ga.gene_id === hgnc_id
                         ).length
                     },
+                    getTranscriptText(activeItem) {
+                        if (activeItem.HGVSc_short) {
+                            return activeItem.transcript
+                        } else {
+                            return `chr${$ctrl.allele.chromosome}`
+                        }
+                    },
                     isTruncateGenotypeDisplay(str) {
                         return str.length > GENOTYPE_DISPLAY_MAX_CHAR
                     },

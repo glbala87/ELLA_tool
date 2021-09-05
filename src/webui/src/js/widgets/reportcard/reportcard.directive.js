@@ -14,7 +14,11 @@ import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused
 function formatHGVS(allele, classification, config) {
     let hgvs = ''
     for (let t of allele.annotation.filtered) {
-        hgvs += `${t.transcript}(${t.symbol}):`
+        if (t.HGVSc_short) {
+            hgvs += `${t.transcript}(${t.symbol}):`
+        } else {
+            hgvs += `chr${allele.chromosome}(${t.symbol}):`
+        }
         let hgvs_short = t.HGVSc_short || allele.formatted.hgvsg
 
         let [type, part] = hgvs_short.split('.')
