@@ -220,11 +220,11 @@ app.component('alleleSidebarList', {
                             return allele.annotation.filtered
                                 .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
                                 .map((t) => {
-                                    const transcript = t.transcript
-                                    const hgvs = t.HGVSc_short
-                                        ? t.HGVSc_short
-                                        : allele.formatted.hgvsg
-                                    return `${transcript}:${hgvs}`
+                                    if (t.HGVSc_short) {
+                                        return `${t.transcript}:${t.HGVSc_short}`
+                                    } else {
+                                        return `chr${allele.chromosome}:${allele.formatted.hgvsg}`
+                                    }
                                 })
                                 .join(' | ')
                         }

@@ -200,7 +200,9 @@ class Record(object):
             allele_length = self._sv_allele_length()
             caller_type = "CNV"
             ref = vcf_ref
-            alt = vcf_alt
+            alt = ""
+            if change_type != "DEL":
+                alt = vcf_alt
 
         allele = {
             "genome_reference": ref_genome,
