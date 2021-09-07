@@ -251,6 +251,8 @@ class Record(object):
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:
+            if property not in self.variant.FORMAT:
+                return None
             prop = self.variant.format(property)
             if prop is not None:
                 ret = numpy_to_list(prop[self._sample_index(sample_name)])
