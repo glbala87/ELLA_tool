@@ -26,6 +26,14 @@
         },
         {
             "type": "shell",
+            "label": "reset custom db",
+            "command": [
+                "TESTSET=custom make dbreset"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "type": "shell",
             "label": "Supervisor: web restart",
             "command": ["supervisorctl -c /ella/ops/dev/supervisor.cfg restart web"]
         },
