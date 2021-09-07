@@ -199,6 +199,9 @@ class Record(object):
             open_end_position = self._sv_open_end_position(pos, change_type)
             allele_length = self._sv_allele_length()
             caller_type = "CNV"
+            # if base sequence resolved
+            # change_to = "sequence resolve"
+            # else change_to = ""
             ref = vcf_ref
             alt = ""
             if change_type != "DEL":
@@ -248,6 +251,8 @@ class Record(object):
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:
+            if property not in self.variant.FORMAT:
+                return None
             prop = self.variant.format(property)
             if prop is not None:
                 ret = numpy_to_list(prop[self._sample_index(sample_name)])
