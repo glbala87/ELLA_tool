@@ -199,6 +199,9 @@ class Record(object):
             open_end_position = self._sv_open_end_position(pos, change_type)
             allele_length = self._sv_allele_length()
             caller_type = "CNV"
+            # if base sequence resolved
+            # change_to = "sequence resolve"
+            # else change_to = ""
             ref = vcf_ref
             alt = ""
             if change_type != "DEL":
