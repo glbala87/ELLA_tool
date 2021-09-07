@@ -117,3 +117,4 @@ class GenotypeSampleData(Base):
     allele_depth = Column(
         JSONMutableDict.as_mutable(JSONB), default={}
     )  # AD {'REF': 0, 'A': 23, 'G': 32}
+    copy_number = Column(SmallInteger)  # CN
