@@ -553,6 +553,7 @@ class GenotypeImporter(object):
                     "sequencing_depth": record.get_format_sample(
                         "DP", sample.identifier, scalar=True
                     ),
+                    "copy_number": record.get_format_sample("CN", sample.identifier, scalar=True),
                     "allele_depth": allele_depth,
                     "allele_ratio": allele_ratio,
                     "multiallelic": multiallelic,
