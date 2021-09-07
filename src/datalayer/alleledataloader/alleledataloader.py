@@ -381,6 +381,8 @@ class AlleleDataLoader(object):
                 genotype.GenotypeSampleData.multiallelic,
                 allele.Allele.change_from,
                 allele.Allele.change_to,
+                allele.Allele.change_type,
+                allele.Allele.length,
             )
             .join(
                 genotype.GenotypeSampleData,
@@ -407,6 +409,8 @@ class AlleleDataLoader(object):
                 genotype.GenotypeSampleData.multiallelic.label("second_multiallelic"),
                 allele.Allele.change_from.label("second_change_from"),
                 allele.Allele.change_to.label("second_change_to"),
+                allele.Allele.change_type.label("second_change_type"),
+                allele.Allele.length.label("second_length"),
             )
             .join(
                 genotype.GenotypeSampleData,
@@ -432,10 +436,14 @@ class AlleleDataLoader(object):
             allele_query.c.multiallelic,
             allele_query.c.change_from,
             allele_query.c.change_to,
+            allele_query.c.change_type,
+            allele_query.c.length,
             secondallele_query.c.second_type,
             secondallele_query.c.second_multiallelic,
             secondallele_query.c.second_change_from,
             secondallele_query.c.second_change_to,
+            secondallele_query.c.second_change_type,
+            secondallele_query.c.second_length,
         ).outerjoin(secondallele_query, allele_query.c.id == secondallele_query.c.id)
 
         genotype_candidates = genotype_query.all()
