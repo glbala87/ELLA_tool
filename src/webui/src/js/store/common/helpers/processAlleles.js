@@ -83,6 +83,7 @@ function getFormatted(allele, genepanel) {
     // Database is 0-based, hgvsg uses 1-based index
     let start = allele.start_position
     let end = allele.open_end_position
+    let cnvEnd = start + 1 + allele.length
 
     switch (allele.change_type) {
         case 'SNP':
@@ -112,15 +113,15 @@ function getFormatted(allele, genepanel) {
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end + 1}`
             break
         case 'dup':
-            formatted.hgvsg = `g.${start + 1}dup`
-            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            formatted.hgvsg = `g.${start + 1}_${cnvEnd}dup`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${cnvEnd}`
             break
         case 'dup_tandem':
-            formatted.hgvsg = `g.${start + 1}dup_tandem`
-            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
+            formatted.hgvsg = `g.${start + 1}_${cnvEnd}dup_tandem`
+            formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${cnvEnd}`
             break
         case 'del_me':
-            formatted.hgvsg = `g.${start + 1}dup_me`
+            formatted.hgvsg = `g.${start + 1}_${length}del_me`
             formatted.genomicPosition = `${allele.chromosome}:${start + 1}-${end}`
             break
         default:
