@@ -188,47 +188,50 @@ app.component('alleleSidebarList', {
                     },
                     getGene(allele) {
                         if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) => (t.symbol ? t.symbol : '-'))
-                                .join(' | ')
+                            return [
+                                ...new Set(
+                                    allele.annotation.filtered.map((t) =>
+                                        t.symbol ? t.symbol : '-'
+                                    )
+                                )
+                            ].join(' | ')
                         }
                         return 'chr' + allele.chromosome
                     },
-                    getGeneOverlaps(allele) {
-                        var size = allele.annotation.filtered.length
-                        if (size && size == 1)
-                            return allele.annotation.filtered
-                                .map((t) => (t.symbol ? t.symbol : '-'))
-                                .join(' | ')
-                        else if (size && size > 1) return `${size} genes`
-                        else return 'none'
-                    },
 
                     getHGVSc(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
-                                .map((t) =>
-                                    t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
-                                )
-                                .join(' | ')
+                        if (allele.caller_type == 'CNV') {
+                            return allele.formatted.hgvsg
+                        } else {
+                            if (allele.annotation.filtered.length) {
+                                return allele.annotation.filtered
+                                    .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
+                                    .map((t) =>
+                                        t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
+                                    )
+                                    .join(' | ')
+                            }
+                            return allele.formatted.hgvsg
                         }
-                        return allele.formatted.hgvsg
                     },
                     getHGVScTitle(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
-                                .map((t) => {
-                                    if (t.HGVSc_short) {
-                                        return `${t.transcript}:${t.HGVSc_short}`
-                                    } else {
-                                        return `chr${allele.chromosome}:${allele.formatted.hgvsg}`
-                                    }
-                                })
-                                .join(' | ')
+                        if (allele.caller_type == 'CNV') {
+                            return allele.formatted.hgvsg
+                        } else {
+                            if (allele.annotation.filtered.length) {
+                                return allele.annotation.filtered
+                                    .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
+                                    .map((t) => {
+                                        if (t.HGVSc_short) {
+                                            return `${t.transcript}:${t.HGVSc_short}`
+                                        } else {
+                                            return `chr${allele.chromosome}:${allele.formatted.hgvsg}`
+                                        }
+                                    })
+                                    .join(' | ')
+                            }
+                            return allele.formatted.hgvsg
                         }
-                        return allele.formatted.hgvsg
                     },
                     showManuallyAddedIndicator() {
                         return Object.values($ctrl.isManuallyAddedById).some((k) => k)
