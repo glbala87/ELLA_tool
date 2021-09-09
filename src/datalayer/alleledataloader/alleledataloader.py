@@ -478,6 +478,14 @@ class AlleleDataLoader(object):
                 elif g.change_type == "dup":
                     cn = g.copy_number if g.copy_number is not None else "?"
                     genotype_id_formatted[g.id] = f"CN: {cn} ({length_display})"
+                elif g.change_type == "dup_tandem" and g.type == "Heterozygous":
+                    genotype_id_formatted[g.id] = f"-/{length_display}"
+                elif g.change_type == "dup_tandem" and g.type == "Homozygous":
+                    genotype_id_formatted[g.id] = f"{length_display}/{length_display}"
+                else:
+                    raise RuntimeError(
+                        f"Unhandled genotype: {g.caller_type} - {g.change_type} - {g.type}"
+                    )
             else:
 
                 if g.type == "No coverage":
