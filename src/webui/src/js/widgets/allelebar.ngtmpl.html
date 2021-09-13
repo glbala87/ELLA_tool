@@ -103,9 +103,12 @@
                     tippy-placement="bottom"
                     tippy-popover-title="CONSEQUENCE"
                 >
-                    <span class="clickable" ng-repeat="c in t.consequences">{{
-                        c | noUnderscores
-                    }}</span>
+                    <span
+                        class="clickable"
+                        ng-repeat="c in t.consequences track by $index"
+                        horizontal-space-separator
+                        >{{ c | noUnderscores }}</span
+                    >
                 </div>
             </h3>
         </td>

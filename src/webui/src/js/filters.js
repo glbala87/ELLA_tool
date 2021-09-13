@@ -29,7 +29,7 @@ class Filters {
     })
     numberFormat() {
         return (text) => {
-            return text.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1, ')
+            return text.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1 `)
         }
     }
 
@@ -38,12 +38,11 @@ class Filters {
     })
     bioinfSized() {
         return (text) => {
-            if (text > 1000 && text < 1000000) {
-                return `${(text / 1000).toFixed(2)} kb`
-            } else if (text >= 1000000) {
-                return `${(text / 1000000).toFixed(2)} mb`
+            if (text > 1000) {
+                return `${(text / 1000).toFixed(0)} kb`
+            } else {
+                return `${text} bp`
             }
-            return text
         }
     }
 
