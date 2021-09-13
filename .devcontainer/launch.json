@@ -44,7 +44,7 @@
             "--hostname", "172.17.0.1",
             "--port" ,"4444",
             "--path", "/",
-            "--spec", "src/webui/tests/e2e/tests/worfklow_sample_with_cnv_classification.js"
+            "--spec", "src/webui/tests/e2e/tests/workflow_sample_with_cnv_classification.js"
           ]
         },
         {
