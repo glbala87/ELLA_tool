@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from sqlalchemy import tuple_, literal, func, and_
 from sqlalchemy.orm import joinedload
+from sqlalchemy.dialects.postgresql import array
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
 
@@ -112,7 +113,11 @@ def get_alleles(
 
     _check_interpretation_input(alleleinterpretation_id, analysisinterpretation_id)
 
-    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+    alleles = (
+        session.query(allele.Allele)
+        .filter(allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()))
+        .all()
+    )
 
     # Get interpretation to get genepanel and check status
     interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
@@ -163,7 +168,11 @@ def get_alleles(
         ra_ids = (
             session.query(assessment.ReferenceAssessment.id)
             .join(assessment.AlleleAssessment.referenceassessments)
-            .filter(assessment.AlleleAssessment.id.in_(link_filter["alleleassessment_id"]))
+            .filter(
+                assessment.AlleleAssessment.id.in_(
+                    session.query(func.unnest(array(link_filter["alleleassessment_id"]))).subquery()
+                )
+            )
             .all()
         )
         link_filter["referenceassessment_id"] = [i[0] for i in ra_ids]
@@ -713,13 +722,21 @@ def finalize_workflow(
     # Sanity checks
     alleleassessment_allele_ids = set(
         session.query(assessment.AlleleAssessment.allele_id)
-        .filter(assessment.AlleleAssessment.id.in_(data["alleleassessment_ids"]))
+        .filter(
+            assessment.AlleleAssessment.id.in_(
+                session.query(func.unnest(array(data["alleleassessment_ids"]))).subquery()
+            )
+        )
         .scalar_all()
     )
 
     allelereport_allele_ids = set(
         session.query(assessment.AlleleReport.allele_id)
-        .filter(assessment.AlleleReport.id.in_(data["allelereport_ids"]))
+        .filter(
+            assessment.AlleleReport.id.in_(
+                session.query(func.unnest(array(data["allelereport_ids"]))).subquery()
+            )
+        )
         .scalar_all()
     )
 
@@ -914,9 +931,15 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             workflow.AnalysisInterpretation,
         )
         .filter(
-            sample.Analysis.id.in_(workflow_analysis_ids),
-            allele.Allele.id.in_(allele_ids),
-            ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),
+            sample.Analysis.id.in_(
+                session.query(func.unnest(array(workflow_analysis_ids))).subquery()
+            ),
+            allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()),
+            ~allele.Allele.id.in_(
+                session.query(
+                    func.unnest(array(queries.allele_ids_with_valid_alleleassessments(session)))
+                ).subquery()
+            ),
         )
         .distinct(workflow.AnalysisInterpretation.analysis_id, allele.Allele.id)
         .order_by(
@@ -943,8 +966,12 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
             literal(None).label("analysis_id"),
         )
         .filter(
-            workflow.AlleleInterpretation.allele_id.in_(workflow_allele_ids),
-            workflow.AlleleInterpretation.allele_id.in_(allele_ids),
+            workflow.AlleleInterpretation.allele_id.in_(
+                session.query(func.unnest(array(workflow_allele_ids))).subquery()
+            ),
+            workflow.AlleleInterpretation.allele_id.in_(
+                session.query(func.unnest(array(allele_ids))).subquery()
+            ),
         )
         .distinct(workflow.AlleleInterpretation.allele_id)
         .order_by(
@@ -1036,7 +1063,11 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
             assessment.AlleleAssessment.classification,
             assessment.AlleleAssessment.previous_assessment_id,
         )
-        .filter(assessment.AlleleAssessment.id.in_(alleleassessment_ids))
+        .filter(
+            assessment.AlleleAssessment.id.in_(
+                session.query(func.unnest(array(alleleassessment_ids))).subquery()
+            )
+        )
         .all()
     )
     alleleassessments_by_id = {a.id: a for a in alleleassessments}
@@ -1046,7 +1077,11 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
     ]
     previous_alleleassessment_classifications = (
         session.query(assessment.AlleleAssessment.id, assessment.AlleleAssessment.classification)
-        .filter(assessment.AlleleAssessment.id.in_(previous_assessment_ids))
+        .filter(
+            assessment.AlleleAssessment.id.in_(
+                session.query(func.unnest(array(previous_assessment_ids))).subquery()
+            )
+        )
         .all()
     )
     previous_alleleassessment_classifications_by_id = {
