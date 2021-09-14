@@ -1,5 +1,6 @@
 from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
+from sqlalchemy.dialects.postgresql import array
 from sqlalchemy.sql import case, cast
 from vardb.datamodel import gene, user as user_model
 
@@ -101,11 +102,19 @@ class GenepanelListResource(LogRequestResource):
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
 
         transcripts = (
-            session.query(gene.Transcript).filter(gene.Transcript.id.in_(transcript_ids)).all()
+            session.query(gene.Transcript)
+            .filter(
+                gene.Transcript.id.in_(session.query(func.unnest(array(transcript_ids))).subquery())
+            )
+            .all()
         )
 
         phenotypes = (
-            session.query(gene.Phenotype).filter(gene.Phenotype.id.in_(phenotype_ids)).all()
+            session.query(gene.Phenotype)
+            .filter(
+                gene.Phenotype.id.in_(session.query(func.unnest(array(phenotype_ids))).subquery())
+            )
+            .all()
         )
 
         assert len(transcripts) == len(transcript_ids)

@@ -4,6 +4,7 @@ from sqlalchemy import and_, or_, literal_column, func
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.sql.selectable import Alias
+from sqlalchemy.dialects.postgresql import array
 
 from vardb.datamodel import annotation
 
@@ -110,7 +111,9 @@ class ExternalFilter(object):
                 ).label("entry"),
             )
             .filter(
-                annotation.Annotation.allele_id.in_(allele_ids),
+                annotation.Annotation.allele_id.in_(
+                    self.session.query(func.unnest(array(allele_ids))).subquery()
+                ),
                 annotation.Annotation.date_superceeded.is_(None),
                 annotation.Annotation.annotations.op("->")("external")
                 .op("->")("CLINVAR")
