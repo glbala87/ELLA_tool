@@ -258,7 +258,9 @@ class FrequencyFilter(object):
                     gp_final_filter.append(
                         and_(
                             annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                                allele_ids_for_genes
+                                self.session.query(
+                                    func.unnest(array(allele_ids_for_genes))
+                                ).subquery()
                             ),
                             self._get_freq_threshold_filter(
                                 filter_config["groups"],
@@ -305,7 +307,7 @@ class FrequencyFilter(object):
                 gp_final_filter.append(
                     and_(
                         annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                            ad_gene_allele_ids
+                            self.session.query(func.unnest(array(ad_gene_allele_ids))).subquery()
                         ),
                         self._get_freq_threshold_filter(
                             filter_config["groups"],
@@ -460,7 +462,9 @@ class FrequencyFilter(object):
                     self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id)
                     .filter(
                         gp_filters[gp_key],
-                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(al_ids),
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(
+                            self.session.query(func.unnest(array(al_ids))).subquery()
+                        ),
                     )
                     .distinct()
                 )

@@ -1,6 +1,8 @@
 import json
 from collections import defaultdict
 
+from sqlalchemy.dialects.postgresql import array
+
 from api.config import config
 
 # TODO: This import should be refactored somehow, reaching into the api is weird.
@@ -144,7 +146,11 @@ class Warnings(object):
                 allele.Allele.start_position,
                 allele.Allele.open_end_position,
             )
-            .filter(allele.Allele.id.in_(analysis_allele_ids))
+            .filter(
+                allele.Allele.id.in_(
+                    self.session.query(func.unnest(array(analysis_allele_ids))).subquery()
+                )
+            )
             .all()
         )
 
