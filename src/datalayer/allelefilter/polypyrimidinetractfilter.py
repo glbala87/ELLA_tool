@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Set, Tuple
 from sqlalchemy import or_, and_, tuple_, func, case
 from vardb.datamodel import gene, allele
+from sqlalchemy.dialects.postgresql import array
 
 
 class PolypyrimidineTractFilter(object):
@@ -69,7 +70,9 @@ class PolypyrimidineTractFilter(object):
                     ),
                 )
                 .filter(
-                    allele.Allele.id.in_(allele_ids),
+                    allele.Allele.id.in_(
+                        self.session.query(func.unnest(array(allele_ids))).subquery()
+                    ),
                     allele.Allele.chromosome == gene.Transcript.chromosome,
                     or_(
                         and_(
@@ -138,7 +141,7 @@ class PolypyrimidineTractFilter(object):
 
             # Find allele ids within ppy tract region
             ppy_allele_ids = self.session.query(allele.Allele.id).filter(
-                allele.Allele.id.in_(allele_ids),
+                allele.Allele.id.in_(self.session.query(func.unnest(array(allele_ids))).subquery()),
                 allele.Allele.chromosome == ppytract.c.chromosome,
                 # Check that the allele is within the polypyrimidine tract region
                 or_(

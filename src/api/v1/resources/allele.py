@@ -1,13 +1,12 @@
 from flask import request
-from sqlalchemy import text, func
-from sqlalchemy.dialects.postgresql import aggregate_order_by
-
+from sqlalchemy import text
+from sqlalchemy.sql.functions import func
+from sqlalchemy.dialects.postgresql import array, aggregate_order_by
 from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
 
 from api import schemas
 from api.config import config
 from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
-
 from datalayer import AlleleDataLoader
 
 from api.v1.resource import LogRequestResource
@@ -153,7 +152,11 @@ class AlleleByGeneListResource(LogRequestResource):
 
         allele_ids = request.args.get("allele_ids").split(",")
 
-        filters = [annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)]
+        filters = [
+            annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                session.query(func.unnest(array(allele_ids))).subquery()
+            )
+        ]
         inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
         if inclusion_regex:
             filters.append(text("transcript ~ :reg").params(reg=inclusion_regex))

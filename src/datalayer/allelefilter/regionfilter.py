@@ -3,6 +3,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import TableClause
 from sqlalchemy import or_, and_, tuple_, func, case, Column, MetaData, Integer
+from sqlalchemy.dialects.postgresql import array
 
 from vardb.datamodel import gene, annotationshadow, allele
 from datalayer import queries
@@ -101,7 +102,9 @@ class RegionFilter(object):
             .join(
                 allele.Allele,
                 and_(
-                    allele.Allele.id.in_(allele_ids),
+                    allele.Allele.id.in_(
+                        self.session.query(func.unnest(array(allele_ids))).subquery()
+                    ),
                     allele.Allele.chromosome == gene.Transcript.chromosome,
                     or_(
                         and_(
@@ -408,7 +411,9 @@ class RegionFilter(object):
                 .filter(
                     # The following filter should be redundant, since allele_transcripts is
                     # already limited to allele_ids, but we'll keep it for extra safety
-                    allele.Allele.id.in_(allele_ids),
+                    allele.Allele.id.in_(
+                        self.session.query(func.unnest(array(allele_ids))).subquery()
+                    ),
                     or_(
                         # Contained within or overlapping region
                         and_(
@@ -488,7 +493,7 @@ class RegionFilter(object):
                 )
                 .filter(
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                        allele_ids_outside_region
+                        self.session.query(func.unnest(array(allele_ids_outside_region))).subquery()
                     ),
                     annotationshadow.AnnotationShadowTranscript.exon_distance
                     >= tmp_gene_padding.c.exon_upstream,
