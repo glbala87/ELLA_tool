@@ -20,9 +20,9 @@ import template from './wysiwygEditor.ngtmpl.html' // eslint-disable-line no-unu
     require: '?ngModel', // get a hold of NgModelController
     template
 })
-@Inject('$scope', '$element', '$timeout', 'AttachmentResource')
+@Inject('$scope', '$element', '$timeout', 'AttachmentResource', 'User')
 export class WysiwygEditorController {
-    constructor($scope, $element, $timeout, AttachmentResource) {
+    constructor($scope, $element, $timeout, AttachmentResource, User) {
         this.timeout = $timeout
         this.scope = $scope
         this.element = $element[0]
@@ -31,6 +31,7 @@ export class WysiwygEditorController {
         this.buttonselement = $element.children()[2]
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
+        this.username = User.getCurrentUser().username
 
         for (const buttonElement of this.buttonselement.children) {
             let name = buttonElement.id.split('-')[1]
@@ -141,6 +142,11 @@ export class WysiwygEditorController {
                 this.placeholderEvent(visible)
             },
             onKeyDown: (key, character, shiftKey, altKey, ctrlKey, metaKey) => {
+                // "s" key
+                if (altKey && key == 83) {
+                    this.insertSignature()
+                    return false
+                }
                 if (ctrlKey || metaKey) {
                     if (character.toLowerCase() === 'b') {
                         this.editor.bold()
@@ -204,7 +210,8 @@ export class WysiwygEditorController {
             references: () => this.togglePopover('references'),
             fontcolor: () => this.togglePopover('fontcolor'),
             highlightcolor: () => this.togglePopover('highlightcolor'),
-            src: () => this.toggleSource
+            src: () => this.toggleSource,
+            signature: () => this.insertSignature()
         }
 
         actions[actionName]()
@@ -543,6 +550,11 @@ export class WysiwygEditorController {
         this.editor.insertHTML(template.template)
         this.positionPopovers()
         this.closePopover('templates')
+    }
+
+    insertSignature() {
+        const d = new Date().toISOString().substring(0, 10)
+        this.editor.insertHTML(`[<font color="#0000ff">${this.username}, ${d}</font>]`)
     }
 
     insertReference(ref) {
