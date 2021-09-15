@@ -439,7 +439,7 @@ export class WysiwygEditorController {
                 ? this.previewelement.innerText
                 : this.previewelement.innerText.substring(0, maxChar) + ` ${ellipsis}`
         // force-show ellipsis if the orgiginal innerHTML was not empty
-        if (this.previewelement.innerText.trim() == '' && eBody0.innerHTML != '') {
+        if (this.previewelement.innerText.trim() === '' && eBody0.innerHTML !== '') {
             this.previewelement.innerText = ellipsis
         }
     }
