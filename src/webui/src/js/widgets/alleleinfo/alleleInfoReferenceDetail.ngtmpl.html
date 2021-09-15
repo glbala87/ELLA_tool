@@ -17,8 +17,11 @@
         </div>
         <div class="reference-desc">
             {{ $ctrl.reference.formatted.shortDesc }}
-            <span ng-if="$ctrl.getSources().length"
-                >•
+            <span ng-if="$ctrl.getSources().length">
+                <span ng-if="!$ctrl.reference.published"
+                    >• <span class="reference-emph">Unpublished</span></span
+                >
+                •
                 <span ng-repeat="source in $ctrl.getSources()">
                     <span ng-switch="source">
                         <span ng-switch-when="HGMD">
