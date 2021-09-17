@@ -16,7 +16,7 @@
         "cerebral": "4.2.2",
         "checklist-model": "^1.0.0",
         "copy-to-clipboard": "^3.0.8",
-        "igv": "^2.9.4",
+        "igv": "^2.10.0",
         "markdown-it": "^8.4.2",
         "nprogress": "^0.2.0",
         "page": "^1.11.5",
