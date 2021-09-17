@@ -1,0 +1,161 @@
+<sectionbox color="green id-reference-modal-body" modal="true" on-close="($ctrl.close)">
+    <maintitle>
+        REFERENCE EVALUATION
+    </maintitle>
+
+    <controls>
+        <section class="line-wrapper spaced">
+            <div class="ref-title">
+                <h3 class="slim" ng-if="!$ctrl.reference.urls.pubmed">
+                    <b>{{ $ctrl.reference.title }}</b>
+                </h3>
+                <h3 class="slim" ng-if="$ctrl.reference.urls.pubmed">
+                    <a-clip class="id-reference-title" href="{{ $ctrl.reference.urls.pubmed }}">{{
+                        $ctrl.reference.title
+                    }}</a-clip>
+                </h3>
+                <p class="slim">{{ $ctrl.reference.formatted.shortDesc }}</p>
+            </div>
+            <div class="line-wrapper">
+                <button class="id-reference-modal-save" ng-click="$ctrl.close()">
+                    Close
+                </button>
+            </div>
+        </section>
+    </controls>
+
+    <contentwrapper>
+        <p ng-if="$ctrl.reference.abstract">
+            <a class="clickable" tippy-popover="abstractPopover.ngtmpl.html" class="faded-title"
+                >Abstract</a
+            >
+        </p>
+        <div ng-repeat="sourceStr in $ctrl.annotationSources">
+            <p>Source: {{ sourceStr }}</p>
+        </div>
+
+        <article class="line-wrapper question medium id-relevance">
+            <div
+                class="left"
+                tippy-trigger="mouseenter"
+                tippy-popover="referenceEvalHelpTextPopover.ngtmpl.html"
+                tippy-placement="right"
+                ng-repeat="source in ['relevance']"
+                class="faded-title"
+            >
+                <h5 class="slim title"><b>Relevance</b></h5>
+                <p>Is the reference relevant?</p>
+            </div>
+            <div class="middle"></div>
+            <div class="right">
+                <div class="bttn-set">
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        ng-model="$ctrl.referenceAssessment.evaluation.relevance"
+                        uib-btn-radio="item"
+                        ng-repeat="item in $ctrl.sources['relevance'].buttons"
+                        ng-change="$ctrl.evaluationChanged({key: 'relevance', value: item})"
+                        ng-disabled="$ctrl.readOnly"
+                        >{{ item }}</label
+                    >
+                </div>
+            </div>
+        </article>
+        <article
+            class="line-wrapper question"
+            ng-class="{'small': $ctrl.sources[source].optional_dep !== undefined,
+                          'medium': $ctrl.sources[source].optional_dep === undefined,
+                          'parent': $ctrl.sources[source].parent_question}"
+            ng-repeat="source in $ctrl.getSources() track by source"
+            ng-if="$ctrl.shouldShow(source)"
+        >
+            <div
+                class="left"
+                tippy-trigger="mouseenter"
+                tippy-popover="referenceEvalHelpTextPopover.ngtmpl.html"
+                tippy-placement="right"
+                class="faded-title"
+            >
+                <h5 class="slim title">
+                    <b>{{ $ctrl.sources[source].title }}</b>
+                </h5>
+                <p>{{ $ctrl.sources[source].desc }}</p>
+            </div>
+            <div class="middle">
+                <span ng-if="$ctrl.sources[source].optional">
+                    <input
+                        type="checkbox"
+                        class="box"
+                        ng-model="$ctrl.modelReferenceAssessmentEvaluationSources[source]"
+                        ng-model-watch="$ctrl.referenceAssessment.evaluation.sources.includes(source)"
+                        ng-change="$ctrl.sourcesChanged({source: source, enable: $ctrl.modelReferenceAssessmentEvaluationSources[source]})"
+                        ng-disabled="$ctrl.readOnly"
+                    />
+                </span>
+            </div>
+            <div class="right line-wrapper">
+                <div
+                    class="multiple-question-element"
+                    ng-repeat="elem in $ctrl.sources[source].elements"
+                >
+                    <div class="bttn-set" ng-if="elem.type == 'button'">
+                        <label
+                            tabindex="0"
+                            class="bttn"
+                            ng-repeat="item in elem.options"
+                            ng-model="$ctrl.modelReferenceAssessmentEvaluation[elem.store]"
+                            ng-model-watch="$ctrl.referenceAssessment.evaluation[elem.store]"
+                            ng-change="$ctrl.evaluationChanged({key: elem.store, value: item[1]})"
+                            uib-btn-radio="item[1]"
+                            uib-uncheckable="false"
+                            ng-disabled="$ctrl.isDisabled(source) || $ctrl.readOnly"
+                            >{{ item[0] }}</label
+                        >
+                    </div>
+                    <div
+                        class="dropdown"
+                        ng-if="elem.type == 'dropdown'"
+                        ng-class="{'disabled': $ctrl.isDisabled(source)}"
+                    >
+                        <select
+                            ng-options="v[1] as v[0] for v in elem.options"
+                            ng-model="$ctrl.modelReferenceAssessmentEvaluation[elem.store]"
+                            ng-model-watch="$ctrl.referenceAssessment.evaluation[elem.store]"
+                            ng-change="$ctrl.evaluationChanged({key: elem.store, value: $ctrl.modelReferenceAssessmentEvaluation[elem.store]})"
+                            ng-disabled="$ctrl.isDisabled(source) || $ctrl.readOnly"
+                        >
+                            <option value="" disabled selected>{{ elem.placeholder }} </option>
+                        </select>
+                    </div>
+                    <div ng-if="elem.type == 'text'">
+                        <input
+                            type="text"
+                            placeholder="{{ elem.placeholder || '' }}"
+                            ng-disabled="$ctrl.isDisabled(source) || $ctrl.readOnly"
+                            ng-model="$ctrl.modelReferenceAssessmentEvaluation[elem.store]"
+                            ng-model-watch="$ctrl.referenceAssessment.evaluation[elem.store]"
+                            ng-change="$ctrl.evaluationChanged({key: elem.store, value: $ctrl.modelReferenceAssessmentEvaluation[elem.store]})"
+                        />
+                    </div>
+                </div>
+            </div>
+        </article>
+        <article class="line-wrapper question medium">
+            <div class="middle"></div>
+            <div class="right">
+                <wysiwyg-editor
+                    class="id-reference-comment"
+                    templates="$ctrl.getReferenceEvaluationTemplates()"
+                    ng-model="$ctrl.modelReferenceAssessmentEvaluation['comment']"
+                    ng-model-watch="$ctrl.referenceAssessmentComment"
+                    ng-change="$ctrl.evaluationChanged({key: 'comment', value: $ctrl.modelReferenceAssessmentEvaluation['comment']})"
+                    ng-disabled="$ctrl.readOnly"
+                    placeholder="COMMENTS"
+                >
+                </wysiwyg-editor>
+            </div>
+            <div class="middle"></div>
+        </article>
+    </contentwrapper>
+</sectionbox>
