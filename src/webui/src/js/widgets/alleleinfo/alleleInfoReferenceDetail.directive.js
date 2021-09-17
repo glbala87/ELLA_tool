@@ -23,7 +23,8 @@ app.component('alleleInfoReferenceDetail', {
                 props`referenceId`
             ),
             ignoreReferenceClicked: signal`views.workflows.interpretation.ignoreReferenceClicked`,
-            evaluateReferenceClicked: signal`views.workflows.interpretation.evaluateReferenceClicked`
+            evaluateReferenceClicked: signal`views.workflows.modals.evaluateReference.showEvaluateReferenceClicked`
+            // evaluateReferenceClickedLegacy: signal`views.workflows.interpretation.evaluateReferenceClicked`
         },
         'AlleleInfoReferenceDetail',
         [

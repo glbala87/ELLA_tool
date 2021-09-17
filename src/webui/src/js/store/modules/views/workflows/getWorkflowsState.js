@@ -35,6 +35,9 @@ export default function getWorkflowsState() {
             },
             addReferences: {
                 show: false
+            },
+            evaluateReference: {
+                show: false
             }
         },
         id: null, // analysis id or allele id
