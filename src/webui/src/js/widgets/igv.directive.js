@@ -169,10 +169,13 @@ const onTrackclick = (track, popupData) => {
             scope.$watchCollection('tracks', updateTracks)
 
             // allow zoom with mouse wheel
-            document.querySelector('.igv-track-container').onwheel = (event) => {
-                event.preventDefault()
-                const scaleFactor = 1.2
-                browser.zoom(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
+            const igvContainer = document.querySelector('.igv-column-container')
+            if (igvContainer) {
+                igvContainer.onwheel = (event) => {
+                    event.preventDefault()
+                    const scaleFactor = 1.2
+                    browser.zoomWithScaleFactor(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
+                }
             }
         })
     }
