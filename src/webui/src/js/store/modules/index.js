@@ -81,7 +81,7 @@ function RootModule(withRouter = true) {
             toast: toastProvider,
             http
         },
-        services: ['ReferenceEvalModal', 'Config', 'User'],
+        services: ['Config', 'User'],
         catch: [
             [
                 Error,

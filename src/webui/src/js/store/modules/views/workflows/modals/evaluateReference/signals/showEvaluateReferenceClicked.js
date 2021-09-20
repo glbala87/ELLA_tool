@@ -1,7 +1,6 @@
 import { set } from 'cerebral/operators'
 import { state, props } from 'cerebral/tags'
 import { deepCopy } from '../../../../../../../util'
-import isReadOnly from '../../../computed/isReadOnly'
 import getReferenceAssessment from '../../../interpretation/computed/getReferenceAssessment'
 // import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 
@@ -34,15 +33,15 @@ export default [
         const referenceAssessment = deepCopy(
             resolve.value(getReferenceAssessment(selectedAlleleId, reference.id)) || {}
         )
+
+        // Set up basic structure if empty
         if (!referenceAssessment.evaluation) {
             referenceAssessment.evaluation = {}
         }
         if (!referenceAssessment.evaluation.sources) {
             referenceAssessment.evaluation.sources = []
         }
-        console.log('hmmm')
         if (!referenceAssessment.evaluation.relevance) {
-            console.log('ja')
             referenceAssessment.evaluation.relevance = 'Yes'
         }
         state.set(`${STATE_BASE}.referenceAssessment`, referenceAssessment)
@@ -56,7 +55,6 @@ export default [
                 `views.workflows.interpretation.data.alleles.${selectedAlleleId}.annotation.filtered`
             )
             .map((x) => x.symbol)
-        // alleleGenes = ['MSH6']
         const alleleGeneGroups = Object.keys(geneGroups).filter((k) =>
             geneGroups[k].some((g) => alleleGenes.includes(g))
         )
