@@ -3,6 +3,8 @@ import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { signal, state } from 'cerebral/tags'
 import template from './evaluateReference.ngtmpl.html'
+import popover from './referenceEvalHelpTextPopover.ngtmpl.html'
+import abstractPopover from './abstractPopover.ngtmpl.html'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 
 const STATE_BASE = 'views.workflows.modals.evaluateReference'
