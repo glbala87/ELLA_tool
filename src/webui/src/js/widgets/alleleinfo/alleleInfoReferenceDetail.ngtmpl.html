@@ -42,12 +42,6 @@
             >
                 {{ $ctrl.getEvaluateBtnText() }}
             </button>
-            <!-- <button
-                class="blue id-reference-evaluate"
-                ng-click="$ctrl.evaluateReferenceClickedLegacy({alleleId: $ctrl.selectedAllele, referenceId: $ctrl.reference.id})"
-            >
-                Legacy
-            </button> -->
             <button
                 class="blue id-reference-evaluate"
                 ng-disabled="$ctrl.readOnly || $ctrl.alleleAssessmentReused"

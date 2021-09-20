@@ -24,7 +24,6 @@ app.component('alleleInfoReferenceDetail', {
             ),
             ignoreReferenceClicked: signal`views.workflows.interpretation.ignoreReferenceClicked`,
             evaluateReferenceClicked: signal`views.workflows.modals.evaluateReference.showEvaluateReferenceClicked`
-            // evaluateReferenceClickedLegacy: signal`views.workflows.interpretation.evaluateReferenceClicked`
         },
         'AlleleInfoReferenceDetail',
         [
