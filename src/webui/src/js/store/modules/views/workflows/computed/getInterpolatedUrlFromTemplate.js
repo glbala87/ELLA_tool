@@ -2,6 +2,9 @@ import { Compute } from 'cerebral'
 
 export default (urlTemplate, allele) =>
     Compute(urlTemplate, allele, (urlTemplate, allele) => {
+        if (!urlTemplate) {
+            return null
+        }
         // Replace ${expressions} (etc) with ${map.expressions}.
         var sanitized = urlTemplate
             .replace(/\$\{([\s]*[^;\{]+[\s]*)\}/g, function(_, match) {
