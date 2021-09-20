@@ -52,6 +52,7 @@ const getIgvLocus = (locus) => {
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
+            // add region of interest as igv track
             browser.loadROI(scope.roi)
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
