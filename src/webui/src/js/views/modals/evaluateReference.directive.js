@@ -1,10 +1,9 @@
 import app from '../../ng-decorators'
-import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { signal, state } from 'cerebral/tags'
-import template from './evaluateReference.ngtmpl.html'
-import popover from './referenceEvalHelpTextPopover.ngtmpl.html'
-import abstractPopover from './abstractPopover.ngtmpl.html'
+import template from './evaluateReference.ngtmpl.html' // eslint-disable-line no-unused-vars
+import popover from './referenceEvalHelpTextPopover.ngtmpl.html' // eslint-disable-line no-unused-vars
+import abstractPopover from './abstractPopover.ngtmpl.html' // eslint-disable-line no-unused-vars
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 
 const STATE_BASE = 'views.workflows.modals.evaluateReference'
@@ -653,7 +652,6 @@ app.component('evaluateReference', {
                         }
                     },
                     sourceSelected: (source) => {
-                        console.log('Checking if source is selected: ', source)
                         return $ctrl.referenceAssessment.evaluation.sources.includes(source)
                     },
                     /**
@@ -674,7 +672,6 @@ app.component('evaluateReference', {
                                 $ctrl.isDisabled(source) ||
                                 ($ctrl.getSources().includes(source) && !$ctrl.shouldShow(source))
                             ) {
-                                console.log(source)
                                 // Clean up evaluation
                                 if ('elements' in source_data) {
                                     for (let elem of source_data.elements) {
