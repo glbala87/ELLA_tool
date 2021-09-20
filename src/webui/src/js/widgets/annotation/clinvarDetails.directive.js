@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './clinvarDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
+import getInterpolatedUrlFromTemplate from '../../store/modules/views/workflows/computed/getInterpolatedUrlFromTemplate'
 
 const NUM_STARS = {
     'no assertion criteria provided': 0,
@@ -28,6 +29,7 @@ app.component('clinvarDetails', {
     controller: connect(
         {
             data: state`${props`allelePath`}.annotation.${props`source`}`,
+            titleUrl: getInterpolatedUrlFromTemplate(props`url`, state`${props`allelePath`}`),
             viewConfig: getAnnotationConfigItem
         },
         'ClinvarDetails',

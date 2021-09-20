@@ -3,6 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './frequencyDetails.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
+import getInterpolatedUrlFromTemplate from '../../store/modules/views/workflows/computed/getInterpolatedUrlFromTemplate'
 
 app.component('frequencyDetails', {
     bindings: {
@@ -18,6 +19,7 @@ app.component('frequencyDetails', {
     controller: connect(
         {
             frequencies: state`${props`allelePath`}.annotation.${props`source`}`,
+            titleUrl: getInterpolatedUrlFromTemplate(props`url`, state`${props`allelePath`}`),
             viewConfig: getAnnotationConfigItem
         },
         'FrequencyDetails',

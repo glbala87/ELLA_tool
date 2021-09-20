@@ -5,6 +5,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, props } from 'cerebral/tags'
 import template from './itemList.ngtmpl.html' // eslint-disable-line no-unused-vars
 import getAnnotationConfigItem from '../../store/modules/views/workflows/computed/getAnnotationConfigItem'
+import getInterpolatedUrlFromTemplate from '../../store/modules/views/workflows/computed/getInterpolatedUrlFromTemplate'
 
 const extractedData = Compute(
     state`${props`allelePath`}.annotation.${props`source`}`,
@@ -68,6 +69,7 @@ app.component('itemList', {
     templateUrl: 'itemList.ngtmpl.html',
     controller: connect({
         data: extractedData,
+        titleUrl: getInterpolatedUrlFromTemplate(props`url`, state`${props`allelePath`}`),
         viewConfig: getAnnotationConfigItem
     })
 })
