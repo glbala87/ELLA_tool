@@ -1,9 +1,14 @@
 <ul class="popover-list">
     <div ng-repeat="t in $ctrl.allele.annotation.transcripts track by t.transcript">
         <li>
-            <copy-text
+            <copy-text ng-if="$ctrl.allele.caller_type=='SNV'"
                 text="{{
                     t.transcript + '(' + t.symbol + '):' + t.HGVSc_short ||
+                        $ctrl.allele.formatted.hgvsg
+                }}"
+            ></copy-text>
+            <copy-text ng-if="$ctrl.allele.caller_type=='CNV'"
+                text="{{
                         $ctrl.allele.formatted.hgvsg
                 }}"
             ></copy-text>
