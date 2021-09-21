@@ -260,7 +260,7 @@ class GenepanelStatsResource(LogRequestResource):
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
-        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels]
+        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels if gp.official]
         if (name, version) not in user_genepanels:
             raise ApiError("Invalid genepanel name or version")
 
