@@ -1,19 +1,19 @@
 <div
     class="wysiwygeditor"
-    title="{{ vm.placeholder }}"
+    title="{{ $ctrl.placeholder }}"
     tabindex="-1"
     spellcheck="false"
-    ng-disabled="vm.ngDisabled"
+    ng-disabled="$ctrl.ngDisabled"
     ng-model="comment.model.comment"
 ></div>
-<div class="wysiwygplaceholder" title="{{ vm.placeholder }}">I am a preview</div>
-<div class="wysiwygplaceholder" title="{{ vm.placeholder }}">{{ vm.placeholder }}</div>
-<div class="wysiwygbuttons" ng-show="vm.showControls">
+<div class="wysiwygplaceholder" title="{{ $ctrl.placeholder }}">I am a preview</div>
+<div class="wysiwygplaceholder" title="{{ $ctrl.placeholder }}">{{ $ctrl.placeholder }}</div>
+<div class="wysiwygbuttons" ng-show="$ctrl.showControls">
     <button
         class="wysiwygbutton fixed"
         title="Toggle HTML source"
         id="wysiwyg-src"
-        ng-click="vm.buttonAction('src')"
+        ng-click="$ctrl.buttonAction('src')"
     >
         &lt;&gt;
     </button>
@@ -21,7 +21,7 @@
         class="wysiwygbutton fixed"
         title="Bold (Ctrl+B)"
         id="wysiwyg-bold"
-        ng-click="vm.buttonAction('bold')"
+        ng-click="$ctrl.buttonAction('bold')"
     >
         B
     </button>
@@ -29,7 +29,7 @@
         class="wysiwygbutton fixed"
         title="Italic (Ctrl+I)"
         id="wysiwyg-italic"
-        ng-click="vm.buttonAction('italic')"
+        ng-click="$ctrl.buttonAction('italic')"
     >
         I
     </button>
@@ -37,7 +37,7 @@
         class="wysiwygbutton fixed"
         title="Underline (Ctrl+U)"
         id="wysiwyg-underline"
-        ng-click="vm.buttonAction('underline')"
+        ng-click="$ctrl.buttonAction('underline')"
     >
         U
     </button>
@@ -45,7 +45,7 @@
         class="wysiwygbutton fixed"
         title="Code/Monospace font"
         id="wysiwyg-monospace"
-        ng-click="vm.buttonAction('monospace')"
+        ng-click="$ctrl.buttonAction('monospace')"
     >
         M
     </button>
@@ -53,7 +53,7 @@
         class="wysiwygbutton fixed"
         title="Set text color"
         id="wysiwyg-fontcolor"
-        ng-click="vm.buttonAction('fontcolor')"
+        ng-click="$ctrl.buttonAction('fontcolor')"
     >
         A<span style="vertical-align: sub; margin-left: -0.0rem">&#9646;</span>
     </button>
@@ -61,7 +61,7 @@
         class="wysiwygbutton fixed"
         title="Set highlight color"
         id="wysiwyg-highlightcolor"
-        ng-click="vm.buttonAction('highlightcolor')"
+        ng-click="$ctrl.buttonAction('highlightcolor')"
     >
         <svg
             width="60%"
@@ -82,7 +82,7 @@
         class="wysiwygbutton fixed"
         title="Heading 1"
         id="wysiwyg-heading1"
-        ng-click="vm.buttonAction('heading1')"
+        ng-click="$ctrl.buttonAction('heading1')"
     >
         H1
     </button>
@@ -90,7 +90,7 @@
         class="wysiwygbutton fixed"
         title="Heading 2"
         id="wysiwyg-heading2"
-        ng-click="vm.buttonAction('heading2')"
+        ng-click="$ctrl.buttonAction('heading2')"
     >
         H2
     </button>
@@ -98,7 +98,7 @@
         class="wysiwygbutton fixed"
         title="Normal text"
         id="wysiwyg-paragraph"
-        ng-click="vm.buttonAction('paragraph')"
+        ng-click="$ctrl.buttonAction('paragraph')"
     >
         P
     </button>
@@ -106,7 +106,7 @@
         class="wysiwygbutton fixed"
         title="Numbered list"
         id="wysiwyg-orderedList"
-        ng-click="vm.buttonAction('orderedList')"
+        ng-click="$ctrl.buttonAction('orderedList')"
     >
         <svg
             width="60%"
@@ -125,7 +125,7 @@
         class="wysiwygbutton fixed"
         title="Bullet list"
         id="wysiwyg-unorderedList"
-        ng-click="vm.buttonAction('unorderedList')"
+        ng-click="$ctrl.buttonAction('unorderedList')"
     >
         <svg
             width="60%"
@@ -145,7 +145,7 @@
         class="wysiwygbutton fixed"
         title="Add link"
         id="wysiwyg-link"
-        ng-click="vm.buttonAction('linkform')"
+        ng-click="$ctrl.buttonAction('linkform')"
     >
         <svg
             width="70%"
@@ -168,7 +168,7 @@
         class="wysiwygbutton fixed"
         title="Clear formatting"
         id="wysiwyg-removeFormat"
-        ng-click="vm.buttonAction('removeFormat')"
+        ng-click="$ctrl.buttonAction('removeFormat')"
     >
         T<span style="vertical-align: sub; margin-left: -0.3rem">&#10005;</span>
     </button>
@@ -176,8 +176,8 @@
         class="wysiwygbutton fixed id-insert-template-button"
         title="Insert template"
         id="wysiwyg-templates"
-        ng-click="vm.buttonAction('templates')"
-        ng-disabled="!vm.templates || vm.templates.length == 0"
+        ng-click="$ctrl.buttonAction('templates')"
+        ng-disabled="!$ctrl.templates || $ctrl.templates.length == 0"
     >
         <svg
             width="60%"
@@ -198,7 +198,7 @@
         class="wysiwygbutton fixed id-insert-signature-button"
         title="Insert signature (Alt+S)"
         id="wysiwyg-signature"
-        ng-click="vm.buttonAction('signature')"
+        ng-click="$ctrl.buttonAction('signature')"
     >
         <svg
             width="60%"
@@ -219,11 +219,11 @@
     </button>
     <button
         class="wysiwygbutton fixed id-insert-references-button"
-        ng-class="{'hidden': !vm.references}"
+        ng-class="{'hidden': !$ctrl.references}"
         title="Insert reference"
         id="wysiwyg-references"
-        ng-click="vm.buttonAction('references')"
-        ng-disabled="!vm.references || vm.references.length == 0"
+        ng-click="$ctrl.buttonAction('references')"
+        ng-disabled="!$ctrl.references || $ctrl.references.length == 0"
     >
         <svg
             width="60%"
@@ -244,32 +244,34 @@
     </button>
 
     <!-- Don't use ng-if as we need the element for positioning -->
-    <div class="wysiwygfontcolorpopover" ng-show="vm.popovers.fontcolor.show">
+    <div class="wysiwygfontcolorpopover" ng-show="$ctrl.popovers.fontcolor.show">
         <div
-            ng-click="vm.setFontColor(color)"
+            ng-click="$ctrl.setFontColor(color)"
             class="color-item"
             ng-style="{'color': color , 'border-color': color}"
-            ng-repeat="color in vm.fontColors"
+            ng-repeat="color in $ctrl.fontColors"
         >
             A
         </div>
     </div>
-    <div class="wysiwyghighlightcolorpopover" ng-show="vm.popovers.highlightcolor.show">
+    <div class="wysiwyghighlightcolorpopover" ng-show="$ctrl.popovers.highlightcolor.show">
         <div
-            ng-click="vm.setHighlightColor(color)"
+            ng-click="$ctrl.setHighlightColor(color)"
             class="color-item"
             ng-style="{'background-color': color }"
-            ng-repeat="color in vm.highlightColors"
+            ng-repeat="color in $ctrl.highlightColors"
         >
             A
         </div>
     </div>
-    <div class="wysiwyglinkform" tabindex="1" ng-show="vm.popovers.linkform.show">
-        <div><input id="wysiwygklinkurl" placeholder="LINK ADDRESS" ng-model="vm.linkUrl" /></div>
+    <div class="wysiwyglinkform" tabindex="1" ng-show="$ctrl.popovers.linkform.show">
         <div>
-            <input id="wysiwygklinktext" placeholder="(OPTIONAL) TEXT" ng-model="vm.linkText" />
+            <input id="wysiwygklinkurl" placeholder="LINK ADDRESS" ng-model="$ctrl.linkUrl" />
         </div>
-        <button ng-click="vm.addLink()" class="addlinkbutton">
+        <div>
+            <input id="wysiwygklinktext" placeholder="(OPTIONAL) TEXT" ng-model="$ctrl.linkText" />
+        </div>
+        <button ng-click="$ctrl.addLink()" class="addlinkbutton">
             <svg
                 id="i-checkmark"
                 viewBox="0 0 32 32"
@@ -285,23 +287,25 @@
             </svg>
         </button>
     </div>
-    <div class="wysiwygtemplatespopover" ng-show="vm.popovers.templates.show">
-        <div class="template-item" ng-repeat="t in vm.templates">
-            <button class="purple template-button" ng-click="vm.insertTemplate(t)">+</button>
+    <div class="wysiwygtemplatespopover" ng-show="$ctrl.popovers.templates.show">
+        <div class="template-item" ng-repeat="t in $ctrl.templates">
+            <button class="purple template-button" ng-click="$ctrl.insertTemplate(t)">+</button>
             <div class="template-title">{{ t.name }}</div>
         </div>
     </div>
-    <div class="wysiwygreferencespopover" ng-show="vm.popovers.references.show">
-        <div ng-repeat="category in vm.references">
+    <div class="wysiwygreferencespopover" ng-show="$ctrl.popovers.references.show">
+        <div ng-repeat="category in $ctrl.references">
             <div class="reference-category-title">{{ category.name }}</div>
             <div class="reference-item" ng-repeat="r in category.references">
-                <button class="purple reference-button" ng-click="vm.insertReference(r)">+</button>
+                <button class="purple reference-button" ng-click="$ctrl.insertReference(r)">
+                    +
+                </button>
                 <div>
-                    <div class="reference-title" title="{{ vm.formatReference(r, true) }}">
+                    <div class="reference-title" title="{{ $ctrl.formatReference(r, true) }}">
                         {{ r.title ? r.title : '' }}
                     </div>
-                    <div class="reference-citation" title="{{ vm.formatReference(r, false) }}">
-                        {{ vm.formatReference(r) }}
+                    <div class="reference-citation" title="{{ $ctrl.formatReference(r, false) }}">
+                        {{ $ctrl.formatReference(r) }}
                     </div>
                 </div>
             </div>
