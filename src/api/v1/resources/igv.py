@@ -252,14 +252,20 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
 
 
 def get_allele_vcf(session, analysis_id, allele_ids):
-
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     VCF_HEADER_TEMPLATE = (
         "\n".join(
-            ["##fileformat=VCFv4.1", "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}"]
+            [
+                "##fileformat=VCFv4.1",
+                '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
+                '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
+                '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
+                "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
+            ]
         )
         + "\n"
     )
+
     VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
@@ -290,6 +296,10 @@ def get_allele_vcf(session, analysis_id, allele_ids):
 
         # Annotation
         info = []
+        if a["caller_type"] == "CNV":
+            change_type = a["change_type"]
+            length = a["length"]
+            info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
         genotype_data_keys = sorted(genotype_data.keys())
         data += VCF_LINE_TEMPLATE.format(
             chr=chr,
