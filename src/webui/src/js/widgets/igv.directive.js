@@ -15,7 +15,7 @@ const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
         tracks: '=',
         reference: '='
     },
-    template: '<div class="igv-container"></div>',
+    template: '<div></div>',
     link: (scope, elem, attrs) => {
         var defaults = {
             showNavigation: true,
