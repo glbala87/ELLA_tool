@@ -325,7 +325,12 @@ class ClassificationResource(LogRequestResource):
         data = BytesIO()
         data.write(get_classification_gff3(session).encode())
         data.seek(0)
-        return send_file(data, attachment_filename="classifications.gff3")
+        return send_file(
+            data,
+            attachment_filename="classifications.gff3",
+            mimetype="text/plain",
+            cache_timeout=-1,
+        )
 
 
 class AnalysisVariantTrack(LogRequestResource):
