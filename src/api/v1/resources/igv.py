@@ -240,7 +240,6 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
 
 
 def get_allele_vcf(session, analysis_id, allele_ids):
-
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     VCF_HEADER_TEMPLATE = (
         "\n".join(
@@ -254,6 +253,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         )
         + "\n"
     )
+
     VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
