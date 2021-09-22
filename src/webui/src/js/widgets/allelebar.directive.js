@@ -108,11 +108,10 @@ app.component('allelebar', {
                     },
                     getHGVSTitle(allele) {
                         if (allele && allele.caller_type == 'SNV') {
-                            return 'HGVSc'
+                            return 'HGVSc:'
                         } else if (allele && allele.caller_type == 'CNV') {
-                            return 'HGVSg'
+                            return 'HGVSg:'
                         } else {
-                            console.log(allele)
                             return ''
                         }
                     },

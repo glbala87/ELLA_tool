@@ -40,7 +40,7 @@
                         item="t"
                         tippy-popover="cdnaPopover.ngtmpl.html"
                         tippy-placement="bottom"
-                        tippy-popover-title="{{ $ctrl.getHGVSTitle(allele) }}"
+                        tippy-popover-title="{{ $ctrl.getHGVSTitle($ctrl.allele) }}"
                     >
                         <i>{{ $ctrl.getTranscriptText(t) }}:</i
                         ><b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
