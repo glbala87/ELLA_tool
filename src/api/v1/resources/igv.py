@@ -481,7 +481,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
 
     GENEPANEL_DEFAULT_CONFIG = {
         "id": "genepanel",
-        "show": False,
+        "show": True,
         "name": "Genepanel",
         "type": "annotation",
         "url": f"/api/v1/igv/genepanel/{genepanel_name}/{genepanel_version}/",
@@ -495,7 +495,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
 
     CLASSIFICATIONS_DEFAULT_CONFIG = {
         "id": "classifications",
-        "show": False,
+        "show": True,
         "name": "Classifications",
         "url": "/api/v1/igv/classifications/",
         "format": "bed",

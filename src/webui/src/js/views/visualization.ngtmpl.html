@@ -1,6 +1,6 @@
 <div class="visualization">
     <sectionbox>
-        <maintitle>Track selection</maintitle>
+        <maintitle>Preset selection</maintitle>
         <contentwrapper>
             <h4 class="section-title">Presets</h4>
             <div class="bttn-set">
@@ -8,52 +8,31 @@
                     tabindex="0"
                     class="bttn"
                     uib-btn-checkbox="presetId"
-                    ng-repeat="presetId in $ctrl.presetIds"
+                    ng-repeat="(presetId, _) in $ctrl.presets"
                     ng-model="$ctrl.presetModel[presetId]"
                     ng-change="$ctrl.togglePreset(presetId)"
                     >{{ presetId }}</label
                 >
             </div>
-            <h4 class="section-title">Global tracks</h4>
-            <div class="bttn-set">
-                <label
-                    tabindex="0"
-                    class="bttn"
-                    ng-model="$ctrl.modelGlobalTracks[$index]"
-                    ng-model-watch="$ctrl.tracks.global[$index].selected"
-                    ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: 'global', id: item.id, show: !item.selected}]})"
-                    uib-btn-checkbox="item"
-                    ng-repeat="item in $ctrl.tracks.global track by item.id"
-                    >{{ item.config.name }}</label
-                >
-            </div>
-
-            <h4 class="section-title">Group tracks</h4>
-            <div class="bttn-set">
-                <label
-                    tabindex="0"
-                    class="bttn"
-                    ng-model="$ctrl.modelUserTracks[$index]"
-                    ng-model-watch="$ctrl.tracks.user[$index].selected"
-                    ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: 'user', id: item.id, show: !item.selected}]})"
-                    uib-btn-checkbox="item"
-                    ng-repeat="item in $ctrl.tracks.user track by item.id"
-                    >{{ item.config.name }}</label
-                >
-            </div>
-
-            <h4 class="section-title">Analysis tracks</h4>
-            <div class="bttn-set">
-                <label
-                    tabindex="0"
-                    class="bttn"
-                    ng-model="$ctrl.modelAnalysisTracks[$index]"
-                    ng-model-watch="$ctrl.tracks.analysis[$index].selected"
-                    ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: 'analysis', id: item.id, show: !item.selected}]})"
-                    uib-btn-checkbox="item"
-                    ng-repeat="item in $ctrl.tracks.analysis track by item.id"
-                    >{{ item.config.name }}</label
-                >
+        </contentwrapper>
+    </sectionbox>
+    <sectionbox collapsed="true">
+        <maintitle>Track selection</maintitle>
+        <contentwrapper>
+            <div ng-repeat="(presetId, tracksByPreset) in $ctrl.presets">
+                <h4 class="section-title">{{ presetId }}</h4>
+                <div class="bttn-set">
+                    <label
+                        tabindex="0"
+                        class="bttn"
+                        ng-model="$ctrl.modelTracks[track.categoryId][track.index]"
+                        ng-model-watch="$ctrl.tracks[track.categoryId][track.index].selected"
+                        ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: track.categoryId, id: track.data.id, show: !track.data.selected}]})"
+                        uib-btn-checkbox="track.data"
+                        ng-repeat="track in tracksByPreset"
+                        >{{ track.data.config.name }}</label
+                    >
+                </div>
             </div>
         </contentwrapper>
     </sectionbox>
