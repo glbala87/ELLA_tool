@@ -1,22 +1,33 @@
 import markdownIt from 'markdown-it'
 import { Directive, Inject } from '../ng-decorators'
 
-@Directive({
-    selector: 'markdown-it',
-    template: '<div class="markdown"></div>',
-    scope: {
+import app from '../ng-decorators'
+import { connect } from '@cerebral/angularjs'
+
+app.component('markdownIt', {
+    bindings: {
         markdown: '='
     },
-    link: (scope, elem, attrs) => {
-        var md = markdownIt({ breaks: true })
-        if (scope.markdown && scope.markdown.length) {
-            elem.children()[0].innerHTML = md.render(scope.markdown)
-        }
-    }
+    // transclude: true,
+    template: '<div class="markdown" ng-bind-html="$ctrl.renderMarkdown()"></div>',
+    controller: connect(
+        {},
+        'markdownIt',
+        [
+            '$scope',
+            ($scope) => {
+                const $ctrl = $scope.$ctrl
+                const md = markdownIt({ breaks: true })
+                Object.assign($ctrl, {
+                    renderMarkdown: () => {
+                        if ($ctrl.markdown && $ctrl.markdown.length) {
+                            return md.render($ctrl.markdown)
+                        } else {
+                            return ''
+                        }
+                    }
+                })
+            }
+        ]
+    )
 })
-@Inject('$sce')
-export class MarkdownItController {
-    constructor($sce) {
-        this.sce = $sce
-    }
-}
