@@ -1,15 +1,15 @@
 /* jshint esnext: true */
+import app from '../ng-decorators'
+import { connect } from '@cerebral/angularjs'
 
-import { Directive, Inject } from '../ng-decorators'
 import template from './contentbox.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 /**
  <contentbox>
  A content box element with vertical header
  */
-@Directive({
-    selector: 'contentbox',
-    scope: {
+app.component('contentbox', {
+    bindings: {
         color: '@',
         boxtitle: '@?',
         titleUrl: '@?',
@@ -17,18 +17,25 @@ import template from './contentbox.ngtmpl.html' // eslint-disable-line no-unused
         disabled: '=?'
     },
     transclude: { cbbody: 'cbbody' },
-    template
+    templateUrl: 'contentbox.ngtmpl.html',
+    controller: connect(
+        {},
+        'sectionbox',
+        [
+            '$scope',
+            ($scope) => {
+                const $ctrl = $scope.$ctrl
+                Object.assign($ctrl, {
+                    getClasses() {
+                        let color = this.color ? this.color : 'blue'
+                        let disabled = this.disabled ? 'no-content' : ''
+                        return `${color} ${disabled}`
+                    },
+                    getUrl() {
+                        return this.disabled ? this.disabledTitleUrl : this.titleUrl
+                    }
+                })
+            }
+        ]
+    )
 })
-@Inject('$scope')
-export class ContentboxController {
-    constructor() {}
-
-    getClasses() {
-        let color = this.color ? this.color : 'blue'
-        let disabled = this.disabled ? 'no-content' : ''
-        return `${color} ${disabled}`
-    }
-    getUrl() {
-        return this.disabled ? this.disabledTitleUrl : this.titleUrl
-    }
-}
