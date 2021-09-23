@@ -318,6 +318,7 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
             allele.Allele.id.label("allele_id"),
             gene.Genepanel.name.label("name"),
             gene.Genepanel.version.label("version"),
+            gene.Genepanel.official.label("official"),
         )
         .join(gene.Genepanel.transcripts)
         .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys))

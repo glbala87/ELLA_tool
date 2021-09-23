@@ -82,4 +82,4 @@ class GenepanelTranscriptsSchema(Schema):
 
 class GenepanelSchema(Schema):
     class Meta:
-        fields = ("name", "version")
+        fields = ("name", "version", "official")
