@@ -64,7 +64,7 @@ See [Visual](/manual/visual.md) for further details.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
 <!-- MR !580 -->
-- Upgraded IGV.js in VISUAL to [v2.10.0](https://github.com/igvteam/igv.js/releases/tag/v2.10.0) (using [temporary fork](https://github.com/ousamg/igv.js) with bug fix).
+- Upgraded IGV.js in VISUAL from v2.7.9 to [v2.10.0](https://github.com/igvteam/igv.js/releases/tag/v2.10.0) (using [temporary fork](https://github.com/ousamg/igv.js) with bug fix). This fixes several bugs and adds exon numbering (in feature popup) to transcript reference tracks.
 <!-- MR !581 -->
 - Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
 <!-- MR !583 -->
