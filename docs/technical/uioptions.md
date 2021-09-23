@@ -89,6 +89,7 @@ Subkey	|	Explanation
 `valid_resource_files`    |   Files permitted accessible on `/igv/<file>` resource, relative to `$IGV_DATA` env.    
 
 Static tracks can be added as files, and will be read from the following directories:
+[TODO] Needs update [/TODO]
 - Global tracks: `$IGV_DATA/tracks`
 - User group specific tracks: `$IGV_DATA/usergroups/<group name>/tracks`
 - Analysis tracks: `$ANALYSES_PATH/<analysis name>/tracks`
@@ -102,9 +103,9 @@ There are three built-in, dynamic tracks available:
 
 Track	|	Description |   Config file
 :---	|	:---    |	:---
-`Genepanel` | Shows the transcripts defined in the gene panel | `$IGV_DATA/tracks/genepanel.json`
-`Classifications` | Shows the existing classifications from the database | `$IGV_DATA/tracks/classifications.json`
 `Variants` | Shows the unfiltered variants in the analysis | `$IGV_DATA/tracks/analysis_variants.json`
+`Classifications` | Shows the existing classifications from the database | `$IGV_DATA/tracks/classifications.json`
+`Genepanel` | Shows the transcripts defined in the gene panel | `$IGV_DATA/tracks/genepanel.json`
 
 All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igv.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
 

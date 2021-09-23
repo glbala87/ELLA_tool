@@ -27,10 +27,10 @@ This section is collapsed by default. To switch on/off individual tracks, expand
 
 Some tracks are available by default. These currently include: 
 
-- `REFGENE`: Transcripts from RefGene.
-- `GENEPANEL`: Regions covered by the current gene panel.
 - `VARIANTS`: All variants in the same sample (analysis) _after_ filtering.
+- `REFGENE`: Transcripts from RefGene.
 - `CLASSIFICATIONS`: All existing (finalized) classifications present in the database. Clicking on a variant in this track gives a link to the associated allele assessment.
+- `GENEPANEL`: Regions covered by the current gene panel.
 
 Note: ELLA may be configured to include other tracks in the default preset.
 

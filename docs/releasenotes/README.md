@@ -21,6 +21,8 @@ Release date: TBD
 
 This version ... [TODO; summary of UI/UX improvements]
 
+#### Quick add signature
+<!-- MR !565 -->
 It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`) to any comment field, using either the keyboard shortcut `Alt + S` or a button on the formatting toolbar: 
 
 <div class="figure_text">
@@ -29,7 +31,7 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
 </div> 
 
 #### Improved track selection in VISUAL
-
+<!-- MR !553, !555 -->
 Selecting tracks in VISUAL has been further improved by splitting off presets in one section and the individual tracks in another, with the latter section collapsed by default. Tracks are now also organized under headers determined by preset names instead of the previous "Global", "Group" and "Analysis" headers. 
 
 <div class="figure_text">
@@ -37,17 +39,13 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
     <p><strong>Figure: </strong>Improved track selection presets, with tracks organized by preset name.</p>
 </div> 
 
-[TODO] 
+See [Visual](/manual/visual.md) for further details.
 
-- Update with screenshots that include previous default tracks; 
-- Check visual.html#default-tracks is correct; 
-- Update technical docs 
- 
-[/TODO]
+[TODO] Update [technical docs](/technical/uioptions.html#igv-in-visual) after [ella#1921](https://gitlab.com/alleles/ella/-/issues/1921) [/TODO]
 
 ### All changes
 
-<!-- MR !553 -->
+<!-- MR !553, !555 -->
 - [Improved track selection in VISUAL with grouping of tracks under preset names](#improved-track-selection-in-visual).
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
@@ -56,7 +54,7 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
 <!-- MR !564 -->
 - Layout in Studies & references section is improved, removing some headers and adding an `UNPUBLISHED` tag when relevant.
 <!-- MR !565 -->
-- Added button and keyboard shortcut for quick insertion of signature and date in comment fields.
+- [Added button and keyboard shortcut for quick insertion of signature and date in comment fields](#quick-add-signature).
 <!-- MR !566 -->
 - Gene INFO tag in top bar is now removed if gene comment is emptied.
 <!-- MR !568 -->
