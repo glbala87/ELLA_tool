@@ -1,9 +1,9 @@
 from vardb.datamodel import log
-from api.v1.resource import LogRequestResource
+from api.v1.resource import Resource
 from api.util.util import authenticate, request_json
 
 
-class ExceptionLog(LogRequestResource):
+class ExceptionLog(Resource):
     @authenticate(usersession=True, optional=True)
     @request_json(["message", "location", "stacktrace", "state"])
     def post(self, session, data=None, user=None, usersession_id=None):
