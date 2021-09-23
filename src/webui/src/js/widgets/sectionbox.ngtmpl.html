@@ -1,7 +1,11 @@
-<section class="sectionbox" ng-class="vm.getClasses()" ng-disabled="vm.ngDisabled">
+<section class="sectionbox" ng-class="$ctrl.getClasses()" ng-disabled="$ctrl.ngDisabled">
     <header class="sb titlebar">
-        <div class="sb-title-container" ng-click="vm.collapse()">
-            <div class="icon modal-close" ng-click="vm.close()" ng-if="vm.isModal() && vm.onClose">
+        <div class="sb-title-container" ng-click="$ctrl.collapse()">
+            <div
+                class="icon modal-close"
+                ng-click="$ctrl.close()"
+                ng-if="$ctrl.isModal() && $ctrl.onClose"
+            >
                 <svg
                     id="i-close"
                     viewBox="0 0 32 32"
@@ -16,7 +20,7 @@
                     <path d="M2 30 L30 2 M30 30 L2 2" />
                 </svg>
             </div>
-            <div class="icon collapser" ng-if="vm.isCollapsible()">
+            <div class="icon collapser" ng-if="$ctrl.isCollapsible()">
                 <svg
                     id="i-play"
                     viewBox="0 0 32 32"
@@ -34,9 +38,9 @@
             <div class="title" ng-transclude="title"></div>
             <div class="subtitle" ng-transclude="subtitle"></div>
         </div>
-        <div class="sb-controls" ng-transclude="controls"></div>
+        <div class="sb-controls" ng-style="" ng-transclude="controls"></div>
     </header>
-    <div class="sb-container" ng-class="{topcontrols: vm.onTop()}">
+    <div class="sb-container" ng-class="{topcontrols: $ctrl.onTop()}">
         <article class="sb-top" ng-transclude="top"></article>
         <article class="sb-body" ng-transclude="contentwrapper"></article>
     </div>
