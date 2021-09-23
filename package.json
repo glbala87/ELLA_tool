@@ -79,7 +79,7 @@
         "dev": "webpack --mode development --watch --hide-modules",
         "test": "jest",
         "test-watch": "jest --watch",
-        "prepare": "npm --prefix node_modules/igv/ install && npm --prefix node_modules/igv/ run prepack",
+        "postinstall": "npm --prefix node_modules/igv/ install && npm --prefix node_modules/igv/ run prepack",
         "build": "webpack --mode development",
         "production": "webpack --mode production",
         "wdio": "wdio",
