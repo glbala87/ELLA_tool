@@ -453,7 +453,7 @@ button {
     }
     .main-allele-sidebar {
         grid-area: allele-sidebar;
-        overflow-x: visible;
+        overflow: auto;
         width: 100%;
         border-right: 1px dotted $blue-25;
 
