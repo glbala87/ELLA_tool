@@ -71,6 +71,7 @@ See [Visual](/manual/visual.md) for further details.
 - Gene panel info now only lists latest version of each gene panel in "5 most similar gene panels".
 <!-- 
 No further release notes necessary, but adding here for reference: 
+MR !574 Makefile/local-e2e: use docker inspect to get CHROME_HOST
 MR !587 Avoid log spamming from /api/v1/ui/exceptionlog/
 -->
 - Fixes and improvements to development environment and code base. 
