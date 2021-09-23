@@ -69,6 +69,8 @@ See [Visual](/manual/visual.md) for further details.
 - Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
 <!-- MR !583 -->
 - Gene panel info now only lists latest version of each gene panel in "5 most similar gene panels".
+<!-- MR !585 -->
+- Fixed a bug causing external links for currently selected variant instead of filtered variant in Filtered variants modal.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !574 Makefile/local-e2e: use docker inspect to get CHROME_HOST
