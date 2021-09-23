@@ -6,10 +6,9 @@
     <cbbody>
         <section class="line-wrapper spaced">
             <div class="id-acmg-show-hide-req">
-                <checkable-button buttonclass="blue" check-model="$ctrl.showReq">
-                    <checked>Hide REQ</checked>
-                    Show REQ
-                </checkable-button>
+                <button class="blue" ng-click="$ctrl.toggleShowReq()">
+                    {{ $ctrl.showReq ? 'Hide REQ' : 'Show REQ' }}
+                </button>
             </div>
         </section>
 

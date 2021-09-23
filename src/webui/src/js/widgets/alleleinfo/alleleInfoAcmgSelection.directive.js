@@ -18,7 +18,9 @@ app.component('alleleInfoAcmgSelection', {
             suggestedAcmgCodes: getSuggestedAcmgCodes(state`views.workflows.selectedAllele`),
             reqCodes: getReqCodes(state`views.workflows.selectedAllele`),
             addAcmgClicked: signal`views.workflows.interpretation.addAcmgClicked`,
-            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`
+            acmgCodeChanged: signal`views.workflows.interpretation.acmgCodeChanged`,
+            toggleShowReq: signal`views.workflows.interpretation.toggleShowReq`,
+            showReq: state`views.workflows.showReq`
         },
         'AlleleInfoACMGSelection',
         [
