@@ -11,7 +11,7 @@ Pushing the `VISUAL` button (available in ANALYSIS mode only) in the side bar op
 <div class="figure"><img src="./img/sidebar_modes_visual.png"></div>
 <br>
 
-This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.7.9) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
+This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.10.0) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
 
 <div class="figure"><img src="./img/visual.png"></div>
 

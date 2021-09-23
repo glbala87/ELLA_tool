@@ -49,6 +49,8 @@ See [Visual](/manual/visual.md) for further details.
 - [Improved track selection in VISUAL with grouping of tracks under preset names](#improved-track-selection-in-visual).
 <!-- MR !554 -->
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
+<!-- MR !557-->
+- User dashboard now only shows official (not custom) gene panels.
 <!-- MR !562 -->
 - Collapsing sections on the CLASSIFICATION page now also truncates comments, improving overview when comments are lengthy.
 <!-- MR !564 -->
@@ -61,8 +63,18 @@ See [Visual](/manual/visual.md) for further details.
 - Filtered variants are now sorted by genomic position.
 <!-- MR !572 -->
 - Fixed a bug causing incorrect sorting of unpublished studies.
+<!-- MR !580 -->
+- Upgraded IGV.js in VISUAL to [v2.10.0](https://github.com/igvteam/igv.js/releases/tag/v2.10.0) (using [temporary fork](https://github.com/ousamg/igv.js) with bug fix).
 <!-- MR !581 -->
 - Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
+<!-- MR !583 -->
+- Gene panel info now only lists latest version of each gene panel in "5 most similar gene panels".
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !587 Avoid log spamming from /api/v1/ui/exceptionlog/
+-->
+- Fixes and improvements to development environment and code base. 
+
 
 ## Version 1.14.2
 
