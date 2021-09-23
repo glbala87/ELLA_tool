@@ -13,7 +13,6 @@ import './modals/referenceEvalModal.service'
 // Legacy: Some modals are not ported to Cerebral yet,
 // and these resources are therefore still in use
 import './services/resources/analysisResource.service'
-import './services/resources/attachmentResource.service'
 import './services/user.service'
 import './services/ConfigService'
 import './filters'
