@@ -329,7 +329,7 @@ class ClassificationResource(LogRequestResource):
             data,
             attachment_filename="classifications.gff3",
             mimetype="text/plain",
-            cache_timeout=-1,
+            cache_timeout=30 * 60,
         )
 
 
