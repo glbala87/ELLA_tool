@@ -3,7 +3,13 @@
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
 
-const getIgvLocus = (locus) => `${locus.chr}:${locus.pos}`
+const getIgvLocus = (locus) => {
+    const fallBackLocus = '1:1000'
+    if (!locus) {
+        return fallBackLocus
+    }
+    return `${locus.chr}:${locus.pos}`
+}
 
 /**
  * Directive for displaying igv.js
