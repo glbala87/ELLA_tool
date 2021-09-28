@@ -14,33 +14,35 @@ export default async function prepareIgv({ state, http }) {
     const trackConfigs = await http.get(
         `igv/tracks/${analysis.id}?allele_ids=${alleles ? Object.keys(alleles).join(',') : ''}`
     )
-
     const finalizedTracks = {}
     for (const [category, categoryTracks] of Object.entries(trackConfigs.result)) {
-        for (const track of categoryTracks) {
-            const finalizedTrack = {
-                id: track.id,
-                selected: 'show' in track ? track.show : false,
-                config: track,
-                presets: track.presets !== undefined ? track.presets : []
+        if (category != 'roi') {
+            for (const track of categoryTracks) {
+                const finalizedTrack = {
+                    id: track.id,
+                    selected: 'show' in track ? track.show : false,
+                    config: track,
+                    presets: track.presets !== undefined ? track.presets : []
+                }
+                // cleanup
+                delete finalizedTrack.config.show
+                delete finalizedTrack.config.presets
+                // derive default preset
+                if (finalizedTrack.selected) {
+                    const presetIdDefault = 'Default'
+                    finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
+                }
+                // append
+                if (!finalizedTracks.hasOwnProperty(category)) {
+                    finalizedTracks[category] = []
+                }
+                finalizedTracks[category].push(finalizedTrack)
             }
-            // cleanup
-            delete finalizedTrack.config.show
-            delete finalizedTrack.config.presets
-            // derive default preset
-            if (finalizedTrack.selected) {
-                const presetIdDefault = 'Default'
-                finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
-            }
-            // append
-            if (!finalizedTracks.hasOwnProperty(category)) {
-                finalizedTracks[category] = []
-            }
-            finalizedTracks[category].push(finalizedTrack)
         }
     }
     for (const categoryTracks of Object.values(finalizedTracks)) {
         categoryTracks.sort(thenBy((t) => t.config.order || 99999))
     }
+    state.set('views.workflows.visualization.roi', trackConfigs.result.roi)
     state.set('views.workflows.visualization.tracks', finalizedTracks)
 }

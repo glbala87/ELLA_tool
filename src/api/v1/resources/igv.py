@@ -5,7 +5,7 @@ import logging
 from io import BytesIO
 
 from flask import request, Response, send_file
-from sqlalchemy import tuple_, func
+from sqlalchemy import tuple_, func, and_
 
 from api import ApiError
 from api.config import config
@@ -196,7 +196,8 @@ def get_classification_bed(session):
     return result
 
 
-def get_allele_vcf(session, analysis_id, allele_ids):
+def get_alleles_from_db(session, analysis_id, allele_ids):
+
     if not allele_ids:
         return None
 
@@ -214,13 +215,57 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         include_custom_annotation=False,
         include_reference_assessments=False,
     )
+    return allele_objs
 
+
+def get_regions_of_interest(session, analysis_id, allele_ids):
+    if not allele_ids:
+        return None
+
+    alleles = (
+        session.query(allele.Allele)
+        .filter(and_(allele.Allele.id.in_(allele_ids), allele.Allele.caller_type == "CNV"))
+        .all()
+    )
+
+    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+
+    adl = AlleleDataLoader(session)
+    allele_objs = adl.from_objs(
+        alleles,
+        analysis_id=analysis.id,
+        genepanel=analysis.genepanel,
+        include_allele_assessment=False,
+        include_allele_report=False,
+        include_custom_annotation=False,
+        include_reference_assessments=False,
+    )
+
+    cnv_alleles = [a for a in allele_objs if a["caller_type"] == "CNV"]
+    bed_lines = ""
+    for a in cnv_alleles:
+        chr = a["chromosome"]
+        pos = a["start_position"]
+        length = a["length"]
+        bed_lines += f"{chr}\t{pos}\t{pos + length}\n"
+    return bed_lines
+
+
+def get_allele_vcf(session, analysis_id, allele_ids):
+    allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     VCF_HEADER_TEMPLATE = (
         "\n".join(
-            ["##fileformat=VCFv4.1", "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}"]
+            [
+                "##fileformat=VCFv4.1",
+                '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
+                '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
+                '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
+                "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
+            ]
         )
         + "\n"
     )
+
     VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
@@ -251,6 +296,10 @@ def get_allele_vcf(session, analysis_id, allele_ids):
 
         # Annotation
         info = []
+        if a["caller_type"] == "CNV":
+            change_type = a["change_type"]
+            length = a["length"]
+            info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
         genotype_data_keys = sorted(genotype_data.keys())
         data += VCF_LINE_TEMPLATE.format(
             chr=chr,
@@ -338,6 +387,17 @@ class ClassificationResource(LogRequestResource):
         data.write(get_classification_bed(session).encode())
         data.seek(0)
         return send_file(data, attachment_filename="classifications.bed")
+
+
+class RegionsOfInterestTrack(LogRequestResource):
+    @authenticate()
+    @logger(exclude=True)
+    def get(self, session, analysis_id, user=None):
+        allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
+        data = BytesIO()
+        data.write(get_regions_of_interest(session, analysis_id, allele_ids).encode())
+        data.seek(0)
+        return send_file(data, attachment_filename="analysis-regions-of-interest.bed")
 
 
 class AnalysisVariantTrack(LogRequestResource):
@@ -515,6 +575,16 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "visibilityWindow": 9999999999999,  # float("inf") ?
         "presets": [],
     }
+    REGIONS_OF_INTEREST_DEFAULT_CONFIG = {
+        "id": "region_of_interest",
+        "show": True,
+        "name": "CNV variants, region of interest",
+        "url": f"/api/v1/igv/regions_of_interest/{analysis_id}/?allele_ids={','.join(allele_ids)}",
+        "format": "bed",
+        "indexed": False,
+        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "color": "rgba(0, 150, 50, 0.12)",
+    }
 
     if global_tracks_path and os.path.isfile(os.path.join(global_tracks_path, "genepanel.json")):
         with open(os.path.join(global_tracks_path, "genepanel.json")) as f:
@@ -545,6 +615,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "global": [genepanel_config, classifications_config],
         "user": [],
         "analysis": [analysis_variants_config],
+        "regions_of_interest": [REGIONS_OF_INTEREST_DEFAULT_CONFIG],
     }
 
 
@@ -595,6 +666,7 @@ class AnalysisTrackList(LogRequestResource):
             "global": filebased_tracks["global"] + dynamic_tracks["global"],
             "user": filebased_tracks["user"] + dynamic_tracks["user"],
             "analysis": filebased_tracks["analysis"] + dynamic_tracks["analysis"],
+            "roi": dynamic_tracks["regions_of_interest"],
         }
 
 

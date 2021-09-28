@@ -106,6 +106,15 @@ app.component('allelebar', {
                     isTruncateGenotypeDisplay(str) {
                         return str.length > GENOTYPE_DISPLAY_MAX_CHAR
                     },
+                    getHGVSTitle(allele) {
+                        if (allele && allele.caller_type == 'SNV') {
+                            return 'HGVSc:'
+                        } else if (allele && allele.caller_type == 'CNV') {
+                            return 'HGVSg:'
+                        } else {
+                            return ''
+                        }
+                    },
                     truncatedGenotypeDisplay(str) {
                         return str.substring(0, GENOTYPE_DISPLAY_MAX_CHAR)
                     },

@@ -82,10 +82,11 @@ const onTrackclick = (track, popupData) => {
     scope: {
         locus: '=',
         tracks: '=',
+        roi: '=',
         reference: '='
     },
     template: '<div class="igv-container"></div>',
-    link: (scope, elem, attrs) => {
+    link: (scope, elem, attr, ctrl) => {
         var defaults = {
             showNavigation: true,
             showRuler: true,
@@ -99,6 +100,7 @@ const onTrackclick = (track, popupData) => {
 
         let options = {
             tracks: [],
+            roi: [],
             reference: scope.reference,
             locus: getIgvLocus(scope.locus),
             showKaryo: true,
@@ -120,7 +122,7 @@ const onTrackclick = (track, popupData) => {
 
             // Load initial tracks
             browser.loadTrackList(scope.tracks)
-
+            browser.loadROI(scope.roi)
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
             elem.on('$destroy', () => {
