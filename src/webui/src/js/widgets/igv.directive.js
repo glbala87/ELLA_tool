@@ -52,15 +52,6 @@ const getIgvLocus = (locus) => {
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
-            // Set exported variable, so it can be accessed elsewhere
-            IGVBrowser = browser
-
-            // custom popover
-            browser.on('trackclick', onTrackclick)
-
-            // Load initial tracks
-            browser.loadTrackList(scope.tracks)
-
             browser.loadROI(scope.roi)
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
