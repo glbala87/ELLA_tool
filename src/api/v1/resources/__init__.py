@@ -16,6 +16,7 @@ from . import search
 from . import user
 from . import ui
 from . import genepanel
-from . import igv
+from . import igvcfg
+from . import igvtracks
 from . import workflow
 from . import filterconfig

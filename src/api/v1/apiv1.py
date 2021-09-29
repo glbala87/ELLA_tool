@@ -388,30 +388,24 @@ class ApiV1(object):
         # IGV
         # ---------------------------------------------------------------------------------------------------------
 
-        self._add_resource(r.igv.IgvResource, "/api/v1/igv/<filename>")
+        self._add_resource(r.igvcfg.AnalysisTrackList, "/api/v1/igv/tracks/<int:analysis_id>/")
 
-        self._add_resource(r.igv.IgvSearchResource, "/api/v1/igv/search/")
+        self._add_resource(r.igvtracks.IgvResource, "/api/v1/igv/<filename>")
+
+        self._add_resource(r.igvtracks.IgvSearchResource, "/api/v1/igv/search/")
 
         self._add_resource(
-            r.igv.GenepanelBedResource, "/api/v1/igv/genepanel/<gp_name>/<gp_version>/"
+            r.igvtracks.GenepanelBedResource, "/api/v1/igv/genepanel/<gp_name>/<gp_version>/"
         )
 
-        self._add_resource(r.igv.ClassificationResource, "/api/v1/igv/classifications/")
+        self._add_resource(r.igvtracks.ClassificationResource, "/api/v1/igv/classifications/")
 
         self._add_resource(
-            r.igv.RegionsOfInterestTrack, "/api/v1/igv/regions_of_interest/<int:analysis_id>/"
+            r.igvtracks.AnalysisVariantTrack, "/api/v1/igv/variants/<int:analysis_id>/"
         )
 
-        self._add_resource(r.igv.AnalysisVariantTrack, "/api/v1/igv/variants/<int:analysis_id>/")
-
-        self._add_resource(r.igv.AnalysisTrackList, "/api/v1/igv/tracks/<int:analysis_id>/")
-
-        self._add_resource(r.igv.GlobalTrack, "/api/v1/igv/tracks/global/<filename>")
+        self._add_resource(r.igvtracks.StaticTrack, "/api/v1/igv/static/<filepath>")
 
         self._add_resource(
-            r.igv.UserGroupTrack, "/api/v1/igv/tracks/usergroups/<int:usergroup_id>/<filename>"
-        )
-
-        self._add_resource(
-            r.igv.AnalysisTrack, "/api/v1/igv/tracks/analyses/<int:analysis_id>/<filename>"
+            r.igvtracks.AnalysisTrack, "/api/v1/igv/tracks/analyses/<int:analysis_id>/<filename>"
         )

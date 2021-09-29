@@ -1,0 +1,103 @@
+{
+    "{SOURCE_DYNAMIC}/variants": {
+        "name": "Variants",
+        "presets": [],
+        "groups": ["*"],
+        "url": "/api/v1/igv/variants/{{ANALYSIS_ID}}/?allele_ids={{ALLELE_IDS}}",
+        "show": true,
+        "igv": {
+            "name": "Variants",
+            "format": "vcf",
+            "indexed": false,
+            "order": 12,
+            "visibilityWindow": 9999999999999
+        }
+    },
+    "{SOURCE_DYNAMIC}/classifications": {
+        "name": "Classifications",
+        "presets": [],
+        "groups": ["*"],
+        "url": "/api/v1/igv/classifications/",
+        "show": true,
+        "igv": {
+            "format": "gff3",
+            "indexed": false,
+            "order": 11,
+            "visibilityWindow": 9999999999999,
+            "colorBy": "name",
+            "colorTable": {
+                "Class 1": "#76B100",
+                "Class 2": "#6BA100",
+                "Class 3": "#FFAA3C",
+                "Class 4": "#FE5B5B",
+                "Class 5": "#D00000",
+                "*": "#888888"
+            }
+        }
+    },
+    "{SOURCE_DYNAMIC}/genepanel": {
+        "name": "Genepanel",
+        "presets": ["Test 1", "Test 2", "Test 3"],
+        "groups": ["*"],
+        "url": "/api/v1/igv/genepanel/{{GENEPANEL_NAME}}/{{GENEPANEL_VERSION}}/",
+        "show": true,
+        "igv": {
+            "type": "annotation",
+            "format": "bed",
+            "indexed": false,
+            "displayMode": "EXPANDED",
+            "order": 10,
+            "height": 60
+        }
+    },
+    "{SOURCE_ANALYSIS}/*.bam": {
+        "groups": ["*"],
+        "url": "/api/v1/igv/tracks/analyses/{{ANALYSIS_ID}}/{{TRACK_FILEPATH}}"
+    },
+    "{SOURCE_STATIC}/*": {
+        "url": "/api/v1/igv/static/{{TRACK_FILEPATH}}"
+    },
+    "{SOURCE_STATIC}/*.bed.gz": {
+        "igv": { "format": "bed", "displayMode": "EXPANDED", "order": 100 }
+    },
+    "{SOURCE_STATIC}/*.vcf.gz": {
+        "igv": { "format": "vcf", "visibilityWindow": 1e9, "order": 200 }
+    },
+    "{SOURCE_STATIC}/*.bigWig": {
+        "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
+    },
+    "{SOURCE_STATIC}/*.bw": {
+        "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
+    },
+    "{SOURCE_STATIC}/*.gff3.gz": {
+        "igv": { "format": "gff3", "displayMode": "EXPANDED", "order": 200 }
+    },
+    "{SOURCE_STATIC}/*.bam": {
+        "igv": {
+            "format": "bam",
+            "colorBy": "strand",
+            "negStrandColor": "rgb(150,150,230)",
+            "posStrandColor": "rgb(230,150,150)",
+            "alignmentRowHeight": 12,
+            "visibilityWindow": 20000,
+            "order": 300
+        }
+    },
+    "{SOURCE_STATIC}/*.cram": {
+        "igv": {
+            "format": "cram",
+            "colorBy": "strand",
+            "negStrandColor": "rgb(150,150,230)",
+            "posStrandColor": "rgb(230,150,150)",
+            "alignmentRowHeight": 12,
+            "visibilityWindow": 20000,
+            "order": 300
+        }
+    },
+    "{SOURCE_STATIC}/refGene*.bed.gz": {
+        "name": "Refgene",
+        "presets": ["Test 2"],
+        "groups": ["testgroup02"],
+        "show": true
+    }
+}
