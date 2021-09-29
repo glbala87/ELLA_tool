@@ -164,10 +164,16 @@ app.component('alleleSidebarList', {
                         return allele.chromosome.toUpperCase()
                     },
                     getStartPos(allele) {
-                        return allele.start_position
+                        return allele.start_position + 1
                     },
                     getEndPos(allele) {
-                        return allele.open_end_position
+                        if (allele.caller_type == 'SNV' && allele.change_type == 'ins') {
+                            return allele.open_end_position + 1
+                        } else if (allele.caller_type == 'SNV') {
+                            return allele.open_end_position
+                        } else {
+                            return allele.start_position + 1 + allele.length - 1
+                        }
                     },
                     getVariantCoordinates(allele) {
                         return `${this.getChromosome(allele)}:${this.getStartPos(
