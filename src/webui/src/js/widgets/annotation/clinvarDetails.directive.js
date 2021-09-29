@@ -30,6 +30,10 @@ app.component('clinvarDetails', {
         {
             data: state`${props`allelePath`}.annotation.${props`source`}`,
             titleUrl: getInterpolatedUrlFromTemplate(props`url`, state`${props`allelePath`}`),
+            titleUrlEmpty: getInterpolatedUrlFromTemplate(
+                props`urlEmpty`,
+                state`${props`allelePath`}`
+            ),
             viewConfig: getAnnotationConfigItem
         },
         'ClinvarDetails',

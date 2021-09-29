@@ -70,6 +70,7 @@ app.component('itemList', {
     controller: connect({
         data: extractedData,
         titleUrl: getInterpolatedUrlFromTemplate(props`url`, state`${props`allelePath`}`),
+        titleUrlEmpty: getInterpolatedUrlFromTemplate(props`urlEmpty`, state`${props`allelePath`}`),
         viewConfig: getAnnotationConfigItem
     })
 })
