@@ -1,51 +1,27 @@
 import os
 import mimetypes
-import json
 import logging
 from io import BytesIO
 
 from flask import request, Response, send_file
 from sqlalchemy import tuple_, func
 
-from api import ApiError
+
 from api.config import config
 
-from vardb.datamodel import sample, gene, allele, assessment, user as user_model
+from vardb.datamodel import sample, gene, allele, assessment
 
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate, logger
 from datalayer import AlleleDataLoader
 
-log = logging.getLogger()
+from api import ApiError
+from . import igvcfg
 
-IGV_DEFAULT_TRACK_CONFIGS = {
-    "vcf": {"format": "vcf", "visibilityWindow": 1e9, "order": 200},  # Whole chromosome
-    "bam": {
-        "format": "bam",
-        "colorBy": "strand",
-        "negStrandColor": "rgb(150,150,230)",
-        "posStrandColor": "rgb(230,150,150)",
-        "alignmentRowHeight": 12,
-        "visibilityWindow": 20000,
-        "order": 300,
-    },
-    "cram": {
-        "format": "cram",
-        "colorBy": "strand",
-        "negStrandColor": "rgb(150,150,230)",
-        "posStrandColor": "rgb(230,150,150)",
-        "alignmentRowHeight": 12,
-        "visibilityWindow": 20000,
-        "order": 300,
-    },
-    "bed": {"format": "bed", "displayMode": "EXPANDED", "order": 100},
-    "bigWig": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
-    "bw": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
-}
+log = logging.getLogger()
 
 
 def get_range(request):
-
     range_header = request.headers.get("Range", None)
 
     if range_header is None:
@@ -346,212 +322,6 @@ class AnalysisVariantTrack(LogRequestResource):
         return send_file(data, attachment_filename="analysis-variants.vcf")
 
 
-def _search_path_for_tracks(tracks_path, url_func):
-
-    index_extensions = [".fai", ".idx", ".index", ".bai", ".tbi", ".crai"]
-
-    track_files = [
-        f
-        for f in os.listdir(tracks_path)
-        if not any(f.endswith(ext) for ext in index_extensions + [".json"])
-    ]
-    tracks = []
-    for t in track_files:
-        try:
-            config_file_path = os.path.join(tracks_path, t + ".json")
-            config = dict()
-            if os.path.isfile(config_file_path):
-                try:
-                    config = json.load(open(os.path.join(tracks_path, config_file_path)))
-                except ValueError:
-                    pass
-
-            filetype = (
-                os.path.splitext(t)[1][1:]
-                if os.path.splitext(t)[1] != ".gz"
-                else os.path.splitext(os.path.splitext(t)[0])[1][1:]
-            )
-            track_config = json.loads(json.dumps(IGV_DEFAULT_TRACK_CONFIGS[filetype]))
-            track_config.update(config)
-            track_config["id"] = t
-            track_config["url"] = url_func(t)
-            if "name" not in track_config:
-                track_config["name"] = t
-
-            def possible_index_files(f):
-                for ext in index_extensions:
-                    yield f + ext
-                    if os.path.splitext(f)[1] in [".gz", ".bam"]:
-                        yield os.path.splitext(f)[0] + ext
-
-            index_file = next(
-                (
-                    f
-                    for f in possible_index_files(t)
-                    if os.path.isfile(os.path.join(tracks_path, f))
-                ),
-                None,
-            )
-            if index_file:
-                track_config["indexed"] = True
-                track_config["indexURL"] = url_func(index_file)
-            else:
-                track_config["indexed"] = False
-
-            tracks.append(track_config)
-        except Exception:
-            log.exception("Something went wrong when loading track file {}".format(t))
-
-    return tracks
-
-
-def _get_global_tracks_path():
-    igv_data_path = os.environ.get("IGV_DATA")
-    if not igv_data_path:
-        return None
-    global_tracks_path = os.path.join(igv_data_path, "tracks")
-    if os.path.isdir(global_tracks_path):
-        return global_tracks_path
-    return None
-
-
-def _get_usergroup_tracks_path(groupname):
-    igv_data_path = os.environ.get("IGV_DATA")
-    if not igv_data_path:
-        return None
-    user_tracks_path = os.path.join(igv_data_path, "usergroups", groupname, "tracks")
-    if os.path.isdir(user_tracks_path):
-        return user_tracks_path
-    return None
-
-
-def _get_analysis_tracks_path(analysis_name):
-    analyses_path = os.environ.get("ANALYSES_PATH")
-    if not analyses_path:
-        return None
-    analysis_tracks_path = os.path.join(analyses_path, analysis_name, "tracks")
-    if os.path.isdir(analysis_tracks_path):
-        return analysis_tracks_path
-    return None
-
-
-def get_global_tracks():
-    global_tracks_path = _get_global_tracks_path()
-    if not global_tracks_path:
-        return []
-
-    def url_func(name):
-        return "/api/v1/igv/tracks/global/{}".format(name)
-
-    return _search_path_for_tracks(global_tracks_path, url_func)
-
-
-def get_user_tracks(user):
-    user_tracks_path = _get_usergroup_tracks_path(user.group.name)
-    if not user_tracks_path:
-        return []
-
-    def url_func(name):
-        return "/api/v1/igv/tracks/usergroups/{}/{}".format(user.group.id, name)
-
-    return _search_path_for_tracks(user_tracks_path, url_func)
-
-
-def get_analysis_tracks(analysis_id, analysis_name):
-    analysis_tracks_path = _get_analysis_tracks_path(analysis_name)
-    if not analysis_tracks_path:
-        return []
-
-    def url_func(name):
-        return "/api/v1/igv/tracks/analyses/{}/{}".format(analysis_id, name)
-
-    return _search_path_for_tracks(analysis_tracks_path, url_func)
-
-
-def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_ids):
-    global_tracks_path = _get_global_tracks_path()
-    # global_tracks_path / genepanel.json
-    # global_tracks_path / classifications.json
-    # global_tracks_path / analysis_variants.json
-
-    GENEPANEL_DEFAULT_CONFIG = {
-        "id": "genepanel",
-        "show": True,
-        "name": "Genepanel",
-        "type": "annotation",
-        "url": f"/api/v1/igv/genepanel/{genepanel_name}/{genepanel_version}/",
-        "format": "bed",
-        "indexed": False,
-        "displayMode": "EXPANDED",
-        "order": 10,
-        "height": 60,
-        "presets": [],
-    }
-
-    CLASSIFICATIONS_DEFAULT_CONFIG = {
-        "id": "classifications",
-        "show": True,
-        "name": "Classifications",
-        "url": "/api/v1/igv/classifications/",
-        "format": "gff3",
-        "indexed": False,
-        "order": 11,
-        "visibilityWindow": 9999999999999,  # float("inf") ?
-        "presets": [],
-        "colorBy": "name",
-        "colorTable": {
-            "Class 1": "#76B100",
-            "Class 2": "#6BA100",
-            "Class 3": "#FFAA3C",
-            "Class 4": "#FE5B5B",
-            "Class 5": "#D00000",
-            "*": "#888888",
-        },
-    }
-    ANALYSIS_VARIANTS_DEFAULT_CONFIG = {
-        "id": "variants",
-        "show": True,
-        "name": "Variants",
-        "url": f"/api/v1/igv/variants/{analysis_id}/?allele_ids={','.join(allele_ids)}",
-        "format": "vcf",
-        "indexed": False,
-        "order": 12,
-        "visibilityWindow": 9999999999999,  # float("inf") ?
-        "presets": [],
-    }
-
-    if global_tracks_path and os.path.isfile(os.path.join(global_tracks_path, "genepanel.json")):
-        with open(os.path.join(global_tracks_path, "genepanel.json")) as f:
-            # a = {"a": 1, "b": 2}
-            # b = {"b": 3, "c": 3}
-            # {**a, **b} -> {"a": 1, "b": 2, "b": 3, "c": 3} -> {"a": 1, "b": 3, "c": 3}
-            genepanel_config = {**GENEPANEL_DEFAULT_CONFIG, **json.load(f)}
-    else:
-        genepanel_config = GENEPANEL_DEFAULT_CONFIG
-
-    if global_tracks_path and os.path.isfile(
-        os.path.join(global_tracks_path, "classifications.json")
-    ):
-        with open(os.path.join(global_tracks_path, "classifications.json")) as f:
-            classifications_config = {**CLASSIFICATIONS_DEFAULT_CONFIG, **json.load(f)}
-    else:
-        classifications_config = CLASSIFICATIONS_DEFAULT_CONFIG
-
-    if global_tracks_path and os.path.isfile(
-        os.path.join(global_tracks_path, "analysis_variants.json")
-    ):
-        with open(os.path.join(global_tracks_path, "analysis_variants.json")) as f:
-            analysis_variants_config = {**ANALYSIS_VARIANTS_DEFAULT_CONFIG, **json.load(f)}
-    else:
-        analysis_variants_config = ANALYSIS_VARIANTS_DEFAULT_CONFIG
-
-    return {
-        "global": [genepanel_config, classifications_config],
-        "user": [],
-        "analysis": [analysis_variants_config],
-    }
-
-
 class IgvResource(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
@@ -571,82 +341,51 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
-class AnalysisTrackList(LogRequestResource):
-    @authenticate()
-    def get(self, session, analysis_id, user=None):
-        analysis_name, genepanel_name, genepanel_version = (
-            session.query(
-                sample.Analysis.name,
-                sample.Analysis.genepanel_name,
-                sample.Analysis.genepanel_version,
-            )
-            .filter(sample.Analysis.id == analysis_id)
-            .one()
-        )
-
-        allele_ids = [aid for aid in request.args.get("allele_ids", "").split(",")]
-
-        filebased_tracks = {
-            "global": get_global_tracks(),
-            "user": get_user_tracks(user),
-            "analysis": get_analysis_tracks(analysis_id, analysis_name),
-        }
-        dynamic_tracks = get_dynamic_tracks(
-            analysis_id, genepanel_name, genepanel_version, allele_ids
-        )
-
-        return {
-            "global": filebased_tracks["global"] + dynamic_tracks["global"],
-            "user": filebased_tracks["user"] + dynamic_tracks["user"],
-            "analysis": filebased_tracks["analysis"] + dynamic_tracks["analysis"],
-        }
-
-
-class GlobalTrack(LogRequestResource):
+class StaticTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
-    def get(self, session, filename, user=None):
+    def get(self, session, filepath, user=None):
+        auth_err = ApiError(
+            "not authorized"
+        )  # we don't want unathorized users to know if a file exists
+        # get track path
+        tracks_dir = igvcfg.get_igv_tracks_dir()
+        # TODO: avoid directory traversal attack
+        track_path = os.path.join(tracks_dir, filepath)
 
-        global_tracks_path = _get_global_tracks_path()
-        if not global_tracks_path:
-            raise ApiError("There are no global tracks.")
+        # check if file exists
+        if not os.path.exists(track_path):
+            raise auth_err
 
-        path = os.path.join(global_tracks_path, filename)
+        track_src_ids = igvcfg.TrackSrcId.from_rel_paths(igvcfg.TrackSourceType.STATIC, [filepath])
+        # load config - for current track
+        track_cfg = igvcfg.load_raw_config(track_src_ids, user)
+        # we passed one id - we should get one track
+        if not len(track_cfg.values()) == 1:
+            raise auth_err
+        # get track
+        track_cfg = next(iter(track_cfg))
+
         start, end = get_range(request)
-
         if start is None:
-            return send_file(path)
+            return send_file(track_path)
         else:
-            return get_partial_response(path, start, end)
-
-
-class UserGroupTrack(LogRequestResource):
-    @authenticate()
-    @logger(exclude=True)
-    def get(self, session, usergroup_id, filename, user=None):
-        usergroup_name = (
-            session.query(user_model.UserGroup.name)
-            .filter(user_model.UserGroup.id == usergroup_id)
-            .scalar()
-        )
-
-        user_tracks_path = _get_usergroup_tracks_path(usergroup_name)
-        if not user_tracks_path:
-            raise ApiError("Requested usergroup id doesn't contain any tracks.")
-
-        path = os.path.join(user_tracks_path, filename)
-        start, end = get_range(request)
-
-        if start is None:
-            return send_file(path)
-        else:
-            return get_partial_response(path, start, end)
+            return get_partial_response(track_path, start, end)
 
 
 class AnalysisTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, analysis_id, filename, user=None):
+        def _get_analysis_tracks_path(analysis_name):
+            analyses_path = os.environ.get("ANALYSES_PATH")
+            if not analyses_path:
+                return None
+            analysis_tracks_path = os.path.join(analyses_path, analysis_name, "tracks")
+            if os.path.isdir(analysis_tracks_path):
+                return analysis_tracks_path
+            return None
+
         analysis_name = (
             session.query(sample.Analysis.name).filter(sample.Analysis.id == analysis_id).scalar()
         )
