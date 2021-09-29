@@ -61,9 +61,7 @@ const getIgvLocus = (locus) => {
                     return scope.locus
                 },
                 () => {
-                    if (scope.locus) {
-                        browser.search(getIgvLocus(scope.locus))
-                    }
+                    browser.search(getIgvLocus(scope.locus))
                 }
             )
 
