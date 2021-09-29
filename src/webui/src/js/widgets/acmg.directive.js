@@ -30,6 +30,7 @@ const STRENGTHS_CLINGEN = {
         commentModel: '=?',
         editable: '=?', // Defaults to false
         directreqs: '=?', // Defaults to false
+        collapsed: '=?',
         isUpgradable: '=?',
         isDowngradable: '=?',
         onToggle: '&?',
