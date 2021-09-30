@@ -9,6 +9,7 @@ import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
+import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 function formatHGVS(allele, classification, config) {
@@ -79,7 +80,8 @@ app.component('reportCard', {
             readOnly: isReadOnly,
             reportAlleles: getReportAlleleData,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
-            reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`
+            reportCommentChanged: signal`views.workflows.interpretation.reportCommentChanged`,
+            editorReferences: getEditorReferences('report')
         },
         'ReportCard',
         [
