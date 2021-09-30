@@ -21,7 +21,7 @@ Release date: TBD
 
 This version ... [TODO; summary of UI/UX improvements]
 
-#### Quick add signature
+#### New quick add actions
 <!-- MR !565 -->
 It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`) to any comment field, using either the keyboard shortcut `Alt + S` or a button on the formatting toolbar: 
 
@@ -29,6 +29,15 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
     <img src="./img/1-15-quick-add-signature.png"><br>
     <p><strong>Figure: </strong>Quick add signature to any comment field.</p>
 </div> 
+
+In addition, the option to add a reference was added to the Report and Indications comment fields on the REPORT page, as well as in the Indications comment in the sidebar: 
+
+<div class="figure_text">
+    <img src="./img/1-15-insert-reference.png"><br>
+    <p><strong>Figure: </strong>Quick add references to Indications or Report comments.</p>
+</div> 
+
+Note that for these particular comment fields, only references from variants that have been included in the REPORT are listed. 
 
 #### Improved track selection in VISUAL
 <!-- MR !553, !555 -->
@@ -51,12 +60,14 @@ See [Visual](/manual/visual.md) for further details.
 - Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !557-->
 - User dashboard now only shows official (not custom) gene panels.
+<!-- MR !558 -->
+- [References from included variants can now be inserted in Indication and Report comments](#new-quick-add-actions).
 <!-- MR !562 -->
 - Collapsing sections on the CLASSIFICATION page now also truncates comments, improving overview when comments are lengthy.
 <!-- MR !564 -->
 - Layout in Studies & references section is improved, removing some headers and adding an `UNPUBLISHED` tag when relevant.
 <!-- MR !565 -->
-- [Added button and keyboard shortcut for quick insertion of signature and date in comment fields](#quick-add-signature).
+- [Added button and keyboard shortcut for quick insertion of signature and date in comment fields](#new-quick-add-actions).
 <!-- MR !566 -->
 - Gene INFO tag in top bar is now removed if gene comment is emptied.
 <!-- MR !568 -->
