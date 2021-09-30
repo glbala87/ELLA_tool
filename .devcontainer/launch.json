@@ -2,9 +2,9 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name":"Python: Pytest Current File",
-            "type":"python",
-            "request":"test",
+            "name": "Python: Pytest Current File",
+            "type": "python",
+            "request": "test",
             "cwd": "${workspaceFolder}"
         }
     ]

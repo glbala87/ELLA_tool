@@ -3,24 +3,18 @@
         {
             "type": "shell",
             "label": "reset db",
-            "command": [
-                "make dbreset TESTSET=e2e"
-            ],
+            "command": ["make dbreset TESTSET=e2e"],
             "problemMatcher": []
         },
         {
             "type": "shell",
             "label": "Supervisor: web restart",
-            "command": [
-                "supervisorctl -c /ella/ops/dev/supervisor.cfg restart web"
-            ]
+            "command": ["supervisorctl -c /ella/ops/dev/supervisor.cfg restart web"]
         },
         {
             "type": "shell",
             "label": "Setup test environment",
-            "command": [
-                "source /ella/ops/dev/setup-local-integration-test.source"
-            ]
+            "command": ["source /ella/ops/dev/setup-local-integration-test.source"]
         }
     ]
 }
