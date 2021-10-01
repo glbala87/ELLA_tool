@@ -15,5 +15,4 @@ Remember:
 
 --- DELETE ME ---
 
-/label ~"type::chore"
-/label ~"work::draft"
+/label ~"type::improvement" ~"work::draft"

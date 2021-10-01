@@ -15,5 +15,4 @@ Remember:
 
 --- DELETE ME ---
 
-/label ~"type::bug"
-/label ~"work::draft"
+/label ~"type::bug" ~"work::draft"

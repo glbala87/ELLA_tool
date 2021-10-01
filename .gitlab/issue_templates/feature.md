@@ -15,5 +15,4 @@ Remember:
 
 --- DELETE ME ---
 
-/label ~"type::feature"
-/label ~"work::draft"
+/label ~"type::feature" ~"work::draft"
