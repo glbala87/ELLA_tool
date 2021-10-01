@@ -58,18 +58,19 @@ import { Directive, Inject } from '../../ng-decorators'
                         if (!title && 'source' in box) {
                             title = box.source.split(/\./).pop()
                         }
-
+                        const url = box.url ? ` url="${box.url}"` : ''
+                        const url_empty = box.url_empty ? ` url-empty="${box.url_empty}"` : ''
                         html += `
                         <${box.tag}
                             class="${classes.join(' ')}"
                             allele-path="vm.allelePath"
                             source="${box.source}"
                             box-title="${title}"
-                            url="${box.url}"
-                            url_empty="${box.url_empty}"
                             annotation-config-id="${box.annotationConfigId}"
                             annotation-config-item-idx="${box.annotationConfigItemIdx}"
                             ${attrs}
+                            ${url}
+                            ${url_empty}
                         ></${box.tag}>`
                     }
                     if (html) {
