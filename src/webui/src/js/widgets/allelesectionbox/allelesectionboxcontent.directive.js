@@ -41,36 +41,30 @@ app.component('alleleSectionboxContent', {
                 const $ctrl = scope.$ctrl
                 // Dynamically create the html for the content-boxes
                 // Watch required to handle different boxes, determined in part by annotation config
-                scope.$watch(
-                    () => $ctrl.boxes,
-                    () => {
-                        let html = ''
-                        elem.empty()
-                        if ($ctrl.boxes) {
-                            for (let box of $ctrl.boxes) {
-                                let classes = ['cb-wrapper']
-                                let attrs = ''
+                let html = ''
+                if ($ctrl.boxes) {
+                    for (let box of $ctrl.boxes) {
+                        let classes = ['cb-wrapper']
+                        let attrs = ''
 
-                                if ('class' in box) {
-                                    classes = classes.concat(box.class)
-                                }
-                                if ('attr' in box) {
-                                    for (let [k, v] of Object.entries(box.attr)) {
-                                        attrs += ` ${k}="${v}"`
-                                    }
-                                }
+                        if ('class' in box) {
+                            classes = classes.concat(box.class)
+                        }
+                        if ('attr' in box) {
+                            for (let [k, v] of Object.entries(box.attr)) {
+                                attrs += ` ${k}="${v}"`
+                            }
+                        }
 
-                                // If title not specified in config, use the source (if available)
-                                // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
-                                let title = box.title
-                                if (!title && 'source' in box) {
-                                    title = box.source.split(/\./).pop()
-                                }
-                                const url = box.url ? ` url="${box.url}"` : ''
-                                const url_empty = box.url_empty
-                                    ? ` url-empty="${box.url_empty}"`
-                                    : ''
-                                html += `
+                        // If title not specified in config, use the source (if available)
+                        // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
+                        let title = box.title
+                        if (!title && 'source' in box) {
+                            title = box.source.split(/\./).pop()
+                        }
+                        const url = box.url ? ` url="${box.url}"` : ''
+                        const url_empty = box.url_empty ? ` url-empty="${box.url_empty}"` : ''
+                        html += `
                         <${box.tag}
                             class="${classes.join(' ')}"
                             allele-path="$ctrl.allelePath"
@@ -82,14 +76,12 @@ app.component('alleleSectionboxContent', {
                             ${url}
                             ${url_empty}
                         ></${box.tag}>`
-                            }
-                            if (html) {
-                                let compiled = $compile(html)(scope)
-                                elem.append(compiled)
-                            }
-                        }
                     }
-                )
+                    if (html) {
+                        let compiled = $compile(html)(scope)
+                        elem.append(compiled)
+                    }
+                }
             }
         ]
     )
