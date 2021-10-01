@@ -185,23 +185,23 @@ def get_classification_gff3(session):
 
 
 def get_allele_vcf(session, analysis_id, allele_ids):
-    if not allele_ids:
-        return None
+    allele_objs = []
 
-    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+    if len(allele_ids):
+        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
 
-    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
 
-    adl = AlleleDataLoader(session)
-    allele_objs = adl.from_objs(
-        alleles,
-        analysis_id=analysis.id,
-        genepanel=analysis.genepanel,
-        include_allele_assessment=False,
-        include_allele_report=False,
-        include_custom_annotation=False,
-        include_reference_assessments=False,
-    )
+        adl = AlleleDataLoader(session)
+        allele_objs = adl.from_objs(
+            alleles,
+            analysis_id=analysis.id,
+            genepanel=analysis.genepanel,
+            include_allele_assessment=False,
+            include_allele_report=False,
+            include_custom_annotation=False,
+            include_reference_assessments=False,
+        )
 
     VCF_HEADER_TEMPLATE = (
         "\n".join(
@@ -337,7 +337,9 @@ class AnalysisVariantTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
-        allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
+        allele_ids = [
+            int(aid) for aid in request.args.get("allele_ids", "").split(",") if aid != ""
+        ]
         data = BytesIO()
         data.write(get_allele_vcf(session, analysis_id, allele_ids).encode())
         data.seek(0)
