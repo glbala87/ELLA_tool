@@ -1,6 +1,6 @@
 ## Background
 
-[Describe bug and steps to reproduce]
+[Describe context/problem and justification for improvement]
 
 ## Implementation
 
@@ -15,5 +15,5 @@ Remember:
 
 --- DELETE ME ---
 
-/label ~"type::bug"
+/label ~"type::improvement"
 /label ~"work::draft"
