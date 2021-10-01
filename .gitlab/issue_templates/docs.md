@@ -10,5 +10,4 @@ Remember:
 
 --- DELETE ME ---
 
-/label ~"type::docs"
-/label ~"work::draft"
+/label ~"type::docs" ~"work::draft"

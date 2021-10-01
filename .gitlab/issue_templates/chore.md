@@ -1,6 +1,6 @@
 ## Background
 
-[Describe context/problem and justification for improvement]
+[Describe context/problem and justification for task]
 
 ## Implementation
 
@@ -12,8 +12,8 @@ Remember:
 
 - Add appropriate **Topic labels**
 - Assign **Weight**, if possible
+- Evaluate if issue should be `confidential` 
 
 --- DELETE ME ---
 
-/label ~"type::improvement"
-/label ~"work::draft"
+/label ~"type::chore" ~"work::draft"
