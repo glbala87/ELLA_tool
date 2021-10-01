@@ -17,22 +17,22 @@ This mode features an [integrated version](https://github.com/igvteam/igv.js) (v
 
 ## Preset selection
 
-This section lists all presets defined for individual tracks and allows you to quickly switch on/off all tracks that are associated with the preset.
+This section lists all presets defined for individual tracks and allows you to quickly switch on/off all tracks that are associated with the preset. The `DEFAULT` preset and associated tracks are turned on by default, while others must be turned on manually. See the [technical documentation](https://allel.es/docs/technical/uioptions.html#igv-in-visual) for details on configuration.
+
 
 ## Track selection
 
 This section is collapsed by default. To switch on/off individual tracks, expand the section and click the associated track name. Tracks are grouped by their associated preset names. 
 
-## Default tracks 
+## Dynamic tracks 
 
-Some tracks are available by default. These currently include: 
+Some tracks are dynamic and generated on-the-fly in ELLA. These currently include: 
 
 - `VARIANTS`: All variants in the same sample (analysis) _after_ filtering.
-- `REFGENE`: Transcripts from RefGene.
 - `CLASSIFICATIONS`: All existing (finalized) classifications present in the database. Clicking on a variant in this track gives a link to the associated allele assessment.
 - `GENEPANEL`: Regions covered by the current gene panel.
 
-Note: ELLA may be configured to include other tracks in the default preset.
+Note: these tracks will usually be part of the `DEFAULT` preset (depending on configuration).
 
 ## Navigating the view
 
