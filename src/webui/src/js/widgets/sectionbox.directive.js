@@ -35,7 +35,6 @@ app.component('sectionbox', {
             '$scope',
             ($scope) => {
                 const $ctrl = $scope.$ctrl
-                console.log($ctrl.controls)
                 Object.assign($ctrl, {
                     getClasses() {
                         let color = this.color ? this.color : 'blue'

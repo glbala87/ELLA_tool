@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
-import { Directive, Inject } from '../../ng-decorators'
-
+import { connect } from '@cerebral/angularjs'
+import app from '../../ng-decorators'
 /**
  * Directive for dynamically creating boxes of content-boxes
  * in an <allele-card>. The template is dynamically created
@@ -23,47 +23,57 @@ import { Directive, Inject } from '../../ng-decorators'
  *     ]
  *
  */
-@Directive({
-    selector: 'allele-sectionbox-content',
+
+app.component('alleleSectionboxContent', {
     template: '',
-    scope: {
+    bindings: {
         allelePath: '<',
         boxes: '=' // Array of objects.
     },
-    link: (scope, elem) => {
-        // Dynamically create the html for the content-boxes
-        // Watch required to handle different boxes, determined in part by annotation config
-        scope.$watch(
-            () => scope.boxes,
-            () => {
-                let html = ''
-                elem.empty()
-                if (scope.boxes) {
-                    for (let box of scope.boxes) {
-                        let classes = ['cb-wrapper']
-                        let attrs = ''
+    controller: connect(
+        {},
+        'alleleSectionboxContent',
+        [
+            '$scope',
+            '$element',
+            '$compile',
+            (scope, elem, $compile) => {
+                const $ctrl = scope.$ctrl
+                // Dynamically create the html for the content-boxes
+                // Watch required to handle different boxes, determined in part by annotation config
+                scope.$watch(
+                    () => $ctrl.boxes,
+                    () => {
+                        let html = ''
+                        elem.empty()
+                        if ($ctrl.boxes) {
+                            for (let box of $ctrl.boxes) {
+                                let classes = ['cb-wrapper']
+                                let attrs = ''
 
-                        if ('class' in box) {
-                            classes = classes.concat(box.class)
-                        }
-                        if ('attr' in box) {
-                            for (let [k, v] of Object.entries(box.attr)) {
-                                attrs += ` ${k}="${v}"`
-                            }
-                        }
+                                if ('class' in box) {
+                                    classes = classes.concat(box.class)
+                                }
+                                if ('attr' in box) {
+                                    for (let [k, v] of Object.entries(box.attr)) {
+                                        attrs += ` ${k}="${v}"`
+                                    }
+                                }
 
-                        // If title not specified in config, use the source (if available)
-                        // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
-                        let title = box.title
-                        if (!title && 'source' in box) {
-                            title = box.source.split(/\./).pop()
-                        }
-                        const url = box.url ? ` url="${box.url}"` : ''
-                        const url_empty = box.url_empty ? ` url-empty="${box.url_empty}"` : ''
-                        html += `
+                                // If title not specified in config, use the source (if available)
+                                // Split source on '.', and take the last element (e.g. "external.spliceai" -> "spliceai")
+                                let title = box.title
+                                if (!title && 'source' in box) {
+                                    title = box.source.split(/\./).pop()
+                                }
+                                const url = box.url ? ` url="${box.url}"` : ''
+                                const url_empty = box.url_empty
+                                    ? ` url-empty="${box.url_empty}"`
+                                    : ''
+                                html += `
                         <${box.tag}
                             class="${classes.join(' ')}"
-                            allele-path="vm.allelePath"
+                            allele-path="$ctrl.allelePath"
                             source="${box.source}"
                             box-title="${title}"
                             annotation-config-id="${box.annotationConfigId}"
@@ -72,20 +82,15 @@ import { Directive, Inject } from '../../ng-decorators'
                             ${url}
                             ${url_empty}
                         ></${box.tag}>`
+                            }
+                            if (html) {
+                                let compiled = $compile(html)(scope)
+                                elem.append(compiled)
+                            }
+                        }
                     }
-                    if (html) {
-                        let compiled = scope.vm.compile(html)(scope)
-                        elem.append(compiled)
-                    }
-                }
+                )
             }
-        )
-    }
+        ]
+    )
 })
-@Inject('Config', '$compile')
-export class AlleleSectionboxContentController {
-    constructor(Config, $compile) {
-        this.config = Config.getConfig()
-        this.compile = $compile
-    }
-}
