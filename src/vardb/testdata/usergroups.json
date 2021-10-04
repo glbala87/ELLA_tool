@@ -115,8 +115,8 @@
     },
     {
         "name": "testgroup02",
-        "genepanels": [["Ciliopati", "v05"], ["Mendeliome", "v01"]],
-        "default_import_genepanel": ["Mendeliome", "v01"],
+        "genepanels": [["Ciliopati", "v06"], ["Mendeliome", "v12"]],
+        "default_import_genepanel": ["Mendeliome", "v12"],
         "import_groups": ["testgroup02"],
         "config": {
             "overview": {
@@ -125,7 +125,7 @@
             "deposit": {
                 "analysis": [
                     {
-                        "pattern": "^HG002-Trio.Mendeliome_v01",
+                        "pattern": "^HG002-Trio.Mendeliome_v12",
                         "postprocess": [],
                         "prefilters": [
                             [
@@ -180,8 +180,8 @@
     {
         "name": "testgroup03",
         "genepanels": [
-            ["Ciliopati", "v05"],
-            ["Mendeliome", "v01"],
+            ["Ciliopati", "v06"],
+            ["Mendeliome", "v12"],
             ["HBOC", "v01"],
             ["HBOCUTV", "v01"]
         ],

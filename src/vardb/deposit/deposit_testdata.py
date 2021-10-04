@@ -91,10 +91,10 @@ chr2:g.48010497N>N chr2:g.48010531N>N
 
 GENEPANELS = [
     GenepanelInfo(
-        "../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/Mendeliome_v01/Mendeliome_v01_phenotypes.tsv",
+        "../testdata/clinicalGenePanels/Mendeliome_v12/Mendeliome_v12_genes_transcripts_regions.tsv",
+        "../testdata/clinicalGenePanels/Mendeliome_v12/Mendeliome_v12_phenotypes.tsv",
         "Mendeliome",
-        "v01",
+        "v12",
     ),
     GenepanelInfo(
         "../testdata/clinicalGenePanels/HBOCUTV_v01/HBOCUTV_v01_genes_transcripts_regions.tsv",
@@ -109,10 +109,10 @@ GENEPANELS = [
         "v01",
     ),
     GenepanelInfo(
-        "../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/Ciliopati_v05/Ciliopati_v05_phenotypes.tsv",
+        "../testdata/clinicalGenePanels/Ciliopati_v06/Ciliopati_v06_genes_transcripts_regions.tsv",
+        "../testdata/clinicalGenePanels/Ciliopati_v06/Ciliopati_v06_phenotypes.tsv",
         "Ciliopati",
-        "v05",
+        "v06",
     ),
 ]
 

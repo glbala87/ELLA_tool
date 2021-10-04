@@ -149,7 +149,7 @@ def _get_transcript_data(transcripts):
     transcript_columns["geneAlias"] = lambda t: ""
     transcript_columns["cdsStart"] = lambda t: str(t["cds_start"])
     transcript_columns["cdsEnd"] = lambda t: str(t["cds_end"])
-    transcript_columns["exonsStarts"] = lambda t: ",".join(str(es) for es in t["exon_starts"])
+    transcript_columns["exonStarts"] = lambda t: ",".join(str(es) for es in t["exon_starts"])
     transcript_columns["exonEnds"] = lambda t: ",".join(str(ee) for ee in t["exon_ends"])
 
     transcript_data = "#\n" + "\t".join(list(transcript_columns.keys()))
