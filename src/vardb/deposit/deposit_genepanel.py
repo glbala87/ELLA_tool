@@ -70,7 +70,7 @@ def load_transcripts(transcripts_path):
                 int(data["txEnd"]),
             )
             data["cdsStart"], data["cdsEnd"] = (int(data["cdsStart"]), int(data["cdsEnd"]))
-            data["exonsStarts"] = list(map(int, data["exonsStarts"].split(",")))
+            data["exonStarts"] = list(map(int, data["exonStarts"].split(",")))
             data["exonEnds"] = list(map(int, data["exonEnds"].split(",")))
             transcripts.append(data)
         return transcripts
@@ -124,20 +124,19 @@ class DepositGenepanel(object):
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
                     "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
-                    "transcript_source": None if t["source"] == "N/A" else t["source"],
+                    "transcript_source": t["source"] or None,
                     "type": "RefSeq",
                     "corresponding_ensembl": None,
                     "corresponding_refseq": None,
-                    "corresponding_refseq_source": None if t["source"] == "N/A" else t["source"],
                     "corresponding_lrg": None,
-                    "inheritance_mode": None if t["inheritance"] == "N/A" else t["inheritance"],
+                    "inheritance_mode": None if t["inheritance"] == "Unknown" else t["inheritance"],
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
                     "tx_end": t["txEnd"],
                     "strand": t["strand"],
                     "cds_start": t["cdsStart"],
                     "cds_end": t["cdsEnd"],
-                    "exon_starts": t["exonsStarts"],
+                    "exon_starts": t["exonStarts"],
                     "exon_ends": t["exonEnds"],
                     "genome_reference": genome_ref,
                 }

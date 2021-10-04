@@ -49,7 +49,7 @@ def test_deposit_genepanel(session, run_command):
     run_command(["database", "make", "-f"])
 
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v06"
 
     assert (
         not session.query(gene.Genepanel)
@@ -73,7 +73,7 @@ def test_deposit_genepanel(session, run_command):
 def test_append_genepanel_to_usergroup(session, test_database, run_command):
     test_database.refresh()
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v06"
     usergroup = "testgroup01"
 
     ug = session.query(user.UserGroup).filter(user.UserGroup.name == usergroup)
