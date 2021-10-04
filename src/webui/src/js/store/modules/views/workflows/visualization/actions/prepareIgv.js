@@ -32,6 +32,11 @@ export default async function prepareIgv({ state, http }) {
                 const presetIdDefault = 'Default'
                 finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
             }
+            // add a preset if no other presets were set
+            const presetIdOther = 'Other'
+            if (finalizedTrack.presets.length == 0) {
+                finalizedTrack.presets = [presetIdOther]
+            }
             // append
             if (!finalizedTracks.hasOwnProperty(category)) {
                 finalizedTracks[category] = []
