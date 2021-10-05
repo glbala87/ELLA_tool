@@ -20,7 +20,7 @@ export default async function prepareIgv({ state, http }) {
         for (const track of categoryTracks) {
             const finalizedTrack = {
                 id: track.id,
-                selected: 'show' in track ? track.show : false,
+                selected: 'show' in track ? Boolean(track.show) : false,
                 config: track,
                 presets: track.presets !== undefined ? track.presets : []
             }
