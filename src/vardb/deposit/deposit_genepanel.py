@@ -124,7 +124,7 @@ class DepositGenepanel(object):
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
                     "name": t["refseq"],  # TODO: Support other than RefSeq
-                    "transcript_source": t["source"] or None,
+                    "source": t["source"] or None,
                     "type": "RefSeq",
                     "corresponding_ensembl": None,
                     "corresponding_refseq": None,
