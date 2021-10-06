@@ -30,8 +30,10 @@ Selecting tracks in VISUAL has been further improved by splitting off presets in
     <p><strong>Figure: </strong>Improved track selection presets, with tracks organized by preset name.</p>
 </div> 
 
+Note that tracks that have no configuration (e.g. at present, analysis raw data) are placed in the preset `OTHER` .
+
 <!-- MR 580 -->
-In addition, IGV.js was upgraded to the [most recent version](https://github.com/igvteam/igv.js/releases/tag/v2.10.0), which adds exon numbering (in feature popup) to transcript reference tracks and improved performance. It is now also possible to open analyses with no unfiltered variants, e.g. for reviewing raw data before reporting negative test results.
+In addition, IGV.js was upgraded to the [most recent version](https://github.com/igvteam/igv.js/releases/tag/v2.10.0), which adds exon numbering (in feature popup) to transcript reference tracks, and improved performance. It is now also possible to open analyses with no unfiltered variants, e.g. for reviewing raw data before reporting negative test results.
 
 See [Visual](/manual/visual.md) for further details.
 
