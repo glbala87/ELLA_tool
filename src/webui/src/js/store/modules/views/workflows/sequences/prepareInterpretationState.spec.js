@@ -10,6 +10,7 @@ let cerebral = null
 function createAlleleData(id) {
     return {
         id: id,
+        caller_type: 'SNV',
         formatted: {
             display: 'test variant'
         },
@@ -92,7 +93,12 @@ describe('prepareInterpretationState', () => {
                     },
                     filteredAlleleIds: {
                         allele_ids: [1],
-                        excluded_alleles_by_caller_type: [2, 3]
+                        excluded_alleles_by_caller_type: {
+                            snv: {
+                                testFilter: [2, 3]
+                            },
+                            cnv: {}
+                        }
                     }
                 },
                 userState: {},
@@ -101,6 +107,7 @@ describe('prepareInterpretationState', () => {
                 selectedId: 1
             },
             alleleSidebar: {
+                callerTypeSelected: 'snv',
                 orderBy: testSidebarOrderByNull
             }
         })
