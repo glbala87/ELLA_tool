@@ -17,7 +17,7 @@ This mode features an [integrated version](https://github.com/igvteam/igv.js) (v
 
 ## Preset selection
 
-This section lists all presets defined for individual tracks and allows you to quickly switch on/off all tracks that are associated with the preset. The `DEFAULT` preset and associated tracks are turned on by default, while others must be turned on manually. See the [technical documentation](https://allel.es/docs/technical/uioptions.html#igv-in-visual) for details on configuration.
+This section lists all presets defined for individual tracks and allows you to quickly switch on/off all tracks that are associated with the preset. The `DEFAULT` preset and associated tracks are turned on by default, while others must be turned on manually. See the [technical documentation](/technical/uioptions.html#igv-in-visual) for details on configuration.
 
 
 ## Track selection

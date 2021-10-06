@@ -19,7 +19,21 @@ Release date: TBD
 
 ### Highlights
 
-This version ... [TODO; summary of UI/UX improvements]
+This update brings a number of enhancements to the user interface, with further improvements to VISUAL, new quick add actions, as well as several smaller improvements and bugfixes.
+
+#### Improvements to VISUAL
+<!-- MR !553, !555 -->
+Selecting tracks in VISUAL has been further improved by splitting off presets in one section and the individual tracks in another, with the latter section collapsed by default. Tracks are now also organized under headers determined by preset names instead of the previous "Global", "Group" and "Analysis" headers: 
+
+<div class="figure_text">
+    <img src="./img/1-15-improved-track-selection.png"><br>
+    <p><strong>Figure: </strong>Improved track selection presets, with tracks organized by preset name.</p>
+</div> 
+
+<!-- MR 580 -->
+In addition, IGV.js was upgraded to the [most recent version](https://github.com/igvteam/igv.js/releases/tag/v2.10.0), which adds exon numbering (in feature popup) to transcript reference tracks and improved performance. It is now also possible to open analyses with no unfiltered variants, e.g. for reviewing raw data before reporting negative test results.
+
+See [Visual](/manual/visual.md) for further details.
 
 #### New quick add actions
 <!-- MR !565 -->
@@ -30,7 +44,7 @@ It is now possible to quickly add a signature and date (`[username, yyyy-mm-dd]`
     <p><strong>Figure: </strong>Quick add signature to any comment field.</p>
 </div> 
 
-In addition, the option to add a reference was added to the Report and Indications comment fields on the REPORT page, as well as in the Indications comment in the sidebar: 
+In addition, the option to quickly add a reference was added to the Report and Indications comment fields on the REPORT page, as well as in the Indications comment in the sidebar: 
 
 <div class="figure_text">
     <img src="./img/1-15-insert-reference.png"><br>
@@ -39,56 +53,50 @@ In addition, the option to add a reference was added to the Report and Indicatio
 
 Note that for these particular comment fields, only references from variants that have been included in the REPORT are listed. 
 
-#### Improved track selection in VISUAL
-<!-- MR !553, !555 -->
-Selecting tracks in VISUAL has been further improved by splitting off presets in one section and the individual tracks in another, with the latter section collapsed by default. Tracks are now also organized under headers determined by preset names instead of the previous "Global", "Group" and "Analysis" headers. 
+#### Miscellaneous improvements to the user interface
 
-<div class="figure_text">
-    <img src="./img/1-15-improved-track-selection.png"><br>
-    <p><strong>Figure: </strong>Improved track selection presets, with tracks organized by preset name.</p>
-</div> 
-
-See [Visual](/manual/visual.md) for further details.
-
-[TODO] Update [technical docs](/technical/uioptions.html#igv-in-visual) after [ella#1921](https://gitlab.com/alleles/ella/-/issues/1921) [/TODO]
+Other user interface changes in this version include a better collapsed mode for sections on the CLASSIFICATION page, more concise gene and gene panel related information, improvements to layout, and various bugfixes. 
 
 ### All changes
 
 <!-- MR !553, !555 -->
-- [Improved track selection in VISUAL with grouping of tracks under preset names](#improved-track-selection-in-visual).
-<!-- MR !554 -->
-- Added `SHOW ANALYSES` button to VARIANTS workflow.
-<!-- MR !557-->
-- User dashboard now only shows official (not custom) gene panels.
+- [Improved track selection in VISUAL with grouping of tracks under preset names](#improvements-to-visual).
+<!-- MR !580 -->
+- Upgraded IGV.js in VISUAL from v2.7.9 to [v2.10.0](https://github.com/igvteam/igv.js/releases/tag/v2.10.0) (using [temporary fork](https://github.com/ousamg/igv.js) with bug fix). 
+<!-- MR !593 -->
+- In VISUAL, tracks with no configured preset are placed in an `OTHER` preset.
+<!-- MR !590 -->
+- Opening VISUAL is now possible also for analyses with no unfiltered variants. 
+<!-- MR !565 -->
+- [Added button and keyboard shortcut for quick insertion of signature and date in comment fields](#new-quick-add-actions).
 <!-- MR !558 -->
 - [References from included variants can now be inserted in Indication and Report comments](#new-quick-add-actions).
+<!-- MR !554 -->
+- Added `SHOW ANALYSES` button to VARIANTS workflow.
 <!-- MR !562 -->
 - Collapsing sections on the CLASSIFICATION page now also truncates comments, improving overview when comments are lengthy.
 <!-- MR !564 -->
 - Layout in Studies & references section is improved, removing some headers and adding an `UNPUBLISHED` tag when relevant.
-<!-- MR !565 -->
-- [Added button and keyboard shortcut for quick insertion of signature and date in comment fields](#new-quick-add-actions).
 <!-- MR !566 -->
-- Gene INFO tag in top bar is now removed if gene comment is emptied.
+- Gene `INFO` tag in top bar is now removed if gene comment is emptied.
+<!-- MR !583 -->
+- `GENE PANEL INFO` (button in top bar) now only lists latest version of each gene panel in "5 most similar gene panels".
+<!-- MR !557-->
+- User dashboard now only shows official (not custom) gene panels.
 <!-- MR !568 -->
 - Filtered variants are now sorted by genomic position.
-<!-- MR !572 -->
-- Fixed a bug causing incorrect sorting of unpublished studies.
-<!-- MR !580 -->
-- Upgraded IGV.js in VISUAL from v2.7.9 to [v2.10.0](https://github.com/igvteam/igv.js/releases/tag/v2.10.0) (using [temporary fork](https://github.com/ousamg/igv.js) with bug fix). This fixes several bugs and adds exon numbering (in feature popup) to transcript reference tracks.
-<!-- MR !581 -->
-- Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
-<!-- MR !583 -->
-- Gene panel info now only lists latest version of each gene panel in "5 most similar gene panels".
 <!-- MR !585 -->
 - Fixed a bug causing external links for currently selected variant instead of filtered variant in Filtered variants modal.
-<!-- MR !590 -->
-- Opening the VISUAL page is now possible also for analyses with no unfiltered variants. 
+<!-- MR !572 -->
+- Fixed a bug causing incorrect sorting of unpublished studies.
+<!-- MR !581 -->
+- Fixed a bug where variants in pseudo-autosomal regions threw errors on loading gnomAD hemizygous counts.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !574 Makefile/local-e2e: use docker inspect to get CHROME_HOST
 MR !587 Avoid log spamming from /api/v1/ui/exceptionlog/
 MR !589 Make app.js updates "cache-safe"
+MR !594 Fix duplicate destructured parameters
 -->
 - Fixes and improvements to development environment and code base. 
 
