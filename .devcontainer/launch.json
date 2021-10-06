@@ -69,6 +69,14 @@
           ]
         },
         {
+          "name": "jest, javascript test",
+          "type": "node",
+          "request": "launch",
+          "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
+          "args": [ "-i"],
+          "console": "integratedTerminal"
+        },
+        {
           "name": "e2e node: workflow_variant_classification",
           "type": "node",
           "request": "launch",
