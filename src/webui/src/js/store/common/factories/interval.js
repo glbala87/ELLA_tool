@@ -1,5 +1,5 @@
 export default function interval(funcName, ...args) {
-    return function interval({ interval }) {
+    return ({ interval }) => {
         interval[funcName](...args)
     }
 }
