@@ -1,7 +1,7 @@
 {
     "name": "HG002-Trio.Mendeliome_v12",
     "genepanel_name": "Mendeliome",
-    "genepanel_version": "v01",
+    "genepanel_version": "v12",
     "data": [
         {
             "vcf": "HG002-Trio.Mendeliome_v12.vcf",
