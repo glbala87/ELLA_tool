@@ -42,7 +42,7 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
         g = gene.Gene(hgnc_id=GENE_HGNC_ID[gene_name], hgnc_symbol=gene_name)
         t = gene.Transcript(
             gene=g,
-            transcript_name=f"NM_{idx}",
+            name=f"NM_{idx}",
             type="RefSeq",
             genome_reference="",
             chromosome="1",

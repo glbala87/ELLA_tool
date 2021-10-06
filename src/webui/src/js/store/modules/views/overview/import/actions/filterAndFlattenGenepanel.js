@@ -12,7 +12,7 @@ export default function filterAndFlattenGenepanel(source, flattenedDest, query) 
             for (const [key, g] of Object.entries(genepanel.genes)) {
                 // Filter either on gene name or on any transcript name
                 const filteredTranscripts = g.transcripts.filter((t) =>
-                    t.transcript_name.toLowerCase().includes(filter.toLowerCase())
+                    t.name.toLowerCase().includes(filter.toLowerCase())
                 )
                 if (g.hgnc_symbol.toLowerCase().includes(filter.toLowerCase())) {
                     if (filteredTranscripts.length) {
@@ -41,12 +41,12 @@ export default function filterAndFlattenGenepanel(source, flattenedDest, query) 
                 flattened.push({
                     hgnc_id: g.hgnc_id,
                     hgnc_symbol: g.hgnc_symbol,
-                    transcript_name: t.transcript_name,
+                    name: t.name,
                     inheritance: inheritance
                 })
             }
         }
-        flattened.sort(thenBy('hgnc_symbol').thenBy('transcript_name'))
+        flattened.sort(thenBy('hgnc_symbol').thenBy('name'))
         state.set(flattenedDest, flattened)
     }
 }

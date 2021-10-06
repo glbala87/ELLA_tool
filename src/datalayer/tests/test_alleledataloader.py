@@ -282,7 +282,7 @@ def deactivated_test_inconsistent_ensembl_transcript(test_database, session):
 
     corr_ensembl = (
         session.query(gene.Transcript.corresponding_ensembl)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
+        .filter(gene.Transcript.name == q.genepanel_transcript)
         .scalar()
     )
 
@@ -332,14 +332,10 @@ def deactivated_test_inconsistent_ensembl_transcript(test_database, session):
 
     # Check case where refseq is the corresponding transcript
     # Flip refseq/ensembl
-    tx = (
-        session.query(gene.Transcript)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
-        .one()
-    )
+    tx = session.query(gene.Transcript).filter(gene.Transcript.name == q.genepanel_transcript).one()
 
-    tx.corresponding_refseq = tx.transcript_name
-    tx.transcript_name = tx.corresponding_ensembl
+    tx.corresponding_refseq = tx.name
+    tx.name = tx.corresponding_ensembl
     tx.type = "Ensembl"
     tx.corresponding_ensembl = None
 

@@ -14,11 +14,11 @@ describe('filterAndFlattenGenepanel', function() {
                             transcripts: [
                                 {
                                     id: 1,
-                                    transcript_name: 'not a match'
+                                    name: 'not a match'
                                 },
                                 {
                                     id: 2,
-                                    transcript_name: 'not a match 2'
+                                    name: 'not a match 2'
                                 }
                             ],
                             phenotypes: [
@@ -34,11 +34,11 @@ describe('filterAndFlattenGenepanel', function() {
                             transcripts: [
                                 {
                                     id: 1,
-                                    transcript_name: 'nametestname'
+                                    name: 'nametestname'
                                 },
                                 {
                                     id: 2,
-                                    transcript_name: 'not a match'
+                                    name: 'not a match'
                                 }
                             ],
                             phenotypes: [
@@ -54,7 +54,7 @@ describe('filterAndFlattenGenepanel', function() {
                             transcripts: [
                                 {
                                     id: 3,
-                                    transcript_name: 'not a match'
+                                    name: 'not a match'
                                 }
                             ],
                             phenotypes: []
@@ -75,19 +75,19 @@ describe('filterAndFlattenGenepanel', function() {
                 {
                     hgnc_id: 1,
                     hgnc_symbol: 'GENE_SHOULD_MATCH test SOME MORE TEXT',
-                    transcript_name: 'not a match',
+                    name: 'not a match',
                     inheritance: 'AR'
                 },
                 {
                     hgnc_id: 1,
                     hgnc_symbol: 'GENE_SHOULD_MATCH test SOME MORE TEXT',
-                    transcript_name: 'not a match 2',
+                    name: 'not a match 2',
                     inheritance: 'AR'
                 },
                 {
                     hgnc_id: 2,
                     hgnc_symbol: 'TRANSCRIPT_SHOULD_MATCH',
-                    transcript_name: 'nametestname',
+                    name: 'nametestname',
                     inheritance: 'AR'
                 }
             ])

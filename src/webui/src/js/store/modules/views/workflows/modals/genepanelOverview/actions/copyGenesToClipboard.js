@@ -5,7 +5,7 @@ export default function copyGenesToClipboard({ clipboard, state, props }) {
     for (let gene of genes) {
         let formattedGene = gene.hgnc_symbol
         if (includeTranscripts) {
-            formattedGene += ` (${gene.transcripts.map((t) => t.transcript_name).join(',')})`
+            formattedGene += ` (${gene.transcripts.map((t) => t.name).join(',')})`
         }
         formattedGenes.push(formattedGene)
     }

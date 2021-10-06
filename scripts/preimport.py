@@ -22,7 +22,7 @@ Transcript = table(
     "transcript",
     column("id", sa.Integer()),
     column("gene_id", sa.Integer()),
-    column("transcript_name", sa.String()),
+    column("name", sa.String()),
     column("transcript_source", sa.String()),
     column("type", sa.String()),
     column("corresponding_refseq", sa.String()),
@@ -141,7 +141,7 @@ def _get_transcript_data(transcripts):
     transcript_columns["#chromosome"] = lambda t: t["chromosome"]
     transcript_columns["txStart"] = lambda t: str(t["tx_start"])
     transcript_columns["txEnd"] = lambda t: str(t["tx_end"])
-    transcript_columns["refseq"] = lambda t: t["transcript_name"]
+    transcript_columns["refseq"] = lambda t: t["name"]
     transcript_columns["score"] = lambda t: "0"
     transcript_columns["strand"] = lambda t: t["strand"]
     transcript_columns["geneSymbol"] = lambda t: t["hgnc_symbol"]
@@ -171,7 +171,7 @@ def _get_exon_regions(transcripts):
     exon_columns["end"] = lambda t, start, end, *args: str(end)
     exon_columns["exon"] = lambda t, start, end, exon_no: "%s__%s__exon%d" % (
         t["hgnc_symbol"],
-        t["transcript_name"],
+        t["name"],
         exon_no,
     )
     exon_columns["someValue"] = lambda t, *args: "0"

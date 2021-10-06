@@ -41,7 +41,7 @@ def create_genepanel(genepanel_config):
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
-        transcript_name="NM_1AD.1",
+        name="NM_1AD.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -56,7 +56,7 @@ def create_genepanel(genepanel_config):
 
     t1_ar = gene.Transcript(
         gene=g1_ar,
-        transcript_name="NM_1AR.1",
+        name="NM_1AR.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -71,7 +71,7 @@ def create_genepanel(genepanel_config):
 
     t2 = gene.Transcript(
         gene=g2,
-        transcript_name="NM_2.1",
+        name="NM_2.1",
         type="RefSeq",
         genome_reference="",
         chromosome="2",
@@ -86,7 +86,7 @@ def create_genepanel(genepanel_config):
 
     t3 = gene.Transcript(
         gene=g3,
-        transcript_name="NM_3.1",
+        name="NM_3.1",
         type="RefSeq",
         genome_reference="",
         chromosome="3",
@@ -101,7 +101,7 @@ def create_genepanel(genepanel_config):
 
     t4 = gene.Transcript(
         gene=g4,
-        transcript_name="NM_4.1",
+        name="NM_4.1",
         type="RefSeq",
         genome_reference="",
         chromosome="4",
@@ -116,7 +116,7 @@ def create_genepanel(genepanel_config):
 
     t5_reverse = gene.Transcript(
         gene=g5,
-        transcript_name="NM_5.1",
+        name="NM_5.1",
         type="RefSeq",
         genome_reference="",
         chromosome="5",
@@ -131,7 +131,7 @@ def create_genepanel(genepanel_config):
 
     t6_reverse = gene.Transcript(
         gene=g6,
-        transcript_name="NM_6.1",
+        name="NM_6.1",
         type="RefSeq",
         genome_reference="",
         chromosome="6",
@@ -441,7 +441,7 @@ def create_transcript(draw):
 
     return gene.Transcript(
         gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
-        transcript_name="NM_REGION_TEST.1",
+        name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -458,7 +458,7 @@ def create_transcript(draw):
 def default_transcript(**kwargs):
     tx = gene.Transcript(
         gene=gene.Gene(hgnc_id=int(1e7), hgnc_symbol="REGION_TEST_GENE"),
-        transcript_name="NM_REGION_TEST.1",
+        name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",

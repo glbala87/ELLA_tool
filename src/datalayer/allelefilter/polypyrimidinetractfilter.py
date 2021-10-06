@@ -50,7 +50,7 @@ class PolypyrimidineTractFilter(object):
                 self.session.query(
                     gene.Transcript.id,
                     gene.Transcript.gene_id,
-                    gene.Transcript.transcript_name,
+                    gene.Transcript.name,
                     gene.Transcript.chromosome,
                     gene.Transcript.strand,
                     gene.Transcript.tx_start,
