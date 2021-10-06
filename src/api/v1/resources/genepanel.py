@@ -207,6 +207,7 @@ class GenepanelResource(LogRequestResource):
                 gene.Gene.hgnc_id,
                 gene.Transcript.id,
                 gene.Transcript.name,
+                gene.Transcript.inheritance,
             )
             .join(gene.Genepanel.transcripts, gene.Transcript.gene)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
@@ -239,6 +240,7 @@ class GenepanelResource(LogRequestResource):
                     {
                         "id": t.id,
                         "name": t.name,
+                        "inheritance": t.inheritance,
                     }
                 )
             else:
@@ -249,6 +251,7 @@ class GenepanelResource(LogRequestResource):
                         {
                             "id": t.id,
                             "name": t.name,
+                            "inheritance": t.inheritance,
                         }
                     ],
                     "phenotypes": [],
