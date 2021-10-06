@@ -4,7 +4,7 @@ export function getConfigInheritanceCodes(hgncId, genepanel) {
     }
     const transcripts = genepanel.transcripts.filter((t) => t.gene.hgnc_id === hgncId)
     if (transcripts) {
-        const codes = transcripts.map((tx) => tx.inheritance_mode).filter((i) => i && i.length > 0) // remove empty
+        const codes = transcripts.map((tx) => tx.inheritance).filter((i) => i && i.length > 0) // remove empty
         const uniqueCodes = new Set(codes)
         return Array.from(uniqueCodes.values()).sort()
     } else {
