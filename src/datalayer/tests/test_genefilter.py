@@ -20,12 +20,12 @@ def create_genepanel(hgnc_ids_transcripts):
     genepanel.transcripts = []
     genepanel.phenotypes = []
 
-    for hgnc_id, transcript_name in hgnc_ids_transcripts:
+    for hgnc_id, name in hgnc_ids_transcripts:
         g = gene.Gene(hgnc_id=hgnc_id, hgnc_symbol="GENE{}".format(hgnc_id))
 
         tx = gene.Transcript(
             gene=g,
-            transcript_name=transcript_name,
+            name=name,
             type="RefSeq",
             genome_reference="",
             chromosome="1",
@@ -143,7 +143,7 @@ class TestGeneFilter(object):
         session.rollback()
         gp = create_genepanel(gene_transcripts)
         session.add(gp)
-        gp_tx = [tx.transcript_name for tx in gp.transcripts]
+        gp_tx = [tx.name for tx in gp.transcripts]
 
         allele_ids = []
         allele_id_genes = {}

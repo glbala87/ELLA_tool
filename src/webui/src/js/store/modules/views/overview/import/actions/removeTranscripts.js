@@ -9,7 +9,7 @@ export default function removeTranscripts({ state, props }) {
         if (t.hgnc_id in addedGenepanel.genes) {
             addedGenepanel.genes[t.hgnc_id].transcripts = addedGenepanel.genes[
                 t.hgnc_id
-            ].transcripts.filter((at) => at.transcript_name !== t.transcript_name)
+            ].transcripts.filter((at) => at.name !== t.name)
             if (!addedGenepanel.genes[t.hgnc_id].transcripts.length) {
                 delete addedGenepanel.genes[t.hgnc_id]
             }

@@ -206,7 +206,7 @@ class GenepanelResource(LogRequestResource):
                 gene.Gene.hgnc_symbol,
                 gene.Gene.hgnc_id,
                 gene.Transcript.id,
-                gene.Transcript.transcript_name,
+                gene.Transcript.name,
             )
             .join(gene.Genepanel.transcripts, gene.Transcript.gene)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
@@ -236,13 +236,21 @@ class GenepanelResource(LogRequestResource):
         for t in transcripts:
             if t.hgnc_id in genes:
                 genes[t.hgnc_id]["transcripts"].append(
-                    {"id": t.id, "transcript_name": t.transcript_name}
+                    {
+                        "id": t.id,
+                        "name": t.name,
+                    }
                 )
             else:
                 genes[t.hgnc_id] = {
                     "hgnc_id": t.hgnc_id,
                     "hgnc_symbol": t.hgnc_symbol,
-                    "transcripts": [{"id": t.id, "transcript_name": t.transcript_name}],
+                    "transcripts": [
+                        {
+                            "id": t.id,
+                            "name": t.name,
+                        }
+                    ],
                     "phenotypes": [],
                 }
 
@@ -255,7 +263,7 @@ class GenepanelResource(LogRequestResource):
         result_genes: List[Any] = list(genes.values())
         result_genes.sort(key=lambda x: x["hgnc_symbol"])
         for g in result_genes:
-            g["transcripts"].sort(key=lambda x: x["transcript_name"])
+            g["transcripts"].sort(key=lambda x: x["name"])
             g["phenotypes"].sort(key=lambda x: x["inheritance"])
 
         result = {"name": name, "version": version, "genes": result_genes}

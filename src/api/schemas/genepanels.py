@@ -16,7 +16,7 @@ class GeneFullSchema(Schema):
 class TranscriptSchema(Schema):
     class Meta:
         title = "Transcript"
-        fields = ("transcript_name", "gene")
+        fields = ("name", "gene")
 
     gene = fields.Nested(GeneSchema)
 
@@ -25,7 +25,7 @@ class TranscriptFullSchema(Schema):
     class Meta:
         title = "Transcript"
         fields = (
-            "transcript_name",
+            "name",
             "transcript_source",
             "corresponding_refseq",
             "corresponding_ensembl",

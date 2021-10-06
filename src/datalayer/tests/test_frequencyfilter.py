@@ -72,7 +72,7 @@ def create_genepanel():
 
     t1_ad = gene.Transcript(
         gene=g1_ad,
-        transcript_name="NM_1AD.1",
+        name="NM_1AD.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -87,7 +87,7 @@ def create_genepanel():
 
     t1_ar = gene.Transcript(
         gene=g1_ar,
-        transcript_name="NM_1AR.1",
+        name="NM_1AR.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -102,7 +102,7 @@ def create_genepanel():
 
     t2 = gene.Transcript(
         gene=g2,
-        transcript_name="NM_2.1",
+        name="NM_2.1",
         type="RefSeq",
         genome_reference="",
         chromosome="2",

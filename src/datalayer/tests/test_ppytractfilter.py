@@ -44,7 +44,7 @@ def create_genepanel(genepanel_config):
 
     t1_forward = gene.Transcript(
         gene=g1,
-        transcript_name="NM_1.1",
+        name="NM_1.1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",
@@ -59,7 +59,7 @@ def create_genepanel(genepanel_config):
 
     t2_reverse = gene.Transcript(
         gene=g2,
-        transcript_name="NM_2.1",
+        name="NM_2.1",
         type="RefSeq",
         genome_reference="",
         chromosome="2",

@@ -70,7 +70,7 @@ class RegionFilter(object):
         #
         # Returned temp table is of the form:
         # -----------------------------------------------------------------------------------------------
-        # | gene_id | transcript_name | strand | cds_start | cds_end | exon_start | exon_end | allele_id |
+        # | gene_id | name            | strand | cds_start | cds_end | exon_start | exon_end | allele_id |
         # -----------------------------------------------------------------------------------------------
         # | 329     | NM_198576.3     | +      | 955552    | 990360  | 955502     | 955752   | 1         |
         # | 329     | NM_198576.3     | +      | 955552    | 990360  | 957580     | 957841   | 1         |
@@ -82,7 +82,7 @@ class RegionFilter(object):
         return (
             self.session.query(
                 gene.Transcript.gene_id,
-                gene.Transcript.transcript_name,
+                gene.Transcript.name,
                 gene.Transcript.strand,
                 gene.Transcript.cds_start,
                 (gene.Transcript.cds_end - 1).label("cds_end"),
@@ -153,7 +153,7 @@ class RegionFilter(object):
         )
 
         transcript_coding_regions = self.session.query(
-            genepanel_tx_regions.c.transcript_name.label("transcript_name"),
+            genepanel_tx_regions.c.name.label("name"),
             coding_start.label("region_start"),
             coding_end.label("region_end"),
         ).filter(
@@ -168,7 +168,7 @@ class RegionFilter(object):
     def _create_padded_regions(self, transcripts, region_start, region_end, tmp_gene_padding):
         return (
             self.session.query(
-                transcripts.c.transcript_name.label("transcript_name"),
+                transcripts.c.name.label("name"),
                 region_start.label("region_start"),
                 region_end.label("region_end"),
             )
@@ -387,7 +387,7 @@ class RegionFilter(object):
             utr_regions = self.get_utr_regions(genepanel_tx_regions, tmp_gene_padding)
 
             all_regions = transcript_coding_regions.union(splicing_regions, utr_regions).temp_table(
-                "all_regions", index=["transcript_name"]
+                "all_regions", index=["name"]
             )
 
             # Find allele ids within genomic region
@@ -395,9 +395,7 @@ class RegionFilter(object):
             # inside the transcript(s) (or else we could compare across same position on different chromosomes)
             # (using transcript(s) rather than chromosome as key is a lot faster)
             allele_transcripts = (
-                self.session.query(
-                    genepanel_tx_regions.c.allele_id, genepanel_tx_regions.c.transcript_name
-                )
+                self.session.query(genepanel_tx_regions.c.allele_id, genepanel_tx_regions.c.name)
                 .distinct()
                 .subquery()
             )
@@ -407,7 +405,7 @@ class RegionFilter(object):
                 .join(allele_transcripts, allele_transcripts.c.allele_id == allele.Allele.id)
                 .join(
                     all_regions,
-                    all_regions.c.transcript_name == allele_transcripts.c.transcript_name,
+                    all_regions.c.name == allele_transcripts.c.name,
                 )
                 .filter(
                     # The following filter should be redundant, since allele_transcripts is

@@ -222,8 +222,7 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .options(joinedload(gene.Transcript.gene))
         .join(gene.Genepanel.transcripts)
         .filter(
-            gene.Transcript.transcript_name
-            == annotation_transcripts_genepanel.c.genepanel_transcript,
+            gene.Transcript.name == annotation_transcripts_genepanel.c.genepanel_transcript,
         )
         .all()
     )
@@ -233,8 +232,7 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .options(joinedload(gene.Phenotype.gene))
         .join(gene.genepanel_phenotype)
         .filter(
-            gene.Transcript.transcript_name
-            == annotation_transcripts_genepanel.c.genepanel_transcript,
+            gene.Transcript.name == annotation_transcripts_genepanel.c.genepanel_transcript,
             gene.Phenotype.gene_id == gene.Transcript.gene_id,
             gene.genepanel_phenotype.c.genepanel_name == gp_name,
             gene.genepanel_phenotype.c.genepanel_version == gp_version,

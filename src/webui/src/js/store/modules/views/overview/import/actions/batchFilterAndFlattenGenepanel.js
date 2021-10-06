@@ -52,12 +52,12 @@ export default function batchFilterAndFlattenGenepanel({ state }) {
             flattened.push({
                 hgnc_id: g.hgnc_id,
                 hgnc_symbol: g.hgnc_symbol,
-                transcript_name: t.transcript_name,
+                name: t.name,
                 inheritance: inheritance
             })
         }
     }
-    flattened.sort(thenBy('hgnc_symbol').thenBy('transcript_name'))
+    flattened.sort(thenBy('hgnc_symbol').thenBy('name'))
 
     state.set('views.overview.import.custom.candidates.missingBatch', missing)
     state.set('views.overview.import.custom.candidates.filterBatch', missing.join('\n'))

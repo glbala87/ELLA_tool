@@ -86,7 +86,7 @@ def create_genepanel():
 
     t1 = gene.Transcript(
         gene=g1,
-        transcript_name="NM_1",
+        name="NM_1",
         type="RefSeq",
         genome_reference="",
         chromosome="1",

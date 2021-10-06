@@ -405,7 +405,7 @@ def annotation_transcripts_genepanel(
         session.query(
             gene.Genepanel.name,
             gene.Genepanel.version,
-            gene.Transcript.transcript_name,
+            gene.Transcript.name.label("transcript_name"),
             gene.Transcript.gene_id,
         )
         .join(gene.Genepanel.transcripts)

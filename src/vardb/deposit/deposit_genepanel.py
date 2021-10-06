@@ -123,7 +123,7 @@ class DepositGenepanel(object):
             transcript_rows.append(
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
-                    "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
+                    "name": t["refseq"],  # TODO: Support other than RefSeq
                     "transcript_source": t["source"] or None,
                     "type": "RefSeq",
                     "corresponding_ensembl": None,
@@ -162,7 +162,7 @@ class DepositGenepanel(object):
             gm.Transcript,
             transcript_rows,
             include_pk="id",
-            compare_keys=["transcript_name"],
+            compare_keys=["name"],
             replace=replace,
         ):
             transcript_inserted_count += len(created)

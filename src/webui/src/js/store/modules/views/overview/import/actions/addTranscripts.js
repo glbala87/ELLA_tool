@@ -11,18 +11,14 @@ export default function addTranscripts({ state, props }) {
             // Gene not added or transcript not added
             !(item.hgnc_id in addedGenepanel.genes) ||
             !Boolean(
-                addedGenepanel.genes[item.hgnc_id].transcripts.find(
-                    (t) => t.transcript_name === item.transcript_name
-                )
+                addedGenepanel.genes[item.hgnc_id].transcripts.find((t) => t.name === item.name)
             )
         ) {
             // Add transcript and merge in phenotypes and config from selected panel
             const sourceGene = sourceGenepanel.genes[item.hgnc_id]
-            const sourceTranscript = sourceGene.transcripts.find(
-                (t) => t.transcript_name === item.transcript_name
-            )
+            const sourceTranscript = sourceGene.transcripts.find((t) => t.name === item.name)
             if (!sourceTranscript) {
-                throw Error(`Couldn't find transcript ${item.transcript_name} in source genepanel.`)
+                throw Error(`Couldn't find transcript ${item.name} in source genepanel.`)
             }
             if (!(item.hgnc_id in addedGenepanel.genes)) {
                 addedGenepanel.genes[item.hgnc_id] = {

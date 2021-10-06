@@ -41,7 +41,7 @@ class Transcript(Base):
     id = Column(Integer, primary_key=True)
     gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
-    transcript_name = Column(String(), unique=True, nullable=False)
+    name = Column(String(), unique=True, nullable=False)
     transcript_source = Column(String())
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
     corresponding_refseq = Column(String())
@@ -61,7 +61,7 @@ class Transcript(Base):
     def __repr__(self):
         return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (
             self.gene,
-            self.transcript_name,
+            self.name,
             self.chromosome,
             self.tx_start,
             self.tx_end,
@@ -71,7 +71,7 @@ class Transcript(Base):
     def __str__(self):
         return "%s, %s, %s, %s, %s, %s" % (
             self.gene,
-            self.transcript_name,
+            self.name,
             self.chromosome,
             self.tx_start,
             self.tx_end,

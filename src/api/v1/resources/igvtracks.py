@@ -77,7 +77,7 @@ def transcripts_to_bed(transcripts):
                 chr=t.chromosome,
                 tx_start=t.tx_start,
                 tx_end=t.tx_end,
-                name="{gene}({tx})".format(gene=t.gene.hgnc_symbol, tx=t.transcript_name),
+                name="{gene}({tx})".format(gene=t.gene.hgnc_symbol, tx=t.name),
                 strand=t.strand,
                 cds_start=t.tx_start,
                 cds_end=t.tx_end,
@@ -380,18 +380,18 @@ class IgvSearchResource(LogRequestResource):
             # If term is shorter than nine characters, the transcript is not specified enough
             if len(term) < 9:
                 return []
-            locus_result = tx_query.filter(gene.Transcript.transcript_name == term.upper()).first()
+            locus_result = tx_query.filter(gene.Transcript.name == term.upper()).first()
 
             # Fuzzy search: find all versions of transcript
             if locus_result is None:
                 locus_result = tx_query.filter(
-                    gene.Transcript.transcript_name.like(term.upper() + ".%")
+                    gene.Transcript.name.like(term.upper() + ".%")
                 )
 
             # Fuzzy search: match prefix
             if locus_result is None:
                 locus_result = tx_query.filter(
-                    gene.Transcript.transcript_name.like(term.upper() + "%")
+                    gene.Transcript.name.like(term.upper() + "%")
                 )
 
         if not locus_result:

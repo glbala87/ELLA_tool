@@ -44,7 +44,7 @@ const candidateTranscripts = Compute(
                 addedGenepanel &&
                 t.hgnc_id in addedGenepanel.genes &&
                 addedGenepanel.genes[t.hgnc_id].transcripts.find(
-                    (a) => a.transcript_name === t.transcript_name
+                    (a) => a.name === t.name
                 )
             return Object.assign({ added: isAdded }, t)
         })

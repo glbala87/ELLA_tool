@@ -89,13 +89,13 @@ def test_annotation_transcripts_genepanel(session, test_database):
             "exon_ends": [123, 321],
         }
 
-        t1 = gene.Transcript(gene=g1, transcript_name="NM_1.1", **transcript_base)
+        t1 = gene.Transcript(gene=g1, name="NM_1.1", **transcript_base)
 
-        t21 = gene.Transcript(gene=g2, transcript_name="NM_2.1", **transcript_base)
+        t21 = gene.Transcript(gene=g2, name="NM_2.1", **transcript_base)
 
-        t22 = gene.Transcript(gene=g2, transcript_name="NM_2.2", **transcript_base)
+        t22 = gene.Transcript(gene=g2, name="NM_2.2", **transcript_base)
 
-        t3 = gene.Transcript(gene=g3, transcript_name="NM_3.1", **transcript_base)
+        t3 = gene.Transcript(gene=g3, name="NM_3.1", **transcript_base)
 
         genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
         genepanel1.transcripts = [t1, t21]

@@ -219,7 +219,7 @@ class Warnings(object):
         genepanel_transcripts = (
             self.session.query(
                 gene.Transcript.id,
-                gene.Transcript.transcript_name,
+                gene.Transcript.name,
                 corresponding_transcript.label("corresponding_transcript"),
                 gene.Transcript.gene_id,
             )
@@ -261,9 +261,7 @@ class Warnings(object):
             )
             .filter(
                 annotation_gp.allele_id.in_(self.allele_ids),
-                genepanel_transcripts.c.transcript_name.op("LIKE")(
-                    split_tx(annotation_gp.transcript)
-                ),
+                genepanel_transcripts.c.name.op("LIKE")(split_tx(annotation_gp.transcript)),
                 # Check if either hgvsc or hgvsp does not match
                 or_(
                     annotation_gp.hgvsc != annotation_corresponding.hgvsc,
