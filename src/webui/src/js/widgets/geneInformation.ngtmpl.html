@@ -47,7 +47,7 @@
         <li>
             Default source(s):
             <span ng-repeat="tx in $ctrl.genepanelValues[$ctrl.hgncId].transcripts">
-                {{ tx.transcript_source ? tx.transcript_source : 'n/a' }}
+                {{ tx.source || 'n/a' }}
             </span>
         </li>
         <li ng-if="$ctrl.externalInfo.HGMD && $ctrl.externalInfo.HGMD.transcript">

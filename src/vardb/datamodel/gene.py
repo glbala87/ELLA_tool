@@ -42,7 +42,7 @@ class Transcript(Base):
     gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
     name = Column(String(), unique=True, nullable=False)
-    transcript_source = Column(String())
+    source = Column(String())
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
     corresponding_refseq = Column(String())
     corresponding_ensembl = Column(String())

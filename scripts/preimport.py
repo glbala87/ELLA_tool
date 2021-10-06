@@ -23,7 +23,7 @@ Transcript = table(
     column("id", sa.Integer()),
     column("gene_id", sa.Integer()),
     column("name", sa.String()),
-    column("transcript_source", sa.String()),
+    column("source", sa.String()),
     column("type", sa.String()),
     column("corresponding_refseq", sa.String()),
     column("corresponding_ensembl", sa.String()),
