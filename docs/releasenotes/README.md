@@ -99,6 +99,7 @@ MR !574 Makefile/local-e2e: use docker inspect to get CHROME_HOST
 MR !587 Avoid log spamming from /api/v1/ui/exceptionlog/
 MR !589 Make app.js updates "cache-safe"
 MR !594 Fix duplicate destructured parameters
+MR !599 Avoid loading all gene assessments when opening an analysis
 -->
 - Fixes and improvements to development environment and code base. 
 
