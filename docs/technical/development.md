@@ -27,7 +27,9 @@ to the Cerebral. Make sure the server port match the port configured in webui/sr
 Bringing up the production/development/demo/testing systems are handled by `Make` and `supervisord`.
 Look in `Makefile` and in  `ops/` for more information.
 
+
 ## Migration
+
 Whenever you make changes to the database model, you need to create migration scripts, so that the production database
 can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in
 `src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`.
@@ -38,21 +40,21 @@ database in production.
 
 1. Make all your changes to the normal datamodel in `src/vardb/datamodel/` and test them until you're satisfied.
    In general we don't want to make more migration scripts than necessary, so make sure things are proper.
-1. Make and enter a dev instance: `make dev` and `make shell`
+1. Make and enter a dev instance (not necessary if inside a devcontainer): `make dev` and `make shell`
 1. Inside it do:
     1. `ella-cli database ci-migration-head` (resets database to the migration base, then runs all the migrations)
     1. `cd /ella/src/vardb/datamodel/migration/`
-    1. `PYTHONPATH=../../.. alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel
-     and compare it against the database state, generating a migration script from the differences.
+    1. `PYTHONPATH=../../.. alembic revision --autogenerate -m "Name of migration"`. This will look at the current datamodel and compare it against the database state, generating a migration script from the differences.
 1. Go over the created script, clean it up and test it (`test-api-migration`).
 
 The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right.
 Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data
 present in the database if necessary.
 
-The `test-api-migration` part of the test suite will test also test database migrations, by running the api tests on a migrated database.
+The `test-api-migration` part of the test suite will also test database migrations, by running the api tests on a migrated database.
 
 ### Manually testing the migrations
+
 To manually test the migration scripts you can run the upgrade/downgrade parts of the various migrations:
 - $ ella-cli database ci-migration-base
 - $ ella-cli database upgrade e371dfeb38c1
@@ -65,13 +67,17 @@ with the database populated through "real" use.
 Typically you call `make dbreset` then interact with the application through the GUI.
 `dbreset` won't create the alembic table and the upgrade/downgrade scripts will fail.
 
-So before manually running the upgrade/downgrade scripts, you need to create the alembic table and populate it with the corresponding version:
+So before manually running the upgrade/downgrade scripts, you need to create the alembic table and populate it with the corresponding version (`[hash]` is the database `Revision ID`):
 ```
  CREATE TABLE alembic_version (version_num varchar)
  INSERT INTO alembic_version VALUES ([hash])
 ```
+### Integrating the a new migration step
 
-### API documentation
+Once you are satisfied that the newly created migration script does its job, you can add it to the repository.
+
+
+## API documentation
 
 The API is documented using [apidocs](https://apispec.readthedocs.io/en/latest/) supporting the OpenAPI specification (f.k.a. Swagger 2.0).
 You can see the specification [here](http://swagger.io/specification/).
