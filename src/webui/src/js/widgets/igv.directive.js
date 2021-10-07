@@ -2,6 +2,7 @@
 
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
+import { deepCopy } from '../util'
 
 const getIgvLocus = (locus) => {
     const fallBackLocus = '1:1000'
@@ -90,7 +91,7 @@ const getIgvLocus = (locus) => {
                 if (toAddTrack) {
                     loading = true
                     // load tracks async
-                    browser.loadTrack(toAddTrack).then(() => {
+                    browser.loadTrack(deepCopy(toAddTrack)).then(() => {
                         loading = false
                         // recheck whenever we previously had a change
                         updateTracks()
