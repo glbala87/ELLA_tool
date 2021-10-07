@@ -1,28 +1,31 @@
 <contentwrapper>
-    <contentbox boxtitle="IMPORT #{{ vm.index }}" color="green">
+    <contentbox boxtitle="IMPORT #{{ $ctrl.index + 1 }}" color="green">
         <cbbody>
             <div class="contentbox fixed-width-number">
-                <!--<div>-->
-
                 <article class="import-summary">
                     <section>
                         <div>
                             <div>
                                 <span class="title">Filename: </span>
-                                <span>{{ vm.importData.getFilename() }}</span>
+                                <span>{{ $ctrl.importData.getFilename() }}</span>
                             </div>
                         </div>
                         <div class="import-selection">
-                            <div ng-repeat="(key, value) in vm.getSummary()">
+                            <div ng-repeat="(key, value) in $ctrl.getSummary()">
                                 <span class="title">{{ key }}: </span>
                                 <span>{{ value }}</span>
                             </div>
                         </div>
-                        <button class="blue" ng-click="vm.toggleEditMode()">
-                            Import options
+
+                        <button
+                            class="blue"
+                            ng-disabled="!$ctrl.editMode || !$ctrl.importData.isSelectionComplete()"
+                            ng-click="$ctrl.toggleEditMode()"
+                        >
+                            {{ $ctrl.editMode ? 'Import' : 'Import triggered' }}
                         </button>
 
-                        <section class="import-edit" ng-if="vm.editMode">
+                        <section class="import-edit" ng-if="$ctrl.editMode">
                             <div class="question tiny line-wrapper">
                                 <div class="left-short">
                                     <h5
@@ -38,10 +41,10 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model="vm.importData.importSelection.mode"
+                                            ng-model="$ctrl.importData.importSelection.mode"
                                             ng-model-options="{ getterSetter: true }"
-                                            ng-repeat="item in vm.importData.getChoices('mode')"
-                                            ng-disabled="vm.warnings.noGenotype.active && item === 'Analysis'"
+                                            ng-repeat="item in ['Analysis', 'Variants']"
+                                            ng-disabled="$ctrl.warnings.noGenotype.active && item === 'Analysis'"
                                             >{{ item }}</label
                                         >
                                     </div>
@@ -50,7 +53,7 @@
 
                             <!--Create or append to analysis-->
                             <div
-                                ng-if="vm.importData.isAnalysisMode()"
+                                ng-if="$ctrl.importData.isAnalysisMode()"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -67,8 +70,8 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model="vm.importData.importSelection.type"
-                                            ng-repeat="item in vm.importData.getChoices('type')"
+                                            ng-model="$ctrl.importData.importSelection.type"
+                                            ng-repeat="item in ['Create', 'Append']"
                                             >{{ item }}</label
                                         >
                                     </div>
@@ -77,7 +80,7 @@
 
                             <!--Select analysis name for new analysis-->
                             <div
-                                ng-if="vm.importData.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.importData.isCreateNewAnalysisType()"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -91,14 +94,14 @@
                                 <div class="right">
                                     <autosize-textarea
                                         placeholder="NAME"
-                                        ng-model="vm.importData.importSelection.analysisName"
+                                        ng-model="$ctrl.importData.importSelection.analysisName"
                                     ></autosize-textarea>
                                 </div>
                             </div>
 
                             <!--Select genepanel-->
                             <div
-                                ng-if="vm.importData.isVariantMode() || vm.importData.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.importData.isVariantMode() || $ctrl.importData.isCreateNewAnalysisType()"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -114,8 +117,8 @@
                                             </script>
                                             <select
                                                 selector
-                                                model="vm.importData.importSelection.genepanel"
-                                                options="vm.genepanels"
+                                                model="$ctrl.importData.importSelection.genepanel"
+                                                options="$ctrl.genepanels"
                                                 placeholder="choose genepanel"
                                                 view-item-template="'genepanelTemplate'"
                                                 dropdown-item-template="'genepanelTemplate'"
@@ -130,7 +133,7 @@
 
                             <!--Select analysis to append to-->
                             <div
-                                ng-if="vm.importData.isAppendToAnalysisType()"
+                                ng-if="$ctrl.importData.isAppendToAnalysisType()"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -146,10 +149,10 @@
                                         <div class="dropdown white analysis">
                                             <select
                                                 selector
-                                                model="vm.importData.importSelection.analysis"
+                                                model="$ctrl.importData.importSelection.analysis"
                                                 debounce="250"
-                                                options="vm.analyses"
-                                                remote="vm.updateAnalysisOptions(search)"
+                                                options="$ctrl.analyses"
+                                                remote="$ctrl.updateAnalysisOptions(search)"
                                                 placeholder="choose analysis"
                                                 label-attr="name"
                                                 disable-search="false"
@@ -177,8 +180,8 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model="vm.importData.importSelection.technology"
-                                            ng-repeat="item in vm.importData.getChoices('technology')"
+                                            ng-model="$ctrl.importData.importSelection.technology"
+                                            ng-repeat="item in $ctrl.importData.getChoices('technology')"
                                             >{{ item }}</label
                                         >
                                     </div>
@@ -188,7 +191,7 @@
                             <!--Select priority-->
                             <div
                                 class="question tiny line-wrapper"
-                                ng-if="vm.importData.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.importData.isCreateNewAnalysisType()"
                             >
                                 <div class="left-short">
                                     <h5
@@ -204,9 +207,9 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model="vm.importData.importSelection.priority"
-                                            ng-repeat="item in vm.importData.getChoices('priority')"
-                                            >{{ vm.priorityDisplay['' + item] }}</label
+                                            ng-model="$ctrl.importData.importSelection.priority"
+                                            ng-repeat="item in $ctrl.importData.getChoices('priority')"
+                                            >{{ $ctrl.priorityDisplay['' + item] }}</label
                                         >
                                     </div>
                                 </div>
@@ -216,13 +219,13 @@
                     <section>
                         <div
                             class="import-warning"
-                            ng-repeat="warning in vm.warnings"
-                            ng-if="vm.showWarning(warning)"
+                            ng-repeat="warning in $ctrl.warnings"
+                            ng-if="$ctrl.showWarning(warning)"
                         >
                             <p>WARNING: {{ warning.text }}</p>
                         </div>
                     </section>
-                    <section ng-if="!vm.importData.isSelectionComplete()">
+                    <section ng-if="!$ctrl.importData.isSelectionComplete()">
                         <div class="import-warning">
                             <p>WARNING: Selection is incomplete</p>
                         </div>
@@ -232,7 +235,7 @@
                 <section class="import-variants">
                     <h5 class="slim title upper">Variants to include</h5>
                     <div>
-                        <p ng-repeat="(description,line) in vm.importData.contents.lines">
+                        <p ng-repeat="(description,line) in $ctrl.importData.contents.lines">
                             <input
                                 tippy-title="Include in import"
                                 type="checkbox"

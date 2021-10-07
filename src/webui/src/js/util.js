@@ -24,6 +24,21 @@ export let printedFileSize = function(size) {
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i]
 }
 
+export const timeString = (isoDateString) => {
+    // YYYY-MM-DD HH:mm
+    const d = new Date(isoDateString)
+    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
+        .getDate()
+        .toString()
+        .padStart(2, '0')} ${d
+        .getHours()
+        .toString()
+        .padStart(2, '0')}:${d
+        .getMinutes()
+        .toString()
+        .padStart(2, '0')}`
+}
+
 /**
  * example: hasDataAtKey({'person': {'name': 'Dave', 'age': 23}}, 'person', 'age') returns true
  *

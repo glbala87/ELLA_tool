@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 export class ImportData {
-    constructor(filename, input) {
+    constructor({ filename, input }) {
         this.filename = filename
         this.input = input
 
@@ -260,8 +260,6 @@ export class ImportData {
             genepanel_version: genepanel.version,
             properties: properties
         }
-
-        console.log(data)
 
         return data
     }

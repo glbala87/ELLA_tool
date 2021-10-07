@@ -83,6 +83,7 @@ app.component('import', {
             activeImportJobs: state`views.overview.import.data.activeImportJobs`,
             importJobsHistory: state`views.overview.import.data.importJobsHistory`,
             importSourceType: state`views.overview.import.importSourceType`,
+            jobData: state`views.overview.import.jobData`,
             customGenepanel: state`views.overview.import.customGenepanel`,
             selectedSample: state`views.overview.import.selectedSample`,
             samples: state`views.overview.import.data.samples`,
@@ -97,7 +98,8 @@ app.component('import', {
             customGenepanelSelected: signal`views.overview.import.customGenepanelSelected`,
             priorityChanged: signal`views.overview.import.priorityChanged`,
             importClicked: signal`views.overview.import.importClicked`,
-            importSourceTypeSelected: signal`views.overview.import.importSourceTypeSelected`
+            importSourceTypeSelected: signal`views.overview.import.importSourceTypeSelected`,
+            jobDataChanged: signal`views.overview.import.jobDataChanged`
         },
         'Import',
         [
@@ -106,7 +108,6 @@ app.component('import', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    jobData: null,
                     userInput: '',
                     sampleSelectedWrapper(newValue) {
                         $ctrl.sampleSelected({
@@ -140,26 +141,21 @@ app.component('import', {
 
                                 splitInput[uuid] = {
                                     filename: currentFile,
-                                    fileContents: ''
+                                    input: ''
                                 }
 
                                 // Don't include line in contents if it is a separator line
                                 if (l.startsWith('-')) continue
                             }
-                            splitInput[uuid].fileContents += l + '\n'
+                            splitInput[uuid].input += l + '\n'
                         }
 
-                        let jobData = {}
-                        for (let k in splitInput) {
-                            jobData[k] = new ImportData(
-                                splitInput[k].filename,
-                                splitInput[k].fileContents
-                            )
-                        }
-                        $ctrl.jobData = jobData
+                        const jobData = Object.values(splitInput)
+                        $ctrl.jobDataChanged({ jobData })
                     },
+
                     revertJobData() {
-                        $ctrl.jobData = null
+                        $ctrl.jobDataChanged({ jobData: [] })
                     },
                     getImportDescription() {
                         let incomplete = 0

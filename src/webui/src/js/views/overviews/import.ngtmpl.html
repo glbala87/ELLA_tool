@@ -75,7 +75,7 @@
         </div>
         <div ng-switch="$ctrl.importSourceType">
             <section ng-switch-when="user">
-                <section ng-show="!$ctrl.jobData">
+                <section ng-show="!$ctrl.jobData.length">
                     <div
                         class="question line-wrapper"
                         style="margin-top: 2rem; justify-content: center;"
@@ -136,9 +136,9 @@
                                 <span
                                     class="clickable"
                                     tippy-popover-title="Example"
-                                    tippy-popover='"<p>13-32890572-G-A (het)</p>
+                                    tippy-popover="<p>13-32890572-G-A (het)</p>
                                                   <p>------</p>
-                                                  <p>13-32890587-C-T (homo)<p>"'
+                                                  <p>13-32890587-C-T (homo)<p>"
                                     >Batch example</span
                                 >
                             </p>
@@ -190,10 +190,11 @@
                             </button>
                         </div>
                     </div>
-                    <div ng-repeat="(id, parsedInput) in $ctrl.jobData track by id">
-                        <importsingle import-data="parsedInput" index="$index+1"> </importsingle>
+                    <div ng-repeat="item in $ctrl.jobData track by $index">
+                        <importsingle index="$index" job-data="$ctrl.jobData[$index]">
+                        </importsingle>
                     </div>
-                    <div class="import-all-summary">
+                    <!-- <div class="import-all-summary">
                         <h3>Summary:</h3>
                         <p ng-repeat="d in $ctrl.getImportDescription()">{{ d }}</p>
                         <div>
@@ -219,7 +220,7 @@
                                 Import
                             </button>
                         </div>
-                    </div>
+                    </div> -->
                 </section>
             </section>
 
