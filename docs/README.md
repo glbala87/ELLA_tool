@@ -7,7 +7,7 @@ sidebar: false
 		<img width="350px;" src="./ella-docs_blue.svg">
 	</div>
 	<br>
-	<div style="font-size: 80%;">v1.15.0 | TBD</div>
+	<div style="font-size: 80%;">v1.15.0 | 13.10.2021</div>
 </div>
 
 ## Contents

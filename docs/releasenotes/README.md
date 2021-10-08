@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.15
 
-Release date: TBD
+Release date: 13.10.2021
 
 ### Highlights
 
