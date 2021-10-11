@@ -85,8 +85,6 @@ Other user interface changes in this version include a better collapsed mode for
 - `GENE PANEL INFO` (button in top bar) now only lists latest version of each gene panel in "5 most similar gene panels".
 <!-- MR !557-->
 - User dashboard now only shows official (not custom) gene panels.
-<!-- MR !568 -->
-- Filtered variants are now sorted by genomic position.
 <!-- MR !585 -->
 - Fixed a bug causing external links for currently selected variant instead of filtered variant in Filtered variants modal.
 <!-- MR !572 -->
