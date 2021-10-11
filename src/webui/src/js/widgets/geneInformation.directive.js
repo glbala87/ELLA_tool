@@ -82,6 +82,8 @@ app.component('geneInformation', {
                         const copiedGeneAssessment = JSON.parse(
                             JSON.stringify($ctrl.geneAssessment)
                         )
+                        console.log('geneassessment')
+                        console.log(copiedGeneAssessment)
                         $ctrl.geneAssessmentChanged({
                             hgncId: $ctrl.hgncId,
                             geneAssessment: copiedGeneAssessment

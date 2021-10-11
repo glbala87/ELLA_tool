@@ -157,9 +157,9 @@ describe('Sample workflow', function() {
             if (idx == 0) {
                 alleleGene = alleleSidebar.getSelectedGene()
                 expect(alleleGene).toBe('GRIN1')
-                // geneComment = `GENE COMMENT FOR ${alleleGene}`
-                // analysisPage.setGeneComment(geneComment)
-                // expect(analysisPage.getGeneComment()).toBe(geneComment)
+                geneComment = `GENE COMMENT FOR ${alleleGene}`
+                analysisPage.setGeneComment(geneComment)
+                expect(analysisPage.getGeneComment()).toBe(geneComment)
             } else {
                 expect(idx).toBe(1)
                 const alleleGene = alleleSidebar.getSelectedGene()
@@ -170,7 +170,7 @@ describe('Sample workflow', function() {
                 // but works when applied manually, maybe some dom / cerebral thingy that is quirky
                 // From the logs, it seems the dat awas inserted into the database without any
                 // problem.
-                //expect(analysisPage.getGeneComment()).toBe(geneComment)
+                expect(analysisPage.getGeneComment()).toBe(geneComment)
             }
 
             // Add attachment

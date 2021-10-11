@@ -87,7 +87,7 @@
             ]
         },
         {
-            "name": "e2e node: workflow_variant_classification",
+            "name": "e2e node: workflow_sample_classification",
             "type": "node",
             "request": "launch",
             "port": 9999,
@@ -109,7 +109,7 @@
                 "--path",
                 "/",
                 "--spec",
-                "src/webui/tests/e2e/tests/workflow_variant_classification.js"
+                "src/webui/tests/e2e/tests/workflow_sample_classification.js"
             ]
         }
     ]
