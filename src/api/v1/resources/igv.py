@@ -184,45 +184,6 @@ def get_classification_gff3(session):
     return "\n".join(lines)
 
 
-<<<<<<< HEAD
-def get_allele_vcf(session, analysis_id, allele_ids):
-    allele_objs = []
-
-    if len(allele_ids):
-        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
-
-        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-
-        adl = AlleleDataLoader(session)
-        allele_objs = adl.from_objs(
-            alleles,
-            analysis_id=analysis.id,
-            genepanel=analysis.genepanel,
-            include_allele_assessment=False,
-            include_allele_report=False,
-            include_custom_annotation=False,
-            include_reference_assessments=False,
-        )
-||||||| merged common ancestors
-def get_allele_vcf(session, analysis_id, allele_ids):
-    if not allele_ids:
-        return None
-
-    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
-
-    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-
-    adl = AlleleDataLoader(session)
-    allele_objs = adl.from_objs(
-        alleles,
-        analysis_id=analysis.id,
-        genepanel=analysis.genepanel,
-        include_allele_assessment=False,
-        include_allele_report=False,
-        include_custom_annotation=False,
-        include_reference_assessments=False,
-    )
-=======
 def get_alleles_from_db(session, analysis_id, allele_ids):
 
     if not allele_ids:
@@ -277,9 +238,9 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
         bed_lines += f"{chr}\t{pos}\t{pos + length}\n"
     return bed_lines
 
->>>>>>> [igv.js] add region of interest track
 
 def get_allele_vcf(session, analysis_id, allele_ids):
+
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     VCF_HEADER_TEMPLATE = (
         "\n".join(
@@ -293,7 +254,6 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         )
         + "\n"
     )
-
     VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
