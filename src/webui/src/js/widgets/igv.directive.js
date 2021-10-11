@@ -2,6 +2,7 @@
 
 import igv from 'igv/dist/igv.js'
 import { Directive, Inject } from '../ng-decorators'
+import { deepCopy } from '../util'
 
 const getIgvLocus = (locus) => {
     const fallBackLocus = '1:1000'
@@ -84,10 +85,13 @@ const getIgvLocus = (locus) => {
                     })
                 // add tracks
                 const toAddTracks = scope.tracks.filter((t) => !currentTrackNames.includes(t.name))
-                if (toAddTracks.length) {
+                // load only one track - remaining tracks in next iterations
+                const _head1 = ([first]) => first
+                const toAddTrack = _head1(toAddTracks)
+                if (toAddTrack) {
                     loading = true
                     // load tracks async
-                    browser.loadTrackList(toAddTracks).then(() => {
+                    browser.loadTrack(deepCopy(toAddTrack)).then(() => {
                         loading = false
                         // recheck whenever we previously had a change
                         updateTracks()
