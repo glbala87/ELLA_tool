@@ -197,7 +197,7 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     )
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-        session, [(gp_name, gp_version)]
+        session, [(gp_name, gp_version)], allele_ids=allele_ids
     ).subquery()
 
     transcripts = (
@@ -207,7 +207,6 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .filter(
             gene.Transcript.transcript_name
             == annotation_transcripts_genepanel.c.genepanel_transcript,
-            annotation_transcripts_genepanel.c.allele_id.in_(allele_ids),
         )
         .all()
     )
@@ -219,7 +218,6 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .filter(
             gene.Transcript.transcript_name
             == annotation_transcripts_genepanel.c.genepanel_transcript,
-            annotation_transcripts_genepanel.c.allele_id.in_(allele_ids),
             gene.Phenotype.gene_id == gene.Transcript.gene_id,
             gene.genepanel_phenotype.c.genepanel_name == gp_name,
             gene.genepanel_phenotype.c.genepanel_version == gp_version,
