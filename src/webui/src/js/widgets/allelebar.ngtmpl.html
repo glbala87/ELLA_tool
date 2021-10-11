@@ -2,7 +2,7 @@
     <tr ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript">
         <td ng-if="$ctrl.genepanel && $ctrl.getGenepanelValues(t.symbol).inheritance !== ''">
             <h3 class="full-title">
-                {{ $ctrl.genepanelValues[t.hgnc_id].inheritance }}
+                {{ $ctrl.genepanelValues[t.hgnc_id].inheritance || '?' }}
             </h3>
         </td>
 
