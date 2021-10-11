@@ -123,6 +123,8 @@ def rest_filter(func):
         if request:
             q = request.args.get("q")
             if q:
+                print(request.args)
+                print(q)
                 q_filter = json.loads(q)
 
         return func(*args, rest_filter=q_filter, **kwargs)

@@ -74,8 +74,12 @@
             </div>
         </div>
         <div ng-switch="$ctrl.importSourceType">
-            <section ng-switch-when="user">
-                <section ng-show="!$ctrl.jobData.length">
+                <user-import ng-switch-when="user"></user-import>
+                <sample-import ng-switch-when="sample"></sample-import>
+        </div>
+
+
+                <!-- <section ng-show="!$ctrl.jobData.length">
                     <div
                         class="question line-wrapper"
                         style="margin-top: 2rem; justify-content: center;"
@@ -190,10 +194,15 @@
                             </button>
                         </div>
                     </div>
-                    <div ng-repeat="item in $ctrl.jobData track by $index">
+                    <!-- <div ng-repeat="item in $ctrl.jobData track by $index">
+
                         <importsingle index="$index" job-data="$ctrl.jobData[$index]">
                         </importsingle>
-                    </div>
+                    </div> -->
+                    <!-- <div ng-repeat="(key, _) in $ctrl.jobData track by $index">
+                        {{ key }}
+                        <importsingle importkey="key"> </importsingle>
+                    </div> -->
                     <!-- <div class="import-all-summary">
                         <h3>Summary:</h3>
                         <p ng-repeat="d in $ctrl.getImportDescription()">{{ d }}</p>
@@ -222,9 +231,9 @@
                         </div>
                     </div> -->
                 </section>
-            </section>
+            </section> -->
 
-            <section ng-switch-when="sample">
+            <!-- <section ng-switch-when="sample">
                 <div class="question tiny line-wrapper">
                     <div class="left">
                         <h5 class="slim title">
@@ -349,7 +358,7 @@
                         </button>
                     </div>
                 </div>
-            </section>
+            </section> -->
         </div>
     </contentwrapper>
 </sectionbox>

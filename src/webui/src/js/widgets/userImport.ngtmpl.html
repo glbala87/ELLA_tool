@@ -1,23 +1,38 @@
 <contentwrapper>
-    <contentbox boxtitle="IMPORT #{{ $ctrl.index + 1 }}" color="green">
+    <contentbox
+        ng-repeat="_ in $ctrl.jobData track by $index"
+        ng-init="$i = $index"
+        boxtitle="IMPORT #{{ $i + 1 }}"
+        color="green"
+    >
         <cbbody>
+            {{}}
             <div class="contentbox fixed-width-number">
                 <article class="import-summary">
                     <section>
                         <div>
                             <div>
                                 <span class="title">Filename: </span>
-                                <span>{{ $ctrl.importData.getFilename() }}</span>
+                                <span>TODO: filename</span>
                             </div>
                         </div>
                         <div class="import-selection">
-                            <div ng-repeat="(key, value) in $ctrl.getSummary()">
+                            <div ng-repeat="(key, value) in $ctrl.summary[$i]">
                                 <span class="title">{{ key }}: </span>
                                 <span>{{ value }}</span>
                             </div>
                         </div>
 
-                        <section class="import-edit" ng-if="$ctrl.editMode">
+                        <button
+                            class="green"
+                            ng-model-watch="$ctrl.jobData[$i].collapsed"
+                            ng-model="$ctrl.modelJobData[$i].collapsed"
+                            ng-click="$ctrl.toggleCollapsed({index: $i})"
+                        >
+                            Toggle edit mode
+                        </button>
+
+                        <section class="import-edit" ng-if="!$ctrl.jobData[$index].collapsed">
                             <div class="question tiny line-wrapper">
                                 <div class="left-short">
                                     <h5
@@ -33,11 +48,11 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model-watch="$ctrl.jobData.selection.type"
-                                            ng-model="$ctrl.modelType"
-                                            ng-model-options="{ getterSetter: true }"
+                                            ng-model-watch="$ctrl.jobData[$i].selection.type"
+                                            ng-model="$ctrl.modelType[$i]"
+                                            ng-change="$ctrl.selectionChanged({index: $i, key: 'type', value: $ctrl.modelType[$i]})"
                                             ng-repeat="item in ['Analysis', 'Variants']"
-                                            ng-disabled="!$ctrl.genotypeAvailable && item === 'Analysis'"
+                                            ng-disabled="!$ctrl.genotypeAvailable[$i] && item === 'Analysis'"
                                             >{{ item }}</label
                                         >
                                     </div>
@@ -45,7 +60,10 @@
                             </div>
 
                             <!--Create or append to analysis-->
-                            <div ng-if="$ctrl.isAnalysisType()" class="question tiny line-wrapper">
+                            <div
+                                ng-if="$ctrl.isAnalysisType[$i]"
+                                class="question tiny line-wrapper"
+                            >
                                 <div class="left-short">
                                     <h5
                                         class="slim title"
@@ -60,8 +78,9 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model-watch="$ctrl.jobData.selection.mode"
-                                            ng-model="$ctrl.modelMode"
+                                            ng-model-watch="$ctrl.jobData[$i].selection.mode"
+                                            ng-model="$ctrl.modelMode[$i]"
+                                            ng-change="$ctrl.selectionChanged({index: $i, key: 'mode', value: $ctrl.modelMode[$i]})"
                                             ng-repeat="item in ['Create', 'Append']"
                                             >{{ item }}</label
                                         >
@@ -71,7 +90,7 @@
 
                             <!--Select analysis name for new analysis-->
                             <div
-                                ng-if="$ctrl.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.isCreateNewAnalysisType[$i]"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -86,14 +105,15 @@
                                     <autosize-textarea
                                         placeholder="NAME"
                                         ng-model-watch="$ctrl.jobData.selection.analysisName"
-                                        ng-model="$ctrl.modelAnalysisName"
+                                        ng-model="$ctrl.modelAnalysisName[$i]"
+                                        ng-change="$ctrl.selectionChanged({index: $i, key: 'analysisName', value: $ctrl.modelAnalysisName[$i]})"
                                     ></autosize-textarea>
                                 </div>
                             </div>
 
                             <!--Select genepanel-->
                             <div
-                                ng-if="$ctrl.isVariantType() || $ctrl.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.isVariantType[$i] || $ctrl.isCreateNewAnalysisType[$i]"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -109,7 +129,8 @@
                                             </script>
                                             <select
                                                 selector
-                                                model="$ctrl.jobData.selection.genepanel"
+                                                model="$ctrl.jobData[$i].selection.genepanel"
+                                                change="$ctrl.selectionChanged({index: $i, key: 'genepanel', value: newValue})"
                                                 options="$ctrl.genepanels"
                                                 placeholder="choose genepanel"
                                                 view-item-template="'genepanelTemplate'"
@@ -125,7 +146,7 @@
 
                             <!--Select analysis to append to-->
                             <div
-                                ng-if="$ctrl.isAppendToAnalysisType()"
+                                ng-if="$ctrl.isAppendToAnalysisType[$i]"
                                 class="question tiny line-wrapper"
                             >
                                 <div class="left-short">
@@ -141,10 +162,11 @@
                                         <div class="dropdown white analysis">
                                             <select
                                                 selector
-                                                model="$ctrl.jobData.selection.analysis"
+                                                model="$ctrl.jobData[$i].selection.analysis"
                                                 debounce="250"
-                                                options="$ctrl.analyses"
-                                                remote="$ctrl.updateAnalysisOptions(search)"
+                                                change="$ctrl.selectionChanged({index: $i, key: 'analysis', value: newValue})"
+                                                options="$ctrl.jobData[$i].analysesOptions"
+                                                remote="$ctrl.updateAnalysisOptionsWrapper($i, search)"
                                                 placeholder="choose analysis"
                                                 label-attr="name"
                                                 disable-search="false"
@@ -172,8 +194,9 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model-watch="$ctrl.jobData.selection.technology"
-                                            ng-model="$ctrl.modelTechnology"
+                                            ng-model-watch="$ctrl.jobData[$i].selection.technology"
+                                            ng-model="$ctrl.modelTechnology[$i]"
+                                            ng-change="$ctrl.selectionChanged({index: $i, key: 'technology', value: $ctrl.modelTechnology[$i]})"
                                             ng-repeat="item in ['Sanger', 'HTS']"
                                             >{{ item }}</label
                                         >
@@ -184,7 +207,7 @@
                             <!--Select priority-->
                             <div
                                 class="question tiny line-wrapper"
-                                ng-if="$ctrl.isCreateNewAnalysisType()"
+                                ng-if="$ctrl.isCreateNewAnalysisType[$i]"
                             >
                                 <div class="left-short">
                                     <h5
@@ -200,8 +223,9 @@
                                             tabindex="0"
                                             class="bttn"
                                             uib-btn-radio="item"
-                                            ng-model-watch="$ctrl.jobData.selection.priority"
-                                            ng-model="$ctrl.modelPriority"
+                                            ng-model-watch="$ctrl.jobData[$i].selection.priority"
+                                            ng-model="$ctrl.modelPriority[$i]"
+                                            ng-change="$ctrl.selectionChanged({index: $i, key: 'priority', value: $ctrl.modelPriority[$i]})"
                                             ng-repeat="item in [1,2,3]"
                                             >{{ $ctrl.priorityDisplay['' + item] }}</label
                                         >
@@ -211,17 +235,8 @@
                         </section>
                     </section>
                     <section>
-                        <div
-                            class="import-warning"
-                            ng-repeat="warning in $ctrl.warnings()"
-                            ng-if="warning.active() && warning.show()"
-                        >
-                            <p>WARNING: {{ warning.text }}</p>
-                        </div>
-                    </section>
-                    <section ng-if="!$ctrl.isSelectionComplete">
-                        <div class="import-warning">
-                            <p>WARNING: Selection is incomplete</p>
+                        <div class="import-warning" ng-repeat="warning in $ctrl.warnings[$i]">
+                            <p>WARNING: {{ warning }}</p>
                         </div>
                     </section>
                 </article>
@@ -230,12 +245,12 @@
                     <h5 class="slim title upper">Variants to include</h5>
                     <div>
                         <p
-                            ng-repeat="line in $ctrl.jobData.parsedInput.variantDataLines track by $index"
+                            ng-repeat="line in $ctrl.jobData[$i].parsedInput.variantDataLines track by $index"
                         >
                             <input
                                 tippy-title="Include in import"
                                 type="checkbox"
-                                ng-model-watch="$ctrl.jobData.selection.include[$index]"
+                                ng-model-watch="$ctrl.jobData[$i].selection.include[$index]"
                                 ng-model="$ctrl.modelInclude[$index]"
                                 class="box"
                             />

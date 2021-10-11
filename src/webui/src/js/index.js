@@ -71,6 +71,7 @@ import './widgets/alleleCollisions.directive'
 import './widgets/analysisList.directive'
 import './widgets/alleleList.directive'
 import './widgets/importList.directive'
+import './widgets/userImport.directive'
 import './widgets/interpretationRoundInfo.directive'
 import './widgets/allelebar.directive'
 import './widgets/allelebar/workflowInterpretationRounds.directive'
@@ -130,7 +131,7 @@ class AppConfig {
         }
         // DEV: Comment out line below to activate devtools
         // (impacts performance even without debugger running)
-        config.devtools = null
+        // config.devtools = null
 
         cerebralProvider.configure(RootModule(), config)
 

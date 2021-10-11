@@ -3,7 +3,7 @@ import { Compute } from 'cerebral'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { UUID } from '../../util'
-import { ImportData } from '../../model/importdata'
+import { ImportData, getParsedInput, getSplitInput } from '../../model/importdata'
 import template from './import.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const addedCount = Compute(
@@ -108,7 +108,7 @@ app.component('import', {
                 const $ctrl = $scope.$ctrl
 
                 Object.assign($ctrl, {
-                    userInput: '',
+                    userInput: '13-32890572-G-A (het)\n------\n13-32890587-C-T (homo)',
                     sampleSelectedWrapper(newValue) {
                         $ctrl.sampleSelected({
                             selectedSample: newValue ? newValue : null
@@ -121,36 +121,68 @@ app.component('import', {
                         return Promise.resolve([])
                     },
                     parseInput() {
-                        const splitInput = {}
-
-                        // Find lines starting with '-'
-                        const lines = $ctrl.userInput.split('\n')
-                        let currentFile = ''
-                        let uuid = null
-                        for (let l of lines) {
-                            if (l.trim() === '') continue
-
-                            // Check if start of new file
-                            if (!uuid || l.startsWith('-')) {
-                                uuid = UUID()
-                                if (l.startsWith('-')) {
-                                    currentFile = l.replace(/-*\s*/g, '')
-                                } else {
-                                    currentFile = ''
-                                }
-
-                                splitInput[uuid] = {
-                                    filename: currentFile,
-                                    input: ''
-                                }
-
-                                // Don't include line in contents if it is a separator line
-                                if (l.startsWith('-')) continue
-                            }
-                            splitInput[uuid].input += l + '\n'
+                        console.log($ctrl.userInput)
+                        const splitInput = getSplitInput($ctrl.userInput)
+                        let parsedInput = {}
+                        for (let [k, v] of Object.entries(splitInput)) {
+                            parsedInput[k] = getParsedInput(v.input)
                         }
 
-                        const jobData = Object.values(splitInput)
+                        for (let [k, v] of Object.entries(parsedInput)) {
+                            console.log(k, v)
+                        }
+
+                        const jobData = {}
+                        for (let k in parsedInput) {
+                            console.log(k)
+                            jobData[k] = {
+                                // splitInput: splitInput[k],
+                                parsedInput: parsedInput[k],
+                                selection: {
+                                    type: 'Analysis',
+                                    mode: 'Create',
+                                    technology: 'Sanger',
+                                    priority: 1,
+                                    analysis: null,
+                                    analysisName: '',
+                                    genepanel: null,
+                                    include: parsedInput[k].variantDataLines.map((x) => true)
+                                }
+                            }
+                        }
+
+                        console.log(jobData)
+                        // const splitInput = {}
+
+                        // // Find lines starting with '-'
+                        // const lines = $ctrl.userInput.split('\n')
+                        // let currentFile = ''
+                        // let uuid = null
+                        // for (let l of lines) {
+                        //     if (l.trim() === '') continue
+
+                        //     // Check if start of new file
+                        //     if (!uuid || l.startsWith('-')) {
+                        //         uuid = UUID()
+                        //         if (l.startsWith('-')) {
+                        //             currentFile = l.replace(/-*\s*/g, '')
+                        //         } else {
+                        //             currentFile = ''
+                        //         }
+
+                        //         splitInput[uuid] = {
+                        //             filename: currentFile,
+                        //             input: ''
+                        //         }
+
+                        //         // Don't include line in contents if it is a separator line
+                        //         if (l.startsWith('-')) continue
+                        //     }
+                        //     splitInput[uuid].input += l + '\n'
+                        // }
+
+                        // const jobData = Object.values(splitInput)
+
                         $ctrl.jobDataChanged({ jobData })
                     },
 
@@ -158,6 +190,7 @@ app.component('import', {
                         $ctrl.jobDataChanged({ jobData: [] })
                     },
                     getImportDescription() {
+                        return '<Import description placeholder>'
                         let incomplete = 0
                         let createAnalyses = 0
                         let standaloneVariants = 0

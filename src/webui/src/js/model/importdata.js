@@ -1,4 +1,154 @@
+import { Compute } from 'cerebral'
+import { state } from 'cerebral/tags'
 /* jshint esnext: true */
+export const getSplitInput = (rawInput) => {
+    const lines = rawInput.split('\n')
+    let splitInput = {}
+
+    let currentFile = ''
+    let uuid = null
+    let importId = 0
+    for (let l of lines) {
+        if (l.trim() === '') continue
+
+        // Check if start of new file
+        // if (!uuid || l.startsWith("-")) {
+        if (importId === 0 || l.startsWith('-')) {
+            importId += 1
+            if (l.startsWith('-')) {
+                currentFile = l.replace(/-*\s*/g, '')
+            } else {
+                currentFile = ''
+            }
+
+            splitInput[importId] = {
+                filename: currentFile,
+                input: ''
+            }
+
+            // Don't include line in contents if it is a separator line
+            if (l.startsWith('-')) continue
+        }
+        splitInput[importId].input += l + '\n'
+    }
+    return splitInput
+}
+
+export const getParsedInput = (input) => {
+    const _parseVcfLine = (line) => {
+        const vals = line.trim().split('\t')
+        const chrom = vals[0]
+        const pos = vals[1]
+        const ref = vals[3]
+        const alt = vals[4]
+
+        const format = vals[8]
+        const sample = vals[9]
+
+        let gt_index = format.split(':').indexOf('GT')
+        let displayGenotype = gt_index >= 0 ? sample.split(':')[gt_index] : '?/?'
+        return [`${chrom}:${pos} ${ref}>${alt} (${displayGenotype})`, gt_index >= 0]
+    }
+
+    const _parseSeqPilotLine = (header, line) => {
+        const splitHeader = header.trim().split('\t')
+        const splitLine = line.trim().split('\t')
+        const values = {}
+        for (let i = 0; i < splitHeader.length; i++) {
+            values[splitHeader[i]] = splitLine[i]
+        }
+        const transcript = values['Transcript']
+        const cdna = values['c. HGVS']
+        let genotype = values['Nuc Change'].match(/\(het\)|\(homo\)/)
+        let displayGenotype = Boolean(genotype) ? genotype : '(?)'
+
+        return [`${transcript}.${cdna} ${displayGenotype}`, Boolean(genotype)]
+    }
+
+    const _parseGenomicOrHGVScLine = (line) => {
+        let genotype = line.match(/ \((het|homo)\)?/)
+        return [line, Boolean(genotype)]
+    }
+
+    // Contents
+    let lines = input.trim().split('\n')
+    const variantDataLines = []
+    let header = ''
+    let fileType
+    for (let l of lines) {
+        if (l.trim() === '') {
+            continue
+        }
+        if (l.trim().startsWith('#CHROM')) {
+            fileType = 'vcf'
+        } else if (l.trim().startsWith('Index')) {
+            fileType = 'seqpilot'
+        }
+
+        if (l.trim().startsWith('#') || l.trim().startsWith('Index')) {
+            header += l + '\n'
+            continue
+        }
+        if (fileType === 'vcf') {
+            var [display, hasGenotype] = _parseVcfLine(l)
+        } else if (fileType === 'seqpilot') {
+            var [display, hasGenotype] = _parseSeqPilotLine(header, l)
+        } else {
+            var [display, hasGenotype] = _parseGenomicOrHGVScLine(l)
+        }
+
+        variantDataLines.push({
+            display: display,
+            value: l,
+            hasGenotype
+        })
+    }
+    return { header: header.trim(), variantDataLines }
+    //   this.contents.header = header.trim();
+}
+
+export const getDefaultSelection = (parsedInput) => {
+    return {
+        mode: 'Analysis',
+        type: 'Create',
+        technology: 'Sanger',
+        priority: 1,
+        analysis: null,
+        analysisName: '',
+        genepanel: null
+    }
+}
+
+export const isSelectionComplete = (importKey) => {
+    return Compute(importKey, state`views.overview.import.jobData`, (importKey, jobData) => {
+        console.log(importKey)
+        if (jobData === undefined) {
+            return false
+        }
+        if (importKey !== undefined) {
+            jobData = { importKey: jobData[importKey] }
+        }
+        console.log(jobData)
+        for (let jd of Object.values(jobData)) {
+            let a = jd.selection.type === 'Variants' && jd.selection.genepanel
+            let b =
+                jd.selection.type === 'Analysis' &&
+                jd.selection.mode === 'Create' &&
+                jd.selection.analysisName &&
+                jd.selection.genepanel
+            let c =
+                jd.selection.type === 'Analysis' &&
+                jd.selection.mode === 'Append' &&
+                jd.selection.analysis
+            let d = Object.values(jd.selection.include).filter((c) => c).length
+
+            if (!Boolean((a || b || c) && d)) {
+                return false
+            }
+        }
+        return true
+    })
+}
 
 export class ImportData {
     constructor({ filename, input }) {
@@ -98,91 +248,6 @@ export class ImportData {
 
     isVariantMode() {
         return this.importSelection.mode === 'Variants'
-    }
-
-    // Contents
-    parse() {
-        let lines = this.input.trim().split('\n')
-        let header = ''
-        let fileType
-        for (let l of lines) {
-            if (l.trim() === '') {
-                continue
-            }
-            if (l.trim().startsWith('#CHROM')) {
-                fileType = 'vcf'
-            } else if (l.trim().startsWith('Index')) {
-                fileType = 'seqpilot'
-            }
-
-            if (l.trim().startsWith('#') || l.trim().startsWith('Index')) {
-                header += l + '\n'
-                continue
-            }
-            let key
-            if (fileType === 'vcf') {
-                key = this._parseVcfLine(l)
-            } else if (fileType === 'seqpilot') {
-                key = this._parseSeqPilotLine(header, l)
-            } else {
-                key = this._parseGenomicOrHGVScLine(l)
-            }
-
-            this.contents.lines[key] = {
-                value: l,
-                include: true
-            }
-        }
-
-        this.contents.header = header.trim()
-    }
-
-    _parseVcfLine(line) {
-        const vals = line.trim().split('\t')
-        const chrom = vals[0]
-        const pos = vals[1]
-        const ref = vals[3]
-        const alt = vals[4]
-
-        const format = vals[8]
-        const sample = vals[9]
-
-        let genotype
-        let gt_index = format.split(':').indexOf('GT')
-        if (gt_index < 0) {
-            genotype = '?/?'
-            this._hasGenotype = false
-        } else {
-            genotype = sample.split(':')[gt_index]
-        }
-
-        return `${chrom}:${pos} ${ref}>${alt} (${genotype})`
-    }
-
-    _parseSeqPilotLine(header, line) {
-        const splitHeader = header.trim().split('\t')
-        const splitLine = line.trim().split('\t')
-        const values = {}
-        for (let i = 0; i < splitHeader.length; i++) {
-            values[splitHeader[i]] = splitLine[i]
-        }
-        const transcript = values['Transcript']
-        const cdna = values['c. HGVS']
-        let genotype = values['Nuc Change'].match(/\(het\)|\(homo\)/)
-        if (!genotype) {
-            this._hasGenotype = false
-            genotype = '(?)'
-        }
-
-        return `${transcript}.${cdna} ${genotype}`
-    }
-
-    _parseGenomicOrHGVScLine(line) {
-        let genotype = line.match(/ \((het|homo)\)?/)
-        if (!genotype) {
-            this._hasGenotype = false
-        }
-        return line
     }
 
     genotypeAvailable() {

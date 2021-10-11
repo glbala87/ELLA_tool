@@ -28,26 +28,79 @@ export function getCandidatesState() {
 
 export default function getImportState() {
     return {
-        sampleQuery: '',
-        customGenepanel: false,
-        data: {
-            samples: null, // Sample results
-            genepanels: null, // Available genepanels
-            genepanel: null, // Currently selected genepanel
-            activeImportJobs: null,
-            importJobsHistory: null
-        },
-        custom: {
-            selectedFilterMode: 'single',
+        importSourceType: 'user',
+        sample: {
+            sampleQuery: '',
+            customGenepanel: false,
+            data: {
+                samples: null, // Sample results
+                genepanels: null, // Available genepanels
+                genepanel: null, // Currently selected genepanel
+                activeImportJobs: null,
+                importJobsHistory: null
+            },
+            custom: {
+                selectedFilterMode: 'single',
+                candidates: getCandidatesState(),
+                added: getAddedState(),
+                selectedImportUserGroups: []
+            },
+            importHistoryPage: 1,
+
+            selectedGenepanel: null,
             candidates: getCandidatesState(),
             added: getAddedState(),
-            selectedImportUserGroups: []
+            priority: 1
         },
-        importHistoryPage: 1,
-        importSourceType: 'user',
-        selectedGenepanel: null,
-        candidates: getCandidatesState(),
-        added: getAddedState(),
-        priority: 1
+        user: {
+            jobData: [
+                {
+                    parsedInput: {
+                        header: '',
+                        variantDataLines: [
+                            {
+                                display: '13-32890572-G-A (het)',
+                                value: '13-32890572-G-A (het)',
+                                hasGenotype: true
+                            }
+                        ]
+                    },
+                    selection: {
+                        type: 'Analysis',
+                        mode: 'Create',
+                        technology: 'Sanger',
+                        priority: 1,
+                        analysis: null,
+                        analysisName: '',
+                        genepanel: null,
+                        include: [true]
+                    },
+                    collapsed: true
+                },
+                {
+                    parsedInput: {
+                        header: '',
+                        variantDataLines: [
+                            {
+                                display: '13-32890587-C-T (homo)',
+                                value: '13-32890587-C-T (homo)',
+                                hasGenotype: true
+                            }
+                        ]
+                    },
+                    selection: {
+                        type: 'Analysis',
+                        mode: 'Create',
+                        technology: 'Sanger',
+                        priority: 1,
+                        analysis: null,
+                        analysisName: '',
+                        genepanel: null,
+                        include: [true]
+                    },
+                    collapsed: false
+                }
+            ]
+        }
     }
 }

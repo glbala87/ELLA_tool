@@ -24,10 +24,14 @@ import applyFilterBatchClicked from './signals/applyFilterBatchClicked'
 import clearFilterBatchClicked from './signals/clearFilterBatchClicked'
 import copyFilterBatchClicked from './signals/copyFilterBatchClicked'
 import importUserGroupsChanged from './signals/importUserGroupsChanged'
-import jobDataChanged from './signals/jobDataChanged'
+
+import userImportModule from './user'
 
 export default Module({
     state: {}, // State set in changeView
+    modules: {
+        user: userImportModule
+    },
     signals: {
         candidatesFilterChanged,
         candidatesFilterBatchChanged,
@@ -53,7 +57,6 @@ export default Module({
         updateImportJobsTriggered,
         clearFilterBatchClicked,
         copyFilterBatchClicked,
-        importUserGroupsChanged,
-        jobDataChanged
+        importUserGroupsChanged
     }
 })
