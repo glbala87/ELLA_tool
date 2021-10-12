@@ -123,10 +123,8 @@ describe('finishWorkflow', function() {
                     allele_ids: [1, 2],
                     technical_allele_ids: [2],
                     notrelevant_allele_ids: [3],
-                    excluded_alleles_by_caller_type: {
-                        snv: {
-                            testFilter: [3]
-                        }
+                    excluded_allele_ids: {
+                        testFilter: [3]
                     }
                 })
 
