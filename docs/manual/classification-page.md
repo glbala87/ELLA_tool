@@ -86,10 +86,10 @@ Each section on this page has a comment field, which should be used for making n
 
 <div class="figure"><img src="./img/comment_menu.png"></div>
 
-The menu also includes buttons for adding pre-defined templates (can be configured independently for specific fields), as well as references from the STUDIES & REFERENCES section. Insert a template or reference by clicking the `+` sign in the pop-up. If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
+The menu also includes buttons for adding pre-defined templates (can be configured independently for specific fields), signature and date (can also be added with the keyboard shortcut `Alt + S`), as well as references from the STUDIES & REFERENCES section. Insert a template or reference by clicking the `+` sign in the pop-up. If no template has been defined or no reference has been found/added (STUDIES & REFERENCES section), the respective buttons will be inactive (greyed out).
 
 ::: tip TIP
-Pasting content copied from an external source, such as a web page or Word, can in some cases produce strange text formatting results. If this is the case, try pasting as plain text (`Ctrl` + `Shift` + `V`) instead.
+Pasting content copied from an external source, such as a web page or Word, can in some cases produce strange text formatting results. If this is the case, try pasting as plain text (`Ctrl + Shift + V`) instead.
 :::
 
 ### Attachments

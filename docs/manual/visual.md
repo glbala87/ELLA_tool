@@ -11,34 +11,28 @@ Pushing the `VISUAL` button (available in ANALYSIS mode only) in the side bar op
 <div class="figure"><img src="./img/sidebar_modes_visual.png"></div>
 <br>
 
-This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.7.9) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
+This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.10.0) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
 
 <div class="figure"><img src="./img/visual.png"></div>
 
+## Preset selection
+
+This section lists all presets defined for individual tracks and allows you to quickly switch on/off all tracks that are associated with the preset. The `DEFAULT` preset and associated tracks are turned on by default, while others must be turned on manually. See the [technical documentation](/technical/uioptions.html#igv-in-visual) for details on configuration.
+
+
 ## Track selection
 
-With IGV, you can visualize all variants in an analysis, along with customizable tracks at three different levels: global, user group or analysis. Each individual track can be switched on/off using the associated button, and multiple tracks can be switched on/off by configuring presets, which are shown at the top.
+This section is collapsed by default. To switch on/off individual tracks, expand the section and click the associated track name. Tracks are grouped by their associated preset names. 
 
-### Global tracks
+## Dynamic tracks 
 
-Global tracks are available to all users. These currently include: 
+Some tracks are dynamic and generated on-the-fly in ELLA. These currently include: 
 
-- `REFGENE`: Transcripts from RefGene.
-- `GENE PANEL`: Regions covered by the current gene panel.
 - `VARIANTS`: All variants in the same sample (analysis) _after_ filtering.
 - `CLASSIFICATIONS`: All existing (finalized) classifications present in the database. Clicking on a variant in this track gives a link to the associated allele assessment.
-	
-### Group tracks
+- `GENEPANEL`: Regions covered by the current gene panel.
 
-Tracks that are specific to your user group in ELLA. 
-
-### Analysis tracks
-
-Analysis tracks are specific to the analysis (depending on configuration). These may include:
-
-- `BAM` files: Raw alignments (HTS data only), split by family members if relevant
-- `VCF`: All variants called in the VCF file (HTS data only, within gene panel, no filtering)
-- `CNV`: Called CNVs (HTS data only)
+Note: these tracks will usually be part of the `DEFAULT` preset (depending on configuration).
 
 ## Navigating the view
 

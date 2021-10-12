@@ -120,7 +120,7 @@ Clicking on a search result will open the analysis/variant. Individual variants 
 
 #### Show analyses containing a variant
 
-When searching for variants, a `SHOW ANALYSES` button next to each search result allows you to view any existing analyses containing the variant.  
+When searching for variants, a `SHOW ANALYSES` button next to each search result allows you to view any existing analyses containing the variant. This button is also available in the [top bar](/manual/top-bar.html#variant) in a VARIANTS workflow.
 
 ::: warning NOTE
 For patient privacy reasons, investigating other analyses containing a variant should only be done when absolutely necessary (you will need to confirm this with an `I ACCEPT` button), and all actions will be logged.
