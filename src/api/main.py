@@ -53,6 +53,9 @@ def after_request(response):
     if is_dev:
         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
         response.headers["Access-COntrol-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Pragma"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+
     return response
 
 
