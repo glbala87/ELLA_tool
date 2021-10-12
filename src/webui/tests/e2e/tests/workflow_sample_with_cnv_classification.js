@@ -144,7 +144,11 @@ describe('Sample workflow', function() {
         analysisPage.classificationTypeFullButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeFullButton.click()
 
-        testAlleles = ['g.140039852_140039910del', 'g.119964016_119964075del']
+        testAlleles = [
+            'g.140039852_140039910del',
+            'g.119964016_119964075del',
+            'g.60694533_60695080del'
+        ]
         for (let idx = 0; idx < testAlleles.length; idx++) {
             // unclassified count to avoid timing issue later
             const numUnclassified = alleleSidebar.countOfUnclassified()
@@ -153,23 +157,11 @@ describe('Sample workflow', function() {
             selected_allele = alleleSidebar.getSelectedAllele(testAlleles[idx])
             console.log(`Classifying variant: ${selected_allele} in loop with idx=${idx}`)
 
-            // Set gene comment
-            if (idx == 0) {
+            if (idx == testAlleles.length - 1) {
                 alleleGene = alleleSidebar.getSelectedGene()
-                expect(alleleGene).toBe('GRIN1')
+                expect(alleleGene).toBe('BCL11A')
                 geneComment = `GENE COMMENT FOR ${alleleGene}`
                 analysisPage.setGeneComment(geneComment)
-                expect(analysisPage.getGeneComment()).toBe(geneComment)
-            } else {
-                expect(idx).toBe(1)
-                const alleleGene = alleleSidebar.getSelectedGene()
-                expect(alleleGene).toBe('HSD3B2')
-                const geneComment = `GENE COMMENT FOR ${alleleGene}`
-                analysisPage.setGeneComment(geneComment)
-                //TODO: by some odd reason this does not work during test,
-                // but works when applied manually, maybe some dom / cerebral thingy that is quirky
-                // From the logs, it seems the dat awas inserted into the database without any
-                // problem.
                 expect(analysisPage.getGeneComment()).toBe(geneComment)
             }
 
