@@ -48,6 +48,11 @@ def after_request(response):
             log.exception("Something went wrong when commiting resourcelog entry")
             db.session.rollback()
 
+    # Allow a different front-end running on port 3000 to make requests to the API while developing.
+    is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, "").lower() == "true"
+    if is_dev:
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response.headers["Access-COntrol-Allow-Credentials"] = "true"
     return response
 
 
