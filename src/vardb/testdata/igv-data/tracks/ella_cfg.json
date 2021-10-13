@@ -1,6 +1,5 @@
 {
     "{DYNAMIC}/variants": {
-        "name": "Variants",
         "presets": [],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
@@ -14,12 +13,12 @@
         }
     },
     "{DYNAMIC}/classifications": {
-        "name": "Classifications",
         "presets": [],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/classifications/",
         "show": true,
         "igv": {
+            "name": "Classifications",
             "format": "gff3",
             "indexed": false,
             "order": 11,
@@ -36,12 +35,12 @@
         }
     },
     "{DYNAMIC}/genepanel": {
-        "name": "Genepanel",
         "presets": ["Test 1", "Test 2", "Test 3"],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/genepanel/{GENEPANEL_NAME}/{GENEPANEL_VERSION}/",
         "show": true,
         "igv": {
+            "name": "Gene panel",
             "type": "annotation",
             "format": "bed",
             "indexed": false,
@@ -104,11 +103,11 @@
         }
     },
     "{STATIC}/refGene*.bed.gz": {
-        "name": "Refgene",
         "presets": ["Test 2"],
         "limit_to_groups": ["testgroup02"],
-        "show": true,
+        "show": false,
         "igv": {
+            "name": "Refgene",
             "indexed": false
         }
     }

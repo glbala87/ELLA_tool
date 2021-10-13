@@ -82,12 +82,14 @@ const getIgvLocus = (locus) => {
                     .map((tv) => tv.track.name)
                 // remove tracks that are not in the state anymore
                 currentTrackNames
-                    .filter((name) => !scope.tracks.find((t) => t.name === name))
+                    .filter((name) => !Object.values(scope.tracks).find((cfg) => cfg.name === name))
                     .forEach((name) => {
                         browser.removeTrackByName(name)
                     })
                 // add tracks
-                const toAddTracks = scope.tracks.filter((t) => !currentTrackNames.includes(t.name))
+                const toAddTracks = Object.entries(scope.tracks)
+                    .filter(([id, cfg]) => !currentTrackNames.includes(cfg.name))
+                    .map(([id, cfg]) => cfg)
                 // load only one track - remaining tracks in next iterations
                 const _head1 = ([first]) => first
                 const toAddTrack = _head1(toAddTracks)
@@ -105,7 +107,7 @@ const getIgvLocus = (locus) => {
             // Load initial tracks
             updateTracks()
 
-            scope.$watchCollection('tracks', updateTracks)
+            scope.$watch('tracks', updateTracks)
 
             // allow zoom with mouse wheel
             const igvContainer = document.querySelector('.igv-column-container')
