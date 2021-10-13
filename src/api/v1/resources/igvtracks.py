@@ -2,21 +2,16 @@ import os
 import mimetypes
 import logging
 from io import BytesIO
-
 from flask import request, Response, send_file
 from sqlalchemy import tuple_, func
-
-
 from api.config import config
-
 from vardb.datamodel import sample, gene, allele, assessment
-
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate, logger
 from datalayer import AlleleDataLoader
-
 from api import ApiError
 from . import igvcfg
+
 
 log = logging.getLogger()
 

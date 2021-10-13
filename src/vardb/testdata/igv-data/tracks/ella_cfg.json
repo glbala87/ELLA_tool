@@ -3,7 +3,7 @@
         "name": "Variants",
         "presets": [],
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
+        "url": "/api/v1/igv/tracks/dynamic/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
         "show": true,
         "igv": {
             "name": "Variants",
@@ -17,7 +17,7 @@
         "name": "Classifications",
         "presets": [],
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/classifications/",
+        "url": "/api/v1/igv/tracks/dynamic/classifications/",
         "show": true,
         "igv": {
             "format": "gff3",
@@ -52,7 +52,16 @@
     },
     "{ANALYSIS}/*.bam": {
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/analyses/{ANALYSIS_ID}/{TRACK_FILEPATH}"
+        "url": "/api/v1/igv/tracks/analyses/{ANALYSIS_ID}/{TRACK_FILEPATH}",
+        "igv": {
+            "format": "bam",
+            "colorBy": "strand",
+            "negStrandColor": "rgb(150,150,230)",
+            "posStrandColor": "rgb(230,150,150)",
+            "alignmentRowHeight": 12,
+            "visibilityWindow": 20000,
+            "order": 300
+        }
     },
     "{STATIC}/*": {
         "url": "/api/v1/igv/tracks/static/{TRACK_FILEPATH}"

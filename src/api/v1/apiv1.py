@@ -395,16 +395,20 @@ class ApiV1(object):
         self._add_resource(r.igvtracks.IgvSearchResource, "/api/v1/igv/search/")
 
         self._add_resource(
-            r.igvtracks.GenepanelBedResource, "/api/v1/igv/genepanel/<gp_name>/<gp_version>/"
+            r.igvtracks.GenepanelBedResource,
+            "/api/v1/igv/tracks/dynamic/genepanel/<gp_name>/<gp_version>/",
         )
-
-        self._add_resource(r.igvtracks.ClassificationResource, "/api/v1/igv/classifications/")
 
         self._add_resource(
-            r.igvtracks.AnalysisVariantTrack, "/api/v1/igv/variants/<int:analysis_id>/"
+            r.igvtracks.ClassificationResource, "/api/v1/igv/tracks/dynamic/classifications/"
         )
 
-        self._add_resource(r.igvtracks.StaticTrack, "/api/v1/igv/static/<filepath>")
+        self._add_resource(
+            r.igvtracks.AnalysisVariantTrack,
+            "/api/v1/igv/tracks/dynamic/variants/<int:analysis_id>/",
+        )
+
+        self._add_resource(r.igvtracks.StaticTrack, "/api/v1/igv/tracks/static/<filepath>")
 
         self._add_resource(
             r.igvtracks.AnalysisTrack, "/api/v1/igv/tracks/analyses/<int:analysis_id>/<filename>"
