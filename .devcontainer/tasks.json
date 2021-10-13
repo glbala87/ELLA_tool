@@ -27,9 +27,7 @@
         {
             "type": "shell",
             "label": "reset custom db",
-            "command": [
-                "TESTSET=custom make dbreset"
-            ],
+            "command": ["TESTSET=custom make dbreset"],
             "problemMatcher": []
         },
         {

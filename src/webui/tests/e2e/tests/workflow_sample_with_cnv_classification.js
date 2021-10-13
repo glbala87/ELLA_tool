@@ -97,7 +97,6 @@ describe('Sample workflow', function() {
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
-        //analysisPage.startButton.click()
 
         cnvSelector = analysisPage.cnvSelector
         cnvSelector.waitForExist()
@@ -108,7 +107,6 @@ describe('Sample workflow', function() {
 
         analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
-        //g.27776481_135255460del
         alleleSidebar.quickSetTechnical('g.27776481_135255460del')
 
         let selected_allele = alleleSidebar.getSelectedAllele()
