@@ -49,6 +49,11 @@ class TrackCfgKey(Enum):
     applied_rules = auto()
     limit_to_groups = auto()
     url = auto()
+    igv = auto()
+
+
+class TrackCfgIgvKey(Enum):
+    url = auto()
 
 
 class TrackSrcId:
@@ -104,10 +109,10 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
             dst_cfg[TrackCfgKey.applied_rules.name].append(inp_cfg_id_pattern)
         track_cfgs[track_src_id.id] = dst_cfg
     # filter tracks by user
-    print(track_cfgs)
     for track_id in list(track_cfgs):  # creates copy of keys as we are deleting some in the loop
         cfg = track_cfgs[track_id]
         keep_track = True
+        # TODO: keep track if user == admin (maybe also keep limit_to_groups field)
         keep_track = keep_track and TrackCfgKey.limit_to_groups.name in cfg.keys()
         keep_track = keep_track and (
             cfg[TrackCfgKey.limit_to_groups.name]
@@ -201,19 +206,25 @@ class AnalysisTrackList(LogRequestResource):
         # define dynamic tracks
         track_ids += TrackSrcId.from_rel_paths(TrackSourceType.DYNAMIC, DYNAMIC_TRACK_PATHS)
 
-        for t in track_ids:
-            print(t.id)
-
         track_cfgs = load_raw_config(track_ids, user)
 
         # replace patterns in urls
         for track_id, cfg in track_cfgs.items():
             url_var = _get_url_vars(track_id)
+            # we require generic urls
             if TrackCfgKey.url.name not in cfg:
                 raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
+            # interplate urls
             for pattern, replacement in url_var.items():
-                cfg[TrackCfgKey.url.name] = cfg[TrackCfgKey.url.name].replace(
+                cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name].replace(
                     f"{{{pattern}}}", replacement
                 )
-
+            # create igv entry if it not exists
+            if TrackCfgKey.igv.name not in cfg:
+                cfg[TrackCfgKey.igv.name] = {}
+            # write igv url
+            igv_cfg = cfg[TrackCfgKey.igv.name]
+            igv_cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name]
+            # remove un-interpolated url
+            del cfg[TrackCfgKey.url.name]
         return track_cfgs
