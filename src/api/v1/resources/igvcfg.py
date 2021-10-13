@@ -1,5 +1,7 @@
 import os
 import typing
+
+from sqlalchemy.orm.base import attribute_str
 from vardb.datamodel import sample
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
@@ -28,10 +30,10 @@ class TrackSuffixType:
 
 
 VALID_TRACK_TYPES = [
-    TrackSuffixType(".bed.gz", ".bed.gz.tbi", TrackType.bed),
-    TrackSuffixType(".vcf.gz", ".vcf.gz.tbi", TrackType.vcf),
-    TrackSuffixType(".gff3.gz", ".gff3.gz.tbi", TrackType.gff3),
-    TrackSuffixType(".bam", ".bam.bai", TrackType.bam),
+    TrackSuffixType(".bed.gz", ".tbi", TrackType.bed),
+    TrackSuffixType(".vcf.gz", ".tbi", TrackType.vcf),
+    TrackSuffixType(".gff3.gz", ".tbi", TrackType.gff3),
+    TrackSuffixType(".bam", ".bai", TrackType.bam),
     TrackSuffixType(".bigWig", None, TrackType.bigWig),
 ]
 
@@ -54,6 +56,8 @@ class TrackCfgKey(Enum):
 
 class TrackCfgIgvKey(Enum):
     url = auto()
+    name = auto()
+    indexURL = auto()
 
 
 class TrackSrcId:
@@ -152,12 +156,12 @@ def search_rel_track_paths(tracks_path: typing.Optional[str]) -> List[str]:
     if tracks_path is None:
         # called should check if path is valied (non-existent anaylysis folder is ok)
         return []
-    index_extensions = [".fai", ".idx", ".index", ".bai", ".tbi", ".crai"]
-    excluded_suffixes = index_extensions + [".json"]
+
+    valid_extentions = [t.track_suffix for t in VALID_TRACK_TYPES]
 
     # only files with track data
     def _filter_ext(f):
-        return not any(f.endswith(ext) for ext in excluded_suffixes)
+        return any(f.endswith(ext) for ext in valid_extentions)
 
     # filter files and normalize path relative to tracks_path
     def _get_rel_path(p):
@@ -208,18 +212,18 @@ class AnalysisTrackList(LogRequestResource):
 
         track_cfgs = load_raw_config(track_ids, user)
 
-        # replace patterns in urls
+        # reorganize config values
         for track_id, cfg in track_cfgs.items():
+            # interpolate urls
             url_var = _get_url_vars(track_id)
             # we require generic urls
             if TrackCfgKey.url.name not in cfg:
                 raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
-            # interplate urls
             for pattern, replacement in url_var.items():
                 cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name].replace(
                     f"{{{pattern}}}", replacement
                 )
-            # create igv entry if it not exists
+            # create igv entry if it's missing
             if TrackCfgKey.igv.name not in cfg:
                 cfg[TrackCfgKey.igv.name] = {}
             # write igv url
@@ -227,4 +231,15 @@ class AnalysisTrackList(LogRequestResource):
             igv_cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name]
             # remove un-interpolated url
             del cfg[TrackCfgKey.url.name]
+            # default track name
+            if TrackCfgIgvKey.name.name not in igv_cfg:
+                igv_cfg[TrackCfgIgvKey.name.name] = os.path.basename(track_id).split(".")[0]
+            for track_type in VALID_TRACK_TYPES:
+                if not track_id.endswith(track_type.track_suffix):
+                    continue
+                if track_type.idx_suffix is not None:
+                    igv_cfg[TrackCfgIgvKey.indexURL.name] = (
+                        igv_cfg[TrackCfgIgvKey.url.name] + "?index=1"
+                    )
+                break
         return track_cfgs

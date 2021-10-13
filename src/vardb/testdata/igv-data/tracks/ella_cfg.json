@@ -107,6 +107,9 @@
         "name": "Refgene",
         "presets": ["Test 2"],
         "limit_to_groups": ["testgroup02"],
-        "show": true
+        "show": true,
+        "igv": {
+            "indexed": false
+        }
     }
 }
