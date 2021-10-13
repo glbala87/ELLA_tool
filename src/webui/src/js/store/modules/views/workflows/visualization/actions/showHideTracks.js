@@ -5,20 +5,10 @@ export default function showHideTracks({ state, props }) {
     if (!tracksToUpdate || tracksToUpdate.length == 0) {
         return
     }
-    const tracks = deepCopy(state.get(`views.workflows.visualization.tracks`))
-    if (!tracks) {
-        return
-    }
-
-    const loadPromises = []
+    const tracks = state.get(`views.workflows.visualization.tracks`)
     tracksToUpdate.forEach((trackToUpdate) => {
-        const { type, id, show } = trackToUpdate
-        if (tracks[type]) {
-            const trackIdx = tracks[type].findIndex((i) => i.id === id)
-            if (trackIdx >= 0) {
-                tracks[type][trackIdx].selected = show
-            }
-        }
+        const { trackId, show } = trackToUpdate
+        tracks[trackId].selected = show
     })
     state.set(`views.workflows.visualization.tracks`, tracks)
 }

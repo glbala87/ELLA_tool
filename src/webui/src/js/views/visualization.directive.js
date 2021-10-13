@@ -6,34 +6,18 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
-const getTrackUid = (categoryId, trackIdx) => {
-    // stich track index to track category ID - trackIdx is an int
-    return `${categoryId}_${trackIdx}`
-}
-
 // object: preset_ID -> Set[track_inf1, track_inf2, ... ]
-const getPresetTracks = (tracks) => {
+const getPresetByTrackId = (tracks) => {
     const r = {}
     if (!tracks) {
         return r
     }
-    Object.keys(tracks).forEach((trackCatId) => {
-        tracks[trackCatId].forEach((track, trackIdx) => {
-            if (track.presets === undefined) {
-                return
+    Object.entries(tracks).forEach(([trackId, trackCfg]) => {
+        trackCfg.presets.forEach((presetId) => {
+            if (!r.hasOwnProperty(presetId)) {
+                r[presetId] = new Set()
             }
-            track.presets.forEach((presetId) => {
-                if (!r.hasOwnProperty(presetId)) {
-                    r[presetId] = new Set()
-                }
-                const trackInfo = {
-                    uid: getTrackUid(trackCatId, trackIdx),
-                    data: track,
-                    categoryId: trackCatId,
-                    index: trackIdx
-                }
-                r[presetId].add(trackInfo)
-            })
+            r[presetId].add(trackId)
         })
     })
     return r
@@ -43,13 +27,13 @@ const getPresetTracks = (tracks) => {
 const getPresets = (tracks) => {
     return Compute(tracks, (tracks) => {
         const r = {}
-        const presetTracks = getPresetTracks(tracks)
-        Object.keys(presetTracks)
+        const preset2TracksId = getPresetByTrackId(tracks)
+        Object.keys(preset2TracksId)
             // sort default element to the front
             .reduce((acc, e) => (e == 'Default' ? [e, ...acc] : [...acc, e]), [])
             // convert to array - angularjs 1.x does not support Set
             .forEach((k) => {
-                r[k] = Array.from(presetTracks[k])
+                r[k] = Array.from(preset2TracksId[k])
             })
         return r
     })
@@ -63,25 +47,23 @@ const getCurrPresetModel = (tracks) => {
             if (!tracks) {
                 return r
             }
-            Object.keys(tracks).forEach((trackCatId) => {
-                tracks[trackCatId].forEach((track, trackIdx) => {
-                    if (track.selected) {
-                        r.add(getTrackUid(trackCatId, trackIdx))
-                    }
-                })
+            Object.entries(tracks).forEach(([trackId, trackCfg]) => {
+                if (trackCfg.selected) {
+                    r.add(trackId)
+                }
             })
             return r
         }
         const _setContains = (a, b) => a.size >= b.size && [...b].every((value) => a.has(value))
-        const presetTracks = getPresetTracks(tracks)
+        const preset2TracksId = getPresetByTrackId(tracks)
         const currTrackSelection = _getSelectedTracks(tracks)
         // init model
         const presetModel = {}
         // set status
-        for (let presetId of Object.keys(presetTracks)) {
+        for (let presetId of Object.keys(preset2TracksId)) {
             presetModel[presetId] = _setContains(
                 currTrackSelection,
-                new Set([...presetTracks[presetId]].map((e) => e.uid)) // extract set of UIDs
+                new Set([...preset2TracksId[presetId]]) // extract set of UIDs
             )
         }
         return presetModel
@@ -110,39 +92,33 @@ app.component('visualization', {
                     togglePreset: function(presetId) {
                         const show = $ctrl.presetModel[presetId] // no need to negate, model is already changed
                         const tracksToUpdate = []
-                        const _equalSet = (a, b) =>
-                            a.size === b.size && [...a].every((value) => b.has(value))
-                        Object.keys($ctrl.tracks).forEach((trackCategory) => {
-                            $ctrl.tracks[trackCategory].forEach((track, trackIdx) => {
-                                if (track.presets === undefined) {
-                                    return
-                                }
-                                if (!track.presets.includes(presetId)) {
-                                    return
-                                }
-                                if (show) {
-                                    // activate track
+                        Object.entries($ctrl.tracks).forEach(([trackId, trackCfg]) => {
+                            if (!trackCfg.presets.includes(presetId)) {
+                                return
+                            }
+                            if (show) {
+                                // activate track
+                                tracksToUpdate.push({
+                                    trackId: trackId,
+                                    show: true
+                                })
+                            } else {
+                                // only deactivate if not referenced anymore
+                                const associatedActivePresets = trackCfg.presets.filter(
+                                    (e) => $ctrl.presetModel[e]
+                                )
+                                if (associatedActivePresets.length == 0) {
                                     tracksToUpdate.push({
-                                        type: trackCategory,
-                                        id: track.id,
-                                        show: true
+                                        trackId: trackId,
+                                        show: false
                                     })
-                                } else {
-                                    // only deactivate if not referenced anymore
-                                    const associatedActivePresets = track.presets.filter(
-                                        (e) => $ctrl.presetModel[e]
-                                    )
-                                    if (associatedActivePresets.length == 0) {
-                                        tracksToUpdate.push({
-                                            type: trackCategory,
-                                            id: track.id,
-                                            show: false
-                                        })
-                                    }
                                 }
-                            })
+                            }
                         })
                         $ctrl.shownTracksChanged({ tracksToUpdate })
+                    },
+                    hasEntries: function(obj) {
+                        return obj && Object.keys(obj).length > 0
                     }
                 })
             }

@@ -25,12 +25,12 @@
                     <label
                         tabindex="0"
                         class="bttn"
-                        ng-model="$ctrl.modelTracks[track.categoryId][track.index]"
-                        ng-model-watch="$ctrl.tracks[track.categoryId][track.index].selected"
-                        ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: track.categoryId, id: track.data.id, show: !track.data.selected}]})"
+                        ng-model="$ctrl.modelTracks[trackId]"
+                        ng-model-watch="$ctrl.tracks[trackId].selected"
+                        ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{trackId: trackId, show: !$ctrl.tracks[trackId].selected}]})"
                         uib-btn-checkbox="track.data"
-                        ng-repeat="track in tracksByPreset"
-                        >{{ track.data.config.name }}</label
+                        ng-repeat="trackId in tracksByPreset"
+                        >{{ $ctrl.tracks[trackId].igv.name }}</label
                     >
                 </div>
             </div>
@@ -38,7 +38,7 @@
     </sectionbox>
 
     <igv
-        ng-if="$ctrl.igvTracks.length"
+        ng-if="$ctrl.hasEntries($ctrl.igvTracks)"
         locus="$ctrl.igvLocus"
         tracks="$ctrl.igvTracks"
         reference="$ctrl.igvReference"
