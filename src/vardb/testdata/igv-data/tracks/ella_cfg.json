@@ -1,9 +1,9 @@
 {
-    "{SOURCE_DYNAMIC}/variants": {
+    "{DYNAMIC}/variants": {
         "name": "Variants",
         "presets": [],
-        "groups": ["*"],
-        "url": "/api/v1/igv/variants/{{ANALYSIS_ID}}/?allele_ids={{ALLELE_IDS}}",
+        "limitToGroups": null,
+        "url": "/api/v1/igv/tracks/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
         "show": true,
         "igv": {
             "name": "Variants",
@@ -13,11 +13,11 @@
             "visibilityWindow": 9999999999999
         }
     },
-    "{SOURCE_DYNAMIC}/classifications": {
+    "{DYNAMIC}/classifications": {
         "name": "Classifications",
         "presets": [],
-        "groups": ["*"],
-        "url": "/api/v1/igv/classifications/",
+        "limitToGroups": null,
+        "url": "/api/v1/igv/tracks/classifications/",
         "show": true,
         "igv": {
             "format": "gff3",
@@ -35,11 +35,11 @@
             }
         }
     },
-    "{SOURCE_DYNAMIC}/genepanel": {
+    "{DYNAMIC}/genepanel": {
         "name": "Genepanel",
         "presets": ["Test 1", "Test 2", "Test 3"],
-        "groups": ["*"],
-        "url": "/api/v1/igv/genepanel/{{GENEPANEL_NAME}}/{{GENEPANEL_VERSION}}/",
+        "limitToGroups": null,
+        "url": "/api/v1/igv/tracks/dynamic/genepanel/{GENEPANEL_NAME}/{GENEPANEL_VERSION}/",
         "show": true,
         "igv": {
             "type": "annotation",
@@ -50,29 +50,29 @@
             "height": 60
         }
     },
-    "{SOURCE_ANALYSIS}/*.bam": {
-        "groups": ["*"],
-        "url": "/api/v1/igv/tracks/analyses/{{ANALYSIS_ID}}/{{TRACK_FILEPATH}}"
+    "{ANALYSIS}/*.bam": {
+        "limitToGroups": null,
+        "url": "/api/v1/igv/tracks/analyses/{ANALYSIS_ID}/{TRACK_FILEPATH}"
     },
-    "{SOURCE_STATIC}/*": {
-        "url": "/api/v1/igv/static/{{TRACK_FILEPATH}}"
+    "{STATIC}/*": {
+        "url": "/api/v1/igv/tracks/static/{TRACK_FILEPATH}"
     },
-    "{SOURCE_STATIC}/*.bed.gz": {
+    "{STATIC}/*.bed.gz": {
         "igv": { "format": "bed", "displayMode": "EXPANDED", "order": 100 }
     },
-    "{SOURCE_STATIC}/*.vcf.gz": {
+    "{STATIC}/*.vcf.gz": {
         "igv": { "format": "vcf", "visibilityWindow": 1e9, "order": 200 }
     },
-    "{SOURCE_STATIC}/*.bigWig": {
+    "{STATIC}/*.bigWig": {
         "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{SOURCE_STATIC}/*.bw": {
+    "{STATIC}/*.bw": {
         "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{SOURCE_STATIC}/*.gff3.gz": {
+    "{STATIC}/*.gff3.gz": {
         "igv": { "format": "gff3", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{SOURCE_STATIC}/*.bam": {
+    "{STATIC}/*.bam": {
         "igv": {
             "format": "bam",
             "colorBy": "strand",
@@ -83,7 +83,7 @@
             "order": 300
         }
     },
-    "{SOURCE_STATIC}/*.cram": {
+    "{STATIC}/*.cram": {
         "igv": {
             "format": "cram",
             "colorBy": "strand",
@@ -94,10 +94,10 @@
             "order": 300
         }
     },
-    "{SOURCE_STATIC}/refGene*.bed.gz": {
+    "{STATIC}/refGene*.bed.gz": {
         "name": "Refgene",
         "presets": ["Test 2"],
-        "groups": ["testgroup02"],
+        "limitToGroups": ["testgroup02"],
         "show": true
     }
 }
