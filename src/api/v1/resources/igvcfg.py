@@ -37,19 +37,17 @@ VALID_TRACK_TYPES = [
 
 
 class TrackSourceType(Enum):
-    DYNAMIC = "SOURCE_DYNAMIC"
-    STATIC = "SOURCE_STATIC"
-    ANALYSIS = "SOURCE_ANALYSIS"
+    DYNAMIC = auto()
+    STATIC = auto()
+    ANALYSIS = auto()
 
 
 DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel"]
 
-TRACK_CFG_GROUPS_ALL = "*"
-
 
 class TrackCfgKey(Enum):
     applied_rules = auto()
-    groups = auto()
+    limit_to_groups = auto()
     url = auto()
 
 
@@ -58,7 +56,7 @@ class TrackSrcId:
 
     def __init__(self, source_type: TrackSourceType, rel_path: str):
         def _track_id(track_source_id: TrackSourceType, rel_track_path: str) -> str:
-            return f"{{{track_source_id.value}}}/{rel_track_path}"
+            return f"{{{track_source_id.name}}}/{rel_track_path}"
 
         self.source_type = source_type
         self.id = _track_id(source_type, rel_path)
@@ -78,7 +76,7 @@ class TrackSrcId:
             return s
 
         for src_id in TrackSourceType:
-            tid = _rm_prefix(tid, f"{{{src_id.value}}}/")
+            tid = _rm_prefix(tid, f"{{{src_id.name}}}/")
         return tid
 
 
@@ -110,12 +108,14 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
     for track_id in list(track_cfgs):  # creates copy of keys as we are deleting some in the loop
         cfg = track_cfgs[track_id]
         keep_track = True
-        keep_track = keep_track and TrackCfgKey.groups.name in cfg.keys()
-        keep_track = keep_track and any(
-            g == TRACK_CFG_GROUPS_ALL or g == user.group.name for g in cfg[TrackCfgKey.groups.name]
+        keep_track = keep_track and TrackCfgKey.limit_to_groups.name in cfg.keys()
+        keep_track = keep_track and (
+            cfg[TrackCfgKey.limit_to_groups.name]
+            is None  # "limit_to_groups: null" enables public access
+            or any(g == user.group.name for g in cfg[TrackCfgKey.limit_to_groups.name])
         )
         # rm group key
-        cfg.pop(TrackCfgKey.groups.name, None)
+        cfg.pop(TrackCfgKey.limit_to_groups.name, None)
         # rm track?
         if not keep_track:
             del track_cfgs[track_id]
@@ -213,7 +213,7 @@ class AnalysisTrackList(LogRequestResource):
                 raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
             for pattern, replacement in url_var.items():
                 cfg[TrackCfgKey.url.name] = cfg[TrackCfgKey.url.name].replace(
-                    f"{{{{{pattern}}}}}", replacement
+                    f"{{{pattern}}}", replacement
                 )
 
         return track_cfgs

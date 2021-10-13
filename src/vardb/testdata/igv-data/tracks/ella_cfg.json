@@ -2,7 +2,7 @@
     "{DYNAMIC}/variants": {
         "name": "Variants",
         "presets": [],
-        "limitToGroups": null,
+        "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
         "show": true,
         "igv": {
@@ -16,7 +16,7 @@
     "{DYNAMIC}/classifications": {
         "name": "Classifications",
         "presets": [],
-        "limitToGroups": null,
+        "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/classifications/",
         "show": true,
         "igv": {
@@ -38,7 +38,7 @@
     "{DYNAMIC}/genepanel": {
         "name": "Genepanel",
         "presets": ["Test 1", "Test 2", "Test 3"],
-        "limitToGroups": null,
+        "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/genepanel/{GENEPANEL_NAME}/{GENEPANEL_VERSION}/",
         "show": true,
         "igv": {
@@ -51,7 +51,7 @@
         }
     },
     "{ANALYSIS}/*.bam": {
-        "limitToGroups": null,
+        "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/analyses/{ANALYSIS_ID}/{TRACK_FILEPATH}"
     },
     "{STATIC}/*": {
@@ -97,7 +97,7 @@
     "{STATIC}/refGene*.bed.gz": {
         "name": "Refgene",
         "presets": ["Test 2"],
-        "limitToGroups": ["testgroup02"],
+        "limit_to_groups": ["testgroup02"],
         "show": true
     }
 }
