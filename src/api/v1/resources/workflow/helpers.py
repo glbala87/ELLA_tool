@@ -197,7 +197,7 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
     )
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-        session, [(gp_name, gp_version)]
+        session, [(gp_name, gp_version)], allele_ids=allele_ids
     ).subquery()
 
     transcripts = (
@@ -207,7 +207,6 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .filter(
             gene.Transcript.transcript_name
             == annotation_transcripts_genepanel.c.genepanel_transcript,
-            annotation_transcripts_genepanel.c.allele_id.in_(allele_ids),
         )
         .all()
     )
@@ -219,7 +218,6 @@ def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
         .filter(
             gene.Transcript.transcript_name
             == annotation_transcripts_genepanel.c.genepanel_transcript,
-            annotation_transcripts_genepanel.c.allele_id.in_(allele_ids),
             gene.Phenotype.gene_id == gene.Transcript.gene_id,
             gene.genepanel_phenotype.c.genepanel_name == gp_name,
             gene.genepanel_phenotype.c.genepanel_version == gp_version,
@@ -816,9 +814,12 @@ def get_genepanels(session, allele_ids, user=None):
 
     allele_genepanels = queries.allele_genepanels(session, gp_keys, allele_ids=allele_ids)
     allele_genepanels = allele_genepanels.subquery()
-
     candidate_genepanels = (
-        session.query(allele_genepanels.c.name, allele_genepanels.c.version).distinct().all()
+        session.query(
+            allele_genepanels.c.name, allele_genepanels.c.version, allele_genepanels.c.official
+        )
+        .distinct()
+        .all()
     )
 
     # TODO: Sort by previously used interpretations

@@ -1,5 +1,5 @@
 export default function toast(type, title, timeout) {
-    return function toast({ toast, resolve, props, state, execution }) {
+    return ({ toast, resolve, props, state, execution }) => {
         if (
             execution.__ignoreError ||
             (props.error &&

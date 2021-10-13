@@ -163,7 +163,9 @@ class AlleleByGeneListResource(LogRequestResource):
                 annotationshadow.AnnotationShadowTranscript.symbol,
                 annotationshadow.AnnotationShadowTranscript.hgnc_id,
             )
+            .join(allele.Allele)
             .filter(*filters)
+            .order_by(allele.Allele.chromosome, allele.Allele.start_position)
             .all()
         )
 

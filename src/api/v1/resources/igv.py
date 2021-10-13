@@ -118,29 +118,8 @@ def transcripts_to_bed(transcripts):
     return data
 
 
-def get_classification_bed(session):
+def get_classification_gff3(session):
 
-    result = 'track name="Classifications" description="ella classifications" itemRgb="On"\n'
-
-    template = (
-        "{chrom}\t"
-        "{start}\t"
-        "{end}\t"
-        "Name={name};"
-        "genome_reference={genome_reference};"
-        "chromosome={chrom};"
-        "vcf_pos={vcf_pos};"
-        "vcf_ref={vcf_ref};"
-        "vcf_alt={vcf_alt};"
-        "genepanel_name={genepanel_name};"
-        "genepanel_version={genepanel_version};"
-        "date_created={date_created}\t"
-        "1\t"
-        "-\t"
-        "{start}"
-        "\t{end}"
-        "\t{color}"
-    )
     all_aa = (
         session.query(
             allele.Allele.chromosome,
@@ -160,7 +139,20 @@ def get_classification_bed(session):
         .all()
     )
 
-    COLORS = {"1": "#76B100", "2": "#6BA100", "3": "#FFAA3C", "4": "#FE5B5B", "5": "#D00000"}
+    template = (
+        "{chrom}\t"
+        "ELLA interpretation\t"  # source
+        "Classification\t"  # feature
+        "{start}\t"
+        "{end}\t"
+        ".\t"  # score
+        ".\t"  # strand
+        ".\t"  # frame
+        # attributes:
+        "Name=Class {class_}"
+        "; Assessment={assessment_link}"
+        "; Date created={date_created}"
+    )
 
     lines = []
     for (
@@ -176,44 +168,40 @@ def get_classification_bed(session):
         genepanel_version,
         date_created,
     ) in all_aa:
+        allele_name = f"{chrom}-{vcf_pos}-{vcf_ref}-{vcf_alt}"
+        assessment_url = f"/workflows/variants/{genome_reference}/{allele_name}"
+        assessment_link = f"<a href='{assessment_url}' target='_blank'>{allele_name}</a>"
         lines.append(
             template.format(
                 chrom=chrom,
                 start=start,
                 end=end,
-                name=classification,
-                color=COLORS.get(classification, "#007ED0"),
-                genome_reference=genome_reference,
-                vcf_pos=vcf_pos,
-                vcf_ref=vcf_ref,
-                vcf_alt=vcf_alt,
-                genepanel_name=genepanel_name,
-                genepanel_version=genepanel_version,
+                class_=classification,
+                assessment_link=assessment_link,
                 date_created=date_created.strftime("%Y-%m-%d"),
             )
         )
-    result += "\n".join(lines)
-    return result
+    return "\n".join(lines)
 
 
 def get_allele_vcf(session, analysis_id, allele_ids):
-    if not allele_ids:
-        return None
+    allele_objs = []
 
-    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+    if len(allele_ids):
+        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
 
-    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
 
-    adl = AlleleDataLoader(session)
-    allele_objs = adl.from_objs(
-        alleles,
-        analysis_id=analysis.id,
-        genepanel=analysis.genepanel,
-        include_allele_assessment=False,
-        include_allele_report=False,
-        include_custom_annotation=False,
-        include_reference_assessments=False,
-    )
+        adl = AlleleDataLoader(session)
+        allele_objs = adl.from_objs(
+            alleles,
+            analysis_id=analysis.id,
+            genepanel=analysis.genepanel,
+            include_allele_assessment=False,
+            include_allele_report=False,
+            include_custom_annotation=False,
+            include_reference_assessments=False,
+        )
 
     VCF_HEADER_TEMPLATE = (
         "\n".join(
@@ -335,16 +323,23 @@ class ClassificationResource(LogRequestResource):
     @logger(exclude=True)
     def get(self, session, user=None):
         data = BytesIO()
-        data.write(get_classification_bed(session).encode())
+        data.write(get_classification_gff3(session).encode())
         data.seek(0)
-        return send_file(data, attachment_filename="classifications.bed")
+        return send_file(
+            data,
+            attachment_filename="classifications.gff3",
+            mimetype="text/plain",
+            cache_timeout=30 * 60,
+        )
 
 
 class AnalysisVariantTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
-        allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
+        allele_ids = [
+            int(aid) for aid in request.args.get("allele_ids", "").split(",") if aid != ""
+        ]
         data = BytesIO()
         data.write(get_allele_vcf(session, analysis_id, allele_ids).encode())
         data.seek(0)
@@ -481,7 +476,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
 
     GENEPANEL_DEFAULT_CONFIG = {
         "id": "genepanel",
-        "show": False,
+        "show": True,
         "name": "Genepanel",
         "type": "annotation",
         "url": f"/api/v1/igv/genepanel/{genepanel_name}/{genepanel_version}/",
@@ -495,14 +490,23 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
 
     CLASSIFICATIONS_DEFAULT_CONFIG = {
         "id": "classifications",
-        "show": False,
+        "show": True,
         "name": "Classifications",
         "url": "/api/v1/igv/classifications/",
-        "format": "bed",
+        "format": "gff3",
         "indexed": False,
         "order": 11,
         "visibilityWindow": 9999999999999,  # float("inf") ?
         "presets": [],
+        "colorBy": "name",
+        "colorTable": {
+            "Class 1": "#76B100",
+            "Class 2": "#6BA100",
+            "Class 3": "#FFAA3C",
+            "Class 4": "#FE5B5B",
+            "Class 5": "#D00000",
+            "*": "#888888",
+        },
     }
     ANALYSIS_VARIANTS_DEFAULT_CONFIG = {
         "id": "variants",

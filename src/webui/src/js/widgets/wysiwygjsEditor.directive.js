@@ -15,22 +15,28 @@ import template from './wysiwygEditor.ngtmpl.html' // eslint-disable-line no-unu
         ngDisabled: '=?',
         showControls: '<?',
         templates: '=?',
-        references: '=?' // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        references: '=?', // [{name: 'Pending', references: [...], ...}] reference objects for quick insertion of references
+        collapsed: '=?',
+        expandFn: '&'
     },
     require: '?ngModel', // get a hold of NgModelController
     template
 })
-@Inject('$scope', '$element', '$timeout', 'AttachmentResource')
+@Inject('$scope', '$element', '$timeout', 'AttachmentResource', 'User')
 export class WysiwygEditorController {
-    constructor($scope, $element, $timeout, AttachmentResource) {
+    constructor($scope, $element, $timeout, AttachmentResource, User) {
         this.timeout = $timeout
         this.scope = $scope
         this.element = $element[0]
         this.editorelement = $element.children()[0]
-        this.placeholderelement = $element.children()[1]
-        this.buttonselement = $element.children()[2]
+        this.previewelement = $element.children()[1]
+        this.placeholderelement = $element.children()[2]
+        this.buttonselement = $element.children()[3]
+        this.editorelement.hidden = this.scope.collapsed
+        this.previewelement.hidden = !this.scope.collapsed
         this.buttons = {}
         this.showControls = 'showControls' in this ? this.showControls : true
+        this.username = User.getCurrentUser().username
 
         for (const buttonElement of this.buttonselement.children) {
             let name = buttonElement.id.split('-')[1]
@@ -102,6 +108,13 @@ export class WysiwygEditorController {
         this.setupEditor()
         this.setupEventListeners()
 
+        this.scope.$watch('collapsed', () => {
+            const hasPlaceholder = !this.placeholderelement.hidden
+            this.editorelement.hidden = hasPlaceholder || this.scope.collapsed
+            this.previewelement.hidden = hasPlaceholder || !this.scope.collapsed
+            this.updatePreview()
+        })
+
         // Watch readOnly status of editor
         this.scope.$watch('ngDisabled', () => {
             this.editor.readOnly(this.ngDisabled)
@@ -109,6 +122,7 @@ export class WysiwygEditorController {
 
         // Attach existing $viewValue to editor
         this.ngModelController.$render = () => {
+            this.updatePreview()
             // Update view value from input should not re-render (it occasionaly does)
             // From the angular source code:
             // * The value referenced by `ng-model` is changed programmatically and both the `$modelValue` and
@@ -141,6 +155,11 @@ export class WysiwygEditorController {
                 this.placeholderEvent(visible)
             },
             onKeyDown: (key, character, shiftKey, altKey, ctrlKey, metaKey) => {
+                // "s" key
+                if (altKey && key == 83) {
+                    this.insertSignature()
+                    return false
+                }
                 if (ctrlKey || metaKey) {
                     if (character.toLowerCase() === 'b') {
                         this.editor.bold()
@@ -178,7 +197,9 @@ export class WysiwygEditorController {
     }
 
     updateViewValue() {
-        this.scope.$evalAsync(this.ngModelController.$setViewValue(this.editor.getHTML()))
+        let s = this.editor.getHTML()
+        s = s == '<br>' ? '' : s // fix empty editor returning <br>
+        this.scope.$evalAsync(this.ngModelController.$setViewValue(s))
         this.positionPopovers()
     }
 
@@ -202,7 +223,8 @@ export class WysiwygEditorController {
             references: () => this.togglePopover('references'),
             fontcolor: () => this.togglePopover('fontcolor'),
             highlightcolor: () => this.togglePopover('highlightcolor'),
-            src: () => this.toggleSource
+            src: () => this.toggleSource,
+            signature: () => this.insertSignature()
         }
 
         actions[actionName]()
@@ -230,6 +252,9 @@ export class WysiwygEditorController {
             this.focus()
         })
         eventListeners.add(this.placeholderelement, 'click', () => {
+            this.focus()
+        })
+        eventListeners.add(this.previewelement, 'click', () => {
             this.focus()
         })
 
@@ -389,7 +414,8 @@ export class WysiwygEditorController {
     placeholderEvent(showPlaceholder) {
         if (document.activeElement !== this.editorelement || !showPlaceholder) {
             this.placeholderelement.hidden = !showPlaceholder
-            this.editorelement.hidden = showPlaceholder
+            this.editorelement.hidden = this.scope.collapsed || showPlaceholder
+            this.previewelement.hidden = !this.scope.collapsed || showPlaceholder
             if (showPlaceholder) {
                 // Placeholder updates can trigger for certain changes to the editor content
                 // outside the normal flow. If wysiwyg module tells us to show placeholder,
@@ -408,6 +434,23 @@ export class WysiwygEditorController {
         // Ignore all whitespace
         html = html.replace(/s+/g, '')
         return html
+    }
+
+    updatePreview() {
+        const parser = new DOMParser()
+        const editorHtml = parser.parseFromString(this.ngModelController.$viewValue, 'text/html')
+        const eBody0 = editorHtml.getElementsByTagName('body')[0]
+        this.previewelement.innerText = eBody0.innerText
+        const maxChar = 135
+        const ellipsis = '...'
+        this.previewelement.innerText =
+            this.previewelement.innerText.length <= maxChar
+                ? this.previewelement.innerText
+                : this.previewelement.innerText.substring(0, maxChar) + ` ${ellipsis}`
+        // force-show ellipsis if the orgiginal innerHTML was not empty
+        if (this.previewelement.innerText.trim() === '' && eBody0.innerHTML !== '') {
+            this.previewelement.innerText = ellipsis
+        }
     }
 
     blur() {
@@ -443,6 +486,9 @@ export class WysiwygEditorController {
 
     focus() {
         if (!this.editor.readOnly()) {
+            if (this.scope.collapsed !== undefined && this.scope.collapsed) {
+                this.scope.expandFn({ collapsed: false })
+            }
             this.isBlurred = false
             this.placeholderEvent(false)
             this.editorelement.focus()
@@ -541,6 +587,11 @@ export class WysiwygEditorController {
         this.editor.insertHTML(template.template)
         this.positionPopovers()
         this.closePopover('templates')
+    }
+
+    insertSignature() {
+        const d = new Date().toISOString().substring(0, 10)
+        this.editor.insertHTML(`[<font color="#0000ff">${this.username}, ${d}</font>]`)
     }
 
     insertReference(ref) {

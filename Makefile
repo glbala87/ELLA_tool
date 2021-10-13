@@ -19,7 +19,6 @@ HYPOTHESIS_PROFILE ?= 'default'
 
 # e2e test:
 PARALLEL_INSTANCES ?= 2
-CHROME_HOST ?= '172.17.0.1' # maybe not a sensible defaults
 
 # Diagrams
 DIAGRAM_CONTAINER = $(PIPELINE_ID)-diagram
@@ -542,5 +541,14 @@ e2e-test-local: test-build
 	   -p 28752:28752 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	@docker exec -e CHROME_HOST=$(CHROME_HOST) -e APP_URL=$(APP_URL) -e SPEC=$(SPEC) -e DEBUG=$(DEBUG) -it $(CONTAINER_NAME)-e2e-local \
+	# get CHROME_HOST if it is not defined
+	if [ -z "$(CHROME_HOST)" ]; then \
+		CHROME_HOST=$$(docker inspect $(CONTAINER_NAME)-e2e-local --format '{{ .NetworkSettings.Gateway }}' ) ;\
+	fi ;\
+	docker exec \
+		-e CHROME_HOST=$$CHROME_HOST \
+		-e APP_URL=$$APP_URL \
+		-e SPEC=$$SPEC \
+		-e DEBUG=$$DEBUG \
+		-it $(CONTAINER_NAME)-e2e-local \
 	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"

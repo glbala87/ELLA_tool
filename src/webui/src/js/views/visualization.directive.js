@@ -6,12 +6,12 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
-const getTrackId = (categoryId, trackIdx) => {
+const getTrackUid = (categoryId, trackIdx) => {
     // stich track index to track category ID - trackIdx is an int
     return `${categoryId}_${trackIdx}`
 }
 
-// object: preset_ID -> Set[track_ID_1, track_ID_2, ... ]
+// object: preset_ID -> Set[track_inf1, track_inf2, ... ]
 const getPresetTracks = (tracks) => {
     const r = {}
     if (!tracks) {
@@ -26,7 +26,13 @@ const getPresetTracks = (tracks) => {
                 if (!r.hasOwnProperty(presetId)) {
                     r[presetId] = new Set()
                 }
-                r[presetId].add(getTrackId(trackCatId, trackIdx))
+                const trackInfo = {
+                    uid: getTrackUid(trackCatId, trackIdx),
+                    data: track,
+                    categoryId: trackCatId,
+                    index: trackIdx
+                }
+                r[presetId].add(trackInfo)
             })
         })
     })
@@ -34,14 +40,19 @@ const getPresetTracks = (tracks) => {
 }
 
 // array of unique preset ids
-const getPresetIds = (tracks) => {
-    // sort default element to the front
-    return Compute(tracks, (tracks) =>
-        Object.keys(getPresetTracks(tracks)).reduce(
-            (acc, e) => (e == 'Default' ? [e, ...acc] : [...acc, e]),
-            []
-        )
-    )
+const getPresets = (tracks) => {
+    return Compute(tracks, (tracks) => {
+        const r = {}
+        const presetTracks = getPresetTracks(tracks)
+        Object.keys(presetTracks)
+            // sort default element to the front
+            .reduce((acc, e) => (e == 'Default' ? [e, ...acc] : [...acc, e]), [])
+            // convert to array - angularjs 1.x does not support Set
+            .forEach((k) => {
+                r[k] = Array.from(presetTracks[k])
+            })
+        return r
+    })
 }
 
 const getCurrPresetModel = (tracks) => {
@@ -55,7 +66,7 @@ const getCurrPresetModel = (tracks) => {
             Object.keys(tracks).forEach((trackCatId) => {
                 tracks[trackCatId].forEach((track, trackIdx) => {
                     if (track.selected) {
-                        r.add(getTrackId(trackCatId, trackIdx))
+                        r.add(getTrackUid(trackCatId, trackIdx))
                     }
                 })
             })
@@ -68,7 +79,10 @@ const getCurrPresetModel = (tracks) => {
         const presetModel = {}
         // set status
         for (let presetId of Object.keys(presetTracks)) {
-            presetModel[presetId] = _setContains(currTrackSelection, presetTracks[presetId])
+            presetModel[presetId] = _setContains(
+                currTrackSelection,
+                new Set([...presetTracks[presetId]].map((e) => e.uid)) // extract set of UIDs
+            )
         }
         return presetModel
     })
@@ -82,7 +96,7 @@ app.component('visualization', {
             igvTracks: state`views.workflows.visualization.igv.tracks`,
             igvReference: state`views.workflows.visualization.igv.reference`,
             tracks: state`views.workflows.visualization.tracks`,
-            presetIds: getPresetIds(state`views.workflows.visualization.tracks`),
+            presets: getPresets(state`views.workflows.visualization.tracks`),
             presetModel: getCurrPresetModel(state`views.workflows.visualization.tracks`),
             shownTracksChanged: signal`views.workflows.visualization.igvTrackViewChanged`
         },

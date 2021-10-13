@@ -10,7 +10,7 @@ The top bar contains information about the current user, selected variant, as we
 
 <div class="figure"><img src="./img/top_bar.png"></div>
 
-The view in VARIANTS workflow is almost the same but contains no sample-specific information.
+The view in VARIANTS workflow is almost the same but contains no sample-specific information, and has an extra button to [show analyses](/manual/choosing-sample-variant.html#show-analyses-containing-a-variant) containing the variant.
 
 ::: warning NOTE
 If available, the RefSeq transcript and version used in the HGVSc variant name in the top bar (NM_175629.2 in the example above) matches what is specified in the gene panel. However: 
@@ -36,6 +36,7 @@ Button  | Explanation | More information
 Button  | Explanation | More information
 :---  | :---  | :---
 `COPY VARIANT TO ALAMUT`  | Copy currently selected variant to clipboard in Alamut format.  | [Links](/manual/classification-page.html#links-to-the-web-and-alamut)
+`SHOW ANALYSES` | In VARIANTS workflow only; allows you to view any existing analyses containing the variant.  | [Show analyses ...](/manual/choosing-sample-variant.html#show-analyses-containing-a-variant)
 `ADD ACMG`  | Add an ACMG criterion manually. | [Classification section](/manual/classification-section.html#add-acmg-criterion-manually)
 `ADD ATTACHMENT`  | Add an attachment (picture or file) to a comment field. | [Comments and attachments](/manual/classification-page.html#comments-and-attachments)
 `COLLAPSE ALL`  | Collapse all evidence sections. | [Use collapsing for overview ...](/manual/classification-page.html#use-collapsing-for-overview-and-marking-sections-as-done)

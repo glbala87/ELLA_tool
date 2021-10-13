@@ -1,6 +1,6 @@
 ## Background
 
-[Describe context/problem and justification for new feature]
+[Describe context/problem and justification for task]
 
 ## Implementation
 
@@ -12,7 +12,8 @@ Remember:
 
 - Add appropriate **Topic labels**
 - Assign **Weight**, if possible
+- Evaluate if issue should be `confidential` 
 
 --- DELETE ME ---
 
-/label ~"type::feature" ~"work::draft"
+/label ~"type::chore" ~"work::draft"

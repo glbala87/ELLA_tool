@@ -4,7 +4,7 @@ import toast from '../../../../../../common/factories/toast'
 import createReference from '../actions/createReference'
 
 const parseManual = ({ props }) => {
-    const { title, authors, journal, volume, issue, year, pages, abstract } = props
+    const { title, authors, journal, volume, issue, year, pages, abstract, submode } = props
     let manual = {
         title,
         authors,
@@ -13,12 +13,13 @@ const parseManual = ({ props }) => {
         issue,
         year,
         pages,
-        abstract
+        abstract,
+        published: submode != 'Unpublished'
     }
 
     // Remove empty values
     Object.keys(manual).forEach((key) => {
-        if (!manual[key]) {
+        if (manual[key] === '') {
             delete manual[key]
         }
     })

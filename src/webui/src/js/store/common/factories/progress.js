@@ -1,5 +1,5 @@
 function progress(type, amount) {
-    return function progress({ progress }) {
+    return ({ progress }) => {
         progress[type](amount)
     }
 }

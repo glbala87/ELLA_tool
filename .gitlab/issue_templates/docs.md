@@ -4,9 +4,10 @@
 
 --- DELETE ME ---
 
-Remember: 
-- Assign **Weight**, if possible
+Remember:
+
+-   Assign **Weight**, if possible
 
 --- DELETE ME ---
 
-/label ~"type::docs"
+/label ~"type::docs" ~"work::draft"

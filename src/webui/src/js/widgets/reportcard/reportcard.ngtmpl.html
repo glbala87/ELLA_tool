@@ -5,6 +5,7 @@
             <wysiwyg-editor
                 class="control-comment id-indications-comment"
                 templates="$ctrl.getReportIndicationsTemplates()"
+                references="$ctrl.editorReferences"
                 ng-disabled="$ctrl.readOnly"
                 placeholder="INDICATIONS COMMENT"
                 ng-model="$ctrl.indicationsComment"
@@ -12,6 +13,7 @@
             ></wysiwyg-editor>
             <wysiwyg-editor
                 class="control-comment id-report-comment"
+                references="$ctrl.editorReferences"
                 templates="$ctrl.getReportSummaryTemplates()"
                 ng-disabled="$ctrl.readOnly"
                 placeholder="REPORT COMMENT"

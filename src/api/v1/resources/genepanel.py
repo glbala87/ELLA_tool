@@ -6,6 +6,8 @@ from vardb.datamodel import gene, user as user_model
 from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
 from api.v1.resource import LogRequestResource
+from operator import itemgetter
+from itertools import groupby
 
 
 class GenepanelListResource(LogRequestResource):
@@ -258,9 +260,15 @@ class GenepanelStatsResource(LogRequestResource):
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
-        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels]
+        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels if gp.official]
         if (name, version) not in user_genepanels:
             raise ApiError("Invalid genepanel name or version")
+
+        # get only max version for each genepanel name
+        user_genepanels = [
+            (k, max(map(itemgetter(1), v)))
+            for k, v in groupby(sorted(user_genepanels, key=itemgetter(0)), key=itemgetter(0))
+        ]
 
         genepanel_gene_ids = (
             session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)

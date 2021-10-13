@@ -120,7 +120,7 @@ app.component('alleleSectionbox', {
             alleleState: getAlleleState(state`views.workflows.selectedAllele`),
             alleleassessment: getAlleleAssessment(state`views.workflows.selectedAllele`),
             allelereport: getAlleleReport(state`views.workflows.selectedAllele`),
-            editorReferences: getEditorReferences,
+            editorReferences: getEditorReferences(),
             isAlleleAssessmentOutdated: isAlleleAssessmentOutdated(
                 state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}`
             ),
@@ -198,11 +198,11 @@ app.component('alleleSectionbox', {
                             )
                         }
                     },
-                    collapseChangedWrapper(collapsed, section) {
+                    collapseChangedWrapper(collapsed) {
                         $ctrl.collapseAlleleSectionboxChanged({
                             alleleId: $ctrl.selectedAllele,
-                            collapsed,
-                            section
+                            collapsed: collapsed,
+                            section: $ctrl.sectionKey
                         })
                     },
                     getAllelePath() {

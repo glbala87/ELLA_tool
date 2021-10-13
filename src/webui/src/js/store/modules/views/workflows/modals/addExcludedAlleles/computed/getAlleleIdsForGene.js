@@ -23,15 +23,6 @@ export default Compute(
 
         // Remove any already included ids
 
-        return alleleIds
-            .filter((a) => !includedAlleleIds.includes(a))
-            .sort(
-                thenBy((alleleId) => {
-                    const entry = alleleIdsByGeneCandidates.find((a) =>
-                        a.allele_ids.includes(alleleId)
-                    )
-                    return entry ? entry.symbol : ''
-                })
-            )
+        return alleleIds.filter((a) => !includedAlleleIds.includes(a))
     }
 )

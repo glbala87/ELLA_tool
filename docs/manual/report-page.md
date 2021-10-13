@@ -22,6 +22,8 @@ Comments about how the indication or phenotype has influenced the current analys
 This is different from comments made in the [REPORT field](/manual/classification-section.html#evaluation-and-report-summarising-comments) on the CLASSIFICATION page, which are connected to a specific variant. 
 ::: 
 
+As for the [comment fields on the CLASSIFICATION page](/manual/classification-page.html#formatting-templates-and-references), you can quickly add pre-defined templates, signature and date, and references in these comment fields. Note that only references connected to variants currently included in the REPORT will be listed here. 
+
 ## Adding or removing variants from the report export
 
 The report page also lets you export variants in a CLINICAL REPORT using using standard naming conventions together with the classification, as well as any comments you added to the REPORT field in the CLASSIFICATION section.
