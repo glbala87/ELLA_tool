@@ -478,6 +478,7 @@ class StaticTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, filepath, user=None):
+        index: bool = request.args.get("index", "") == "1"
         auth_err = ApiError(
             "not authorized"
         )  # we don't want unathorized users to know if a file exists
@@ -498,6 +499,16 @@ class StaticTrack(LogRequestResource):
             raise auth_err
         # get track
         track_cfg = next(iter(track_cfg))
+
+        if index:
+            for t in igvcfg.VALID_TRACK_TYPES:
+                if not track_path.endswith(t.track_suffix):
+                    continue
+                track_idx_path = track_path + t.idx_suffix
+                if not os.path.exists(track_idx_path):
+                    raise auth_err
+                return send_file(track_idx_path)
+            raise auth_err
 
         start, end = get_range(request)
         if start is None:
