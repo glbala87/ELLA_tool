@@ -54,7 +54,7 @@ def after_request(response):
         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type, Pragma"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PATCH"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PATCH, DELETE"
 
     return response
 
