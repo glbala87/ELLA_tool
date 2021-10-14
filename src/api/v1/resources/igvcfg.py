@@ -1,7 +1,6 @@
 import os
 import typing
 
-from sqlalchemy.orm.base import attribute_str
 from vardb.datamodel import sample
 from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
@@ -12,6 +11,7 @@ from flask import request
 import fnmatch
 import json
 import itertools
+import copy
 
 
 class TrackType(Enum):
@@ -109,7 +109,8 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
             # try to match id
             if not fnmatch.fnmatch(track_src_id.id, inp_cfg_id_pattern):
                 continue
-            dst_cfg = {**dst_cfg, **inp_cfg_value}
+            # need to deepcopy because we will modify the object
+            dst_cfg = {**dst_cfg, **copy.deepcopy(inp_cfg_value)}
             dst_cfg[TrackCfgKey.applied_rules.name].append(inp_cfg_id_pattern)
         track_cfgs[track_src_id.id] = dst_cfg
     # filter tracks by user
