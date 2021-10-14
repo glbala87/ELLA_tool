@@ -55,9 +55,9 @@ class TrackCfgKey(Enum):
 
 
 class TrackCfgIgvKey(Enum):
-    url = auto()
-    name = auto()
-    indexURL = auto()
+    name = "name"  # can't use auto() here - mypy compains :(
+    url = "url"
+    indexURL = "indexURL"
 
 
 class TrackSrcId:
