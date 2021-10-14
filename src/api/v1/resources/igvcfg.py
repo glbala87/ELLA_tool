@@ -90,15 +90,18 @@ class TrackSrcId:
 
 
 def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
-    # load global config
-    ella_cfg_path = os.path.join(get_igv_tracks_dir(), "ella_cfg.json")
+    # try load custom config
+    ella_cfg_path = os.path.join(get_igv_data_dir(), "track_config.json")
     if not os.path.isfile(ella_cfg_path):
-        raise ApiError(f"IGV track path ('{ella_cfg_path}') not found")
+        # try default config
+        ella_cfg_path = os.path.join(get_igv_data_dir(), "track_config_default.json")
+    # valid file?
+    if not os.path.isfile(ella_cfg_path):
+        raise ApiError(f"IGV track config ('{ella_cfg_path}') not found")
     with open(ella_cfg_path) as f:
         inp_cfg = json.load(f)
 
-    # load individual configs
-    # TODO:
+    # TODO: load individual configs here?
 
     # apply configs to tracks (one config per track)
     track_cfgs = {}
@@ -132,10 +135,15 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
     return track_cfgs
 
 
-def get_igv_tracks_dir() -> str:
+def get_igv_data_dir() -> str:
     igv_data_path = os.environ.get("IGV_DATA")
     if not igv_data_path or not os.path.isdir(igv_data_path):
         raise ApiError(f"invalid IGV_DATA path ('{igv_data_path}')")
+    return igv_data_path
+
+
+def get_igv_tracks_dir() -> str:
+    igv_data_path = get_igv_data_dir()
     tracks_path = os.path.join(igv_data_path, "tracks")
     if not os.path.isdir(tracks_path):
         raise ApiError(f"IGV track path ('{tracks_path}') not found")
