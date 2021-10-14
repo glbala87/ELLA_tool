@@ -103,9 +103,7 @@ describe('Sample workflow', function() {
         cnvSelector.click()
 
         unclassifiedCnvs = alleleSidebar.countOfUnclassified()
-        unclassified = alleleSidebar.getUnclassifiedAlleles()
-        console.log('unclassified alleles:')
-        console.log(unclassified)
+        expect(unclassifiedCnvs).toBe(27)
 
         analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
@@ -118,8 +116,6 @@ describe('Sample workflow', function() {
             technical: true,
             analysisComment: 'TECHNICAL_ROUND_1'
         }
-
-        expect(unclassifiedCnvs).toBe(27)
 
         analysisPage.classificationTypeQuickButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeQuickButton.click()
