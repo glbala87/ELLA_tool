@@ -9,6 +9,7 @@ import logging
 import os
 import re
 
+
 import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
@@ -125,7 +126,6 @@ ANALYSES = [
     AnalysisInfo("../testdata/analyses/integration_testing", "integration_testing"),
     AnalysisInfo("../testdata/analyses/custom", "custom"),
     AnalysisInfo("../testdata/analyses/sanger", "sanger"),
-    AnalysisInfo("../testdata/analyses/sv/", "sv"),
 ]
 
 ALLELES = [
@@ -139,12 +139,14 @@ ALLELES = [
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
 AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
 
+"""
 CNV_ALLELES = [
     {
-        "path": "../testdata/sv-testdata/HG002_sv_cnv.Mendeliome_v01.vcf",
+        "path": "../analyses/sv-testdata/HG002_sv_cnv.Mendeliome_v01.vcf",
         "genepanel": ("Mendeliome", "v01"),
     }
 ]
+"""
 
 REFERENCES = "../testdata/references_test.json"
 CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
@@ -227,6 +229,7 @@ class DepositTestdata(object):
             log.info("Deposited {} as single alleles".format(vcf_path))
             self.session.commit()
 
+    """
     def deposit_cnv_alleles(self):
         for allele in CNV_ALLELES:
             vcf_path = os.path.join(SCRIPT_DIR, allele["path"])
@@ -234,6 +237,7 @@ class DepositTestdata(object):
             da.import_vcf(vcf_path, allele["genepanel"][0], allele["genepanel"][1])
             log.info("Deposited {} as single alleles".format(vcf_path))
             self.session.commit()
+    """
 
     def deposit_genepanels(self):
         dg = DepositGenepanel(self.session)
@@ -282,7 +286,7 @@ class DepositTestdata(object):
         else:
             self.deposit_analyses(test_set=test_set)
             self.deposit_alleles()
-            self.deposit_cnv_alleles()
+            # self.deposit_cnv_alleles()
             self.deposit_custom_annotation()
             if test_set == "default":
                 self.deposit_fixtures()
