@@ -1,6 +1,6 @@
 {
     "{DYNAMIC}/variants": {
-        "presets": [],
+        "presets": ["Test 1"],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
         "show": true,
@@ -16,7 +16,7 @@
         "presets": [],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/classifications/",
-        "show": true,
+        "show": false,
         "igv": {
             "name": "Classifications",
             "format": "gff3",
@@ -62,6 +62,27 @@
             "order": 300
         }
     },
+    "{ANALYSIS}/HG002.bam": {
+        "igv": {
+            "name": "BAM: Proband",
+            "displayMode": "EXPANDED",
+            "order": 1000
+        }
+    },
+    "{ANALYSIS}/HG003.bam": {
+        "igv": {
+            "name": "BAM: Father",
+            "displayMode": "EXPANDED",
+            "order": 1001
+        }
+    },
+    "{ANALYSIS}/HG004.bam": {
+        "igv": {
+            "name": "BAM: Mother",
+            "displayMode": "EXPANDED",
+            "order": 1002
+        }
+    },
     "{STATIC}/*": {
         "url": "/api/v1/igv/tracks/static/{TRACK_FILEPATH}"
     },
@@ -103,12 +124,21 @@
         }
     },
     "{STATIC}/refGene*.bed.gz": {
-        "presets": ["Test 2"],
-        "limit_to_groups": ["testgroup02"],
+        "presets": ["Test 3"],
         "show": false,
         "igv": {
             "name": "Refgene",
+            "order": 1,
+            "height": 100,
             "indexed": false
+        }
+    },
+    "{STATIC}/uniprot.domains.bed.gz": {
+        "limit_to_groups": ["testgroup01", "testgroup02"],
+        "show": true,
+        "igv": {
+            "name": "Uniprot Domains",
+            "order": 2
         }
     }
 }
