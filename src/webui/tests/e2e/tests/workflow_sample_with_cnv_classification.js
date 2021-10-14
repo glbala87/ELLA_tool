@@ -68,7 +68,7 @@ describe('Sample workflow', function() {
         expect(result).toEqual('UPDATE 1\n')
     }
 
-    it('select cnvs in alleleSideBar', function() {
+    it('login as testuser4, preselected allele should be first snv in alleleSideBarList', function() {
         // Modify user config to allow finalization with classifying all variants
 
         loginPage.open()
@@ -78,6 +78,8 @@ describe('Sample workflow', function() {
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
+        let selectedAllele = alleleSidebar.getSelectedAllele()
+        expect(selectedAllele).toBe('c.4958_4975dup')
 
         setFinalizationRequirements(true, true, true, ['Interpretation'])
         browser.refresh()
@@ -95,22 +97,21 @@ describe('Sample workflow', function() {
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
-        //analysisPage.startButton.click()
 
         cnvSelector = analysisPage.cnvSelector
         cnvSelector.waitForExist()
         cnvSelector.click()
 
         unclassifiedCnvs = alleleSidebar.countOfUnclassified()
-        expect(unclassifiedCnvs).toBe(12)
+        expect(unclassifiedCnvs).toBe(27)
 
         analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
-        alleleSidebar.quickSetTechnical('g.203935831_203945441del')
+        alleleSidebar.quickSetTechnical('g.27776481_135255460del')
 
         let selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInTechnical(selected_allele)).toBe(true)
-        alleleSidebar.setTechnicalComment('g.203935831_203945441del', 'TECHNICAL_ROUND_1')
+        alleleSidebar.setTechnicalComment('g.27776481_135255460del', 'TECHNICAL_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
             technical: true,
             analysisComment: 'TECHNICAL_ROUND_1'
@@ -118,19 +119,20 @@ describe('Sample workflow', function() {
 
         analysisPage.classificationTypeQuickButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeQuickButton.click()
-        alleleSidebar.quickSetNotRelevant('g.203887666_203889885del')
+        alleleSidebar.quickSetNotRelevant('g.12951329_88076640del')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInNotRelevant(selected_allele)).toBe(true)
-        alleleSidebar.setNotRelevantComment('g.203887666_203889885del', 'NOTRELEVANT_ROUND_1')
+        alleleSidebar.setNotRelevantComment('g.12951329_88076640del', 'NOTRELEVANT_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
             notRelevant: true,
             analysisComment: 'NOTRELEVANT_ROUND_1'
         }
 
-        alleleSidebar.quickClassNP('g.216185304_216198475del')
+        analysisPage.classificationTypeQuickButton.scrollIntoView({ block: 'center' })
+        alleleSidebar.quickClassNP('g.22454833_65164799dup_tandem')
         selected_allele = alleleSidebar.getSelectedAllele()
         expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
-        alleleSidebar.setEvaluationComment('g.216185304_216198475del', 'EVALUATION_ROUND_1')
+        alleleSidebar.setEvaluationComment('g.22454833_65164799dup_tandem', 'EVALUATION_ROUND_1')
         expected_analysis_1_round_1[selected_allele] = {
             classification: 'NP',
             evaluation: 'EVALUATION_ROUND_1'
@@ -140,7 +142,11 @@ describe('Sample workflow', function() {
         analysisPage.classificationTypeFullButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeFullButton.click()
 
-        testAlleles = ['g.159274626_159284250del', 'g.52806549_52808548del']
+        testAlleles = [
+            'g.140039852_140039910del',
+            'g.119964016_119964075del',
+            'g.60694533_60695080del'
+        ]
         for (let idx = 0; idx < testAlleles.length; idx++) {
             // unclassified count to avoid timing issue later
             const numUnclassified = alleleSidebar.countOfUnclassified()
@@ -149,24 +155,12 @@ describe('Sample workflow', function() {
             selected_allele = alleleSidebar.getSelectedAllele(testAlleles[idx])
             console.log(`Classifying variant: ${selected_allele} in loop with idx=${idx}`)
 
-            // Set gene comment
-            if (idx == 0) {
+            if (idx == testAlleles.length - 1) {
                 alleleGene = alleleSidebar.getSelectedGene()
-                expect(alleleGene).toBe('RXFP1')
-                // geneComment = `GENE COMMENT FOR ${alleleGene}`
-                // analysisPage.setGeneComment(geneComment)
-                // expect(analysisPage.getGeneComment()).toBe(geneComment)
-            } else {
-                expect(idx).toBe(1)
-                const alleleGene = alleleSidebar.getSelectedGene()
-                expect(alleleGene).toBe('KRT4')
-                const geneComment = `GENE COMMENT FOR ${alleleGene}`
+                expect(alleleGene).toBe('BCL11A')
+                geneComment = `GENE COMMENT FOR ${alleleGene}`
                 analysisPage.setGeneComment(geneComment)
-                //TODO: by some odd reason this does not work during test,
-                // but works when applied manually, maybe some dom / cerebral thingy that is quirky
-                // From the logs, it seems the dat awas inserted into the database without any
-                // problem.
-                //expect(analysisPage.getGeneComment()).toBe(geneComment)
+                expect(analysisPage.getGeneComment()).toBe(geneComment)
             }
 
             // Add attachment
@@ -174,14 +168,22 @@ describe('Sample workflow', function() {
             analysisPage.addAttachment()
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1)
 
+            // // Add external annotation
+            console.log('Adding custom annotation')
+            alleleSectionBox.addExternalBtn.click()
+            customAnnotationModal.setExternalAnnotationText('structural variant')
+            customAnnotationModal.saveBtn.click()
+            customAnnotationModal.waitForClose()
+            expect(alleleSectionBox.getExternalOtherValue()).toEqual('structural variant')
+
             // Add prediction annotation
-            // console.log('Adding prediction annotation')
-            // alleleSectionBox.addPredictionBtn.click()
-            // customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
-            // customAnnotationModal.saveBtn.click()
-            // customAnnotationModal.waitForClose()
-            // expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
-            // expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
+            console.log('Adding prediction annotation')
+            alleleSectionBox.addPredictionBtn.click()
+            customAnnotationModal.setPredictionAnnotation(4, 1) // DOMAIN: CRITICAL FUNCTIONAL DOMAIN
+            customAnnotationModal.saveBtn.click()
+            customAnnotationModal.waitForClose()
+            expect(alleleSectionBox.getPredictionOtherAnnotation()).toEqual('Domain:')
+            expect(alleleSectionBox.getPredictionOtherValue()).toEqual('critical_domain')
 
             // Set comments/classification
             console.log('Adding comments')
@@ -212,7 +214,7 @@ describe('Sample workflow', function() {
                 }
             )
             if (idx == 0) {
-                expected_analysis_1_round_1['g.203935831_203945441del'] = {
+                expected_analysis_1_round_1[' g.27776481_135255460del'] = {
                     technical: true,
                     analysisComment: 'TECHNICAL_ROUND_1'
                 }
@@ -221,11 +223,11 @@ describe('Sample workflow', function() {
                 expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
 
                 expected_analysis_1_round_1 = {
-                    'g.203935831_203945441del': {
+                    'g.27776481_135255460del': {
                         technical: true,
                         analysisComment: 'TECHNICAL_ROUND_1'
                     },
-                    'g.203935831_203945441del': {
+                    'g.12951329_88076640del': {
                         notRelevant: true,
                         analysisComment: 'NOTRELEVANT_ROUND_1'
                     },
