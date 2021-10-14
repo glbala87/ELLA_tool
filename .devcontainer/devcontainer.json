@@ -1,87 +1,82 @@
 {
-  // Reference: https://code.visualstudio.com/docs/remote/devcontainerjson-reference
-  "name": "ELLA from Dockerfile",
-  // Sets the run context to one level up instead of the .devcontainer folder.
-  "context": "..",
-  // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-  "dockerFile": "../Dockerfile",
-  // Set *default* container specific settings.json values on container create.
-  "settings": {
-    "[python]": {
-      "editor.defaultFormatter": null
+    // Reference: https://code.visualstudio.com/docs/remote/devcontainerjson-reference
+    "name": "ELLA from Dockerfile",
+    // Sets the run context to one level up instead of the .devcontainer folder.
+    "context": "..",
+    // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+    "dockerFile": "../Dockerfile",
+    // Set *default* container specific settings.json values on container create.
+    "settings": {
+        "[python]": {
+            "editor.defaultFormatter": null
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "javascript.suggest.completeFunctionCalls": true,
+        "js/ts.implicitProjectConfig.experimentalDecorators": true,
+        "prettier.configPath": "/ella/.prettierrc",
+        "prettier.prettierPath": "/dist/node_modules/prettier",
+        "python.analysis.extraPaths": ["/dist/ella-python/lib/python3.7/site-packages/"],
+        "python.formatting.blackPath": "/dist/ella-python/bin/black",
+        "python.formatting.provider": "black",
+        "python.languageServer": "Pylance",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.flake8Path": "/dist/ella-python/bin/flake8",
+        "python.linting.mypyEnabled": true,
+        "python.linting.mypyPath": "/dist/ella-python/bin/mypy",
+        "python.linting.pylintEnabled": false,
+        "python.pythonPath": "/dist/ella-python/bin/python3",
+        "python.testing.cwd": "/ella",
+        "python.testing.pytestEnabled": true,
+        "sqltools.connections": [
+            {
+                "database": "postgres",
+                "driver": "PostgreSQL",
+                "name": "ELLA DB",
+                "password": "",
+                "port": 5432,
+                "previewLimit": 50,
+                "server": "localhost",
+                "username": "ella-user"
+            }
+        ],
+        "terminal.integrated.defaultProfile.linux": "bash"
     },
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "javascript.suggest.completeFunctionCalls": true,
-    "js/ts.implicitProjectConfig.experimentalDecorators": true,
-    "prettier.configPath": "/ella/.prettierrc",
-    "prettier.prettierPath": "/dist/node_modules/prettier",
-    "python.analysis.extraPaths": [
-      "/dist/ella-python/lib/python3.7/site-packages/"
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "yzhang.markdown-all-in-one"
     ],
-    "python.formatting.blackPath": "/dist/ella-python/bin/black",
-    "python.formatting.provider": "black",
-    "python.languageServer": "Pylance",
-    "python.linting.enabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Path": "/dist/ella-python/bin/flake8",
-    "python.linting.mypyEnabled": true,
-    "python.linting.mypyPath": "/dist/ella-python/bin/mypy",
-    "python.linting.pylintEnabled": false,
-    "python.pythonPath": "/dist/ella-python/bin/python3",
-    "python.testing.cwd": "/ella",
-    "python.testing.pytestEnabled": true,
-    "sqltools.connections": [
-      {
-        "database": "postgres",
-        "driver": "PostgreSQL",
-        "name": "ELLA DB",
-        "password": "",
-        "port": 5432,
-        "previewLimit": 50,
-        "server": "localhost",
-        "username": "ella-user"
-      }
+    "containerEnv": {
+        "ANALYSES_PATH": "/ella/src/vardb/testdata/analyses/default/",
+        "ATTACHMENT_STORAGE": "/tmp/attachments",
+        "DB_URL": "postgresql:///postgres",
+        "DEV_IGV_CYTOBAND": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt",
+        "DEV_IGV_FASTA": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
+        "ELLA_CONFIG": "/ella/example_config.yml",
+        "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
+        "MYPYPATH": "/ella/typings",
+        "OFFLINE_MODE": "false",
+        "PRODUCTION": "false",
+        "PTVS_PORT": "5678"
+    },
+    "build": {
+        "target": "dev"
+    },
+    // Do not override command, as this will not start up ELLA
+    "overrideCommand": false,
+    // forwardPorts not forwarding livereload correctly (35729). Specify them using runArgs instead.
+    "runArgs": ["--publish=5000:5000", "--publish=35729:35729"],
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/ella,type=bind",
+        // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
+        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind"
     ],
-    "terminal.integrated.defaultProfile.linux": "bash"
-  },
-  // Add the IDs of extensions you want installed when the container is created.
-  "extensions": [
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "mtxr.sqltools",
-    "mtxr.sqltools-driver-pg",
-    "yzhang.markdown-all-in-one"
-  ],
-  "containerEnv": {
-    "ANALYSES_PATH": "/ella/src/vardb/testdata/analyses/default/",
-    "ATTACHMENT_STORAGE": "/tmp/attachments",
-    "DB_URL": "postgresql:///postgres",
-    "DEV_IGV_CYTOBAND": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt",
-    "DEV_IGV_FASTA": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
-    "ELLA_CONFIG": "/ella/example_config.yml",
-    "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
-    "MYPYPATH": "/ella/typings",
-    "OFFLINE_MODE": "false",
-    "PRODUCTION": "false",
-    "PTVS_PORT": "5678"
-  },
-  "build": {
-    "target": "dev"
-  },
-  // Do not override command, as this will not start up ELLA
-  "overrideCommand": false,
-  // forwardPorts not forwarding livereload correctly (35729). Specify them using runArgs instead.
-  "runArgs": [
-    "--publish=5000:5000",
-    "--publish=35729:35729"
-  ],
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/ella,type=bind",
-    // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
-    "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind",
-  ],
-  "workspaceFolder": "/ella"
+    "workspaceFolder": "/ella"
 }
