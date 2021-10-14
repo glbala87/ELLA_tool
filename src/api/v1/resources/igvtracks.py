@@ -15,6 +15,8 @@ from . import igvcfg
 
 log = logging.getLogger()
 
+AUTH_ERROR = ApiError("not authorized")
+
 
 def get_range(request):
     range_header = request.headers.get("Range", None)
@@ -474,14 +476,23 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
+def _get_index_path(track_path):
+    for t in igvcfg.VALID_TRACK_TYPES:
+        if not track_path.endswith(t.track_suffix):
+            continue
+        track_idx_path = track_path + t.idx_suffix
+        if not os.path.exists(track_idx_path):
+            raise AUTH_ERROR
+        return track_idx_path
+    raise AUTH_ERROR
+
+
 class StaticTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, filepath, user=None):
         index: bool = request.args.get("index", "") == "1"
-        auth_err = ApiError(
-            "not authorized"
-        )  # we don't want unathorized users to know if a file exists
+
         # get track path
         tracks_dir = igvcfg.get_igv_tracks_dir()
         # TODO: avoid directory traversal attack
@@ -489,26 +500,20 @@ class StaticTrack(LogRequestResource):
 
         # check if file exists
         if not os.path.exists(track_path):
-            raise auth_err
+            raise AUTH_ERROR  # we don't want unathorized users to know if a file exists
 
+        # check permissins by loading config
         track_src_ids = igvcfg.TrackSrcId.from_rel_paths(igvcfg.TrackSourceType.STATIC, [filepath])
         # load config - for current track
         track_cfg = igvcfg.load_raw_config(track_src_ids, user)
         # we passed one id - we should get one track
         if not len(track_cfg.values()) == 1:
-            raise auth_err
+            raise AUTH_ERROR
         # get track
         track_cfg = next(iter(track_cfg))
 
         if index:
-            for t in igvcfg.VALID_TRACK_TYPES:
-                if not track_path.endswith(t.track_suffix):
-                    continue
-                track_idx_path = track_path + t.idx_suffix
-                if not os.path.exists(track_idx_path):
-                    raise auth_err
-                return send_file(track_idx_path)
-            raise auth_err
+            return send_file(_get_index_path(track_path))
 
         start, end = get_range(request)
         if start is None:
@@ -521,6 +526,8 @@ class AnalysisTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, analysis_id, filename, user=None):
+        index: bool = request.args.get("index", "") == "1"
+
         def _get_analysis_tracks_path(analysis_name):
             analyses_path = os.environ.get("ANALYSES_PATH")
             if not analyses_path:
@@ -539,6 +546,10 @@ class AnalysisTrack(LogRequestResource):
             raise ApiError("Requested analysis id doesn't contain any tracks.")
 
         path = os.path.join(analysis_tracks_path, filename)
+
+        if index:
+            return send_file(_get_index_path(path))
+
         start, end = get_range(request)
 
         if start is None:
