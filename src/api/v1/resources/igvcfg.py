@@ -106,14 +106,22 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
     # apply configs to tracks (one config per track)
     track_cfgs = {}
     for track_src_id in track_ids:
-        dst_cfg: Dict[str, Any] = {TrackCfgKey.applied_rules.name: []}
+        dst_cfg: Dict[str, Any] = {TrackCfgKey.applied_rules.name: [], TrackCfgKey.igv.name: {}}
         # for each track, integrate maching configs
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
+            inp_cfg_value = copy.deepcopy(inp_cfg_value)
             # try to match id
             if not fnmatch.fnmatch(track_src_id.id, inp_cfg_id_pattern):
                 continue
+            # merge igv config separately to not overwite its configs
+            if TrackCfgKey.igv.name in inp_cfg_value:
+                dst_cfg[TrackCfgKey.igv.name] = {
+                    **dst_cfg[TrackCfgKey.igv.name],
+                    **inp_cfg_value[TrackCfgKey.igv.name],
+                }
+                del inp_cfg_value[TrackCfgKey.igv.name]
             # need to deepcopy because we will modify the object
-            dst_cfg = {**dst_cfg, **copy.deepcopy(inp_cfg_value)}
+            dst_cfg = {**dst_cfg, **inp_cfg_value}
             dst_cfg[TrackCfgKey.applied_rules.name].append(inp_cfg_id_pattern)
         track_cfgs[track_src_id.id] = dst_cfg
     # filter tracks by user
