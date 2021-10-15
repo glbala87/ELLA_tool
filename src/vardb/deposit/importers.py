@@ -30,6 +30,7 @@ from typing import (
 
 import pytz
 from api.util.util import dict_merge
+from api.config.config import feature_is_enabled, FeatureNotEnabledError
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import scoped_session
 from vardb.datamodel import allele as am
@@ -970,6 +971,9 @@ class AlleleImporter(object):
         """
         Adds a new record to internal batch
         """
+
+        if record.sv_type() is not None and not feature_is_enabled("cnv"):
+            raise FeatureNotEnabledError("cnv")
 
         allele = record.build_allele(self.ref_genome)
         self.batch_items.append(allele)
