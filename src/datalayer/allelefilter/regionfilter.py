@@ -45,6 +45,22 @@ class RegionFilter(object):
 
         if values:
             self.session.execute("INSERT INTO tmp_gene_padding VALUES {};".format(",".join(values)))
+            self.session.execute("ANALYZE tmp_gene_padding")
+        self.session.execute(
+            "CREATE INDEX ix_tmp_gene_padding_hgnc_id ON tmp_gene_padding (hgnc_id)"
+        )
+        self.session.execute(
+            "CREATE INDEX ix_tmp_gene_padding_exon_upstream ON tmp_gene_padding (exon_upstream)"
+        )
+        self.session.execute(
+            "CREATE INDEX ix_tmp_gene_padding_exon_downstream ON tmp_gene_padding (exon_downstream)"
+        )
+        self.session.execute(
+            "CREATE INDEX ix_tmp_gene_padding_coding_region_upstream ON tmp_gene_padding (coding_region_upstream)"
+        )
+        self.session.execute(
+            "CREATE INDEX ix_tmp_gene_padding_coding_region_downstream ON tmp_gene_padding (coding_region_downstream)"
+        )
 
         t = Table(
             "tmp_gene_padding",
@@ -381,7 +397,6 @@ class RegionFilter(object):
             # - Coding regions
             # - Splice regions
             # - UTR regions
-
             transcript_coding_regions = self.get_coding_regions(genepanel_tx_regions)
             splicing_regions = self.get_splice_regions(genepanel_tx_regions, tmp_gene_padding)
             utr_regions = self.get_utr_regions(genepanel_tx_regions, tmp_gene_padding)
@@ -458,7 +473,10 @@ class RegionFilter(object):
             # https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
                 self.session, [gp_key], allele_ids
-            ).subquery()
+            ).temp_table(
+                "tmp_annotation_transcript_genepanel",
+                index=["annotation_transcript", "allele_id", "genepanel_hgnc_id"],
+            )
 
             allele_ids_in_hgvsc_region = (
                 self.session.query(
