@@ -8,6 +8,11 @@
             "ped": "HG002-Trio.Mendeliome_v01.ped",
             "technology": "HTS",
             "callerName": "GATK 3.3.0"
+        },
+        {
+          "vcf": "HG002_sv_cnv.Mendeliome_v01.vcf",
+          "technology": "HTS",
+          "callerName": "Manta, Delly, Tiddit, CNVnator"
         }
     ]
 }
