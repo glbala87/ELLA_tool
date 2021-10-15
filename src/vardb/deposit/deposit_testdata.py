@@ -128,8 +128,16 @@ ALLELES = [
     AlleleInfo(
         "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf",
         ("HBOC", "v01"),
-    )
+    ),
 ]
+
+if feature_is_enabled("cnv"):
+    ALLELES.append(
+        AlleleInfo(
+            "../testdata/sv-testdata/HG002_sv_cnv.Mendeliome_v01.vcf",
+            ("Mendeliome", "v01"),
+        )
+    )
 
 
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
@@ -187,8 +195,16 @@ class DepositTestdata(object):
         analysis_paths.sort()
 
         for analysis_path in analysis_paths:
-            if not os.path.isdir(analysis_path):
-                continue
+            analysis_files = [f for f in os.listdir(analysis_path) if f.endswith(".analysis")]
+            if len(analysis_files) > 1:
+                if feature_is_enabled("cnv"):
+                    analysis_file = next(f for f in analysis_files if f.endswith("cnv.analysis"))
+                else:
+                    analysis_file = next(
+                        f for f in analysis_files if not f.endswith("cnv.analysis")
+                    )
+                analysis_path = os.path.join(analysis_path, analysis_file)
+
             try:
                 acd = AnalysisConfigData(analysis_path)
                 acd["warnings"] = WARNINGS_EXAMPLE if acd["genepanel_name"] == "HBOC" else None
