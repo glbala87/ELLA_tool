@@ -76,8 +76,7 @@
     "mounts": [
         "source=${localWorkspaceFolder},target=/ella,type=bind",
         // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
-        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind",
-        "source=/storage/bio,target=/bio,type=bind",
+        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind"
     ],
     "workspaceFolder": "/ella"
 }
