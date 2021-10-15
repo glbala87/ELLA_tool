@@ -4,6 +4,8 @@ app:
     annotation_service: !env [ANNOTATION_SERVICE_URL, 'http://172.17.0.1:6000']
     attachment_storage: !env 'ATTACHMENT_STORAGE'
     max_upload_size: 52428800 # 50 MB
+    feature_flags:
+        cnv: !env_bool [ENABLE_CNV, false]
 user:
     # Password policy
     auth:
@@ -238,7 +240,6 @@ igv:
 import:
     automatic_deposit_with_sample_id: false
     preimport_script: !file 'scripts/preimport.py' # Relative to ELLA root folder
-
 similar_alleles:
     max_variants: 10
     max_genomic_distance: 100
