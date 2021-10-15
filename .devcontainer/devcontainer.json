@@ -69,7 +69,8 @@
         "MYPYPATH": "/ella/typings",
         "OFFLINE_MODE": "false",
         "PRODUCTION": "false",
-        "PTVS_PORT": "5678"
+        "PTVS_PORT": "5678",
+        "ENABLE_CNV": "true"
     },
 
     "build": {
