@@ -471,25 +471,40 @@ def get_nested(dct, keys, default=None):
 
 
 def Timer():
+    """
+    Simple utility timer
+
+    Usage:
+    > timeit = Timer()
+    > timeit("sleep 1")
+    > sleep(1)
+    > timeit("sleep 2")
+    sleep 1: 1.000s
+    > sleep(2)
+    > exit()
+    sleep 2: 2.000s
+    """
+
     class timeit(object):
         description = None
+        starttime = None
 
         def __init__(self, descr):
             timeit.reset_timer(descr)
 
         @classmethod
         def reset_timer(cls, descr):
-            cls._stop_timer()
+            cls.stop_timer()
             cls.description = descr
             cls.starttime = time.time()
 
         @classmethod
-        def _stop_timer(cls):
+        def stop_timer(cls):
             if cls.description is not None:
                 end_time = time.time()
-                print(f"{cls.description}: {end_time - cls.starttime:.4f}")
+                print(f"{cls.description}: {end_time - cls.starttime:.4f}s")
+                cls.description = None
+                cls.starttime = None
 
-    import atexit
-
-    atexit.register(timeit._stop_timer)
+    atexit.register(timeit.stop_timer)
     return timeit
