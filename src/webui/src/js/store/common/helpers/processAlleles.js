@@ -1,33 +1,6 @@
 import thenBy from 'thenby'
 import { formatInheritance } from './genepanel'
 
-/**
- *  Troubleshooting:
- *
- * This seems to be called with alleles not containing annoation, I
- * see two possibilities:
- *
- * 1. There is no annotation data, but this worked before the major
- *    refactoring, so may not be the cause, alternatively something wasn't
- *    properly tested previously.
- * 2. There is something wrong in this workflow test. Could be related
- *    to the filter modal, but it is hard to see the correlation between
- *    that and annotion. Might be some forgiving undefined value in Javascript,
- *    but still, this should have crashed in the state store.
- *
- * There seemes to be multiple paths to filteredAlleles in the cerebral store
- * active in the workflows.modals.addExcludedAlleles and other places.
- *
- * The loadExcludedAlleles seems to be initiated from multiple places,
- * we need a way to assure that we then load the filteredAlleles based
- * upon the caller type.
- *
- * Excluded alleles and Filtered alleles is the same concept or not?
- *
- * This is confusing for sure...
- *
- */
-
 export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
         if (allele.annotation.filtered_transcripts.length) {

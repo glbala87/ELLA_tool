@@ -28,7 +28,6 @@ const getGeneOptions = Compute(
 const getMetrics = Compute(
     state`views.workflows.alleleSidebar.callerTypeSelected`,
     state`views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type`,
-    //TODO: geneAlleleIds, fix how this is created, probably should use another Compute
     state`views.workflows.modals.addExcludedAlleles.geneAlleleIds`,
     state`views.workflows.interpretation.data.alleles`,
     (callerTypeSelected, excludedAlleleIds, geneAlleleIds, alleles) => {
@@ -42,17 +41,7 @@ const getMetrics = Compute(
             result[keyValues[0]] = keyValues[1].length
             return result
         }, result)
-
-        /*
-        result['current'] = geneAlleleIds.filter((id) => {
-            console.log(`counting: ${id}`)
-            console.log(`${alleles[id]}`)
-            excludedAlleleIds[id].caller_type == callerTypeSelected
-        }).length
-        */
-
         result['current'] = geneAlleleIds.length
-        // result['current'] = excludedAlleleIds[callerTypeSelected].length
         return result
     }
 )

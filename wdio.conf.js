@@ -4,7 +4,6 @@ var commands = require('./src/webui/tests/e2e/commands')
 
 // when debugging it's useful to alter some config values
 var debug = process.env.DEBUG
-// 'headless',
 var defaultCapabilities = [
     {
         'goog:chromeOptions': {
@@ -15,8 +14,6 @@ var defaultCapabilities = [
                 '--window-size=1440,1080',
                 '--disable-dev-shm-usage' // Important per Chrome/Chromedriver v75
             ]
-            //            binary:
-            //               '/nix/store/6rr7zryw0lxc69kwg4vz5ww5771jy28f-google-chrome-92.0.4515.107/bin/google-chrome-stable'
         },
         maxInstances: 1,
         browserName: 'chrome'
@@ -31,8 +28,6 @@ var debugCapabilities = [
     {
         'goog:chromeOptions': {
             args: ['--window-size=1440,1080']
-            //            binary:
-            //                '/nix/store/6rr7zryw0lxc69kwg4vz5ww5771jy28f-google-chrome-92.0.4515.107/bin/google-chrome-stable'
         },
         maxInstances: 1,
         browserName: 'chrome'
