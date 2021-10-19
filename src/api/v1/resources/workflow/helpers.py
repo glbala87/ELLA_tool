@@ -775,9 +775,9 @@ def finalize_workflow(
 
     # Create interpretation snapshot objects
     if workflow_type == "analysis":
-        excluded_alleles_by_caller_type = data["excluded_allele_ids"]
+        excluded_allele_ids = data["excluded_allele_ids"]
     else:
-        excluded_alleles_by_caller_type = None
+        excluded_allele_ids = None
 
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
@@ -787,7 +787,7 @@ def finalize_workflow(
         data["custom_annotation_ids"],
         data["alleleassessment_ids"],
         data["allelereport_ids"],
-        excluded_allele_ids=excluded_alleles_by_caller_type,
+        excluded_allele_ids=excluded_allele_ids,
     )
 
     # Update interpretation
@@ -1218,7 +1218,7 @@ def delete_interpretationlog(
     session.delete(il)
 
 
-def fetch_allele_ids(session, excluded_alleles, caller_type):
+def fetch_allele_ids_by_caller_type(session, excluded_alleles, caller_type):
     return (
         session.query(allele.Allele.id)
         .filter(
@@ -1228,14 +1228,11 @@ def fetch_allele_ids(session, excluded_alleles, caller_type):
     )
 
 
-# Liste med allele id'er og splitte de
-# def allele_ids_by_caller_type(allele_ids: List) -> Dict[str, List]
 def filtered_by_caller_type(session, filtered_alleles):
-
     """
-    This invokes many unecessary roundtrips to the database, however, it is
+    This invokes some unecessary roundtrips to the database, however, it is
     simple and easy to understand.
-    A more efficient way is to:
+    A more efficient (but memory intensive) way is to:
         1. accumulate all filtered ids from filtered_alleles
         2. make one query to the database
         3. assemble the ids by each caller_type and filter_type by diffing the arrays
@@ -1249,7 +1246,7 @@ def filtered_by_caller_type(session, filtered_alleles):
             if len(ids) == 0:
                 filtered_by_caller_type[caller_type.lower()][filter_type] = []
             else:
-                tupled_list = fetch_allele_ids(session, ids, caller_type)
+                tupled_list = fetch_allele_ids_by_caller_type(session, ids, caller_type)
                 ids = [item for tup in tupled_list for item in tup]
                 filtered_by_caller_type[caller_type.lower()][filter_type] = ids
 

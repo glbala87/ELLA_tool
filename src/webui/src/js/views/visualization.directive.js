@@ -143,7 +143,6 @@ app.component('visualization', {
                                 }
                             })
                         })
-
                         $ctrl.shownTracksChanged({ tracksToUpdate })
                     }
                 })
