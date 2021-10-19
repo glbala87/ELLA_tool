@@ -590,7 +590,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "format": "vcf",
         "indexed": False,
         "order": 12,
-        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "visibilityWindow": 9999999999999,
         "presets": [],
     }
     REGIONS_OF_INTEREST_DEFAULT_CONFIG = {
@@ -600,7 +600,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "url": f"/api/v1/igv/regions_of_interest/{analysis_id}/?allele_ids={','.join(allele_ids)}",
         "format": "bed",
         "indexed": False,
-        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "visibilityWindow": 9999999999999,
         "color": "rgba(0, 150, 50, 0.12)",
     }
 

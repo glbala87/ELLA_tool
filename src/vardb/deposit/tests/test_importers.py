@@ -121,8 +121,6 @@ def test_allele_from_record(session, positions, manually_curated_result):
 
     if manually_curated_result:
         for k, v in manually_curated_result.items():
-
-            print(f"({k},{v}) == {al[k]}")
             assert al[k] == v
 
     expected_result = {
