@@ -222,7 +222,6 @@ class WorkflowHelper(object):
                 self.type, self.id, interpretation["id"], filterconfig_id=self.filterconfig_id
             ).get_json()
             allele_ids = filtered_allele_ids["allele_ids"]
-            # excluded_allele_ids = filtered_allele_ids["excluded_allele_ids"]
             excluded_allele_ids = filtered_allele_ids["excluded_alleles_by_caller_type"]
         else:
             allele_ids = [self.id]
