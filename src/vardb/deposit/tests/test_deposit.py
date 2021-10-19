@@ -529,18 +529,3 @@ def test_analysis_multiple(session, vcf_data):
                 else:
                     assert gsd.genotype_likelihood is None
                 assert gsd.allele_depth == sample_allele_depth[sample_name]
-
-
-@ht.given(vcf_family_strategy(1))
-@ht.settings(deadline=None, max_examples=3, timeout=ht.unlimited)
-def test_analysis_with_cnvs(session, vcf_data):
-    global ANALYSIS_NUM
-    ANALYSIS_NUM += 1
-    analysis_name = "TEST_ANALYSIS {}".format(ANALYSIS_NUM)
-    variants, fmts, sample_names, ped_info = vcf_data
-    print(analysis_name)
-    print(variants)
-    print(fmts)
-    print(sample_names)
-    print(ped_info)
-    assert 1 == 1
