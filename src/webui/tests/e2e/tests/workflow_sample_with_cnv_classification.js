@@ -1,43 +1,21 @@
 require('core-js/fn/object/entries')
 
-/**
- * Performs interpretations for three samples and evaluate some references.
- * - Sample 1: interpret one round, set to review.
- * - Sample 1: check if interpretations from previous round is stored. Finalize the sample.
- * - Sample 2: check if variants common with sample 1 are already classified.
- *             change a variant that also exists in sample 3
- * - Sample 3: confirm that the changed classification in 2nd sample is carried
- *             over correctly, and that it's using the latest classification rather
- *             than the first one made as part of 1st sample.
- *
- *  For some alleles we have ExAC/gnomeAD data. For those we test that the data is present on page.
- */
-
 let LoginPage = require('../pageobjects/loginPage')
-let AddExcludedAllelesModal = require('../pageobjects/addExcludedModal')
 let SampleSelectionPage = require('../pageobjects/overview_samples')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
-let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
-let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
-let checkAlleleClassification = require('../helpers/checkAlleleClassification')
 
 let loginPage = new LoginPage()
-let addExcludedAllelesModal = new AddExcludedAllelesModal()
 let sampleSelectionPage = new SampleSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
-let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
-let referenceEvalModal = new ReferenceEvalModal()
 
-const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
 const SAMPLE_ONE = 'HG002-Trio.Mendeliome_v01'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
-const TITLE_REVIEW = ' • REVIEW'
 
 describe('Sample workflow', function() {
     console.log(
@@ -89,7 +67,6 @@ describe('Sample workflow', function() {
     // Store entered data for interpretation round 1 {c.1234A>C: ...}
     // Will be checked against in round two
     let expected_analysis_1_round_1 = {}
-    let expected_analysis_2_round_1 = {}
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         setFinalizationRequirements(true, true, false)
