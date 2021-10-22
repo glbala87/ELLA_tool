@@ -15,7 +15,11 @@ export default function prepareSelectedAllele({ state }) {
     }
 
     // If already selected and it's still valid selection, do nothing
-    if (selectedAllele && selectedAllele in alleles) {
+    if (
+        selectedAllele &&
+        selectedAllele in alleles &&
+        alleles[selectedAllele].caller_type === caller_type_selected
+    ) {
         return
     }
 
