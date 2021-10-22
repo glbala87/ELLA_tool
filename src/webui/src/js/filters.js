@@ -105,6 +105,15 @@ class Filters {
             }
         }
     }
+
+    @Filter({
+        filterName: 'commaSeparated'
+    })
+    commaSeparated() {
+        return (input) => {
+            return input.join(', ')
+        }
+    }
 }
 
 export default Filter
