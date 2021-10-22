@@ -12,6 +12,7 @@ import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 import yaml
+from api.config.config import feature_is_enabled
 from vardb.datamodel import DB
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.deposit.deposit_alleles import DepositAlleles
@@ -130,14 +131,6 @@ ALLELES = [
         ("HBOC", "v01"),
     ),
 ]
-
-if feature_is_enabled("cnv"):
-    ALLELES.append(
-        AlleleInfo(
-            "../testdata/sv-testdata/HG002_sv_cnv.Mendeliome_v01.vcf",
-            ("Mendeliome", "v01"),
-        )
-    )
 
 
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
