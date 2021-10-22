@@ -94,6 +94,25 @@
                         <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
                     </span>
                 </div>
+                <div class="cell indicators">
+                    <div
+                        tippy-title="Filtered variants"
+                        class="top"
+                        ng-if="$ctrl.showManuallyAddedIndicator()"
+                    >
+                        <div
+                            class="hit"
+                            ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'manuallyAdded'})"
+                        >
+                            <span ng-class="{'clickable': $ctrl.orderByPath}">F</span>
+                            <span ng-if="$ctrl.orderBy.key === 'manuallyAdded'">
+                                <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
+                                <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cell classification">CLASS</div>
                 <div
                     class="cell evaluation"
                     ng-if="$ctrl.showComment()"
@@ -175,6 +194,51 @@
                 >
                     {{ $ctrl.consequence[allele.id] }}
                 </div>
+                <div
+                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
+                    class="cell indicators id-indicators"
+                >
+                    <div
+                        tippy-title="Included from filtering"
+                        class="low-qual"
+                        ng-if="$ctrl.showManuallyAddedIndicator()"
+                    >
+                        <div class="hit" ng-if="$ctrl.isManuallyAdded(allele.id)">
+                            <span>I</span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    ng-click="$ctrl.reviewedClicked({alleleId: allele.id})"
+                    class="cell classification id-classification"
+                    ng-class="{reviewed: $ctrl.reviewed[allele.id] == 'reviewed', finalized: $ctrl.reviewed[allele.id] == 'finalized'}"
+                    tippy-title="{{ $ctrl.getReviewedTitle(allele.id) }}"
+                >
+                    <div class="class-amcg-container">
+                        <div class="classification-container">
+                            <div class="existing-classification">
+                                {{ $ctrl.getExistingClassificationText(allele.id) }}
+                            </div>
+                            <div class="arrow-classification">
+                                {{ $ctrl.getArrowClassificationText(allele.id) }}
+                            </div>
+                            <div class="current-classification">
+                                {{ $ctrl.getCurrentClassificationText(allele.id) }}
+                            </div>
+                        </div>
+                        <div
+                            class="acmg-indicators-container"
+                            tippy-title="{{ $ctrl.getAcmgTitle(allele.id) }}"
+                        >
+                            <div
+                                class="acmg-indicator"
+                                ng-class="[code]"
+                                ng-repeat="code in $ctrl.getAcmgClasses(allele.id) track by $index"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="cell quick-classification" ng-if="$ctrl.classificationOptions.length">
                     <button
                         ng-if="$ctrl.showClassificationBtn('technical')"
