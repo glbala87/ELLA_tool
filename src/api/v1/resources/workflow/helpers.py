@@ -1221,15 +1221,15 @@ def delete_interpretationlog(
 
 """
 returns
-[
-    ("cnv",[1,2,3,4]),
-    ("snv", [5,6])
-]
+    {
+        "cnv": [1,2,3,4],
+        "snv": [5,6]
+    }
 """
 
 
 def fetch_allele_ids_by_caller_type(session, excluded_alleles):
-    return (
+    return dict(
         session.query(allele.Allele.caller_type, func.array_agg(allele.Allele.id))
         .filter(and_(allele.Allele.id.in_(excluded_alleles)))
         .group_by(allele.Allele.caller_type)
@@ -1239,7 +1239,7 @@ def fetch_allele_ids_by_caller_type(session, excluded_alleles):
 
 def filtered_by_caller_type(session, filtered_alleles):
     flattened_ids = list(itertools.chain(*filtered_alleles.values()))
-    alleles_by_caller_type = dict(fetch_allele_ids_by_caller_type(session, flattened_ids))
+    alleles_by_caller_type = fetch_allele_ids_by_caller_type(session, flattened_ids)
     filtered_by_caller_type = {}
     for caller_type in "SNV", "CNV":
         filtered_by_caller_type[caller_type.lower()] = {}
