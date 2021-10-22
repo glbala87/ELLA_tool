@@ -1,6 +1,7 @@
 from typing import DefaultDict, List, Set, Union, Type
 import datetime
 import pytz
+import itertools
 from collections import defaultdict
 
 from sqlalchemy import tuple_, literal, func, and_
@@ -1218,26 +1219,27 @@ def delete_interpretationlog(
     session.delete(il)
 
 
-def fetch_allele_ids_by_caller_type(session, excluded_alleles, caller_type):
+"""
+returns
+[
+    ("cnv",[1,2,3,4]),
+    ("snv", [5,6])
+]
+"""
+
+
+def fetch_allele_ids_by_caller_type(session, excluded_alleles):
     return (
-        session.query(allele.Allele.id)
-        .filter(
-            and_(allele.Allele.id.in_(excluded_alleles), allele.Allele.caller_type == caller_type)
-        )
+        session.query(allele.Allele.caller_type, func.array_agg(allele.Allele.id))
+        .filter(and_(allele.Allele.id.in_(excluded_alleles)))
+        .group_by(allele.Allele.caller_type)
         .all()
     )
 
 
 def filtered_by_caller_type(session, filtered_alleles):
-    """
-    This invokes some unecessary roundtrips to the database, however, it is
-    simple and easy to understand.
-    A more efficient (but memory intensive) way is to:
-        1. accumulate all filtered ids from filtered_alleles
-        2. make one query to the database
-        3. assemble the ids by each caller_type and filter_type by diffing the arrays
-            against filtered_alleles to know what goes where
-    """
+    flattened_ids = list(itertools.chain(*filtered_alleles.values()))
+    alleles_by_caller_type = dict(fetch_allele_ids_by_caller_type(session, flattened_ids))
     filtered_by_caller_type = {}
     for caller_type in "SNV", "CNV":
         filtered_by_caller_type[caller_type.lower()] = {}
@@ -1246,9 +1248,10 @@ def filtered_by_caller_type(session, filtered_alleles):
             if len(ids) == 0:
                 filtered_by_caller_type[caller_type.lower()][filter_type] = []
             else:
-                tupled_list = fetch_allele_ids_by_caller_type(session, ids, caller_type)
-                ids = [item for tup in tupled_list for item in tup]
-                filtered_by_caller_type[caller_type.lower()][filter_type] = ids
+                active_alleles = alleles_by_caller_type[caller_type]
+                filtered_by_caller_type[caller_type.lower()][filter_type] = list(
+                    set(active_alleles) & set(ids)
+                )
 
     return filtered_by_caller_type
 
