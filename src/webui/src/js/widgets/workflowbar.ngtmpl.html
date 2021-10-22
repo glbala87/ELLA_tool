@@ -14,10 +14,7 @@
                 >{{ c }}</label
             >
         </div>
-        <div
-            ng-if="$ctrl.config.app.feature_flags.cnv === undefined ? true : $ctrl.config.app.feature_flags.cnv"
-            class="bttn-set"
-        >
+        <div ng-if="$ctrl.config.app.feature_flags.cnv || false" class="bttn-set">
             <label
                 tabindex="0"
                 class="bttn"
