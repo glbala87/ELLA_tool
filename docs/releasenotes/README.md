@@ -6,12 +6,30 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.16](#version-1-16)|
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.16
+
+Release date: TBD
+
+### Highlights
+
+### :small_red_triangle: Breaking changes
+
+### All changes
+
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !600 CI is not detecting front end javascript test failures
+MR !603 Provide a CORS policy for ELLA
+-->
+- Fixes and improvements to development environment and code base. 
 
 ## Version 1.15.1
 
