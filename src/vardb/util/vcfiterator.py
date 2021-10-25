@@ -96,31 +96,7 @@ class Record(object):
             )
 
     def sv_len(self):
-        return self.variant.INFO.get("SVLEN")
-
-    def _sv_allele_length(self):
-
-        if type(self.sv_len()) is int:
-            svlen_value = int(self.sv_len())
-        elif type(self.sv_len()) is list:
-            assert (
-                len(self.sv_len()) == 1
-            ), f"ELLA only supports one allele, SVLEN contains: {len(self.sv_len())} alleles, with values: {self.sv_len()}"
-            svlen_value = self.sv_len()[0]
-        elif isinstance(self.sv_len(), str):
-            try:
-                svlen_value = int(self.sv_len())
-            except:
-                raise RuntimeError(f"Unable to cast {self.sv_len()} to int")
-            else:
-                raise ValueError(
-                    f"type of SVLEN is invalid: {type(self.sv_len())}, should only be either a list of Integers or a single Integer"
-                )
-        else:
-            raise RuntimeError(
-                f"Unable to determine type of SVLEN: {type(self.sv_len())}, with value: ${self.sv_len()}, for SVTYPE: {self.sv_type()}"
-            )
-        return abs(svlen_value)
+        return int(self.variant.INFO.get("SVLEN"))
 
     def _sv_open_end_position(self, pos, change_type):
 
@@ -174,6 +150,20 @@ class Record(object):
 
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
+    def _cnv_allele_info(self, pos, vcf_ref, vcf_alt):
+        start_position = pos
+        change_type = self.sv_change_type(vcf_alt)
+        open_end_position = self._sv_open_end_position(pos, change_type)
+        allele_length = abs(self.sv_len())
+        # if base sequence resolved
+        # change_to = "sequence resolve"
+        # else change_to = ""
+        ref = vcf_ref
+        alt = ""
+        if change_type != "DEL":
+            alt = vcf_alt
+        return start_position, open_end_position, change_type, allele_length, ref, alt
+
     def build_allele(self, ref_genome):
         vcf_ref, vcf_alt, vcf_pos = (
             self.variant.REF,
@@ -194,19 +184,15 @@ class Record(object):
             ) = self._snv_allele_info(pos, vcf_ref, vcf_alt)
             caller_type = "SNV"
         else:
-            start_position = pos
-            change_type = self.sv_change_type(vcf_alt)
-            open_end_position = self._sv_open_end_position(pos, change_type)
-            allele_length = self._sv_allele_length()
+            (
+                start_position,
+                open_end_position,
+                change_type,
+                allele_length,
+                ref,
+                alt,
+            ) = self._cnv_allele_info(pos, vcf_ref, vcf_alt)
             caller_type = "CNV"
-            # if base sequence resolved
-            # change_to = "sequence resolve"
-            # else change_to = ""
-            ref = vcf_ref
-            alt = ""
-            if change_type != "DEL":
-                alt = vcf_alt
-
         allele = {
             "genome_reference": ref_genome,
             "chromosome": self.variant.CHROM,
