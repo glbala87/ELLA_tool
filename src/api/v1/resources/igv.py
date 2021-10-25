@@ -210,28 +210,11 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
     if not allele_ids:
         return None
 
-    alleles = (
-        session.query(allele.Allele)
-        .filter(and_(allele.Allele.id.in_(allele_ids), allele.Allele.caller_type == "CNV"))
-        .all()
-    )
+    allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
 
-    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
-
-    adl = AlleleDataLoader(session)
-    allele_objs = adl.from_objs(
-        alleles,
-        analysis_id=analysis.id,
-        genepanel=analysis.genepanel,
-        include_allele_assessment=False,
-        include_allele_report=False,
-        include_custom_annotation=False,
-        include_reference_assessments=False,
-    )
-
-    cnv_alleles = [a for a in allele_objs if a["caller_type"] == "CNV"]
+  #  cnv_alleles = [a for a in allele_objs if a["caller_type"] == "CNV"]
     bed_lines = ""
-    for a in cnv_alleles:
+    for a in allele_objs:
         chr = a["chromosome"]
         pos = a["start_position"]
         length = a["length"]
