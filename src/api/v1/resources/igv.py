@@ -5,7 +5,7 @@ import logging
 from io import BytesIO
 
 from flask import request, Response, send_file
-from sqlalchemy import tuple_, func, and_
+from sqlalchemy import tuple_, func
 
 from api import ApiError
 from api.config import config
