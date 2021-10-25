@@ -260,10 +260,12 @@ class GenepanelStatsResource(LogRequestResource):
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
-        user_genepanels = [(gp.name, gp.version) for gp in user.group.genepanels if gp.official]
+        user_genepanels = [(gp.name, gp.version, gp.official) for gp in user.group.genepanels]
         if (name, version) not in user_genepanels:
             raise ApiError("Invalid genepanel name or version")
 
+        # get only official genepanels
+        user_genepanels = [gp for gp in user_genepanels if gp.official]
         # get only max version for each genepanel name
         user_genepanels = [
             (k, max(map(itemgetter(1), v)))
