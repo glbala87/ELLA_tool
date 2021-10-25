@@ -20,6 +20,8 @@ BATCH_SIZE = 1000
 
 
 class DepositAlleles(DepositFromVCF):
+    # When importing vcf we keep structural variants outside of transcripts,
+    # they can still be filtered using the filterchains
     def import_vcf(self, path, gp_name=None, gp_version=None, annotation_only=False):
         vi = vcfiterator.VcfIterator(path)
 
@@ -32,10 +34,7 @@ class DepositAlleles(DepositFromVCF):
                 is_not_inside_transcripts = []
                 for record in batch_records:
                     if not self.is_inside_transcripts(
-                        record,
-                        db_genepanel
-                        # Keeping structural variants outside of transcripts, they can still be filtered
-                        # using the filterchains
+                        record, db_genepanel
                     ) and not record.variant.INFO.get("SVTYPE"):
                         is_not_inside_transcripts.append(record)
 
