@@ -212,7 +212,6 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
 
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
 
-  #  cnv_alleles = [a for a in allele_objs if a["caller_type"] == "CNV"]
     bed_lines = ""
     for a in allele_objs:
         chr = a["chromosome"]
