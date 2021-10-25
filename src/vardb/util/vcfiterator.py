@@ -103,7 +103,7 @@ class Record(object):
         if change_type == "dup" or change_type == "dup_tandem" or change_type == "ins":
             return pos + 1
         else:
-            return pos + abs(self._sv_allele_length())
+            return pos + abs(self.sv_len())
 
     def _snv_allele_info(self, pos, ref, alt):
         # Remove common suffix
