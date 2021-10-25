@@ -489,7 +489,6 @@ def test_analysis_multiple(session, vcf_data):
                         )
                     }
                 )
-        gsd_type = ""
         # Check that genotypesampledata is set correctly
         for key in ["allele", "secondallele"]:
             if key == "secondallele" and not fixtures[key]:
@@ -511,6 +510,9 @@ def test_analysis_multiple(session, vcf_data):
                         # 'Reference' doesn't mean vcf ref,
                         # but with regards to proband's variant
                         gsd_type = "Reference"
+                else:
+                    GT = data["GT"]
+                    raise RuntimeError(f"Unable to determine Genotype: {GT}")
                 gsd_multiallelic = data["GT"] in [
                     "./1",
                     "1/.",
