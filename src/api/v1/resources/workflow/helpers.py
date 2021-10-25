@@ -1248,13 +1248,13 @@ def filtered_by_caller_type(session, filtered_alleles):
             if len(ids) == 0:
                 filtered_by_caller_type[caller_type.lower()][filter_type] = []
             else:
-              if caller_type in alleles_by_caller_type:
-                active_alleles = alleles_by_caller_type[caller_type]
-                filtered_by_caller_type[caller_type.lower()][filter_type] = list(
-                    set(active_alleles) & set(ids)
-                )
-              else:
-                filtered_by_caller_type[caller_type.lower()][filter_type] = []
+                if caller_type in alleles_by_caller_type:
+                    active_alleles = alleles_by_caller_type[caller_type]
+                    filtered_by_caller_type[caller_type.lower()][filter_type] = list(
+                        set(active_alleles) & set(ids)
+                    )
+                else:
+                    filtered_by_caller_type[caller_type.lower()][filter_type] = []
     return filtered_by_caller_type
 
 
