@@ -179,7 +179,7 @@ class AlleleFilter(object):
             {
                 ('HBOC', 'v01'): {
                     'allele_ids': [1, 2, 3],
-                    'excluded_alleles_by_caller_type': {
+                    'excluded_allele_ids': {
                         'region': [6, 7],
                         'frequency': [8, 9],
                     }
