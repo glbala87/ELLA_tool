@@ -1,6 +1,6 @@
 import thenBy from 'thenby'
 
-export default async function prepareIgv({ state, http }) {
+export default async function prepareIgv({ state, http, storage }) {
     const igvReferenceConfig = state.get('app.config.igv.reference')
     state.set('views.workflows.visualization.igv.reference', {
         id: 'hg19',
@@ -30,6 +30,11 @@ export default async function prepareIgv({ state, http }) {
         const presetIdOther = 'Other'
         if (finalizedTrack.presets.length == 0) {
             finalizedTrack.presets = [presetIdOther]
+        }
+        // load any previous selection
+        const trackSelectionStored = storage.get('igvTrackSelection', {})
+        if (trackSelectionStored && trackId in trackSelectionStored) {
+            finalizedTrack.selected = trackSelectionStored[trackId]
         }
         // append
         finalizedTracks[trackId] = finalizedTrack

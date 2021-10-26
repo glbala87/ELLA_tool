@@ -1,6 +1,6 @@
 import { deepCopy } from '../../../../../../util'
 
-export default function showHideTracks({ state, props }) {
+export default function showHideTracks({ state, storage, props }) {
     const { tracksToUpdate } = props
     if (!tracksToUpdate || tracksToUpdate.length == 0) {
         return
@@ -11,4 +11,14 @@ export default function showHideTracks({ state, props }) {
         tracks[trackId].selected = show
     })
     state.set(`views.workflows.visualization.tracks`, tracks)
+    // save selected tracks
+    storage.set(
+        'igvTrackSelection',
+        Object.entries(tracks)
+            .map(([id, cfg]) => [id, cfg.selected])
+            .reduce((obj, [k, v]) => {
+                obj[k] = v
+                return obj
+            }, {})
+    )
 }
