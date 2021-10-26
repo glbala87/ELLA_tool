@@ -9,7 +9,7 @@ from applogger import setup_logger
 
 DEVELOPMENT_MODE = os.environ.get("PRODUCTION", "").lower() in ["false", "0"]
 if DEVELOPMENT_MODE:
-    print("!!!!!DEVELOPMENT MODE!!!!!")
+    print("~~~~DEVELOPMENT MODE~~~~")
 
 setup_logger()
 
