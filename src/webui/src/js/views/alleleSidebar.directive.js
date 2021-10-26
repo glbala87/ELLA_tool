@@ -109,8 +109,7 @@ app.component('alleleSidebar', {
             classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
             editorReferences: getEditorReferences('report'),
-            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`,
-            indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'AlleleSidebar',
         [
