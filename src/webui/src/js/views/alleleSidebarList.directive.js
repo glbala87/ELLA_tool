@@ -29,32 +29,28 @@ import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualit
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
-const getAlleles = (alleleIds, alleles, callerTypeSelected) => {
-    return Compute(
-        alleleIds,
-        alleles,
-        callerTypeSelected,
-        (alleleIds, alleles, callerTypeSelected) => {
-            if (!alleleIds || !alleles || !callerTypeSelected) {
-                return
-            }
-
-            const filterByCallerType = (allele) => {
-                if (callerTypeSelected == 'snv') {
-                    return allele.caller_type == 'SNV'
-                } else if (callerTypeSelected == 'cnv') {
-                    return allele.caller_type == 'CNV'
-                } else {
-                    throw `caller type unrecognized for allele: ${allele}`
-                }
-            }
-
-            return alleleIds
-                .map((aId) => alleles[aId])
-                .filter((a) => a !== undefined)
-                .filter((a) => filterByCallerType(a))
+const getAlleles = (alleleIds, alleles) => {
+    return Compute(alleleIds, alleles, (alleleIds, alleles) => {
+        if (!alleleIds || !alleles) {
+            return
         }
-    )
+
+        callerTypeSelected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
+        const filterByCallerType = (allele) => {
+            if (callerTypeSelected == 'snv') {
+                return allele.caller_type == 'SNV'
+            } else if (callerTypeSelected == 'cnv') {
+                return allele.caller_type == 'CNV'
+            } else {
+                throw `caller type unrecognized for allele: ${allele}`
+            }
+        }
+
+        return alleleIds
+            .map((aId) => alleles[aId])
+            .filter((a) => a !== undefined)
+            .filter((a) => filterByCallerType(a))
+    })
 }
 
 const sectionContents = Compute(
@@ -93,11 +89,7 @@ app.component('alleleSidebarList', {
     controller: connect(
         {
             selectedComponent: state`views.workflows.selectedComponent`,
-            alleles: getAlleles(
-                state`${props`alleleIdsPath`}`,
-                state`${props`allelesPath`}`,
-                state`views.workflows.alleleSidebar.callerTypeSelected`
-            ),
+            alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
             sectionContents: state`${props`sectionContentPath`}`,
@@ -168,7 +160,7 @@ app.component('alleleSidebarList', {
                     },
                     getEndPos(allele) {
                         if (allele.caller_type == 'SNV' && allele.change_type == 'ins') {
-                            return allele.open_end_position + 1
+                            return allele.open_end_position
                         } else if (allele.caller_type == 'SNV') {
                             return allele.open_end_position
                         } else {
@@ -181,13 +173,7 @@ app.component('alleleSidebarList', {
                         )}-${this.getEndPos(allele)}`
                     },
                     getSvType(allele) {
-                        const map = Array.prototype.map
-                        return map
-                            .call(allele.change_type.toUpperCase(), (chr) => {
-                                if (chr == '_') return ':'
-                                else return chr
-                            })
-                            .join('')
+                        return allele.change_type.replaceAll('_', ':').toUpperCase()
                     },
                     getVariantLength(allele) {
                         return allele.length
@@ -202,7 +188,7 @@ app.component('alleleSidebarList', {
                                 )
                             ].join(' | ')
                         }
-                        return 'chr' + allele.chromosome
+                        return '-'
                     },
 
                     getHGVSc(allele) {
