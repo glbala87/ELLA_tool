@@ -4,16 +4,18 @@ import RootModule from '../../..'
 import prepareInterpretationState from './prepareInterpretationState'
 import reuseAlleleAssessmentClicked from '../interpretation/signals/reuseAlleleAssessmentClicked'
 import { testUiConfig, testSidebarOrderByNull } from '../../../../fixtures/testData'
+import callerTypeSelectedChanged from '../alleleSidebar/signals/callerTypeSelectedChanged'
 
 let cerebral = null
 
-function createAlleleData(id) {
+function createAlleleData(id, callerType) {
     return {
         id: id,
-        caller_type: 'SNV',
+        caller_type: callerType,
         formatted: {
             display: 'test variant'
         },
+        tags: [],
         annotation: {
             annotation_id: id,
             references: [{ id: id }],
@@ -53,7 +55,8 @@ describe('prepareInterpretationState', () => {
                 state: {},
                 signals: {
                     prepareInterpretationState,
-                    reuseAlleleAssessmentClicked
+                    reuseAlleleAssessmentClicked,
+                    callerTypeSelectedChanged
                 }
             })
         )
@@ -88,16 +91,20 @@ describe('prepareInterpretationState', () => {
             interpretation: {
                 data: {
                     alleles: {
-                        1: createAlleleData(1),
-                        2: createAlleleData(2)
+                        1: createAlleleData(1, 'SNV'),
+                        2: createAlleleData(2, 'SNV'),
+                        4: createAlleleData(4, 'CNV'),
+                        6: createAlleleData(6, 'CNV')
                     },
                     filteredAlleleIds: {
-                        allele_ids: [1],
+                        allele_ids: [1, 6],
                         excluded_alleles_by_caller_type: {
                             snv: {
                                 testFilter: [2, 3]
                             },
-                            cnv: {}
+                            cnv: {
+                                testFilter: [4, 5]
+                            }
                         }
                     }
                 },
@@ -129,7 +136,7 @@ describe('prepareInterpretationState', () => {
         )
 
         // Copy out data for comparison later
-        const alleleassessmentCopy = JSON.parse(
+        var alleleassessmentCopy = JSON.parse(
             JSON.stringify(
                 cerebral.getState().views.workflows.interpretation.state.allele[2].alleleassessment
             )
@@ -138,7 +145,9 @@ describe('prepareInterpretationState', () => {
         // Remove allele from data (i.e. not manually added anymore)
         // state should be kept as is in case it's included again
         cerebral.setState('views.workflows.interpretation.data.alleles', {
-            1: createAlleleData(1)
+            1: createAlleleData(1),
+            4: createAlleleData(4),
+            6: createAlleleData(6)
         })
 
         result = await cerebral.runSignal('test.prepareInterpretationState', {})
@@ -151,12 +160,70 @@ describe('prepareInterpretationState', () => {
         // (which also implies it's still {reuse: false} and not automatically reused)
         cerebral.setState('views.workflows.interpretation.data.alleles', {
             1: createAlleleData(1),
-            2: createAlleleData(2)
+            2: createAlleleData(2),
+            4: createAlleleData(4),
+            6: createAlleleData(6)
         })
 
         result = await cerebral.runSignal('test.prepareInterpretationState', {})
         state = result.state
         expect(state.views.workflows.interpretation.state.allele[2].alleleassessment).toEqual(
+            alleleassessmentCopy
+        )
+
+        result = await cerebral.runSignal('test.callerTypeSelectedChanged', {
+            callerTypeSelected: 'cnv'
+        })
+
+        expect(state.views.workflows.alleleSidebar.callerTypeSelected).toEqual('cnv')
+
+        result = await cerebral.runSignal('test.prepareInterpretationState', {})
+        state = result.state
+
+        // Open alleleassessment for allele 4 for editing
+        await cerebral.runSignal('test.reuseAlleleAssessmentClicked', { alleleId: 4 })
+
+        // Modify state's alleleassessment data
+        cerebral.setState(
+            'views.workflows.interpretation.state.allele.4.alleleassessment.evaluation.classification',
+            {
+                comment: 'UPDATED'
+            }
+        )
+
+        // Copy out data for comparison later
+        alleleassessmentCopy = JSON.parse(
+            JSON.stringify(
+                cerebral.getState().views.workflows.interpretation.state.allele[4].alleleassessment
+            )
+        )
+
+        // Remove allele from data (i.e. not manually added anymore)
+        // state should be kept as is in case it's included again
+        cerebral.setState('views.workflows.interpretation.data.alleles', {
+            1: createAlleleData(1),
+            2: createAlleleData(2),
+            6: createAlleleData(6)
+        })
+
+        result = await cerebral.runSignal('test.prepareInterpretationState', {})
+        state = result.state
+        expect(state.views.workflows.interpretation.state.allele[4].alleleassessment).toEqual(
+            alleleassessmentCopy
+        )
+
+        // Add it back in. State should still remain the same
+        // (which also implies it's still {reuse: false} and not automatically reused)
+        cerebral.setState('views.workflows.interpretation.data.alleles', {
+            1: createAlleleData(1),
+            2: createAlleleData(2),
+            4: createAlleleData(4),
+            6: createAlleleData(6)
+        })
+
+        result = await cerebral.runSignal('test.prepareInterpretationState', {})
+        state = result.state
+        expect(state.views.workflows.interpretation.state.allele[4].alleleassessment).toEqual(
             alleleassessmentCopy
         )
     })
