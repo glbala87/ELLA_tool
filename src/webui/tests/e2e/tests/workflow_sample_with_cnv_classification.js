@@ -80,7 +80,7 @@ describe('Sample workflow', function() {
         cnvSelector.click()
 
         unclassifiedCnvs = alleleSidebar.countOfUnclassified()
-        expect(unclassifiedCnvs).toBe(27)
+        expect(unclassifiedCnvs).toBe(7)
 
         analysisPage.classificationTypeVisualButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeVisualButton.click()
@@ -199,6 +199,7 @@ describe('Sample workflow', function() {
                 // Check that we cannot finalize, as we're only in "Interpretation" workflow status
                 expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
 
+                //TODO: add more tests and verifications of data set properly
                 expected_analysis_1_round_1 = {
                     'g.27776481_135255460del': {
                         technical: true,
