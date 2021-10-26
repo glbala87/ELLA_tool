@@ -30,27 +30,31 @@ import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFreq
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
 const getAlleles = (alleleIds, alleles) => {
-    return Compute(alleleIds, alleles, (alleleIds, alleles) => {
-        if (!alleleIds || !alleles) {
-            return
-        }
-
-        callerTypeSelected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
-        const filterByCallerType = (allele) => {
-            if (callerTypeSelected == 'snv') {
-                return allele.caller_type == 'SNV'
-            } else if (callerTypeSelected == 'cnv') {
-                return allele.caller_type == 'CNV'
-            } else {
-                throw `caller type unrecognized for allele: ${allele}`
+    return Compute(
+        alleleIds,
+        alleles,
+        state`views.workflows.alleleSidebar.callerTypeSelected`,
+        (alleleIds, alleles, callerTypeSelected) => {
+            if (!alleleIds || !alleles || !callerTypeSelected) {
+                return
             }
-        }
 
-        return alleleIds
-            .map((aId) => alleles[aId])
-            .filter((a) => a !== undefined)
-            .filter((a) => filterByCallerType(a))
-    })
+            const filterByCallerType = (allele) => {
+                if (callerTypeSelected == 'snv') {
+                    return allele.caller_type == 'SNV'
+                } else if (callerTypeSelected == 'cnv') {
+                    return allele.caller_type == 'CNV'
+                } else {
+                    throw `caller type unrecognized for allele: ${allele}`
+                }
+            }
+
+            return alleleIds
+                .map((aId) => alleles[aId])
+                .filter((a) => a !== undefined)
+                .filter((a) => filterByCallerType(a))
+        }
+    )
 }
 
 const sectionContents = Compute(
