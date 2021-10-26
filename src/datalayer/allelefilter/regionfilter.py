@@ -46,21 +46,6 @@ class RegionFilter(object):
         if values:
             self.session.execute("INSERT INTO tmp_gene_padding VALUES {};".format(",".join(values)))
             self.session.execute("ANALYZE tmp_gene_padding")
-        self.session.execute(
-            "CREATE INDEX ix_tmp_gene_padding_hgnc_id ON tmp_gene_padding (hgnc_id)"
-        )
-        self.session.execute(
-            "CREATE INDEX ix_tmp_gene_padding_exon_upstream ON tmp_gene_padding (exon_upstream)"
-        )
-        self.session.execute(
-            "CREATE INDEX ix_tmp_gene_padding_exon_downstream ON tmp_gene_padding (exon_downstream)"
-        )
-        self.session.execute(
-            "CREATE INDEX ix_tmp_gene_padding_coding_region_upstream ON tmp_gene_padding (coding_region_upstream)"
-        )
-        self.session.execute(
-            "CREATE INDEX ix_tmp_gene_padding_coding_region_downstream ON tmp_gene_padding (coding_region_downstream)"
-        )
 
         t = Table(
             "tmp_gene_padding",
@@ -472,23 +457,12 @@ class RegionFilter(object):
             # See for example
             # https://variantvalidator.org/variantvalidation/?variant=NM_020366.3%3Ac.907-16_907-14delAAT&primary_assembly=GRCh37&alignment=splign
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-                self.session, [gp_key], allele_ids
-            ).temp_table(
-                "tmp_annotation_transcript_genepanel",
-                index=["annotation_transcript", "allele_id", "genepanel_hgnc_id"],
-            )
+                self.session, [gp_key], list(allele_ids_outside_region)
+            ).temp_table("tmp_annotation_transcript_genepanel")
 
             allele_ids_in_hgvsc_region = (
                 self.session.query(
                     annotationshadow.AnnotationShadowTranscript.allele_id,
-                    annotationshadow.AnnotationShadowTranscript.transcript,
-                    annotationshadow.AnnotationShadowTranscript.hgvsc,
-                    annotationshadow.AnnotationShadowTranscript.exon_distance,
-                    annotationshadow.AnnotationShadowTranscript.coding_region_distance,
-                    tmp_gene_padding.c.exon_upstream,
-                    tmp_gene_padding.c.exon_downstream,
-                    tmp_gene_padding.c.coding_region_upstream,
-                    tmp_gene_padding.c.coding_region_downstream,
                 )
                 .join(
                     # Join in transcripts used in annotation
@@ -511,11 +485,6 @@ class RegionFilter(object):
                     == annotation_transcripts_genepanel.c.genepanel_hgnc_id,
                 )
                 .filter(
-                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                        self.session.query(
-                            func.unnest(cast(allele_ids_outside_region, ARRAY(Integer)))
-                        ).subquery()
-                    ),
                     annotationshadow.AnnotationShadowTranscript.exon_distance
                     >= tmp_gene_padding.c.exon_upstream,
                     annotationshadow.AnnotationShadowTranscript.exon_distance
