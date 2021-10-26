@@ -103,9 +103,6 @@ app.component('allelebar', {
                             return `chr${$ctrl.allele.chromosome}`
                         }
                     },
-                    isTruncateGenotypeDisplay(str) {
-                        return str.length > GENOTYPE_DISPLAY_MAX_CHAR
-                    },
                     getHGVSTitle(allele) {
                         if (allele && allele.caller_type == 'SNV') {
                             return 'HGVSc:'
@@ -114,19 +111,7 @@ app.component('allelebar', {
                         } else {
                             return ''
                         }
-                    },
-                    truncatedGenotypeDisplay(str) {
-                        return str.substring(0, GENOTYPE_DISPLAY_MAX_CHAR)
-                    },
-                    escapeHtmlTags: (str) =>
-                        str.replace(
-                            /[<>]/g,
-                            (c) =>
-                                ({
-                                    '<': '&lt;',
-                                    '>': '&gt;'
-                                }[c])
-                        )
+                    }
                 })
             }
         ]
