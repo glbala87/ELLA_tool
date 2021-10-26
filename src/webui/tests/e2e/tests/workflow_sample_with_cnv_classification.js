@@ -75,7 +75,7 @@ describe('Sample workflow', function() {
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
 
-        cnvSelector = analysisPage.cnvSelector
+        const cnvSelector = analysisPage.cnvSelector
         cnvSelector.waitForExist()
         cnvSelector.click()
 
@@ -115,7 +115,7 @@ describe('Sample workflow', function() {
             evaluation: 'EVALUATION_ROUND_1'
         }
 
-        // Classify rest using 'Full' classification view
+        // Classify some events using 'Full' classification view
         analysisPage.classificationTypeFullButton.scrollIntoView({ block: 'center' })
         analysisPage.classificationTypeFullButton.click()
 
