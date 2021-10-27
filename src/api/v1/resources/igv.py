@@ -287,7 +287,6 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             genotype_format=":".join(genotype_data_keys),
             genotype_data=":".join([",".join(genotype_data[k]) for k in genotype_data_keys]),
         )
-    print(data)
     return data
 
 
