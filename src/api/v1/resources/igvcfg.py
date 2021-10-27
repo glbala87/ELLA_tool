@@ -106,7 +106,10 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
     # apply configs to tracks (one config per track)
     track_cfgs = {}
     for track_src_id in track_ids:
-        dst_cfg: Dict[str, Any] = {TrackCfgKey.applied_rules.name: [], TrackCfgKey.igv.name: {}}
+        dst_cfg: Dict[str, Any] = {
+            TrackCfgKey.applied_rules.name: [],
+            TrackCfgKey.igv.name: {TrackCfgIgvKey.name.name: track_src_id.id},
+        }
         # for each track, integrate maching configs
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
             inp_cfg_value = copy.deepcopy(inp_cfg_value)
