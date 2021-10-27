@@ -253,7 +253,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         for sample_name in sample_names:
             sample_data = next((s for s in a["samples"] if s["identifier"] == sample_name), None)
             if not sample_data:
-                genotype_data["GT"] = "./."
+                genotype_data["GT"].append("./.")
                 continue
 
             sample_genotype = sample_data["genotype"]
@@ -262,7 +262,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             qual = sample_genotype["variant_quality"]
             filter_status = sample_genotype["filter_status"]
 
-            genotype_data["GT"] = "1/1" if sample_genotype["type"] == "Homozygous" else "0/1"
+            genotype_data["GT"].append("1/1" if sample_genotype["type"] == "Homozygous" else "0/1")
 
         # Annotation
         info = []
@@ -281,8 +281,9 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             filter_status=filter_status,
             info=";".join(info) if info else ".",
             genotype_format=":".join(genotype_data_keys),
-            genotype_data=":".join([genotype_data[k] for k in genotype_data_keys]),
+            genotype_data=":".join([",".join(genotype_data[k]) for k in genotype_data_keys]),
         )
+    print(data)
     return data
 
 
