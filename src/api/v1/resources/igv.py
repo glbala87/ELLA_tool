@@ -303,8 +303,9 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         )
         """
     print(data)
-
-    data.sorted()
+    def sort_line(vcf_line):
+        if vcf_line(0)
+    data.sorted(key = sort_line)
     return data
 
 
