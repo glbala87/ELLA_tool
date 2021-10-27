@@ -254,9 +254,7 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
 
 
 class VcfLine(ChromPos):
-    def __init__(
-        self, chr, pos, id, ref, alt, qual, filter_status, info, genotype_format, genotype_data
-    ):
+    def __init__(self, chr, pos, id, ref, alt, qual, filter_status, info, genotype_data):
         super().__init__(chr, pos)
         self.id = id
         self.ref = ref
@@ -264,11 +262,18 @@ class VcfLine(ChromPos):
         self.qual = qual
         self.filter_status = filter_status
         self.info = info
-        self.genotype_format = genotype_format
         self.genotype_data = genotype_data
+
+    def sorted_genotype_keys(self):
+        SORT_ORDER = {"GT": 1, "CN": 2}
+        return sorted(self.genotype_data.keys(), key=lambda genotype_key: SORT_ORDER[genotype_key])
 
     def __str__(self) -> str:
         VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
+        info_text = ";".join(self.info) if self.info else "."
+        genotype_data_keys = self.sorted_genotype_keys()
+        genotype_format_text = ":".join(genotype_data_keys)
+        genotype_data_text = ":".join([",".join(self.genotype_data[k]) for k in genotype_data_keys])
         return VCF_LINE_TEMPLATE.format(
             chr=self.chr,
             pos=self.pos,
@@ -277,9 +282,9 @@ class VcfLine(ChromPos):
             alt=self.alt,
             qual=self.qual,
             filter_status=self.filter_status,
-            info=self.info,
-            genotype_format=self.genotype_format,
-            genotype_data=self.genotype_data,
+            info=info_text,
+            genotype_format=genotype_format_text,
+            genotype_data=genotype_data_text,
         )
 
 
@@ -346,10 +351,6 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             change_type = a["change_type"]
             length = a["length"]
             info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
-        genotype_data_keys = sorted(genotype_data.keys(), reverse=True)
-        info_text = ";".join(info) if info else "."
-        genotype_format_text = ":".join(genotype_data_keys)
-        genotype_data_text = ":".join([",".join(genotype_data[k]) for k in genotype_data_keys])
         data.append(
             VcfLine(
                 chr,
@@ -359,9 +360,8 @@ def get_allele_vcf(session, analysis_id, allele_ids):
                 alt,
                 qual,
                 filter_status,
-                info_text,
-                genotype_format_text,
-                genotype_data_text,
+                info,
+                genotype_data,
             )
         )
     vcf = Vcf(sample_names, data)
