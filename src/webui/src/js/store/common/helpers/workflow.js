@@ -10,6 +10,45 @@ export function prepareInterpretationPayload(type, state, alleles, alleleIds, ex
     const technical_allele_ids = []
     const notrelevant_allele_ids = []
 
+    /**
+     * In the front end, we have two interpretation modes: cnv and snv, and the
+     * excluded alleles are operated on separately for each mode, input for
+     * this loop is:
+     * {
+     *   excluded_alleles_by_caller_type:
+     *   {
+     *       snv: {
+     *          region_filter: [1,2,3]
+     *          // other filters
+     *       },
+     *       cnv: {
+     *          region_filter: [23,34],
+     *          // other filters
+     *       }
+     *
+     *   }
+     * }
+     *
+     * In the backend, there are no modes, thus we need to merge common filters of the excluded
+     * alleles from the snv mode and cnv mode. Output from this loop is:
+     * {
+     *      excluded_alleles: {
+     *          region_filter: [1,2,3,23,34]
+     *      }
+     * }
+     */
+    const excludedAlleleIds = {}
+    if (excludedAlleleIdsByCallerType != null) {
+        for (const excluded of Object.values(excludedAlleleIdsByCallerType)) {
+            for (const [category, allele_ids] of Object.entries(excluded)) {
+                if (!(category in excludedAlleleIds)) {
+                    excludedAlleleIds[category] = []
+                }
+                excludedAlleleIds[category] = excludedAlleleIds[category].concat(allele_ids)
+            }
+        }
+    }
+
     // Collect presented data for snapshotting
     // and data needed for verification in backend
     for (let alleleState of Object.values(state.allele)) {
