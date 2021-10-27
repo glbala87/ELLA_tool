@@ -38,6 +38,9 @@ export function prepareInterpretationPayload(type, state, alleles, alleleIds) {
      * }
      */
     const excludedAlleleIds = {}
+    const excludedAlleleIdsByCallerType = state.get(
+        'views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type'
+    )
     if (excludedAlleleIdsByCallerType != null) {
         for (const excluded of Object.values(excludedAlleleIdsByCallerType)) {
             for (const [category, allele_ids] of Object.entries(excluded)) {
