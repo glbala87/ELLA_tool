@@ -1,7 +1,13 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function prepareInterpretationPayload(type, state, alleles, alleleIds) {
+export function prepareInterpretationPayload(
+    type,
+    state,
+    alleles,
+    alleleIds,
+    excludedAlleleIdsByCallerType
+) {
     // Collect info about this interpretation.
     const annotation_ids = []
     const custom_annotation_ids = []
@@ -38,9 +44,6 @@ export function prepareInterpretationPayload(type, state, alleles, alleleIds) {
      * }
      */
     const excludedAlleleIds = {}
-    const excludedAlleleIdsByCallerType = state.get(
-        'views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type'
-    )
     if (excludedAlleleIdsByCallerType != null) {
         for (const excluded of Object.values(excludedAlleleIdsByCallerType)) {
             for (const [category, allele_ids] of Object.entries(excluded)) {
