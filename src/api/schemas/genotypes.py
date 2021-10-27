@@ -15,4 +15,5 @@ class GenotypeSampleDataSchema(Schema):
             "genotype_quality",
             "sequencing_depth",
             "allele_depth",
+            "copy_number",
         )
