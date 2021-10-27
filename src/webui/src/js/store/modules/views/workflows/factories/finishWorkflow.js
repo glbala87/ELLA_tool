@@ -23,10 +23,6 @@ export default function(finishType) {
         const currentState = state.get('views.workflows.interpretation.state')
         const alleleIds = resolve.value(getAlleleIdsFromInterpretation)
 
-        const excludedAlleleIdsByCallerType = state.get(
-            'views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type'
-        )
-
         try {
             const payload = prepareInterpretationPayload(type, currentState, alleles, alleleIds)
             return http
