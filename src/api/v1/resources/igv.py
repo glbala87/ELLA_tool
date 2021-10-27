@@ -240,8 +240,9 @@ def get_allele_vcf(session, analysis_id, allele_ids):
     VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
 
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
-    data = VCF_HEADER_TEMPLATE.format("\t".join(sample_names))
+    data_header = VCF_HEADER_TEMPLATE.format("\t".join(sample_names))
 
+    data = []
     for a in allele_objs:
         chr = a["chromosome"]
         pos = a["vcf_pos"]
@@ -275,6 +276,19 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             length = a["length"]
             info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
         genotype_data_keys = sorted(genotype_data.keys(), reverse=True)
+        data += (
+            chr,
+            pos,
+            ".",
+            ref,
+            alt,
+            qual,
+            filter_status,
+            ";".join(info) if info else ".",
+            ":".join(genotype_data_keys),
+            ":".join([",".join(genotype_data[k]) for k in genotype_data_keys]),
+        )
+        """
         data += VCF_LINE_TEMPLATE.format(
             chr=chr,
             pos=pos,
@@ -287,7 +301,10 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             genotype_format=":".join(genotype_data_keys),
             genotype_data=":".join([",".join(genotype_data[k]) for k in genotype_data_keys]),
         )
+        """
     print(data)
+
+    data.sorted()
     return data
 
 
