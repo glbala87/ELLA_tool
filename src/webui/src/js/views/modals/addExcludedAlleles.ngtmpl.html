@@ -36,6 +36,7 @@
                         class="bttn"
                         ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})"
                         ng-model="$ctrl.modelCategory"
+                        ng-disabled="$ctrl.loading"
                         uib-btn-radio="'all'"
                         >All ({{ $ctrl.metrics.all }})</label
                     >
@@ -44,6 +45,7 @@
                         class="bttn"
                         ng-change="$ctrl.categoryChanged({category: $ctrl.modelCategory})"
                         ng-model="$ctrl.modelCategory"
+                        ng-disabled="$ctrl.loading"
                         uib-btn-radio="f.name"
                         >{{ f.name }} ({{ $ctrl.metrics[f.name] }})</label
                     >
