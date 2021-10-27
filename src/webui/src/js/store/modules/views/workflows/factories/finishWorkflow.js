@@ -28,13 +28,7 @@ export default function(finishType) {
         )
 
         try {
-            const payload = prepareInterpretationPayload(
-                type,
-                currentState,
-                alleles,
-                alleleIds,
-                excludedAlleleIds
-            )
+            const payload = prepareInterpretationPayload(type, currentState, alleles, alleleIds)
             return http
                 .post(`workflows/${postType}/${id}/actions/${ACTIONS[finishType]}/`, payload)
                 .then((response) => {

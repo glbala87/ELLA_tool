@@ -231,6 +231,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
                 '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
                 '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
                 '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
+                '##FORMAT=<ID=CN,Number=.,Type=Integer,Description="Copy Number">',
                 "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
             ]
         )
@@ -249,7 +250,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         qual = "N/A"
         filter_status = "N/A"
 
-        genotype_data = {"GT": []}  # Per sample entry
+        genotype_data = {"GT": [], "CN": []}  # Per sample entry
         for sample_name in sample_names:
             sample_data = next((s for s in a["samples"] if s["identifier"] == sample_name), None)
             if not sample_data:
@@ -261,8 +262,11 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             # We can just overwrite these, will be same for all samples
             qual = sample_genotype["variant_quality"]
             filter_status = sample_genotype["filter_status"]
-
             genotype_data["GT"].append("1/1" if sample_genotype["type"] == "Homozygous" else "0/1")
+            if a["caller_type"] == "CNV" and sample_genotype["copy_number"] is not None:
+                genotype_data["CN"].append(str(sample_genotype["copy_number"]))
+            else:
+                genotype_data["CN"] = "."
 
         # Annotation
         info = []
@@ -270,7 +274,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             change_type = a["change_type"]
             length = a["length"]
             info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
-        genotype_data_keys = sorted(genotype_data.keys())
+        genotype_data_keys = sorted(genotype_data.keys(), reverse=True)
         data += VCF_LINE_TEMPLATE.format(
             chr=chr,
             pos=pos,

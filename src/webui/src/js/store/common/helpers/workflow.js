@@ -1,7 +1,7 @@
 import angular from 'angular'
 import { getReferencesIdsForAllele, findReferencesFromIds } from './reference'
 
-export function prepareInterpretationPayload(type, state, alleles, alleleIds, excludedAlleleIds) {
+export function prepareInterpretationPayload(type, state, alleles, alleleIds) {
     // Collect info about this interpretation.
     const annotation_ids = []
     const custom_annotation_ids = []
