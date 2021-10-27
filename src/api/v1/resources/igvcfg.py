@@ -65,7 +65,7 @@ class TrackSrcId:
 
     def __init__(self, source_type: TrackSourceType, rel_path: str):
         def _track_id(track_source_id: TrackSourceType, rel_track_path: str) -> str:
-            return f"{{{track_source_id.name}}}/{rel_track_path}"
+            return f"{track_source_id.name}/{rel_track_path}"
 
         self.source_type = source_type
         self.id = _track_id(source_type, rel_path)
@@ -85,7 +85,7 @@ class TrackSrcId:
             return s
 
         for src_id in TrackSourceType:
-            tid = _rm_prefix(tid, f"{{{src_id.name}}}/")
+            tid = _rm_prefix(tid, f"{src_id.name}/")
         return tid
 
 
@@ -238,7 +238,7 @@ class AnalysisTrackList(LogRequestResource):
                 raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
             for pattern, replacement in url_var.items():
                 cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name].replace(
-                    f"{{{pattern}}}", replacement
+                    f"<{pattern}>", replacement
                 )
             # create igv entry if it's missing
             if TrackCfgKey.igv.name not in cfg:

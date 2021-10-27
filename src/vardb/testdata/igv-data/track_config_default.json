@@ -1,8 +1,8 @@
 {
-    "{DYNAMIC}/variants": {
+    "DYNAMIC/variants": {
         "presets": ["Test 1"],
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/dynamic/variants/{ANALYSIS_ID}/?allele_ids={ALLELE_IDS}",
+        "url": "/api/v1/igv/tracks/dynamic/variants/<ANALYSIS_ID>/?allele_ids=<ALLELE_IDS>",
         "show": true,
         "igv": {
             "name": "Variants",
@@ -12,7 +12,7 @@
             "visibilityWindow": 9999999999999
         }
     },
-    "{DYNAMIC}/classifications": {
+    "DYNAMIC/classifications": {
         "presets": [],
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/dynamic/classifications/",
@@ -34,10 +34,10 @@
             }
         }
     },
-    "{DYNAMIC}/genepanel": {
+    "DYNAMIC/genepanel": {
         "presets": ["Test 1", "Test 2", "Test 3"],
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/dynamic/genepanel/{GENEPANEL_NAME}/{GENEPANEL_VERSION}/",
+        "url": "/api/v1/igv/tracks/dynamic/genepanel/<GENEPANEL_NAME>/<GENEPANEL_VERSION>/",
         "show": true,
         "igv": {
             "name": "Gene panel",
@@ -49,9 +49,9 @@
             "height": 60
         }
     },
-    "{ANALYSIS}/*.bam": {
+    "ANALYSIS/*.bam": {
         "limit_to_groups": null,
-        "url": "/api/v1/igv/tracks/analyses/{ANALYSIS_ID}/{TRACK_FILEPATH}",
+        "url": "/api/v1/igv/tracks/analyses/<ANALYSIS_ID>/<TRACK_FILEPATH>",
         "igv": {
             "format": "bam",
             "colorBy": "strand",
@@ -62,46 +62,46 @@
             "order": 300
         }
     },
-    "{ANALYSIS}/HG002.bam": {
+    "ANALYSIS/HG002.bam": {
         "igv": {
             "name": "BAM: Proband",
             "displayMode": "EXPANDED",
             "order": 1000
         }
     },
-    "{ANALYSIS}/HG003.bam": {
+    "ANALYSIS/HG003.bam": {
         "igv": {
             "name": "BAM: Father",
             "displayMode": "EXPANDED",
             "order": 1001
         }
     },
-    "{ANALYSIS}/HG004.bam": {
+    "ANALYSIS/HG004.bam": {
         "igv": {
             "name": "BAM: Mother",
             "displayMode": "EXPANDED",
             "order": 1002
         }
     },
-    "{STATIC}/*": {
-        "url": "/api/v1/igv/tracks/static/{TRACK_FILEPATH}"
+    "STATIC/*": {
+        "url": "/api/v1/igv/tracks/static/<TRACK_FILEPATH>"
     },
-    "{STATIC}/*.bed.gz": {
+    "STATIC/*.bed.gz": {
         "igv": { "format": "bed", "displayMode": "EXPANDED", "order": 100 }
     },
-    "{STATIC}/*.vcf.gz": {
+    "STATIC/*.vcf.gz": {
         "igv": { "format": "vcf", "visibilityWindow": 1e9, "order": 200 }
     },
-    "{STATIC}/*.bigWig": {
+    "STATIC/*.bigWig": {
         "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{STATIC}/*.bw": {
+    "STATIC/*.bw": {
         "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{STATIC}/*.gff3.gz": {
+    "STATIC/*.gff3.gz": {
         "igv": { "format": "gff3", "displayMode": "EXPANDED", "order": 200 }
     },
-    "{STATIC}/*.bam": {
+    "STATIC/*.bam": {
         "igv": {
             "format": "bam",
             "colorBy": "strand",
@@ -112,7 +112,7 @@
             "order": 300
         }
     },
-    "{STATIC}/*.cram": {
+    "STATIC/*.cram": {
         "igv": {
             "format": "cram",
             "colorBy": "strand",
@@ -123,7 +123,7 @@
             "order": 300
         }
     },
-    "{STATIC}/refGene*.bed.gz": {
+    "STATIC/refGene*.bed.gz": {
         "presets": ["Test 3"],
         "show": false,
         "igv": {
@@ -133,7 +133,7 @@
             "indexed": false
         }
     },
-    "{STATIC}/uniprot.domains.bed.gz": {
+    "STATIC/uniprot.domains.bed.gz": {
         "limit_to_groups": ["testgroup01", "testgroup02"],
         "show": true,
         "igv": {
