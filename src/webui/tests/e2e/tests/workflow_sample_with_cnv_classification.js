@@ -167,10 +167,10 @@ describe('Sample workflow', function() {
             // // Add external annotation
             console.log('Adding custom annotation')
             alleleSectionBox.addExternalBtn.click()
-            customAnnotationModal.setExternalAnnotationText('structural variant')
+            customAnnotationModal.setExternalAnnotationText('structural variant info')
             customAnnotationModal.saveBtn.click()
             customAnnotationModal.waitForClose()
-            expect(alleleSectionBox.getExternalOtherValue()).toEqual('structural variant')
+            expect(alleleSectionBox.getExternalOtherValue()).toEqual('structural variant info')
 
             // Add prediction annotation
             console.log('Adding prediction annotation')
@@ -185,14 +185,14 @@ describe('Sample workflow', function() {
             console.log('Adding comments')
             alleleSectionBox.setClassificationComment('EVALUATION_ROUND_1')
             analysisPage.saveButton.click()
-            alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
+            alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND_1')
             analysisPage.saveButton.click()
-            alleleSectionBox.setPredictionComment('PREDICTION_ROUND1')
+            alleleSectionBox.setPredictionComment('PREDICTION_ROUND_1')
             analysisPage.saveButton.click()
-            alleleSectionBox.setExternalComment('EXTERNAL_ROUND1')
+            alleleSectionBox.setExternalComment('EXTERNAL_ROUND_1')
             analysisPage.saveButton.click()
 
-            alleleSectionBox.setReportComment('REPORT_ROUND1 &~øæå')
+            alleleSectionBox.setReportComment('REPORT_ROUND_1 &~øæå')
 
             console.log('Adding ACMG codes')
             analysisPage.addAcmgCode('benign', 'BP2', 'BP2_ACMG_ROUND_1')
@@ -215,34 +215,38 @@ describe('Sample workflow', function() {
 
             // Check that we cannot finalize, as we're only in "Interpretation" workflow status
             expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
-
-            console.log(selected_allele)
-            console.log(testAlleles[idx])
-
-            if (idx == 0) {
-                expected_analysis_1_round_1[' g.27776481_135255460del'] = {
-                    technical: true,
-                    analysisComment: 'TECHNICAL_ROUND_1'
-                }
-
-                // Check that we cannot finalize, as we're only in "Interpretation" workflow status
-                expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
-
-                //TODO: add more tests and verifications of data set properly
-                expected_analysis_1_round_1 = {
-                    'g.27776481_135255460del': {
-                        technical: true,
-                        analysisComment: 'TECHNICAL_ROUND_1'
+            expected_analysis_1_round_1[selected_allele] = {
+                reviewed: true,
+                customAnnotation: {
+                    external: {
+                        Other: 'structural variant info'
                     },
-                    'g.12951329_88076640del': {
-                        notRelevant: true,
-                        analysisComment: 'NOTRELEVANT_ROUND_1'
-                    },
-                    'g.60694533_60695080del': {
-                        classification: '3',
-                        evaluation: 'EVALUATION_ROUND_1'
+                    prediction: {
+                        domain: 'critical_domain'
                     }
-                }
+                },
+                evaluation: 'EVALUATION_ROUND_1',
+                frequency: 'FREQUENCY_ROUND_1',
+                prediction: 'PREDICTION_ROUND_1',
+                external: 'EXTERNAL_ROUND_1',
+                report: 'REPORT_ROUND_1 &~øæå',
+                classification: (idx + 1).toString(),
+                acmg: {
+                    // Codes are sorted by pathogenicity/strength
+                    '1': {
+                        code: 'PS1 VERY STRONG',
+                        comment: 'PS1_ACMG_ROUND_1'
+                    },
+                    '2': {
+                        code: 'PS2 SUPPORTIVE',
+                        comment: 'PS2_ACMG_ROUND_1'
+                    },
+                    '3': {
+                        code: 'BP2',
+                        comment: 'BP2_ACMG_ROUND_1'
+                    }
+                },
+                num_attachments: 1
             }
         }
 
@@ -255,7 +259,7 @@ describe('Sample workflow', function() {
 
         console.log('Setting a review comment and add a message')
         workLog.open()
-        workLog.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        workLog.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND_1')
         workLog.reviewCommentUpdateBtn.click()
         workLog.addMessage('MESSAGE_ROUND_1')
         workLog.close()
@@ -275,7 +279,7 @@ describe('Sample workflow', function() {
         loginPage.open()
         loginPage.loginAs('testuser4')
         sampleSelectionPage.expandReviewSection()
-        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
+        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND_1')
     })
 
     it('keeps the classification from the previous round', function() {
