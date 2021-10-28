@@ -194,6 +194,7 @@ class Variant:
     aaf: float
     call_rate: float
     end: int
+    POS: int
 
     def format(
         self,

@@ -114,6 +114,9 @@ def bulk_insert_nonexisting(
     """
     Inserts data in bulk according to batch_size.
 
+    TODO: Upgrade sqlalchemy and rewrite using update, insert
+    The bulk_*-functions of sqlalchemy is strongly discouraged, and they obfuscate the code a lot
+
     :param model: Model to insert data into
     :type model: SQLAlchemy model
     :param rows: List of dict with data. Keys must correspond to attributes on model
@@ -815,7 +818,7 @@ class AnnotationImporter(object):
             assert isinstance(obj[leaf], dict)
             dict_merge(obj[leaf], item)
 
-    def _extract_annotation_from_record(self, record: Record) -> Mapping[str, Any]:
+    def _extract_annotation_from_record(self, record: VCFRecord) -> Mapping[str, Any]:
         """Given a record, return dict with annotation to be stored in db."""
 
         target_mode_funcs: Mapping[str, Callable[..., None]] = {

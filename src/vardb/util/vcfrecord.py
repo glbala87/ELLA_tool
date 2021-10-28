@@ -1,4 +1,4 @@
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple, Union, List
 import cyvcf2
 import logging
 import numpy as np
@@ -33,7 +33,7 @@ def _numpy_unknown_to_none(a: np.ndarray) -> list:
     return b
 
 
-def numpy_to_list(a: Optional[np.ndarray]):
+def numpy_to_list(a: Optional[np.ndarray]) -> Optional[List]:
     if a is None:
         return None
     if np.issubdtype(a.dtype, np.integer):
@@ -42,7 +42,7 @@ def numpy_to_list(a: Optional[np.ndarray]):
         return a.tolist()
 
 
-def commonsuffix(v):
+def commonsuffix(v: List[Union[str, bytes]]) -> Union[str, bytes]:
     "Common suffix is the same as the reversed common prefix of the reversed string"
     return commonprefix([x[::-1] for x in v])[::-1]
 
@@ -68,31 +68,33 @@ class VCFRecord(object):
         self._allele = None
 
     @property
-    def allele(self):
+    def allele(self) -> Mapping[str, Any]:
         if self._allele is None:
             self._allele = self._build_allele("GRCh37")
         return self._allele
 
-    def get_allele(self, alleles):
+    def get_allele(self, alleles: List[Mapping[str, Any]]) -> Optional[Mapping[str, Any]]:
+        # Note: We need this as the allele can be instrumented with id from importers.bulk_insert_nonexisting
+        # TODO: Investigate how we can avoid dictionaries, and use vardb.datamodel.allele.Allele objects instead
         for allele in alleles:
             if (
-                allele.chromosome == self.variant.CHROM
-                and allele.vcf_pos == self.variant.POS
-                and allele.vcf_ref == self.variant.REF
-                and allele.vcf_alt == self.variant.ALT[0]
+                allele["chromosome"] == self.variant.CHROM
+                and allele["vcf_pos"] == self.variant.POS
+                and allele["vcf_ref"] == self.variant.REF
+                and allele["vcf_alt"] == self.variant.ALT[0]
             ):
                 return allele
         return None
 
-    def _sample_index(self, sample_name):
+    def _sample_index(self, sample_name: str) -> int:
         return self.samples.index(sample_name)
 
-    def sv_type(self):
+    def sv_type(self) -> Optional[str]:
         return self.variant.INFO.get("SVTYPE")
 
-    def sv_change_type(self, vcf_alt):
+    def sv_change_type(self, vcf_alt: Union[bytes, str]) -> str:
         if vcf_alt in change_type_from_sv_alt_field:
-            return change_type_from_sv_alt_field[vcf_alt]
+            return change_type_from_sv_alt_field[str(vcf_alt)]
 
         elif self.sv_type() == "DEL":
             return "del"
@@ -103,17 +105,17 @@ class VCFRecord(object):
                 f"ELLA only supports ALT=<DUP>,<DUP:TANDEM>,<DEL> or SVTYPE of value: DEL and DUP, {self.sv_type()} is not supported"
             )
 
-    def sv_len(self):
-        return int(self.variant.INFO.get("SVLEN"))
+    def _sv_len(self) -> int:
+        return int(self.variant.INFO["SVLEN"])
 
-    def _sv_open_end_position(self, pos, change_type):
+    def _sv_open_end_position(self, pos: int, change_type: str) -> int:
 
         if change_type == "dup" or change_type == "dup_tandem" or change_type == "ins":
             return pos + 1
         else:
-            return pos + abs(self.sv_len())
+            return pos + abs(self._sv_len())
 
-    def _snv_allele_info(self, pos, ref, alt):
+    def _snv_allele_info(self, pos, ref, alt) -> Tuple[int, int, str, int, str, str]:
         # Remove common suffix
         # (with ref, alt = ("AGAA", "ACAA") change to ref, alt = ("AG", "AC"))
         N_suffix = len(commonsuffix([ref, alt]))
@@ -158,11 +160,11 @@ class VCFRecord(object):
 
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
-    def _cnv_allele_info(self, pos, vcf_ref, vcf_alt):
+    def _cnv_allele_info(self, pos, vcf_ref, vcf_alt) -> Tuple[int, int, str, int, str, str]:
         start_position = pos
         change_type = self.sv_change_type(vcf_alt)
         open_end_position = self._sv_open_end_position(pos, change_type)
-        allele_length = abs(self.sv_len())
+        allele_length = abs(self._sv_len())
         # if base sequence resolved
         # change_to = "sequence resolve"
         # else change_to = ""
@@ -172,7 +174,7 @@ class VCFRecord(object):
             alt = vcf_alt
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
-    def _build_allele(self, ref_genome):
+    def _build_allele(self, ref_genome: str) -> Mapping[str, Any]:
         vcf_ref, vcf_alt, vcf_pos = (
             self.variant.REF,
             self.variant.ALT[0],
@@ -218,15 +220,15 @@ class VCFRecord(object):
 
         return allele
 
-    def get_raw_filter(self):
+    def get_raw_filter(self) -> str:
         """Need to implement this here, as cyvcf2 does not distinguish between 'PASS' and '.' (both return None).
         Therefore, we need to parse the VCF line to get the raw filter status."""
         return str(self.variant).split("\t")[6]
 
-    def sample_genotype(self, sample_name: str):
+    def sample_genotype(self, sample_name: str) -> Tuple[int, ...]:
         return tuple(self.variant.genotypes[self._sample_index(sample_name)][:-1])
 
-    def has_allele(self, sample_name: str):
+    def has_allele(self, sample_name: str) -> bool:
         gt = self.sample_genotype(sample_name)
         vcf_alt = self.variant.ALT[0]
         if (
@@ -241,7 +243,9 @@ class VCFRecord(object):
         else:
             return max(gt) == 1
 
-    def get_format_sample(self, property: str, sample_name: str, scalar: bool = False):
+    def get_format_sample(
+        self, property: str, sample_name: str, scalar: bool = False
+    ) -> Optional[Union[Iterable[Any], int]]:
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:
@@ -250,25 +254,20 @@ class VCFRecord(object):
             prop = self.variant.format(property)
             if prop is not None:
                 ret = numpy_to_list(prop[self._sample_index(sample_name)])
+                assert ret
                 if scalar:
                     assert len(ret) == 1
                     return ret[0]
                 else:
                     return ret
 
-    def get_format(self, property: str):
-        if property == "GT":
-            return self.variant.genotypes
-        else:
-            return numpy_to_list(self.variant.format(property))
-
-    def get_block_id(self):
+    def get_block_id(self) -> Optional[str]:
         return self.variant.INFO.get("OLD_MULTIALLELIC")
 
-    def is_multiallelic(self):
+    def is_multiallelic(self) -> bool:
         return self.get_block_id() is not None
 
-    def is_sample_multiallelic(self, sample_name: str):
+    def is_sample_multiallelic(self, sample_name: str) -> bool:
         return self.is_multiallelic() and bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
 
     def annotation(
