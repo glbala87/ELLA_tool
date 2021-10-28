@@ -25,6 +25,7 @@ Release date: TBD
 
 <!-- 
 No further release notes necessary, but adding here for reference: 
+MR !584 Refactor ReferenceEvalModal
 MR !596 Refactor wysiwygjs
 MR !600 CI is not detecting front end javascript test failures
 MR !603 Provide a CORS policy for ELLA
