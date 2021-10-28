@@ -23,6 +23,8 @@ Release date: TBD
 
 ### All changes
 
+<!-- MR !624 -->
+- Fixed a bug causing invisible INH values for filtered variants.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
