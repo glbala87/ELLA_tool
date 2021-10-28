@@ -7,6 +7,7 @@ import loadExcludedAlleles from '../sequences/loadExcludedAlleles'
 import loadAnnotationConfigs from '../sequences/loadAnnotationConfigs'
 
 export default [
+    set(state`views.workflows.modals.addExcludedAlleles.loading`, true),
     set(state`views.workflows.modals.addExcludedAlleles.analysisId`, props`analysisId`),
     set(state`views.workflows.modals.addExcludedAlleles.genepanel`, props`genepanel`),
     set(
@@ -40,5 +41,6 @@ export default [
             loadAnnotationConfigs
         ],
         error: [toast('error', 'Failed to load variants')]
-    }
+    },
+    set(state`views.workflows.modals.addExcludedAlleles.loading`, false)
 ]

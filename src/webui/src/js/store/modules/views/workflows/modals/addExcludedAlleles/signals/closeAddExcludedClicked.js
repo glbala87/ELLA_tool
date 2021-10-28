@@ -8,7 +8,7 @@ import loadReferences from '../../../sequences/loadReferences'
 
 export default [
     setManuallyAddedAlleleIds,
-    set(state`views.workflows.modals.addExcludedAlleles.show`, false),
+    set(state`views.workflows.modals.addExcludedAlleles`, { show: false }),
     loadGenepanel,
     loadAlleles,
     loadReferences,
