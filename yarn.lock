@@ -5834,9 +5834,9 @@ ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-igv@ousamg/igv.js#9a5b27e9:
-  version "2.10.1"
-  resolved "https://codeload.github.com/ousamg/igv.js/tar.gz/9a5b27e9dbf0bbe799e3c26ccaa09daa24602e09"
+igv@igvteam/igv.js#c83d0cb:
+  version "2.10.2"
+  resolved "https://codeload.github.com/igvteam/igv.js/tar.gz/c83d0cb77ae1455a348b6368c613963337663f85"
 
 immediate@^3.2.3:
   version "3.2.3"
