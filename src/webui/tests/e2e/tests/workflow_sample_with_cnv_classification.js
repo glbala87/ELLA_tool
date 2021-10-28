@@ -7,6 +7,8 @@ let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
 let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
+let ReferenceEvalModal = require('../pageobjects/referenceEvalModal')
+let checkAlleleClassification = require('../helpers/checkAlleleClassification')
 
 let loginPage = new LoginPage()
 let sampleSelectionPage = new SampleSelectionPage()
@@ -15,9 +17,11 @@ let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
 let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
+let referenceEvalModal = new ReferenceEvalModal()
 
 const SAMPLE_ONE = 'HG002-Trio.Mendeliome_v01'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
+const TITLE_REVIEW = ' • REVIEW'
 
 describe('Sample workflow', function() {
     console.log(
@@ -147,6 +151,19 @@ describe('Sample workflow', function() {
             analysisPage.addAttachment()
             expect(alleleSectionBox.getNumberOfAttachments()).toEqual(1)
 
+            // Evaluate one reference
+            /** TODO: update database so there are articles for some the test data 
+            let referenceTitle = alleleSectionBox.evaluateReference(1)
+            console.log(`Evaluating reference ${referenceTitle}`)
+            referenceEvalModal.setRelevance(1)
+            referenceEvalModal.setComment('REFERENCE_EVAL_ROUND1')
+
+            referenceEvalModal.saveBtn.click()
+            referenceEvalModal.waitForClose()
+
+            expect(alleleSectionBox.getReferenceComment(1)).toEqual('REFERENCE_EVAL_ROUND1')
+            */
+
             // // Add external annotation
             console.log('Adding custom annotation')
             alleleSectionBox.addExternalBtn.click()
@@ -166,7 +183,7 @@ describe('Sample workflow', function() {
 
             // Set comments/classification
             console.log('Adding comments')
-            alleleSectionBox.setClassificationComment('EVALUATION_ROUND1')
+            alleleSectionBox.setClassificationComment('EVALUATION_ROUND_1')
             analysisPage.saveButton.click()
             alleleSectionBox.setFrequencyComment('FREQUENCY_ROUND1')
             analysisPage.saveButton.click()
@@ -199,7 +216,8 @@ describe('Sample workflow', function() {
             // Check that we cannot finalize, as we're only in "Interpretation" workflow status
             expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
 
-            console.log(expected_analysis_1_round_1[selected_allele])
+            console.log(selected_allele)
+            console.log(testAlleles[idx])
 
             if (idx == 0) {
                 expected_analysis_1_round_1[' g.27776481_135255460del'] = {
@@ -220,8 +238,8 @@ describe('Sample workflow', function() {
                         notRelevant: true,
                         analysisComment: 'NOTRELEVANT_ROUND_1'
                     },
-                    'g.216185304_216198475del': {
-                        classification: 'NP',
+                    'g.60694533_60695080del': {
+                        classification: '3',
                         evaluation: 'EVALUATION_ROUND_1'
                     }
                 }
@@ -250,6 +268,44 @@ describe('Sample workflow', function() {
         console.log('Setting to review')
         analysisPage.finishButton.click()
         analysisPage.markReviewButton.click()
+        analysisPage.modalFinishButton.click()
+    })
+
+    it('shows the review comment on overview page', function() {
+        loginPage.open()
+        loginPage.loginAs('testuser4')
+        sampleSelectionPage.expandReviewSection()
+        expect(sampleSelectionPage.getReviewComment()).toEqual('REVIEW_COMMENT_ROUND1')
+    })
+
+    it('keeps the classification from the previous round', function() {
+        loginPage.open()
+        loginPage.loginAs('testuser4')
+        sampleSelectionPage.expandReviewSection()
+        sampleSelectionPage.selectTopReview()
+        expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
+        analysisPage.startButton.click()
+
+        const cnvSelector = analysisPage.cnvSelector
+        cnvSelector.waitForExist()
+        cnvSelector.click()
+
+        checkAlleleClassification(expected_analysis_1_round_1)
+
+        workLog.open()
+        expect(workLog.getLastMessage()).toBe('MESSAGE_ROUND_1')
+        workLog.close()
+
+        // Finalize all classified variants (we're now in "Review" workflow status)
+        const numberOfClassified = alleleSidebar.countOfClassified()
+        for (let idx = 1; idx < numberOfClassified + 1; idx++) {
+            alleleSidebar.selectClassifiedAlleleByIdx(idx)
+            alleleSectionBox.finalize()
+        }
+
+        expect(alleleSidebar.countOfUnclassified()).toBe(1)
+        analysisPage.finishButton.click()
+        analysisPage.finalizeButton.click()
         analysisPage.modalFinishButton.click()
     })
 })
