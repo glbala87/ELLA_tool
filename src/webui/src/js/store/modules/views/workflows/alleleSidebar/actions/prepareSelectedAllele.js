@@ -24,23 +24,25 @@ export default function prepareSelectedAllele({ state }) {
     }
 
     if (unclassified.length) {
-        const unclassified = unclassified.filter(
+        const filtered_unclassified = unclassified.filter(
             (id) => alleles[id].caller_type == caller_type_selected
         )
-        state.set('views.workflows.selectedAllele', unclassified[0])
+        state.set('views.workflows.selectedAllele', filtered_unclassified[0])
     } else if (classified.length) {
-        const classified = classified.filter(
+        const filtered_classified = classified.filter(
             (id) => alleles[id].caller_type == caller_type_selected
         )
-        state.set('views.workflows.selectedAllele', classified[0])
+        state.set('views.workflows.selectedAllele', filtered_classified[0])
     } else if (technical.length) {
-        const technical = technical.filter((id) => alleles[id].caller_type == caller_type_selected)
-        state.set('views.workflows.selectedAllele', technical[0])
-    } else if (notRelevant.length) {
-        const snv_notRelevant = notRelevant.filter(
+        const filtered_technical = technical.filter(
             (id) => alleles[id].caller_type == caller_type_selected
         )
-        state.set('views.workflows.selectedAllele', snv_notRelevant[0])
+        state.set('views.workflows.selectedAllele', filtered_technical[0])
+    } else if (notRelevant.length) {
+        const filtered_notRelevant = notRelevant.filter(
+            (id) => alleles[id].caller_type == caller_type_selected
+        )
+        state.set('views.workflows.selectedAllele', filtered_notRelevant[0])
     } else {
         state.set('views.workflows.selectedAllele', null)
     }
