@@ -23,6 +23,8 @@ Release date: TBD
 
 ### All changes
 
+<!-- MR !619 -->
+- Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- MR !624 -->
 - Fixed a bug causing invisible INH values for filtered variants.
 <!-- 
@@ -33,6 +35,7 @@ MR !600 CI is not detecting front end javascript test failures
 MR !603 Provide a CORS policy for ELLA
 MR !607 Improvements to region filter
 MR !622 increase-api-call-timeout
+MR !626 Clean up VCF iterator
 -->
 - Fixes and improvements to performance, development environment and code base. 
 
