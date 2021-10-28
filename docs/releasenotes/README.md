@@ -27,9 +27,10 @@ Release date: TBD
 No further release notes necessary, but adding here for reference: 
 MR !600 CI is not detecting front end javascript test failures
 MR !603 Provide a CORS policy for ELLA
+MR !607 Improvements to region filter
 MR !622 increase-api-call-timeout
 -->
-- Fixes and improvements to development environment, setup and code base. 
+- Fixes and improvements to performance, development environment and code base. 
 
 ## Version 1.15.1
 
