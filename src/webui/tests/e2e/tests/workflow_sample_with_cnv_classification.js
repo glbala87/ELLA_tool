@@ -5,6 +5,7 @@ let SampleSelectionPage = require('../pageobjects/overview_samples')
 let AnalysisPage = require('../pageobjects/analysisPage')
 let AlleleSidebar = require('../pageobjects/alleleSidebar')
 let AlleleSectionBox = require('../pageobjects/alleleSectionBox')
+let WorkLog = require('../pageobjects/workLog')
 let CustomAnnotationModal = require('../pageobjects/customAnnotationModal')
 
 let loginPage = new LoginPage()
@@ -12,6 +13,7 @@ let sampleSelectionPage = new SampleSelectionPage()
 let analysisPage = new AnalysisPage()
 let alleleSidebar = new AlleleSidebar()
 let alleleSectionBox = new AlleleSectionBox()
+let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 
 const SAMPLE_ONE = 'HG002-Trio.Mendeliome_v01'
@@ -190,6 +192,15 @@ describe('Sample workflow', function() {
                     timeout: 1000
                 }
             )
+
+            alleleSidebar.markClassifiedReview(selected_allele)
+            expect(alleleSidebar.isAlleleInClassified(selected_allele)).toBe(true)
+
+            // Check that we cannot finalize, as we're only in "Interpretation" workflow status
+            expect(alleleSectionBox.finalizeBtn.isEnabled()).toBe(false)
+
+            console.log(expected_analysis_1_round_1[selected_allele])
+
             if (idx == 0) {
                 expected_analysis_1_round_1[' g.27776481_135255460del'] = {
                     technical: true,
@@ -216,5 +227,29 @@ describe('Sample workflow', function() {
                 }
             }
         }
+
+        // Make sure that we still cannot finalize,
+        // even though all variants have a class (they're not finalized)
+        expect(analysisPage.getFinalizePossible()).toBe(false)
+
+        console.log('Changing to the report page')
+        analysisPage.selectSectionReport()
+
+        console.log('Setting a review comment and add a message')
+        workLog.open()
+        workLog.reviewCommentElement.setValue('REVIEW_COMMENT_ROUND1')
+        workLog.reviewCommentUpdateBtn.click()
+        workLog.addMessage('MESSAGE_ROUND_1')
+        workLog.close()
+
+        expect(alleleSidebar.getClassifiedAlleles().length).toEqual(
+            4,
+            `Wrong number of variants of sample ${SAMPLE_ONE} before finish`
+        )
+
+        console.log('Setting to review')
+        analysisPage.finishButton.click()
+        analysisPage.markReviewButton.click()
+        analysisPage.modalFinishButton.click()
     })
 })
