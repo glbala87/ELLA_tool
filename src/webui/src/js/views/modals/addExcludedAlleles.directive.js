@@ -77,6 +77,7 @@ app.component('addExcludedAlleles', {
             includedAlleleIds: state`views.workflows.modals.addExcludedAlleles.includedAlleleIds`,
             itemsPerPage: state`views.workflows.modals.addExcludedAlleles.itemsPerPage`,
             readOnly: state`views.workflows.modals.addExcludedAlleles.readOnly`,
+            loading: state`views.workflows.modals.addExcludedAlleles.loading`,
             selectedPage: state`views.workflows.modals.addExcludedAlleles.selectedPage`,
             categoryChanged: signal`views.workflows.modals.addExcludedAlleles.categoryChanged`,
             geneChanged: signal`views.workflows.modals.addExcludedAlleles.geneChanged`,
