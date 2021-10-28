@@ -46,7 +46,7 @@ from vardb.deposit.annotationconverters import (
     AnnotationConverters,
     ConverterArgs,
 )
-from vardb.util.vcfiterator import Record
+from vardb.util.vcfrecord import VCFRecord
 
 log = logging.getLogger(__name__)
 
@@ -957,13 +957,11 @@ class AnnotationImporter(object):
 
 class AlleleImporter(object):
     session: scoped_session
-    ref_genome: str
     counter: DefaultDict[str, int]
     batch_items: List[Dict[str, Any]]
 
-    def __init__(self, session: scoped_session, ref_genome: str = "GRCh37"):
+    def __init__(self, session: scoped_session):
         self.session = session
-        self.ref_genome = ref_genome
         self.counter = defaultdict(int)
         self.batch_items = list()  # Items for batch processing
 
@@ -975,10 +973,9 @@ class AlleleImporter(object):
         if record.sv_type() is not None and not feature_is_enabled("cnv"):
             raise FeatureNotEnabledError("cnv")
 
-        allele = record.build_allele(self.ref_genome)
-        self.batch_items.append(allele)
+        self.batch_items.append(record.allele)
         self.counter["nAltAlleles"] += 1
-        return allele
+        return record.allele
 
     def process(self):
         if not self.batch_items:

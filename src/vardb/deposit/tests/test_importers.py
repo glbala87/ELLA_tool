@@ -117,7 +117,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
 
     allele_length = max(len(ref), len(alt))
 
-    al = record.build_allele(ref_genome="GRCh37")
+    al = record.allele
 
     if manually_curated_result:
         for k, v in manually_curated_result.items():
@@ -219,7 +219,7 @@ def test_equivalent_vcf_representations(standard, padding):
     for position in positions:
         chrom, pos, ref, alt = position
         record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
-        item = record.build_allele(ref_genome="dabla")
+        item = record.allele
         item.pop("vcf_pos")
         item.pop("vcf_ref")
         item.pop("vcf_alt")

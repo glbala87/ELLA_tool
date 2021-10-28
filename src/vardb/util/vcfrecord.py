@@ -1,7 +1,8 @@
-from typing import Dict, IO, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union
 import cyvcf2
 import logging
-from vardb.util.vcfrecord import VCFRecord
+import numpy as np
+from os.path import commonprefix
 
 log = logging.getLogger(__name__)
 
@@ -54,23 +55,31 @@ change_type_from_sv_alt_field = {
 }
 
 
-class Record(object):
+class VCFRecord(object):
     variant: cyvcf2.Variant
     samples: Sequence[str]
     meta: Mapping[str, Any]
+    _allele: Optional[Mapping[str, Any]]
 
     def __init__(self, variant: cyvcf2.Variant, samples: Sequence[str], meta: Mapping[str, Any]):
         self.variant = variant
         self.samples = samples
         self.meta = meta
+        self._allele = None
+
+    @property
+    def allele(self):
+        if self._allele is None:
+            self._allele = self._build_allele("GRCh37")
+        return self._allele
 
     def get_allele(self, alleles):
         for allele in alleles:
             if (
-                allele["chromosome"] == self.variant.CHROM
-                and allele["vcf_pos"] == self.variant.POS
-                and allele["vcf_ref"] == self.variant.REF
-                and allele["vcf_alt"] == self.variant.ALT[0]
+                allele.chromosome == self.variant.CHROM
+                and allele.vcf_pos == self.variant.POS
+                and allele.vcf_ref == self.variant.REF
+                and allele.vcf_alt == self.variant.ALT[0]
             ):
                 return allele
         return None
@@ -154,15 +163,16 @@ class Record(object):
         change_type = self.sv_change_type(vcf_alt)
         open_end_position = self._sv_open_end_position(pos, change_type)
         allele_length = abs(self.sv_len())
-        ref = ""
+        # if base sequence resolved
+        # change_to = "sequence resolve"
+        # else change_to = ""
+        ref = vcf_ref
         alt = ""
-        if vcf_alt not in change_type_from_sv_alt_field:
-            ref = vcf_ref
+        if change_type != "DEL":
             alt = vcf_alt
-
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
-    def build_allele(self, ref_genome):
+    def _build_allele(self, ref_genome):
         vcf_ref, vcf_alt, vcf_pos = (
             self.variant.REF,
             self.variant.ALT[0],
@@ -180,7 +190,7 @@ class Record(object):
                 ref,
                 alt,
             ) = self._snv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "snv"
+            caller_type = "SNV"
         else:
             (
                 start_position,
@@ -190,7 +200,7 @@ class Record(object):
                 ref,
                 alt,
             ) = self._cnv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "cnv"
+            caller_type = "CNV"
         allele = {
             "genome_reference": ref_genome,
             "chromosome": self.variant.CHROM,
@@ -276,94 +286,3 @@ class Record(object):
 
             s += f" - Genotypes: {', '.join(genotypes)}"
         return s
-
-
-RESERVED_GT_HEADERS = {
-    "AD": {"Number": "R", "Type": "Integer", "Description": "Injected. Read depth for each allele"},
-    "ADF": {
-        "Number": "R",
-        "Type": "Integer",
-        "Description": "Injected. Read depth for each allele on the forward strand",
-    },
-    "ADR": {
-        "Number": "R",
-        "Type": "Integer",
-        "Description": "Injected. Read depth for each allele on the reverse strand",
-    },
-    "DP": {"Number": "1", "Type": "Integer", "Description": "Injected. Read depth"},
-    "EC": {
-        "Number": "A",
-        "Type": "Integer",
-        "Description": "Injected. Expected alternate allele counts",
-    },
-    "FT": {
-        "Number": "1",
-        "Type": "String",
-        "Description": "Injected. Filter indicating if this genotype was “called”",
-    },
-    "GL": {"Number": "G", "Type": "Float", "Description": "Injected. Genotype likelihoods"},
-    "GP": {
-        "Number": "G",
-        "Type": "Float",
-        "Description": "Injected. Genotype posterior probabilities",
-    },
-    "GQ": {
-        "Number": "1",
-        "Type": "Integer",
-        "Description": "Injected. Conditional genotype quality",
-    },
-    "GT": {"Number": "1", "Type": "String", "Description": "Injected. Genotype"},
-    "HQ": {"Number": "2", "Type": "Integer", "Description": "Injected. Haplotype quality"},
-    "MQ": {"Number": "1", "Type": "Integer", "Description": "Injected. RMS mapping quality"},
-    "PL": {
-        "Number": "G",
-        "Type": "Integer",
-        "Description": "Injected. Phred-scaled genotype likelihoods rounded to the closest integer",
-    },
-    "PP": {
-        "Number": "G",
-        "Type": "Integer",
-        "Description": "Injected. Phred-scaled genotype posterior probabilities rounded to the closest integer",
-    },
-    "PQ": {"Number": "1", "Type": "Integer", "Description": "Injected. Phasing quality"},
-    "PS": {"Number": "1", "Type": "Integer", "Description": "Injected. Phase"},
-}
-
-
-class VcfIterator(object):
-    def __init__(self, path_or_fileobject: Union[str, IO], include_raw: bool = False):
-        self.path_or_fileobject = path_or_fileobject
-        self.reader = cyvcf2.Reader(self.path_or_fileobject, gts012=True)
-        self.include_raw = include_raw
-        self.samples = self.reader.samples
-        self.add_format_headers()
-        self.meta: Dict[str, list] = {}
-        for h in self.reader.header_iter():
-            if h.type not in self.meta:
-                self.meta[h.type] = []
-            self.meta[h.type].append(h.info())
-
-    def add_format_headers(self):
-        "Add format headers if they do not exist. This is a subset of the reserved genotype keys from https://samtools.github.io/hts-specs/VCFv4.3.pdf (table 2)"
-        for key, fmt in RESERVED_GT_HEADERS.items():
-            if key in self.reader and self.reader.get_header_type(key) == "FORMAT":
-                existing_header_line = self.reader[key]
-                if (
-                    existing_header_line["Number"] != fmt["Number"]
-                    or existing_header_line["Type"] != fmt["Type"]
-                ):
-                    log.warning(
-                        f"Header for format field {key} in VCF does not match VCF spec. Ignoring."
-                    )
-            else:
-                self.reader.add_format_to_header({**fmt, **{"ID": key}})
-
-    def __iter__(self):
-        variant: cyvcf2.Variant
-        if self.include_raw:
-            for variant in self.reader:
-                yield str(variant), variant
-        else:
-            for variant in self.reader:
-                r = VCFRecord(variant, self.samples, self.meta)
-                yield r
