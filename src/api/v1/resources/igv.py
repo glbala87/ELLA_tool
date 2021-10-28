@@ -206,42 +206,119 @@ def get_alleles_from_db(session, analysis_id, allele_ids):
     return allele_objs
 
 
+class ChromPos:
+    def __init__(self, chr, pos):
+        self.chr = chr
+        self.pos = pos
+
+    def chr_to_int(self):
+        if self.chr == "X":
+            return 23
+        elif self.chr == "Y":
+            return 24
+        elif self.chr == "MT":
+            return 25
+        else:
+            return int(self.chr)
+
+    def __lt__(self, other):
+        if self.chr == other.chr:
+            return self.pos < other.pos
+        else:
+            return self.chr_to_int() < other.chr_to_int()
+
+
+class BedLine(ChromPos):
+    def __init__(self, chr, pos, end):
+        super().__init__(chr, pos)
+        self.end = end
+
+    def __str__(self):
+        return f"{self.chr}\t{self.pos}\t{self.end}"
+
+
 def get_regions_of_interest(session, analysis_id, allele_ids):
     if not allele_ids:
         return None
 
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
 
-    bed_lines = ""
+    bed_lines = []
     for a in allele_objs:
         chr = a["chromosome"]
         pos = a["start_position"]
         length = a["length"]
-        bed_lines += f"{chr}\t{pos}\t{pos + length}\n"
-    return bed_lines
+        bed_lines.append(BedLine(chr, pos, pos + length))
+    bed = "\n".join([str(b) for b in sorted(bed_lines)]) + "\n"
+    return bed
+
+
+class VcfLine(ChromPos):
+    def __init__(self, chr, pos, id, ref, alt, qual, filter_status, info, genotype_data):
+        super().__init__(chr, pos)
+        self.id = id
+        self.ref = ref
+        self.alt = alt
+        self.qual = qual
+        self.filter_status = filter_status
+        self.info = info
+        self.genotype_data = genotype_data
+
+    def sorted_genotype_keys(self):
+        SORT_ORDER = {"GT": 1, "CN": 2}
+        return sorted(self.genotype_data.keys(), key=lambda genotype_key: SORT_ORDER[genotype_key])
+
+    def __str__(self) -> str:
+        VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
+        info_text = ";".join(self.info) if self.info else "."
+        genotype_data_keys = self.sorted_genotype_keys()
+        genotype_format_text = ":".join(genotype_data_keys)
+        genotype_data_text = ":".join([",".join(self.genotype_data[k]) for k in genotype_data_keys])
+        return VCF_LINE_TEMPLATE.format(
+            chr=self.chr,
+            pos=self.pos,
+            id=".",
+            ref=self.ref,
+            alt=self.alt,
+            qual=self.qual,
+            filter_status=self.filter_status,
+            info=info_text,
+            genotype_format=genotype_format_text,
+            genotype_data=genotype_data_text,
+        )
+
+
+class Vcf:
+    def __init__(self, sample_names, data_lines):
+        self.sample_names = sample_names
+        self.data_lines = data_lines
+
+    def __str__(self) -> str:
+        VCF_HEADER_TEMPLATE = (
+            "\n".join(
+                [
+                    "##fileformat=VCFv4.1",
+                    '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
+                    '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
+                    '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
+                    '##FORMAT=<ID=CN,Number=.,Type=Integer,Description="Copy Number">',
+                    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
+                ]
+            )
+            + "\n"
+        )
+        data_header = VCF_HEADER_TEMPLATE.format("\t".join(self.sample_names))
+        lines_sorted = sorted(self.data_lines)
+        vcf_lines = "\n".join([str(l) for l in lines_sorted])
+        return data_header + vcf_lines + "\n"
 
 
 def get_allele_vcf(session, analysis_id, allele_ids):
 
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
-    VCF_HEADER_TEMPLATE = (
-        "\n".join(
-            [
-                "##fileformat=VCFv4.1",
-                '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
-                '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
-                '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
-                '##FORMAT=<ID=CN,Number=.,Type=Integer,Description="Copy Number">',
-                "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
-            ]
-        )
-        + "\n"
-    )
-    VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
-
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
-    data = VCF_HEADER_TEMPLATE.format("\t".join(sample_names))
 
+    data = []
     for a in allele_objs:
         chr = a["chromosome"]
         pos = a["vcf_pos"]
@@ -274,20 +351,21 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             change_type = a["change_type"]
             length = a["length"]
             info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
-        genotype_data_keys = sorted(genotype_data.keys(), reverse=True)
-        data += VCF_LINE_TEMPLATE.format(
-            chr=chr,
-            pos=pos,
-            id=".",
-            ref=ref,
-            alt=alt,
-            qual=qual,
-            filter_status=filter_status,
-            info=";".join(info) if info else ".",
-            genotype_format=":".join(genotype_data_keys),
-            genotype_data=":".join([",".join(genotype_data[k]) for k in genotype_data_keys]),
+        data.append(
+            VcfLine(
+                chr,
+                pos,
+                ".",
+                ref,
+                alt,
+                qual,
+                filter_status,
+                info,
+                genotype_data,
+            )
         )
-    return data
+    vcf = Vcf(sample_names, data)
+    return str(vcf)
 
 
 class IgvSearchResource(LogRequestResource):
