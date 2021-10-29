@@ -1,11 +1,12 @@
 import copy
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
-from sqlalchemy import or_, and_, tuple_
+from sqlalchemy import or_, and_, tuple_, cast
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 from vardb.datamodel import gene, annotationshadow
 from datalayer import queries
@@ -206,7 +207,7 @@ class FrequencyFilter(object):
 
             # "Compiling" queries is slow, so cache the slowest
             ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                self.session.query(func.unnest(array(allele_ids))).subquery()
+                self.session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
             )
 
             gp_final_filter = list()
@@ -222,7 +223,9 @@ class FrequencyFilter(object):
                     self.session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id)
                     .filter(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
-                            self.session.query(func.unnest(array(per_gene_hgnc_ids))).subquery()
+                            self.session.query(
+                                func.unnest(cast(array(per_gene_hgnc_ids), ARRAY(Integer)))
+                            ).subquery()
                         ),
                         ast_gp_alleles,
                     )
@@ -255,9 +258,7 @@ class FrequencyFilter(object):
                     gp_final_filter.append(
                         and_(
                             annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                                self.session.query(
-                                    func.unnest(array(allele_ids_for_genes))
-                                ).subquery()
+                                allele_ids_for_genes
                             ),
                             self._get_freq_threshold_filter(
                                 filter_config["groups"],
@@ -277,7 +278,9 @@ class FrequencyFilter(object):
             if ad_hgnc_ids:
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
-                        self.session.query(func.unnest(array(ad_hgnc_ids))).subquery()
+                        self.session.query(
+                            func.unnest(cast(array(ad_hgnc_ids), ARRAY(Integer)))
+                        ).subquery()
                     ),
                     ast_gp_alleles,
                 ]
@@ -286,7 +289,7 @@ class FrequencyFilter(object):
                     ad_filters.append(
                         ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
                             self.session.query(
-                                func.unnest(array(gene_specific_allele_ids))
+                                func.unnest(cast(array(gene_specific_allele_ids), ARRAY(Integer)))
                             ).subquery()
                         )
                     )
@@ -302,7 +305,7 @@ class FrequencyFilter(object):
                 gp_final_filter.append(
                     and_(
                         annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                            self.session.query(func.unnest(array(ad_gene_allele_ids))).subquery()
+                            ad_gene_allele_ids
                         ),
                         self._get_freq_threshold_filter(
                             filter_config["groups"],
@@ -319,7 +322,9 @@ class FrequencyFilter(object):
             gp_final_filter.append(
                 and_(
                     annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                        self.session.query(func.unnest(array(default_allele_ids))).subquery()
+                        self.session.query(
+                            func.unnest(cast(array(default_allele_ids), ARRAY(Integer)))
+                        ).subquery()
                     ),
                     self._get_freq_threshold_filter(
                         filter_config["groups"],
@@ -455,9 +460,7 @@ class FrequencyFilter(object):
                     self.session.query(annotationshadow.AnnotationShadowFrequency.allele_id)
                     .filter(
                         gp_filters[gp_key],
-                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(
-                            self.session.query(func.unnest(array(al_ids))).subquery()
-                        ),
+                        annotationshadow.AnnotationShadowFrequency.allele_id.in_(al_ids),
                     )
                     .distinct()
                 )

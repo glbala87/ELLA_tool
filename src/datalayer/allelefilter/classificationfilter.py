@@ -3,7 +3,9 @@ from datalayer import queries
 from sqlalchemy.orm.session import Session
 from vardb.datamodel import assessment
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 
 class ClassificationFilter(object):
@@ -50,7 +52,9 @@ class ClassificationFilter(object):
 
             filtered_allele_ids = self.session.query(assessment.AlleleAssessment.allele_id).filter(
                 assessment.AlleleAssessment.allele_id.in_(
-                    self.session.query(func.unnest(array(allele_ids))).subquery()
+                    self.session.query(
+                        func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                    ).subquery()
                 ),
                 assessment.AlleleAssessment.classification.in_(filter_classes),
                 *valid_assessments

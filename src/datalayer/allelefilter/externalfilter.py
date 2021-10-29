@@ -4,7 +4,9 @@ from sqlalchemy import and_, or_, literal_column, func
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.sql.selectable import Alias
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 from vardb.datamodel import annotation
 
@@ -112,7 +114,9 @@ class ExternalFilter(object):
             )
             .filter(
                 annotation.Annotation.allele_id.in_(
-                    self.session.query(func.unnest(array(allele_ids))).subquery()
+                    self.session.query(
+                        func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                    ).subquery()
                 ),
                 annotation.Annotation.date_superceeded.is_(None),
                 annotation.Annotation.annotations.op("->")("external")

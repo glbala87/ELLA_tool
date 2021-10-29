@@ -2,10 +2,11 @@ from typing import Sequence, Tuple
 import datetime
 import pytz
 from sqlalchemy import or_, and_, tuple_, func, text, literal_column, Text
-from sqlalchemy.dialects.postgresql import array
 from sqlalchemy.sql.sqltypes import Integer
 from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
 from vardb.datamodel import annotationshadow
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
 
 from api.util import filterconfig_requirements
 from api.config import config
@@ -340,7 +341,9 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
 
     if allele_ids is not None:
         result = result.filter(
-            allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery())
+            allele.Allele.id.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+            )
             if allele_ids
             else False
         )
@@ -438,7 +441,7 @@ def annotation_transcripts_genepanel(
     if allele_ids is not None:
         result = result.filter(
             annotation_shadow_transcript_table.allele_id.in_(
-                session.query(func.unnest(array(allele_ids))).subquery()
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
             )
             if allele_ids
             else False

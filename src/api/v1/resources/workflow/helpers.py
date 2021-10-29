@@ -5,7 +5,9 @@ from collections import defaultdict
 
 from sqlalchemy import tuple_, literal, func, and_
 from sqlalchemy.orm import joinedload
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
 
@@ -115,7 +117,11 @@ def get_alleles(
 
     alleles = (
         session.query(allele.Allele)
-        .filter(allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()))
+        .filter(
+            allele.Allele.id.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+            )
+        )
         .all()
     )
 
@@ -170,7 +176,9 @@ def get_alleles(
             .join(assessment.AlleleAssessment.referenceassessments)
             .filter(
                 assessment.AlleleAssessment.id.in_(
-                    session.query(func.unnest(array(link_filter["alleleassessment_id"]))).subquery()
+                    session.query(
+                        func.unnest(cast(array(link_filter["alleleassessment_id"]), ARRAY(Integer)))
+                    ).subquery()
                 )
             )
             .all()
@@ -724,7 +732,9 @@ def finalize_workflow(
         session.query(assessment.AlleleAssessment.allele_id)
         .filter(
             assessment.AlleleAssessment.id.in_(
-                session.query(func.unnest(array(data["alleleassessment_ids"]))).subquery()
+                session.query(
+                    func.unnest(cast(array(data["alleleassessment_ids"]), ARRAY(Integer)))
+                ).subquery()
             )
         )
         .scalar_all()
@@ -734,7 +744,9 @@ def finalize_workflow(
         session.query(assessment.AlleleReport.allele_id)
         .filter(
             assessment.AlleleReport.id.in_(
-                session.query(func.unnest(array(data["allelereport_ids"]))).subquery()
+                session.query(
+                    func.unnest(cast(array(data["allelereport_ids"]), ARRAY(Integer)))
+                ).subquery()
             )
         )
         .scalar_all()
@@ -932,12 +944,21 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         )
         .filter(
             sample.Analysis.id.in_(
-                session.query(func.unnest(array(workflow_analysis_ids))).subquery()
+                session.query(
+                    func.unnest(cast(array(workflow_analysis_ids), ARRAY(Integer)))
+                ).subquery()
             ),
-            allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()),
+            allele.Allele.id.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+            ),
             ~allele.Allele.id.in_(
                 session.query(
-                    func.unnest(array(queries.allele_ids_with_valid_alleleassessments(session)))
+                    func.unnest(
+                        cast(
+                            array(queries.allele_ids_with_valid_alleleassessments(session)),
+                            ARRAY(Integer),
+                        )
+                    )
                 ).subquery()
             ),
         )
@@ -967,10 +988,12 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         )
         .filter(
             workflow.AlleleInterpretation.allele_id.in_(
-                session.query(func.unnest(array(workflow_allele_ids))).subquery()
+                session.query(
+                    func.unnest(cast(array(workflow_allele_ids), ARRAY(Integer)))
+                ).subquery()
             ),
             workflow.AlleleInterpretation.allele_id.in_(
-                session.query(func.unnest(array(allele_ids))).subquery()
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
             ),
         )
         .distinct(workflow.AlleleInterpretation.allele_id)
@@ -1065,7 +1088,9 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         )
         .filter(
             assessment.AlleleAssessment.id.in_(
-                session.query(func.unnest(array(alleleassessment_ids))).subquery()
+                session.query(
+                    func.unnest(cast(array(alleleassessment_ids), ARRAY(Integer)))
+                ).subquery()
             )
         )
         .all()
@@ -1079,7 +1104,9 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         session.query(assessment.AlleleAssessment.id, assessment.AlleleAssessment.classification)
         .filter(
             assessment.AlleleAssessment.id.in_(
-                session.query(func.unnest(array(previous_assessment_ids))).subquery()
+                session.query(
+                    func.unnest(cast(array(previous_assessment_ids), ARRAY(Integer)))
+                ).subquery()
             )
         )
         .all()
