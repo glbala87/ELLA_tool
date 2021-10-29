@@ -1,8 +1,10 @@
 from flask import request
 from sqlalchemy import text
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array, aggregate_order_by
 from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
+from sqlalchemy.types import Integer
 
 from api import schemas
 from api.config import config
@@ -154,7 +156,7 @@ class AlleleByGeneListResource(LogRequestResource):
 
         filters = [
             annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                session.query(func.unnest(array(allele_ids))).subquery()
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
             )
         ]
         inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")

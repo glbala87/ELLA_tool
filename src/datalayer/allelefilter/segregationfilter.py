@@ -4,7 +4,9 @@ from sqlalchemy.sql.elements import BooleanClauseList, BinaryExpression
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import Alias
 from sqlalchemy import or_, and_, text, func
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Text
 
 from vardb.datamodel import sample, annotationshadow
 
@@ -747,7 +749,9 @@ class SegregationFilter(object):
             self.session.query(candidates_with_genes.c.allele_id)
             .filter(
                 candidates_with_genes.c.symbol.in_(
-                    self.session.query(func.unnest(array(compound_heterozygous_symbols))).subquery()
+                    self.session.query(
+                        func.unnest(cast(array(compound_heterozygous_symbols), ARRAY(Text)))
+                    ).subquery()
                 )
             )
             .distinct()

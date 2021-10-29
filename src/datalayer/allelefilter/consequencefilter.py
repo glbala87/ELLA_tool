@@ -1,9 +1,11 @@
 from typing import Any, Dict, List, Set, Tuple
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array
 from sqlalchemy import or_, tuple_, text
 from vardb.datamodel import annotationshadow, gene
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer, Text
 
 
 class ConsequenceFilter(object):
@@ -35,7 +37,9 @@ class ConsequenceFilter(object):
                 self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
                 .filter(
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                        self.session.query(func.unnest(array(allele_ids))).subquery()
+                        self.session.query(
+                            func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                        ).subquery()
                     ),
                     annotationshadow.AnnotationShadowTranscript.consequences.op("&&")(consequences),
                 )
@@ -62,10 +66,14 @@ class ConsequenceFilter(object):
                 allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
-                            self.session.query(func.unnest(array(gp_gene_ids))).subquery()
+                            self.session.query(
+                                func.unnest(cast(array(gp_gene_ids), ARRAY(Integer)))
+                            ).subquery()
                         ),
                         annotationshadow.AnnotationShadowTranscript.symbol.in_(
-                            self.session.query(func.unnest(array(gp_gene_symbols))).subquery()
+                            self.session.query(
+                                func.unnest(cast(array(gp_gene_symbols), ARRAY(Text)))
+                            ).subquery()
                         ),
                     )
                 )
