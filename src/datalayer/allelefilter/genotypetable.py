@@ -5,7 +5,9 @@ from sqlalchemy import literal, and_
 from vardb.util.extended_query import ExtendedQuery
 from vardb.datamodel import genotype, allele, sample
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 
 def extend_genotype_table_with_allele(session, genotype_table: Table) -> ExtendedQuery:
@@ -64,7 +66,11 @@ def get_genotype_temp_table(
 
         samples = (
             session.query(sample.Sample)
-            .filter(sample.Sample.id.in_(session.query(func.unnest(array(sample_ids))).subquery()))
+            .filter(
+                sample.Sample.id.in_(
+                    session.query(func.unnest(cast(array(sample_ids), ARRAY(Integer)))).subquery()
+                )
+            )
             .all()
         )
 
@@ -95,9 +101,11 @@ def get_genotype_temp_table(
             allele_id_field = genotype.Genotype.allele_id
 
         genotype_query = session.query(allele_id_field.label("allele_id"), *sample_fields).filter(
-            allele_id_field.in_(session.query(func.unnest(array(allele_ids))).subquery()),
+            allele_id_field.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+            ),
             genotype.Genotype.sample_id.in_(
-                session.query(func.unnest(array(sample_ids))).subquery()
+                session.query(func.unnest(cast(array(sample_ids), ARRAY(Integer)))).subquery()
             ),
         )
 

@@ -146,7 +146,9 @@ class Warnings(object):
             )
             .filter(
                 allele.Allele.id.in_(
-                    self.session.query(func.unnest(array(analysis_allele_ids))).subquery()
+                    self.session.query(
+                        func.unnest(cast(array(analysis_allele_ids), ARRAY(Integer)))
+                    ).subquery()
                 )
             )
             .all()
