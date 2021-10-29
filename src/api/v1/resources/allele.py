@@ -156,7 +156,13 @@ class AlleleByGeneListResource(LogRequestResource):
 
         filters = [
             annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(allele_ids))).subquery()
+=======
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
         ]
         inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")

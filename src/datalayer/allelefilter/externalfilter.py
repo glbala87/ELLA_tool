@@ -4,9 +4,17 @@ from sqlalchemy import and_, or_, literal_column, func
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.sql.selectable import Alias
+<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+from sqlalchemy.dialects.postgresql import array
+=======
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 from vardb.datamodel import annotation
 
@@ -114,7 +122,15 @@ class ExternalFilter(object):
             )
             .filter(
                 annotation.Annotation.allele_id.in_(
+<<<<<<< HEAD
                     self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                    self.session.query(func.unnest(array(allele_ids))).subquery()
+=======
+                    self.session.query(
+                        func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                    ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
                 ),
                 annotation.Annotation.date_superceeded.is_(None),
                 annotation.Annotation.annotations.op("->")("external")

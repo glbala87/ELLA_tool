@@ -5,9 +5,17 @@ from collections import defaultdict
 
 from sqlalchemy import tuple_, literal, func, and_
 from sqlalchemy.orm import joinedload
+<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+from sqlalchemy.dialects.postgresql import array
+=======
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
 
@@ -117,11 +125,21 @@ def get_alleles(
 
     alleles = (
         session.query(allele.Allele)
+<<<<<<< HEAD
         .filter(
             allele.Allele.id.in_(
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
             )
         )
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+        .filter(allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()))
+=======
+        .filter(
+            allele.Allele.id.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+            )
+        )
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
         .all()
     )
 
@@ -176,9 +194,17 @@ def get_alleles(
             .join(assessment.AlleleAssessment.referenceassessments)
             .filter(
                 assessment.AlleleAssessment.id.in_(
+<<<<<<< HEAD
                     session.query(
                         func.unnest(cast(link_filter["alleleassessment_id"], ARRAY(Integer)))
                     ).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                    session.query(func.unnest(array(link_filter["alleleassessment_id"]))).subquery()
+=======
+                    session.query(
+                        func.unnest(cast(array(link_filter["alleleassessment_id"]), ARRAY(Integer)))
+                    ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
                 )
             )
             .all()
@@ -732,9 +758,17 @@ def finalize_workflow(
         session.query(assessment.AlleleAssessment.allele_id)
         .filter(
             assessment.AlleleAssessment.id.in_(
+<<<<<<< HEAD
                 session.query(
                     func.unnest(cast(data["alleleassessment_ids"], ARRAY(Integer)))
                 ).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(data["alleleassessment_ids"]))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(data["alleleassessment_ids"]), ARRAY(Integer)))
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
         )
         .scalar_all()
@@ -744,9 +778,17 @@ def finalize_workflow(
         session.query(assessment.AlleleReport.allele_id)
         .filter(
             assessment.AlleleReport.id.in_(
+<<<<<<< HEAD
                 session.query(
                     func.unnest(cast(data["allelereport_ids"], ARRAY(Integer)))
                 ).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(data["allelereport_ids"]))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(data["allelereport_ids"]), ARRAY(Integer)))
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
         )
         .scalar_all()
@@ -944,10 +986,39 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         )
         .filter(
             sample.Analysis.id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(workflow_analysis_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(workflow_analysis_ids))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(workflow_analysis_ids), ARRAY(Integer)))
+                ).subquery()
             ),
             allele.Allele.id.in_(
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
+            ),
+<<<<<<< HEAD
+            allele.Allele.id.in_(
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+            allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery()),
+            ~allele.Allele.id.in_(
+                session.query(
+                    func.unnest(array(queries.allele_ids_with_valid_alleleassessments(session)))
+                ).subquery()
+=======
+            ~allele.Allele.id.in_(
+                session.query(
+                    func.unnest(
+                        cast(
+                            array(queries.allele_ids_with_valid_alleleassessments(session)),
+                            ARRAY(Integer),
+                        )
+                    )
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             ),
             ~allele.Allele.id.in_(queries.allele_ids_with_valid_alleleassessments(session)),
         )
@@ -977,10 +1048,24 @@ def get_workflow_allele_collisions(session, allele_ids, analysis_id=None, allele
         )
         .filter(
             workflow.AlleleInterpretation.allele_id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(workflow_allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(workflow_allele_ids))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(workflow_allele_ids), ARRAY(Integer)))
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             ),
             workflow.AlleleInterpretation.allele_id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(allele_ids))).subquery()
+=======
+                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             ),
         )
         .distinct(workflow.AlleleInterpretation.allele_id)
@@ -1075,7 +1160,15 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         )
         .filter(
             assessment.AlleleAssessment.id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(alleleassessment_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(alleleassessment_ids))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(alleleassessment_ids), ARRAY(Integer)))
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
         )
         .all()
@@ -1089,7 +1182,15 @@ def get_interpretationlog(session, user_id, allele_id=None, analysis_id=None):
         session.query(assessment.AlleleAssessment.id, assessment.AlleleAssessment.classification)
         .filter(
             assessment.AlleleAssessment.id.in_(
+<<<<<<< HEAD
                 session.query(func.unnest(cast(previous_assessment_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                session.query(func.unnest(array(previous_assessment_ids))).subquery()
+=======
+                session.query(
+                    func.unnest(cast(array(previous_assessment_ids), ARRAY(Integer)))
+                ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
         )
         .all()

@@ -1,9 +1,17 @@
 from typing import Any, Dict, List, Set, Tuple
 from sqlalchemy import or_, and_, tuple_, func, case
 from vardb.datamodel import gene, allele
+<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+from sqlalchemy.dialects.postgresql import array
+=======
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 
 class PolypyrimidineTractFilter(object):
@@ -73,7 +81,15 @@ class PolypyrimidineTractFilter(object):
                 )
                 .filter(
                     allele.Allele.id.in_(
+<<<<<<< HEAD
                         self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                        self.session.query(func.unnest(array(allele_ids))).subquery()
+=======
+                        self.session.query(
+                            func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                        ).subquery()
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
                     ),
                     allele.Allele.chromosome == gene.Transcript.chromosome,
                     or_(
@@ -143,9 +159,19 @@ class PolypyrimidineTractFilter(object):
 
             # Find allele ids within ppy tract region
             ppy_allele_ids = self.session.query(allele.Allele.id).filter(
+<<<<<<< HEAD
                 allele.Allele.id.in_(
                     self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
                 ),
+||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
+                allele.Allele.id.in_(self.session.query(func.unnest(array(allele_ids))).subquery()),
+=======
+                allele.Allele.id.in_(
+                    self.session.query(
+                        func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                    ).subquery()
+                ),
+>>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
                 allele.Allele.chromosome == ppytract.c.chromosome,
                 # Check that the allele is within the polypyrimidine tract region
                 or_(
