@@ -15,8 +15,34 @@ def allele_sizes(draw):
 @st.composite
 def filter_config(draw):
     mode = draw(st.sampled_from([">", "<", ">=", "<=", "=="]))
-    threshold = draw(st.integers(min_value=0, max_value=100))
+    threshold = draw(st.integers(min_value=0, max_value=10000000))
     return {"mode": mode, "threshold": threshold}
+
+
+def local_sizefilter_impl(config, alleles):
+    filtered_alleles = []
+
+    for a in alleles:
+        if config["mode"] == ">":
+            if a.length > int(config["threshold"]):
+                filtered_alleles.append(a.id)
+        elif config["mode"] == "<":
+            if a.length < int(config["threshold"]):
+                filtered_alleles.append(a.id)
+        elif config["mode"] == ">=":
+            if a.length >= int(config["threshold"]):
+                filtered_alleles.append(a.id)
+        elif config["mode"] == "<=":
+            if a.length <= int(config["threshold"]):
+                filtered_alleles.append(a.id)
+        elif config["mode"] == "==":
+            if a.length == config["threshold"]:
+                filtered_alleles.append(a.id)
+
+        else:
+            raise RuntimeError(f"filter config mode {config.mode} is not supported")
+
+    return filtered_alleles
 
 
 @ht.given(st.one_of(allele_sizes()), st.one_of(filter_config()))
@@ -27,6 +53,8 @@ def test_sizefilter(session, allele_sizes, filter_config):
         obj.length = size
     allele_ids = [obj.id for obj in allele_objs]
     session.flush()
+    local_filtered = local_sizefilter_impl(filter_config, allele_objs)
 
     sf = SizeFilter(session, None)
-    sf.filter_alleles({("Dabla", "v01"): allele_ids}, filter_config)
+    db_filtered = sf.filter_alleles({("Dabla", "v01"): allele_ids}, filter_config)
+    assert sorted(list(db_filtered[("Dabla", "v01")])) == sorted(local_filtered)
