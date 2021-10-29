@@ -252,14 +252,17 @@ class VCFRecord(object):
             if property not in self.variant.FORMAT:
                 return None
             prop = self.variant.format(property)
-            if prop is not None:
-                ret = numpy_to_list(prop[self._sample_index(sample_name)])
-                assert ret
-                if scalar:
-                    assert len(ret) == 1
-                    return ret[0]
-                else:
-                    return ret
+
+            if prop is None:
+                return None
+
+            ret = numpy_to_list(prop[self._sample_index(sample_name)])
+            assert ret
+            if scalar:
+                assert len(ret) == 1
+                return ret[0]
+            else:
+                return ret
 
     def get_block_id(self) -> Optional[str]:
         return self.variant.INFO.get("OLD_MULTIALLELIC")
