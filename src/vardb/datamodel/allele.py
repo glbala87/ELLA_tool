@@ -39,7 +39,7 @@ class Allele(Base):
         nullable=False,
     )
 
-    caller_type = Column(Enum("SNV", "CNV", name="caller_type"), nullable=False)
+    caller_type = Column(Enum("snv", "cnv", name="caller_type"), nullable=False)
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)
     vcf_alt = Column(String, nullable=False)

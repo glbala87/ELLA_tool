@@ -291,7 +291,7 @@
                         {
                             "name": "callertype",
                             "config": {
-                                "callerTypes": ["CNV"]
+                                "callerTypes": ["cnv"]
                             }
                         }
                     ]

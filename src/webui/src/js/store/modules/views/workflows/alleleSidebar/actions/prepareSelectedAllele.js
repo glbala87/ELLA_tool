@@ -5,9 +5,7 @@ export default function prepareSelectedAllele({ state }) {
     const classified = state.get('views.workflows.alleleSidebar.classified')
     const technical = state.get('views.workflows.alleleSidebar.technical')
     const notRelevant = state.get('views.workflows.alleleSidebar.notRelevant')
-    const caller_type_selected = state
-        .get('views.workflows.alleleSidebar.callerTypeSelected')
-        .toUpperCase()
+    const caller_type_selected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
     let selectedAllele = state.get('views.workflows.selectedAllele')
     if (selectedComponent !== 'Classification') {
         state.set('views.workflows.selectedAllele', null)
