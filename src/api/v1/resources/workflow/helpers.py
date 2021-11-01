@@ -1,7 +1,6 @@
 from typing import DefaultDict, List, Set, Union, Type
 import datetime
 import pytz
-import itertools
 from collections import defaultdict
 
 from sqlalchemy import tuple_, literal, func, and_
@@ -1238,23 +1237,22 @@ def fetch_allele_ids_by_caller_type(session, excluded_alleles):
 
 
 def filtered_by_caller_type(session, filtered_alleles):
-    flattened_ids = list(itertools.chain(*filtered_alleles.values()))
+    flattened_ids = sum(filtered_alleles.values(), [])
     alleles_by_caller_type = fetch_allele_ids_by_caller_type(session, flattened_ids)
-    filtered_by_caller_type = {}
-    for caller_type in "snv", "cnv":
-        filtered_by_caller_type[caller_type.lower()] = {}
+    filtered_by_caller_type = {"cnv": {}, "snv": {}}
+    for caller_type in filtered_by_caller_type:
         for filter_type in filtered_alleles:
             ids = filtered_alleles[filter_type]
             if len(ids) == 0:
-                filtered_by_caller_type[caller_type.lower()][filter_type] = []
+                filtered_by_caller_type[caller_type][filter_type] = []
             else:
                 if caller_type in alleles_by_caller_type:
                     active_alleles = alleles_by_caller_type[caller_type]
-                    filtered_by_caller_type[caller_type.lower()][filter_type] = list(
+                    filtered_by_caller_type[caller_type][filter_type] = list(
                         set(active_alleles) & set(ids)
                     )
                 else:
-                    filtered_by_caller_type[caller_type.lower()][filter_type] = []
+                    filtered_by_caller_type[caller_type][filter_type] = []
     return filtered_by_caller_type
 
 
