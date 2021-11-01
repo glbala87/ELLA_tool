@@ -130,7 +130,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
         "vcf_ref": ref,
         "vcf_alt": alt,
         "length": allele_length,
-        "caller_type": "SNV",
+        "caller_type": "snv",
     }
 
     if len(ref) == len(alt) == 1:
@@ -142,7 +142,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "change_from": ref,
                 "change_to": alt,
                 "length": 1,
-                "caller_type": "SNV",
+                "caller_type": "snv",
             }
         )
     elif len(ref) >= 1 and len(alt) >= 1 and alt[0] != ref[0]:
@@ -154,7 +154,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "change_from": ref,
                 "change_to": alt,
                 "length": allele_length,
-                "caller_type": "SNV",
+                "caller_type": "snv",
             }
         )
     elif len(ref) < len(alt):
@@ -166,7 +166,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "change_from": "",
                 "change_to": alt[1:],
                 "length": 1,
-                "caller_type": "SNV",
+                "caller_type": "snv",
             }
         )
 
@@ -179,7 +179,7 @@ def test_allele_from_record(session, positions, manually_curated_result):
                 "change_from": ref[1:],
                 "change_to": "",
                 "length": len(ref[1:]),
-                "caller_type": "SNV",
+                "caller_type": "snv",
             }
         )
     else:

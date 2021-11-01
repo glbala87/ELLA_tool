@@ -340,14 +340,14 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             qual = sample_genotype["variant_quality"]
             filter_status = sample_genotype["filter_status"]
             genotype_data["GT"].append("1/1" if sample_genotype["type"] == "Homozygous" else "0/1")
-            if a["caller_type"] == "CNV" and sample_genotype["copy_number"] is not None:
+            if a["caller_type"] == "cnv" and sample_genotype["copy_number"] is not None:
                 genotype_data["CN"].append(str(sample_genotype["copy_number"]))
             else:
                 genotype_data["CN"] = "."
 
         # Annotation
         info = []
-        if a["caller_type"] == "CNV":
+        if a["caller_type"] == "cnv":
             change_type = a["change_type"]
             length = a["length"]
             info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
