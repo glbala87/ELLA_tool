@@ -91,10 +91,10 @@ describe('prepareInterpretationState', () => {
             interpretation: {
                 data: {
                     alleles: {
-                        1: createAlleleData(1, 'SNV'),
-                        2: createAlleleData(2, 'SNV'),
-                        4: createAlleleData(4, 'CNV'),
-                        6: createAlleleData(6, 'CNV')
+                        1: createAlleleData(1, 'snv'),
+                        2: createAlleleData(2, 'snv'),
+                        4: createAlleleData(4, 'cnv'),
+                        6: createAlleleData(6, 'cnv')
                     },
                     filteredAlleleIds: {
                         allele_ids: [1, 6],
