@@ -187,12 +187,17 @@ class AlleleByGeneListResource(LogRequestResource):
                         allele_id_genes.c.chromosome.asc(),
                         allele_id_genes.c.start_position.asc(),
                     )
-                ),
+                ).label("allele_ids"),
             )
             .group_by(allele_id_genes.c.symbol, allele_id_genes.c.hgnc_id)
             .all()
         )
-        return allele_id_by_genes
+        # simulate a "json_agg()" in python as sqlalchemy does not seem to support it :(
+        # At least we get an idea how a return type would look like
+        return [
+            {"symbol": r.symbol, "hgnc_id": r.hgnc_id, "allele_ids": r.allele_ids}
+            for r in allele_id_by_genes
+        ]
 
 
 class AlleleAnalysisListResource(LogRequestResource):
