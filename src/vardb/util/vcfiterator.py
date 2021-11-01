@@ -182,7 +182,7 @@ class Record(object):
                 ref,
                 alt,
             ) = self._snv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "SNV"
+            caller_type = "snv"
         else:
             (
                 start_position,
@@ -192,7 +192,7 @@ class Record(object):
                 ref,
                 alt,
             ) = self._cnv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "CNV"
+            caller_type = "cnv"
         allele = {
             "genome_reference": ref_genome,
             "chromosome": self.variant.CHROM,
