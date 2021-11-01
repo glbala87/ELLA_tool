@@ -6,13 +6,13 @@ import hypothesis.strategies as st
 
 @st.composite
 def allele_caller_types(draw):
-    callerTypes = draw(st.lists(elements=st.sampled_from(["CNV", "SNV"]), unique=True))
+    callerTypes = draw(st.lists(elements=st.sampled_from(["cnv", "snv"]), unique=True))
     return callerTypes
 
 
 @st.composite
 def filter_config(draw):
-    modes = draw(st.lists(st.sampled_from(["CNV", "SNV"]), unique=True))
+    modes = draw(st.lists(st.sampled_from(["cnv", "snv"]), unique=True))
     callerTypes = [{"callerTypes": [x]} for x in modes]
     return callerTypes
 

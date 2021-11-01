@@ -285,7 +285,7 @@ class BlockIterator(object):
                 if (
                     all(x == -1 for x in sample_gt)
                     and allele
-                    and allele["caller_type"] == "CNV"
+                    and allele["caller_type"] == "cnv"
                     and (allele["change_type"] == "dup" or allele["change_type"] == "dup_tandem")
                 ):
                     self.sample_has_coverage[sample_name] = True

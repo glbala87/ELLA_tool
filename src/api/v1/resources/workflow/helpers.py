@@ -1241,7 +1241,7 @@ def filtered_by_caller_type(session, filtered_alleles):
     flattened_ids = list(itertools.chain(*filtered_alleles.values()))
     alleles_by_caller_type = fetch_allele_ids_by_caller_type(session, flattened_ids)
     filtered_by_caller_type = {}
-    for caller_type in "SNV", "CNV":
+    for caller_type in "snv", "cnv":
         filtered_by_caller_type[caller_type.lower()] = {}
         for filter_type in filtered_alleles:
             ids = filtered_alleles[filter_type]

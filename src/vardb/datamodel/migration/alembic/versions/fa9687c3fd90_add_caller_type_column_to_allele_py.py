@@ -20,14 +20,14 @@ import sqlalchemy as sa
 def upgrade():
     conn = op.get_bind()
 
-    caller_type = postgresql.ENUM("SNV", "CNV", name="caller_type")
+    caller_type = postgresql.ENUM("snv", "cnv", name="caller_type")
     caller_type.create(conn)
 
     op.add_column(
-        "allele", sa.Column("caller_type", sa.Enum("SNV", "CNV", name="caller_type"), nullable=True)
+        "allele", sa.Column("caller_type", sa.Enum("snv", "cnv", name="caller_type"), nullable=True)
     )
 
-    conn.execute(sa.sql.text("UPDATE allele SET caller_type = 'SNV';"))
+    conn.execute(sa.sql.text("UPDATE allele SET caller_type = 'snv';"))
 
     op.alter_column("allele", "caller_type", nullable=False)
 

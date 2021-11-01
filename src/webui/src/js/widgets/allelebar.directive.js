@@ -97,9 +97,9 @@ app.component('allelebar', {
                             .filter((ga) => ga.evaluation && ga.evaluation.comment).length
                     },
                     getHGVSTitle(allele) {
-                        if (allele && allele.caller_type == 'SNV') {
+                        if (allele && allele.caller_type == 'snv') {
                             return 'HGVSc:'
-                        } else if (allele && allele.caller_type == 'CNV') {
+                        } else if (allele && allele.caller_type == 'cnv') {
                             return 'HGVSg:'
                         } else {
                             return ''
