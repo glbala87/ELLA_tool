@@ -184,7 +184,7 @@ class Warnings(object):
     def _check_worse_consequence(self):
         worse_consequence_warnings = dict()
         for al in self.alleles:
-            if al["caller_type"] == "CNV":
+            if al["caller_type"] == "cnv":
                 continue
 
             # Worse consequence
@@ -461,7 +461,7 @@ class AlleleDataLoader(object):
         genotype_id_formatted = dict()
         for g in genotype_candidates:
             gt1 = gt2 = None
-            if g.caller_type == "CNV":
+            if g.caller_type == "cnv":
                 assert g.second_change_type is None
 
                 # TODO: Fix import
