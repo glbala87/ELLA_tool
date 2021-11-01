@@ -41,9 +41,9 @@ const getAlleles = (alleleIds, alleles) => {
 
             const filterByCallerType = (allele) => {
                 if (callerTypeSelected == 'snv') {
-                    return allele.caller_type == 'SNV'
+                    return allele.caller_type == 'snv'
                 } else if (callerTypeSelected == 'cnv') {
-                    return allele.caller_type == 'CNV'
+                    return allele.caller_type == 'cnv'
                 } else {
                     throw `caller type unrecognized for allele: ${allele}`
                 }
@@ -163,9 +163,9 @@ app.component('alleleSidebarList', {
                         return allele.start_position + 1
                     },
                     getEndPos(allele) {
-                        if (allele.caller_type == 'SNV' && allele.change_type == 'ins') {
+                        if (allele.caller_type == 'snv' && allele.change_type == 'ins') {
                             return allele.open_end_position
-                        } else if (allele.caller_type == 'SNV') {
+                        } else if (allele.caller_type == 'snv') {
                             return allele.open_end_position
                         } else {
                             return allele.start_position + 1 + allele.length - 1
@@ -196,7 +196,7 @@ app.component('alleleSidebarList', {
                     },
 
                     getHGVSc(allele) {
-                        if (allele.caller_type == 'CNV') {
+                        if (allele.caller_type == 'cnv') {
                             return allele.formatted.hgvsg
                         } else {
                             if (allele.annotation.filtered.length) {
@@ -211,7 +211,7 @@ app.component('alleleSidebarList', {
                         }
                     },
                     getHGVScTitle(allele) {
-                        if (allele.caller_type == 'CNV') {
+                        if (allele.caller_type == 'cnv') {
                             return allele.formatted.hgvsg
                         } else {
                             if (allele.annotation.filtered.length) {

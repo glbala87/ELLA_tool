@@ -601,7 +601,7 @@
                     "required": ["callerTypes"],
                     "properties": {
                         "mode": {
-                            "enum": ["SNV", "CNV"]
+                            "enum": ["snv", "cnv"]
                         }
                     }
                 }
