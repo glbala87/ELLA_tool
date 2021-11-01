@@ -7,7 +7,7 @@ import hypothesis.strategies as st
 @st.composite
 def allele_sizes(draw):
     sizes = draw(
-        st.lists(elements=st.integers(min_value=1, max_value=100), min_size=1, max_size=10)
+        st.lists(elements=st.integers(min_value=1, max_value=10000000), min_size=1, max_size=10)
     )
     return sizes
 

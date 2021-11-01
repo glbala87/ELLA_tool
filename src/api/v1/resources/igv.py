@@ -343,7 +343,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             if a["caller_type"] == "cnv" and sample_genotype["copy_number"] is not None:
                 genotype_data["CN"].append(str(sample_genotype["copy_number"]))
             else:
-                genotype_data["CN"] = "."
+                genotype_data["CN"].append(".")
 
         # Annotation
         info = []
