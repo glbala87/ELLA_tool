@@ -34,6 +34,9 @@ export default (mode = MODE_SELECTED) => {
             }
             const _getAllelesReport = (alleles, _, allelesState) => {
                 // alleles that are included in the report
+                if (!allelesState) {
+                    return Object.values(alleles)
+                }
                 const alleleIdsIncluded = Object.entries(allelesState)
                     .filter(([_, v]) => v.report && v.report.included)
                     .map(([k, _]) => parseInt(k))
