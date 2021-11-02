@@ -19,10 +19,27 @@ Release date: TBD
 
 ### Highlights
 
+This version introduces a big change: CNV support! The current solution is "bare bones", but will show CNVs in a separate variant list and allow documenting and reusing variant interpretations as for SNVs. 
+
+Known limitations: 
+- No variant filtering is done for CNVs in ELLA, for the time being this needs to be done upstream. 
+- No particular adaptations have been made to presentation of annotation, although it is possible to add via configuration. 
+- No CNV-specific ACMG criteria have been added.
+
+Due to these limitations we recommend restricting CNV analyses to smaller gene panels for the time being. But stay tuned, we have plans to solve all of the above. 
+
+Note: If you only plan to use ELLA for SNVs (or wish to wait until more features are in place), the CNV-specific features can be turned off using [...]. 
+
 ### :small_red_triangle: Breaking changes
 
 ### All changes
 
+<!-- 
+MR !575 cnv release candidate
+MR !626 Clean up VCF iterator
+MR !606 Feature flag for CNVs
+-->
+- Added minimal support for CNVs.
 <!-- MR !619 -->
 - Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- MR !624 -->
@@ -35,7 +52,6 @@ MR !600 CI is not detecting front end javascript test failures
 MR !603 Provide a CORS policy for ELLA
 MR !607 Improvements to region filter
 MR !622 increase-api-call-timeout
-MR !626 Clean up VCF iterator
 -->
 - Fixes and improvements to performance, development environment and code base. 
 
