@@ -155,13 +155,12 @@ class Record(object):
         change_type = self.sv_change_type(vcf_alt)
         open_end_position = self._sv_open_end_position(pos, change_type)
         allele_length = abs(self.sv_len())
-        # if base sequence resolved
-        # change_to = "sequence resolve"
-        # else change_to = ""
-        ref = vcf_ref
+        ref = ""
         alt = ""
-        if change_type != "DEL":
+        if vcf_alt not in change_type_from_sv_alt_field:
+            ref = vcf_ref
             alt = vcf_alt
+
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
     def build_allele(self, ref_genome):
