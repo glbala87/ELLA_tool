@@ -14,6 +14,7 @@ DEFAULT_STATIC_FILE = "index.html"
 REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+KEYWORD_DEVELOPER_MODE = "DEVELOP"
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, "../webui/build")
 VALID_STATIC_FILES = [
