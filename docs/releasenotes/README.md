@@ -40,6 +40,8 @@ MR !626 Clean up VCF iterator
 MR !606 Feature flag for CNVs
 -->
 - Added minimal support for CNVs.
+<!-- MR !611 -->
+- Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !619 -->
 - Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- MR !624 -->
