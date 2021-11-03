@@ -46,6 +46,8 @@ MR !606 Feature flag for CNVs
 - Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- MR !624 -->
 - Fixed a bug causing invisible INH values for filtered variants.
+<!-- MR !625 -->
+- Upgraded IGV.js in VISUAL to [v2.10.4](https://github.com/igvteam/igv.js/releases/tag/v2.10.4).
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
