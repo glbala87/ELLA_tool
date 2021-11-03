@@ -39,7 +39,7 @@ app.directive('tippyPopover', [
             restrict: 'A',
             link: ($scope, elem, attrs) => {
                 const props = {
-                    trigger: attrs.tippyTrigger ? attrs.tippyPopover : 'click',
+                    trigger: attrs.tippyTrigger ? attrs.tippyTrigger : 'click',
                     allowHTML: true,
                     delay: 0,
                     flipOnUpdate: true,
