@@ -42,6 +42,7 @@
                         tippy-placement="bottom"
                         tippy-popover-title="{{ $ctrl.getHGVSTitle($ctrl.allele) }}"
                     >
+                      <i>{{ t.transcript }}:</i>
                         <b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
                         {{ $ctrl.allele.formatted.genotype }}
                     </span>
