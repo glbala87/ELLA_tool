@@ -91,6 +91,11 @@ app.component('allelebar', {
                             })
                             .join('/')
                     },
+                    getTranscriptText(allele, transcript) {
+                        if (allele && allele.caller_type == 'snv') {
+                            return transcript.transcript + ':'
+                        } else return ''
+                    },
                     hasGeneAssessment(hgnc_id) {
                         return $ctrl.genepanel.geneassessments
                             .filter((ga) => ga.gene_id === hgnc_id)
