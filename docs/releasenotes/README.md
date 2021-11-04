@@ -19,16 +19,19 @@ Release date: TBD
 
 ### Highlights
 
-This version introduces a big change: CNV support! The current solution is "bare bones", but will show CNVs in a separate variant list and allow documenting and reusing variant interpretations as for SNVs. 
+This version introduces a big change: Support for copy number variants (CNVs)! The current solution is "bare bones", but will show CNVs in a separate variant list and allow documenting and reusing CNV interpretations, as for SNVs. 
 
-Known limitations: 
-- No variant filtering is done for CNVs in ELLA, for the time being this needs to be done upstream. 
-- No particular adaptations have been made to presentation of annotation, although it is possible to add via configuration. 
+Known limitations in this version: 
+- Only CNV deletions, duplications and tandem duplications are supported (VCF: `DEL`, `DUP` and `DUP:TANDEM`, respectively; for variants of type = `SVTYPE`).
+- No variant filtering is done for CNVs in ELLA, for the time being this needs to be done upstream, prior to import. 
+- No particular adaptations have been made to presentation of annotation. However, any annotation from the VCF can be added in the configuration, and we recommend adding CNV-specific tracks to VISUAL to aid in interpretation.
 - No CNV-specific ACMG criteria have been added.
 
-Due to these limitations we recommend restricting CNV analyses to smaller gene panels for the time being. But stay tuned, we have plans to solve all of the above. 
+Due to these limitations we recommend restricting CNV analyses to smaller gene panels for now. But stay tuned, we plan to improve on all of the above in the time to come. 
 
 Note: If you only plan to use ELLA for SNVs (or wish to wait until more features are in place), the CNV-specific features can be turned off using [...]. 
+
+[TODO: screenshots and some more detail, update manual and technical docs]
 
 ### :small_red_triangle: Breaking changes
 
