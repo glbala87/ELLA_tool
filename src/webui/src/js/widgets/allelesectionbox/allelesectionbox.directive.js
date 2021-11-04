@@ -69,7 +69,11 @@ const getSectionBoxContents = Compute(
         if (!selectedComponent) {
             return []
         }
-        if (selectedComponent in components && components[selectedComponent].sectionContent) {
+        if (
+            selectedComponent in components &&
+            components[selectedComponent].sectionContent &&
+            selectedAllele
+        ) {
             return components[selectedComponent].sectionContent[selectedAllele][sectionKey]
         } else {
             return []
