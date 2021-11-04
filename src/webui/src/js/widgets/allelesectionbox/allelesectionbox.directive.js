@@ -66,7 +66,7 @@ const getSectionBoxContents = Compute(
     state`views.workflows.selectedAllele`,
     props`sectionKey`,
     (selectedComponent, components, selectedAllele, sectionKey) => {
-        if (!selectedComponent) {
+        if (!selectedComponent || !selectedAllele) {
             return []
         }
         if (
