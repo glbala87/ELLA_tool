@@ -39,6 +39,7 @@ IGV_DEFAULT_TRACK_CONFIGS = {
         "order": 300,
     },
     "bed": {"format": "bed", "displayMode": "EXPANDED", "order": 100},
+    "gff3": {"format": "gff3", "displayMode": "EXPANDED", "order": 150},
     "bigWig": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
     "bw": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
 }
