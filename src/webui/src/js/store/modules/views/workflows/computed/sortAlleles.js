@@ -214,6 +214,24 @@ export default function sortAlleles(alleles, key, reverse) {
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
                 )
+            } else if (key == 'chromosome') {
+                sortedAlleles.sort((a, b) => {
+                    if (a.chromosome == b.chromosome && a.pos == b.pos) {
+                        a.open_end_position - b.open_end_position
+                    } else if (a.chromosome == b.chromosome) {
+                        return a.pos - b.pos
+                    } else {
+                        function chrToInt(chr) {
+                            if (chr == 'X') return 23
+                            else if (chr == 'Y') return 24
+                            else if (chr == 'MT') return 25
+                            else return Number(chr)
+                        }
+                        const aChr = a.chromosome
+                        const bChr = b.chromosome
+                        return chrToInt(aChr) - chrToInt(bChr)
+                    }
+                })
             } else if (key) {
                 sortedAlleles.sort(
                     thenBy(sortFunctions[key], reverse ? -1 : 1)
