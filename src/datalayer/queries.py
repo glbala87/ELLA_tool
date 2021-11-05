@@ -389,7 +389,7 @@ def annotation_transcripts_genepanel(
             )
             .filter(annotation.Annotation.id.in_(annotation_ids))
             .temp_table("annotationshadowtranscript")
-        ).columns
+        )
     else:
         annotation_shadow_transcript_table = annotationshadow.AnnotationShadowTranscript
 

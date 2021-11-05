@@ -4,28 +4,28 @@ from sqlalchemy import Column, Integer, Text, Float, String, ForeignKey, Index, 
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import mapper, class_mapper
 from sqlalchemy.orm.exc import UnmappedClassError
-from sqlalchemy.ext.declarative.api import _declarative_constructor
+
+# from sqlalchemy.ext.declarative.api import _declarative_constructor
+from sqlalchemy.orm import as_declarative, declarative_base
 from typing import Any
 
 from api.config import config as global_config
 
 
 # Note: not subclassing Base, this is handled by explicitly mapping below
+@as_declarative()
 class _AnnotationShadowTranscript(object):
-    def __init__(self, **kwargs):
-        "Allow instantiating using standard declarative notation"
-        _declarative_constructor(self, **kwargs)
+    pass
 
 
 # Set type Any. Mypy doesn't handle instrumented classes
 AnnotationShadowTranscript: Any = _AnnotationShadowTranscript
 
 
-# Note: not subclassing Base, this is handled in update_annotation_shadow_columns
+# Note: not subclassing Base, this is handled in map_annotationshadow_tables
+@as_declarative()
 class _AnnotationShadowFrequency(object):
-    def __init__(self, **kwargs):
-        "Allow instantiating using standard declarative notation"
-        _declarative_constructor(self, **kwargs)
+    pass
 
 
 # Set type Any. Mypy doesn't handle instrumented classes
@@ -39,29 +39,6 @@ def iter_freq_groups(frequency_groups):
         ].items():  # 'ExAC', ['G', 'SAS', ...]
             for freq_key in freq_keys:
                 yield freq_provider, freq_key
-
-
-# HACK: Done this way for integration testing purposes, where we want
-# the possibility to redefine the columns globally according to a test config.
-# This function lets you override the columns in this module's
-# AnnotationShadowFrequency instance.
-# See create_shadow_tables().
-def update_annotation_shadow_columns(config):
-    # Use columns from config to create mapping of AnnotationShadowFrequency
-    # Note: This function does not guarantee that the mapped class matches
-    # the table in the database.
-    try:
-        m = class_mapper(AnnotationShadowFrequency)
-        m.dispose()
-    except UnmappedClassError:
-        # Class is not mapped yet
-        pass
-
-    if "annotationshadowfrequency" in Base.metadata.tables:
-        Base.metadata.remove(Base.metadata.tables["annotationshadowfrequency"])
-    annotationshadowfreqency = get_annotationshadowfrequency_table(config)
-    mapper(AnnotationShadowFrequency, annotationshadowfreqency)
-    AnnotationShadowFrequency.__table__ = annotationshadowfreqency
 
 
 def iter_config_columns(config):
@@ -103,12 +80,46 @@ def get_annotationshadowtranscript_table(name="annotationshadowtranscript"):
     )
 
 
-# By default, create using app global config
-# which is what we want in production
-update_annotation_shadow_columns(global_config)
-_annotationshadowtranscript_table = get_annotationshadowtranscript_table()
-mapper(AnnotationShadowTranscript, _annotationshadowtranscript_table)
-AnnotationShadowTranscript.__table__ = _annotationshadowtranscript_table
+# HACK: Done this way for integration testing purposes, where we want
+# the possibility to redefine the columns globally according to a test config.
+# This function lets you override the columns in this module's
+# AnnotationShadowFrequency instance.
+# See create_shadow_tables().
+def map_annotationshadow_tables(config):
+    # Use columns from config to create mapping of AnnotationShadowFrequency
+    # Note: This function does not guarantee that the mapped class matches
+    # the table in the database.
+    # Note: This function will only run ONCE in production use
+    def is_mapped(cls):
+        try:
+            class_mapper(cls)
+            return True
+        except UnmappedClassError:
+            return False
+
+    if is_mapped(AnnotationShadowFrequency):
+        class_mapper(AnnotationShadowFrequency).registry.dispose()
+
+    if is_mapped(AnnotationShadowTranscript):
+        class_mapper(AnnotationShadowTranscript).registry.dispose()
+
+    if "annotationshadowfrequency" in Base.metadata.tables:
+        Base.metadata.remove(Base.metadata.tables["annotationshadowfrequency"])
+    if "annotationshadowtranscript" in Base.metadata.tables:
+        Base.metadata.remove(Base.metadata.tables["annotationshadowtranscript"])
+
+    annotationshadowfreqency = get_annotationshadowfrequency_table(config)
+    mapper(AnnotationShadowFrequency, annotationshadowfreqency)
+    AnnotationShadowFrequency.__table__ = annotationshadowfreqency
+    assert is_mapped(AnnotationShadowFrequency)
+
+    _annotationshadowtranscript_table = get_annotationshadowtranscript_table()
+    mapper(AnnotationShadowTranscript, _annotationshadowtranscript_table)
+    AnnotationShadowTranscript.__table__ = _annotationshadowtranscript_table
+    assert is_mapped(AnnotationShadowTranscript)
+
+
+map_annotationshadow_tables(global_config)
 
 
 def check_db_consistency(session, config, subset=False):
@@ -337,7 +348,7 @@ def create_tmp_shadow_tables(session, config):
     Base.metadata.remove(tmp_annotationshadowfrequency)
 
     # Map AnnotationShadowFrequency using the same config used to refresh the table
-    update_annotation_shadow_columns(config)
+    map_annotationshadow_tables(config)
 
     # Check that all filterconfigs and usergroups' ACMG-configuration are still valid,
     # given the possible change in columns

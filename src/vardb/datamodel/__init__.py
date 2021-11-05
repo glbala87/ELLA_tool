@@ -55,7 +55,7 @@ convention = {
 # Set type to Any, as mypy can't handle dynamic base classes: https://github.com/python/mypy/issues/2477
 Base: Any = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
 Base.metadata = MetaData(naming_convention=convention)
-make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
+# make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 
 # Don't remove!
 from vardb.datamodel import (

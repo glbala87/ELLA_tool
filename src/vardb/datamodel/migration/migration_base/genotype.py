@@ -22,9 +22,9 @@ class Genotype(Base):
     )
     allele_id = Column(Integer, ForeignKey("allele.id"), nullable=False)
     secondallele_id = Column(Integer, ForeignKey("allele.id"))
-    allele = relationship("Allele", primaryjoin=("genotype.c.allele_id==allele.c.id"))
+    allele = relationship("Allele", primaryjoin=("Genotype.allele_id==Allele.id"), viewonly=True)
     secondallele = relationship(
-        "Allele", primaryjoin=("genotype.c.secondallele_id==allele.c.id")
+        "Allele", primaryjoin=("Genotype.secondallele_id==Allele.id"), viewonly=True
     )  # None, if not hetrozygous nonreference
     homozygous = Column(Boolean, nullable=False)
     sample_id = Column(Integer, ForeignKey("sample.id"), index=True, nullable=False)

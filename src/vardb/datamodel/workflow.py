@@ -113,7 +113,7 @@ class AnalysisInterpretation(Base, InterpretationMixin):
     __next_attrs__ = ["analysis_id", "state", "genepanel_name", "genepanel_version"]
 
     analysis_id = Column(Integer, ForeignKey("analysis.id", ondelete="CASCADE"), nullable=False)
-    analysis = relationship("Analysis", uselist=False)
+    analysis = relationship("Analysis", uselist=False, back_populates="interpretations")
     workflow_status = Column(
         Enum(
             "Not ready",
