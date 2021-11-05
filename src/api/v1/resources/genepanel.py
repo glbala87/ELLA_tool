@@ -3,7 +3,7 @@ from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case
 from vardb.datamodel import gene, user as user_model
 from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
 
 from api.util.util import paginate, rest_filter, authenticate, request_json
@@ -107,9 +107,7 @@ class GenepanelListResource(LogRequestResource):
             session.query(gene.Transcript)
             .filter(
                 gene.Transcript.id.in_(
-                    session.query(
-                        func.unnest(cast(array(transcript_ids), ARRAY(Integer)))
-                    ).subquery()
+                    session.query(func.unnest(cast(transcript_ids, ARRAY(Integer)))).subquery()
                 )
             )
             .all()
@@ -119,9 +117,7 @@ class GenepanelListResource(LogRequestResource):
             session.query(gene.Phenotype)
             .filter(
                 gene.Phenotype.id.in_(
-                    session.query(
-                        func.unnest(cast(array(phenotype_ids), ARRAY(Integer)))
-                    ).subquery()
+                    session.query(func.unnest(cast(phenotype_ids, ARRAY(Integer)))).subquery()
                 )
             )
             .all()
