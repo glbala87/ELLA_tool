@@ -55,6 +55,8 @@ MR !606 Feature flag for CNVs
 - Upgraded IGV.js in VISUAL to [v2.10.4](https://github.com/igvteam/igv.js/releases/tag/v2.10.4).
 <!-- MR !627 -->
 - Filtered variants are now sorted by genomic position.
+<!-- MR !629 -->
+- Fixed a bug causing error on start if a Worklog comment was just added.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
