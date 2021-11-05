@@ -134,13 +134,14 @@ describe('finishWorkflow', function() {
                         testFilter3: [6]
                     }
                 })
-
                 return Promise.resolve({})
             }
         }
         const path = {
             success() {},
-            error() {}
+            error(e) {
+                throw e
+            }
         }
         await runAction(finishWorkflow('Finalized'), {
             providers: { http, path },
