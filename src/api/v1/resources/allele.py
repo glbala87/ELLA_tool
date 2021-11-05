@@ -156,7 +156,7 @@ class AlleleByGeneListResource(LogRequestResource):
 
         filters = [
             annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+                session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
             )
         ]
         inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")

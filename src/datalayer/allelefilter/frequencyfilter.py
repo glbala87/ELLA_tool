@@ -5,7 +5,7 @@ from sqlalchemy import or_, and_, tuple_, cast
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
 
 from vardb.datamodel import gene, annotationshadow
@@ -207,7 +207,7 @@ class FrequencyFilter(object):
 
             # "Compiling" queries is slow, so cache the slowest
             ast_gp_alleles = annotationshadow.AnnotationShadowTranscript.allele_id.in_(
-                self.session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
+                self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
             )
 
             gp_final_filter = list()
@@ -224,7 +224,7 @@ class FrequencyFilter(object):
                     .filter(
                         annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
                             self.session.query(
-                                func.unnest(cast(array(per_gene_hgnc_ids), ARRAY(Integer)))
+                                func.unnest(cast(per_gene_hgnc_ids, ARRAY(Integer)))
                             ).subquery()
                         ),
                         ast_gp_alleles,
@@ -279,7 +279,7 @@ class FrequencyFilter(object):
                 ad_filters = [
                     annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
                         self.session.query(
-                            func.unnest(cast(array(ad_hgnc_ids), ARRAY(Integer)))
+                            func.unnest(cast(ad_hgnc_ids, ARRAY(Integer)))
                         ).subquery()
                     ),
                     ast_gp_alleles,
@@ -289,7 +289,7 @@ class FrequencyFilter(object):
                     ad_filters.append(
                         ~annotationshadow.AnnotationShadowTranscript.allele_id.in_(
                             self.session.query(
-                                func.unnest(cast(array(gene_specific_allele_ids), ARRAY(Integer)))
+                                func.unnest(cast(gene_specific_allele_ids, ARRAY(Integer)))
                             ).subquery()
                         )
                     )
@@ -323,7 +323,7 @@ class FrequencyFilter(object):
                 and_(
                     annotationshadow.AnnotationShadowFrequency.allele_id.in_(
                         self.session.query(
-                            func.unnest(cast(array(default_allele_ids), ARRAY(Integer)))
+                            func.unnest(cast(default_allele_ids, ARRAY(Integer)))
                         ).subquery()
                     ),
                     self._get_freq_threshold_filter(
