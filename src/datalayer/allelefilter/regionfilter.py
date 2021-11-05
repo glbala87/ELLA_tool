@@ -4,7 +4,7 @@ from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import TableClause
 from sqlalchemy import or_, and_, tuple_, func, case, Column, MetaData, Integer
 from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from vardb.datamodel import gene, annotationshadow, allele
 from datalayer import queries
@@ -104,9 +104,7 @@ class RegionFilter(object):
                 allele.Allele,
                 and_(
                     allele.Allele.id.in_(
-                        self.session.query(
-                            func.unnest(cast(array(allele_ids), ARRAY(Integer)))
-                        ).subquery()
+                        self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
                     ),
                     allele.Allele.chromosome == gene.Transcript.chromosome,
                     or_(
@@ -415,9 +413,7 @@ class RegionFilter(object):
                     # The following filter should be redundant, since allele_transcripts is
                     # already limited to allele_ids, but we'll keep it for extra safety
                     allele.Allele.id.in_(
-                        self.session.query(
-                            func.unnest(cast(array(allele_ids), ARRAY(Integer)))
-                        ).subquery()
+                        self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
                     ),
                     or_(
                         # Contained within or overlapping region
@@ -499,7 +495,7 @@ class RegionFilter(object):
                 .filter(
                     annotationshadow.AnnotationShadowTranscript.allele_id.in_(
                         self.session.query(
-                            func.unnest(cast(array(allele_ids_outside_region), ARRAY(Integer)))
+                            func.unnest(cast(allele_ids_outside_region, ARRAY(Integer)))
                         ).subquery()
                     ),
                     annotationshadow.AnnotationShadowTranscript.exon_distance

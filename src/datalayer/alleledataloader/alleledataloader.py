@@ -5,9 +5,6 @@ from vardb.datamodel.annotation import CustomAnnotation, Annotation
 from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
 from sqlalchemy import or_, and_, text, func, tuple_, case
 from sqlalchemy.orm import aliased
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
-from sqlalchemy.types import Integer
 
 from .. import queries
 from ..allelefilter.segregationfilter import SegregationFilter
@@ -147,13 +144,7 @@ class Warnings(object):
                 allele.Allele.start_position,
                 allele.Allele.open_end_position,
             )
-            .filter(
-                allele.Allele.id.in_(
-                    self.session.query(
-                        func.unnest(cast(array(analysis_allele_ids), ARRAY(Integer)))
-                    ).subquery()
-                )
-            )
+            .filter(allele.Allele.id.in_(analysis_allele_ids))
             .all()
         )
 
