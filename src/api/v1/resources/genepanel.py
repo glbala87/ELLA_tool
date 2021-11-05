@@ -2,16 +2,9 @@ from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case
 from vardb.datamodel import gene, user as user_model
-<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-=======
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
-from sqlalchemy.types import Integer
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
@@ -113,19 +106,9 @@ class GenepanelListResource(LogRequestResource):
         transcripts = (
             session.query(gene.Transcript)
             .filter(
-<<<<<<< HEAD
                 gene.Transcript.id.in_(
                     session.query(func.unnest(cast(transcript_ids, ARRAY(Integer)))).subquery()
                 )
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-                gene.Transcript.id.in_(session.query(func.unnest(array(transcript_ids))).subquery())
-=======
-                gene.Transcript.id.in_(
-                    session.query(
-                        func.unnest(cast(array(transcript_ids), ARRAY(Integer)))
-                    ).subquery()
-                )
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
             .all()
         )
@@ -133,19 +116,9 @@ class GenepanelListResource(LogRequestResource):
         phenotypes = (
             session.query(gene.Phenotype)
             .filter(
-<<<<<<< HEAD
                 gene.Phenotype.id.in_(
                     session.query(func.unnest(cast(phenotype_ids, ARRAY(Integer)))).subquery()
                 )
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-                gene.Phenotype.id.in_(session.query(func.unnest(array(phenotype_ids))).subquery())
-=======
-                gene.Phenotype.id.in_(
-                    session.query(
-                        func.unnest(cast(array(phenotype_ids), ARRAY(Integer)))
-                    ).subquery()
-                )
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
             .all()
         )

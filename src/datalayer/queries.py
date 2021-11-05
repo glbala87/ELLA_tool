@@ -5,14 +5,8 @@ from sqlalchemy import or_, and_, tuple_, func, text, literal_column, Text
 from sqlalchemy.sql.sqltypes import Integer
 from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
 from vardb.datamodel import annotationshadow
-<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-=======
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 from api.util import filterconfig_requirements
 from api.config import config
@@ -347,17 +341,9 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
 
     if allele_ids is not None:
         result = result.filter(
-<<<<<<< HEAD
             allele.Allele.id.in_(
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
             )
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-            allele.Allele.id.in_(session.query(func.unnest(array(allele_ids))).subquery())
-=======
-            allele.Allele.id.in_(
-                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
-            )
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             if allele_ids
             else False
         )
@@ -455,13 +441,7 @@ def annotation_transcripts_genepanel(
     if allele_ids is not None:
         result = result.filter(
             annotation_shadow_transcript_table.allele_id.in_(
-<<<<<<< HEAD
                 session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-                session.query(func.unnest(array(allele_ids))).subquery()
-=======
-                session.query(func.unnest(cast(array(allele_ids), ARRAY(Integer)))).subquery()
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
             )
             if allele_ids
             else False

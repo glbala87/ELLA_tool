@@ -3,17 +3,9 @@ from datalayer import queries
 from sqlalchemy.orm.session import Session
 from vardb.datamodel import assessment
 from sqlalchemy.sql.functions import func
-<<<<<<< HEAD
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-from sqlalchemy.dialects.postgresql import array
-=======
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
-from sqlalchemy.types import Integer
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
 
 
 class ClassificationFilter(object):
@@ -60,15 +52,7 @@ class ClassificationFilter(object):
 
             filtered_allele_ids = self.session.query(assessment.AlleleAssessment.allele_id).filter(
                 assessment.AlleleAssessment.allele_id.in_(
-<<<<<<< HEAD
                     self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
-||||||| parent of 554714248 ([api] fix unnest-array for empty lists w explicit types)
-                    self.session.query(func.unnest(array(allele_ids))).subquery()
-=======
-                    self.session.query(
-                        func.unnest(cast(array(allele_ids), ARRAY(Integer)))
-                    ).subquery()
->>>>>>> 554714248 ([api] fix unnest-array for empty lists w explicit types)
                 ),
                 assessment.AlleleAssessment.classification.in_(filter_classes),
                 *valid_assessments
