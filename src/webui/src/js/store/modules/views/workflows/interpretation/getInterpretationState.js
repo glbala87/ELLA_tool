@@ -9,7 +9,7 @@ export default function getInterpretationState() {
             geneassessment: {}
         },
         data: {
-            filteredAlleleIds: null, // {allele_ids: [], excluded_allele_ids: {}}
+            filteredAlleleIds: null, // schema: {allele_ids: [], excluded_alleles_by_caller_type: {}}
             filterConfig: null,
             alleles: null,
             genepanel: null,

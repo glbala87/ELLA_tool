@@ -184,6 +184,8 @@ class Warnings(object):
     def _check_worse_consequence(self):
         worse_consequence_warnings = dict()
         for al in self.alleles:
+            if al["caller_type"] == "cnv":
+                continue
 
             # Worse consequence
             worst_consequence = al.get("annotation", {}).get("worst_consequence", [])
@@ -379,8 +381,12 @@ class AlleleDataLoader(object):
                 genotype.Genotype.id,
                 genotype.GenotypeSampleData.type,
                 genotype.GenotypeSampleData.multiallelic,
+                genotype.GenotypeSampleData.copy_number,
                 allele.Allele.change_from,
                 allele.Allele.change_to,
+                allele.Allele.change_type,
+                allele.Allele.length,
+                allele.Allele.caller_type,
             )
             .join(
                 genotype.GenotypeSampleData,
@@ -405,8 +411,12 @@ class AlleleDataLoader(object):
                 genotype.Genotype.id,
                 genotype.GenotypeSampleData.type.label("second_type"),
                 genotype.GenotypeSampleData.multiallelic.label("second_multiallelic"),
+                genotype.GenotypeSampleData.copy_number.label("second_copy_number"),
                 allele.Allele.change_from.label("second_change_from"),
                 allele.Allele.change_to.label("second_change_to"),
+                allele.Allele.change_type.label("second_change_type"),
+                allele.Allele.length.label("second_length"),
+                allele.Allele.caller_type.label("second_caller_type"),
             )
             .join(
                 genotype.GenotypeSampleData,
@@ -432,10 +442,18 @@ class AlleleDataLoader(object):
             allele_query.c.multiallelic,
             allele_query.c.change_from,
             allele_query.c.change_to,
+            allele_query.c.change_type,
+            allele_query.c.length,
+            allele_query.c.caller_type,
+            allele_query.c.copy_number,
             secondallele_query.c.second_type,
             secondallele_query.c.second_multiallelic,
             secondallele_query.c.second_change_from,
             secondallele_query.c.second_change_to,
+            secondallele_query.c.second_change_type,
+            secondallele_query.c.second_length,
+            secondallele_query.c.second_caller_type,
+            secondallele_query.c.second_copy_number,
         ).outerjoin(secondallele_query, allele_query.c.id == secondallele_query.c.id)
 
         genotype_candidates = genotype_query.all()
@@ -443,74 +461,100 @@ class AlleleDataLoader(object):
         genotype_id_formatted = dict()
         for g in genotype_candidates:
             gt1 = gt2 = None
+            if g.caller_type == "cnv":
+                assert g.second_change_type is None
 
-            if g.type == "No coverage":
-                gt1 = gt2 = "."
-                genotype_id_formatted[g.id] = "/".join([gt1, gt2])
-                continue
+                # TODO: Fix import
+                # g.change_from = ""
+                # g.change_to = ""
 
-            if g.type == "Homozygous":
-                gt1 = gt2 = g.change_to or "-"
-                genotype_id_formatted[g.id] = "/".join([gt1, gt2])
-                continue
+                # TODO: Fix length display, e.g. 12245 -> 12knt
+                length_display = f"{g.length}nt"
 
-            if g.second_type == "Homozygous":
-                gt1 = gt2 = g.second_change_to or "-"
-                genotype_id_formatted[g.id] = "/".join([gt1, gt2])
-                continue
-
-            # Many of these cases concern when the sample is not the proband,
-            # and we're lacking some data.
-            # If proband has secondallele, it must be heterozygous on both,
-            # anything else doesn't make sense.
-            # Note: multiallelic is True if there was a '.' in the genotype in vcf
-
-            # If not multiallelic we can take the type at face value
-            if not g.multiallelic:
-                if g.type == "Heterozygous":
-                    gt1 = g.change_from or "-"
-                    gt2 = g.change_to or "-"
-                elif g.type == "Reference":
-                    gt1 = gt2 = g.change_from or "-"
-
-            elif g.second_multiallelic is not None and not g.second_multiallelic:
-                if g.second_type == "Heterozygous":
-                    gt1 = g.second_change_from or "-"
-                    gt2 = g.second_change_to or "-"
-                elif g.second_type == "Reference":
-                    gt1 = gt2 = g.second_change_from or "-"
-
-            # If one or two are multiallelic, things gets a bit murkier
-            else:
-                if not g.second_type:
-                    if g.type == "Heterozygous":
-                        # Multiallelic, but no secondallele -> no data for one allele
-                        gt1 = g.change_to or "-"
-                        gt2 = "?"
-                    elif g.type == "Reference":
-                        # We cannot know whether we have one or no reference, so both are unknown.
-                        # This should very rarely happen
-                        gt1 = gt2 = "?"
+                if g.change_type == "del" and g.type == "Heterozygous":
+                    genotype_id_formatted[g.id] = f"({length_display})/-"
+                elif g.change_type == "del" and g.type == "Homozygous":
+                    genotype_id_formatted[g.id] = "-/-"
+                elif g.change_type == "dup":
+                    cn = g.copy_number if g.copy_number is not None else "?"
+                    genotype_id_formatted[g.id] = f"CN: {cn} ({length_display})"
+                elif g.change_type == "dup_tandem" and g.type == "Heterozygous":
+                    genotype_id_formatted[g.id] = f"-/{length_display}"
+                elif g.change_type == "dup_tandem" and g.type == "Homozygous":
+                    genotype_id_formatted[g.id] = f"{length_display}/{length_display}"
                 else:
-                    # Most of these are non-proband cases
-                    if g.second_type == "Heterozygous":
-                        # Check whether we have the other allele stored in db
-                        if g.type == "Heterozygous":
-                            gt1 = g.change_to or "-"
-                            gt2 = g.second_change_to or "-"
-                        elif g.type == "Reference":
-                            gt1 = g.second_change_to or "-"
-                            gt2 = "?"
-                    elif g.second_type == "Reference":
-                        if g.type == "Heterozygous":
-                            gt1 = g.change_to or "-"
-                            gt2 = "?"
-                        elif g.type == "Reference":
-                            gt1 = "?"
-                            gt2 = "?"
+                    raise RuntimeError(
+                        f"Unhandled genotype: {g.caller_type} - {g.change_type} - {g.type}"
+                    )
+            else:
 
-            assert gt1 is not None and gt2 is not None
-            genotype_id_formatted[g.id] = "/".join([gt1, gt2])
+                if g.type == "No coverage":
+                    gt1 = gt2 = "."
+                    genotype_id_formatted[g.id] = "/".join([gt1, gt2])
+                    continue
+
+                if g.type == "Homozygous":
+                    gt1 = gt2 = g.change_to or "-"
+                    genotype_id_formatted[g.id] = "/".join([gt1, gt2])
+                    continue
+
+                if g.second_type == "Homozygous":
+                    gt1 = gt2 = g.second_change_to or "-"
+                    genotype_id_formatted[g.id] = "/".join([gt1, gt2])
+                    continue
+
+                # Many of these cases concern when the sample is not the proband,
+                # and we're lacking some data.
+                # If proband has secondallele, it must be heterozygous on both,
+                # anything else doesn't make sense.
+                # Note: multiallelic is True if there was a '.' in the genotype in vcf
+
+                # If not multiallelic we can take the type at face value
+                if not g.multiallelic:
+                    if g.type == "Heterozygous":
+                        gt1 = g.change_from or "-"
+                        gt2 = g.change_to or "-"
+                    elif g.type == "Reference":
+                        gt1 = gt2 = g.change_from or "-"
+
+                elif g.second_multiallelic is not None and not g.second_multiallelic:
+                    if g.second_type == "Heterozygous":
+                        gt1 = g.second_change_from or "-"
+                        gt2 = g.second_change_to or "-"
+                    elif g.second_type == "Reference":
+                        gt1 = gt2 = g.second_change_from or "-"
+
+                # If one or two are multiallelic, things gets a bit murkier
+                else:
+                    if not g.second_type:
+                        if g.type == "Heterozygous":
+                            # Multiallelic, but no secondallele -> no data for one allele
+                            gt1 = g.change_to or "-"
+                            gt2 = "?"
+                        elif g.type == "Reference":
+                            # We cannot know whether we have one or no reference, so both are unknown.
+                            # This should very rarely happen
+                            gt1 = gt2 = "?"
+                    else:
+                        # Most of these are non-proband cases
+                        if g.second_type == "Heterozygous":
+                            # Check whether we have the other allele stored in db
+                            if g.type == "Heterozygous":
+                                gt1 = g.change_to or "-"
+                                gt2 = g.second_change_to or "-"
+                            elif g.type == "Reference":
+                                gt1 = g.second_change_to or "-"
+                                gt2 = "?"
+                        elif g.second_type == "Reference":
+                            if g.type == "Heterozygous":
+                                gt1 = g.change_to or "-"
+                                gt2 = "?"
+                            elif g.type == "Reference":
+                                gt1 = "?"
+                                gt2 = "?"
+
+                assert gt1 is not None and gt2 is not None
+                genotype_id_formatted[g.id] = "/".join([gt1, gt2])
 
         return genotype_id_formatted
 

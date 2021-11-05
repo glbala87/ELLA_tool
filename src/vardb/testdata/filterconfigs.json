@@ -286,6 +286,13 @@
                                     "coding_sequence_variant"
                                 ]
                             }
+                        },
+
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
+                            }
                         }
                     ]
                 },

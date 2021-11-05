@@ -398,6 +398,10 @@ class ApiV1(object):
 
         self._add_resource(r.igv.ClassificationResource, "/api/v1/igv/classifications/")
 
+        self._add_resource(
+            r.igv.RegionsOfInterestTrack, "/api/v1/igv/regions_of_interest/<int:analysis_id>/"
+        )
+
         self._add_resource(r.igv.AnalysisVariantTrack, "/api/v1/igv/variants/<int:analysis_id>/")
 
         self._add_resource(r.igv.AnalysisTrackList, "/api/v1/igv/tracks/<int:analysis_id>/")

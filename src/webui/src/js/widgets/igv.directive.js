@@ -20,10 +20,11 @@ const getIgvLocus = (locus) => {
     scope: {
         locus: '=',
         tracks: '=',
+        roi: '=',
         reference: '='
     },
     template: '<div></div>',
-    link: (scope, elem, attrs) => {
+    link: (scope, elem) => {
         var defaults = {
             showNavigation: true,
             showRuler: true,
@@ -37,6 +38,7 @@ const getIgvLocus = (locus) => {
 
         let options = {
             tracks: [],
+            roi: [],
             reference: scope.reference,
             locus: getIgvLocus(scope.locus),
             showKaryo: true,
@@ -50,6 +52,7 @@ const getIgvLocus = (locus) => {
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
+            browser.loadROI(scope.roi)
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
             elem.on('$destroy', () => {

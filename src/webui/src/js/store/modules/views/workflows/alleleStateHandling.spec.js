@@ -98,6 +98,10 @@ describe('Handling of allele state', () => {
 
         cerebral.setState('views.workflows', {
             id: 1,
+            alleleSidebar: {
+                callerTypeSelected: 'snv',
+                orderBy: testSidebarOrderByNull
+            },
             type: 'allele',
             data: {
                 interpretations: [
@@ -113,6 +117,7 @@ describe('Handling of allele state', () => {
                             allele: {
                                 1: {
                                     allele_id: 1,
+                                    caller_type: 'snv',
                                     referenceassessments: [
                                         {
                                             reference_id: 2,
@@ -134,6 +139,7 @@ describe('Handling of allele state', () => {
                                 },
                                 3: {
                                     allele_id: 3,
+                                    caller_type: 'snv',
                                     allelereport: {
                                         evaluation: { key: 'SHOULD BE KEPT' },
                                         copiedFromId: 3
@@ -141,6 +147,7 @@ describe('Handling of allele state', () => {
                                 },
                                 4: {
                                     allele_id: 4,
+                                    caller_type: 'snv',
                                     alleleassessment: {
                                         reuseCheckedId: 3,
                                         reuse: false,
@@ -187,6 +194,7 @@ describe('Handling of allele state', () => {
                                 }
                             },
                             id: 1,
+                            caller_type: 'snv',
                             reference_assessments: [
                                 {
                                     id: 1,
@@ -224,6 +232,7 @@ describe('Handling of allele state', () => {
                                 }
                             },
                             id: 2,
+                            caller_type: 'snv',
                             allele_assessment: {
                                 evaluation: { case: 'NEW' },
                                 classification: '3',
@@ -259,6 +268,7 @@ describe('Handling of allele state', () => {
                                 }
                             },
                             id: 3,
+                            caller_type: 'snv',
                             allele_report: {
                                 id: 3,
                                 evaluation: { case: 'SAME' }
@@ -286,6 +296,7 @@ describe('Handling of allele state', () => {
                                 }
                             },
                             id: 4,
+                            caller_type: 'snv',
                             allele_report: {
                                 id: 4,
                                 evaluation: { case: 'NEW WITH OLD' }
@@ -306,14 +317,14 @@ describe('Handling of allele state', () => {
                     references: [{ id: 1 }, { id: 2 }, { id: 3 }],
                     filteredAlleleIds: {
                         allele_ids: [1, 2, 3, 4],
-                        excluded_allele_ids: []
+                        excluded_alleles_by_caller_type: {
+                            snv: {},
+                            cnv: {}
+                        }
                     }
                 },
                 isOngoing: true,
                 selectedId: 1
-            },
-            alleleSidebar: {
-                orderBy: testSidebarOrderByNull
             }
         })
         await cerebral.runSignal('test.copyInterpretationState', {})
@@ -890,6 +901,9 @@ describe('Handling of allele state', () => {
         cerebral.setState('views.workflows', {
             id: 1,
             type: 'analysis',
+            alleleSidebar: {
+                callerTypeSelected: 'snv'
+            },
             interpretation: {
                 data: {
                     alleles: {

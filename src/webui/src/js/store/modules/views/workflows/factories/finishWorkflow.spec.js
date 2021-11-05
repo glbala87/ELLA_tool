@@ -67,8 +67,15 @@ describe('finishWorkflow', function() {
                         data: {
                             filteredAlleleIds: {
                                 allele_ids: [1, 2],
-                                excluded_allele_ids: {
-                                    testFilter: [3]
+                                excluded_alleles_by_caller_type: {
+                                    snv: {
+                                        testFilter: [3],
+                                        testFilter2: [5]
+                                    },
+                                    cnv: {
+                                        testFilter: [4],
+                                        testFilter3: [6]
+                                    }
                                 }
                             },
                             alleles: {
@@ -118,11 +125,13 @@ describe('finishWorkflow', function() {
                     custom_annotation_ids: [1, 2],
                     alleleassessment_ids: [1, 2],
                     allelereport_ids: [1, 2],
-                    allele_ids: [1, 2, 3],
+                    allele_ids: [1, 2],
                     technical_allele_ids: [2],
                     notrelevant_allele_ids: [3],
                     excluded_allele_ids: {
-                        testFilter: [3]
+                        testFilter: [3, 4],
+                        testFilter2: [5],
+                        testFilter3: [6]
                     }
                 })
 

@@ -30,12 +30,31 @@ import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFreq
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
 const getAlleles = (alleleIds, alleles) => {
-    return Compute(alleleIds, alleles, (alleleIds, alleles) => {
-        if (!alleleIds || !alleles) {
-            return
+    return Compute(
+        alleleIds,
+        alleles,
+        state`views.workflows.alleleSidebar.callerTypeSelected`,
+        (alleleIds, alleles, callerTypeSelected) => {
+            if (!alleleIds || !alleles || !callerTypeSelected) {
+                return
+            }
+
+            const filterByCallerType = (allele) => {
+                if (callerTypeSelected == 'snv') {
+                    return allele.caller_type == 'snv'
+                } else if (callerTypeSelected == 'cnv') {
+                    return allele.caller_type == 'cnv'
+                } else {
+                    throw `caller type unrecognized for allele: ${allele}`
+                }
+            }
+
+            return alleleIds
+                .map((aId) => alleles[aId])
+                .filter((a) => a !== undefined)
+                .filter((a) => filterByCallerType(a))
         }
-        return alleleIds.map((aId) => alleles[aId]).filter((a) => a !== undefined)
-    })
+    )
 }
 
 const sectionContents = Compute(
@@ -93,6 +112,7 @@ app.component('alleleSidebarList', {
             hiFreqDef: getHiFrequencyDefinition,
             externalSummary: getExternalSummaryById(state`${props`allelesPath`}`),
             isNonsense: isNonsenseById(state`${props`allelesPath`}`),
+            callerTypeSelected: state`views.workflows.alleleSidebar.callerTypeSelected`,
             isMultipleSampleType,
             warnings: getWarningById(state`${props`allelesPath`}`),
             verificationStatus: getVerificationStatusById(state`${props`allelesPath`}`),
@@ -136,37 +156,77 @@ app.component('alleleSidebarList', {
                             .join(', ')
                             .toUpperCase()
                     },
+                    getChromosome(allele) {
+                        return allele.chromosome.toUpperCase()
+                    },
+                    getStartPos(allele) {
+                        return allele.start_position + 1
+                    },
+                    getEndPos(allele) {
+                        if (allele.caller_type == 'snv' && allele.change_type == 'ins') {
+                            return allele.open_end_position
+                        } else if (allele.caller_type == 'snv') {
+                            return allele.open_end_position
+                        } else {
+                            return allele.start_position + 1 + allele.length - 1
+                        }
+                    },
+                    getVariantCoordinates(allele) {
+                        return `${this.getChromosome(allele)}:${this.getStartPos(
+                            allele
+                        )}-${this.getEndPos(allele)}`
+                    },
+                    getSvType(allele) {
+                        return allele.change_type.replaceAll('_', ':').toUpperCase()
+                    },
+                    getVariantLength(allele) {
+                        return allele.length
+                    },
                     getGene(allele) {
                         if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) => (t.symbol ? t.symbol : '-'))
-                                .join(' | ')
-                        }
-                        return 'chr' + allele.chromosome
-                    },
-                    getHGVSc(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) =>
-                                    t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
+                            return [
+                                ...new Set(
+                                    allele.annotation.filtered.map((t) =>
+                                        t.symbol ? t.symbol : '-'
+                                    )
                                 )
-                                .join(' | ')
+                            ].join(' | ')
                         }
-                        return allele.formatted.hgvsg
+                        return '-'
+                    },
+
+                    getHGVSc(allele) {
+                        if (allele.caller_type == 'cnv') {
+                            return allele.formatted.hgvsg
+                        } else {
+                            if (allele.annotation.filtered.length) {
+                                return allele.annotation.filtered
+                                    .filter(Boolean) // remove: "", 0, NaN, null, undefined, false
+                                    .map((t) =>
+                                        t.HGVSc_short ? t.HGVSc_short : allele.formatted.hgvsg
+                                    )
+                                    .join(' | ')
+                            }
+                            return allele.formatted.hgvsg
+                        }
                     },
                     getHGVScTitle(allele) {
-                        if (allele.annotation.filtered.length) {
-                            return allele.annotation.filtered
-                                .map((t) => {
-                                    const transcript = t.transcript
-                                    const hgvs = t.HGVSc_short
-                                        ? t.HGVSc_short
-                                        : allele.formatted.hgvsg
-                                    return `${transcript}:${hgvs}`
-                                })
-                                .join(' | ')
+                        if (allele.caller_type == 'cnv') {
+                            return allele.formatted.hgvsg
+                        } else {
+                            if (allele.annotation.filtered.length) {
+                                return allele.annotation.filtered
+                                    .map((t) => {
+                                        const transcript = t.transcript
+                                        const hgvs = t.HGVSc_short
+                                            ? t.HGVSc_short
+                                            : allele.formatted.hgvsg
+                                        return `${transcript}:${hgvs}`
+                                    })
+                                    .join(' | ')
+                            }
+                            return allele.formatted.hgvsg
                         }
-                        return allele.formatted.hgvsg
                     },
                     showManuallyAddedIndicator() {
                         return Object.values($ctrl.isManuallyAddedById).some((k) => k)

@@ -119,6 +119,15 @@ config["acmg"] = acmgconfig
 config["custom_annotation"] = customannotationconfig
 
 
+def feature_is_enabled(feature):
+    return config["app"].get("feature_flags", {}).get(feature, False)
+
+
+class FeatureNotEnabledError(RuntimeError):
+    def __init__(self, feature):
+        super().__init__(f"Feature '{feature}' is not enabled.")
+
+
 def get_user_config(app_config, usergroup_config, user_config):
     # Use json instead of copy.deepcopy for performance
     merged_config = json.loads(json.dumps(app_config.get("user", {}).get("user_config", {})))

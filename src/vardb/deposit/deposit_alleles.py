@@ -10,7 +10,7 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 
 from vardb.util import vcfiterator
-from vardb.deposit.importers import batch_generator, get_allele_from_record
+from vardb.deposit.importers import batch_generator
 
 from .deposit_from_vcf import DepositFromVCF
 
@@ -31,7 +31,11 @@ class DepositAlleles(DepositFromVCF):
             if not annotation_only:
                 is_not_inside_transcripts = []
                 for record in batch_records:
-                    if not self.is_inside_transcripts(record, db_genepanel):
+                    # When importing vcf we keep structural variants outside of transcripts,
+                    # they can still be filtered using the filterchains
+                    if not self.is_inside_transcripts(
+                        record, db_genepanel
+                    ) and not record.variant.INFO.get("SVTYPE"):
                         is_not_inside_transcripts.append(record)
 
                 if is_not_inside_transcripts:
@@ -54,7 +58,7 @@ class DepositAlleles(DepositFromVCF):
             alleles = self.allele_importer.process()
 
             for record in batch_records:
-                allele = get_allele_from_record(record, alleles)
+                allele = record.get_allele(alleles)
                 self.annotation_importer.add(record, allele["id"])
 
             # Import annotation for these alleles

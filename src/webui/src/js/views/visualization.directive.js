@@ -94,6 +94,7 @@ app.component('visualization', {
         {
             igvLocus: state`views.workflows.visualization.igv.locus`,
             igvTracks: state`views.workflows.visualization.igv.tracks`,
+            roi: state`views.workflows.visualization.roi`,
             igvReference: state`views.workflows.visualization.igv.reference`,
             tracks: state`views.workflows.visualization.tracks`,
             presets: getPresets(state`views.workflows.visualization.tracks`),

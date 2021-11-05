@@ -40,9 +40,9 @@
                         item="t"
                         tippy-popover="cdnaPopover.ngtmpl.html"
                         tippy-placement="bottom"
-                        tippy-popover-title="HGVSc"
+                        tippy-popover-title="{{ $ctrl.getHGVSTitle($ctrl.allele) }}"
                     >
-                        <i>{{ t.transcript }}:</i
+                        <i>{{ $ctrl.getTranscriptText($ctrl.allele, t) }}</i
                         ><b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
                         {{ $ctrl.allele.formatted.genotype }}
                     </span>
@@ -53,8 +53,8 @@
                             tippy-title="{{ gt.title }}"
                         >
                             <span ng-if="$ctrl.genotypeDisplay.length > 1"
-                                >{{ gt.sample_label }}: </span
-                            >{{ gt.display }}
+                                >{{ gt.sample_label }}:
+                            </span>
                             <span
                                 tippy-title="Homozygous"
                                 class="tag red"
@@ -94,8 +94,8 @@
                     tippy-placement="bottom"
                     tippy-popover-title="CONSEQUENCE"
                 >
-                    <span class="clickable" ng-repeat="c in t.consequences">{{
-                        c | noUnderscores
+                    <span class="clickable">{{
+                        t.consequences | commaSeparated | noUnderscores
                     }}</span>
                 </div>
             </h3>

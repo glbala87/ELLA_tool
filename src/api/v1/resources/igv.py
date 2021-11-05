@@ -39,6 +39,7 @@ IGV_DEFAULT_TRACK_CONFIGS = {
         "order": 300,
     },
     "bed": {"format": "bed", "displayMode": "EXPANDED", "order": 100},
+    "gff3": {"format": "gff3", "displayMode": "EXPANDED", "order": 150},
     "bigWig": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
     "bw": {"format": "bigWig", "displayMode": "EXPANDED", "order": 200},
 }
@@ -184,36 +185,141 @@ def get_classification_gff3(session):
     return "\n".join(lines)
 
 
-def get_allele_vcf(session, analysis_id, allele_ids):
-    allele_objs = []
+def get_alleles_from_db(session, analysis_id, allele_ids):
 
-    if len(allele_ids):
-        alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+    if not allele_ids:
+        return None
 
-        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
+    alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
 
-        adl = AlleleDataLoader(session)
-        allele_objs = adl.from_objs(
-            alleles,
-            analysis_id=analysis.id,
-            genepanel=analysis.genepanel,
-            include_allele_assessment=False,
-            include_allele_report=False,
-            include_custom_annotation=False,
-            include_reference_assessments=False,
-        )
+    analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
 
-    VCF_HEADER_TEMPLATE = (
-        "\n".join(
-            ["##fileformat=VCFv4.1", "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}"]
-        )
-        + "\n"
+    adl = AlleleDataLoader(session)
+    allele_objs = adl.from_objs(
+        alleles,
+        analysis_id=analysis.id,
+        genepanel=analysis.genepanel,
+        include_allele_assessment=False,
+        include_allele_report=False,
+        include_custom_annotation=False,
+        include_reference_assessments=False,
     )
-    VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
+    return allele_objs
 
+
+class ChromPos:
+    def __init__(self, chr, pos):
+        self.chr = chr
+        self.pos = pos
+
+    def chr_to_int(self):
+        if self.chr == "X":
+            return 23
+        elif self.chr == "Y":
+            return 24
+        elif self.chr == "MT":
+            return 25
+        else:
+            return int(self.chr)
+
+    def __lt__(self, other):
+        if self.chr == other.chr:
+            return self.pos < other.pos
+        else:
+            return self.chr_to_int() < other.chr_to_int()
+
+
+class BedLine(ChromPos):
+    def __init__(self, chr, pos, end):
+        super().__init__(chr, pos)
+        self.end = end
+
+    def __str__(self):
+        return f"{self.chr}\t{self.pos}\t{self.end}"
+
+
+def get_regions_of_interest(session, analysis_id, allele_ids):
+    if not allele_ids:
+        return None
+
+    allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
+
+    bed_lines = []
+    for a in allele_objs:
+        chr = a["chromosome"]
+        pos = a["start_position"]
+        length = a["length"]
+        bed_lines.append(BedLine(chr, pos, pos + length))
+    bed = "\n".join([str(b) for b in sorted(bed_lines)]) + "\n"
+    return bed
+
+
+class VcfLine(ChromPos):
+    def __init__(self, chr, pos, id, ref, alt, qual, filter_status, info, genotype_data):
+        super().__init__(chr, pos)
+        self.id = id
+        self.ref = ref
+        self.alt = alt
+        self.qual = qual
+        self.filter_status = filter_status
+        self.info = info
+        self.genotype_data = genotype_data
+
+    def sorted_genotype_keys(self):
+        SORT_ORDER = {"GT": 1, "CN": 2}
+        return sorted(self.genotype_data.keys(), key=lambda genotype_key: SORT_ORDER[genotype_key])
+
+    def __str__(self) -> str:
+        VCF_LINE_TEMPLATE = "{chr}\t{pos}\t{id}\t{ref}\t{alt}\t{qual}\t{filter_status}\t{info}\t{genotype_format}\t{genotype_data}\n"
+        info_text = ";".join(self.info) if self.info else "."
+        genotype_data_keys = self.sorted_genotype_keys()
+        genotype_format_text = ":".join(genotype_data_keys)
+        genotype_data_text = ":".join([",".join(self.genotype_data[k]) for k in genotype_data_keys])
+        return VCF_LINE_TEMPLATE.format(
+            chr=self.chr,
+            pos=self.pos,
+            id=".",
+            ref=self.ref,
+            alt=self.alt,
+            qual=self.qual,
+            filter_status=self.filter_status,
+            info=info_text,
+            genotype_format=genotype_format_text,
+            genotype_data=genotype_data_text,
+        )
+
+
+class Vcf:
+    def __init__(self, sample_names, data_lines):
+        self.sample_names = sample_names
+        self.data_lines = data_lines
+
+    def __str__(self) -> str:
+        VCF_HEADER_TEMPLATE = (
+            "\n".join(
+                [
+                    "##fileformat=VCFv4.1",
+                    '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">',
+                    '##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">',
+                    '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">',
+                    '##FORMAT=<ID=CN,Number=.,Type=Integer,Description="Copy Number">',
+                    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{}",
+                ]
+            )
+            + "\n"
+        )
+        data_header = VCF_HEADER_TEMPLATE.format("\t".join(self.sample_names))
+        lines_sorted = sorted(self.data_lines)
+        vcf_lines = "\n".join([str(l) for l in lines_sorted])
+        return data_header + vcf_lines + "\n"
+
+
+def get_allele_vcf(session, analysis_id, allele_ids):
+
+    allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
-    data = VCF_HEADER_TEMPLATE.format("\t".join(sample_names))
 
+    data = []
     for a in allele_objs:
         chr = a["chromosome"]
         pos = a["vcf_pos"]
@@ -222,11 +328,11 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         qual = "N/A"
         filter_status = "N/A"
 
-        genotype_data = {"GT": []}  # Per sample entry
+        genotype_data = {"GT": [], "CN": []}  # Per sample entry
         for sample_name in sample_names:
             sample_data = next((s for s in a["samples"] if s["identifier"] == sample_name), None)
             if not sample_data:
-                genotype_data["GT"] = "./."
+                genotype_data["GT"].append("./.")
                 continue
 
             sample_genotype = sample_data["genotype"]
@@ -234,25 +340,33 @@ def get_allele_vcf(session, analysis_id, allele_ids):
             # We can just overwrite these, will be same for all samples
             qual = sample_genotype["variant_quality"]
             filter_status = sample_genotype["filter_status"]
-
-            genotype_data["GT"] = "1/1" if sample_genotype["type"] == "Homozygous" else "0/1"
+            genotype_data["GT"].append("1/1" if sample_genotype["type"] == "Homozygous" else "0/1")
+            if a["caller_type"] == "cnv" and sample_genotype["copy_number"] is not None:
+                genotype_data["CN"].append(str(sample_genotype["copy_number"]))
+            else:
+                genotype_data["CN"].append(".")
 
         # Annotation
         info = []
-        genotype_data_keys = sorted(genotype_data.keys())
-        data += VCF_LINE_TEMPLATE.format(
-            chr=chr,
-            pos=pos,
-            id=".",
-            ref=ref,
-            alt=alt,
-            qual=qual,
-            filter_status=filter_status,
-            info=";".join(info) if info else ".",
-            genotype_format=":".join(genotype_data_keys),
-            genotype_data=":".join([genotype_data[k] for k in genotype_data_keys]),
+        if a["caller_type"] == "cnv":
+            change_type = a["change_type"]
+            length = a["length"]
+            info = [f"SVTYPE={change_type.upper()}", f"SVLEN={length}", f"END={pos + length - 1}"]
+        data.append(
+            VcfLine(
+                chr,
+                pos,
+                ".",
+                ref,
+                alt,
+                qual,
+                filter_status,
+                info,
+                genotype_data,
+            )
         )
-    return data
+    vcf = Vcf(sample_names, data)
+    return str(vcf)
 
 
 class IgvSearchResource(LogRequestResource):
@@ -331,6 +445,17 @@ class ClassificationResource(LogRequestResource):
             mimetype="text/plain",
             cache_timeout=30 * 60,
         )
+
+
+class RegionsOfInterestTrack(LogRequestResource):
+    @authenticate()
+    @logger(exclude=True)
+    def get(self, session, analysis_id, user=None):
+        allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
+        data = BytesIO()
+        data.write(get_regions_of_interest(session, analysis_id, allele_ids).encode())
+        data.seek(0)
+        return send_file(data, attachment_filename="analysis-regions-of-interest.bed")
 
 
 class AnalysisVariantTrack(LogRequestResource):
@@ -516,8 +641,18 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "format": "vcf",
         "indexed": False,
         "order": 12,
-        "visibilityWindow": 9999999999999,  # float("inf") ?
+        "visibilityWindow": 9999999999999,
         "presets": [],
+    }
+    REGIONS_OF_INTEREST_DEFAULT_CONFIG = {
+        "id": "region_of_interest",
+        "show": True,
+        "name": "CNV variants, region of interest",
+        "url": f"/api/v1/igv/regions_of_interest/{analysis_id}/?allele_ids={','.join(allele_ids)}",
+        "format": "bed",
+        "indexed": False,
+        "visibilityWindow": 9999999999999,
+        "color": "rgba(0, 150, 50, 0.12)",
     }
 
     if global_tracks_path and os.path.isfile(os.path.join(global_tracks_path, "genepanel.json")):
@@ -549,6 +684,7 @@ def get_dynamic_tracks(analysis_id, genepanel_name, genepanel_version, allele_id
         "global": [genepanel_config, classifications_config],
         "user": [],
         "analysis": [analysis_variants_config],
+        "regions_of_interest": [REGIONS_OF_INTEREST_DEFAULT_CONFIG],
     }
 
 
@@ -599,6 +735,7 @@ class AnalysisTrackList(LogRequestResource):
             "global": filebased_tracks["global"] + dynamic_tracks["global"],
             "user": filebased_tracks["user"] + dynamic_tracks["user"],
             "analysis": filebased_tracks["analysis"] + dynamic_tracks["analysis"],
+            "roi": dynamic_tracks["regions_of_interest"],
         }
 
 

@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declared_attr
 
 from vardb.datamodel import Base
+from vardb.datamodel import allele
 from vardb.util.mutjson import JSONMutableDict
 
 
@@ -174,6 +175,20 @@ class AlleleInterpretation(Base, InterpretationMixin):
         default="Interpretation",
         nullable=False,
     )
+
+    @classmethod
+    def get_or_create(cls, session, defaults=None, allele_id=None, **kwargs):
+        "Override to check that allele is not CNV. "
+        caller_type = (
+            session.query(allele.Allele.caller_type).filter(allele.Allele.id == allele_id).scalar()
+        )
+
+        if caller_type.lower() == "cnv":
+            raise NotImplementedError("Standalone CNV variants not yet supported")
+
+        return super(Base, cls).get_or_create(
+            session, defaults=defaults, allele_id=allele_id, **kwargs
+        )
 
     def __repr__(self):
         return "<AlleleInterpretation('{}', '{}')>".format(str(self.allele_id), self.status)

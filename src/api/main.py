@@ -6,7 +6,7 @@ import datetime
 
 from flask import send_from_directory, request, g, make_response
 from flask_restful import Api
-from api import app, db
+from api import app, db, DEVELOPMENT_MODE
 from api.v1 import ApiV1
 from api.util.util import populate_g_user, populate_g_logging, log_request
 
@@ -128,8 +128,7 @@ if __name__ == "__main__":
     opts = {"host": "0.0.0.0", "threaded": True, "port": int(os.getenv("API_PORT", "5000"))}
 
     # Dev mode stuff
-    is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, "").lower() == "true"
-    if is_dev:
+    if DEVELOPMENT_MODE:
         opts["use_reloader"] = True
 
         # Enable remote debugging
@@ -139,8 +138,5 @@ if __name__ == "__main__":
             if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
                 print("Enabled python remote debugging at port {}".format(os.environ["PTVS_PORT"]))
                 ptvsd.enable_attach(address=("0.0.0.0", os.environ["PTVS_PORT"]))
-
-    if is_dev:
-        print("!!!!!DEVELOPMENT MODE!!!!!")
 
     app.run(**opts)  # type: ignore

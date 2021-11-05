@@ -11,24 +11,29 @@ export default Compute(
 
     We assume that manually added alleles are important, and therefore
     the allele id should still remain in manuallyAddedAlleles in case user
-    switces back to the previous filter.
+    switches back to the previous filter.
     */
     state`views.workflows.interpretation.state`,
     state`views.workflows.interpretation.data.filteredAlleleIds`,
-    (interpretationState, filteredAlleleIds, get) => {
+    state`views.workflows.alleleSidebar.callerTypeSelected`,
+    (interpretationState, filteredAlleleIds, callerTypeSelected, get) => {
         if (
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
             !filteredAlleleIds ||
-            !filteredAlleleIds.excluded_allele_ids
+            !filteredAlleleIds.excluded_alleles_by_caller_type ||
+            !callerTypeSelected
         ) {
             return []
         }
 
-        const stateManuallyAddedAlleles = interpretationState.manuallyAddedAlleles
+        const stateManuallyAddedAlleles =
+            interpretationState.manuallyAddedAlleles[callerTypeSelected]
         const alleleIds = filteredAlleleIds.allele_ids
         let allExcludedAlleleIds = []
-        for (const excludedAlleleIds of Object.values(filteredAlleleIds.excluded_allele_ids)) {
+        for (const excludedAlleleIds of Object.values(
+            filteredAlleleIds.excluded_alleles_by_caller_type[callerTypeSelected]
+        )) {
             allExcludedAlleleIds = allExcludedAlleleIds.concat(excludedAlleleIds)
         }
 
