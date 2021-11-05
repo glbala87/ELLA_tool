@@ -1,5 +1,3 @@
-import { deepCopy } from '../../../../../../util'
-
 export default function showHideTracks({ state, storage, props }) {
     const { tracksToUpdate } = props
     if (!tracksToUpdate || tracksToUpdate.length == 0) {

@@ -408,6 +408,11 @@ class ApiV1(object):
             "/api/v1/igv/tracks/dynamic/variants/<int:analysis_id>/",
         )
 
+        self._add_resource(
+            r.igvtracks.RegionsOfInterestTrack,
+            "/api/v1/igv/tracks/dynamic/regions_of_interest/<int:analysis_id>/",
+        )
+
         self._add_resource(r.igvtracks.StaticTrack, "/api/v1/igv/tracks/static/<filepath>")
 
         self._add_resource(

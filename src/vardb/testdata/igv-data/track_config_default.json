@@ -49,6 +49,21 @@
             "height": 60
         }
     },
+    "DYNAMIC/regions_of_interest": {
+        "presets": [],
+        "limit_to_groups": null,
+        "url": "/api/v1/igv/tracks/dynamic/regions_of_interest/<ANALYSIS_ID>/?allele_ids=<ALLELE_IDS>",
+        "show": true,
+        "type": "roi",
+        "igv": {
+            "name": "ROI",
+            "type": "annotation",
+            "format": "bed",
+            "indexed": false,
+            "visibilityWindow": 9999999999999,
+            "color": "rgba(0, 150, 50, 0.12)"
+        }
+    },
     "ANALYSIS/*.bam": {
         "limit_to_groups": null,
         "url": "/api/v1/igv/tracks/analyses/<ANALYSIS_ID>/<TRACK_FILEPATH>",

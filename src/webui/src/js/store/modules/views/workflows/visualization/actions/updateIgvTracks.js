@@ -5,7 +5,7 @@ export default function updateIgvTracks({ state }) {
     }
     const selectedTracks = Object.entries(tracks)
         .filter(([id, cfg]) => cfg.selected)
-        .map(([id, cfg]) => [id, cfg.igv])
+        .map(([id, cfg]) => [id, { igvcfg: cfg.igv, type: cfg.type }])
         .reduce((obj, [k, v]) => {
             obj[k] = v
             return obj

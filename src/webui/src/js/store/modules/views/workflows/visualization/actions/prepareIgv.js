@@ -1,5 +1,3 @@
-import thenBy from 'thenby'
-
 export default async function prepareIgv({ state, http, storage }) {
     const igvReferenceConfig = state.get('app.config.igv.reference')
     state.set('views.workflows.visualization.igv.reference', {
@@ -19,6 +17,7 @@ export default async function prepareIgv({ state, http, storage }) {
         const finalizedTrack = {
             selected: 'show' in trackConfig ? Boolean(trackConfig.show) : false,
             igv: 'igv' in trackConfig ? trackConfig.igv : {},
+            type: 'type' in trackConfig ? trackConfig.type : null,
             presets: 'presets' in trackConfig ? trackConfig.presets : []
         }
         // derive default preset
@@ -39,6 +38,5 @@ export default async function prepareIgv({ state, http, storage }) {
         // append
         finalizedTracks[trackId] = finalizedTrack
     }
-    state.set('views.workflows.visualization.roi', trackConfigs.result.roi)
     state.set('views.workflows.visualization.tracks', finalizedTracks)
 }

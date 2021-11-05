@@ -20,7 +20,6 @@ const getIgvLocus = (locus) => {
     scope: {
         locus: '=',
         tracks: '=',
-        roi: '=',
         reference: '='
     },
     template: '<div></div>',
@@ -38,7 +37,6 @@ const getIgvLocus = (locus) => {
 
         let options = {
             tracks: [],
-            roi: [],
             reference: scope.reference,
             locus: getIgvLocus(scope.locus),
             showKaryo: true,
@@ -52,7 +50,6 @@ const getIgvLocus = (locus) => {
         let browserPromise = igv.createBrowser(elem.children()[0], defaults)
 
         browserPromise.then((browser) => {
-            browser.loadROI(scope.roi)
             // Make sure to remove browser upon destroy,
             // memory consumption can be 100's of MBs
             elem.on('$destroy', () => {
@@ -77,30 +74,57 @@ const getIgvLocus = (locus) => {
                 if (loading) {
                     return
                 }
+
+                const _onLoadComplete = () => {
+                    loading = false
+                    updateTracks()
+                }
+                const _head1 = ([first]) => first
+
+                // load tracks
                 const currentTrackNames = browser.trackViews
                     .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
                     .map((tv) => tv.track.name)
                 // remove tracks that are not in the state anymore
                 currentTrackNames
-                    .filter((name) => !Object.values(scope.tracks).find((cfg) => cfg.name === name))
+                    .filter(
+                        (name) =>
+                            !Object.values(scope.tracks).find((cfg) => cfg.igvcfg.name === name)
+                    )
                     .forEach((name) => {
                         browser.removeTrackByName(name)
                     })
                 // add tracks
                 const toAddTracks = Object.entries(scope.tracks)
-                    .filter(([id, cfg]) => !currentTrackNames.includes(cfg.name))
-                    .map(([id, cfg]) => cfg)
+                    .filter(([id, cfg]) => cfg.type != 'roi')
+                    .filter(([id, cfg]) => !currentTrackNames.includes(cfg.igvcfg.name))
+                    .map(([id, cfg]) => cfg.igvcfg)
                 // load only one track - remaining tracks in next iterations
-                const _head1 = ([first]) => first
                 const toAddTrack = _head1(toAddTracks)
                 if (toAddTrack) {
                     loading = true
-                    // load tracks async
-                    browser.loadTrack(deepCopy(toAddTrack)).then(() => {
-                        loading = false
-                        // recheck whenever we previously had a change
-                        updateTracks()
+                    browser.loadTrack(deepCopy(toAddTrack)).then(_onLoadComplete)
+                }
+
+                // load ROIs
+                const currentRoiNames = (browser.roi ? browser.roi : []).map((roi) => roi.name)
+                // remove ROIs that are not in the state anymore
+                currentRoiNames
+                    .filter(
+                        (name) =>
+                            !Object.values(scope.tracks).find((cfg) => cfg.igvcfg.name === name)
+                    )
+                    .forEach((name) => {
+                        browser.removeROI({ name: name })
                     })
+                const toAddRois = Object.entries(scope.tracks)
+                    .filter(([id, cfg]) => cfg.type == 'roi')
+                    .filter(([id, cfg]) => !currentRoiNames.includes(cfg.igvcfg.name))
+                    .map(([id, cfg]) => cfg.igvcfg)
+                const toAddRoi = _head1(toAddRois)
+                if (toAddRoi) {
+                    loading = true
+                    browser.loadROI(deepCopy(toAddRois)).then(_onLoadComplete)
                 }
             }
 

@@ -44,7 +44,7 @@ class TrackSourceType(Enum):
     ANALYSIS = auto()
 
 
-DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel"]
+DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel", "regions_of_interest"]
 
 
 class TrackCfgKey(Enum):
