@@ -264,44 +264,58 @@ class IgvSearchResource(LogRequestResource):
             return []
 
         # Try gene first, then transcript name
-        # Make sure to use index for the symbol name
-        gene_matches = (
+        # Make sure to use index for the symbol name (func.lower)
+        # Try exact search first, then fuzzy search
+        gene_match = (
             session.query(gene.Gene.hgnc_id)
-            .filter(func.lower(gene.Gene.hgnc_symbol).like(term.lower() + "%"))
-            .limit(5)
-            .all()
+            .filter(func.lower(gene.Gene.hgnc_symbol) == term.lower())
+            .scalar()
         )
 
-        # If we have a match, get the matching transcript locations
-        if gene_matches:
-            gene_results = (
-                session.query(
-                    gene.Transcript.chromosome, gene.Transcript.tx_start, gene.Transcript.tx_end
-                )
-                .join(gene.Gene)
-                .filter(gene.Gene.hgnc_id.in_(gene_matches))
-                .limit(10)
-                .all()
+        if gene_match is None:
+            gene_match = (
+                session.query(gene.Gene.hgnc_id)
+                .filter(func.lower(gene.Gene.hgnc_symbol).ilike(term.lower() + "%"))
+                .order_by(gene.Gene.hgnc_symbol)
+                .limit(1)
+                .scalar()
             )
 
-            results = list()
-            for r in gene_results:
-                results.append({"chromosome": r.chromosome, "start": r.tx_start, "end": r.tx_end})
-            return results
+        # Base query for finding matching transcripts, with the maximal span available
+        tx_query = session.query(
+            gene.Transcript.chromosome,
+            func.min(gene.Transcript.tx_start).label("start"),
+            func.max(gene.Transcript.tx_end).label("end"),
+        ).group_by(gene.Transcript.chromosome)
+
+        # If we have a match, get the matching transcript location
+        if gene_match is not None:
+            locus_result = tx_query.join(gene.Gene).filter(gene.Gene.hgnc_id == gene_match).first()
         else:
-            transcripts_results = (
-                session.query(
-                    gene.Transcript.chromosome, gene.Transcript.tx_start, gene.Transcript.tx_end
-                )
-                .filter(gene.Transcript.transcript_name.like(term + "%"))
-                .limit(10)
-                .all()
-            )
+            # No match on gene, search for transcript name
+            # If term is shorter than nine characters, the transcript is not specified enough
+            if len(term) < 9:
+                return []
+            locus_result = tx_query.filter(gene.Transcript.transcript_name == term.upper()).first()
 
-            results = list()
-            for r in transcripts_results:
-                results.append({"chromosome": r.chromosome, "start": r.tx_start, "end": r.tx_end})
-            return results
+            # Fuzzy search: find all versions of transcript
+            if locus_result is None:
+                locus_result = tx_query.filter(
+                    gene.Transcript.transcript_name.like(term.upper() + ".%")
+                )
+
+            # Fuzzy search: match prefix
+            if locus_result is None:
+                locus_result = tx_query.filter(
+                    gene.Transcript.transcript_name.like(term.upper() + "%")
+                )
+
+        if not locus_result:
+            return []
+        else:
+            return [
+                {"chromosome": locus_result[0], "start": locus_result[1], "end": locus_result[2]}
+            ]
 
 
 class GenepanelBedResource(LogRequestResource):
