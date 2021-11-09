@@ -6,12 +6,33 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.15](#version-1-15)|
+[v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 [v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.15.1
+
+Release date: 10.11.2021
+
+### Highlights
+
+This is a bugfix release.
+
+### All changes
+
+<!-- MR !619 -->
+- Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
+<!-- MR !621-->
+- Fixed a bug causing IGV search to occasionally return wrong gene when there are partial matches.
+<!-- MR !624 -->
+- Fixed a bug causing invisible INH values for filtered variants.
+<!-- MR !625 -->
+- Upgraded IGV.js in VISUAL to [v2.10.4](https://github.com/igvteam/igv.js/releases/tag/v2.10.4).
+<!-- MR !629 -->
+- Fixed a bug causing error on start if a Worklog comment was just added.
 
 ## Version 1.15
 
