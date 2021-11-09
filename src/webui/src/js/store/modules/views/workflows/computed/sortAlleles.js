@@ -32,7 +32,11 @@ function getSortFunctions(
             return allele.formatted.inheritance
         },
         chromosome: (allele) => {
-            return allele.chromosome
+            const chr = allele.chromosome
+            if (chr === 'X') return 23
+            else if (chr === 'Y') return 24
+            else if (chr === 'MT') return 25
+            else return Number(chr)
         },
         start: (allele) => {
             return allele.start_position
@@ -213,6 +217,12 @@ export default function sortAlleles(alleles, key, reverse) {
                         .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
+                )
+            } else if (key === 'chromosome') {
+                sortedAlleles.sort(
+                    thenBy(sortFunctions.chromosome)
+                        .thenBy(sortFunctions.start)
+                        .thenBy(sortFunctions.end)
                 )
             } else if (key) {
                 sortedAlleles.sort(
