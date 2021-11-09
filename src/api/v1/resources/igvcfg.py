@@ -89,7 +89,7 @@ class TrackSrcId:
         return tid
 
 
-def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
+def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, Any]:
     # try load custom config
     ella_cfg_path = os.path.join(get_igv_data_dir(), "track_config.json")
     if not os.path.isfile(ella_cfg_path):
@@ -136,7 +136,7 @@ def load_raw_config(track_ids: List[TrackSrcId], user) -> Dict[str, Any]:
         keep_track = keep_track and (
             cfg[TrackCfgKey.limit_to_groups.name]
             is None  # "limit_to_groups: null" enables public access
-            or any(g == user.group.name for g in cfg[TrackCfgKey.limit_to_groups.name])
+            or any(g == usergroup_name for g in cfg[TrackCfgKey.limit_to_groups.name])
         )
         # rm group key
         cfg.pop(TrackCfgKey.limit_to_groups.name, None)
@@ -230,7 +230,7 @@ class AnalysisTrackList(LogRequestResource):
         # define dynamic tracks
         track_ids += TrackSrcId.from_rel_paths(TrackSourceType.DYNAMIC, DYNAMIC_TRACK_PATHS)
 
-        track_cfgs = load_raw_config(track_ids, user)
+        track_cfgs = load_raw_config(track_ids, user.group.name)
 
         # reorganize config values
         for track_id, cfg in track_cfgs.items():

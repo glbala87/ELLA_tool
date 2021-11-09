@@ -505,7 +505,7 @@ class StaticTrack(LogRequestResource):
         # check permissins by loading config
         track_src_ids = igvcfg.TrackSrcId.from_rel_paths(igvcfg.TrackSourceType.STATIC, [filepath])
         # load config - for current track
-        track_cfg = igvcfg.load_raw_config(track_src_ids, user)
+        track_cfg = igvcfg.load_raw_config(track_src_ids, user.group.name)
         # we passed one id - we should get one track
         if not len(track_cfg.values()) == 1:
             raise AUTH_ERROR
