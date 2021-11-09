@@ -90,6 +90,16 @@ class TrackSrcId:
 
 
 def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, Any]:
+    """Takes a list of track IDs and returns their raw config.
+       This is done by checking if the tracks exist and by appling all config rules.
+       The function is used in two siutations:
+    - API call for the track config: All tracks know in ella are passed in as agruments.
+        Only configs for accessible tracks are returned. Some postprocessing is required
+        before sending it from the API (interpolate urls, add default values) - Hence the "raw"
+    - API call for a single track: A single track Id is passed in. Used to check if the
+        track ID is accessible by the requesting user. If it's not,
+        load_raw_config() will return {}
+    """
     # try load custom config
     ella_cfg_path = os.path.join(get_igv_data_dir(), "track_config.json")
     if not os.path.isfile(ella_cfg_path):
