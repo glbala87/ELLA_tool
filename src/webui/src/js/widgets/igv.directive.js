@@ -111,6 +111,10 @@ const getIgvLocus = (locus) => {
             const igvContainer = document.querySelector('.igv-column-container')
             if (igvContainer) {
                 igvContainer.onwheel = (event) => {
+                    // zoom only in combination with key
+                    if (!event.altKey && !event.shiftKey) {
+                        return
+                    }
                     event.preventDefault()
                     const scaleFactor = 1.2
                     browser.zoomWithScaleFactor(event.deltaY > 0 ? scaleFactor : 1 / scaleFactor)
