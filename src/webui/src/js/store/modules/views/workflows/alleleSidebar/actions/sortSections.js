@@ -5,6 +5,7 @@ import filterNotRelevant from '../../computed/filterNotRelevant'
 
 export default function sortSections({ state, resolve }) {
     const orderBy = state.get('views.workflows.alleleSidebar.orderBy')
+    const caller_type_selected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
     const alleles = Object.values(state.get('views.workflows.interpretation.data.alleles'))
 
     // Technical takes presedence over not relevant
@@ -15,12 +16,18 @@ export default function sortSections({ state, resolve }) {
     let unclassified = filterClassified(true, toClassify)
     let classified = filterClassified(false, toClassify)
 
+    function sortStrategy() {
+        if (caller_type_selected === 'cnv') {
+            return 'chromosome'
+        } else return null
+    }
+
     if (orderBy.unclassified.key) {
         unclassified = resolve.value(
             sortAlleles(unclassified, orderBy.unclassified.key, orderBy.unclassified.reverse)
         )
     } else {
-        unclassified = resolve.value(sortAlleles(unclassified, null, null))
+        unclassified = resolve.value(sortAlleles(unclassified, sortStrategy(), null))
     }
 
     if (orderBy.classified.key) {
@@ -36,7 +43,7 @@ export default function sortSections({ state, resolve }) {
             sortAlleles(technical, orderBy.technical.key, orderBy.technical.reverse)
         )
     } else {
-        technical = resolve.value(sortAlleles(technical, null, null))
+        technical = resolve.value(sortAlleles(technical, sortStrategy(), null))
     }
 
     if (orderBy.notRelevant.key) {
@@ -44,7 +51,7 @@ export default function sortSections({ state, resolve }) {
             sortAlleles(notRelevant, orderBy.notRelevant.key, orderBy.notRelevant.reverse)
         )
     } else {
-        notRelevant = resolve.value(sortAlleles(notRelevant, null, null))
+        notRelevant = resolve.value(sortAlleles(notRelevant, sortStrategy(), null))
     }
 
     state.set('views.workflows.alleleSidebar.unclassified', unclassified.map((a) => a.id))
