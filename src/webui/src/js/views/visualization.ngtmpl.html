@@ -19,7 +19,7 @@
     <sectionbox collapsed="true">
         <maintitle>Track selection</maintitle>
         <contentwrapper>
-            <div ng-repeat="(presetId, tracksByPreset) in $ctrl.presets">
+            <div ng-repeat="(presetId, trackIdsByPreset) in $ctrl.presets">
                 <h4 class="section-title">{{ presetId }}</h4>
                 <div class="bttn-set">
                     <label
@@ -29,7 +29,7 @@
                         ng-model-watch="$ctrl.tracks[trackId].selected"
                         ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{trackId: trackId, show: !$ctrl.tracks[trackId].selected}]})"
                         uib-btn-checkbox="track.data"
-                        ng-repeat="trackId in tracksByPreset"
+                        ng-repeat="trackId in trackIdsByPreset"
                         >{{ $ctrl.tracks[trackId].igv.name }}</label
                     >
                 </div>

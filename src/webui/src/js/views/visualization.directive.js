@@ -6,8 +6,8 @@ import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './visualization.ngtmpl.html' // eslint-disable-line no-unused-vars
 
-// object: preset_ID -> Set[track_inf1, track_inf2, ... ]
-const getPresetByTrackId = (tracks) => {
+// object: preset_ID -> Set[track_id, track_id, ... ]
+const getTrackIdsByPreset = (tracks) => {
     const r = {}
     if (!tracks) {
         return r
@@ -27,13 +27,13 @@ const getPresetByTrackId = (tracks) => {
 const getPresets = (tracks) => {
     return Compute(tracks, (tracks) => {
         const r = {}
-        const preset2TracksId = getPresetByTrackId(tracks)
-        Object.keys(preset2TracksId)
+        const trackIdsByPreset = getTrackIdsByPreset(tracks)
+        Object.keys(trackIdsByPreset)
             // sort default element to the front
             .reduce((acc, e) => (e == 'Default' ? [e, ...acc] : [...acc, e]), [])
             // convert to array - angularjs 1.x does not support Set
             .forEach((k) => {
-                r[k] = Array.from(preset2TracksId[k])
+                r[k] = Array.from(trackIdsByPreset[k])
             })
         return r
     })
@@ -55,15 +55,15 @@ const getCurrPresetModel = (tracks) => {
             return r
         }
         const _setContains = (a, b) => a.size >= b.size && [...b].every((value) => a.has(value))
-        const preset2TracksId = getPresetByTrackId(tracks)
+        const trackIdsByPreset = getTrackIdsByPreset(tracks)
         const currTrackSelection = _getSelectedTracks(tracks)
         // init model
         const presetModel = {}
         // set status
-        for (let presetId of Object.keys(preset2TracksId)) {
+        for (let presetId of Object.keys(trackIdsByPreset)) {
             presetModel[presetId] = _setContains(
                 currTrackSelection,
-                new Set([...preset2TracksId[presetId]]) // extract set of UIDs
+                new Set([...trackIdsByPreset[presetId]]) // extract set of UIDs
             )
         }
         return presetModel
