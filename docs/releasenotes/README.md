@@ -45,18 +45,8 @@ MR !606 Feature flag for CNVs
 - Added minimal support for CNVs.
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
-<!-- MR !619 -->
-- Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
-<!-- MR !621-->
-- Fixed a bug causing IGV search to occasionally return wrong gene when there are partial matches.
-<!-- MR !624 -->
-- Fixed a bug causing invisible INH values for filtered variants.
-<!-- MR !625 -->
-- Upgraded IGV.js in VISUAL to [v2.10.4](https://github.com/igvteam/igv.js/releases/tag/v2.10.4).
 <!-- MR !627 -->
 - Filtered variants are now sorted by genomic position.
-<!-- MR !629 -->
-- Fixed a bug causing error on start if a Worklog comment was just added.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
