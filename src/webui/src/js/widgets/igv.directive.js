@@ -33,7 +33,6 @@ class TrackTypeDefault extends TrackType {
         return type != 'roi'
     }
     getIgvLoadedTrackIds(browser) {
-        console.log('TrackTypeDefault', 'getIgvLoadedTrackIds')
         return browser.trackViews
             .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
             .map((tv) => tv.track.name)
@@ -51,7 +50,6 @@ class TrackTypeRoi extends TrackType {
         return type == 'roi'
     }
     getIgvLoadedTrackIds(browser) {
-        console.log('TrackTypeRoi', 'getIgvLoadedTrackIds')
         return (browser.roi ? browser.roi : []).map((roi) => roi.name)
     }
     removeTrack(browser, trackId) {
