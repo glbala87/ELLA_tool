@@ -12,6 +12,56 @@ const getIgvLocus = (locus) => {
     return `${locus.chr}:${locus.pos}`
 }
 
+// abstract parent class
+class TrackType {
+    matchesType(type) {
+        throw new Error('not implemented')
+    }
+    getIgvLoadedTrackIds(browser) {
+        throw new Error('not implemented')
+    }
+    removeTrack(browser, trackId) {
+        throw new Error('not implemented')
+    }
+    async loadTrack(browser, igvcfg) {
+        throw new Error('not implemented')
+    }
+}
+// "normal" tracks
+class TrackTypeDefault extends TrackType {
+    matchesType(type) {
+        return type != 'roi'
+    }
+    getIgvLoadedTrackIds(browser) {
+        console.log('TrackTypeDefault', 'getIgvLoadedTrackIds')
+        return browser.trackViews
+            .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
+            .map((tv) => tv.track.name)
+    }
+    removeTrack(browser, trackId) {
+        browser.removeTrackByName(trackId)
+    }
+    async loadTrack(browser, igvcfg) {
+        await browser.loadTrack(deepCopy(igvcfg))
+    }
+}
+// ROI (region of interest) tracks
+class TrackTypeRoi extends TrackType {
+    matchesType(type) {
+        return type == 'roi'
+    }
+    getIgvLoadedTrackIds(browser) {
+        console.log('TrackTypeRoi', 'getIgvLoadedTrackIds')
+        return (browser.roi ? browser.roi : []).map((roi) => roi.name)
+    }
+    removeTrack(browser, trackId) {
+        browser.removeROI({ name: trackId })
+    }
+    async loadTrack(browser, igvcfg) {
+        await browser.loadROI(deepCopy(igvcfg))
+    }
+}
+
 /**
  * Directive for displaying igv.js
  */
@@ -81,50 +131,35 @@ const getIgvLocus = (locus) => {
                 }
                 const _head1 = ([first]) => first
 
-                // load tracks
-                const currentTrackNames = browser.trackViews
-                    .filter((tv) => !['ideogram', 'sequence', 'ruler'].includes(tv.track.type))
-                    .map((tv) => tv.track.name)
-                // remove tracks that are not in the state anymore
-                currentTrackNames
-                    .filter(
-                        (name) =>
-                            !Object.values(scope.tracks).find((cfg) => cfg.igvcfg.name === name)
-                    )
-                    .forEach((name) => {
-                        browser.removeTrackByName(name)
-                    })
-                // add tracks
-                const toAddTracks = Object.entries(scope.tracks)
-                    .filter(([id, cfg]) => cfg.type != 'roi')
-                    .filter(([id, cfg]) => !currentTrackNames.includes(cfg.igvcfg.name))
-                    .map(([id, cfg]) => cfg.igvcfg)
-                // load only one track - remaining tracks in next iterations
-                const toAddTrack = _head1(toAddTracks)
-                if (toAddTrack) {
-                    loading = true
-                    browser.loadTrack(deepCopy(toAddTrack)).then(_onLoadComplete)
-                }
-
-                // load ROIs
-                const currentRoiNames = (browser.roi ? browser.roi : []).map((roi) => roi.name)
-                // remove ROIs that are not in the state anymore
-                currentRoiNames
-                    .filter(
-                        (name) =>
-                            !Object.values(scope.tracks).find((cfg) => cfg.igvcfg.name === name)
-                    )
-                    .forEach((name) => {
-                        browser.removeROI({ name: name })
-                    })
-                const toAddRois = Object.entries(scope.tracks)
-                    .filter(([id, cfg]) => cfg.type == 'roi')
-                    .filter(([id, cfg]) => !currentRoiNames.includes(cfg.igvcfg.name))
-                    .map(([id, cfg]) => cfg.igvcfg)
-                const toAddRoi = _head1(toAddRois)
-                if (toAddRoi) {
-                    loading = true
-                    browser.loadROI(deepCopy(toAddRois)).then(_onLoadComplete)
+                const trackTypes = [new TrackTypeDefault(), new TrackTypeRoi()]
+                for (let i = 0; i < trackTypes.length; i++) {
+                    const trackType = trackTypes[i]
+                    // list tracks ocf the current type
+                    const igvLoadedTrackIds = trackType.getIgvLoadedTrackIds(browser)
+                    // remove tracks that are not in the state anymore
+                    igvLoadedTrackIds
+                        .filter(
+                            (trackId) =>
+                                !Object.values(scope.tracks).find(
+                                    (cfg) => cfg.igvcfg.name === trackId
+                                )
+                        )
+                        .forEach((trackId) => {
+                            trackType.removeTrack(browser, trackId)
+                        })
+                    // list tracks to add
+                    const toAddTracks = Object.entries(scope.tracks)
+                        .filter(([id, cfg]) => trackType.matchesType(cfg.type))
+                        .filter(([id, cfg]) => !igvLoadedTrackIds.includes(cfg.igvcfg.name))
+                        .map(([id, cfg]) => cfg.igvcfg)
+                    const toAddTrack = _head1(toAddTracks)
+                    // any track to add?
+                    if (toAddTrack) {
+                        loading = true
+                        trackType.loadTrack(browser, toAddTrack).then(_onLoadComplete)
+                        // remaining tracks will be handled in next call
+                        return
+                    }
                 }
             }
 
