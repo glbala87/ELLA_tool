@@ -23,6 +23,8 @@ This is a bugfix release.
 
 ### All changes
 
+<!-- MR !595-->
+- Fixed a bug causing missing transcripts in exported classifications.
 <!-- MR !619 -->
 - Fixed a bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- MR !621-->
