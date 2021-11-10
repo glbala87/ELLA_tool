@@ -62,7 +62,7 @@ errorShots
 images
 local_settings.py
 # whole genome test/track data
-src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v01/tracks
+src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v12/tracks
 
 src/webui/node_modules
 
