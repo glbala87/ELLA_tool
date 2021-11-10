@@ -70,7 +70,8 @@ So before manually running the upgrade/downgrade scripts, you need to create the
  CREATE TABLE alembic_version (version_num varchar)
  INSERT INTO alembic_version VALUES ([hash])
 ```
-### Integrating the a new migration step
+
+### Integrating the new migration step
 
 Once you are satisfied that the newly created migration script does its job, you can add it to the repository.
 
