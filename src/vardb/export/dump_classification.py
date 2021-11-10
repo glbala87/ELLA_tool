@@ -3,17 +3,22 @@
 import datetime
 import logging
 import time
+from collections import defaultdict
+from dataclasses import dataclass
 from os import path
-from collections import defaultdict, OrderedDict
-import pytz
-from sqlalchemy.orm import subqueryload, joinedload
-from openpyxl.writer.write_only import WriteOnlyCell
-from openpyxl.styles import Font
-from openpyxl import Workbook
-from bs4 import BeautifulSoup
+from typing import Any, Dict, Optional
+from openpyxl.worksheet.worksheet import Worksheet
 
-from vardb.datamodel import assessment, allele, sample, genotype
+from pytz import utc
+from bs4 import BeautifulSoup
+from sqlalchemy.orm.query import Query
+from sqlalchemy.orm.session import Session
 from datalayer import AlleleDataLoader
+from openpyxl import Workbook
+from openpyxl.styles import Font
+from openpyxl.writer.write_only import WriteOnlyCell
+from sqlalchemy.orm import joinedload, subqueryload
+from vardb.datamodel import allele, assessment, genotype, sample
 
 KEY_ANALYSES = "analyses"
 
@@ -33,43 +38,49 @@ DATE_FORMAT = "%Y-%m-%d"
 
 
 # (field name, [Column header, Column width])
-COLUMN_PROPERTIES = OrderedDict(
-    [
-        ("gene", ["Gene", 6]),
-        ("transcript", ["Transcript", 15]),
-        ("hgvsc", ["HGVSc", 26]),
-        ("class", ["Class", 6]),
-        ("date", ["Date", 11]),
-        ("hgvsp", ["HGVSp", 26]),
-        ("exon", ["#exon or intron/total", 11]),
-        ("rsnum", ["RS number", 11]),
-        ("consequence", ["Consequence", 20]),
-        ("coordinate", ["GRCh37", 20]),
-        ("n_samples", ["# samples", 3]),
-        ("prev_class", ["Prev. class", 6]),
-        ("prev_class_superceeded", ["Superceeded date", 11]),
-        ("classification_eval", ["Evaluation", 20]),
-        ("report", ["Report", 20]),
-        ("acmg_eval", ["ACMG evaluation", 20]),
-        ("freq_eval", ["Frequency comment", 20]),
-        ("extdb_eval", ["External DB comment", 20]),
-        ("pred_eval", ["Prediction comment", 20]),
-        ("ref_eval", ["Reference evaluations", 20]),
-        (KEY_ANALYSES, ["Analyses", 20]),
-    ]
-)
+@dataclass(frozen=True)
+class ExportColumn:
+    __slots__ = ["field_name", "column_name", "column_width"]
+    field_name: str
+    column_name: str
+    column_width: int
 
+
+DEFAULT_EXPORT_COLS = (
+    ExportColumn("gene", "Gene", 6),
+    ExportColumn("transcript", "Transcript", 15),
+    ExportColumn("hgvsc", "HGVSc", 26),
+    ExportColumn("class", "Class", 6),
+    ExportColumn("date", "Date", 11),
+    ExportColumn("hgvsp", "HGVSp", 26),
+    ExportColumn("exon", "#exon or intron/total", 11),
+    ExportColumn("rsnum", "RS number", 11),
+    ExportColumn("consequence", "Consequence", 20),
+    ExportColumn("coordinate", "GRCh37", 20),
+    ExportColumn("n_samples", "# samples", 3),
+    ExportColumn("prev_class", "Prev. class", 6),
+    ExportColumn("prev_class_superceeded", "Superceeded date", 11),
+    ExportColumn("classification_eval", "Evaluation", 20),
+    ExportColumn("report", "Report", 20),
+    ExportColumn("acmg_eval", "ACMG evaluation", 20),
+    ExportColumn("freq_eval", "Frequency comment", 20),
+    ExportColumn("extdb_eval", "External DB comment", 20),
+    ExportColumn("pred_eval", "Prediction comment", 20),
+    ExportColumn("ref_eval", "Reference evaluations", 20),
+    ExportColumn(KEY_ANALYSES, "Analyses", 20),
+)
+EXPORT_COLS_NO_ANALYSES = tuple(c for c in DEFAULT_EXPORT_COLS if c.field_name != KEY_ANALYSES)
 
 # openpyxl does not handle unicode control characters, except for \x09 (\t), \x10 (\n), \x0d(=13) (\r)
 # Remove these from any string coming from html
-CONTROL_CHARS_MAP = dict.fromkeys(i for i in range(32) if i not in [9, 10, 13])
+CONTROL_CHARS_MAP: Dict[int, None] = dict.fromkeys(i for i in range(32) if i not in [9, 10, 13])
 
 
-def remove_control_chars(s):
+def remove_control_chars(s: str):
     return s.translate(CONTROL_CHARS_MAP)
 
 
-def html_to_text(html):
+def html_to_text(html: str):
     soup = BeautifulSoup(html, "html.parser")
     attachments = [img.get("title") for img in soup.find_all("img")]
     return remove_control_chars(soup.get_text()) + (
@@ -77,7 +88,7 @@ def html_to_text(html):
     )
 
 
-def get_batch(alleleassessments):
+def get_batch(alleleassessments: Query):
     """
     Generates lists of AlleleAssessment objects
     :param alleleassessments: An sqlalchemy.orm.query object
@@ -94,7 +105,7 @@ def get_batch(alleleassessments):
         i_batch += 1
 
 
-def format_transcripts(allele_annotation):
+def format_transcripts(allele_annotation: Dict[str, Any]):
     """
     Make dict with info about a transcript for all
     filtered transcript in allele_annotation
@@ -134,8 +145,11 @@ def format_transcripts(allele_annotation):
     return {key: " | ".join(value) for key, value in list(formatted_transcripts.items())}
 
 
-def format_classification(alleleassessment, adl, previous_alleleassessment=None):
-
+def format_classification(
+    alleleassessment: assessment.AlleleAssessment,
+    adl: AlleleDataLoader,
+    previous_alleleassessment: Optional[assessment.AlleleAssessment] = None,
+):
     """
     Make a list of the classification fields of an AlleleAssessment
     :param alleleassessment: an AlleleAssessment object
@@ -153,13 +167,10 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
         include_allele_assessment=False,
         include_reference_assessments=False,
         include_allele_report=True,
-        only_most_recent_annotation=True,
     )[0]
 
     # Imported assessments without date can have 0000-00-00 as created_time. strftime doesn't like that..
-    if alleleassessment.date_created < datetime.datetime(
-        year=1950, month=1, day=1, tzinfo=pytz.utc
-    ):
+    if alleleassessment.date_created < datetime.datetime(year=1950, month=1, day=1, tzinfo=utc):
         date = "0000-00-00"
     else:
         date = alleleassessment.date_created.strftime(DATE_FORMAT)
@@ -237,7 +248,7 @@ def format_classification(alleleassessment, adl, previous_alleleassessment=None)
     }
 
 
-def dump_alleleassessments(session, filename, with_analysis_names):
+def dump_alleleassessments(session: Session, filename: str, with_analysis_names: bool):
     """
     Save all current alleleassessments to Excel document
     :param session: An sqlalchemy session
@@ -247,10 +258,9 @@ def dump_alleleassessments(session, filename, with_analysis_names):
     if not filename:
         raise RuntimeError("Filename for classification export is mandatory")
 
-    if not with_analysis_names:
-        del COLUMN_PROPERTIES[KEY_ANALYSES]
+    export_columns = DEFAULT_EXPORT_COLS if with_analysis_names else EXPORT_COLS_NO_ANALYSES
 
-    alleleassessments = (
+    alleleassessments: Query[assessment.AlleleAssessment] = (
         session.query(assessment.AlleleAssessment)
         .options(
             subqueryload(assessment.AlleleAssessment.annotation)
@@ -266,24 +276,24 @@ def dump_alleleassessments(session, filename, with_analysis_names):
 
     # Write only: Constant memory usage
     workbook = Workbook(write_only=True)
-    worksheet = workbook.create_sheet()
+    worksheet: Worksheet = workbook.create_sheet()
 
     csv = []
     csv_headers = []
     titles = []
-    for ii, cp in enumerate(COLUMN_PROPERTIES.values()):
-        csv_headers.append(cp[0])
-        title = WriteOnlyCell(worksheet, value=cp[0])
+    for ii, col in enumerate(export_columns):
+        csv_headers.append(col.column_name)
+        title = WriteOnlyCell(worksheet, value=col.column_name)
         title.font = Font(bold=True)
         titles.append(title)
         # chr(65) is 'A', chr(66) is 'B', etc
-        worksheet.column_dimensions[chr(ii + 65)].width = cp[1]
+        worksheet.column_dimensions[chr(ii + 65)].width = col.column_width
 
     worksheet.append(titles)
     csv.append(csv_headers)
 
     t_start = time.time()
-    t_total = 0
+    t_total = 0.0
     rows = list()
     csv_body = []
     for batch_alleleassessments in get_batch(alleleassessments):
@@ -315,9 +325,10 @@ def dump_alleleassessments(session, filename, with_analysis_names):
                 analysis_names = ",".join(map(str, [a.name for a in analyses]))
 
                 classification_dict[KEY_ANALYSES] = analysis_names
-            classification_columns = [classification_dict[key] for key in COLUMN_PROPERTIES]
+            classification_columns = [classification_dict[col.field_name] for col in export_columns]
             csv_body.append(classification_columns)
             rows.append(classification_columns)
+            session.execute(f"discard temp")
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" % str(t_get - t_query))
         t_total += t_get - t_start
