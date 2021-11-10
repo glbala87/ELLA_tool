@@ -39,6 +39,7 @@ SQLAlchemy-Searchable = "==1.0.3"
 supervisor = "==4.1.0"
 Werkzeug = "==0.16.1"
 XlsxWriter = "==1.1.2"
+pydantic = "*"
 
 [requires]
 python_version = "3.7"
