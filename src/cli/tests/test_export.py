@@ -1,8 +1,9 @@
 import tempfile
 import os
+from typing import Callable
 
 
-def test_export_classification(run_command):
+def test_export_classification(run_command: Callable):
     tmp = tempfile.NamedTemporaryFile()
     tmp.close()
     result = run_command(["export", "classifications", "--filename", tmp.name])

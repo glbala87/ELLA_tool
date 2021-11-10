@@ -1,9 +1,9 @@
-import click
 import datetime
 
+import click
+from cli.decorators import CliLogger, cli_logger, session
+from sqlalchemy.orm.session import Session
 from vardb.export import dump_classification
-
-from cli.decorators import cli_logger, session
 
 FILENAME_REPORT_DEFAULT = "non-started-analyses-variants-{timestamp}"
 
@@ -28,7 +28,12 @@ def export():
 )
 @session
 @cli_logger()
-def cmd_export_classifications(logger, session, filename, with_analysis_names):
+def cmd_export_classifications(
+    logger: CliLogger,
+    session: Session,
+    filename: str,
+    with_analysis_names: bool,
+):
     """
     Exports all current classifications into an excel file.
     """
