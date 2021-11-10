@@ -1,30 +1,30 @@
-from collections import defaultdict
 import json
-from vardb.datamodel import allele, sample, genotype, annotationshadow, gene
-from vardb.datamodel.annotation import CustomAnnotation, Annotation
-from vardb.datamodel.assessment import AlleleAssessment, ReferenceAssessment, AlleleReport
-from sqlalchemy import or_, and_, text, func, tuple_, case
-from sqlalchemy.orm import aliased
+from collections import defaultdict
 
-from .. import queries
-from ..allelefilter.segregationfilter import SegregationFilter
-from ..allelefilter.genotypetable import get_genotype_temp_table
-from .calculate_qc import genotype_calculate_qc
-from .annotationprocessor import AnnotationProcessor
+from api.config import config
 
 # TODO: This import should be refactored somehow, reaching into the api is weird.
 from api.schemas import (
+    AlleleAssessmentSchema,
+    AlleleReportSchema,
     AlleleSchema,
-    GenotypeSchema,
-    GenotypeSampleDataSchema,
     AnnotationSchema,
     CustomAnnotationSchema,
-    AlleleAssessmentSchema,
+    GenotypeSampleDataSchema,
+    GenotypeSchema,
     ReferenceAssessmentSchema,
-    AlleleReportSchema,
     SampleSchema,
 )
-from api.config import config
+from datalayer import queries
+from datalayer.alleledataloader.annotationprocessor import AnnotationProcessor
+from datalayer.alleledataloader.calculate_qc import genotype_calculate_qc
+from datalayer.allelefilter.genotypetable import get_genotype_temp_table
+from datalayer.allelefilter.segregationfilter import SegregationFilter
+from sqlalchemy import and_, case, func, or_, text, tuple_
+from sqlalchemy.orm import aliased
+from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
+from vardb.datamodel.annotation import Annotation, CustomAnnotation
+from vardb.datamodel.assessment import AlleleAssessment, AlleleReport, ReferenceAssessment
 
 # Top level keys:
 KEY_REFERENCE_ASSESSMENTS = "reference_assessments"
@@ -740,7 +740,6 @@ class AlleleDataLoader(object):
         include_reference_assessments=True,
         include_allele_report=True,
         allele_assessment_schema=None,
-        only_most_recent_annotation=False,
     ):
         """
         Loads data for a list of alleles from the database, and returns a dictionary
@@ -768,7 +767,6 @@ class AlleleDataLoader(object):
         :param include_reference_assessments: If true, load the ones mentioned in link_filter.referenceassessment_id or, if not provided, the latest data
         :param include_allele_report: If true, load the ones mentioned in link_filter.allelereport_id or, if not provided, the latest data
         :param allele_assessment_schema: Use this schema for serialization. If None, use default
-        :param only_most_recent_annotation: Avoid memory issues (like in dumping variants in export files) by including only most recent annotation
         :returns: dict with converted data using schema data.
         """
 
@@ -905,7 +903,7 @@ class AlleleDataLoader(object):
             annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
                 self.session,
                 [(genepanel.name, genepanel.version)],
-                annotation_ids=None if only_most_recent_annotation else annotation_ids,
+                annotation_ids=annotation_ids,
             ).subquery()
 
             annotation_transcripts = (
