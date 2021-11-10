@@ -8,9 +8,8 @@ The recommended way of developing with ELLA is to use VSCode with development co
 
 Once VSCode is set up, open the root folder (`ella`) in VSCode, and use the command palette to launch `Remote-Containers: Rebuild and Reopen in Container`*. This will start up a Docker container with ELLA running inside it, and attach VSCode to it. From there, you can populate the database:
 
-- Run the task `reset db`
-- Run `make dbreset` (or `make dbreset TESTSET=default`) in the integrated terminal
-If you want something else than the default data. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS
+Run the task `reset db`.
+If you want something other than the data for the e2e test, run `make dbreset` (or `make dbreset TESTSET=default`) in the integrated terminal. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS.
 
 Now, ELLA should be available on http://localhost:5000, and one can log in with credentials `testuser1:demo`, `testuser2:demo`,...,`testuser8:demo`. The environments for the test users are slightly different.
 
