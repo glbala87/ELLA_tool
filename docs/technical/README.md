@@ -48,5 +48,5 @@ ELLA uses a relational [PostgreSQL](https://www.postgresql.org/) database with t
 
 ## Command line interface (ella-cli)
 
-Most admin tasks in ELLA are handled using the ELLA command line interface (ella-cli). This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image. For available options, [Production tasks using the ella-cli](/technical/production-tasks.md) or type `ella-cli --help`.
+Most admin tasks in ELLA are handled using the ELLA command line interface (ella-cli). This is located in `bin/ella-cli`, but should be available in `$PATH` if you use a Docker image. For available options, see [Production tasks using the ella-cli](/technical/production-tasks.md) or type `ella-cli --help`.
 
