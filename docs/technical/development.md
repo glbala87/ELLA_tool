@@ -11,13 +11,11 @@ Once VSCode is set up, open the root folder (`ella`) in VSCode, and use the comm
 Run the task `reset db`.
 If you want something other than the data for the e2e test, run `make dbreset` (or `make dbreset TESTSET=default`) in the integrated terminal. See vardb/deposit/deposit_testdata.py#AVAILABLE_TESTSETS.
 
-Now, ELLA should be available on http://localhost:5000, and one can log in with credentials `testuser1:demo`, `testuser2:demo`,...,`testuser8:demo`. The environments for the test users are slightly different.
+Now, ELLA should be available on http://localhost:5000, and one can log in with credentials `testuser1:demo`, `testuser2:demo`, ..., `testuser8:demo`. The environments for the test users are slightly different.
 
 To get visibility into what's happening in the browser client, start the [Cerebral debugger](https://cerebraljs.com/docs/introduction/devtools.html).
 Enter any name ('ella' is a good name) and port 8585. This sets up a server listening on that part port.
-Open the app in the browser (refresh if the app was opened before starting Cerebral). The browser will connect
-to the Cerebral debugger. To enable the web client to connect to the cerebral debugger, you need to comment out this line
-in `./src/webui/src/js/index.js` :
+Open the app in the browser (refresh if the app was opened before starting Cerebral). The browser will connect to the Cerebral debugger. To enable the web client to connect to the cerebral debugger, you need to comment out this line in `./src/webui/src/js/index.js`:
 
 ```javascript
 // comment out this line
@@ -37,11 +35,7 @@ Look in `Makefile` and in  `ops/` for more information.
 
 ## Migration
 
-Whenever you make changes to the database model, you need to create migration scripts, so that the production database
-can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in
-`src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`.
-This base serves as the base for which the migration scripts will be built against, and should represent the oldest
-database in production.
+Whenever you make changes to the database model, you need to create migration scripts, so that the production database can be upgraded to the new version. We use Alembic to assist creating those scripts. Migration scripts are stored in `src/vardb/datamodel/migration/alembic/`. The current migration base is stored in `src/vardb/datamodel/migration/ci_migration_base`. This base serves as the base for which the migration scripts will be built against, and should represent the oldest database in production.
 
 ### Create a new migration
 
@@ -55,8 +49,7 @@ database in production.
 1. Go over the created script, clean it up and test it (`test-api-migration`).
 
 The migration scripts are far from perfect, so you need some knowledge of SQLAlchemy and Postgres to get it right.
-Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data
-present in the database if necessary.
+Known issues are `Sequences` and `ENUM`s, which have to be taken care of manually. Also remember to convert any data present in the database if necessary.
 
 The `test-api-migration` part of the test suite will also test database migrations, by running the api tests on a migrated database.
 
@@ -68,11 +61,9 @@ To manually test the migration scripts you can run the upgrade/downgrade parts o
 - $ ella-cli database upgrade 94a80b8848df
 - $ ella-cli database downgrade e371dfeb38c1
 
-For migrations involving user generated data, it would be useful to run the migrations (both upgrade and downgrade)
-with the database populated through "real" use.
+For migrations involving user generated data, it would be useful to run the migrations (both upgrade and downgrade) with the database populated through "real" use.
 
-Typically you call `make dbreset` then interact with the application through the GUI.
-`dbreset` won't create the alembic table and the upgrade/downgrade scripts will fail.
+Typically you call `make dbreset` then interact with the application through the GUI. This won't create the alembic table and the upgrade/downgrade scripts will fail.
 
 So before manually running the upgrade/downgrade scripts, you need to create the alembic table and populate it with the corresponding version (`[hash]` is the database `Revision ID`):
 ```
