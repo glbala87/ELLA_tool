@@ -5,18 +5,20 @@
 ## Types of tests
 
 ### End-to-end
-A complete app with frontend and backend is started. Several use-cases
- are executed through the browser simulating a user clicking and entering text.
- The tests are written in Javascript and executed using [webdriverIO] (http://webdriver.io/).
+A complete app with frontend and backend is started. Several use-cases are executed through the
+ browser simulating a user clicking and entering text. The tests are written in Javascript and
+ executed using [webdriverIO] (http://webdriver.io/).
 
 ### Unit tests
 Testing of isolated Javascript or Python functions.
 
 ### API and integration tests
-A database instance and the python backend is started. Tests written in Python
-use the API and/or database to test various scenarios.
+A database instance and the Python backend are started. Tests written in Python use the API and/or
+ database to test various scenarios.
 
-The tests are run twice, once against current database schema and once again where the database schema has been migrated from baseline to current.
+The tests are run twice, once against current database schema and once again where the database
+ schema has been migrated from baseline to current.
+
 
 ## Running whole test suites
 
@@ -70,8 +72,7 @@ The ELLA app and the test execution (wdio) can be either run locally on your hos
 
 This will connect to the locally running Chromedriver and run one or several test specs. You'll see a local chrome browser where a "ghost" will click and enter text.
 
-You can put debug statements (`browser.debug()`) in your test spec to have the test execution stop and enter a REPL to interact with the
-browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
+You can put debug statements (`browser.debug()`) in your test spec to have the test execution stop and enter a REPL to interact with the browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
 
 Relevant [`options`] for the `make` command:
 Option|Explanation
