@@ -19,6 +19,8 @@ Release date: TBD
 
 ### Highlights
 
+#### Minimal support for CNV interpretation
+
 This version introduces a big change: Support for copy number variants (CNVs)! The current solution is "bare bones", but will show CNVs in a separate variant list and allow documenting and reusing CNV interpretations, as for SNVs. 
 
 Known limitations in this version: 
@@ -31,7 +33,7 @@ Due to these limitations we recommend restricting CNV analyses to smaller gene p
 
 Note: If you only plan to use ELLA for SNVs (or wish to wait until more features are in place), the CNV-specific features can be turned off using [...]. 
 
-[TODO: screenshots and some more detail, update manual and technical docs]
+[TODO: screenshots and some more detail, update manual and technical docs (including instructions for configuring tracks)]
 
 ### :small_red_triangle: Breaking changes
 
@@ -42,7 +44,10 @@ MR !575 cnv release candidate
 MR !626 Clean up VCF iterator
 MR !606 Feature flag for CNVs
 -->
-- Added minimal support for CNVs.
+- [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
+<!-- MR !605 -->
+- Improved configuration of tracks in VISUAL, including analysis tracks. See [IGV in VISUAL](/technical/uioptions.md) for details. 
+- Track selections in VISUAL are now stored per user and retrieved whenever a user opens a new analysis.
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
