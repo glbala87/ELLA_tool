@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # For dev/demo use only! Production uses external database
 
@@ -10,37 +10,65 @@
 # Also handles multiple start/stop cycles (í.e. using supervisorctl to stop/start). We only run initdb once.
 # Creating root user fails the second time, but the script continues.
 
-if [ "$1" =  "init" ]
-then
-    echo "Init of Postgres cluster in $PGDATA"
-    mkdir -p $PGDATA
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PG_CONF=$PGDATA/postgresql.conf
 
-    if [ -d "$PGDATA/pg_logical" ]; then
-       echo "The database data dir already exists."
-    else
-        echo "Creating database cluster in $PGDATA"
+config_set() {
+    echo "$*" >>"$PG_CONF"
+}
 
-        TMPPASSFILE=$(mktemp)
-        echo "alleles" > $TMPPASSFILE
-        /usr/lib/postgresql/10/bin/initdb -A trust --pwfile $TMPPASSFILE
-        rm $TMPPASSFILE
+config_init() {
+    cp "$HERE/postgresql.conf" "$PG_CONF"
+    # (mem_size, mem_unit)
+    mapfile -t total_mem < <(head -1 /proc/meminfo | awk '{ print $2; print $3 }')
+}
 
-        # Use /socket for socket
-        echo "unix_socket_directories = '${PGHOST}'" >> $PGDATA/postgresql.conf
-    fi
-fi
+mem_pct() {
+    local fraction=${1:-1}
+    echo "$(python -c "print(int(${total_mem[0]} * $fraction))")${total_mem[1]}"
+}
 
-
-function shutdown()
-{
+shutdown() {
     echo "Shutting down PostgreSQL"
     pkill postgres
 }
 
-echo "Starting PostgreSQL"
-
 # Allow any signal which would kill a process to stop PostgreSQL using the 'shutdown' function
 # KILL goes directly to kernel, so it's useless here.
-trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
+trap shutdown HUP INT QUIT ABRT ALRM TERM TSTP
 
+if [[ "$1" = "init" ]]; then
+    echo "Init of Postgres cluster in $PGDATA"
+    mkdir -p "$PGDATA"
+
+    if [[ -d "$PGDATA/pg_logical" && -z ${FORCE:-} ]]; then
+        echo "The database data dir already exists."
+    else
+        echo "Creating database cluster in $PGDATA"
+
+        if [[ -n $FORCE ]]; then
+            find "$PGDATA" -mindepth 1 -delete
+        fi
+        TMPPASSFILE=$(mktemp)
+        echo "alleles" >"$TMPPASSFILE"
+        /usr/lib/postgresql/10/bin/initdb -A trust --pwfile "$TMPPASSFILE"
+        rm "$TMPPASSFILE"
+
+        # start with default config settings
+        config_init
+
+        # Use /socket for socket
+        config_set "unix_socket_directories = '${PGHOST}'"
+
+        # ref: https://www.enterprisedb.com/postgres-tutorials/how-tune-postgresql-memory
+        config_set "effective_cache_size = $(mem_pct 0.5)"
+        config_set "shared_buffers = $(mem_pct 0.25)"
+        config_set "maintenance_work_mem = $(mem_pct 0.05)"
+        # mem * 0.25 / max_connections, where default max_connections=100
+        config_set "work_mem = $(mem_pct 0.0025)"
+    fi
+
+fi
+
+echo "Starting PostgreSQL"
 exec /usr/lib/postgresql/10/bin/postgres -c listen_addresses='127.0.0.1'

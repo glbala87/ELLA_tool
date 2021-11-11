@@ -21,6 +21,7 @@
         "prettier.configPath": "/ella/.prettierrc",
         "prettier.prettierPath": "/dist/node_modules/prettier",
         "python.analysis.extraPaths": ["/dist/ella-python/lib/python3.7/site-packages/"],
+        "python.analysis.typeCheckingMode": "off",
         "python.formatting.blackPath": "/dist/ella-python/bin/black",
         "python.formatting.provider": "black",
         "python.languageServer": "Pylance",
@@ -33,6 +34,7 @@
         "python.pythonPath": "/dist/ella-python/bin/python3",
         "python.testing.cwd": "/ella",
         "python.testing.pytestEnabled": true,
+        "shellformat.path": "/ella/bin/shfmt",
         "sqltools.connections": [
             {
                 "database": "postgres",
@@ -50,12 +52,18 @@
 
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
-        "esbenp.prettier-vscode",
+        "bungcip.better-toml",
         "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "gitlab.gitlab-workflow",
+        "ms-azuretools.vscode-docker",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "mtxr.sqltools",
         "mtxr.sqltools-driver-pg",
+        "mtxr.sqltools",
+        "timonwong.shellcheck",
         "yzhang.markdown-all-in-one"
     ],
     "containerEnv": {
@@ -81,12 +89,14 @@
     "overrideCommand": false,
 
     // forwardPorts not forwarding livereload correctly (35729). Specify them using runArgs instead.
-    "runArgs": ["--publish=5000:5000", "--publish=35729:35729"],
+    "runArgs": ["--publish=5000:5000", "--publish=35729:35729", "--shm-size", "4GB"],
 
     "mounts": [
         "source=${localWorkspaceFolder},target=/ella,type=bind",
         // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
-        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind"
+        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind",
+        "source=${localWorkspaceFolderBasename}-db,target=/pg-data,type=volume",
+        "source=${localWorkspaceFolderBasename}-exts,target=/home/ella-user/.vscode-server/extensions,type=volume"
     ],
 
     "workspaceFolder": "/ella"

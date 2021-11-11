@@ -111,6 +111,10 @@ ENV PGHOST="/socket" \
     PGDATA="/pg-data"
 WORKDIR /ella
 
+# set up perms for extension volume/cache
+RUN mkdir -p /home/ella-user/.vscode-server/extensions && \
+    chown -R ella-user:ella-user /home/ella-user
+
 CMD ["supervisord", "-c", "/ella/ops/dev/supervisor.cfg"]
 
 ####
