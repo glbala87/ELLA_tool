@@ -1,8 +1,12 @@
 from flask import request
+from sqlalchemy.sql.functions import func
 from vardb.datamodel import allele, gene
 from datalayer import ACMGDataLoader
 from api.util.util import request_json, authenticate
 from api.v1.resource import LogRequestResource
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.types import Integer
 
 
 class ACMGAlleleResource(LogRequestResource):
@@ -15,7 +19,17 @@ class ACMGAlleleResource(LogRequestResource):
         :rtype: allele.Allele
         """
         if allele_ids:
-            return session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
+            return (
+                session.query(allele.Allele)
+                .filter(
+                    allele.Allele.id.in_(
+                        session.query(
+                            func.unnest(cast(array(allele_ids), ARRAY(Integer)))
+                        ).subquery()
+                    )
+                )
+                .all()
+            )
         else:
             return []
 
