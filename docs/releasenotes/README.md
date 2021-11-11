@@ -47,7 +47,6 @@ MR !606 Feature flag for CNVs
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
 <!-- MR !605 -->
 - Improved configuration of tracks in VISUAL, including analysis tracks. See [IGV in VISUAL](/technical/uioptions.md) for details. 
-- Track selections in VISUAL are now stored per user and retrieved whenever a user opens a new analysis.
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
