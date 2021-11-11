@@ -55,6 +55,7 @@ MR !600 CI is not detecting front end javascript test failures
 MR !603 Provide a CORS policy for ELLA
 MR !607 Improvements to region filter
 MR !622 increase-api-call-timeout
+MR !623 SQL performance: large list of values as subquery expression
 -->
 - Fixes and improvements to performance, development environment and code base. 
 
