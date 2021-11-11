@@ -2,8 +2,6 @@
 
 Prepare and release [version]
 
-## Implementation
-
 --- DELETE ME ---
 
 Remember:
@@ -12,30 +10,33 @@ Remember:
 
 --- DELETE ME ---
 
-### Tasks specific for this release
+## Tasks specific for this release
 
 [List tasks that are specific for this release here]
 
-### Tasks that should always be performed
+## Tasks that should always be performed
 
-#### Staging, before user verification test
+### Staging, before user verification test
 - [ ] Automatic import (specific samples and detailed check list)
 - [ ] Manual import (specific samples and detailed check list)
 - [ ] Exports (EKG, all variants)
 - [ ] CLI: check fixtures, usergroups, gene panels, filter configs
 - [ ] Load test (automated script; Hey)
 
-#### On startup of ELLA
+### On startup of ELLA
 - [ ] Schema checks
 - [ ] Check filter config
 
-#### Testing and documentation
-- [ ] ELLA endringskontroll (versjonsoppdatering)
+## Testing and documentation
 - [ ] Release notes (list any breaking changes)
-- [ ] Verifiseringstest: New or changed functionality (before production, in staging env)
-- [ ] Akseptansetest: In production env, before full release. Standardized check list.
 
-Major changes? (import/filter) 
+### Feature changes?
+- [ ] ELLA endringskontroll (versjonsoppdatering)
+- [ ] Verifiseringstest: New or changed functionality (before production, in staging env)
+- [ ] Akseptansetest: In production env, before full release. Standardized check list
+- [ ] Not applicable (bugfix release)
+
+### Major changes? (import/filter) 
 - [ ] Risk evaluation
 - [ ] Verifiserings-/valideringsrapport
 - [ ] Not applicable
