@@ -476,14 +476,18 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
-def _get_index_path(track_path):
+def _get_first_index_path(track_path):
+    """Multile index files may exists. This function returns only one"""
     for t in igvcfg.VALID_TRACK_TYPES:
+        # right track type?
         if not track_path.endswith(t.track_suffix):
             continue
-        track_idx_path = track_path + t.idx_suffix
-        if not os.path.exists(track_idx_path):
-            raise AUTH_ERROR
-        return track_idx_path
+        # try multiple index files / replace "".bam" with ".bai", ".bam.bai", ...
+        for idx_suffix in t.idx_suffixes:
+            track_idx_path = track_path[: -len(t.track_suffix)] + idx_suffix
+            if os.path.exists(track_idx_path):
+                return track_idx_path
+        raise AUTH_ERROR
     raise AUTH_ERROR
 
 
@@ -502,7 +506,7 @@ class StaticTrack(LogRequestResource):
         if not os.path.exists(track_path):
             raise AUTH_ERROR  # we don't want unathorized users to know if a file exists
 
-        # check permissins by loading config
+        # check permissions by loading config
         track_src_ids = igvcfg.TrackSrcId.from_rel_paths(igvcfg.TrackSourceType.STATIC, [filepath])
         # load config - for current track
         track_cfg = igvcfg.load_raw_config(track_src_ids, user.group.name)
@@ -513,7 +517,7 @@ class StaticTrack(LogRequestResource):
         track_cfg = next(iter(track_cfg))
 
         if index:
-            return send_file(_get_index_path(track_path))
+            return send_file(_get_first_index_path(track_path))
 
         start, end = get_range(request)
         if start is None:
@@ -548,7 +552,7 @@ class AnalysisTrack(LogRequestResource):
         path = os.path.join(analysis_tracks_path, filename)
 
         if index:
-            return send_file(_get_index_path(path))
+            return send_file(_get_first_index_path(path))
 
         start, end = get_range(request)
 

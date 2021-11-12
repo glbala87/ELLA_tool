@@ -23,18 +23,18 @@ class TrackType(Enum):
 
 
 class TrackSuffixType:
-    def __init__(self, track_suffix: str, idx_suffix: typing.Optional[str], type: TrackType):
+    def __init__(self, track_suffix: str, idx_suffixes: List[str], type: TrackType):
         self.type = type
         self.track_suffix = track_suffix
-        self.idx_suffix = idx_suffix
+        self.idx_suffixes = idx_suffixes
 
 
 VALID_TRACK_TYPES = [
-    TrackSuffixType(".bed.gz", ".tbi", TrackType.bed),
-    TrackSuffixType(".vcf.gz", ".tbi", TrackType.vcf),
-    TrackSuffixType(".gff3.gz", ".tbi", TrackType.gff3),
-    TrackSuffixType(".bam", ".bai", TrackType.bam),
-    TrackSuffixType(".bigWig", None, TrackType.bigWig),
+    TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bed),
+    TrackSuffixType(".vcf.gz", [".tbi"], TrackType.vcf),
+    TrackSuffixType(".gff3.gz", [".tbi"], TrackType.gff3),
+    TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
+    TrackSuffixType(".bigWig", [], TrackType.bigWig),
 ]
 
 
@@ -267,7 +267,7 @@ class AnalysisTrackList(LogRequestResource):
             for track_type in VALID_TRACK_TYPES:
                 if not track_id.endswith(track_type.track_suffix):
                     continue
-                if track_type.idx_suffix is not None:
+                if len(track_type.idx_suffixes) > 1:
                     igv_cfg[TrackCfgIgvKey.indexURL.name] = (
                         igv_cfg[TrackCfgIgvKey.url.name] + "?index=1"
                     )
