@@ -74,7 +74,7 @@ class VCFRecord(object):
         return self._allele
 
     def get_allele(self, alleles: List[Mapping[str, Any]]) -> Optional[Mapping[str, Any]]:
-        # Note: We need this as the allele can be instrumented with id from importers.bulk_insert_nonexisting
+        # Note: We need this, as the allele can be instrumented with id from importers.bulk_insert_nonexisting
         # TODO: Investigate how we can avoid dictionaries, and use vardb.datamodel.allele.Allele objects instead
         for allele in alleles:
             if (
@@ -165,13 +165,12 @@ class VCFRecord(object):
         change_type = self.sv_change_type(vcf_alt)
         open_end_position = self._sv_open_end_position(pos, change_type)
         allele_length = abs(self._sv_len())
-        # if base sequence resolved
-        # change_to = "sequence resolve"
-        # else change_to = ""
-        ref = vcf_ref
+        ref = ""
         alt = ""
-        if change_type != "DEL":
+        if vcf_alt not in change_type_from_sv_alt_field:
+            ref = vcf_ref
             alt = vcf_alt
+
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
     def _build_allele(self, ref_genome: str) -> Mapping[str, Any]:
@@ -192,7 +191,7 @@ class VCFRecord(object):
                 ref,
                 alt,
             ) = self._snv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "SNV"
+            caller_type = "snv"
         else:
             (
                 start_position,
@@ -202,7 +201,7 @@ class VCFRecord(object):
                 ref,
                 alt,
             ) = self._cnv_allele_info(pos, vcf_ref, vcf_alt)
-            caller_type = "CNV"
+            caller_type = "cnv"
         allele = {
             "genome_reference": ref_genome,
             "chromosome": self.variant.CHROM,
@@ -246,13 +245,13 @@ class VCFRecord(object):
     def get_format_sample(
         self, property: str, sample_name: str, scalar: bool = False
     ) -> Optional[Union[Iterable[Any], int]]:
+
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:
             if property not in self.variant.FORMAT:
                 return None
             prop = self.variant.format(property)
-
             if prop is None:
                 return None
 
