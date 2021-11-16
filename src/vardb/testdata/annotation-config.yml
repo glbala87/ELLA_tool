@@ -11,7 +11,13 @@ deposit:
               - source: CLINVARJSON
                 target: external.CLINVAR
                 encoding: base16
-
+    - name: keyvalue
+      converter_config:
+          elements:
+              - source: CytoBand
+                target: cytoband
+                target_type: string
+                target_type_throw: false
     - name: keyvalue
       converter_config:
           elements:
