@@ -1,12 +1,22 @@
 export default function prepareSelectedAllele({ state }) {
     const selectedComponent = state.get('views.workflows.selectedComponent')
     const alleles = state.get('views.workflows.interpretation.data.alleles')
-    const unclassified = state.get('views.workflows.alleleSidebar.unclassified')
-    const classified = state.get('views.workflows.alleleSidebar.classified')
-    const technical = state.get('views.workflows.alleleSidebar.technical')
-    const notRelevant = state.get('views.workflows.alleleSidebar.notRelevant')
     const caller_type_selected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
     let selectedAllele = state.get('views.workflows.selectedAllele')
+
+    const unclassified = state
+        .get('views.workflows.alleleSidebar.unclassified')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const classified = state
+        .get('views.workflows.alleleSidebar.classified')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const technical = state
+        .get('views.workflows.alleleSidebar.technical')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const notRelevant = state
+        .get('views.workflows.alleleSidebar.notRelevant')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+
     if (selectedComponent !== 'Classification') {
         state.set('views.workflows.selectedAllele', null)
         return
@@ -22,25 +32,13 @@ export default function prepareSelectedAllele({ state }) {
     }
 
     if (unclassified.length) {
-        const filtered_unclassified = unclassified.filter(
-            (id) => alleles[id].caller_type == caller_type_selected
-        )
-        state.set('views.workflows.selectedAllele', filtered_unclassified[0])
+        state.set('views.workflows.selectedAllele', unclassified[0])
     } else if (classified.length) {
-        const filtered_classified = classified.filter(
-            (id) => alleles[id].caller_type == caller_type_selected
-        )
-        state.set('views.workflows.selectedAllele', filtered_classified[0])
+        state.set('views.workflows.selectedAllele', classified[0])
     } else if (technical.length) {
-        const filtered_technical = technical.filter(
-            (id) => alleles[id].caller_type == caller_type_selected
-        )
-        state.set('views.workflows.selectedAllele', filtered_technical[0])
+        state.set('views.workflows.selectedAllele', technical[0])
     } else if (notRelevant.length) {
-        const filtered_notRelevant = notRelevant.filter(
-            (id) => alleles[id].caller_type == caller_type_selected
-        )
-        state.set('views.workflows.selectedAllele', filtered_notRelevant[0])
+        state.set('views.workflows.selectedAllele', notRelevant[0])
     } else {
         state.set('views.workflows.selectedAllele', null)
     }
