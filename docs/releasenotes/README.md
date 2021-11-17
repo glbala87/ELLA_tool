@@ -43,6 +43,7 @@ Note: If you only plan to use ELLA for SNVs (or wish to wait until more features
 MR !575 cnv release candidate
 MR !626 Clean up VCF iterator
 MR !606 Feature flag for CNVs
+MR !638 Fix bug on missing alleles
 -->
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
 <!-- MR !605 -->
