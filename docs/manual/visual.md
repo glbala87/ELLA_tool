@@ -11,7 +11,7 @@ Pushing the `VISUAL` button (available in ANALYSIS mode only) in the side bar op
 <div class="figure"><img src="./img/sidebar_modes_visual.png"></div>
 <br>
 
-This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.10.0) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
+This mode features an [integrated version](https://github.com/igvteam/igv.js) (v2.10.4) of [Integrative Genomics Viewer (IGV)](http://software.broadinstitute.org/software/igv/):
 
 <div class="figure"><img src="./img/visual.png"></div>
 
@@ -24,7 +24,7 @@ This section lists all presets defined for individual tracks and allows you to q
 
 This section is collapsed by default. To switch on/off individual tracks, expand the section and click the associated track name. Tracks are grouped by their associated preset names. 
 
-## Dynamic tracks 
+### Dynamic tracks 
 
 Some tracks are dynamic and generated on-the-fly in ELLA. These currently include: 
 
@@ -37,7 +37,7 @@ Note: these tracks will usually be part of the `DEFAULT` preset (depending on co
 ## Navigating the view
 
 Options when navigating the view in VISUAL: 
-- Zooming: Use the mouse wheel, or the +/- buttons for more fine-grained control.
+- Zooming: Press and hold the `Shift` or `Alt` key and use the mouse wheel, or the +/- buttons for more fine-grained control.
 - Panning: Click and hold the mouse button anywhere in the alignment and drag left or right. 
 - Recenter: You can quickly recenter on a variant (after panning) by selecting it again. Note that this also resets the zoom level to the default.
 

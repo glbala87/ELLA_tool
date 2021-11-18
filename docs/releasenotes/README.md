@@ -35,6 +35,8 @@ Note: If you only plan to use ELLA for SNVs (or wish to wait until more features
 
 [TODO: screenshots and some more detail, update manual and technical docs (including instructions for configuring tracks)]
 
+Note: To allow better zoom/scroll control in VISUAL with many tracks visible, this version adds a requirement to hold the `Shift` or `Alt` key when zooming with the mousewheel. 
+
 ### :small_red_triangle: Breaking changes
 
 ### All changes
@@ -52,6 +54,8 @@ MR !638 Fix bug on missing alleles
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
 - Filtered variants are now sorted by genomic position.
+<!-- MR !633-->
+- Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
