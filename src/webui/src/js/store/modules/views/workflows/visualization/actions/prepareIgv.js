@@ -1,4 +1,4 @@
-export default async function prepareIgv({ state, http, storage }) {
+export default async function prepareIgv({ state, http }) {
     const igvReferenceConfig = state.get('app.config.igv.reference')
     state.set('views.workflows.visualization.igv.reference', {
         id: 'hg19',
@@ -29,11 +29,6 @@ export default async function prepareIgv({ state, http, storage }) {
         const presetIdOther = 'Other'
         if (finalizedTrack.presets.length == 0) {
             finalizedTrack.presets = [presetIdOther]
-        }
-        // load any previous selection
-        const trackSelectionStored = storage.get('igvTrackSelection', {})
-        if (trackSelectionStored && trackId in trackSelectionStored) {
-            finalizedTrack.selected = trackSelectionStored[trackId]
         }
         // append
         finalizedTracks[trackId] = finalizedTrack
