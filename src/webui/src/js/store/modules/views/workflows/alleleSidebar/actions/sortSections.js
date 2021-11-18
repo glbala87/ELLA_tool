@@ -16,7 +16,7 @@ export default function sortSections({ state, resolve }) {
     let unclassified = filterClassified(true, toClassify)
     let classified = filterClassified(false, toClassify)
 
-    function sortStrategy() {
+    function genomicPosition() {
         // default sort strategy for cnv's are by chromosome and position
         if (caller_type_selected === 'cnv') {
             return 'chromosome'
@@ -39,7 +39,7 @@ export default function sortSections({ state, resolve }) {
             sortAlleles(unclassified, orderBy.unclassified.key, orderBy.unclassified.reverse)
         )
     } else {
-        unclassified = resolve.value(sortAlleles(unclassified, sortStrategy(), null))
+        unclassified = resolve.value(sortAlleles(unclassified, genomicPosition(), null))
     }
 
     if (orderBy.classified.key && keyIsRelevant(orderBy.classified.key)) {
@@ -55,7 +55,7 @@ export default function sortSections({ state, resolve }) {
             sortAlleles(technical, orderBy.technical.key, orderBy.technical.reverse)
         )
     } else {
-        technical = resolve.value(sortAlleles(technical, sortStrategy(), null))
+        technical = resolve.value(sortAlleles(technical, genomicPosition(), null))
     }
 
     if (orderBy.notRelevant.key && keyIsRelevant(orderBy.notRelevant.key)) {
@@ -63,7 +63,7 @@ export default function sortSections({ state, resolve }) {
             sortAlleles(notRelevant, orderBy.notRelevant.key, orderBy.notRelevant.reverse)
         )
     } else {
-        notRelevant = resolve.value(sortAlleles(notRelevant, sortStrategy(), null))
+        notRelevant = resolve.value(sortAlleles(notRelevant, genomicPosition(), null))
     }
 
     state.set('views.workflows.alleleSidebar.unclassified', unclassified.map((a) => a.id))
