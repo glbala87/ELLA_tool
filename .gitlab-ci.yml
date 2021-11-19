@@ -103,7 +103,6 @@ build:
         - *apk-setup
         - *docker-login
     script:
-        - docker pull $IMAGE_NAME || true
         - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $IMAGE_NAME --cache-from $CI_REGISTRY_IMAGE:dev"
         - docker push $IMAGE_NAME
         - make build-review
