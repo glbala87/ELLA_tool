@@ -5,17 +5,19 @@ echo "Starting up postgres"
 ./ops/common/common_pg_startup init &>/dev/null &
 make dbsleep
 
-if [[ "$MIGRATION" == "1" ]]; then
+if [[ -n "$MIGRATION" ]]; then
     echo "Will run tests using migrated database"
 fi
 
-if [ "$1" = "" ]
-then
-	py.test --color=yes "/ella/src/datalayer/" "/ella/src/api/" -s
+pytest_defaults=(--color=yes /ella/src/datalayer /ella/src/api -s)
+if [[ -z "$*" ]]; then
+    py.test "${pytest_defaults[@]}"
 else
-  $@
+    if [[ $(basename -- "$1") == py.test ]]; then
+        "$@"
+    else
+        py.test "${pytest_defaults[@]}" "$@"
+    fi
 fi
 
-echo "exits $BASH_SOURCE"
-
-
+echo "exits ${BASH_SOURCE[0]}"

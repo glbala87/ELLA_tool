@@ -1,17 +1,15 @@
-from flask import request
-from sqlalchemy import text
-from sqlalchemy.sql.functions import func
-from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
-from sqlalchemy.types import Integer
-
 from api import schemas
 from api.config import config
-from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
-from datalayer import AlleleDataLoader
-
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import AlleleListResource as PydanticAlleleListResource
+from api.util.util import authenticate, link_filter, logger, paginate, rest_filter
 from api.v1.resource import LogRequestResource
+from datalayer import AlleleDataLoader
+from flask import request
+from sqlalchemy import cast, func, text
+from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
+from sqlalchemy.types import Integer
+from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
 
 
 class AlleleListResource(LogRequestResource):
@@ -19,6 +17,7 @@ class AlleleListResource(LogRequestResource):
     @paginate
     @link_filter
     @rest_filter
+    @validate_output(PydanticAlleleListResource)
     def get(self, session, rest_filter=None, link_filter=None, user=None, page=None, per_page=None):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
@@ -73,7 +72,6 @@ class AlleleListResource(LogRequestResource):
         analysis_id = request.args.get("analysis_id")
         gp_name = request.args.get("gp_name")
         gp_version = request.args.get("gp_version")
-        annotation = request.args.get("annotation", "true") == "true"
 
         genepanel = None
         if gp_name and gp_version:
@@ -83,16 +81,14 @@ class AlleleListResource(LogRequestResource):
                 .one()
             )
 
-        kwargs = {"include_annotation": False, "include_custom_annotation": False}
+        kwargs = {"include_annotation": True, "include_custom_annotation": True}
         if link_filter:
             kwargs["link_filter"] = link_filter
         if analysis_id is not None:
             kwargs["analysis_id"] = analysis_id
         if genepanel:  # TODO: make genepanel required?
             kwargs["genepanel"] = genepanel
-        if annotation:
-            kwargs["include_annotation"] = True
-            kwargs["include_custom_annotation"] = True
+
         return AlleleDataLoader(session).from_objs(alleles, **kwargs), count
 
 
