@@ -45,7 +45,9 @@ Note: To allow better zoom/scroll control in VISUAL with many tracks visible, th
 MR !575 cnv release candidate
 MR !626 Clean up VCF iterator
 MR !606 Feature flag for CNVs
+MR !636 Fix sorting by chromosome and position, make it default for cnvs
 MR !638 Fix bug on missing alleles
+MR !643 Add chromosome band annotation for CNVs
 -->
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
 <!-- MR !605 -->
