@@ -6,12 +6,15 @@ from api.v1.resource import LogRequestResource
 from api.util.util import authenticate
 from api import ApiError
 from enum import Enum, auto
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Pattern
 from flask import request
-import fnmatch
 import json
 import itertools
 import copy
+import re
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TrackType(Enum):
@@ -19,6 +22,7 @@ class TrackType(Enum):
     bed = auto()
     vcf = auto()
     gff3 = auto()
+    cram = auto()
     bigWig = auto()
 
 
@@ -34,6 +38,7 @@ VALID_TRACK_TYPES = [
     TrackSuffixType(".vcf.gz", [".tbi"], TrackType.vcf),
     TrackSuffixType(".gff3.gz", [".tbi"], TrackType.gff3),
     TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
+    TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
     TrackSuffixType(".bigWig", [], TrackType.bigWig),
 ]
 
@@ -110,6 +115,16 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, An
         raise ApiError(f"IGV track config ('{ella_cfg_path}') not found")
     with open(ella_cfg_path) as f:
         inp_cfg = json.load(f)
+    # are keys valid regular expressions?
+    compiled_regexes: Dict[str, Pattern] = {}
+    for inp_cfg_id_pattern in inp_cfg:
+        try:
+            compiled_regexes[inp_cfg_id_pattern] = re.compile(inp_cfg_id_pattern)
+        except re.error as e:
+            log.error(e)
+            raise ApiError(
+                f"IGV track config key ('{inp_cfg_id_pattern}') is not a valid regular expression"
+            )
 
     # TODO: load individual configs here?
 
@@ -124,7 +139,7 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, An
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
             inp_cfg_value = copy.deepcopy(inp_cfg_value)
             # try to match id
-            if not fnmatch.fnmatch(track_src_id.id, inp_cfg_id_pattern):
+            if not compiled_regexes[inp_cfg_id_pattern].match(track_src_id.id):
                 continue
             # merge igv config separately to not overwite its configs
             if TrackCfgKey.igv.name in inp_cfg_value:
