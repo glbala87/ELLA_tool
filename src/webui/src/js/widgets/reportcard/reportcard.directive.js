@@ -4,45 +4,13 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-
+import { chrToContigRef } from '../../util.js'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
-
-function toChrContigRef(chr) {
-    const chrContigRef = {
-        2: 'NC_000002.11',
-        1: 'NC_000001.10',
-        3: 'NC_000003.11',
-        4: 'NC_000004.11',
-        5: 'NC_000005.9',
-        6: 'NC_000006.11',
-        7: 'NC_000007.13',
-        8: 'NC_000008.10',
-        9: 'NC_000009.11',
-        10: 'NC_000010.10',
-        11: 'NC_000011.9',
-        12: 'NC_000012.11',
-        13: 'NC_000013.10',
-        14: 'NC_000014.8',
-        15: 'NC_000015.9',
-        16: 'NC_000016.9',
-        17: 'NC_000017.10',
-        18: 'NC_000018.9',
-        19: 'NC_000019.9',
-        20: 'NC_000020.10',
-        21: 'NC_000021.8',
-        22: 'NC_000022.10',
-        X: 'NC_000023.10',
-        Y: 'NC_000024.9',
-        //https://www.ncbi.nlm.nih.gov/nuccore/251831106
-        MT: 'NC_012920.1'
-    }
-    return chrContigRef[chr]
-}
 
 function extractCytoband(allele) {
     if (allele.annotation.cytoband) {
@@ -76,7 +44,7 @@ function formatCNV(hgvs, allele, annotation, classification_text) {
     let hgvs_short = annotation.HGVSc_short || allele.formatted.hgvsg
 
     hgvs += classification_text
-    hgvs += `\n${toChrContigRef(allele.chromosome)}:${hgvs_short}`
+    hgvs += `\n${chrToContigRef(allele.chromosome)}:${hgvs_short}`
 
     if (annotation.HGVSp) {
         hgvs += `${annotation.HGVSp}`

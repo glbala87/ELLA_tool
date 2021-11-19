@@ -10,7 +10,7 @@
             ></copy-text>
             <copy-text
                 ng-if="$ctrl.allele.caller_type=='cnv'"
-                text="{{ $ctrl.allele.formatted.hgvsg }}"
+                text="{{ $ctrl.getHGVSg($ctrl.allele) }}"
             ></copy-text>
         </li>
         <li class="small" ng-if="t.HGVSc_insertion">Insertion: {{ t.HGVSc_insertion }}</li>
