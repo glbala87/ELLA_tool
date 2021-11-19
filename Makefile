@@ -399,6 +399,25 @@ update-yarn:
 		$(IMAGE_NAME) \
 		yarn install
 
+.PHONY: dump-schemas
+dump-schemas:
+	docker run \
+		-e ELLA_CONFIG=$(ELLA_CONFIG) \
+		-e ANNOTATION_SERVICE_URL=$(ANNOTATION_SERVICE_URL) \
+		-e ATTACHMENT_STORAGE=$(ATTACHMENT_STORAGE) \
+		-e OFFLINE_MODE="false" \
+		-e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
+		-e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
+		-e PTVS_PORT=5678 \
+		-e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+		-e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
+		-e DB_URL=postgresql:///postgres \
+		-e PRODUCTION=false \
+		-e ENABLE_CNV=true \
+		$(ELLA_OPTS) \
+		-v $(shell pwd):/ella \
+		$(IMAGE_NAME) \
+		/ella/scripts/pydantic2ts.sh schemas_$(BRANCH)
 
 #---------------------------------------------
 # TESTING (unit / modules)

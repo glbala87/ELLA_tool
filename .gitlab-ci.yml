@@ -26,7 +26,7 @@ variables:
 
     # singularity-in-docker
     SID_IMAGE: quay.io/singularity/singularity
-    SID_VERSION: v3.7.1
+    SID_VERSION: v3.8.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
     # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
@@ -68,7 +68,7 @@ stages:
 .apk-setup: &apk-setup apk update && apk add -u make git bash
 .apt-setup: &apt-setup apt-get update -qq && apt-get install -qq --no-install-recommends git make
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
+.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load || docker pull $IMAGE_NAME
 
 # base jobs
 .revapp: &revapp
@@ -103,9 +103,9 @@ build:
         - *apk-setup
         - *docker-login
     script:
-        - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
-        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest"
-        - docker push $CI_REGISTRY_IMAGE:ci-latest
+        - docker pull $IMAGE_NAME || true
+        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $IMAGE_NAME --cache-from $CI_REGISTRY_IMAGE:dev"
+        - docker push $IMAGE_NAME
         - make build-review
         - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
@@ -202,6 +202,16 @@ report:
     extends: .common-test
     script:
         - make test-report
+
+dump_schemas:
+    extends: .common-test
+    needs: ['e2e', 'api', 'python']
+    script:
+        - make dump-schemas
+    artifacts:
+        paths:
+            - schemas_${CI_COMMIT_REF_NAME}.json
+            - schemas_${CI_COMMIT_REF_NAME}.ts
 
 release_docker:
     stage: release-docker
