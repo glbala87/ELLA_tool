@@ -14,10 +14,10 @@ from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
 
 class AlleleListResource(LogRequestResource):
     @authenticate()
+    @validate_output(PydanticAlleleListResource)
     @paginate
     @link_filter
     @rest_filter
-    @validate_output(PydanticAlleleListResource)
     def get(self, session, rest_filter=None, link_filter=None, user=None, page=None, per_page=None):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
