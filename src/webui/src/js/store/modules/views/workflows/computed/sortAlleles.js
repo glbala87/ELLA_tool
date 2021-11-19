@@ -220,7 +220,7 @@ export default function sortAlleles(alleles, key, reverse) {
                 )
             } else if (key === 'chromosome') {
                 sortedAlleles.sort(
-                    thenBy(sortFunctions.chromosome)
+                    thenBy(sortFunctions.chromosome, reverse ? -1 : 1)
                         .thenBy(sortFunctions.start)
                         .thenBy(sortFunctions.end)
                 )
