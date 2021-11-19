@@ -1,11 +1,14 @@
+from api import ApiError
+from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    AlleleInterpretationListResource as PydanticAlleleInterpretationListResource,
+)
+from api.util.util import authenticate, request_json
+from api.v1.resource import LogRequestResource
 from flask import request
 from sqlalchemy import tuple_
-
-from api import ApiError
-from api.util.util import request_json, authenticate
-from api.v1.resource import LogRequestResource
-from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
-from vardb.datamodel.workflow import AlleleInterpretationSnapshot, AlleleInterpretation
+from vardb.datamodel.workflow import AlleleInterpretation, AlleleInterpretationSnapshot
 
 from . import helpers
 
@@ -120,6 +123,7 @@ class AlleleInterpretationAllelesListResource(LogRequestResource):
 
 class AlleleInterpretationListResource(LogRequestResource):
     @authenticate()
+    @validate_output(PydanticAlleleInterpretationListResource)
     def get(self, session, allele_id, user=None):
         """
         Returns all interpretations for allele.

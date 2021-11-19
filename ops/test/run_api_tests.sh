@@ -9,6 +9,10 @@ if [[ -n "$MIGRATION" ]]; then
     echo "Will run tests using migrated database"
 fi
 
+# useful options:
+#  -x -- exits on first error
+#  -W ignore::DeprecationWarning -- filters out DeprecationWarnings (that we have so damn many of)
+
 pytest_defaults=(--color=yes /ella/src/datalayer /ella/src/api -s)
 if [[ -z "$*" ]]; then
     py.test "${pytest_defaults[@]}"
