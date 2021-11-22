@@ -1,3 +1,4 @@
+from typing import Optional
 from api import schemas
 from api.config import config
 from api.schemas.pydantic.v1 import validate_output
@@ -8,17 +9,26 @@ from datalayer import AlleleDataLoader
 from flask import request
 from sqlalchemy import cast, func, text
 from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
+from sqlalchemy.orm import Session
 from sqlalchemy.types import Integer
-from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
+from vardb.datamodel import allele, annotationshadow, gene, genotype, sample, user
 
 
 class AlleleListResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAlleleListResource)
+    @validate_output(PydanticAlleleListResource, paginated=True)
     @paginate
     @link_filter
     @rest_filter
-    def get(self, session, rest_filter=None, link_filter=None, user=None, page=None, per_page=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter=None,
+        link_filter=None,
+        user: Optional[user.User] = None,
+        page: Optional[int] = None,
+        per_page: Optional[int] = None,
+    ):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
         See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter

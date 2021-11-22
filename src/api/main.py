@@ -105,6 +105,7 @@ def output_json(data, code, headers=None):
     """Makes a Flask response with a JSON encoded body"""
 
     if isinstance(data, BaseModel):
+        # TODO: determine where exclude_none is actually needed for front-end
         json_data = data.json(exclude_none=True, by_alias=True)
     else:
         json_data = json.dumps(data, default=pydantic_encoder)

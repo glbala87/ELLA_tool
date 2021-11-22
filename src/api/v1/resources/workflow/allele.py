@@ -8,6 +8,8 @@ from api.util.util import authenticate, request_json
 from api.v1.resource import LogRequestResource
 from flask import request
 from sqlalchemy import tuple_
+from sqlalchemy.orm import Session
+from vardb.datamodel.user import User
 from vardb.datamodel.workflow import AlleleInterpretation, AlleleInterpretationSnapshot
 
 from . import helpers
@@ -124,7 +126,7 @@ class AlleleInterpretationAllelesListResource(LogRequestResource):
 class AlleleInterpretationListResource(LogRequestResource):
     @authenticate()
     @validate_output(PydanticAlleleInterpretationListResource)
-    def get(self, session, allele_id, user=None):
+    def get(self, session: Session, allele_id: int, user: User):
         """
         Returns all interpretations for allele.
         ---

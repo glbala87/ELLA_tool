@@ -57,7 +57,7 @@ class AlleleInterpretation(BaseModel):
     genepanel_version: str
     date_last_update: str
     date_created: str
-    # NOTE: also present in test data, but seems odd for this to happen in practice
+    # NOTE: None/null found for these in test data. Is this behavior seen in production?
     user_id: Optional[int] = None
     user: Optional[User] = None
 

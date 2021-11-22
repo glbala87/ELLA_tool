@@ -61,12 +61,18 @@ def modify_schema(schema: Dict[str, Any], model: Type[BaseModel]):
         schema.update(**custom_props)
 
 
-# best placed just after @authenticate decorator and _must_ come before rest_filter
-def validate_output(model_cls: Type[ResourceResponse]):
+# best placed just after @authenticate decorator. If @paginate is used on the resource, set paginated=True
+# NOTE: there are 16 uses of @paginate vs. 101 uses of @authenticate, defaults to paginated=False
+def validate_output(model_cls: Type[ResourceResponse], paginated: bool = False):
     def _validate_output(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            result = func(*args, **kwargs)
+            if paginated:
+                # @paginate returns data in a different structure than otherwise
+                result, http_code, headers = func(*args, **kwargs)
+            else:
+                result = func(*args, **kwargs)
+
             try:
                 ret = model_cls.parse_obj(result)
             except pydantic.ValidationError:
@@ -74,7 +80,11 @@ def validate_output(model_cls: Type[ResourceResponse]):
                     f"failed to create {model_cls.__name__} object from {json.dumps(result, default=pydantic_encoder)}"
                 )
                 raise
-            return ret
+
+            if paginated:
+                return ret, http_code, headers
+            else:
+                return ret
 
         return inner
 
