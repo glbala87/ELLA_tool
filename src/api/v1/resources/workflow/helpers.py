@@ -1,26 +1,24 @@
-from typing import DefaultDict, List, Set, Union, Type
 import datetime
-import pytz
 from collections import defaultdict
+from typing import DefaultDict, List, Sequence, Set, Type, Union
 
-from sqlalchemy import tuple_, literal, func, and_
-from sqlalchemy.orm import joinedload
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.types import Integer
-
-from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
-
-from api import schemas, ApiError, ConflictError
+import pytz
+from api import ApiError, ConflictError, schemas
+from api.util.util import get_nested
 from datalayer import (
-    AlleleFilter,
     AlleleDataLoader,
-    AssessmentCreator,
+    AlleleFilter,
     AlleleReportCreator,
+    AssessmentCreator,
     SnapshotCreator,
     queries,
 )
-from api.util.util import get_nested
+from sqlalchemy import and_, cast, func, literal, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.session import Session
+from sqlalchemy.types import Integer
+from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
 
 
 def _check_interpretation_input(allele, analysis):
@@ -202,7 +200,12 @@ def get_alleles(
     return AlleleDataLoader(session).from_objs(alleles, **kwargs)
 
 
-def load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version):
+def load_genepanel_for_allele_ids(
+    session: Session,
+    allele_ids: Sequence[int],
+    gp_name: str,
+    gp_version: str,
+):
     """
     Loads genepanel data using input allele_ids as filter
     for what transcripts and phenotypes to include.

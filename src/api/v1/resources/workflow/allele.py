@@ -3,6 +3,7 @@ from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 from api.schemas.pydantic.v1 import validate_output
 from api.schemas.pydantic.v1.resources import (
     AlleleInterpretationListResource as PydanticAlleleInterpretationListResource,
+    AlleleGenepanelResource as PydanticAlleleGenepanelResource,
 )
 from api.util.util import authenticate, request_json
 from api.v1.resource import LogRequestResource
@@ -17,7 +18,8 @@ from . import helpers
 
 class AlleleGenepanelResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, gp_name, gp_version, user=None):
+    @validate_output(PydanticAlleleGenepanelResource)
+    def get(self, session: Session, allele_id: int, gp_name: str, gp_version: str, user: User):
         """
         Returns genepanel for allele, only including relevant transcripts and phenotypes.
         """
