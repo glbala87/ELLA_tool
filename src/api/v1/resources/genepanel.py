@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case
@@ -275,9 +276,12 @@ class GenepanelStatsResource(LogRequestResource):
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
-        user_genepanels = [(gp.name, gp.version, gp.official) for gp in user.group.genepanels]
-        if (name, version) not in user_genepanels:
-            raise ApiError("Invalid genepanel name or version")
+        GenepanelEntry = namedtuple("GenepanelEntry", "name version official")
+        user_genepanels = [
+            GenepanelEntry(gp.name, gp.version, gp.official) for gp in user.group.genepanels
+        ]
+        if (name, version) not in [(gp.name, gp.version) for gp in user_genepanels]:
+            raise ApiError(f"Invalid genepanel name '{name}' or version '{version}'")
 
         # get only official genepanels
         user_genepanels = [gp for gp in user_genepanels if gp.official]
