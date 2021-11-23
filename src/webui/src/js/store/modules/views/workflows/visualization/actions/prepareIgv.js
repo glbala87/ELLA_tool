@@ -1,5 +1,3 @@
-import thenBy from 'thenby'
-
 export default async function prepareIgv({ state, http }) {
     const igvReferenceConfig = state.get('app.config.igv.reference')
     state.set('views.workflows.visualization.igv.reference', {
@@ -15,39 +13,25 @@ export default async function prepareIgv({ state, http }) {
         `igv/tracks/${analysis.id}?allele_ids=${alleles ? Object.keys(alleles).join(',') : ''}`
     )
     const finalizedTracks = {}
-    for (const [category, categoryTracks] of Object.entries(trackConfigs.result)) {
-        if (category != 'roi') {
-            for (const track of categoryTracks) {
-                const finalizedTrack = {
-                    id: track.id,
-                    selected: 'show' in track ? Boolean(track.show) : false,
-                    config: track,
-                    presets: track.presets !== undefined ? track.presets : []
-                }
-                // cleanup
-                delete finalizedTrack.config.show
-                delete finalizedTrack.config.presets
-                // derive default preset
-                if (finalizedTrack.selected) {
-                    const presetIdDefault = 'Default'
-                    finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
-                }
-                // add a preset if no other presets were set
-                const presetIdOther = 'Other'
-                if (finalizedTrack.presets.length == 0) {
-                    finalizedTrack.presets = [presetIdOther]
-                }
-                // append
-                if (!finalizedTracks.hasOwnProperty(category)) {
-                    finalizedTracks[category] = []
-                }
-                finalizedTracks[category].push(finalizedTrack)
-            }
+    for (const [trackId, trackConfig] of Object.entries(trackConfigs.result)) {
+        const finalizedTrack = {
+            selected: 'show' in trackConfig ? Boolean(trackConfig.show) : false,
+            igv: 'igv' in trackConfig ? trackConfig.igv : {},
+            type: 'type' in trackConfig ? trackConfig.type : null,
+            presets: 'presets' in trackConfig ? trackConfig.presets : []
         }
+        // derive default preset
+        if (finalizedTrack.selected) {
+            const presetIdDefault = 'Default'
+            finalizedTrack.presets = [presetIdDefault, ...finalizedTrack.presets]
+        }
+        // add a preset if no other presets were set
+        const presetIdOther = 'Other'
+        if (finalizedTrack.presets.length == 0) {
+            finalizedTrack.presets = [presetIdOther]
+        }
+        // append
+        finalizedTracks[trackId] = finalizedTrack
     }
-    for (const categoryTracks of Object.values(finalizedTracks)) {
-        categoryTracks.sort(thenBy((t) => t.config.order || 99999))
-    }
-    state.set('views.workflows.visualization.roi', trackConfigs.result.roi)
     state.set('views.workflows.visualization.tracks', finalizedTracks)
 }

@@ -19,30 +19,23 @@
     <sectionbox collapsed="true">
         <maintitle>Track selection</maintitle>
         <contentwrapper>
-            <div ng-repeat="(presetId, tracksByPreset) in $ctrl.presets">
+            <div ng-repeat="(presetId, trackIdsByPreset) in $ctrl.presets">
                 <h4 class="section-title">{{ presetId }}</h4>
                 <div class="bttn-set">
                     <label
                         tabindex="0"
                         class="bttn"
-                        ng-model="$ctrl.modelTracks[track.categoryId][track.index]"
-                        ng-model-watch="$ctrl.tracks[track.categoryId][track.index].selected"
-                        ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{type: track.categoryId, id: track.data.id, show: !track.data.selected}]})"
+                        ng-model="$ctrl.modelTracks[trackId]"
+                        ng-model-watch="$ctrl.tracks[trackId].selected"
+                        ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{trackId: trackId, show: !$ctrl.tracks[trackId].selected}]})"
                         uib-btn-checkbox="track.data"
-                        ng-repeat="track in tracksByPreset"
-                        >{{ track.data.config.name }}</label
+                        ng-repeat="trackId in trackIdsByPreset"
+                        >{{ $ctrl.tracks[trackId].igv.name }}</label
                     >
                 </div>
             </div>
         </contentwrapper>
     </sectionbox>
 
-    <igv
-        ng-if="$ctrl.igvTracks.length"
-        locus="$ctrl.igvLocus"
-        tracks="$ctrl.igvTracks"
-        roi="$ctrl.roi"
-        reference="$ctrl.igvReference"
-    >
-    </igv>
+    <igv locus="$ctrl.igvLocus" tracks="$ctrl.igvTracks" reference="$ctrl.igvReference"> </igv>
 </div>
