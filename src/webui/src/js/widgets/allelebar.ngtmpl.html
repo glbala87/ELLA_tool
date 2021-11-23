@@ -43,7 +43,7 @@
                         tippy-popover-title="{{ $ctrl.getHGVSTitle($ctrl.allele) }}"
                     >
                         <i>{{ $ctrl.getTranscriptText($ctrl.allele, t) }}</i
-                        ><b>{{ t.HGVSc_short || $ctrl.allele.formatted.hgvsg }}</b>
+                        ><b>{{ t.HGVSc_short || $ctrl.getHGVSg($ctrl.allele) }}</b>
                         {{ $ctrl.allele.formatted.genotype }}
                     </span>
                     <span ng-if="$ctrl.genotypeDisplay.length">

@@ -8,6 +8,7 @@ import template from './allelebar.ngtmpl.html' // eslint-disable-line no-unused-
 import genePopover from './allelebar/genePopover.ngtmpl.html'
 import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
 import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
+import { chrToContigRef } from '../util'
 
 const GENOTYPE_DISPLAY_MAX_CHAR = 15
 
@@ -109,6 +110,9 @@ app.component('allelebar', {
                         } else {
                             return ''
                         }
+                    },
+                    getHGVSg(allele) {
+                        return `${chrToContigRef(allele.chromosome)}:${allele.formatted.hgvsg}`
                     }
                 })
             }
