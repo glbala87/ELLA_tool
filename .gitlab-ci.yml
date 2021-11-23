@@ -38,7 +38,7 @@ variables:
     DEBIAN_FRONTEND: noninteractive
 
     # Feature flags
-    ENABLE_PYDANTIC: true
+    ENABLE_PYDANTIC: 'true'
 
 stages:
     - build
