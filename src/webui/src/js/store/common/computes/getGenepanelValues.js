@@ -56,6 +56,9 @@ export default (genepanel) => {
             result[hgncId].phenotypes = genepanel.phenotypes.filter(
                 (p) => p.gene.hgnc_id === hgncId
             )
+            result[hgncId].transcripts = genepanel.transcripts.filter(
+                (t) => t.gene.hgnc_id === hgncId
+            )
         }
         return result
     })
