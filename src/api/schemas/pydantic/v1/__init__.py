@@ -27,6 +27,8 @@ V = TypeVar("V")
 IntDict = Dict[str, int]
 StrDict = Dict[str, str]
 FloatDict = Dict[str, float]
+Strand = Literal[-1, 1]
+StrandSymbol = Literal["-", "+"]
 
 ### Enums
 

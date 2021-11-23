@@ -3,11 +3,9 @@ from __future__ import annotations
 from enum import Enum
 from typing import Dict, List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field, IntDict, YesNo
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field, IntDict, Strand, YesNo
 from api.schemas.pydantic.v1.references import AnnotationReference
-from typing_extensions import Literal
 
-Strand = Literal[-1, 1]
 rank_pattern = r"[1-9]\d*/[1-9]\d*"
 # NOTE: these are not enforced by pydantic, but it keeps them in the schema spec like they were before
 freq_props = {"[a-zA-Z]*": {"type": "number", "minimum": 0, "maximum": 1.0}}
