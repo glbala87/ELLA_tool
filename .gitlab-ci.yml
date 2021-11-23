@@ -37,6 +37,9 @@ variables:
     PYTHONBREAKPOINT: 0
     DEBIAN_FRONTEND: noninteractive
 
+    # Feature flags
+    ENABLE_PYDANTIC: true
+
 stages:
     - build
     - formatting

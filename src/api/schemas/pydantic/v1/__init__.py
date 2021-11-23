@@ -7,6 +7,7 @@ from logging import getLogger
 from typing import Any, ClassVar, Dict, Optional, Type, TypeVar
 
 import pydantic
+from api.config.config import feature_is_enabled
 from pydantic.json import pydantic_encoder
 from typing_extensions import Literal
 
@@ -62,11 +63,15 @@ def modify_schema(schema: Dict[str, Any], model: Type[BaseModel]):
 
 
 # best placed just after @authenticate decorator. If @paginate is used on the resource, set paginated=True
-# NOTE: there are 16 uses of @paginate vs. 101 uses of @authenticate, defaults to paginated=False
+# NOTE: there are only 16 uses of @paginate vs. 101 uses of @authenticate, so defaults to paginated=False
 def validate_output(model_cls: Type[ResourceResponse], paginated: bool = False):
     def _validate_output(func):
         @wraps(func)
         def inner(*args, **kwargs):
+            # if pydantic validation not enabled, no-op
+            if not feature_is_enabled("pydantic"):
+                return func(*args, **kwargs)
+
             if paginated:
                 # @paginate returns data in a different structure than otherwise
                 result, http_code, headers = func(*args, **kwargs)
