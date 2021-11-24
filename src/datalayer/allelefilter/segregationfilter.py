@@ -5,7 +5,7 @@ from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import Alias
 from sqlalchemy import or_, and_, text, func
 
-from vardb.datamodel import sample, annotationshadow
+from vardb.datamodel import sample, annotationshadow, genotype, allele
 
 from datalayer.allelefilter.denovo_probability import denovo_probability
 from datalayer.allelefilter.genotypetable import (
@@ -809,6 +809,14 @@ class SegregationFilter(object):
 
         return [sid[0] for sid in sample_ids]
 
+    def get_sample_allele_ids(self, allele_ids, family_sample_ids):
+        return (
+            self.session.query(allele.Allele.id.distinct())
+            .join(genotype.Genotype.alleles, sample.Sample)
+            .filter(allele.Allele.id.in_(allele_ids), sample.Sample.id.in_(family_sample_ids))
+            .scalar_all()
+        )
+
     def get_proband_sample(self, analysis_id, sample_family_id):
         proband_sample = (
             self.session.query(sample.Sample)
@@ -888,9 +896,14 @@ class SegregationFilter(object):
             unaffected_sibling_sample_ids = [s.id for s in unaffected_sibling_samples]
             family_sample_ids = self.get_family_sample_ids(analysis_id, family_ids[0])
 
+            # Exclude allele ids not part of the family samples
+            # Happens when there are non-trio proband sample(s)
+            family_allele_ids = self.get_sample_allele_ids(allele_ids, family_sample_ids)
+            non_family_allele_ids = set(allele_ids) - set(family_allele_ids)
+
             genotype_table = get_genotype_temp_table(
                 self.session,
-                allele_ids,
+                family_allele_ids,
                 family_sample_ids,
                 genotypesampledata_extras={
                     "ar": "allele_ratio",
@@ -898,6 +911,8 @@ class SegregationFilter(object):
                     "gq": "genotype_quality",
                 },
             )
+
+            result[analysis_id]["segregation_not_applicable"] = non_family_allele_ids
 
             if filter_config["no_coverage_parents"]["enable"]:
                 result[analysis_id]["no_coverage_parents"] = self.no_coverage_father_mother(
@@ -993,6 +1008,7 @@ class SegregationFilter(object):
             # Most filtering needs a trio
             proband_sample = self.get_proband_sample(analysis_id, family_ids[0])
             has_parents = proband_sample.father_id and proband_sample.mother_id
+
             if has_parents:
                 non_filtered = (
                     segregation_results[analysis_id]["denovo"]
@@ -1007,6 +1023,9 @@ class SegregationFilter(object):
 
             # Following can always be added to filtered (is empty when no siblings)
             filtered = filtered | segregation_results[analysis_id]["homozygous_unaffected_siblings"]
+
+            # Allele ids not applicable for segregation filtering should never be filtered here
+            filtered -= segregation_results[analysis_id]["segregation_not_applicable"]
 
             result[analysis_id] = filtered
 
