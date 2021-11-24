@@ -20,16 +20,19 @@ from api.schemas.pydantic.v1.workflow import AlleleInterpretation
 
 class AlleleListResource(ResourceResponse):
     __root__: List[Allele]
-    endpoint = "/api/v1/alleles"
+    endpoints = [
+        "/api/v1/alleles",
+        "/api/v1/workflows/alleles/<int:allele_id>/interpretations/<int:interpretation_id>/alleles/",
+    ]
 
 
 class AlleleInterpretationListResource(ResourceResponse):
     __root__: List[AlleleInterpretation]
-    endpoint = "/api/v1/workflows/alleles/<int:allele_id>/interpretations/"
+    endpoints = ["/api/v1/workflows/alleles/<int:allele_id>/interpretations/"]
 
 
 class AlleleGenepanelResource(GenepanelFullAssessments, ResourceResponse):
-    endpoint = "/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/"
+    endpoints = ["/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/"]
 
 
 ###

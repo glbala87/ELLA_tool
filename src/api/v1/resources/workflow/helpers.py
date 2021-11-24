@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from typing import DefaultDict, List, Sequence, Set, Type, Union
+from typing import DefaultDict, List, Optional, Sequence, Set, Type, Union, TypeVar
 
 import pytz
 from api import ApiError, ConflictError, schemas
@@ -19,6 +19,8 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.types import Integer
 from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
+
+T = TypeVar("T")
 
 
 def _check_interpretation_input(allele, analysis):
@@ -61,11 +63,22 @@ def _get_snapshotcreator_mode(allele, analysis):
         return "analysis"
 
 
-def _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id):
+def _get_interpretation_id(
+    alleleinterpretation_id: Optional[int],
+    analysisinterpretation_id: Optional[int],
+):
     if alleleinterpretation_id is not None:
         return alleleinterpretation_id
-    if analysisinterpretation_id is not None:
+    elif analysisinterpretation_id is not None:
         return analysisinterpretation_id
+    raise ValueError(f"Either analysisinterpretation_id or alleleinterpretation_id must be given")
+
+
+def _filter(*args: Optional[T]) -> T:
+    non_empty = [a for a in args if a is not None]
+    if non_empty:
+        return non_empty[0]
+    raise ValueError("No non-None values received")
 
 
 def _get_latest_interpretation(session, allele_id, analysis_id):
@@ -90,13 +103,13 @@ def _get_interpretation_schema(interpretation):
 
 
 def get_alleles(
-    session,
-    allele_ids,
-    genepanels,
-    alleleinterpretation_id=None,
-    analysisinterpretation_id=None,
-    current_allele_data=False,
-    filterconfig_id=None,
+    session: Session,
+    allele_ids: Sequence[int],
+    genepanels: Sequence[gene.Genepanel],
+    alleleinterpretation_id: Optional[int] = None,
+    analysisinterpretation_id: Optional[int] = None,
+    current_allele_data: bool = False,
+    filterconfig_id: Optional[int] = None,
 ):
     """
     Loads all alleles for an interpretation. The interpretation model is dynamically chosen
@@ -124,16 +137,17 @@ def get_alleles(
     )
 
     # Get interpretation to get genepanel and check status
-    interpretation_id = _get_interpretation_id(alleleinterpretation_id, analysisinterpretation_id)
-    interpretation_model = _get_interpretation_model(
-        alleleinterpretation_id, analysisinterpretation_id
-    )
-    interpretationsnapshot_model = _get_interpretationsnapshot_model(
-        alleleinterpretation_id, analysisinterpretation_id
-    )
-    interpretationsnapshot_field = _get_interpretationsnapshot_field(
-        alleleinterpretation_id, analysisinterpretation_id
-    )
+    interpretation_id = _filter(alleleinterpretation_id, analysisinterpretation_id)
+    if alleleinterpretation_id is not None:
+        interpretation_model = workflow.AlleleInterpretation
+        interpretationsnapshot_model = workflow.AlleleInterpretationSnapshot
+        interpretationsnapshot_field = interpretationsnapshot_model.alleleinterpretation_id
+    else:
+        interpretation_model = workflow.AnalysisInterpretation
+        interpretationsnapshot_model = workflow.AnalysisInterpretationSnapshot
+        interpretationsnapshot_field = (
+            workflow.AnalysisInterpretationSnapshot.analysisinterpretation_id
+        )
 
     interpretation = (
         session.query(interpretation_model)

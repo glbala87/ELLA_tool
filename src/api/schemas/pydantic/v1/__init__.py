@@ -4,7 +4,7 @@ import json
 from enum import Enum
 from functools import wraps
 from logging import getLogger
-from typing import Any, ClassVar, Dict, Optional, Type, TypeVar
+from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar
 
 import pydantic
 from api.config.config import feature_is_enabled
@@ -120,14 +120,16 @@ class ExtraOK(BaseModel):
 
 
 class ResourceResponse(BaseModel):
-    endpoint: ClassVar[str] = "Generic Endpoint"
-    params: ClassVar[Optional[Dict[str, Any]]] = None
+    endpoints: ClassVar[List[str]] = []
+    params: ClassVar[Optional[List[Dict[str, Any]]]] = None
 
     @classmethod
     def meta(cls) -> Dict[str, Any]:
         "returns dict used by BaseConfig.schema_extra to customize model schema"
-        desc = cls.endpoint
-        if cls.params:
-            param_str = "&".join([f"{k}={v}" for k, v in cls.params.items()])
-            desc += f"?{param_str}"
-        return {"description": desc}
+        desc = ""
+        for idx, endpoint in enumerate(cls.endpoints):
+            if cls.params and idx < len(cls.params):
+                param_str = "&".join([f"{k}={v}" for k, v in cls.params[idx].items()])
+                endpoint += f"?{param_str}"
+            desc += f"{endpoint}\n"
+        return {"description": desc.strip()}

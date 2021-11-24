@@ -1,9 +1,11 @@
+from typing import Dict
 from api import ApiError
 from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 from api.schemas.pydantic.v1 import validate_output
 from api.schemas.pydantic.v1.resources import (
     AlleleInterpretationListResource as PydanticAlleleInterpretationListResource,
     AlleleGenepanelResource as PydanticAlleleGenepanelResource,
+    AlleleListResource as PydanticAlleleListResource,
 )
 from api.util.util import authenticate, request_json
 from api.v1.resource import LogRequestResource
@@ -28,7 +30,7 @@ class AlleleGenepanelResource(LogRequestResource):
 
 class AlleleInterpretationResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, interpretation_id, user=None):
+    def get(self, session: Session, allele_id: int, interpretation_id: int, user: User):
         """
         Returns current alleleinterpretation for allele.
         ---
@@ -52,7 +54,14 @@ class AlleleInterpretationResource(LogRequestResource):
 
     @authenticate()
     @request_json([], allowed=["state", "user_state"])
-    def patch(self, session, allele_id, interpretation_id, data=None, user=None):
+    def patch(
+        self,
+        session: Session,
+        allele_id: int,
+        interpretation_id: int,
+        data: Dict,
+        user: User,
+    ):
         """
         Updates current interpretation inplace.
 
@@ -100,6 +109,7 @@ class AlleleInterpretationResource(LogRequestResource):
 
 class AlleleInterpretationAllelesListResource(LogRequestResource):
     @authenticate()
+    @validate_output(PydanticAlleleListResource)
     def get(self, session, allele_id, interpretation_id, user=None):
         if (
             not session.query(AlleleInterpretation)
@@ -156,7 +166,7 @@ class AlleleInterpretationListResource(LogRequestResource):
 
 class AlleleActionOverrideResource(LogRequestResource):
     @authenticate()
-    def post(self, session, allele_id, user=None):
+    def post(self, session: Session, allele_id: int, user: User):
         """
         Lets an user take over an allele, by replacing the
         allele's current interpretation's user_id with the authenticated user id.
@@ -187,7 +197,7 @@ class AlleleActionOverrideResource(LogRequestResource):
 class AlleleActionStartResource(LogRequestResource):
     @authenticate()
     @request_json(["gp_name", "gp_version"])
-    def post(self, session, allele_id, data=None, user=None):
+    def post(self, session: Session, allele_id: int, data: Dict, user: User):
         """
         Starts an alleleinterpretation.
 
@@ -241,7 +251,7 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
     @request_json(
         ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
     )
-    def post(self, session, allele_id, data=None, user=None):
+    def post(self, session: Session, allele_id: int, data: Dict, user: User):
         """
         Marks an allele interpretation for interpretation.
 

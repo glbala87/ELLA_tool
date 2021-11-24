@@ -30,11 +30,11 @@ class PydanticExtra(PydanticModel, ExtraOK):
 
 class PydanticResource(ResourceResponse):
     __root__: List[PydanticModel]
-    endpoint = "/api/v0/base/resource"
+    endpoints = ["/api/v0/base/resource"]
 
 
 class PydanticExtraResource(PydanticExtra, ResourceResponse):
-    endpoint = "/api/v0/extra/resource"
+    endpoints = ["/api/v0/extra/resource"]
 
 
 VALID_MODEL_DICTS: List[Dict] = [
