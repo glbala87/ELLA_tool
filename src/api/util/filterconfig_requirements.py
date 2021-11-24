@@ -7,11 +7,8 @@ def _is_family(samples):
 
 
 def _is_trio(samples):
-    if not _is_family(samples):
-        return False
-
-    proband_sample = next(s for s in samples if s.proband)
-    if not proband_sample.mother_id or not proband_sample.father_id:
+    proband_sample = next((s for s in samples if s.proband and s.mother_id and s.father_id), None)
+    if not proband_sample:
         return False
     mother_sample = next((s for s in samples if s.id == proband_sample.mother_id), None)
     father_sample = next((s for s in samples if s.id == proband_sample.father_id), None)
