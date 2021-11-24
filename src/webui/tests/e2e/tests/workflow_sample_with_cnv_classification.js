@@ -62,12 +62,17 @@ describe('Sample workflow', function() {
 
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
+        expect(alleleSidebar.getCurrentFilterConfig()).toBe('TrioDefault')
+        alleleSidebar.selectFilterConfig('SingleDefault')
+        analysisPage.saveButton.click()
+
         let selectedAllele = alleleSidebar.getSelectedAllele()
         expect(selectedAllele).toBe('c.4958_4975dup')
 
         setFinalizationRequirements(true, true, true, ['Interpretation'])
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(true)
+        expect(alleleSidebar.getCurrentFilterConfig()).toBe('SingleDefault')
     })
 
     // Store entered data for interpretation round 1 {c.1234A>C: ...}

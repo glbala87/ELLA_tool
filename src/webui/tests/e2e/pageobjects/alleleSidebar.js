@@ -237,6 +237,15 @@ class AlleleSidebar extends Page {
         const alleleIdx = this._getAlleleIdx(allele, '.id-notrelevant')
         this._setComment('.id-notrelevant', alleleIdx, text)
     }
+
+    selectFilterConfig(filterConfigName) {
+        $('.id-select-filterconfig').click()
+        $(`.id-select-filterconfig option[label='${filterConfigName}']`).click()
+    }
+
+    getCurrentFilterConfig() {
+        return $(".id-select-filterconfig option[selected='selected']").getAttribute('label')
+    }
 }
 
 module.exports = AlleleSidebar
