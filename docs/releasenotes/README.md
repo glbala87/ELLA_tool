@@ -48,6 +48,7 @@ MR !606 Feature flag for CNVs
 MR !636 Fix sorting by chromosome and position, make it default for cnvs
 MR !638 Fix bug on missing alleles
 MR !643 Add chromosome band annotation for CNVs
+MR !650 Trio filtering not available when CNV and SNVs combined
 -->
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
 <!-- MR !605, MR !651 -->
