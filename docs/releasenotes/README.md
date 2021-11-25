@@ -67,6 +67,7 @@ MR !603 Provide a CORS policy for ELLA
 MR !607 Improvements to region filter
 MR !622 increase-api-call-timeout
 MR !623 SQL performance: large list of values as subquery expression
+MR !639 Upgrade to Postgres 14
 MR !640 Avoid postgres error with too many locks per transaction
 MR !646 Put pydantic models behind feature flag
 -->
