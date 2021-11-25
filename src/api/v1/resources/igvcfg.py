@@ -35,8 +35,8 @@ class TrackSuffixType:
 
 VALID_TRACK_TYPES = [
     TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bed),
-    TrackSuffixType(".vcf.gz", [".tbi"], TrackType.vcf),
-    TrackSuffixType(".gff3.gz", [".tbi"], TrackType.gff3),
+    TrackSuffixType(".vcf.gz", [".vcf.gz.tbi"], TrackType.vcf),
+    TrackSuffixType(".gff3.gz", [".gff3.gz.tbi"], TrackType.gff3),
     TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
     TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
     TrackSuffixType(".bigWig", [], TrackType.bigWig),
