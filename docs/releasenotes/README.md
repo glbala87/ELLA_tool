@@ -50,7 +50,7 @@ MR !638 Fix bug on missing alleles
 MR !643 Add chromosome band annotation for CNVs
 -->
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
-<!-- MR !605 -->
+<!-- MR !605, MR !651 -->
 - Improved configuration of tracks in VISUAL, including analysis tracks. See [IGV in VISUAL](/technical/uioptions.md) for details. 
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
