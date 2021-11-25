@@ -59,6 +59,8 @@ MR !650 Trio filtering not available when CNV and SNVs combined
 - Filtered variants are now sorted by genomic position.
 <!-- MR !633-->
 - Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
+<!-- MR !645 -->
+- Fixed another bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
