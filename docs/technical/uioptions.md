@@ -90,36 +90,42 @@ Subkey	|	Explanation
 
 All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igv.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
 
-#### Track configuration
+#### Track in ELLA
 
-Configuration of tracks is done using a JSON file in the same folder as the track file, named as `<track file>.json`. It supports all the configuration values of [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), in addition to the following keys:
+Tracks in ELLA are classigied into three types `DYNAMIC`, `STATIC` and `ANALYSIS`.
 
-- `presets`: List of strings defining which presets it should be in.
+#### DYNAMIC tracks
+
+There are four built-in, dynamic tracks available:
+
+Track ID	|	Description
+:---	|	:---    
+`DYNAMIC/variants` | Shows the unfiltered variants in the analysis
+`DYNAMIC/classifications` | Shows the existing classifications from the database
+`DYNAMIC/genepanel` | Shows the transcripts defined in the gene panel
+`DYNAMIC/regions_of_interest` | Shows unfiltered variants as regions of interest
+
+
+#### STATIC tracks
+
+Static tracks can be added as files to the folder `$IGV_DATA/tracks`. Their track ID will be `STATIC/<filename>`.
+
+#### ANALYSIS tracks
+
+Analysis tracks are the ones found in the imported analyses. Their track ID will be `ANALYSIS/<filename>`.
+
+### Track configuration
+
+Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config_default.json`). The keys of the configuration file are regular expressions (regex) that match track IDs. If a track ID is matched by multiple regexes, their entries get merged (the order is currently defined by the position within the config file). 
+
+Each entry of the config file supports these fields:
+- `limit_to_groups`: Controls access to the track. This can be a list of user groups that have access or `null` for public access. 
+- `presets`: List of strings defining which presets it should be in. 
+Tracks that are found, available and have no associated preset (including `Default`) are available in the UI under the preset `Other`.
 - `show`: Boolean (`true`/`false`) indicating whether this track should be shown as default (and be part of the `Default` preset).
-
-#### Dynamic tracks
-
-There are three built-in, dynamic tracks available:
-
-Track	|	Description |   Config file
-:---	|	:---    |	:---
-`Variants` | Shows the unfiltered variants in the analysis | `$IGV_DATA/tracks/analysis_variants.json`
-`Classifications` | Shows the existing classifications from the database | `$IGV_DATA/tracks/classifications.json`
-`Genepanel` | Shows the transcripts defined in the gene panel | `$IGV_DATA/tracks/genepanel.json`
-
-#### Static tracks
-
-Static tracks can be added as files:
-
-Type of track	|	Explanation  |  Path
-:---	|	:---    |  :---
-Global tracks  |  Available to all users  |  `$IGV_DATA/tracks`
-User group specific tracks  |  Available to specific user groups only.  |   `$IGV_DATA/usergroups/<group name>/tracks` 
-Analysis tracks  |  Specific to the analysis, e.g. bam, vcf, bigwig files.  |  `$ANALYSES_PATH/<analysis name>/tracks`
-
-::: tip TIP
-Tracks that are found in these folders and have no associated preset (including `Default`) are available in the UI under the preset `Other`.
-:::
+- `type`: When `roi`, the track will be displayed as region of interest. 
+- `url`: A template URL to retrieve the track. The interplated URL will be used for igv.js (`igv.url`)
+- `igv`: Supports all the configuration values of [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0). The value for `name` will be the track's ID, if not set explicitly. 
 
 ### Auto-text in REPORT
 
