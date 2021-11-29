@@ -280,11 +280,14 @@ class AnalysisTrackList(LogRequestResource):
             if TrackCfgIgvKey.name.name not in igv_cfg:
                 igv_cfg[TrackCfgIgvKey.name.name] = os.path.basename(track_id).split(".")[0]
             for track_type in VALID_TRACK_TYPES:
+                # find track type
                 if not track_id.endswith(track_type.track_suffix):
                     continue
-                if len(track_type.idx_suffixes) > 1:
+                # has index file?
+                if len(track_type.idx_suffixes) > 0:
                     igv_cfg[TrackCfgIgvKey.indexURL.name] = (
                         igv_cfg[TrackCfgIgvKey.url.name] + "?index=1"
                     )
+                # TODO: search on fs?
                 break
         return track_cfgs
