@@ -259,7 +259,7 @@ def test_prefilterbatchgenerator(
             )
 
             if a is None:
-                a = allele.Allele(**r.build_allele(ref_genome="foo"))
+                a = allele.Allele(**r.allele)
                 session.add(a)
                 session.flush()
 

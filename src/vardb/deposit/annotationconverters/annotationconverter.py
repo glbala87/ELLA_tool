@@ -3,7 +3,7 @@ from distutils.util import strtobool
 from enum import Enum, auto
 from typing import Any, List, Mapping, Optional, Sequence, Union
 
-from vardb.util.vcfiterator import Primitives
+from vardb.util.vcfrecord import Primitives
 
 
 class TypeConverter(Enum):
