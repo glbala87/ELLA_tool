@@ -1521,7 +1521,7 @@ class TestInheritanceFilter(object):
         )
         sf.homozygous_unaffected_siblings = lambda a, b, c: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])
 
-        sf.get_sample_allele_ids = lambda a, b: set(
+        sf.get_allele_ids_in_samples = lambda a, b: set(
             [
                 NO_COVERAGE_PARENTS,
                 DENOVO,

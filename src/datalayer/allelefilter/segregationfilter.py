@@ -3,7 +3,9 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BooleanClauseList, BinaryExpression
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import Alias
-from sqlalchemy import or_, and_, text, func
+from sqlalchemy import or_, and_, text, func, cast
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.types import Integer
 
 from vardb.datamodel import sample, annotationshadow, genotype, allele
 
@@ -809,11 +811,16 @@ class SegregationFilter(object):
 
         return [sid[0] for sid in sample_ids]
 
-    def get_sample_allele_ids(self, allele_ids, family_sample_ids):
+    def get_allele_ids_in_samples(self, allele_ids, family_sample_ids):
         return (
             self.session.query(allele.Allele.id.distinct())
             .join(genotype.Genotype.alleles, sample.Sample)
-            .filter(allele.Allele.id.in_(allele_ids), sample.Sample.id.in_(family_sample_ids))
+            .filter(
+                allele.Allele.id.in_(
+                    self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+                ),
+                sample.Sample.id.in_(family_sample_ids),
+            )
             .scalar_all()
         )
 
@@ -898,7 +905,7 @@ class SegregationFilter(object):
 
             # Exclude allele ids not part of the family samples
             # Happens when there are non-trio proband sample(s)
-            family_allele_ids = self.get_sample_allele_ids(allele_ids, family_sample_ids)
+            family_allele_ids = self.get_allele_ids_in_samples(allele_ids, family_sample_ids)
             non_family_allele_ids = set(allele_ids) - set(family_allele_ids)
 
             genotype_table = get_genotype_temp_table(
