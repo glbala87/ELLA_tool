@@ -69,8 +69,6 @@ RUN apt-get update && \
     libpq-dev \
     make \
     openssh-client \
-    postgresql \
-    postgresql-contrib \
     unzip \
     && echo "Additional tools:" && \
     echo "Node v10.x:" && \
@@ -78,7 +76,12 @@ RUN apt-get update && \
     apt-get install -yqq nodejs && \
     echo "Yarn:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get -yqq update && apt-get install -yqq yarn
+    apt-get -yqq update && apt-get install -yqq yarn && \
+    echo "Postgres:" && \
+    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get -yqq update && apt-get install -yqq postgresql-14 postgresql-contrib-14
+
 
 
 # Add our requirements files

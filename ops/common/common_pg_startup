@@ -22,7 +22,7 @@ then
 
         TMPPASSFILE=$(mktemp)
         echo "alleles" > $TMPPASSFILE
-        /usr/lib/postgresql/10/bin/initdb -A trust --pwfile $TMPPASSFILE
+        /usr/lib/postgresql/14/bin/initdb -A trust --pwfile $TMPPASSFILE
         rm $TMPPASSFILE
 
         # Use /socket for socket
@@ -43,4 +43,4 @@ echo "Starting PostgreSQL"
 # KILL goes directly to kernel, so it's useless here.
 trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
 
-exec /usr/lib/postgresql/10/bin/postgres -c listen_addresses='127.0.0.1'
+exec /usr/lib/postgresql/14/bin/postgres -c listen_addresses='127.0.0.1'
