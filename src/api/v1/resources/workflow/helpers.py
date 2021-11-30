@@ -2,7 +2,7 @@ import datetime
 from collections import defaultdict
 from dataclasses import dataclass
 from enum import Enum
-from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Type, TypeVar, Union
+from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
 
 import pytz
 from api import ApiError, ConflictError, schemas
@@ -32,7 +32,10 @@ from vardb.datamodel import (
     workflow,
 )
 
+### Types
+
 T = TypeVar("T")
+_Interp = Union[workflow.AlleleInterpretation, workflow.AnalysisInterpretation]
 _InterpType = Union[
     Type[workflow.AlleleInterpretation],
     Type[workflow.AnalysisInterpretation],
@@ -46,16 +49,40 @@ _InterpSchema = Union[
     Type[schemas.AnalysisInterpretationSchema],
 ]
 
+### Enums
 
-class InterpretationTypes(str, Enum):
-    ALLELE = "allele"
-    ANALYSIS = "analysis"
 
+class StrValueEnum(Enum):
     def __str__(self) -> str:
         return self.value
 
     def __repr__(self) -> str:
         return str(self)
+
+
+class InterpretationTypes(str, StrValueEnum):
+    ALLELE = "allele"
+    ANALYSIS = "analysis"
+
+
+class CallerTypes(str, StrValueEnum):
+    CNV = "cnv"
+    SNV = "snv"
+
+
+class FilteredAlleleCategories(str, StrValueEnum):
+    CLASSIFICATION = "classification"
+    FREQUENCY = "frequency"
+    REGION = "region"
+    POLYPYRIMIDINE = "ppy"
+    GENE = "gene"
+    QUALITY = "quality"
+    CONSEQUENCE = "consequence"
+    SEGREGATION = "segregation"
+    INHERITANCEMODEL = "inheritancemodel"
+
+
+### Classes
 
 
 @dataclass(frozen=True)
@@ -75,65 +102,52 @@ class InterpretationMetadata:
 
     @property
     def model_id(self) -> Column:
+        "gets Column object for the model type being interpreted"
         return getattr(self.model, self.model_id_field)
 
     @property
     def snapshot_id(self) -> Column:
         return getattr(self.snapshot, self.snapshot_id_field)
 
-    def get_latest_interpretation(self, session: Session, id: int):
+    def get_latest_interpretation(self, session: Session, model_id: int):
         return (
             session.query(self.model)
-            .filter(self.model_id == id)
+            .filter(self.model_id == model_id)
             .order_by(self.model.date_created.desc())
             .first()
         )
 
-    def get_collision_interpretation_model_ids(self, session: Session) -> Set[int]:
-        """
-        Get all analysis/allele ids for workflows that have an interpretation that may contain
-        work that is not commited.
-        Criteria:
-        1. Include if more than one interpretation and latest is not finalized.
-        The first criterion (more than one) is due to single interpretations
-        may be in 'Not started' status and we don't want to include those.
-        2. In addition, include all Ongoing interpretations. These will naturally
-        contain uncommited work. This case is partly covered in 1. above, but not
-        for single interpretations.
-        """
+    def get_interpretation(
+        self,
+        session: Session,
+        interpretation_id: int,
+        genepanels: Optional[Sequence[gene.Genepanel]] = None,
+    ):
+        "returns interpretation by unique id, optionally filtering by Genepanel"
+        q = session.query(self.model).filter(self.model.id == interpretation_id)
+        if genepanels:
+            q = q.filter(self._genepanel_filter(genepanels))
+        return q.one()
 
-        more_than_one = (
-            session.query(self.model_id)
-            .group_by(self.model_id)
-            .having(func.count(self.model_id) > 1)
-            .subquery()
+    def get_model_interpretations(
+        self,
+        session: Session,
+        model_id: int,
+        genepanels: Optional[Sequence[gene.Genepanel]] = None,
+    ):
+        "gets all interpretations for the model id, optionally filtering by Genepanel"
+        q = session.query(self.model).filter(self.model_id == model_id)
+        if genepanels:
+            q = q.filter(self._genepanel_filter(genepanels))
+        return q.order_by(self.model.id).all()
+
+    def get_snapshots(self, session: Session, snap_id: int):
+        return session.query(self.snapshot).filter(self.snapshot_id == snap_id).all()
+
+    def _genepanel_filter(self, genepanels: Sequence[gene.Genepanel]):
+        return tuple_(self.model.genepanel_name, self.model.genepanel_version).in_(
+            (gp.name, gp.version) for gp in genepanels
         )
-
-        not_finalized = queries.workflow_by_status(
-            session, self.model, self.model_id_field, finalized=False
-        ).subquery()
-
-        ongoing = set(
-            queries.workflow_by_status(
-                session,
-                self.model,
-                self.model_id_field,
-                status="Ongoing",
-            ).scalar_all()
-        )
-
-        more_than_one_not_finalized = set(
-            session.query(getattr(more_than_one.c, self.model_id_field))
-            .join(
-                not_finalized,
-                getattr(not_finalized.c, self.model_id_field)
-                == getattr(more_than_one.c, self.model_id_field),
-            )
-            .distinct()
-            .scalar_all()
-        )
-
-        return ongoing | more_than_one_not_finalized
 
 
 AlleleInterpretationMeta = InterpretationMetadata(
@@ -150,27 +164,73 @@ AnalysisInterpretationMeta = InterpretationMetadata(
     schema=schemas.AnalysisInterpretationSchema,
 )
 
+###
 
+
+# explicit keywords required when calling. values given can also refer to *interpretation_id
 def _get_interpretation_meta(
     *,
     allele_id: Optional[int] = None,
     analysis_id: Optional[int] = None,
 ):
+    """
+    returns id and InterpretationMetadata object for either AlleleInterpretation or AnalysisInterpretation
+    """
     if all([allele_id, analysis_id]) or not any([i is not None for i in [allele_id, analysis_id]]):
         raise ValueError("Must specify one of: allele_id, analysis_id")
     elif allele_id is not None:
-        meta = AlleleInterpretationMeta
+        return allele_id, AlleleInterpretationMeta
     elif analysis_id is not None:
-        meta = AnalysisInterpretationMeta
-    id = _filter(allele_id, analysis_id)
-    return id, meta
+        return analysis_id, AnalysisInterpretationMeta
+    else:
+        raise ValueError("This should never happen")
 
 
-def _filter(*args: Optional[T]) -> T:
-    non_empty = [a for a in args if a is not None]
-    if non_empty:
-        return non_empty[0]
-    raise ValueError("No non-None values received")
+def _get_uncommitted_interpretation_ids(session: Session, meta: InterpretationMetadata) -> Set[int]:
+    """
+    Get all analysis/allele ids for workflows that have an interpretation that may contain
+    work that is not commited.
+    Criteria:
+    1. Include if more than one interpretation and latest is not finalized.
+    The first criterion (more than one) is due to single interpretations
+    may be in 'Not started' status and we don't want to include those.
+    2. In addition, include all Ongoing interpretations. These will naturally
+    contain uncommited work. This case is partly covered in 1. above, but not
+    for single interpretations.
+    """
+
+    more_than_one = (
+        session.query(meta.model_id)
+        .group_by(meta.model_id)
+        .having(func.count(meta.model_id) > 1)
+        .subquery()
+    )
+
+    ongoing = set(
+        queries.workflow_by_status(
+            session,
+            meta.model,
+            meta.model_id_field,
+            status="Ongoing",
+        ).scalar_all()
+    )
+
+    not_finalized = queries.workflow_by_status(
+        session, meta.model, meta.model_id_field, finalized=False
+    ).subquery()
+
+    more_than_one_not_finalized = set(
+        session.query(getattr(more_than_one.c, meta.model_id_field))
+        .join(
+            not_finalized,
+            getattr(not_finalized.c, meta.model_id_field)
+            == getattr(more_than_one.c, meta.model_id_field),
+        )
+        .distinct()
+        .scalar_all()
+    )
+
+    return ongoing | more_than_one_not_finalized
 
 
 def get_alleles(
@@ -211,21 +271,12 @@ def get_alleles(
         analysis_id=analysisinterpretation_id,
     )
 
-    interpretation = (
-        session.query(meta.model)
-        .filter(
-            meta.model.id == interpretation_id,
-            tuple_(meta.model.genepanel_name, meta.model.genepanel_version).in_(
-                (gp.name, gp.version) for gp in genepanels
-            ),
-        )
-        .one()
-    )
+    interpretation = meta.get_interpretation(session, interpretation_id, genepanels)
 
     link_filter = None  # In case of loading specific data rather than latest available for annotation, custom_annotation etc..
     if not current_allele_data and interpretation.status == "Done":
         # Serve using context data from snapshot
-        snapshots = session.query(meta.snapshot).filter(meta.snapshot_id == interpretation.id).all()
+        snapshots = meta.get_snapshots(session, interpretation.id)
 
         link_filter = {
             "annotation_id": [s.annotation_id for s in snapshots if s.annotation_id is not None],
@@ -348,11 +399,10 @@ def update_interpretation(
     **Only allowed for interpretations that are `Ongoing`**
 
     """
-    interpretation_id, meta = _get_interpretation_meta(
+    model_id, meta = _get_interpretation_meta(
         allele_id=alleleinterpretation_id, analysis_id=analysisinterpretation_id
     )
-    interpretation_id = _filter(alleleinterpretation_id, analysisinterpretation_id)
-    interpretation = session.query(meta.model).filter(meta.model.id == interpretation_id).one()
+    interpretation = meta.get_interpretation(session, model_id)
 
     if interpretation.status == "Done":
         raise ConflictError("Cannot PATCH interpretation with status 'DONE'")
@@ -396,7 +446,7 @@ def update_interpretation(
 
 def get_interpretation(
     session: Session,
-    genepanels,
+    genepanels: Sequence[gene.Genepanel],
     user_id: int,
     alleleinterpretation_id: Optional[int] = None,
     analysisinterpretation_id: Optional[int] = None,
@@ -405,41 +455,21 @@ def get_interpretation(
         allele_id=alleleinterpretation_id, analysis_id=analysisinterpretation_id
     )
 
-    interpretation = (
-        session.query(meta.model)
-        .filter(
-            meta.model.id == interpretation_id,
-            tuple_(meta.model.genepanel_name, meta.model.genepanel_version).in_(
-                (gp.name, gp.version) for gp in genepanels
-            ),
-        )
-        .one()
-    )
+    interpretation = meta.get_interpretation(session, interpretation_id, genepanels)
     obj = meta.schema().dump(interpretation).data
     return obj
 
 
 def get_interpretations(
     session: Session,
-    genepanels,
+    genepanels: Sequence[gene.Genepanel],
     user_id: int,
     allele_id: Optional[int] = None,
     analysis_id: Optional[int] = None,
     filterconfig_id: Optional[int] = None,
 ):
     model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
-
-    interpretations = (
-        session.query(meta.model)
-        .filter(
-            meta.model_id == model_id,
-            tuple_(meta.model.genepanel_name, meta.model.genepanel_version).in_(
-                (gp.name, gp.version) for gp in genepanels
-            ),
-        )
-        .order_by(meta.model.id)
-        .all()
-    )
+    interpretations = meta.get_model_interpretations(session, model_id, genepanels)
 
     loaded_interpretations = []
     if interpretations:
@@ -454,12 +484,12 @@ def override_interpretation(
     workflow_allele_id: Optional[int] = None,
     workflow_analysis_id: Optional[int] = None,
 ):
-    id, meta = _get_interpretation_meta(
+    model_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id,
         analysis_id=workflow_analysis_id,
     )
 
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, model_id)
 
     # Get user by username
     new_user = session.query(user.User).filter(user.User.id == user_id).one()
@@ -480,17 +510,17 @@ def start_interpretation(
     workflow_allele_id: Optional[int] = None,
     workflow_analysis_id: Optional[int] = None,
 ):
-    id, meta = _get_interpretation_meta(
+    model_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id, analysis_id=workflow_analysis_id
     )
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, model_id)
 
     # Get user by username
     start_user = session.query(user.User).filter(user.User.id == user_id).one()
 
     if not interpretation:
         interpretation = meta.model()
-        setattr(interpretation, meta.model_id.name, id)
+        setattr(interpretation, meta.model_id.name, model_id)
         session.add(interpretation)
     elif interpretation.status != "Not started":
         raise ApiError(
@@ -504,7 +534,7 @@ def start_interpretation(
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
     if meta.name is InterpretationTypes.ANALYSIS:
-        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == id).one()
+        analysis = session.query(sample.Analysis).filter(sample.Analysis.id == model_id).one()
         interpretation.genepanel = analysis.genepanel
     elif meta.name is InterpretationTypes.ALLELE:
         # For allele workflow, the user can choose genepanel context for each interpretation
@@ -528,11 +558,11 @@ def mark_interpretation(
     Marks (and copies) an interpretation for a new workflow_status,
     creating Snapshot objects to record history.
     """
-    id, meta = _get_interpretation_meta(
+    model_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id,
         analysis_id=workflow_analysis_id,
     )
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, model_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError(
@@ -625,11 +655,11 @@ def reopen_interpretation(
     workflow_allele_id: Optional[int] = None,
     workflow_analysis_id: Optional[int] = None,
 ):
-    id, meta = _get_interpretation_meta(
+    model_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id,
         analysis_id=workflow_analysis_id,
     )
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, model_id)
 
     if interpretation is None:
         raise ApiError(
@@ -665,10 +695,10 @@ def finalize_allele(
 
     **Only works for workflows with a `Ongoing` current interpretation**
     """
-    id, meta = _get_interpretation_meta(
+    workflow_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id, analysis_id=workflow_analysis_id
     )
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, workflow_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize allele when latest interpretation is not 'Ongoing'")
@@ -736,7 +766,7 @@ def finalize_allele(
     if assessment_result.created_alleleassessment or assessment_result.created_referenceassessments:
         # Check that we can finalize allele
         finalize_requirements = get_nested(
-            user_config, ["workflows", meta.name.value, "finalize_requirements"]
+            user_config, ["workflows", meta.name, "finalize_requirements"]
         )
 
         if finalize_requirements.get("workflow_status"):
@@ -820,11 +850,11 @@ def finalize_workflow(
 
     **Only works for analyses with a `Ongoing` current interpretation**
     """
-    id, meta = _get_interpretation_meta(
+    workflow_id, meta = _get_interpretation_meta(
         allele_id=workflow_allele_id,
         analysis_id=workflow_analysis_id,
     )
-    interpretation = meta.get_latest_interpretation(session, id)
+    interpretation = meta.get_latest_interpretation(session, workflow_id)
 
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize when latest interpretation is not 'Ongoing'")
@@ -860,7 +890,7 @@ def finalize_workflow(
     # Check that we can finalize
     # There are different criterias deciding when finalization is allowed
     finalize_requirements = get_nested(
-        user_config, ["workflows", meta.name.value, "finalize_requirements"]
+        user_config, ["workflows", meta.name, "finalize_requirements"]
     )
 
     if finalize_requirements.get("workflow_status"):
@@ -875,15 +905,11 @@ def finalize_workflow(
     if meta.name is InterpretationTypes.ANALYSIS:
         assert "technical_allele_ids" in data and "notrelevant_allele_ids" in data
     elif meta.name is InterpretationTypes.ALLELE:
-        assert all(
-            k not in finalize_requirements
-            for k in [
-                "technical_allele_ids",
-                "notrelevant_allele_ids",
-                "allow_technical",
-                "allow_notrelevant",
-                "allow_unclassified",
-            ]
+        assert "technical_allele_ids" not in data and "notrelevant_allele_ids" not in data
+        assert (
+            "allow_technical" not in finalize_requirements
+            and "allow_notrelevant" not in finalize_requirements
+            and "allow_unclassified" not in finalize_requirements
         )
 
     if not finalize_requirements.get("allow_technical") and data.get("technical_allele_ids"):
@@ -913,7 +939,7 @@ def finalize_workflow(
 
     SnapshotCreator(session).insert_from_data(
         data["allele_ids"],
-        meta.name.value,
+        meta.name,
         interpretation,
         data["annotation_ids"],
         data["custom_annotation_ids"],
@@ -978,13 +1004,7 @@ def get_workflow_allele_collisions(
 
     :note: Alleles with valid alleleassessments are excluded from causing collision.
     """
-
-    # Remove if you need to check collisions in general
-    id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
-
-    workflow_analysis_ids = AnalysisInterpretationMeta.get_collision_interpretation_model_ids(
-        session
-    )
+    workflow_analysis_ids = _get_uncommitted_interpretation_ids(session, AnalysisInterpretationMeta)
 
     # Exclude "ourself" if applicable
     if analysis_id in workflow_analysis_ids:
@@ -1023,7 +1043,7 @@ def get_workflow_allele_collisions(
     ).all()
 
     # Allele workflow
-    workflow_allele_ids = AlleleInterpretationMeta.get_collision_interpretation_model_ids(session)
+    workflow_allele_ids = _get_uncommitted_interpretation_ids(session, AlleleInterpretationMeta)
 
     # Exclude "ourself" if applicable
     if allele_id in workflow_allele_ids:
@@ -1241,17 +1261,17 @@ def create_interpretationlog(
     allele_id: Optional[int] = None,
     analysis_id: Optional[int] = None,
 ):
-    id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
+    model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
     if meta.name is InterpretationTypes.ALLELE and data.get("warning_cleared") is not None:
         raise ApiError("warning_cleared is not supported for alleles as they have no warnings")
 
-    latest_interpretation = meta.get_latest_interpretation(session, id)
+    latest_interpretation = meta.get_latest_interpretation(session, model_id)
 
     if not latest_interpretation:
         # Shouldn't be possible for an analysis
         assert (
             meta.name is InterpretationTypes.ALLELE
-        ), f"Failed to find latest interpretation for analysis {id}"
+        ), f"Failed to find latest interpretation for analysis {model_id}"
 
         latest_interpretation = workflow.AlleleInterpretation(
             allele_id=allele_id,
@@ -1287,8 +1307,8 @@ def patch_interpretationlog(
     if il.user_id != user_id:
         raise ApiError("Cannot edit interpretation log, item doesn't match user's id.")
 
-    id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
-    latest_interpretation = meta.get_latest_interpretation(session, id)
+    model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
+    latest_interpretation = meta.get_latest_interpretation(session, model_id)
 
     match = False
     if meta.name is InterpretationTypes.ALLELE:
@@ -1318,8 +1338,8 @@ def delete_interpretationlog(
     if il.user_id != user_id:
         raise ApiError("Cannot delete interpretation log, item doesn't match user's id.")
 
-    id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
-    latest_interpretation = meta.get_latest_interpretation(session, id)
+    model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
+    latest_interpretation = meta.get_latest_interpretation(session, model_id)
 
     match = False
     if meta.name is InterpretationTypes.ALLELE:
@@ -1351,10 +1371,11 @@ def fetch_allele_ids_by_caller_type(session: Session, excluded_alleles: Sequence
     )
 
 
-def filtered_by_caller_type(session, filtered_alleles):
-    flattened_ids = sum(filtered_alleles.values(), [])
+def filtered_by_caller_type(session: Session, filtered_alleles: Dict[str, List[int]]):
+    # concatenates all the ids of each
+    flattened_ids: List[int] = sum(filtered_alleles.values(), [])
     alleles_by_caller_type = fetch_allele_ids_by_caller_type(session, flattened_ids)
-    filtered_by_caller_type = {"cnv": {}, "snv": {}}
+    filtered_by_caller_type: Dict[CallerTypes, Dict[str, List[int]]] = {c: {} for c in CallerTypes}
     for caller_type in filtered_by_caller_type:
         for filter_type in filtered_alleles:
             ids = filtered_alleles[filter_type]
@@ -1372,7 +1393,11 @@ def filtered_by_caller_type(session, filtered_alleles):
 
 
 # Revert to old way
-def get_filtered_alleles(session, interpretation, filter_config_id=None):
+def get_filtered_alleles(
+    session: Session,
+    interpretation: _Interp,
+    filter_config_id: Optional[int] = None,
+) -> Tuple[List[int], Optional[Dict[str, List[int]]]]:
     """
     Return filter results for interpretation.
     - If AlleleInterpretation, return only allele id for interpretation (no alleles excluded)
@@ -1398,34 +1423,23 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
                 if has_alleles:
                     raise RuntimeError("Missing snapshots for interpretation.")
 
-            categories = {
-                "CLASSIFICATION": "classification",
-                "FREQUENCY": "frequency",
-                "REGION": "region",
-                "POLYPYRIMIDINE": "ppy",
-                "GENE": "gene",
-                "QUALITY": "quality",
-                "CONSEQUENCE": "consequence",
-                "SEGREGATION": "segregation",
-                "INHERITANCEMODEL": "inheritancemodel",
+            allele_ids: List[int] = []
+            excluded_allele_ids: Dict[str, List[int]] = {
+                k.value: [] for k in FilteredAlleleCategories
             }
 
-            allele_ids = []
-            excluded_allele_ids = {k: [] for k in list(categories.values())}
-
             for snapshot in interpretation.snapshots:
-                if snapshot.filtered in categories:
-                    excluded_allele_ids[categories[snapshot.filtered]].append(snapshot.allele_id)
+                if snapshot.filtered in FilteredAlleleCategories.__members__:
+                    excluded_allele_ids[str(FilteredAlleleCategories[snapshot.filtered])].append(
+                        snapshot.allele_id
+                    )
                 else:
                     allele_ids.append(snapshot.allele_id)
 
-            return (
-                allele_ids,
-                excluded_allele_ids,
-            )
+            return allele_ids, excluded_allele_ids
         else:
             analysis_id = interpretation.analysis_id
-            analysis_allele_ids = (
+            analysis_allele_ids: List[int] = (
                 session.query(allele.Allele.id)
                 .join(genotype.Genotype.alleles, sample.Sample, sample.Analysis)
                 .filter(sample.Analysis.id == analysis_id)
@@ -1434,9 +1448,11 @@ def get_filtered_alleles(session, interpretation, filter_config_id=None):
 
             af = AlleleFilter(session)
             filtered_alleles = af.filter_analysis(
-                filter_config_id, analysis_id, analysis_allele_ids
+                filter_config_id,
+                analysis_id,
+                analysis_allele_ids,
             )
 
-            return (filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"])
+            return filtered_alleles["allele_ids"], filtered_alleles["excluded_allele_ids"]
     else:
         raise RuntimeError("Unknown type {}".format(interpretation))
