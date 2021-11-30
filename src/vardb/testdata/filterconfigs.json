@@ -501,6 +501,12 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
+                            }
                         }
                     ]
                 },
@@ -549,6 +555,12 @@
                                     "stop_retained_variant",
                                     "coding_sequence_variant"
                                 ]
+                            }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
                             }
                         }
                     ]
@@ -605,6 +617,12 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
+                            }
                         }
                     ]
                 },
@@ -628,6 +646,12 @@
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
                             }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
+                            }
                         }
                     ]
                 },
@@ -650,6 +674,12 @@
                                     "num_stars": [">=", 2],
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
+                            }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
                             }
                         }
                     ]
@@ -678,6 +708,12 @@
                                     "num_stars": [">=", 2],
                                     "combinations": [["pathogenic", ">", "benign"]]
                                 }
+                            }
+                        },
+                        {
+                            "name": "callertype",
+                            "config": {
+                                "callerTypes": ["cnv"]
                             }
                         }
                     ]

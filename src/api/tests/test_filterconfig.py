@@ -86,7 +86,19 @@ def create_dummy_trio_analysis(session):
         identifier="DummyProband",
         **common,
     )
-    session.add(proband)
+
+    # Add a proband sample with no family information
+    second_proband = sample.Sample(
+        proband=True,
+        affected=True,
+        mother_id=None,
+        father_id=None,
+        identifier="DummyProbandNoFamily",
+        analysis_id=an.id,
+        sample_type="HTS",
+    )
+
+    session.add_all([proband, second_proband])
     session.flush()
     return an
 
