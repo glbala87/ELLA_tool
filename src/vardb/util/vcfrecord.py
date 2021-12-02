@@ -44,7 +44,8 @@ def numpy_to_list(a: Optional[np.ndarray]) -> Optional[List]:
 
 def commonsuffix(v: List[Union[str, bytes]]) -> Union[str, bytes]:
     "Common suffix is the same as the reversed common prefix of the reversed string"
-    return commonprefix([x[::-1] for x in v])[::-1]
+    # mypy complains about expecting os.PathLike, but commonprefix handles that implicitly
+    return commonprefix([x[::-1] for x in v])[::-1]  # type: ignore
 
 
 change_type_from_sv_alt_field = {

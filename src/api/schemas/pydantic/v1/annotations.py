@@ -88,7 +88,21 @@ class Transcript(BaseModel):
 
 
 # minimal model schema from: src/vardb/datamodel/jsonschemas/annotation_v1.json
+# + marshmallow schema: src/api/schemas/annotations.py:AnnotationSchema
 class Annotation(ExtraOK):
+    id: int
+    schema_version: str
+    annotation_config_id: int
+    date_superceeded: Optional[str] = None
+    annotations: Optional[List[Dict]] = None
     references: Optional[List[AnnotationReference]] = None
     frequencies: Optional[Dict[str, Frequency]] = None
     transcripts: Optional[List[Transcript]] = None
+
+
+class AnnotationConfig(BaseModel):
+    id: int
+    view: Dict
+    # not included in AnnotationConfigSchema, but are in datamodel
+    deposit: Optional[Dict] = None
+    date_created: Optional[str] = None

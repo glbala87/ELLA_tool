@@ -4,6 +4,7 @@ from typing import List
 
 from api.schemas.pydantic.v1 import BaseModel, ResourceResponse
 from api.schemas.pydantic.v1.alleles import Allele
+from api.schemas.pydantic.v1.annotations import AnnotationConfig
 from api.schemas.pydantic.v1.genepanels import GenepanelFullAssessments
 from api.schemas.pydantic.v1.workflow import AlleleInterpretation
 
@@ -33,6 +34,11 @@ class AlleleInterpretationListResource(ResourceResponse):
 
 class AlleleGenepanelResource(GenepanelFullAssessments, ResourceResponse):
     endpoints = ["/api/v1/workflows/alleles/<int:allele_id>/genepanels/<gp_name>/<gp_version>/"]
+
+
+class AnnotationConfigListResource(ResourceResponse):
+    __root__: List[AnnotationConfig]
+    endpoints = ["/api/v1/annotationconfigs/"]
 
 
 ###
