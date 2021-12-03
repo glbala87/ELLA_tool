@@ -6,6 +6,8 @@ from api.schemas.pydantic.v1 import BaseModel, ResourceResponse
 from api.schemas.pydantic.v1.alleles import Allele
 from api.schemas.pydantic.v1.annotations import AnnotationConfig
 from api.schemas.pydantic.v1.genepanels import GenepanelFullAssessments
+from api.schemas.pydantic.v1.interpretationlog import InterpretationLog
+from api.schemas.pydantic.v1.users import User
 from api.schemas.pydantic.v1.workflow import AlleleInterpretation
 
 
@@ -41,6 +43,12 @@ class AnnotationConfigListResource(ResourceResponse):
     endpoints = ["/api/v1/annotationconfigs/"]
 
 
+class AlleleInterpretationLogListResource(ResourceResponse):
+    users: List[User]
+    logs: List[InterpretationLog]
+    endpoints = ["/api/v1/workflows/alleles/<int:allele_id>/logs/"]
+
+
 ###
 
 
@@ -49,3 +57,4 @@ class ApiModel(BaseModel):
     allele_list_resource: AlleleListResource
     allele_interpretation_list_resource: AlleleInterpretationListResource
     allele_genepanel_resource: AlleleGenepanelResource
+    allele_interpretationlog_list_resource: AlleleInterpretationLogListResource

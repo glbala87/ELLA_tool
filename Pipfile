@@ -17,6 +17,8 @@ sadisplay= "==0.4.9"
 scp = "==0.13.3"
 types-pytz = "*"
 types-pyyaml = "*"
+types-paramiko = "*"
+types-requests = "*"
 
 [packages]
 alembic = "==1.2.1"

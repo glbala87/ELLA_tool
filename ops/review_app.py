@@ -280,6 +280,14 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
     return ssh
 
 
+def _get_transport(ssh: SSHClient):
+    # this is always set after the client has connected, but checker still complains about Optional[Transport]
+    t = ssh.get_transport()
+    if t is None:
+        raise AttributeError(f"SSHClient has no transport object")
+    return t
+
+
 @retry((SocketTimeout, PipeTimeout, ExecFailed), err_msg="SSH cmd '{1}' failed after {max_retries}")
 def ssh_exec(
     ssh: SSHClient,
@@ -293,7 +301,7 @@ def ssh_exec(
 
     # SSHClient.exec_command does not allow checking the return code from what was executed, so we
     # are basically duplicating that function and checking it ourselves
-    chan = ssh._transport.open_session()
+    chan = _get_transport(ssh).open_session()
     # set timeout for blocking operations
     chan.settimeout(timeout)
     chan.exec_command(cmd)
@@ -302,7 +310,7 @@ def ssh_exec(
     stdout = [line.rstrip() for line in chan.makefile("r", bufsize).readlines()]
     stderr = [line.rstrip() for line in chan.makefile_stderr("r", bufsize).readlines()]
     json_blob = {
-        "host": ssh._transport.sock.getpeername()[0],
+        "host": _get_transport(ssh).sock.getpeername()[0],
         "cmd": cmd,
         "rc": rc,
         "stdout": "\n".join(stdout),
