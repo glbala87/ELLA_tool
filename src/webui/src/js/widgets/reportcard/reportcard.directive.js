@@ -101,8 +101,24 @@ const getReportAlleleData = Compute(
                     (o) => o.value === classification.classification
                 )
             }, -1)
-                .thenBy((a) => a.annotation.filtered[0].symbol)
-                .thenBy((a) => a.annotation.filtered[0].HGVSc_short)
+                /** for some big events, vep is not able to produce annotation, therefor we bypass sorting on these */
+
+                .thenBy((a) => {
+                    if (
+                        a.caller_type === 'cnv' &&
+                        (!a.annotation.filtered.length || !a.annotation.filtered[0].symbol)
+                    ) {
+                        0
+                    } else a.annotation.filtered[0].symbol
+                })
+                .thenBy((a) => {
+                    if (
+                        a.caller_type === 'cnv' &&
+                        (!a.annotation.filtered.length || !a.annotation.filtered[0].HGVSc_short)
+                    ) {
+                        0
+                    } else a.annotation.filtered[0].HGVSc_short
+                })
         )
 
         for (let allele of includedAlleles) {
