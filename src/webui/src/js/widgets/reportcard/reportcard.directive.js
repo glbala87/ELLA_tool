@@ -4,19 +4,13 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-import { chrToContigRef } from '../../util.js'
+import { chrToContigRef, extractCytoband } from '../../util.js'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
 import getClassification from '../../store/modules/views/workflows/interpretation/computed/getClassification'
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
-
-function extractCytoband(allele) {
-    if (allele.annotation.cytoband) {
-        return `(${allele.annotation.cytoband})`
-    } else return ' '
-}
 
 function formatSNV(hgvs, allele, annotation, classification_text) {
     hgvs += '\n'
@@ -51,9 +45,7 @@ function formatCNV(hgvs, allele, annotation, classification_text) {
     }
 
     hgvs += '\n'
-    hgvs += `seq[${allele.genome_reference}] ${allele.change_type}(${
-        allele.chromosome
-    })${extractCytoband(allele)}`
+    hgvs += extractCytoband(allele)
 
     return hgvs
 }

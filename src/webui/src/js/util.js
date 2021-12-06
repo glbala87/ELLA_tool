@@ -24,6 +24,14 @@ export let printedFileSize = function(size) {
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB'][i]
 }
 
+export function extractCytoband(allele) {
+    const baseCyto = `seq[${allele.genome_reference}] ${allele.change_type}(${allele.chromosome})`
+
+    if (allele.annotation.cytoband) {
+        return `${baseCyto}(${allele.annotation.cytoband})`
+    } else return `${baseCyto}`
+}
+
 export function chrToContigRef(chr) {
     const chrContigRef = {
         2: 'NC_000002.11',
