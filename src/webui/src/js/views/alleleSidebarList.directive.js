@@ -210,6 +210,11 @@ app.component('alleleSidebarList', {
                             return allele.formatted.hgvsg
                         }
                     },
+                    getBand(allele) {
+                        if (allele.annotation.cytoband) {
+                            return allele.annotation.cytoband
+                        } else return '-'
+                    },
                     getHGVScTitle(allele) {
                         if (allele.caller_type == 'cnv') {
                             return allele.formatted.hgvsg
