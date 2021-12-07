@@ -99,23 +99,27 @@ All tracks and types have sensible configuration values, so configuration files 
 Tracks shown in ELLA VISUAL are of three types: `DYNAMIC`, `STATIC` and `ANALYSIS` tracks.
 
 - Four built-in, `DYNAMIC` tracks are available:
-    Track ID	|	Description
-    :---	|	:---    
+    File path | Description
+    :--- | :--- 
     `DYNAMIC/variants` | Shows the unfiltered variants in the analysis
     `DYNAMIC/classifications` | Shows the existing classifications from the database
     `DYNAMIC/genepanel` | Shows the transcripts defined in the gene panel
     `DYNAMIC/regions_of_interest` | Shows unfiltered variants as regions of interest
 
-- `STATIC` tracks can be added as files to the folder `$IGV_DATA/tracks`. Their track ID will be `STATIC/<filename>`.
+- `STATIC` tracks can be added as files to the folder `$IGV_DATA/tracks`, with path configured as `STATIC/<filename>`.
 
-- `ANALYSIS` tracks are any track imported together with the analyses. Their track ID will be `ANALYSIS/<filename>`.
+- `ANALYSIS` tracks are any track imported together with the analyses. with path configured as `ANALYSIS/<filename>`.
 
 #### Track configuration
 
 - File: `$IGV_DATA/track_config.json` (see `/src/vardb/testdata/igv-data/track_config_default.json` for examples)
 - Key: [regex]
 
-Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config.json`; if no configuration is specified, `track_config_default.json` will be used). The keys of the configuration file are regular expressions (regex) that match track IDs (see above). If a track ID is matched by multiple regexes, their entries are merged (with the order defined by the position within the config file).
+Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config.json`; if no configuration is specified, `track_config_default.json` will be used). The keys of the configuration file are regular expressions (regex) that match file paths (see above). If a file path is matched by multiple regexes, their entries are merged (with the order defined by the position within the config file). 
+
+::: warning NOTE
+When writing regex for file paths, note that the JSON format requires all characters with regex functions to be double-escaped using `\\`. E.g., `.bed.gz` should be written as `\\.bed\\.gz`.
+:::
 
 Each entry of the config file supports these fields:
 

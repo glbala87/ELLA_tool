@@ -39,6 +39,14 @@ Note: To allow better zoom/scroll control in VISUAL with many tracks visible, th
 
 ### :small_red_triangle: Breaking changes
 
+#### Configuration of tracks in IGV
+<!-- MR !605, MR !651, MR !652 -->
+With this version, configuration of tracks shown in IGV needs to be updated. 
+
+Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier version will no longer work. 
+
+To configure a particular track, the file path needs to be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See `/src/vardb/testdata/igv-data/track_config_default.json` for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
+
 ### All changes
 
 <!-- 
@@ -52,7 +60,7 @@ MR !650 Trio filtering not available when CNV and SNVs combined
 -->
 - [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
 <!-- MR !605, MR !651, MR !652 -->
-- Improved configuration of tracks in VISUAL, including analysis tracks. See [IGV in VISUAL](/technical/uioptions.md) for details. 
+- [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
