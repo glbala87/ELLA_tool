@@ -126,7 +126,13 @@
             <div
                 class="nav-row allele"
                 ng-repeat="allele in $ctrl.alleles track by allele.id"
-                ng-class="{'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id), 'toggled': $ctrl.isToggled(allele.id), 'togglable': $ctrl.isTogglable(), 'multiple': $ctrl.shadeGene(allele), 'technical': $ctrl.isTechnical(allele.id)}"
+                ng-class="{
+                    'active': $ctrl.selectedAllele.id == allele.id || $ctrl.isToggled(allele.id),
+                    'toggled': $ctrl.isToggled(allele.id),
+                    'togglable': $ctrl.isTogglable(),
+                    'multiple': $ctrl.shadeGene(allele),
+                    'technical': $ctrl.isTechnical(allele.id)
+                }"
             >
                 <div ng-if="!$ctrl.isTogglable()" class="cell tab"></div>
                 <div
