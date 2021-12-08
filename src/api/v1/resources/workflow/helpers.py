@@ -1,11 +1,11 @@
 import datetime
 from collections import defaultdict
 from dataclasses import dataclass
-from enum import Enum
-from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, TypeVar, Union
+from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 import pytz
 from api import ApiError, ConflictError, schemas
+from api.util.types import CallerTypes, FilteredAlleleCategories, WorkflowTypes
 from api.util.util import get_nested
 from datalayer import (
     AlleleDataLoader,
@@ -21,20 +21,10 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import Integer
-from vardb.datamodel import (
-    allele,
-    annotation,
-    assessment,
-    gene,
-    genotype,
-    sample,
-    user,
-    workflow,
-)
+from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
 
-### Types
+### Magic Metadata
 
-T = TypeVar("T")
 _Interp = Union[workflow.AlleleInterpretation, workflow.AnalysisInterpretation]
 _InterpType = Union[
     Type[workflow.AlleleInterpretation],
@@ -49,45 +39,10 @@ _InterpSchema = Union[
     Type[schemas.AnalysisInterpretationSchema],
 ]
 
-### Enums
-
-
-class StrValueEnum(Enum):
-    def __str__(self) -> str:
-        return self.value
-
-    def __repr__(self) -> str:
-        return str(self)
-
-
-class InterpretationTypes(str, StrValueEnum):
-    ALLELE = "allele"
-    ANALYSIS = "analysis"
-
-
-class CallerTypes(str, StrValueEnum):
-    CNV = "cnv"
-    SNV = "snv"
-
-
-class FilteredAlleleCategories(str, StrValueEnum):
-    CLASSIFICATION = "classification"
-    FREQUENCY = "frequency"
-    REGION = "region"
-    POLYPYRIMIDINE = "ppy"
-    GENE = "gene"
-    QUALITY = "quality"
-    CONSEQUENCE = "consequence"
-    SEGREGATION = "segregation"
-    INHERITANCEMODEL = "inheritancemodel"
-
-
-### Classes
-
 
 @dataclass(frozen=True)
 class InterpretationMetadata:
-    name: InterpretationTypes
+    name: WorkflowTypes
     model: _InterpType
     snapshot: _SnapshotType
     schema: _InterpSchema
@@ -151,14 +106,14 @@ class InterpretationMetadata:
 
 
 AlleleInterpretationMeta = InterpretationMetadata(
-    name=InterpretationTypes.ALLELE,
+    name=WorkflowTypes.ALLELE,
     model=workflow.AlleleInterpretation,
     snapshot=workflow.AlleleInterpretationSnapshot,
     schema=schemas.AlleleInterpretationSchema,
 )
 
 AnalysisInterpretationMeta = InterpretationMetadata(
-    name=InterpretationTypes.ANALYSIS,
+    name=WorkflowTypes.ANALYSIS,
     model=workflow.AnalysisInterpretation,
     snapshot=workflow.AnalysisInterpretationSnapshot,
     schema=schemas.AnalysisInterpretationSchema,
@@ -533,10 +488,10 @@ def start_interpretation(
     interpretation.status = "Ongoing"
     interpretation.date_last_update = datetime.datetime.now(pytz.utc)
 
-    if meta.name is InterpretationTypes.ANALYSIS:
+    if meta.name is WorkflowTypes.ANALYSIS:
         analysis = session.query(sample.Analysis).filter(sample.Analysis.id == model_id).one()
         interpretation.genepanel = analysis.genepanel
-    elif meta.name is InterpretationTypes.ALLELE:
+    elif meta.name is WorkflowTypes.ALLELE:
         # For allele workflow, the user can choose genepanel context for each interpretation
         interpretation.genepanel_name = data["gp_name"]
         interpretation.genepanel_version = data["gp_version"]
@@ -563,6 +518,7 @@ def mark_interpretation(
         analysis_id=workflow_analysis_id,
     )
     interpretation = meta.get_latest_interpretation(session, model_id)
+    assert interpretation is not None, f"No {meta.model.__name__} found for id {model_id}"
 
     if not interpretation.status == "Ongoing":
         raise ApiError(
@@ -703,9 +659,9 @@ def finalize_allele(
     if not interpretation.status == "Ongoing":
         raise ApiError("Cannot finalize allele when latest interpretation is not 'Ongoing'")
 
-    if meta.name is InterpretationTypes.ALLELE:
+    if meta.name is WorkflowTypes.ALLELE:
         assert data["allele_id"] == workflow_allele_id
-    elif meta.name is InterpretationTypes.ANALYSIS:
+    elif meta.name is WorkflowTypes.ANALYSIS:
         assert (
             session.query(allele.Allele)
             .join(
@@ -902,9 +858,9 @@ def finalize_workflow(
                 )
             )
 
-    if meta.name is InterpretationTypes.ANALYSIS:
+    if meta.name is WorkflowTypes.ANALYSIS:
         assert "technical_allele_ids" in data and "notrelevant_allele_ids" in data
-    elif meta.name is InterpretationTypes.ALLELE:
+    elif meta.name is WorkflowTypes.ALLELE:
         assert "technical_allele_ids" not in data and "notrelevant_allele_ids" not in data
         assert (
             "allow_technical" not in finalize_requirements
@@ -1087,8 +1043,8 @@ def get_workflow_allele_collisions(
 
     collisions = list()
     for wf_type, wf_entries in [
-        ("allele", wf_allele_allele_ids),
-        ("analysis", wf_analysis_allele_ids),
+        (WorkflowTypes.ALLELE, wf_allele_allele_ids),
+        (WorkflowTypes.ANALYSIS, wf_analysis_allele_ids),
     ]:
         for user_id, workflow_status, allele_id, analysis_id in wf_entries:
             # If an workflow is in review, it will have no user assigned...
@@ -1218,32 +1174,27 @@ def get_interpretationlog(
             )
 
     for loaded_log in loaded_logs:
-        loaded_log["alleleassessment"] = {}
-        loaded_log["allelereport"] = {}
         alleleassessment_id = loaded_log.pop("alleleassessment_id", None)
         if alleleassessment_id:
             log_aa = alleleassessments_by_id[alleleassessment_id]
-            loaded_log["alleleassessment"].update(
-                {
-                    "allele_id": log_aa.allele_id,
-                    "hgvsc": sorted(formatted_allele_by_id[log_aa.allele_id]),
-                    "classification": log_aa.classification,
-                    "previous_classification": previous_alleleassessment_classifications_by_id[
-                        log_aa.previous_assessment_id
-                    ]
-                    if log_aa.previous_assessment_id
-                    else None,
-                }
-            )
+            loaded_log["alleleassessment"] = {
+                "allele_id": log_aa.allele_id,
+                "hgvsc": sorted(formatted_allele_by_id[log_aa.allele_id]),
+                "classification": log_aa.classification,
+                "previous_classification": previous_alleleassessment_classifications_by_id[
+                    log_aa.previous_assessment_id
+                ]
+                if log_aa.previous_assessment_id
+                else None,
+            }
+
         allelereport_id = loaded_log.pop("allelereport_id", None)
         if allelereport_id:
             log_ar = allelereports_by_id[allelereport_id]
-            loaded_log["allelereport"].update(
-                {
-                    "allele_id": log_ar.allele_id,
-                    "hgvsc": sorted(formatted_allele_by_id[log_ar.allele_id]),
-                }
-            )
+            loaded_log["allelereport"] = {
+                "allele_id": log_ar.allele_id,
+                "hgvsc": sorted(formatted_allele_by_id[log_ar.allele_id]),
+            }
 
     # Load all relevant user data
     user_ids = set([l["user_id"] for l in loaded_logs])
@@ -1262,7 +1213,7 @@ def create_interpretationlog(
     analysis_id: Optional[int] = None,
 ):
     model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
-    if meta.name is InterpretationTypes.ALLELE and data.get("warning_cleared") is not None:
+    if meta.name is WorkflowTypes.ALLELE and data.get("warning_cleared") is not None:
         raise ApiError("warning_cleared is not supported for alleles as they have no warnings")
 
     latest_interpretation = meta.get_latest_interpretation(session, model_id)
@@ -1270,7 +1221,7 @@ def create_interpretationlog(
     if not latest_interpretation:
         # Shouldn't be possible for an analysis
         assert (
-            meta.name is InterpretationTypes.ALLELE
+            meta.name is WorkflowTypes.ALLELE
         ), f"Failed to find latest interpretation for analysis {model_id}"
 
         latest_interpretation = workflow.AlleleInterpretation(
@@ -1311,9 +1262,9 @@ def patch_interpretationlog(
     latest_interpretation = meta.get_latest_interpretation(session, model_id)
 
     match = False
-    if meta.name is InterpretationTypes.ALLELE:
+    if meta.name is WorkflowTypes.ALLELE:
         match = il.alleleinterpretation_id == latest_interpretation.id
-    elif meta.name is InterpretationTypes.ANALYSIS:
+    elif meta.name is WorkflowTypes.ANALYSIS:
         match = il.analysisinterpretation_id == latest_interpretation.id
 
     if not match:
@@ -1342,9 +1293,9 @@ def delete_interpretationlog(
     latest_interpretation = meta.get_latest_interpretation(session, model_id)
 
     match = False
-    if meta.name is InterpretationTypes.ALLELE:
+    if meta.name is WorkflowTypes.ALLELE:
         match = il.alleleinterpretation_id == latest_interpretation.id
-    elif meta.name is InterpretationTypes.ANALYSIS:
+    elif meta.name is WorkflowTypes.ANALYSIS:
         match = il.analysisinterpretation_id == latest_interpretation.id
 
     if not match:

@@ -31,5 +31,5 @@ class UserFull(User):
 class UserGroup(BaseModel):
     id: int
     name: str
-    genepanels: List[Dict]  # TODO: List[GenePanel]
+    genepanels: List[Dict]  # TODO: List[GenePanel], but circular imports causing problems
     default_import_genepanel: Dict  # TODO: GenePanel

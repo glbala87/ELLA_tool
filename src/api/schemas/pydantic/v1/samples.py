@@ -1,20 +1,10 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Optional
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.genotypes import GenotypeSampleData
-
-
-class SampleType(str, Enum):
-    HTS = "HTS"
-    SANGER = "Sanger"
-
-
-class SampleSex(str, Enum):
-    FEMALE = "Female"
-    MALE = "Male"
+from api.util.types import SampleSex, SampleType
 
 
 class Sample(BaseModel):

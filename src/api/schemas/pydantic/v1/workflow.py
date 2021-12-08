@@ -1,34 +1,15 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Dict, Optional
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.users import User
-
-
-class AlleleInterpretationWorkflowStatus(str, Enum):
-    INTERPRETATION = "Interpretation"
-    REVIEW = "Review"
-
-
-class InterpretationStatus(str, Enum):
-    NOT_STARTED = "Not started"
-    ONGOING = "Ongoing"
-    DONE = "Done"
-
-
-# NOTE: used in db, but may not be exposed by API?
-class InterpretationSnapshotFiltered(str, Enum):
-    CLASSIFICATION = "CLASSIFICATION"
-    FREQUENCY = "FREQUENCY"
-    REGION = "REGION"
-    POLYPYRIMIDINE = "POLYPYRIMIDINE"
-    GENE = "GENE"
-    QUALITY = "QUALITY"
-    CONSEQUENCE = "CONSEQUENCE"
-    SEGREGATION = "SEGREGATION"
-    INHERITANCEMODEL = "INHERITANCEMODEL"
+from api.util.types import (
+    AlleleInterpretationWorkflowStatus,
+    InterpretationStatus,
+    WorkflowTypes,
+    WorkflowStatus,
+)
 
 
 class AlleleInterpretationSnapshot(BaseModel):
@@ -74,3 +55,12 @@ class AlleleInterpretationOverview(BaseModel):
     date_last_update: str
     user_id: int
     user: User
+
+
+class AlleleCollision(BaseModel):
+    workflow_type: WorkflowTypes
+    user: Optional[User]
+    allele_id: int
+    analysis_name: str
+    analysis_id: int
+    workflow_status: WorkflowStatus

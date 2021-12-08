@@ -1,22 +1,12 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Dict, List, Optional
+from typing_extensions import Literal
 
-from api.schemas.pydantic.v1 import BaseModel, Field
+from api.schemas.pydantic.v1 import BaseModel, Field, Comment
 from api.schemas.pydantic.v1.references import ReferenceAssessment
 from api.schemas.pydantic.v1.users import User
-
-
-class AlleleAssessmentClassification(str, Enum):
-    ONE = "1"
-    TWO = "2"
-    THREE = "3"
-    FOUR = "4"
-    FIVE = "5"
-    NP = "NP"
-    RF = "RF"
-    DR = "DR"
+from api.util.types import AlleleAssessmentClassification
 
 
 class AlleleAssessmentUsergroup(BaseModel):
@@ -45,8 +35,8 @@ class AlleleAssessment(BaseModel):
     custom_annotation_id: Optional[int] = None
     previous_assessment_id: Optional[int] = None
     user_id: int
-    usergroup_id: int
-    usergroup: AlleleAssessmentUsergroup
+    usergroup_id: Optional[int] = None
+    usergroup: Optional[AlleleAssessmentUsergroup] = None
     user: User
     classification: AlleleAssessmentClassification
     seconds_since_update: int
@@ -64,3 +54,38 @@ class AlleleAssessmentInput(BaseModel):
     classification: AlleleAssessmentClassification
     evaluation: Optional[Dict] = None
     referenceassessments: Optional[List[ReferenceAssessment]] = None
+
+
+class ReusedAlleleAssessment(BaseModel):
+    reuse: Literal[True]
+    allele_id: int
+    presented_alleleassessment_id: int
+
+
+class SuggestedAcmg(BaseModel):
+    included: List
+    suggested: List
+    suggested_classification: Optional[int] = Field(None, min=1, max=5)
+
+
+class NewAlleleAssessmentEvaluation(BaseModel):
+    acmg: SuggestedAcmg
+    comment: Optional[str]
+    external: Comment
+    frequency: Comment
+    reference: Comment
+    prediction: Comment
+    classification: Comment
+    similar: Optional[Comment] = None
+
+
+class NewAlleleAssessment(BaseModel):
+    reuse: Literal[False]
+    reuseCheckedId: Optional[int] = None
+    allele_id: int
+    attachment_ids: List[int]
+    classification: AlleleAssessmentClassification
+    evaluation: NewAlleleAssessmentEvaluation
+    genepanel_name: Optional[str] = None
+    genepanel_version: Optional[str] = None
+    presented_alleleassessment_id: Optional[int] = None

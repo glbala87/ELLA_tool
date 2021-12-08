@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, GenomeReference, StrandSymbol
+from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.gene_assessments import GeneAssessment
+from api.util.types import GenomeReference, StrandSymbol
 
 
 class Gene(BaseModel):

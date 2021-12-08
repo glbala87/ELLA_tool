@@ -570,6 +570,7 @@ e2e-test-local: test-build
 	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 	   -e API_PORT=28752 \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+	   -e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
 	   -p 28752:28752 -p 5859:5859 \
 	   $(IMAGE_NAME) \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg

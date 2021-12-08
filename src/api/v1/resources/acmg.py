@@ -52,7 +52,10 @@ class ACMGAlleleResource(LogRequestResource):
         )
 
     @authenticate(user_config=True)
-    @request_json(["allele_ids", "gp_name", "gp_version"], allowed=["referenceassessments"])
+    @request_json(
+        required_fields=["allele_ids", "gp_name", "gp_version"],
+        allowed_fields=["referenceassessments"],
+    )
     def post(self, session, data=None, user=None, user_config=None):
         """
         Returns calculated ACMG codes for provided alleles and related data.

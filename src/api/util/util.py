@@ -1,20 +1,22 @@
 import atexit
-from functools import wraps
-import os
-import json
-import datetime
-from typing import Dict, Mapping
-import pytz
-import time
 import collections
+import datetime
+import json
+import os
+import time
+from functools import wraps
 from pathlib import Path
-from jsonschema import validate, Draft7Validator, RefResolver
-from flask import request, g, Response
-from api import app, db, ApiError
-from api.config import config, get_user_config
-from vardb.datamodel.log import ResourceLog
-from api.util.useradmin import get_usersession_by_token
+from typing import Any, Dict, List, Mapping, Optional, Type
 
+import pytz
+from api import ApiError, app, db
+from api.config import config, get_user_config
+from api.schemas.pydantic.v1 import BaseModel
+from api.util.types import StrDict
+from api.util.useradmin import get_usersession_by_token
+from flask import Response, g, request
+from jsonschema import Draft7Validator, RefResolver, validate
+from vardb.datamodel.log import ResourceLog
 
 log = app.logger
 
@@ -279,100 +281,106 @@ def paginate(func):
     return inner
 
 
-def request_json(required=None, only_required=False, allowed=None, jsonschema=None):
+def request_json(
+    *,
+    required_fields: Optional[List[str]] = None,
+    allowed_fields: Optional[List[str]] = None,
+    strict: bool = False,
+    field_map: Mapping[str, List[str]] = None,
+    jsonschema: Optional[str] = None,
+    model: Optional[Type[BaseModel]] = None,
+):
     """
     Decorator: Checks flasks's request (root) json object for 'required'
     fields before passing on the data to the function.
 
-    If 'only_required', the json input is "washed" so only
-    the fields in required are passed on.
+    required_fields: if set, all of these must be present in the Request.get_json() object
+        - @request_json(required_fields=["allele_id", "user_id"])
 
-    If 'allowed' is set, the json input is "washed" so only those fields are passed on.
-    'allowed' accepts either an array ["field1", "field2" ..] or a dict ["top_key1": ["field",...], "top_key2": [...]}
-    In the array case the array items tell which fields to keep in the root json object. In the dict case the array
-    value of each key are used to filter the similar keyed object in the root json object.
+    allowed_fields: if set, the fields will be included if available but not fail if missing. forces strict.
+        - @request_json(
+            required_fields=["allele_id", "user_id"],
+            allowed_fields=["comment", "genepanel"]
+        )
 
+    strict: if True, only required/optional fields are passed on
 
-    example:
-    @request_json(["allele_id", "user_id"], allowed=["comment", "genepanel"])
-    to filter an input like {"allele_id": 45, "user_id": 1, "illegal": 666, "comment": "important stuff"}
+    field_map: a dict of keys whose values are used to filter the keys of that name in Request.get_json() object
+        - @request_json(
+            required_keys=["user", "content"],
+            field_map={
+                "user": ["user_id", "name"],
+                "content": ["allele_id", "annotation"],
+            }
+        )
 
-    or
+    jsonschema: name of a jsonschema file to use for validating the Request.get_json() object
+        - @request_json(jsonschema="workflowActionFinalizeAllelePost.json")
 
-    @request_json(["user", "content"], allowed={"user": ["user_id", "name"], "content": ["allele_id", "annotation"]})
+    model: a pydantic class to validate/process the Request.get_json() object
+        - @request_json(model=CreateInterpretationLog)
 
-    to filter an input like {"user":    {"id": 4, "name": "Erik", "address": "Parkveien"}
-                             "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}}
+    If no keywords are used, the full response is passed on unaltered. Please, please don't do this.
 
+    example input data:
+        {
+            "user": {"id": 4, "name": "Erik", "address": "Parkveien"},
+            "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}
+        }
     """
 
-    # used by request_json to mutate an array of dicts
-    def _check_array_content(
-        source_array, required_fields, only_required=False, allowed_fields=None
-    ):
-        for idx, d in enumerate(source_array):
-            if required_fields:
-                for field in required_fields:
-                    if d.get(field) is None:
-                        raise ApiError(
-                            "Missing or empty required field {} in provided data.".format(field)
-                        )
+    # used by request_json to process an array of dicts
+    def _filter_array_content(source_array: List[Dict[str, Any]]):
+        assert required_fields is not None and allowed_fields is not None
+        include_fields = set(required_fields + allowed_fields)
 
-                if only_required:
-                    source_array[idx] = {k: v for k, v in d.items() if k in required_fields}
-                elif allowed_fields:
-                    source_array[idx] = {
-                        k: v for k, v in d.items() if k in required_fields + allowed_fields
-                    }
-            else:
-                if allowed_fields:
-                    source_array[idx] = {k: v for k, v in d.items() if k in allowed_fields}
+        filtered_data = []
+        for d in source_array:
+            _check_required(d)
+            filtered_data.append(
+                {k: v for k, v in d.items() if strict is False or k in include_fields}
+            )
+        return filtered_data
+
+    def _check_required(data: StrDict):
+        if required_fields:
+            for f in required_fields:
+                if data.get(f) is None:
+                    raise ApiError("Missing or empty required field {} in provided data.".format(f))
 
     def array_wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
-            if not isinstance(data, list):
-                check_data = [data]
-            else:
-                check_data = data
+            convert_data = not isinstance(data, list)
 
-            _check_array_content(
-                check_data, required, only_required=only_required, allowed_fields=allowed
-            )
+            # always parse as list
+            if convert_data:
+                data = [data]
 
-            if not isinstance(data, list):
-                data = check_data[0]
-            else:
-                data = check_data
+            validated = _filter_array_content(data)
 
-            return func(*args, data=data, **kwargs)
+            # revert to non-list if appropriate
+            if convert_data:
+                validated = validated[0]
+
+            return func(*args, data=validated, **kwargs)
 
         return inner
 
     def dict_wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            data = request.get_json()
-            for data_key in list(data.keys()):
-                if required:
-                    for fields in required:
-                        if data.get(fields) is None:
-                            raise ApiError(
-                                "Missing or empty required field {} in provided data.".format(
-                                    fields
-                                )
-                            )
+            assert field_map, required_fields
+            data: Dict = request.get_json()
+            _check_required(data, required_fields)
 
-                if allowed:
-                    assert isinstance(allowed, dict)
-                    for allow_key in list(allowed.keys()):
-                        if allow_key == data_key:
-                            _check_array_content(
-                                data[data_key], None, allowed_fields=allowed[allow_key]
-                            )
+            validated = {}
+            for data_key in data.keys():
+                if data_key in field_map:
+                    validated[data_key] = _filter_array_content(data[data_key])
 
-            return func(*args, data=data, **kwargs)
+            return func(*args, data=validated, **kwargs)
 
         return inner
 
@@ -387,14 +395,42 @@ def request_json(required=None, only_required=False, allowed=None, jsonschema=No
 
         return inner
 
-    assert not (jsonschema and required)
-    if required is not None:
-        if isinstance(allowed, dict):
+    def noop_wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            data = request.get_json()
+            return func(*args, data=data, **kwargs)
+
+        return inner
+
+    def pydantic_wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            assert model
+            return func(*args, data=model.parse_obj(request.get_json()), **kwargs)
+
+        return inner
+
+    if jsonschema:
+        assert not any([required_fields, allowed_fields, field_map, model])
+        return jsonschema_wrapper
+    elif model:
+        assert not any([required_fields, allowed_fields, field_map, jsonschema])
+        return pydantic_wrapper
+    else:
+        if required_fields is None:
+            required_fields = []
+        if allowed_fields is None:
+            allowed_fields = []
+        else:
+            strict = True
+        if field_map:
             return dict_wrapper
         else:
-            return array_wrapper
-    elif jsonschema is not None:
-        return jsonschema_wrapper
+            if not required_fields and not allowed_fields:
+                return noop_wrapper
+            else:
+                return array_wrapper
 
 
 def populate_g_user():

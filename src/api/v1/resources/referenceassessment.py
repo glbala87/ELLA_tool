@@ -71,7 +71,7 @@ class ReferenceAssessmentListResource(LogRequestResource):
 
     @authenticate()
     @request_json(
-        [
+        required_fields=[
             "allele_id",
             "reference_id",
             "evaluation",
@@ -80,7 +80,6 @@ class ReferenceAssessmentListResource(LogRequestResource):
             "analysis_id",
             "user_id",
         ],
-        True,
     )
     def post(self, session, data=None, user=None):
         """

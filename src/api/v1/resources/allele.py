@@ -2,7 +2,7 @@ from typing import Optional
 from api import schemas
 from api.config import config
 from api.schemas.pydantic.v1 import validate_output
-from api.schemas.pydantic.v1.resources import AlleleListResource as PydanticAlleleListResource
+from api.schemas.pydantic.v1.resources import AlleleListResponse
 from api.util.util import authenticate, link_filter, logger, paginate, rest_filter
 from api.v1.resource import LogRequestResource
 from datalayer import AlleleDataLoader
@@ -16,7 +16,7 @@ from vardb.datamodel import allele, annotationshadow, gene, genotype, sample, us
 
 class AlleleListResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAlleleListResource, paginated=True)
+    @validate_output(AlleleListResponse, paginated=True)
     @paginate
     @link_filter
     @rest_filter

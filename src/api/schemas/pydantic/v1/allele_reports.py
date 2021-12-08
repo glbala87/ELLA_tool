@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from typing_extensions import Literal
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.users import User
@@ -30,3 +31,20 @@ class AlleleReport(BaseModel):
     user: User
     seconds_since_update: int
     evaluation: Optional[AlleleReportEvaluation] = None
+
+
+class ReusedAlleleReport(BaseModel):
+    reuse: Literal[True]
+    allele_id: int
+    presented_allelereport_id: int
+
+
+class NewAlleleReportEvaluation(BaseModel):
+    comment: str
+
+
+class NewAlleleReport(BaseModel):
+    evaluation: NewAlleleReportEvaluation
+    allele_id: int
+    presented_allelereport_id: Optional[int] = None
+    reuse: Literal[False]

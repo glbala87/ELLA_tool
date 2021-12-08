@@ -43,7 +43,7 @@ class CustomAnnotationList(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["allele_id", "annotations"], True)
+    @request_json(required_fields=["allele_id", "annotations"], strict=True)
     def post(self, session, data=None, user=None):
         """
         Creates new CustomAnnotation(s) for a given allele id(s).

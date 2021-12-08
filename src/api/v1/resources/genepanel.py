@@ -55,7 +55,7 @@ class GenepanelListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["name", "version", "genes", "usergroups"])
+    @request_json(required_fields=["name", "version", "genes", "usergroups"])
     def post(self, session, data=None, user=None):
         """
         Creates a new genepanel.

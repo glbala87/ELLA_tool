@@ -1,9 +1,12 @@
-from flask import request
+from typing import Dict
+
 from api import schemas
-from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
-from api.util.util import request_json, rest_filter, authenticate, logger, paginate
+from api.polling import ANNOTATION_SERVICE_URL, AnnotationJobsInterface, AnnotationServiceInterface
+from api.util.util import authenticate, logger, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
-from vardb.datamodel import annotationjob
+from flask import request
+from sqlalchemy.orm import Session
+from vardb.datamodel import annotationjob, user
 
 
 class AnnotationJobList(LogRequestResource):
@@ -38,8 +41,8 @@ class AnnotationJobList(LogRequestResource):
         )
 
     @authenticate()
-    @request_json([], True)
-    def post(self, session, data=None, user=None):
+    @request_json()
+    def post(self, session: Session, data: Dict, user: user.User):
         """
         Creates an annotation job in the system.
 
@@ -57,7 +60,7 @@ class AnnotationJobList(LogRequestResource):
 
 class AnnotationJob(LogRequestResource):
     @authenticate()
-    @request_json([], allowed=["status", "message", "task_id"])
+    @request_json(allowed_fields=["status", "message", "task_id"])
     def patch(self, session, id, data=None, user=None):
         """
         Updates an annotation job in the system.

@@ -4,9 +4,7 @@ from typing import Dict, Optional
 from api.config import config
 from api.schemas.annotations import AnnotationConfigSchema
 from api.schemas.pydantic.v1 import validate_output
-from api.schemas.pydantic.v1.resources import (
-    AnnotationConfigListResource as PydanticAnnotationConfigListResource,
-)
+from api.schemas.pydantic.v1.resources import AnnotationConfigListResponse
 from api.util.util import authenticate
 from api.v1.resource import LogRequestResource
 from flask import request
@@ -44,7 +42,7 @@ class ConfigResource(LogRequestResource):
 
 class AnnotationConfigListResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAnnotationConfigListResource)
+    @validate_output(AnnotationConfigListResponse)
     def get(self, session: Session, user: user.User):
         raw_ids = request.args.get("annotation_config_ids")
         if raw_ids is None:

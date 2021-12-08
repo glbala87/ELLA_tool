@@ -136,7 +136,7 @@ class AnalysisInterpretationResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["id"], allowed=["state", "user_state"])
+    @request_json(required_fields=["id"], allowed_fields=["state", "user_state"])
     def patch(self, session, analysis_id, interpretation_id, data=None, user=None):
         """
         Updates the current interpretation inplace.
@@ -269,7 +269,12 @@ class AnalysisActionStartResource(LogRequestResource):
 class AnalysisActionMarkNotReadyResource(LogRequestResource):
     @authenticate()
     @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+        required_fields=[
+            "alleleassessment_ids",
+            "annotation_ids",
+            "custom_annotation_ids",
+            "allelereport_ids",
+        ]
     )
     def post(self, session, analysis_id, data=None, user=None):
         """
@@ -305,7 +310,12 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
 class AnalysisActionMarkInterpretationResource(LogRequestResource):
     @authenticate()
     @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+        required_fields=[
+            "alleleassessment_ids",
+            "annotation_ids",
+            "custom_annotation_ids",
+            "allelereport_ids",
+        ]
     )
     def post(self, session, analysis_id, data=None, user=None):
         """
@@ -341,7 +351,12 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
 class AnalysisActionMarkReviewResource(LogRequestResource):
     @authenticate()
     @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+        required_fields=[
+            "alleleassessment_ids",
+            "annotation_ids",
+            "custom_annotation_ids",
+            "allelereport_ids",
+        ]
     )
     def post(self, session, analysis_id, data=None, user=None):
         """
@@ -377,7 +392,12 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
 class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
     @authenticate()
     @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
+        required_fields=[
+            "alleleassessment_ids",
+            "annotation_ids",
+            "custom_annotation_ids",
+            "allelereport_ids",
+        ]
     )
     def post(self, session, analysis_id, data=None, user=None):
         """
@@ -487,7 +507,7 @@ class AnalysisActionFinalizeAlleleResource(LogRequestResource):
 class AnalysisActionFinalizeResource(LogRequestResource):
     @authenticate(user_config=True)
     @request_json(
-        [
+        required_fields=[
             "alleleassessment_ids",
             "allelereport_ids",
             "annotation_ids",
@@ -606,7 +626,7 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
         return logs, 200
 
     @authenticate()
-    @request_json([], allowed=["warning_cleared", "priority", "message", "review_comment"])
+    @request_json(allowed_fields=["warning_cleared", "priority", "message", "review_comment"])
     def post(self, session, analysis_id, data=None, user=None):
         """
         Create a new interpretation log entry for an analysis workflow.
@@ -635,7 +655,7 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
 
 class AnalysisInterpretationLogResource(LogRequestResource):
     @authenticate()
-    @request_json(["message"])
+    @request_json(required_fields=["message"])
     def patch(self, session, analysis_id, log_id, data=None, user=None):
         """
         Patch an interpretation log entry.

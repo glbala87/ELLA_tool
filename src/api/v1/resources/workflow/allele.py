@@ -1,11 +1,26 @@
 from typing import Dict
+
 from api import ApiError
 from api.schemas.alleleinterpretations import AlleleInterpretationSnapshotSchema
 from api.schemas.pydantic.v1 import validate_output
 from api.schemas.pydantic.v1.resources import (
-    AlleleInterpretationListResource as PydanticAlleleInterpretationListResource,
-    AlleleGenepanelResource as PydanticAlleleGenepanelResource,
-    AlleleListResource as PydanticAlleleListResource,
+    AlleleActionFinalizeRequest,
+    AlleleActionStartRequest,
+    AlleleCollisionResponse,
+    AlleleGenepanelResponse,
+    AlleleGenepanelsListResponse,
+    AlleleInterpretationListResponse,
+    AlleleInterpretationLogListResponse,
+    AlleleInterpretationResponse,
+    AlleleInterpretationSnapshotListResponse,
+    AlleleListResponse,
+    CreateInterpretationLogRequest,
+    EmptyResponse,
+    FinalizeAlleleInterpretationResponse,
+    FinalizeAlleleRequest,
+    MarkInterpretationRequest,
+    PatchInterpretationLogRequest,
+    PatchInterpretationRequest,
 )
 from api.util.util import authenticate, request_json
 from api.v1.resource import LogRequestResource
@@ -20,7 +35,7 @@ from . import helpers
 
 class AlleleGenepanelResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAlleleGenepanelResource)
+    @validate_output(AlleleGenepanelResponse)
     def get(self, session: Session, allele_id: int, gp_name: str, gp_version: str, user: User):
         """
         Returns genepanel for allele, only including relevant transcripts and phenotypes.
@@ -30,6 +45,7 @@ class AlleleGenepanelResource(LogRequestResource):
 
 class AlleleInterpretationResource(LogRequestResource):
     @authenticate()
+    @validate_output(AlleleInterpretationResponse)
     def get(self, session: Session, allele_id: int, interpretation_id: int, user: User):
         """
         Returns current alleleinterpretation for allele.
@@ -53,13 +69,14 @@ class AlleleInterpretationResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json([], allowed=["state", "user_state"])
+    @validate_output(EmptyResponse)
+    @request_json(model=PatchInterpretationRequest)
     def patch(
         self,
         session: Session,
         allele_id: int,
         interpretation_id: int,
-        data: Dict,
+        data: PatchInterpretationRequest,
         user: User,
     ):
         """
@@ -100,17 +117,15 @@ class AlleleInterpretationResource(LogRequestResource):
         """
 
         helpers.update_interpretation(
-            session, user.id, data, alleleinterpretation_id=interpretation_id
+            session, user.id, data.dump(), alleleinterpretation_id=interpretation_id
         )
         session.commit()
-
-        return None, 200
 
 
 class AlleleInterpretationAllelesListResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAlleleListResource)
-    def get(self, session, allele_id, interpretation_id, user=None):
+    @validate_output(AlleleListResponse)
+    def get(self, session: Session, allele_id: int, interpretation_id: int, user: User):
         if (
             not session.query(AlleleInterpretation)
             .filter(
@@ -124,8 +139,8 @@ class AlleleInterpretationAllelesListResource(LogRequestResource):
                     interpretation_id, allele_id
                 )
             )
-        allele_ids = request.args.get("allele_ids", "").split(",")
-        current = request.args.get("current", "").lower() == "true"
+        allele_ids = [int(a) for a in request.args.get("allele_ids", "").split(",")]
+        current: bool = request.args.get("current", "").lower() == "true"
         return helpers.get_alleles(
             session,
             allele_ids,
@@ -137,7 +152,7 @@ class AlleleInterpretationAllelesListResource(LogRequestResource):
 
 class AlleleInterpretationListResource(LogRequestResource):
     @authenticate()
-    @validate_output(PydanticAlleleInterpretationListResource)
+    @validate_output(AlleleInterpretationListResponse)
     def get(self, session: Session, allele_id: int, user: User):
         """
         Returns all interpretations for allele.
@@ -166,6 +181,7 @@ class AlleleInterpretationListResource(LogRequestResource):
 
 class AlleleActionOverrideResource(LogRequestResource):
     @authenticate()
+    @validate_output(EmptyResponse)
     def post(self, session: Session, allele_id: int, user: User):
         """
         Lets an user take over an allele, by replacing the
@@ -191,13 +207,12 @@ class AlleleActionOverrideResource(LogRequestResource):
         helpers.override_interpretation(session, user.id, workflow_allele_id=allele_id)
         session.commit()
 
-        return None, 200
-
 
 class AlleleActionStartResource(LogRequestResource):
     @authenticate()
-    @request_json(["gp_name", "gp_version"])
-    def post(self, session: Session, allele_id: int, data: Dict, user: User):
+    @validate_output(EmptyResponse)
+    @request_json(model=AlleleActionStartRequest)
+    def post(self, session: Session, allele_id: int, data: AlleleActionStartRequest, user: User):
         """
         Starts an alleleinterpretation.
 
@@ -240,18 +255,21 @@ class AlleleActionStartResource(LogRequestResource):
             description: Error
         """
 
-        helpers.start_interpretation(session, user.id, data, workflow_allele_id=allele_id)
+        helpers.start_interpretation(session, user.id, data.dump(), workflow_allele_id=allele_id)
         session.commit()
-
-        return None, 200
 
 
 class AlleleActionMarkInterpretationResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
-    )
-    def post(self, session: Session, allele_id: int, data: Dict, user: User):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        allele_id: int,
+        data: MarkInterpretationRequest,
+        user: User,
+    ):
         """
         Marks an allele interpretation for interpretation.
 
@@ -276,18 +294,23 @@ class AlleleActionMarkInterpretationResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markinterpretation_interpretation(session, data, workflow_allele_id=allele_id)
+        helpers.markinterpretation_interpretation(
+            session, data.dump(), workflow_allele_id=allele_id
+        )
         session.commit()
-
-        return None, 200
 
 
 class AlleleActionMarkReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
-    )
-    def post(self, session, allele_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        allele_id: int,
+        data: MarkInterpretationRequest,
+        user: User,
+    ):
         """
         Marks an allele interpretation for review.
 
@@ -312,15 +335,14 @@ class AlleleActionMarkReviewResource(LogRequestResource):
             description: Error
         """
 
-        helpers.markreview_interpretation(session, data, workflow_allele_id=allele_id)
+        helpers.markreview_interpretation(session, data.dump(), workflow_allele_id=allele_id)
         session.commit()
-
-        return None, 200
 
 
 class AlleleActionReopenResource(LogRequestResource):
     @authenticate()
-    def post(self, session, allele_id, user=None):
+    @validate_output(EmptyResponse)
+    def post(self, session: Session, allele_id: int, user: User):
         """
         Reopens an allele workflow that has previously been finalized.
 
@@ -347,13 +369,19 @@ class AlleleActionReopenResource(LogRequestResource):
         helpers.reopen_interpretation(session, workflow_allele_id=allele_id)
         session.commit()
 
-        return None, 200
-
 
 class AlleleActionFinalizeAlleleResource(LogRequestResource):
     @authenticate(user_config=True)
-    @request_json(jsonschema="workflowActionFinalizeAllelePost.json")
-    def post(self, session, allele_id, user_config=None, data=None, user=None):
+    @validate_output(FinalizeAlleleInterpretationResponse)
+    @request_json(model=FinalizeAlleleRequest)
+    def post(
+        self,
+        session: Session,
+        allele_id: int,
+        user_config: Dict,
+        data: FinalizeAlleleRequest,
+        user: User,
+    ):
         """
         Finalizes a single allele within an allele workflow.
 
@@ -377,25 +405,31 @@ class AlleleActionFinalizeAlleleResource(LogRequestResource):
 
         responses:
           200:
-            description: Returns null
+            description: Returns FinalizedAlleleInterpretation
           500:
             description: Error
         """
 
         result = helpers.finalize_allele(
-            session, user.id, user.group.id, data, user_config, workflow_allele_id=allele_id
+            session, user.id, user.group.id, data.dump(), user_config, workflow_allele_id=allele_id
         )
         session.commit()
 
-        return result, 200
+        return result
 
 
 class AlleleActionFinalizeResource(LogRequestResource):
     @authenticate(user_config=True)
-    @request_json(
-        ["alleleassessment_ids", "allelereport_ids", "annotation_ids", "custom_annotation_ids"]
-    )
-    def post(self, session, allele_id, user_config=None, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=AlleleActionFinalizeRequest)
+    def post(
+        self,
+        session: Session,
+        allele_id: int,
+        user_config: Dict,
+        data: AlleleActionFinalizeRequest,
+        user: User,
+    ):
         """
         Finalizes an allele workflow.
 
@@ -423,15 +457,18 @@ class AlleleActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_workflow(
-            session, user.id, data, user_config, workflow_allele_id=allele_id
+        helpers.finalize_workflow(
+            session,
+            user.id,
+            data.dump(exclude_none=True),
+            user_config,
+            workflow_allele_id=allele_id,
         )
         session.commit()
 
-        return result, 200
-
     @authenticate()
-    def get(self, session, allele_id, user=None):
+    @validate_output(AlleleInterpretationSnapshotListResponse)
+    def get(self, session: Session, allele_id: int, user: User):
         f = (
             session.query(AlleleInterpretationSnapshot)
             .filter(
@@ -450,13 +487,15 @@ class AlleleActionFinalizeResource(LogRequestResource):
 
 class AlleleGenepanelsListResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, user=None):
+    @validate_output(AlleleGenepanelsListResponse)
+    def get(self, session: Session, allele_id: int, user: User):
         return helpers.get_genepanels(session, [allele_id], user=user).data
 
 
 class AlleleCollisionResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, user=None):
+    @validate_output(AlleleCollisionResponse)
+    def get(self, session: Session, allele_id: int, user: User):
 
         allele_ids = request.args.get("allele_ids")
         if allele_ids is None:
@@ -472,7 +511,8 @@ class AlleleCollisionResource(LogRequestResource):
 
 class AlleleInterpretationLogListResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, user=None):
+    @validate_output(AlleleInterpretationLogListResponse)
+    def get(self, session: Session, allele_id: int, user: User):
         """
         Get all interpreation log entries for an allele workflow.
 
@@ -494,11 +534,18 @@ class AlleleInterpretationLogListResource(LogRequestResource):
         """
         logs = helpers.get_interpretationlog(session, user.id, allele_id=allele_id)
 
-        return logs, 200
+        return logs
 
     @authenticate()
-    @request_json([], allowed=["warning_cleared", "priority", "message", "review_comment"])
-    def post(self, session, allele_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=CreateInterpretationLogRequest)
+    def post(
+        self,
+        session: Session,
+        allele_id: int,
+        data: CreateInterpretationLogRequest,
+        user: User,
+    ):
         """
         Create a new interpretation log entry for an allele workflow.
 
@@ -518,16 +565,22 @@ class AlleleInterpretationLogListResource(LogRequestResource):
           500:
             description: Error
         """
-        helpers.create_interpretationlog(session, user.id, data, allele_id=allele_id)
+        helpers.create_interpretationlog(session, user.id, data.dict(), allele_id=allele_id)
         session.commit()
-
-        return None, 200
 
 
 class AlleleInterpretationLogResource(LogRequestResource):
     @authenticate()
-    @request_json(["message"])
-    def patch(self, session, allele_id, log_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=PatchInterpretationLogRequest)
+    def patch(
+        self,
+        session: Session,
+        allele_id: int,
+        log_id: int,
+        data: PatchInterpretationLogRequest,
+        user: User,
+    ):
         """
         Patch an interpretation log entry.
 
@@ -547,15 +600,12 @@ class AlleleInterpretationLogResource(LogRequestResource):
           500:
             description: Error
         """
-        helpers.patch_interpretationlog(
-            session, user.id, log_id, data["message"], allele_id=allele_id
-        )
+        helpers.patch_interpretationlog(session, user.id, log_id, data.message, allele_id=allele_id)
         session.commit()
 
-        return None, 200
-
     @authenticate()
-    def delete(self, session, allele_id, log_id, user=None):
+    @validate_output(EmptyResponse)
+    def delete(self, session: Session, allele_id: int, log_id: int, user: User):
         """
         Delete an interpretation log entry.
 
@@ -581,5 +631,3 @@ class AlleleInterpretationLogResource(LogRequestResource):
         """
         helpers.delete_interpretationlog(session, user.id, log_id, allele_id=allele_id)
         session.commit()
-
-        return None, 200

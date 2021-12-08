@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import List, Optional
 
 from api.schemas.pydantic.v1 import BaseModel
-
-
-class Relevance(str, Enum):
-    YES = "Yes"
-    NO = "No"
-    IGNORE = "Ignore"
+from api.util.types import ReferenceEvalRelevance
 
 
 ###
@@ -36,10 +30,10 @@ class Reference(BaseModel):
 
 
 class ReferenceEvaluation(BaseModel):
-    comment: str
-    sources: List[str]
+    comment: Optional[str] = None
+    sources: Optional[List[str]] = None
     ref_prot: Optional[str] = None
-    relevance: Relevance
+    relevance: Optional[ReferenceEvalRelevance] = None
     ref_prot_quality: Optional[str] = None
     ref_auth_classification: Optional[str] = None
     ref_population_affecteds: Optional[str] = None
@@ -58,3 +52,23 @@ class ReferenceAssessment(BaseModel):
     genepanel_name: str
     genepanel_version: str
     evaluation: ReferenceEvaluation
+
+
+class ReusedReferenceAssessment(BaseModel):
+    id: int
+    allele_id: int
+    reference_id: int
+
+
+class NewReferenceAssessmentEvaluation(BaseModel):
+    comment: Optional[str] = None
+    relevance: Optional[ReferenceEvalRelevance] = None
+    sources: Optional[List[str]] = None
+
+
+class NewReferenceAssessment(BaseModel):
+    evaluation: NewReferenceAssessmentEvaluation
+    allele_id: int
+    reference_id: int
+    genepanel_name: Optional[str] = None
+    genepanel_version: Optional[str] = None

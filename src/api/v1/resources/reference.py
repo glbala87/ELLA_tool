@@ -60,7 +60,7 @@ class ReferenceListResource(LogRequestResource):
             )
 
     @authenticate()
-    @request_json([], allowed=["pubmedData", "manual"])
+    @request_json(allowed_fields=["pubmedData", "manual"])
     def post(self, session, data=None, user=None):
         """
         Creates a new Reference from the input [Pubmed](http://www.ncbi.nlm.nih.gov/pubmed) XML.

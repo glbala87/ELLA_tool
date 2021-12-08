@@ -1,17 +1,41 @@
 from __future__ import annotations
-from typing import Optional
 
-from api.schemas.pydantic.v1 import BaseModel
+from typing import Any, Dict, List, Optional
+
+from api.schemas.pydantic.v1 import BaseModel, Field
+from pydantic import root_validator
 
 
-class InterpretationLog(BaseModel):
+class LogAssessment(BaseModel):
+    allele_id: int
+    hgvsc: str
+    classification: str
+    previous_classification: Optional[List[str]] = None
+
+
+class LogReport(BaseModel):
+    allele_id: int
+    hgvsc: str
+
+
+class CreateInterpretationLog(BaseModel):
+    message: Optional[str] = None
+    warning_cleared: Optional[bool] = None
+    priority: Optional[int] = None
+    review_comment: Optional[str] = None
+
+    @root_validator
+    def has_content(cls, values: Dict[str, Any]):
+        if any(values.get(a) is not None for a in cls.__annotations__):
+            return values
+        raise ValueError(f"Must specify at least one of: {', '.join(cls.__annotations__.keys())}")
+
+
+class InterpretationLog(CreateInterpretationLog):
     "Represents one interpretation log item."
     id: int
     date_created: str
-    message: str
-    warning_cleared: bool
-    review_comment: Optional[str] = None
     user_id: Optional[int] = None
-    priority: Optional[int] = None
-    alleleassessment_id: int
-    allelereport_id: int
+    alleleassessment: Dict = Field(default_factory=dict)  # LogAssessment, but empty dict allowed
+    allelereport: Dict = Field(default_factory=dict)  # LogReport, but empty dict allowed
+    editable: bool

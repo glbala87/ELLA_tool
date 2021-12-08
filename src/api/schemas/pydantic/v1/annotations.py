@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Dict, List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field, IntDict, Strand, YesNo
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field
 from api.schemas.pydantic.v1.references import AnnotationReference
+from api.util.types import IntDict, Strand, YesNo, Consequence
 
 rank_pattern = r"[1-9]\d*/[1-9]\d*"
 # NOTE: these are not enforced by pydantic, but it keeps them in the schema spec like they were before
@@ -22,46 +22,6 @@ class Frequency(BaseModel):
     num: Optional[IntDict] = Field(None, patternProperties=count_props)
     filter: Optional[Dict[str, List[str]]] = Field(None, patternProperties=filter_props)
     indications: Optional[Dict[str, IntDict]] = None
-
-
-class Consequence(Enum):
-    transcript_ablation = "transcript_ablation"
-    splice_donor_variant = "splice_donor_variant"
-    splice_acceptor_variant = "splice_acceptor_variant"
-    stop_gained = "stop_gained"
-    frameshift_variant = "frameshift_variant"
-    start_lost = "start_lost"
-    initiator_codon_variant = "initiator_codon_variant"
-    stop_lost = "stop_lost"
-    inframe_insertion = "inframe_insertion"
-    inframe_deletion = "inframe_deletion"
-    missense_variant = "missense_variant"
-    protein_altering_variant = "protein_altering_variant"
-    transcript_amplification = "transcript_amplification"
-    splice_region_variant = "splice_region_variant"
-    incomplete_terminal_codon_variant = "incomplete_terminal_codon_variant"
-    synonymous_variant = "synonymous_variant"
-    start_retained_variant = "start_retained_variant"
-    stop_retained_variant = "stop_retained_variant"
-    coding_sequence_variant = "coding_sequence_variant"
-    mature_miRNA_variant = "mature_miRNA_variant"
-    field_5_prime_UTR_variant = "5_prime_UTR_variant"
-    field_3_prime_UTR_variant = "3_prime_UTR_variant"
-    non_coding_transcript_exon_variant = "non_coding_transcript_exon_variant"
-    non_coding_transcript_variant = "non_coding_transcript_variant"
-    intron_variant = "intron_variant"
-    NMD_transcript_variant = "NMD_transcript_variant"
-    upstream_gene_variant = "upstream_gene_variant"
-    downstream_gene_variant = "downstream_gene_variant"
-    TFBS_ablation = "TFBS_ablation"
-    TFBS_amplification = "TFBS_amplification"
-    TF_binding_site_variant = "TF_binding_site_variant"
-    regulatory_region_variant = "regulatory_region_variant"
-    regulatory_region_ablation = "regulatory_region_ablation"
-    regulatory_region_amplification = "regulatory_region_amplification"
-    feature_elongation = "feature_elongation"
-    feature_truncation = "feature_truncation"
-    intergenic_variant = "intergenic_variant"
 
 
 class Transcript(BaseModel):
@@ -90,7 +50,7 @@ class Transcript(BaseModel):
 # minimal model schema from: src/vardb/datamodel/jsonschemas/annotation_v1.json
 # + marshmallow schema: src/api/schemas/annotations.py:AnnotationSchema
 class Annotation(ExtraOK):
-    id: int
+    annotation_id: int
     schema_version: str
     annotation_config_id: int
     date_superceeded: Optional[str] = None
@@ -102,7 +62,7 @@ class Annotation(ExtraOK):
 
 class AnnotationConfig(BaseModel):
     id: int
-    view: Dict
+    view: List[Dict]
     # not included in AnnotationConfigSchema, but are in datamodel
     deposit: Optional[Dict] = None
     date_created: Optional[str] = None

@@ -85,7 +85,7 @@ class UserResource(LogRequestResource):
 
 
 class LoginResource(Resource):
-    @request_json(["username", "password"], only_required=True)
+    @request_json(required_fields=["username", "password"], strict=True)
     def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")
@@ -100,7 +100,7 @@ class LoginResource(Resource):
 
 
 class ChangePasswordResource(Resource):
-    @request_json(["username", "password", "new_password"], only_required=True)
+    @request_json(required_fields=["username", "password", "new_password"], strict=True)
     def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")

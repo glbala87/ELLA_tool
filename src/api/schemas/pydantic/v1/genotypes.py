@@ -1,16 +1,9 @@
 from __future__ import annotations
 
-from enum import Enum
 from typing import Dict, Optional
 
 from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field
-
-
-class GenotypeType(str, Enum):
-    HOMOZYGOUS = "Homozygous"
-    HETEROZYGOUS = "Heterozygous"
-    REFERENCE = "Reference"
-    NO_COVERAGE = "No coverage"
+from api.util.types import GenotypeTypes
 
 
 class Genotype(BaseModel):
@@ -23,7 +16,7 @@ class Genotype(BaseModel):
 #       extra fields as needed
 class GenotypeSampleData(ExtraOK):
     id: int
-    type: GenotypeType
+    type: GenotypeTypes
     multiallelic: bool
     genotype_quality: Optional[int] = None
     sequencing_depth: Optional[int] = None

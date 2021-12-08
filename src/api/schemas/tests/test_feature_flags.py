@@ -9,7 +9,8 @@ from typing import Dict, List, Optional
 
 from api.config import config
 from api.config.config import feature_is_enabled
-from api.schemas.pydantic.v1 import validate_output, ResourceResponse, BaseModel, ExtraOK
+from api.schemas.pydantic.v1 import validate_output, ResponseValidator, BaseModel, ExtraOK
+from api.util.types import ResourceMethods
 from pydantic import ValidationError
 from pydantic.json import pydantic_encoder
 
@@ -28,13 +29,13 @@ class PydanticExtra(PydanticModel, ExtraOK):
     value: Optional[float] = 42.0
 
 
-class PydanticResource(ResourceResponse):
+class PydanticResource(ResponseValidator):
     __root__: List[PydanticModel]
-    endpoints = ["/api/v0/base/resource"]
+    endpoints = {"/api/v0/base/resource": ResourceMethods.GET}
 
 
-class PydanticExtraResource(PydanticExtra, ResourceResponse):
-    endpoints = ["/api/v0/extra/resource"]
+class PydanticExtraResource(PydanticExtra, ResponseValidator):
+    endpoints = {"/api/v0/extra/resource": ResourceMethods.GET}
 
 
 VALID_MODEL_DICTS: List[Dict] = [
