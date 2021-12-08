@@ -113,6 +113,9 @@
     "^STATIC/.*\\.bw$": {
         "igv": { "format": "bigWig", "displayMode": "EXPANDED", "order": 200 }
     },
+    "^STATIC/.*\\.gtf\\.gz": {
+        "igv": { "format": "gtf", "displayMode": "EXPANDED", "order": 200 }
+    },
     "^STATIC/.*\\.gff3\\.gz": {
         "igv": { "format": "gff3", "displayMode": "EXPANDED", "order": 200 }
     },
