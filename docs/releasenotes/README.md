@@ -70,7 +70,7 @@ MR !643 Add chromosome band annotation for CNVs
 MR !650 Trio filtering not available when CNV and SNVs combined
 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
-<!-- MR !605, MR !651, MR !652 -->
+<!-- MR !605, MR !651, MR !652, MR !657 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
