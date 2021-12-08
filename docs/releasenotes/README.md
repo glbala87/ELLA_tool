@@ -19,28 +19,39 @@ Release date: TBD
 
 ### Highlights
 
-#### Minimal support for CNV interpretation
+#### Experimental support for CNV interpretation
+<!-- !575, !626, !606, !636, !638, !643, !650 -->
 
-This version introduces a big change: Support for copy number variants (CNVs)! The current solution is "bare bones", but will show CNVs in a separate variant list and allow documenting and reusing CNV interpretations, as for SNVs. 
+This version introduces experimental support for copy number variants (CNVs). 
 
-Known limitations in this version: 
-- Only CNV deletions, duplications and tandem duplications are supported (VCF: `DEL`, `DUP` and `DUP:TANDEM`, respectively; for variants of type = `SVTYPE`).
-- No variant filtering is done for CNVs in ELLA, for the time being this needs to be done upstream, prior to import. 
+When enabled, a separate CNV mode is added (switched to using a button in the top bar), where CNVs are shown in a separate variant list and allow documenting, reporting and reusing CNV interpretations, as for SNVs. The current version supports CNV deletions, duplications and tandem duplications (VCF format: `DEL`, `DUP` and `DUP:TANDEM`, respectively; for variants of type = `SVTYPE`).
+
+<div class="figure_text">
+    <img src="./img/1-16-CNV-mode.png"><br>
+    <p><strong>Figure: </strong>Experimental CNV mode.</p>
+</div> 
+
+Note the limitations in this version: 
+- No CNV filtering is done in ELLA, for the time being this needs to be done upstream, prior to import. 
 - No particular adaptations have been made to presentation of annotation. However, any annotation from the VCF can be added in the configuration, and we recommend adding CNV-specific tracks to VISUAL to aid in interpretation.
 - No CNV-specific ACMG criteria have been added.
+- No manual import of CNVs is supported.
 
-Due to these limitations we recommend restricting CNV analyses to smaller gene panels for now. But stay tuned, we plan to improve on all of the above in the time to come. 
+::: warning DISCLAIMER
+As the CNV features are not fully validated, this functionality is currently disabled by default, and we recommend not enabling it in production. For testing, the new features can be enabled by setting the feature flag `ENABLE_CNV` to `true` in the [application configuration](/technical/application.md).
+:::
 
-Note: If you only plan to use ELLA for SNVs (or wish to wait until more features are in place), the CNV-specific features can be turned off using [...]. 
+[TODO: screenshots and some more detail, update manual and technical docs]
 
-[TODO: screenshots and some more detail, update manual and technical docs (including instructions for configuring tracks)]
+#### Changes in VISUAL
 
-Note: To allow better zoom/scroll control in VISUAL with many tracks visible, this version adds a requirement to hold the `Shift` or `Alt` key when zooming with the mousewheel. 
+Configuration of tracks in VISUAL has been further improved, allowing all types of tracks to be placed under presets. To allow better zoom/scroll control with many tracks visible, this version also adds a requirement to hold the `Shift` or `Alt` key when zooming with the mousewheel. 
 
 ### :small_red_triangle: Breaking changes
 
 #### Configuration of tracks in IGV
 <!-- MR !605, MR !651, MR !652 -->
+
 With this version, configuration of tracks shown in IGV needs to be updated. 
 
 Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier version will no longer work. 
@@ -58,7 +69,7 @@ MR !638 Fix bug on missing alleles
 MR !643 Add chromosome band annotation for CNVs
 MR !650 Trio filtering not available when CNV and SNVs combined
 -->
-- [Added minimal support for CNV interpretation](#minimal-support-for-cnv-interpretation).
+- [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
 <!-- MR !605, MR !651, MR !652 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
 <!-- MR !611 -->
