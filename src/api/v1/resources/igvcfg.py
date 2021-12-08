@@ -20,10 +20,11 @@ log = logging.getLogger(__name__)
 class TrackType(Enum):
     bam = auto()
     bed = auto()
-    vcf = auto()
-    gff3 = auto()
-    cram = auto()
     bigWig = auto()
+    cram = auto()
+    gff3 = auto()
+    gtf = auto()
+    vcf = auto()
 
 
 class TrackSuffixType:
@@ -34,12 +35,13 @@ class TrackSuffixType:
 
 
 VALID_TRACK_TYPES = [
-    TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bed),
-    TrackSuffixType(".vcf.gz", [".vcf.gz.tbi"], TrackType.vcf),
-    TrackSuffixType(".gff3.gz", [".gff3.gz.tbi"], TrackType.gff3),
     TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
-    TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
+    TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bed),
     TrackSuffixType(".bigWig", [], TrackType.bigWig),
+    TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
+    TrackSuffixType(".gff3.gz", [".gff3.gz.tbi"], TrackType.gff3),
+    TrackSuffixType(".gtf.gz", [".gtf.gz.tbi"], TrackType.gtf),
+    TrackSuffixType(".vcf.gz", [".vcf.gz.tbi"], TrackType.vcf),
 ]
 
 
