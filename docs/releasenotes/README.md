@@ -41,7 +41,7 @@ Note the limitations in this version:
 As the CNV features are not fully validated, this functionality is currently disabled by default, and we recommend not enabling it in production. For testing, the new features can be enabled by setting the feature flag `ENABLE_CNV` to `true` in the [application configuration](/technical/application.md).
 :::
 
-[TODO: screenshots and some more detail, update manual and technical docs]
+[TODO: update /manual/side-bar.md]
 
 #### Changes in VISUAL
 
@@ -80,6 +80,8 @@ MR !650 Trio filtering not available when CNV and SNVs combined
 - Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
 <!-- MR !645 -->
 - Fixed another bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
+<!-- MR !647 -->
+- Added default transcript to Gene info.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal

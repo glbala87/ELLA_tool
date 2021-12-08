@@ -55,6 +55,7 @@ Header  | Explanation | More information
 LINKS | Click to go to corresponding gene information pages from external resources. 
 INHERITANCE | Inheritance mode, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
 PHENOTYPES | Associated phenotypes, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
+TRANSCRIPTS | Shows the default transcript(s) used in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
 BS1/BA1 CUTOFF | Frequency thresholds for automatic suggestions of the corresponding ACMG-AMP criteria (divided by external and internal database). | [User group-specific ACMG rules](/technical/acmg.html#user-group-rules)
 GENE COMMENTS | User-added gene information. | (see below)
 
