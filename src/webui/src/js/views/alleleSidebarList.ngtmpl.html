@@ -30,22 +30,11 @@
                 </div>
                 <div
                     class="cell"
-                    tippy-title="start"
-                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'start' })"
+                    tippy-title="pos"
+                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'pos' })"
                 >
-                    <span ng-class="{'clickable': $ctrl.orderByPath}">START</span>
-                    <span ng-if="$ctrl.orderBy.key === 'start' ">
-                        <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
-                        <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
-                    </span>
-                </div>
-                <div
-                    class="cell"
-                    tippy-title="end"
-                    ng-click="$ctrl.orderByChanged({orderByPath: $ctrl.orderByPath, key: 'end' })"
-                >
-                    <span ng-class="{'clickable': $ctrl.orderByPath}">END</span>
-                    <span ng-if="$ctrl.orderBy.key === 'end' ">
+                    <span ng-class="{'clickable': $ctrl.orderByPath}">POS</span>
+                    <span ng-if="$ctrl.orderBy.key === 'pos' ">
                         <span ng-if="$ctrl.orderBy.reverse">&#8593;</span>
                         <span ng-if="!$ctrl.orderBy.reverse">&#8595;</span>
                     </span>
@@ -153,19 +142,11 @@
                 </div>
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
-                    class="cell sv_start sv_start-id"
-                    tippy-title="{{ $ctrl.getStartPos(allele) }}"
+                    class="cell sv_pos sv_pos-id"
+                    tippy-title="{{ $ctrl.getPos(allele) }}"
                     tippy-clipboard="true"
                 >
-                    {{ $ctrl.getStartPos(allele) | numberFormat }}
-                </div>
-                <div
-                    ng-click="$ctrl.rowClicked({alleleId: allele.id})"
-                    class="cell sv_end sv_end-id"
-                    tippy-title="{{ $ctrl.getEndPos(allele) }}"
-                    tippy-clipboard="true"
-                >
-                    {{ $ctrl.getEndPos(allele) | numberFormat }}
+                    {{ $ctrl.getPos(allele) }}
                 </div>
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"

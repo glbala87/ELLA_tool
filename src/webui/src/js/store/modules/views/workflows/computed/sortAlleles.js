@@ -44,6 +44,9 @@ function getSortFunctions(
         end: (allele) => {
             return allele.open_end_position
         },
+        pos: (allele) => {
+            allele.start_position
+        },
         sv_type: (allele) => {
             return allele.change_type
         },
@@ -223,6 +226,10 @@ export default function sortAlleles(alleles, key, reverse) {
                     thenBy(sortFunctions.chromosome, reverse ? -1 : 1)
                         .thenBy(sortFunctions.start)
                         .thenBy(sortFunctions.end)
+                )
+            } else if (key === 'pos') {
+                sortedAlleles.sort(
+                    thenBy(sortFunctions.start, reverse ? -1 : 1).thenBy(sortFunctions.end)
                 )
             } else if (key) {
                 sortedAlleles.sort(
