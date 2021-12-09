@@ -70,18 +70,18 @@ MR !643 Add chromosome band annotation for CNVs
 MR !650 Trio filtering not available when CNV and SNVs combined
 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
-<!-- MR !605, MR !651, MR !652, MR !657 -->
+<!-- MR !605, MR !651, MR !652, MR !657, MR !660 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
+<!-- MR !633-->
+- Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
+<!-- MR !647 -->
+- Added default transcript to Gene info.
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
 - Filtered variants are now sorted by genomic position.
-<!-- MR !633-->
-- Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
 <!-- MR !645 -->
 - Fixed another bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
-<!-- MR !647 -->
-- Added default transcript to Gene info.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
