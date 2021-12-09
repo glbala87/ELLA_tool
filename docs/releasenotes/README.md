@@ -20,7 +20,7 @@ Release date: TBD
 ### Highlights
 
 #### Experimental support for CNV interpretation
-<!-- !575, !626, !606, !636, !638, !643, !650 -->
+<!-- MRs !575, !626, !606, !636, !638, !643, !650, !659 -->
 
 This version introduces experimental support for copy number variants (CNVs). 
 
@@ -28,7 +28,7 @@ When enabled, a separate CNV mode is added (switched to using a button in the to
 
 <div class="figure_text">
     <img src="./img/1-16-CNV-mode.png"><br>
-    <p><strong>Figure: </strong>Experimental CNV mode.</p>
+    <p><strong>Figure: </strong>Experimental CNV mode. Major changes from SNV mode are highlighted with red squares.</p>
 </div> 
 
 Note the limitations in this version: 
@@ -50,7 +50,7 @@ Configuration of tracks in VISUAL has been further improved, allowing all types 
 ### :small_red_triangle: Breaking changes
 
 #### Configuration of tracks in IGV
-<!-- MR !605, MR !651, MR !652 -->
+<!-- MRs !605, !651, !652, !657, !660 -->
 
 With this version, configuration of tracks shown in IGV needs to be updated. 
 
@@ -68,6 +68,7 @@ MR !636 Fix sorting by chromosome and position, make it default for cnvs
 MR !638 Fix bug on missing alleles
 MR !643 Add chromosome band annotation for CNVs
 MR !650 Trio filtering not available when CNV and SNVs combined
+MR !659 Reorder columns in alleleSidebarList, add band column
 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
 <!-- MR !605, MR !651, MR !652, MR !657, MR !660 -->
