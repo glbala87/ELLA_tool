@@ -28,7 +28,11 @@ export default function sortSections({ state, resolve }) {
         // of these keys are selected in cnv mode
         if (
             caller_type_selected === 'snv' &&
-            (key === 'chromosome' || key == 'pos' || key === 'sv_len' || key === 'sv_type')
+            (key === 'chromosome' ||
+                key == 'pos' ||
+                key == 'band' ||
+                key === 'sv_len' ||
+                key === 'sv_type')
         ) {
             return false
         } else return true

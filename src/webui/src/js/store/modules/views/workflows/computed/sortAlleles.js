@@ -59,6 +59,11 @@ function getSortFunctions(
             }
             return -1
         },
+        band: (allele) => {
+            if (allele.annotation.cytoband) {
+                return allele.annotation.cytoband
+            } else return -1
+        },
         hgvsc: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
                 const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
