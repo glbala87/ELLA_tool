@@ -1,20 +1,33 @@
-from vardb.datamodel import assessment
-
+from typing import Dict, Optional
 from api import schemas
-from api.util.util import paginate, rest_filter, search_filter, request_json, authenticate
-
-from pubmed import PubMedParser
-
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.common import SearchFilter
+from api.schemas.pydantic.v1.resources import (
+    ReferenceListRequest,
+    ReferenceListResponse,
+    ReferencePostResponse,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter, search_filter
 from api.v1.resource import LogRequestResource
+from pubmed import PubMedParser
+from sqlalchemy.orm import Session
+from vardb.datamodel import assessment, user
 
 
 class ReferenceListResource(LogRequestResource):
     @authenticate()
+    @validate_output(ReferenceListResponse, paginated=True)
     @paginate
     @rest_filter
     @search_filter
     def get(
-        self, session, rest_filter=None, search_filter=None, page=None, per_page=None, user=None
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        search_filter: Optional[SearchFilter],
+        page: int,
+        per_page: int,
+        user: user.User,
     ):
         """
         Returns a list of references.
@@ -60,8 +73,9 @@ class ReferenceListResource(LogRequestResource):
             )
 
     @authenticate()
-    @request_json(allowed_fields=["pubmedData", "manual"])
-    def post(self, session, data=None, user=None):
+    @validate_output(ReferencePostResponse)
+    @request_json(model=ReferenceListRequest)
+    def post(self, session: Session, data: ReferenceListRequest, user: user.User):
         """
         Creates a new Reference from the input [Pubmed](http://www.ncbi.nlm.nih.gov/pubmed) XML.
 
@@ -92,10 +106,8 @@ class ReferenceListResource(LogRequestResource):
               $ref: '#/definitions/Reference'
             description: Created reference
         """
-        assert "pubmedData" in data or "manual" in data
-        assert not ("pubmedData" in data and "manual" in data)
-        if "pubmedData" in data:
-            ref_data = PubMedParser().parse(data["pubmedData"])
+        if data.pubmedData is not None:
+            ref_data = PubMedParser().parse(data.pubmedData)
 
             reference = (
                 session.query(assessment.Reference)
@@ -115,21 +127,18 @@ class ReferenceListResource(LogRequestResource):
                 )
 
             return schemas.ReferenceSchema().dump(reference).data
-        elif "manual" in data:
+        elif data.manual is not None:
             reference = (
                 session.query(assessment.Reference)
                 .filter(
-                    *[
-                        getattr(assessment.Reference, k) == v
-                        for k, v in list(data["manual"].items())
-                    ]
+                    *[getattr(assessment.Reference, k) == v for k, v in list(data.manual.items())]
                 )
                 .first()
             )
             if reference is not None:
                 return schemas.ReferenceSchema().dump(reference).data
 
-            ref_obj = assessment.Reference(**data["manual"])
+            ref_obj = assessment.Reference(**data.manual)
 
             session.add(ref_obj)
             session.commit()
@@ -137,10 +146,7 @@ class ReferenceListResource(LogRequestResource):
             reference = (
                 session.query(assessment.Reference)
                 .filter(
-                    *[
-                        getattr(assessment.Reference, k) == v
-                        for k, v in list(data["manual"].items())
-                    ]
+                    *[getattr(assessment.Reference, k) == v for k, v in list(data.manual.items())]
                 )
                 .one()
             )

@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, Field
+from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.allele_assessments import AlleleAssessment
 from api.schemas.pydantic.v1.allele_reports import AlleleReport
 from api.schemas.pydantic.v1.annotations import Annotation
 from api.schemas.pydantic.v1.references import ReferenceAssessment
 from api.schemas.pydantic.v1.samples import Sample
 from api.util.types import GenomeReference
+from pydantic import Field
 
 
 class Warnings(BaseModel):

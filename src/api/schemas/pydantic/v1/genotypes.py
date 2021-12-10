@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.util.types import GenotypeTypes
+from pydantic import Field
 
 
 class Genotype(BaseModel):

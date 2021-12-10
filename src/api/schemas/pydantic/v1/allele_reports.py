@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from typing import Optional
-from typing_extensions import Literal
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.users import User
+from typing_extensions import Literal
 
 
 class AlleleReportsUsergroup(BaseModel):

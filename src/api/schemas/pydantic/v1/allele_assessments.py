@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional
-from typing_extensions import Literal
 
-from api.schemas.pydantic.v1 import BaseModel, Field, Comment
+from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1.common import Comment
 from api.schemas.pydantic.v1.references import ReferenceAssessment
 from api.schemas.pydantic.v1.users import User
 from api.util.types import AlleleAssessmentClassification
+from pydantic import Field
+from typing_extensions import Literal
 
 
 class AlleleAssessmentUsergroup(BaseModel):

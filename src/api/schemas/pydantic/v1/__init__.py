@@ -11,14 +11,8 @@ from api.util.types import ResourceMethods
 from pydantic.json import pydantic_encoder
 from typing_extensions import get_origin
 
-### Keep all imports from pydantic in common, so model files always import from here instead
-# NOTE: is this dumb? ensures any custom classes/etc. are always used, but may be excessive
-
 logger = getLogger(__name__)
-
-Field = pydantic.Field
 PydanticBase = pydantic.BaseModel
-
 
 ### Functions
 
@@ -27,7 +21,7 @@ def modify_schema(schema: Dict[str, Any], model: Type[BaseModel]):
     """
     Delete title from schema. This clutters json2ts output by declaring
     every single field as a separate type. Also allow setting arbitrary schema
-    values via an overloadable `meta` class method. .meta must return a dict which
+    values via an overloadable `_meta` class method. ._meta must return a dict which
     is processed as if it were passed to Config.schema_extra.
     NOTE: it is a shallow dict merge and can clobber pydantic generated values
       ref: https://pydantic-docs.helpmanual.io/usage/schema/#schema-customization
@@ -36,7 +30,7 @@ def modify_schema(schema: Dict[str, Any], model: Type[BaseModel]):
     for field_props in schema.get("properties", {}).values():
         field_props.pop("title", None)
 
-    custom_props = model.meta()
+    custom_props = model._meta()
     if custom_props:
         schema.update(**custom_props)
 
@@ -90,7 +84,7 @@ class BaseModel(PydanticBase):
         return json.loads(self.json(**kwargs))
 
     @classmethod
-    def meta(cls) -> Optional[Dict[str, Any]]:
+    def _meta(cls) -> Optional[Dict[str, Any]]:
         "overload to return custom schema.properties modifications"
         return None
 
@@ -151,9 +145,14 @@ class ResourceValidator(BaseModel):
     endpoints: ClassVar[Dict[str, ResourceMethods]]
 
     @classmethod
-    def meta(cls) -> Dict[str, Any]:
+    def _meta(cls) -> Dict[str, Any]:
         "returns dict used by BaseConfig.schema_extra to customize model schema"
-        return {"description": "\n".join(f"{v}: {k}" for k, v in cls.endpoints.items())}
+        # keep any doc string description that may already be present
+        model_desc = f"{cls.__doc__}\n\n" if cls.__doc__ else ""
+        # e.g., POST: /api/v1/alleles
+        endpoints_str = "\n".join(f"{v}: {k}" for k, v in cls.endpoints.items())
+
+        return {"description": f"{model_desc}{endpoints_str}"}
 
 
 class ResponseValidator(ResourceValidator):
@@ -162,7 +161,3 @@ class ResponseValidator(ResourceValidator):
 
 class RequestValidator(ResourceValidator):
     ...
-
-
-class Comment(BaseModel):
-    comment: str

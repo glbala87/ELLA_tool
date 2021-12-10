@@ -12,6 +12,7 @@ import pytz
 from api import ApiError, app, db
 from api.config import config, get_user_config
 from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1.common import SearchFilter
 from api.util.types import StrDict
 from api.util.useradmin import get_usersession_by_token
 from flask import Response, g, request
@@ -140,7 +141,7 @@ def search_filter(func):
         if request:
             s = request.args.get("s")
             if s:
-                s_filter = json.loads(s)
+                s_filter = SearchFilter.parse_raw(s)
         return func(*args, search_filter=s_filter, **kwargs)
 
     return inner

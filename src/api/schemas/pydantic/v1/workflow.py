@@ -7,8 +7,8 @@ from api.schemas.pydantic.v1.users import User
 from api.util.types import (
     AlleleInterpretationWorkflowStatus,
     InterpretationStatus,
-    WorkflowTypes,
     WorkflowStatus,
+    WorkflowTypes,
 )
 
 

@@ -7,7 +7,7 @@ import sys
 from enum import IntFlag, auto
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Dict, NoReturn, Optional
+from typing import Any, Dict, List, NoReturn, Optional, Tuple
 
 import click
 from api.schemas.pydantic.v1 import PydanticBase
@@ -57,7 +57,7 @@ def get_model(pkg: ModuleType, model_name: str) -> PydanticBase:
         err(f"Could not find {model_name} in {pkg.__name__}", Error.BAD_MODEL)
 
 
-def get_endpoint_model(master_model: PydanticBase, endpoint: str) -> PydanticBase:
+def get_endpoint_model(master_model: PydanticBase, endpoint: str) -> Tuple[str, PydanticBase]:
     if not endpoint.startswith(ENDPOINT_PREFIX):
         err(f"Invalid endpoint '{endpoint}'. Must start with {ENDPOINT_PREFIX}", Error.BAD_ENDPOINT)
 
@@ -124,6 +124,7 @@ def main(
         model_name, model_obj = get_endpoint_model(model_obj, endpoint)
 
     if dump_all:
+        check_validators()
         pretty_name = "all"
     elif endpoint:
         pretty_name = endpoint
@@ -132,6 +133,19 @@ def main(
 
     output_dest = dump_schema(model_obj, output)
     log(f"Finished writing {pretty_name} schema(s) to {output_dest}")
+
+
+def check_validators(model_names: Optional[List[str]] = None):
+    import api.schemas.pydantic.v1.resources as pr
+
+    if not model_names:
+        model_names = [k for k in dir(pr) if k.endswith("Response") or k.endswith("Request")]
+    missing = [m for m in model_names if m not in pr.ApiModel.__annotations__.values()]
+
+    if missing:
+        missing_str = ", ".join(missing)
+        err(f"Found {len(missing)} validators not assigned to ApiModel: {missing_str}")
+    log(f"Found {len(model_names)} Response/Request validators")
 
 
 ###

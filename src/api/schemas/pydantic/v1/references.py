@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.util.types import ReferenceEvalRelevance
@@ -72,3 +72,9 @@ class NewReferenceAssessment(BaseModel):
     reference_id: int
     genepanel_name: Optional[str] = None
     genepanel_version: Optional[str] = None
+
+
+class MinimalReferenceAssessment(BaseModel):
+    allele_id: int
+    reference_id: int
+    evaluation: Dict

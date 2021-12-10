@@ -1,13 +1,17 @@
 from collections import defaultdict
+from typing import Any, Dict, List
 
 from api import schemas
 from api.config import config
+from api.schemas.pydantic.v1.references import MinimalReferenceAssessment
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
-from .allelefilter.frequencyfilter import FrequencyFilter
+from vardb.datamodel import allele, gene
+
 from .acmgconfig import AcmgConfig
 from .alleledataloader.alleledataloader import AlleleDataLoader
+from .allelefilter.frequencyfilter import FrequencyFilter
 
 
 class ACMGDataLoader(object):
@@ -67,7 +71,13 @@ class ACMGDataLoader(object):
         passed_data = schemas.RuleSchema().dump(passed, many=True).data
         return passed_data
 
-    def _from_data(self, alleles, reference_assessments, genepanel, acmgconfig):
+    def _from_data(
+        self,
+        alleles: List[allele.Allele],
+        reference_assessments: List[MinimalReferenceAssessment],
+        genepanel: gene.Genepanel,
+        acmgconfig: Dict[str, Any],
+    ):
         """
         Calculates ACMG codes for a list of alleles already preloaded using the AlleleDataLoader.
         They must have been loaded with include_annotation and include_custom_annotation.
@@ -85,7 +95,7 @@ class ACMGDataLoader(object):
         allele_classifications = dict()
         ra_per_allele = defaultdict(list)
         for ra in reference_assessments:
-            ra_per_allele[ra["allele_id"]].append(ra)
+            ra_per_allele[ra.allele_id].append(ra)
 
         frequency_filter = FrequencyFilter(self.session, config)
         gp_key = (genepanel.name, genepanel.version)
@@ -105,7 +115,7 @@ class ACMGDataLoader(object):
 
             if a["id"] in ra_per_allele:
                 annotation_data["refassessment"] = {
-                    str("_".join([str(r["allele_id"]), str(r["reference_id"])])): r["evaluation"]
+                    str("_".join([str(r.allele_id), str(r.reference_id)])): r.evaluation
                     for r in ra_per_allele[a["id"]]
                 }
 
@@ -120,7 +130,13 @@ class ACMGDataLoader(object):
             allele_classifications[a["id"]] = {"codes": passed_data}
         return allele_classifications
 
-    def from_objs(self, alleles, reference_assessments, genepanel, acmgconfig):
+    def from_objs(
+        self,
+        alleles: List[allele.Allele],
+        reference_assessments: List[MinimalReferenceAssessment],
+        genepanel: gene.Genepanel,
+        acmgconfig: Dict[str, Any],
+    ):
         """
         Calculates ACMG codes for a list of alleles model objects.
         A dictionary with the final data is returned, with allele.id as keys.
@@ -136,12 +152,10 @@ class ACMGDataLoader(object):
         :returns: dict with converted data using schema data.
         """
 
-        loaded_alleles = None
-        if alleles:
-            loaded_alleles = AlleleDataLoader(self.session).from_objs(
-                alleles,
-                genepanel=genepanel,
-                include_allele_assessment=False,
-                include_reference_assessments=False,
-            )
+        loaded_alleles = AlleleDataLoader(self.session).from_objs(
+            alleles,
+            genepanel=genepanel,
+            include_allele_assessment=False,
+            include_reference_assessments=False,
+        )
         return self._from_data(loaded_alleles, reference_assessments, genepanel, acmgconfig)

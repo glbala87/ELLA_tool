@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, Field
-from pydantic import root_validator
+from api.schemas.pydantic.v1 import BaseModel
+from pydantic import Field, root_validator
 
 
 class LogAssessment(BaseModel):

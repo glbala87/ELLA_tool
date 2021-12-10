@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel, ExtraOK, Field
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.schemas.pydantic.v1.references import AnnotationReference
-from api.util.types import IntDict, Strand, YesNo, Consequence
+from api.util.types import Consequence, IntDict, Strand, YesNo
+from pydantic import Field
 
 rank_pattern = r"[1-9]\d*/[1-9]\d*"
 # NOTE: these are not enforced by pydantic, but it keeps them in the schema spec like they were before
