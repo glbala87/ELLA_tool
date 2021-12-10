@@ -20,6 +20,8 @@ export default Compute(
         if (
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
+            Object.prototype.toString.call(interpretationState.manuallyAddedAlleles) ===
+                '[object Array]' ||
             !filteredAlleleIds ||
             !filteredAlleleIds.excluded_alleles_by_caller_type ||
             !callerTypeSelected
