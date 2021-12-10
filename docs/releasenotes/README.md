@@ -20,7 +20,7 @@ Release date: TBD
 ### Highlights
 
 #### Experimental support for CNV interpretation
-<!-- MRs !575, !626, !606, !636, !638, !643, !650, !659 -->
+<!-- MRs !575, !606, !626, !636, !638, !643, !650, !659 -->
 
 This version introduces experimental support for copy number variants (CNVs). 
 
@@ -54,22 +54,13 @@ Configuration of tracks in VISUAL has been further improved, allowing all types 
 
 With this version, configuration of tracks shown in IGV needs to be updated. 
 
-Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier version will no longer work. 
+Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier versions will no longer work. 
 
-To configure a particular track, the file path needs to be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See `/src/vardb/testdata/igv-data/track_config_default.json` for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
+To configure a particular track, the file path must be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See `/src/vardb/testdata/igv-data/track_config_default.json` for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
 
 ### All changes
 
-<!-- 
-MR !575 cnv release candidate
-MR !626 Clean up VCF iterator
-MR !606 Feature flag for CNVs
-MR !636 Fix sorting by chromosome and position, make it default for cnvs
-MR !638 Fix bug on missing alleles
-MR !643 Add chromosome band annotation for CNVs
-MR !650 Trio filtering not available when CNV and SNVs combined
-MR !659 Reorder columns in alleleSidebarList, add band column
--->
+<!-- MR !575, !606, !626, !636, !638, !643, !650, !659 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
 <!-- MR !605, MR !651, MR !652, MR !657, MR !660 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 

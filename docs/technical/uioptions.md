@@ -110,6 +110,26 @@ Tracks shown in ELLA VISUAL are of three types: `DYNAMIC`, `STATIC` and `ANALYSI
 
 - `ANALYSIS` tracks are any track imported together with the analyses. with path configured as `ANALYSIS/<filename>`.
 
+#### Supported track formats
+
+The following track formats are supported: 
+
+Track type | Index file
+:--- | :--- 
+`.bam` | `.bam.bai, .bai`
+`.bed` | -
+`.bed.gz` | `.bed.gz.tbi`
+`.bigWig` | -
+`.cram` | `.cram.crai, .crai`
+`.gff3.gz` | `.gff3.gz.tbi`
+`.gtf.gz` | `.gtf.gz.tbi`
+`.vcf` | -
+`.vcf.gz` | `.vcf.gz.tbi`
+
+::: warning NOTE
+For best performance, we recommend using index and gzipped files whenever applicable.
+::: 
+
 #### Track configuration
 
 - File: `$IGV_DATA/track_config.json` (see `/src/vardb/testdata/igv-data/track_config_default.json` for examples)
