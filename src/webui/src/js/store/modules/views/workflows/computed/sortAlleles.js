@@ -44,6 +44,9 @@ function getSortFunctions(
         end: (allele) => {
             return allele.open_end_position
         },
+        pos: (allele) => {
+            allele.start_position
+        },
         sv_type: (allele) => {
             return allele.change_type
         },
@@ -55,6 +58,11 @@ function getSortFunctions(
                 return allele.annotation.filtered[0].symbol
             }
             return -1
+        },
+        band: (allele) => {
+            if (allele.annotation.cytoband) {
+                return allele.annotation.cytoband
+            } else return -1
         },
         hgvsc: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
@@ -223,6 +231,10 @@ export default function sortAlleles(alleles, key, reverse) {
                     thenBy(sortFunctions.chromosome, reverse ? -1 : 1)
                         .thenBy(sortFunctions.start)
                         .thenBy(sortFunctions.end)
+                )
+            } else if (key === 'pos') {
+                sortedAlleles.sort(
+                    thenBy(sortFunctions.start, reverse ? -1 : 1).thenBy(sortFunctions.end)
                 )
             } else if (key) {
                 sortedAlleles.sort(

@@ -71,6 +71,17 @@ const sectionContents = Compute(
         return contents
     }
 )
+
+function calculateEndPos(allele) {
+    if (allele.caller_type == 'snv' && allele.change_type == 'ins') {
+        return allele.open_end_position
+    } else if (allele.caller_type == 'snv') {
+        return allele.open_end_position
+    } else {
+        return allele.start_position + 1 + allele.length - 1
+    }
+}
+
 app.component('alleleSidebarList', {
     bindings: {
         sectionTitle: '@?',
@@ -159,17 +170,14 @@ app.component('alleleSidebarList', {
                     getChromosome(allele) {
                         return allele.chromosome.toUpperCase()
                     },
+                    getPos(allele) {
+                        return `${allele.start_position + 1}-${calculateEndPos(allele)}`
+                    },
                     getStartPos(allele) {
                         return allele.start_position + 1
                     },
                     getEndPos(allele) {
-                        if (allele.caller_type == 'snv' && allele.change_type == 'ins') {
-                            return allele.open_end_position
-                        } else if (allele.caller_type == 'snv') {
-                            return allele.open_end_position
-                        } else {
-                            return allele.start_position + 1 + allele.length - 1
-                        }
+                        return calculateEndPos(allele)
                     },
                     getVariantCoordinates(allele) {
                         return `${this.getChromosome(allele)}:${this.getStartPos(
@@ -177,7 +185,7 @@ app.component('alleleSidebarList', {
                         )}-${this.getEndPos(allele)}`
                     },
                     getSvType(allele) {
-                        return allele.change_type.replaceAll('_', ':').toUpperCase()
+                        return allele.change_type.replace(/['_']/g, ':').toUpperCase()
                     },
                     getVariantLength(allele) {
                         return allele.length
@@ -209,6 +217,11 @@ app.component('alleleSidebarList', {
                             }
                             return allele.formatted.hgvsg
                         }
+                    },
+                    getBand(allele) {
+                        if (allele.annotation.cytoband) {
+                            return allele.annotation.cytoband
+                        } else return '-'
                     },
                     getHGVScTitle(allele) {
                         if (allele.caller_type == 'cnv') {
