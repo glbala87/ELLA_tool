@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from api import schemas
 from api.config import config
-from api.schemas.pydantic.v1.references import MinimalReferenceAssessment
+from api.schemas.pydantic.v1.references import OptReferenceAssessment
 from rule_engine.grc import ACMGClassifier2015
 from rule_engine.gre import GRE
 from rule_engine.mapping_rules import rules
@@ -74,7 +74,7 @@ class ACMGDataLoader(object):
     def _from_data(
         self,
         alleles: List[allele.Allele],
-        reference_assessments: List[MinimalReferenceAssessment],
+        reference_assessments: List[OptReferenceAssessment],
         genepanel: gene.Genepanel,
         acmgconfig: Dict[str, Any],
     ):
@@ -133,7 +133,7 @@ class ACMGDataLoader(object):
     def from_objs(
         self,
         alleles: List[allele.Allele],
-        reference_assessments: List[MinimalReferenceAssessment],
+        reference_assessments: List[OptReferenceAssessment],
         genepanel: gene.Genepanel,
         acmgconfig: Dict[str, Any],
     ):

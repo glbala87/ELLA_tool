@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.util.types import ReferenceEvalRelevance
@@ -41,17 +41,30 @@ class ReferenceEvaluation(BaseModel):
     ref_quality: Optional[str] = None
 
 
-class ReferenceAssessment(BaseModel):
-    id: int
-    user_id: int
+class BaseReferenceAssessment(BaseModel):
     allele_id: int
     reference_id: int
+    evaluation: ReferenceEvaluation
     analysis_id: Optional[int] = None
-    date_created: str
     date_superceeded: Optional[str] = None
+
+
+# TODO: should OptRef... being the default and below StrictRef... ?
+#       alternatively, is the stricter model actually needed anywhere?
+class ReferenceAssessment(BaseReferenceAssessment):
+    id: int
+    user_id: int
+    date_created: str
     genepanel_name: str
     genepanel_version: str
-    evaluation: ReferenceEvaluation
+
+
+class OptReferenceAssessment(BaseReferenceAssessment):
+    id: Optional[int] = None
+    user_id: Optional[int] = None
+    date_created: Optional[str] = None
+    genepanel_name: Optional[str] = None
+    genepanel_version: Optional[str] = None
 
 
 class ReusedReferenceAssessment(BaseModel):
@@ -72,9 +85,3 @@ class NewReferenceAssessment(BaseModel):
     reference_id: int
     genepanel_name: Optional[str] = None
     genepanel_version: Optional[str] = None
-
-
-class MinimalReferenceAssessment(BaseModel):
-    allele_id: int
-    reference_id: int
-    evaluation: Dict

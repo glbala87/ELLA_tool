@@ -14,11 +14,13 @@ from api.schemas.pydantic.v1.alleles import Allele
 from api.schemas.pydantic.v1.annotations import AnnotationConfig
 from api.schemas.pydantic.v1.attachment import Attachment
 from api.schemas.pydantic.v1.classification import ACMGClassification, ACMGCode
+from api.schemas.pydantic.v1.common import Comment
+from api.schemas.pydantic.v1.gene_assessments import GeneAssessment
 from api.schemas.pydantic.v1.genepanels import Genepanel, GenepanelFullAssessments
 from api.schemas.pydantic.v1.interpretationlog import CreateInterpretationLog, InterpretationLog
 from api.schemas.pydantic.v1.references import (
-    MinimalReferenceAssessment,
     NewReferenceAssessment,
+    OptReferenceAssessment,
     Reference,
     ReferenceAssessment,
     ReusedReferenceAssessment,
@@ -95,6 +97,16 @@ class ACMGAlleleResponse(ResponseValidator):
 
 class ACMGClassificationResponse(ACMGClassification, ResponseValidator):
     endpoints = {"/api/v1/acmg/classifications/": ResourceMethods.GET}
+
+
+class AlleleAssessmentResponse(AlleleAssessment, ResponseValidator):
+    endpoints = {"/api/v1/alleleassessments/<int:aa_id>/": ResourceMethods.GET}
+
+
+class AlleleAssessmentListResponse(ResponseValidator):
+    __root__: List[AlleleAssessment]
+
+    endpoints = {"/api/v1/alleleassessments/": ResourceMethods.GET}
 
 
 class AlleleCollisionResponse(ResponseValidator):
@@ -176,6 +188,26 @@ class FinalizeAlleleInterpretationResponse(ResponseValidator):
     endpoints = {f"{WORKFLOWS_ALLELES}/actions/finalizeallele/": ResourceMethods.POST}
 
 
+class GeneAssessmentResponse(GeneAssessment, ResponseValidator):
+    endpoints = {"/api/v1/geneassessments/": ResourceMethods.POST}
+
+
+class GeneAssessmentListResponse(ResponseValidator):
+    __root__: List[GeneAssessment]
+
+    endpoints = {"/api/v1/geneassessments/": ResourceMethods.GET}
+
+
+class ReferenceAssessmentResponse(ReferenceAssessment, ResponseValidator):
+    endpoints = {"/api/v1/referenceassessments/<int:ra_id>/": ResourceMethods.GET}
+
+
+class ReferenceAssessmentListResponse(ResponseValidator):
+    __root__: List[ReferenceAssessment]
+
+    endpoints = {"/api/v1/referenceassessments/": ResourceMethods.GET}
+
+
 class ReferenceListResponse(ResponseValidator):
     __root__: List[Reference]
 
@@ -206,7 +238,7 @@ class ACMGAlleleRequest(RequestValidator):
     allele_ids: List[int]
     gp_name: str
     gp_version: str
-    referenceassessments: List[MinimalReferenceAssessment] = Field(default_factory=list)
+    referenceassessments: List[OptReferenceAssessment] = Field(default_factory=list)
 
     endpoints = {"/api/v1/acmg/alleles/": ResourceMethods.POST}
 
@@ -257,6 +289,17 @@ class AlleleActionFinalizeRequest(MarkInterpretationRequest):
     }
 
 
+class GeneAssessmentPostRequest(RequestValidator):
+    gene_id: int
+    genepanel_name: str
+    genepanel_version: str
+    analysis_id: Optional[int] = None
+    evaluation: Comment
+    presented_geneassessment_id: Optional[int] = None
+
+    endpoints = {"/api/v1/geneassessments/": ResourceMethods.POST}
+
+
 class PatchInterpretationLogRequest(RequestValidator):
     message: str
 
@@ -271,6 +314,18 @@ class PatchInterpretationRequest(RequestValidator):
     endpoints = {
         f"{WORKFLOWS_ALLELES}/interpretations/<int:interpretation_id>/": ResourceMethods.PATCH
     }
+
+
+class ReferenceAssessmentPostRequest(RequestValidator):
+    id: Optional[int] = None
+    allele_id: int
+    reference_id: int
+    evaluation: Dict
+    analysis_id: Optional[int] = None
+    genepanel_name: str
+    genepanel_version: str
+
+    endpoints = {"/api/v1/referenceassessments/": ResourceMethods.POST}
 
 
 class ReferenceListRequest(RequestValidator):
@@ -295,6 +350,8 @@ class ApiModel(BaseModel):
 
     acmg_allele_response: ACMGAlleleResponse
     acmg_classification_response: ACMGClassificationResponse
+    allele_assessment_response: AlleleAssessmentResponse
+    allele_assessment_list_response: AlleleAssessmentListResponse
     allele_collision_response: AlleleCollisionResponse
     allele_genepanel_response: AlleleGenepanelResponse
     allele_genepanels_list_response: AlleleGenepanelsListResponse
@@ -307,6 +364,10 @@ class ApiModel(BaseModel):
     attachment_list_response: AttachmentListResponse
     attachment_post_response: AttachmentPostResponse
     finalize_allele_interpretation_response: FinalizeAlleleInterpretationResponse
+    gene_assessment_response: GeneAssessmentResponse
+    gene_assessment_list_response: GeneAssessmentListResponse
+    reference_assessment_response: ReferenceAssessmentResponse
+    reference_assessment_list_response: ReferenceAssessmentListResponse
     reference_list_response: ReferenceListResponse
     reference_post_respost: ReferencePostResponse
     similar_alleles_response: SimilarAllelesResponse
@@ -316,7 +377,9 @@ class ApiModel(BaseModel):
     allele_action_start_request: AlleleActionStartRequest
     create_interpretation_log_request: CreateInterpretationLogRequest
     finalize_allele_request: FinalizeAlleleRequest
+    gene_assessment_post_request: GeneAssessmentPostRequest
     mark_interpretation_request: MarkInterpretationRequest
     patch_interpretation_log_request: PatchInterpretationLogRequest
     patch_interpretation_request: PatchInterpretationRequest
+    reference_assessment_post_request: ReferenceAssessmentPostRequest
     reference_list_request: ReferenceListRequest
