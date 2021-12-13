@@ -11,7 +11,7 @@ export default Compute(
         }
         alleleIds = alleleIds.slice()
         if (manuallyAddedAlleleIds) {
-            alleleIds = alleleIds.concat(manuallyAddedAlleleIds)
+            alleleIds = alleleIds.concat(Object.values(manuallyAddedAlleleIds).flat())
         }
         return alleleIds
     }

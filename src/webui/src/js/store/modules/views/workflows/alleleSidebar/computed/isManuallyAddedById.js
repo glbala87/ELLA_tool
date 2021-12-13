@@ -9,7 +9,9 @@ export default (alleles) => {
         }
         const result = {}
         for (let [alleleId, allele] of Object.entries(alleles)) {
-            result[alleleId] = manuallyAddedAlleleIds.includes(allele.id)
+            result[alleleId] = Object.values(manuallyAddedAlleleIds)
+                .flat()
+                .includes(allele.id)
         }
         return result
     })
