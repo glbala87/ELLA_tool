@@ -1,16 +1,15 @@
-import getManuallyAddedAlleleIds from '../../../interpretation/computed/getManuallyAddedAlleleIds'
+import { getManuallyAddedAlleleIdsByCallerType } from '../../../interpretation/computed/getManuallyAddedAlleleIds'
 
 export default function setManuallyAddedAlleleIds({ props, state, resolve }) {
     const { includedAlleleIds } = props
-
-    let callerTypeSelected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
-
     let stateManuallyIncludedAlleleIds = state
         .get('views.workflows.interpretation.state.manuallyAddedAlleles')
-        [callerTypeSelected].slice()
+        .slice()
 
     // Get the current calculated manuallyAddedAlleles to compare
-    const currentManuallyAddedAlleles = resolve.value(getManuallyAddedAlleleIds)
+    const currentManuallyAddedAllelesByCallerType = resolve.value(
+        getManuallyAddedAlleleIdsByCallerType
+    )
 
     // Add new ones
     for (const alleleId of includedAlleleIds) {
@@ -20,14 +19,15 @@ export default function setManuallyAddedAlleleIds({ props, state, resolve }) {
     }
 
     // Remove removed ones
-    for (const alleleId of currentManuallyAddedAlleles) {
+    for (const alleleId of currentManuallyAddedAllelesByCallerType) {
         if (!includedAlleleIds.includes(alleleId)) {
             stateManuallyIncludedAlleleIds = stateManuallyIncludedAlleleIds.filter(
                 (aId) => aId !== alleleId
             )
         }
     }
-
-    let manuallyAddedAlleleIdPath = `views.workflows.interpretation.state.manuallyAddedAlleles.${callerTypeSelected}`
-    state.set(manuallyAddedAlleleIdPath, stateManuallyIncludedAlleleIds)
+    state.set(
+        'views.workflows.interpretation.state.manuallyAddedAlleles',
+        stateManuallyIncludedAlleleIds
+    )
 }

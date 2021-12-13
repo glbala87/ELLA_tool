@@ -6,7 +6,7 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getEditorReferences from '../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
-import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
+import { getManuallyAddedAlleleIdsByCallerType } from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
 import template from './alleleSidebar.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const showControls = Compute(state`views.workflows.selectedComponent`, (selectedComponent) => {
@@ -94,7 +94,7 @@ app.component('alleleSidebar', {
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
-            manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
+            manuallyAddedAlleleIds: getManuallyAddedAlleleIdsByCallerType,
             excludedAlleleIds: getExcludedAlleleCountsByCallerType(
                 state`views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type`,
                 state`views.workflows.alleleSidebar.callerTypeSelected`
