@@ -211,8 +211,6 @@ class BedLine(ChromPos):
 
 
 def get_regions_of_interest(session, analysis_id, allele_ids):
-    if not allele_ids:
-        return None
 
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
 
@@ -437,7 +435,9 @@ class RegionsOfInterestTrack(LogRequestResource):
     @authenticate()
     @logger(exclude=True)
     def get(self, session, analysis_id, user=None):
-        allele_ids = [int(aid) for aid in request.args.get("allele_ids", "").split(",")]
+        allele_ids = [
+            int(aid) for aid in request.args.get("allele_ids", "").split(",") if aid != ""
+        ]
         data = BytesIO()
         data.write(get_regions_of_interest(session, analysis_id, allele_ids).encode())
         data.seek(0)
