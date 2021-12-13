@@ -123,13 +123,13 @@ class DepositGenepanel(object):
             transcript_rows.append(
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
-                    "name": t["refseq"],  # TODO: Support other than RefSeq
-                    "source": t["source"] or None,
+                    "name": t.get("refseq"),  # TODO: Support other than RefSeq
+                    "source": t.get("source"),
                     "type": "RefSeq",
                     "corresponding_ensembl": None,
                     "corresponding_refseq": None,
                     "corresponding_lrg": None,
-                    "inheritance": None if t["inheritance"] == "Unknown" else t["inheritance"],
+                    "inheritance": t.get("inheritance"),
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
                     "tx_end": t["txEnd"],
