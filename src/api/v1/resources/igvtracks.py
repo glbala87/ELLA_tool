@@ -160,7 +160,7 @@ def get_classification_gff3(session):
 def get_alleles_from_db(session, analysis_id, allele_ids):
 
     if not allele_ids:
-        return None
+        return []
 
     alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
 
