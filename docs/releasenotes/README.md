@@ -86,6 +86,7 @@ MR !623 SQL performance: large list of values as subquery expression
 MR !639 Upgrade to Postgres 14
 MR !640 Avoid postgres error with too many locks per transaction
 MR !646 Put pydantic models behind feature flag
+MR !663 Migrate manuallyAddedAlleles correctly on the fly
 -->
 - Fixes and improvements to performance, development environment and code base. 
 
