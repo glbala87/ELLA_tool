@@ -115,7 +115,7 @@
     },
     {
         "name": "testgroup02",
-        "genepanels": [["Ciliopati", "v06"], ["Mendeliome", "v12"]],
+        "genepanels": [["Ciliopati", "v05"], ["Mendeliome", "v12"]],
         "default_import_genepanel": ["Mendeliome", "v12"],
         "import_groups": ["testgroup02"],
         "config": {
