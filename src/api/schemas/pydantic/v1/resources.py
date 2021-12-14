@@ -17,7 +17,12 @@ from api.schemas.pydantic.v1.attachment import Attachment
 from api.schemas.pydantic.v1.classification import ACMGClassification, ACMGCode
 from api.schemas.pydantic.v1.common import Comment
 from api.schemas.pydantic.v1.gene_assessments import GeneAssessment
-from api.schemas.pydantic.v1.genepanels import Genepanel, GenepanelFullAssessments
+from api.schemas.pydantic.v1.genepanels import (
+    Genepanel,
+    GenepanelFullAssessments,
+    GenepanelSingle,
+    GenepanelStats,
+)
 from api.schemas.pydantic.v1.interpretationlog import CreateInterpretationLog, InterpretationLog
 from api.schemas.pydantic.v1.references import (
     NewReferenceAssessment,
@@ -197,6 +202,22 @@ class GeneAssessmentListResponse(ResponseValidator):
     __root__: List[GeneAssessment]
 
     endpoints = {"/api/v1/geneassessments/": ResourceMethods.GET}
+
+
+class GenePanelListResponse(ResponseValidator):
+    __root__: List[Genepanel]
+
+    endpoints = {"/api/v1/genepanels/": ResourceMethods.GET}
+
+
+class GenePanelResponse(GenepanelSingle, ResponseValidator):
+    endpoints = {"/api/v1/genepanels/<name>/<version>/": ResourceMethods.GET}
+
+
+class GenePanelStatsResponse(ResponseValidator):
+    overlap: List[GenepanelStats]
+
+    endpoints = {"/api/v1/genepanels/<name>/<version>/stats/": ResourceMethods.GET}
 
 
 class OverviewAlleleResponse(ResponseValidator):
@@ -413,3 +434,7 @@ class ApiModel(BaseModel):
     overview_alleles: OverviewAlleleResponse
     overview_analyses: OverviewAnalysisResponse
     overview_analyses_finalized: OverviewAnalysisFinalizedResponse
+
+    gene_panel_list: GenePanelListResponse
+    gene_panel: GenePanelResponse
+    gene_panel_stats: GenePanelStatsResponse
