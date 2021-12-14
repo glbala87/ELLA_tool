@@ -1,5 +1,6 @@
 import re
 import json
+from api.schemas.pydantic.v1.resources import SearchOptionsResponse, SearchResponse
 from flask import request
 from sqlalchemy import tuple_, or_, select, text, func
 from vardb.datamodel import (
@@ -20,6 +21,7 @@ from datalayer.queries import annotation_transcripts_genepanel
 from api.util.util import authenticate, paginate
 
 from api.config import config
+from api.schemas.pydantic.v1 import validate_output
 
 
 class SearchQuery:
@@ -146,6 +148,7 @@ class SearchResource(LogRequestResource):
     TSQUERY_ESCAPE = ["&", ":", "(", ")", "*", "!", "|"]
 
     @authenticate()
+    @validate_output(SearchResponse)
     @paginate
     def get(self, session, page=None, per_page=None, limit=None, user=None):
         """
@@ -530,6 +533,7 @@ class SearchOptionsResource(LogRequestResource):
 
     RESULT_LIMIT = 20
 
+    @validate_output(model_cls=SearchOptionsResponse)
     @authenticate()
     def get(self, session, user=None):
 

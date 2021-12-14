@@ -26,6 +26,7 @@ from api.schemas.pydantic.v1.references import (
     ReferenceAssessment,
     ReusedReferenceAssessment,
 )
+from api.schemas.pydantic.v1.search import SearchOptions, SearchResults
 from api.schemas.pydantic.v1.users import User
 from api.schemas.pydantic.v1.workflow import (
     AlleleCollision,
@@ -243,6 +244,18 @@ class ReferencePostResponse(Reference, ResponseValidator):
     endpoints = {"/api/v1/references/": ResourceMethods.POST}
 
 
+class SearchOptionsResponse(ResponseValidator):
+    __root__: SearchOptions
+
+    endpoints = {"/api/v1/search/options/": ResourceMethods.GET}
+
+
+class SearchResponse(ResponseValidator):
+    __root__: SearchResults
+
+    endpoints = {"/api/v1/search/": ResourceMethods.GET}
+
+
 class SimilarAllelesResponse(ResponseValidator):
     class Config(ExtraOK.Config):
         pass
@@ -395,6 +408,8 @@ class ApiModel(BaseModel):
     reference_assessment_list_response: ReferenceAssessmentListResponse
     reference_list_response: ReferenceListResponse
     reference_post_respost: ReferencePostResponse
+    search_options_response: SearchOptionsResponse
+    search_response: SearchResponse
     similar_alleles_response: SimilarAllelesResponse
 
     acmg_allele_request: ACMGAlleleRequest
