@@ -62,7 +62,7 @@ To configure a particular track, the file path must be matched with a regular ex
 
 <!-- MR !575, !606, !626, !636, !638, !643, !650, !659 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
-<!-- MR !605, MR !651, MR !652, MR !657, MR !660 -->
+<!-- MR !605, !651, !652, !657, !660, !668 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
 <!-- MR !633-->
 - Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
