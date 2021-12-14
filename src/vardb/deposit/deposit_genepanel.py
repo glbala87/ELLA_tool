@@ -126,8 +126,8 @@ class DepositGenepanel(object):
                     "name": t.get("refseq"),  # TODO: Support other than RefSeq
                     "source": t.get("source"),
                     "type": "RefSeq",
-                    "corresponding_ensembl": None,
                     "corresponding_refseq": None,
+                    "corresponding_ensembl": None,
                     "corresponding_lrg": None,
                     "inheritance": t.get("inheritance"),
                     "chromosome": t["chromosome"],

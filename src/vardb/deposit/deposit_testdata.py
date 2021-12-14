@@ -114,12 +114,6 @@ GENEPANELS = [
         "Ciliopati",
         "v05",
     ),
-    GenepanelInfo(
-        "../testdata/clinicalGenePanels/Ciliopati_v06/Ciliopati_v06_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/Ciliopati_v06/Ciliopati_v06_phenotypes.tsv",
-        "Ciliopati",
-        "v06",
-    ),
 ]
 
 
