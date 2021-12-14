@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.16
 
-Release date: TBD
+Release date: 16.12.2021
 
 ### Highlights
 
@@ -40,8 +40,6 @@ Note the limitations in this version:
 ::: warning DISCLAIMER
 As the CNV features are not fully validated, this functionality is currently disabled by default, and we recommend not enabling it in production. For testing, the new features can be enabled by setting the feature flag `ENABLE_CNV` to `true` in the [application configuration](/technical/application.md).
 :::
-
-[TODO: update /manual/side-bar.md]
 
 #### Changes in VISUAL
 
@@ -70,8 +68,6 @@ To configure a particular track, the file path must be matched with a regular ex
 - Added default transcript to Gene info.
 <!-- MR !611 -->
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
-<!-- MR !627 -->
-- Filtered variants are now sorted by genomic position.
 <!-- MR !645, !670 -->
 - Fixed another bug in listing "5 most similar gene panels" for analyses with custom or older gene panels.
 <!-- 
