@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, List, Any
+from typing import Optional, List
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.alleles import Allele
