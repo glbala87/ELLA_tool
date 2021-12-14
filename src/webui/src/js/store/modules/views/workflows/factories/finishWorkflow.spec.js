@@ -125,7 +125,7 @@ describe('finishWorkflow', function() {
                     custom_annotation_ids: [1, 2],
                     alleleassessment_ids: [1, 2],
                     allelereport_ids: [1, 2],
-                    allele_ids: [1, 2],
+                    allele_ids: [1, 2, 3],
                     technical_allele_ids: [2],
                     notrelevant_allele_ids: [3],
                     excluded_allele_ids: {
