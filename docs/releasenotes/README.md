@@ -60,7 +60,7 @@ To configure a particular track, the file path must be matched with a regular ex
 
 ### All changes
 
-<!-- MR !575, !606, !626, !636, !638, !643, !650, !659 -->
+<!-- MR !575, !606, !626, !636, !638, !643, !650, !659, !667 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
 <!-- MR !605, !651, !652, !657, !660, !668 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
@@ -72,8 +72,8 @@ To configure a particular track, the file path must be matched with a regular ex
 - Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
 <!-- MR !627 -->
 - Filtered variants are now sorted by genomic position.
-<!-- MR !645 -->
-- Fixed another bug causing an error when listing "5 most similar gene panels" for analyses with custom gene panels.
+<!-- MR !645, !670 -->
+- Fixed another bug in listing "5 most similar gene panels" for analyses with custom or older gene panels.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !584 Refactor ReferenceEvalModal
@@ -86,7 +86,6 @@ MR !623 SQL performance: large list of values as subquery expression
 MR !639 Upgrade to Postgres 14
 MR !640 Avoid postgres error with too many locks per transaction
 MR !646 Put pydantic models behind feature flag
-MR !667 Revert manuallyaddedalleles separation
 -->
 - Fixes and improvements to performance, development environment and code base. 
 
