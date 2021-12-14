@@ -412,6 +412,13 @@ class ApiModel(BaseModel):
     finalize_allele_interpretation_response: FinalizeAlleleInterpretationResponse
     gene_assessment_response: GeneAssessmentResponse
     gene_assessment_list_response: GeneAssessmentListResponse
+    gene_panel_response: GenePanelResponse
+    gene_panel_list_response: GenePanelListResponse
+    gene_panel_stats_response: GenePanelStatsResponse
+    overview_alleles_response: OverviewAlleleResponse
+    overview_alleles_finalized_response: OverviewAlleleFinalizedResponse
+    overview_analyses_response: OverviewAnalysisResponse
+    overview_analyses_finalized_response: OverviewAnalysisFinalizedResponse
     reference_assessment_response: ReferenceAssessmentResponse
     reference_assessment_list_response: ReferenceAssessmentListResponse
     reference_list_response: ReferenceListResponse
@@ -429,12 +436,3 @@ class ApiModel(BaseModel):
     patch_interpretation_request: PatchInterpretationRequest
     reference_assessment_post_request: ReferenceAssessmentPostRequest
     reference_list_request: ReferenceListRequest
-
-    overview_alleles_finalized: OverviewAlleleFinalizedResponse
-    overview_alleles: OverviewAlleleResponse
-    overview_analyses: OverviewAnalysisResponse
-    overview_analyses_finalized: OverviewAnalysisFinalizedResponse
-
-    gene_panel_list: GenePanelListResponse
-    gene_panel: GenePanelResponse
-    gene_panel_stats: GenePanelStatsResponse
