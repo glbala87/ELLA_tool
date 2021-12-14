@@ -24,6 +24,7 @@ class Reference(BaseModel):
     abstract: Optional[str] = None
     pubmed_id: int
     published: bool = True
+    year: Optional[int] = None
 
 
 # NOTE: should ref assessments be stored in their own file?
@@ -65,6 +66,8 @@ class OptReferenceAssessment(BaseReferenceAssessment):
     date_created: Optional[str] = None
     genepanel_name: Optional[str] = None
     genepanel_version: Optional[str] = None
+    reuse: Optional[bool] = None
+    reuseCheckedId: Optional[int] = None
 
 
 class ReusedReferenceAssessment(BaseModel):

@@ -50,9 +50,12 @@ class PhenotypeFull(Phenotype):
     gene: GeneFull
 
 
-class Genepanel(BaseModel):
+class GenepanelBasic(BaseModel):
     name: str
     version: str
+
+
+class Genepanel(GenepanelBasic):
     official: bool
 
 

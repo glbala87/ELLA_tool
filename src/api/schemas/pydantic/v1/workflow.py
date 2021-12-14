@@ -47,14 +47,14 @@ class AlleleInterpretationOverview(BaseModel):
     "Represents one round of interpretation of an allele. Overview data fields only."
     id: int
     status: InterpretationStatus
-    finalized: bool
+    finalized: Optional[bool] = None
     workflow_status: AlleleInterpretationWorkflowStatus
     allele_id: int
     genepanel_name: str
     genepanel_version: str
     date_last_update: str
-    user_id: int
-    user: User
+    user_id: Optional[int] = None
+    user: Optional[User] = None
 
 
 class AlleleCollision(BaseModel):

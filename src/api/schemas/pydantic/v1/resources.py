@@ -4,13 +4,14 @@ import logging
 from typing import Any, ClassVar, Dict, List, Optional, Union
 
 from api.schemas.pydantic.v1 import BaseModel, ExtraOK, RequestValidator, ResponseValidator
+from api.schemas.pydantic.v1.analyses import OverviewAnalysis
 from api.schemas.pydantic.v1.allele_assessments import (
     AlleleAssessment,
     NewAlleleAssessment,
     ReusedAlleleAssessment,
 )
 from api.schemas.pydantic.v1.allele_reports import AlleleReport, NewAlleleReport, ReusedAlleleReport
-from api.schemas.pydantic.v1.alleles import Allele
+from api.schemas.pydantic.v1.alleles import Allele, AlleleOverview
 from api.schemas.pydantic.v1.annotations import AnnotationConfig
 from api.schemas.pydantic.v1.attachment import Attachment
 from api.schemas.pydantic.v1.classification import ACMGClassification, ACMGCode
@@ -31,7 +32,7 @@ from api.schemas.pydantic.v1.workflow import (
     AlleleInterpretation,
     AlleleInterpretationSnapshot,
 )
-from api.util.types import ResourceMethods
+from api.util.types import AlleleCategories, ResourceMethods, AnalysisCategories
 from pydantic import Field, root_validator
 
 WORKFLOWS_ALLELES = "/api/v1/workflows/alleles/<int:allele_id>"
@@ -196,6 +197,30 @@ class GeneAssessmentListResponse(ResponseValidator):
     __root__: List[GeneAssessment]
 
     endpoints = {"/api/v1/geneassessments/": ResourceMethods.GET}
+
+
+class OverviewAlleleResponse(ResponseValidator):
+    __root__: Dict[AlleleCategories, List[AlleleOverview]]
+
+    endpoints = {"/api/v1/overviews/alleles/": ResourceMethods.GET}
+
+
+class OverviewAlleleFinalizedResponse(ResponseValidator):
+    __root__: List[AlleleOverview]
+
+    endpoints = {"/api/v1/overviews/alleles/finalized/": ResourceMethods.GET}
+
+
+class OverviewAnalysisResponse(ResponseValidator):
+    __root__: Dict[AnalysisCategories, OverviewAnalysis]
+
+    endpoints = {"/api/v1/overviews/analyses/": ResourceMethods.GET}
+
+
+class OverviewAnalysisFinalizedResponse(ResponseValidator):
+    __root__: List[OverviewAnalysis]
+
+    endpoints = {"/api/v1/overviews/analyses/finalized/": ResourceMethods.GET}
 
 
 class ReferenceAssessmentResponse(ReferenceAssessment, ResponseValidator):
@@ -383,3 +408,8 @@ class ApiModel(BaseModel):
     patch_interpretation_request: PatchInterpretationRequest
     reference_assessment_post_request: ReferenceAssessmentPostRequest
     reference_list_request: ReferenceListRequest
+
+    overview_alleles_finalized: OverviewAlleleFinalizedResponse
+    overview_alleles: OverviewAlleleResponse
+    overview_analyses: OverviewAnalysisResponse
+    overview_analyses_finalized: OverviewAnalysisFinalizedResponse

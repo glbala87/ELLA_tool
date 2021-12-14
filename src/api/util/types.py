@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from enum import Enum, auto, IntFlag
-from typing import Any, Dict, List, TypeVar, Union
+from enum import Enum, IntFlag, auto
+from typing import Any, Dict, List, NamedTuple, TypeVar, Union
+
 from typing_extensions import Literal
 
 
@@ -195,6 +196,30 @@ class ReferenceEvalRelevance(StrEnum):
     NO = "No"
     IGNORE = "Ignore"
     INDIRECTLY = "Indirectly"
+
+
+class AlleleCategories(StrEnum):
+    NOT_STARTED = auto()
+    MARKED_REVIEW = auto()
+    ONGOING = auto()
+
+
+class AnalysisCategories(StrEnum):
+    NOT_READY = auto()
+    NOT_STARTED = auto()
+    MARKED_REVIEW = auto()
+    MARKED_MEDICALREVIEW = auto()
+    ONGOING = auto()
+
+
+class GenepanelVersion(NamedTuple):
+    name: str
+    version: str
+
+
+class AlleleIDGenePanel(NamedTuple):
+    allele_id: int
+    genepanel: GenepanelVersion
 
 
 ###

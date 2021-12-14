@@ -1,18 +1,26 @@
-from typing import Sequence, Tuple
 import datetime
+from typing import Optional, Sequence, Tuple
+
 import pytz
-from sqlalchemy import or_, and_, tuple_, func, text, literal_column, Text
-from sqlalchemy.sql.sqltypes import Integer
-from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
-from vardb.datamodel import annotationshadow
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import ARRAY
-
-from api.util import filterconfig_requirements
 from api.config import config
+from api.util import filterconfig_requirements
+from sqlalchemy import Text, and_, cast, func, literal_column, or_, text, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.sqltypes import Integer
+from vardb.datamodel import (
+    Base,
+    allele,
+    annotation,
+    annotationshadow,
+    assessment,
+    gene,
+    sample,
+    workflow,
+)
 
 
-def valid_alleleassessments_filter(session):
+def valid_alleleassessments_filter(session: Session):
     """
     Filter for including alleleassessments that have valid (not outdated) classifications.
     """
@@ -30,7 +38,7 @@ def valid_alleleassessments_filter(session):
     return [or_(*classification_filters), assessment.AlleleAssessment.date_superceeded.is_(None)]
 
 
-def allele_ids_with_valid_alleleassessments(session):
+def allele_ids_with_valid_alleleassessments(session: Session):
     """
     Query for all alleles that has no valid alleleassessments,
     as given by configuration's classification options.
@@ -49,7 +57,12 @@ def allele_ids_with_valid_alleleassessments(session):
 
 
 def workflow_by_status(
-    session, model, model_id_attr, workflow_status=None, status=None, finalized=None
+    session: Session,
+    model: Base,
+    model_id_attr: str,
+    workflow_status: Optional[str] = None,
+    status: Optional[str] = None,
+    finalized: Optional[bool] = None,
 ):
     """
     Fetches all allele_id/analysis_id where the last interpretation matches provided

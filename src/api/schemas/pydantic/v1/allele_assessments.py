@@ -16,7 +16,7 @@ class AlleleAssessmentUsergroup(BaseModel):
     name: str
 
 
-class AlleleAssessmentOver(BaseModel):
+class AlleleAssessmentOverview(BaseModel):
     "Represents an assessment of one allele for overview"
 
     id: int
