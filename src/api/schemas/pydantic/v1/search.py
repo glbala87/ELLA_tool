@@ -4,6 +4,7 @@ from typing import Optional, List, Any
 
 from api.schemas.pydantic.v1 import BaseModel
 from api.schemas.pydantic.v1.alleles import Allele
+from api.schemas.pydantic.v1.analyses import Analysis
 from api.schemas.pydantic.v1.workflow import AlleleInterpretationOverview
 
 
@@ -30,4 +31,4 @@ class SearchAllele(BaseModel):
 
 class SearchResults(BaseModel):
     alleles: List[SearchAllele]
-    analyses: List[Any]  # TODO
+    analyses: List[Analysis]
