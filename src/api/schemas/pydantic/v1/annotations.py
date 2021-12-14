@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.schemas.pydantic.v1.references import AnnotationReference
-from api.util.types import Consequence, IntDict, Strand, YesNo
+from api.util.types import Consequence, CustomPredictionCategories, IntDict, Strand, YesNo
 from pydantic import Field
 
 rank_pattern = r"[1-9]\d*/[1-9]\d*"
@@ -67,3 +67,18 @@ class AnnotationConfig(BaseModel):
     # not included in AnnotationConfigSchema, but are in datamodel
     deposit: Optional[Dict] = None
     date_created: Optional[str] = None
+
+
+class CustomAnnotationAnnotations(BaseModel):
+    prediction: Dict[CustomPredictionCategories, str]
+    external: Dict[str, str]
+    references: List[AnnotationReference]
+
+
+class CustomAnnotation(BaseModel):
+    id: int
+    allele_id: int
+    user_id: int
+    annotations: CustomAnnotationAnnotations
+    date_superceeded: Optional[str]
+    date_created: str
