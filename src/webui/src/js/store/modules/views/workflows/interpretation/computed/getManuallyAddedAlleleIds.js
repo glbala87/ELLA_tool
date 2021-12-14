@@ -15,7 +15,7 @@ const getManuallyAddedAlleleIds = Compute(
     */
     state`views.workflows.interpretation.state`,
     state`views.workflows.interpretation.data.filteredAlleleIds`,
-    (interpretationState, filteredAlleleIds, get) => {
+    (interpretationState, filteredAlleleIds) => {
         if (
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
