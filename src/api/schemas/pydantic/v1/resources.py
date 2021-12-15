@@ -75,7 +75,7 @@ class EmptyResponse(ResponseValidator):
         f"{WORKFLOWS_ALLELES}/interpretations/<int:interpretation_id>/": ResourceMethods.PATCH,
         f"{WORKFLOWS_ALLELES}/logs/": ResourceMethods.POST,
         f"{WORKFLOWS_ALLELES}/logs/<int:log_id>/": ResourceMethods.PATCH | ResourceMethods.DELETE,
-        "/api/v1/users/actions/logout": ResourceMethods.POST,
+        "/api/v1/users/actions/logout/": ResourceMethods.POST,
         "/api/v1/users/actions/login/": ResourceMethods.POST,
         "/api/v1/users/actions/changepassword/": ResourceMethods.POST,
     }
@@ -89,7 +89,7 @@ class SendFileResponse(ResponseValidator):
 
     endpoints = {
         "/api/v1/attachments/analyses/<int:analysis_id>/<int:index>/": ResourceMethods.GET,
-        "/api/v1/attachments/upload//api/v1/attachments/<int:attachment_id>": ResourceMethods.GET,
+        "/api/v1/attachments/<int:attachment_id>": ResourceMethods.GET,
     }
 
 
@@ -164,7 +164,7 @@ class AlleleListResponse(ResponseValidator):
     __root__: List[Allele]
 
     endpoints = {
-        "/api/v1/alleles": ResourceMethods.GET,
+        "/api/v1/alleles/": ResourceMethods.GET,
         f"{WORKFLOWS_ALLELES}/interpretations/<int:interpretation_id>/alleles/": ResourceMethods.GET,
     }
 
