@@ -299,8 +299,12 @@ class GenepanelStatsResource(LogRequestResource):
             .distinct()
         )
 
-        input_genepanel_gene_ids = genepanel_gene_ids.filter(
-            gene.Genepanel.name == name, gene.Genepanel.version == version
+        input_genepanel_gene_ids = (
+            session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
+            .join(gene.genepanel_transcript)
+            .join(gene.Genepanel)
+            .filter(gene.Genepanel.name == name, gene.Genepanel.version == version)
+            .distinct()
         ).subquery()
 
         input_gene_count = session.query(input_genepanel_gene_ids.c.gene_id).distinct().count()
