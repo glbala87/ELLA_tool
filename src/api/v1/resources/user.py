@@ -1,5 +1,5 @@
 import logging
-from flask import Response, make_response, redirect, request
+from flask import make_response, redirect, request
 from sqlalchemy.orm import aliased
 from vardb.datamodel import user as user_model
 
