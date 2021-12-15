@@ -222,6 +222,15 @@ class AlleleIDGenePanel(NamedTuple):
     genepanel: GenepanelVersion
 
 
+class CustomPredictionCategories(StrEnum):
+    dna_conservation = auto()
+    domain = auto()
+    ortholog_conservation = auto()
+    paralog_conservation = auto()
+    repeat = auto()
+    splice_Effect_manual = auto()
+
+
 ###
 
 

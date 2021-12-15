@@ -12,8 +12,9 @@ from api.schemas.pydantic.v1.allele_assessments import (
 )
 from api.schemas.pydantic.v1.allele_reports import AlleleReport, NewAlleleReport, ReusedAlleleReport
 from api.schemas.pydantic.v1.alleles import Allele, AlleleOverview
-from api.schemas.pydantic.v1.annotations import AnnotationConfig
+from api.schemas.pydantic.v1.annotations import AnnotationConfig, CustomAnnotation
 from api.schemas.pydantic.v1.attachment import Attachment
+from api.schemas.pydantic.v1.broadcast import Broadcast
 from api.schemas.pydantic.v1.classification import ACMGClassification, ACMGCode
 from api.schemas.pydantic.v1.common import Comment
 from api.schemas.pydantic.v1.gene_assessments import GeneAssessment
@@ -185,6 +186,18 @@ class AttachmentPostResponse(ResponseValidator):
         "/api/v1/attachments/upload/": ResourceMethods.POST,
         "/api/v1/attachments/<int:attachment_id>": ResourceMethods.POST,
     }
+
+
+class BroadcastResponse(ResponseValidator):
+    __root__: List[Broadcast]
+
+    endpoints = {"/api/v1/broadcasts/": ResourceMethods.GET}
+
+
+class CustomAnnotationResponse(ResponseValidator):
+    __root__: List[CustomAnnotation]
+
+    endpoints = {"/api/v1/customannotations/": ResourceMethods.GET}
 
 
 class FinalizeAlleleInterpretationResponse(ResponseValidator):
@@ -422,6 +435,8 @@ class ApiModel(BaseModel):
     annotation_config_list_response: AnnotationConfigListResponse
     attachment_list_response: AttachmentListResponse
     attachment_post_response: AttachmentPostResponse
+    broadcast_response: BroadcastResponse
+    custom_annotation_response: CustomAnnotationResponse
     finalize_allele_interpretation_response: FinalizeAlleleInterpretationResponse
     gene_assessment_response: GeneAssessmentResponse
     gene_assessment_list_response: GeneAssessmentListResponse
