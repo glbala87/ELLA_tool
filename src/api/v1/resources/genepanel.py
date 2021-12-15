@@ -2,6 +2,13 @@ from collections import namedtuple
 from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
 from sqlalchemy.sql import case
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    EmptyResponse,
+    GenePanelListResponse,
+    GenePanelResponse,
+    GenePanelStatsResponse,
+)
 from vardb.datamodel import gene, user as user_model
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -16,6 +23,7 @@ from itertools import groupby
 
 class GenepanelListResource(LogRequestResource):
     @authenticate()
+    @validate_output(GenePanelListResponse, paginated=True)
     @paginate
     @rest_filter
     def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
@@ -55,6 +63,7 @@ class GenepanelListResource(LogRequestResource):
         )
 
     @authenticate()
+    @validate_output(EmptyResponse)
     @request_json(required_fields=["name", "version", "genes", "usergroups"])
     def post(self, session, data=None, user=None):
         """
@@ -167,6 +176,7 @@ class GenepanelListResource(LogRequestResource):
 
 class GenepanelResource(LogRequestResource):
     @authenticate()
+    @validate_output(GenePanelResponse)
     def get(self, session, name=None, version=None, user=None):
         """
         Returns a single genepanel.
@@ -193,13 +203,12 @@ class GenepanelResource(LogRequestResource):
             raise ApiError("No genepanel name is provided")
         if version is None:
             raise ApiError("No genepanel version is provided")
-
         if (
             not session.query(gene.Genepanel.name, gene.Genepanel.version)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
             .count()
         ):
-            raise ApiError("Invalid genepanel name or version")
+            raise ApiError(f"Invalid genepanel name ({name}) or version ({version})")
 
         transcripts = (
             session.query(
@@ -264,6 +273,7 @@ class GenepanelResource(LogRequestResource):
 
 class GenepanelStatsResource(LogRequestResource):
     @authenticate()
+    @validate_output(GenePanelStatsResponse)
     def get(self, session, name=None, version=None, user=None):
 
         if name is None:

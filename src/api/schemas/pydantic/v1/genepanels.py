@@ -38,13 +38,25 @@ class TranscriptFull(Transcript):
     exon_ends: List[int]
 
 
-class Phenotype(BaseModel):
+class TranscriptAlternative(BaseModel):
     id: int
-    gene: Gene
+    transcript_name: str
+
+
+class PhenotypeBasic(BaseModel):
+    id: int
     inheritance: str
 
 
-class PhenotypeFull(Phenotype):
+class Phenotype(PhenotypeBasic):
+    gene: Gene
+
+
+class PhenotypeAlternative(PhenotypeBasic):
+    description: str
+
+
+class PhenotypeFull(PhenotypeBasic):
     description: str
     omim_id: int
     gene: GeneFull
@@ -75,3 +87,20 @@ class GenepanelTranscripts(Genepanel):
 
 class GenepanelFullAssessments(GenepanelFull):
     geneassessments: List[GeneAssessment]
+
+
+class GeneAlternative(Gene):
+    phenotypes: List[PhenotypeAlternative]
+    transcripts: List[TranscriptAlternative]
+
+
+class GenepanelSingle(GenepanelBasic):
+    genes: List[GeneAlternative]
+
+
+class GenepanelStats(BaseModel):
+    name: str
+    version: str
+    addition_cnt: int
+    overlap_cnv: int
+    missing_cnt: int
