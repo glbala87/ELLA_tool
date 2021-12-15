@@ -1,4 +1,11 @@
 import logging
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    ChangePasswordRequest,
+    EmptyResponse,
+    LoginRequest,
+    UserResponse,
+)
 from flask import make_response, redirect, request
 from sqlalchemy.orm import aliased
 from vardb.datamodel import user as user_model
@@ -20,6 +27,7 @@ log = logging.getLogger(__name__)
 
 class UserListResource(LogRequestResource):
     @authenticate()
+    @validate_output(UserResponse, paginated=True)
     @paginate
     @rest_filter
     def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
@@ -60,6 +68,7 @@ class UserListResource(LogRequestResource):
 
 
 class UserResource(LogRequestResource):
+    @validate_output(UserResponse)
     def get(self, session, user_id=None):
         """
         Returns a single user.
@@ -85,7 +94,8 @@ class UserResource(LogRequestResource):
 
 
 class LoginResource(Resource):
-    @request_json(required_fields=["username", "password"], strict=True)
+    @request_json(model=LoginRequest)
+    @validate_output(EmptyResponse)
     def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")
@@ -100,7 +110,8 @@ class LoginResource(Resource):
 
 
 class ChangePasswordResource(Resource):
-    @request_json(required_fields=["username", "password", "new_password"], strict=True)
+    @request_json(model=ChangePasswordRequest)
+    @validate_output(EmptyResponse)
     def post(self, session, data=None):
         username = data.get("username")
         password = data.get("password")
@@ -112,6 +123,7 @@ class ChangePasswordResource(Resource):
 
 class CurrentUser(LogRequestResource):
     @authenticate()
+    @validate_output(UserResponse)
     def get(self, session, user=None):
         # Load import_groups into user group
         usergroupimport = aliased(user_model.UserGroup)
@@ -136,6 +148,7 @@ class CurrentUser(LogRequestResource):
 
 class LogoutResource(LogRequestResource):
     @authenticate()
+    @validate_output(EmptyResponse)
     def post(self, session, user=None):
 
         token = request.cookies.get("AuthenticationToken")  # We only logout specific token
