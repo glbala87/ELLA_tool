@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional
+from typing_extensions import Literal
 
 from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.schemas.pydantic.v1.references import AnnotationReference
 from api.util.types import Consequence, CustomPredictionCategories, IntDict, Strand, YesNo
+
 from pydantic import Field
 
 rank_pattern = r"[1-9]\d*/[1-9]\d*"
@@ -61,12 +63,36 @@ class Annotation(ExtraOK):
     transcripts: Optional[List[Transcript]] = None
 
 
+class Indications(BaseModel):
+    keys: Optional[List[str]] = None
+    threshold: Optional[int] = None
+
+
+class ViewItem(BaseModel):
+    type: Optional[Literal["primitives", "objects"]] = None
+    subsource: Optional[str] = None
+    url: Optional[str] = None
+
+
+class ViewConfig(BaseModel):
+    indications: Optional[Indications] = None
+    names: Optional[Dict[str, str]] = None
+    items: Optional[List[ViewItem]] = None
+
+
+class View(BaseModel):
+    section: Literal["section", "frequency", "prediction"]
+    template: Literal["keyValue", "itemList", "frequencyDetails", "clinvarDetails"]
+    source: str
+    title: Optional[str] = None
+    url: Optional[str] = None
+    url_empty: Optional[str] = None
+    config: ViewConfig
+
+
 class AnnotationConfig(BaseModel):
     id: int
-    view: List[Dict]
-    # not included in AnnotationConfigSchema, but are in datamodel
-    deposit: Optional[Dict] = None
-    date_created: Optional[str] = None
+    view: List[View]
 
 
 class CustomAnnotationAnnotations(BaseModel):

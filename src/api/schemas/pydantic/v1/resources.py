@@ -436,6 +436,7 @@ class ApiModel(BaseModel):
     attachment_list_response: AttachmentListResponse
     attachment_post_response: AttachmentPostResponse
     broadcast_response: BroadcastResponse
+    custom_annotation_response: CustomAnnotationResponse
     finalize_allele_interpretation_response: FinalizeAlleleInterpretationResponse
     gene_assessment_response: GeneAssessmentResponse
     gene_assessment_list_response: GeneAssessmentListResponse
