@@ -20,7 +20,7 @@ Release date: 16.12.2021
 ### Highlights
 
 #### Experimental support for CNV interpretation
-<!-- MRs !575, !606, !626, !636, !638, !643, !650, !659 -->
+<!-- MRs !575, !606, !626, !636, !638, !643, !650, !659, !673 -->
 
 This version introduces experimental support for copy number variants (CNVs). 
 
@@ -58,7 +58,7 @@ To configure a particular track, the file path must be matched with a regular ex
 
 ### All changes
 
-<!-- MR !575, !606, !626, !636, !638, !643, !650, !659, !667 -->
+<!-- MR !575, !606, !626, !636, !638, !643, !650, !659, !667, !673 -->
 - [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
 <!-- MR !605, !651, !652, !657, !660, !668 -->
 - [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
