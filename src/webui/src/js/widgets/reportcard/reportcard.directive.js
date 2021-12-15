@@ -24,10 +24,10 @@ function formatSNV(hgvs, allele, annotation, classification_text) {
 
     hgvs += `${type}.[];[] `
     hgvs += classification_text
-    hgvs += `\n${hgvs_short}`
+    hgvs += ` ${hgvs_short}`
 
     if (annotation.HGVSp) {
-        hgvs += `${annotation.HGVSp}`
+        hgvs += ` ${annotation.HGVSp}`
     }
 
     return hgvs
@@ -37,15 +37,14 @@ function formatCNV(hgvs, allele, annotation, classification_text) {
     hgvs += '\n'
     let hgvs_short = annotation.HGVSc_short || allele.formatted.hgvsg
 
-    hgvs += classification_text
-    hgvs += `\n${chrToContigRef(allele.chromosome)}:${hgvs_short}`
+    hgvs += `${chrToContigRef(allele.chromosome)}:${hgvs_short}`
+    hgvs += ` ${classification_text}`
 
     if (annotation.HGVSp) {
-        hgvs += `${annotation.HGVSp}`
+        hgvs += ` ${annotation.HGVSp}`
     }
 
-    hgvs += '\n'
-    hgvs += extractCytoband(allele)
+    hgvs += ` ${extractCytoband(allele)}`
 
     return hgvs
 }
