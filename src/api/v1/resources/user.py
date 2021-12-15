@@ -1,5 +1,5 @@
 import logging
-from flask import Response, make_response, redirect, request
+from flask import make_response, redirect, request
 from sqlalchemy.orm import aliased
 from vardb.datamodel import user as user_model
 
@@ -108,7 +108,6 @@ class ChangePasswordResource(Resource):
 
         # change_password performs the authentication
         change_password(session, username, password, new_password)
-        return Response("Password for user %s changed. You can now log in." % username)
 
 
 class CurrentUser(LogRequestResource):

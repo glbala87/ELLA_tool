@@ -11,6 +11,7 @@ from typing import Any, Dict, List, NoReturn, Optional, Tuple
 
 import click
 from api.schemas.pydantic.v1 import PydanticBase
+from api.main import api
 
 
 API_VERSION = "v1"
@@ -125,6 +126,7 @@ def main(
 
     if dump_all:
         check_validators()
+        check_endpoints()
         pretty_name = "all"
     elif endpoint:
         pretty_name = endpoint
@@ -146,6 +148,87 @@ def check_validators(model_names: Optional[List[str]] = None):
         missing_str = ", ".join(missing)
         err(f"Found {len(missing)} validators not assigned to ApiModel: {missing_str}")
     log(f"Found {len(model_names)} Response/Request validators")
+
+
+def check_endpoints():
+    log("Checking typed endpoints vs API endpoints")
+    import api.schemas.pydantic.v1.resources as pr
+
+    all_api_endpoints = {
+        rule.rule: rule.methods - {"HEAD", "OPTIONS"} for rule in api.app.url_map._rules
+    }
+
+    all_payload_endpoints = {
+        rule: methods - {"GET", "DELETE"}
+        for rule, methods in all_api_endpoints.items()
+        if methods - {"GET"}
+    }
+
+    response_names = [k for k in dir(pr) if k.endswith("Response")]
+    request_names = [k for k in dir(pr) if k.endswith("Request")]
+    from collections import defaultdict
+
+    typed_endpoints = defaultdict(set)
+    for resp_name in response_names:
+        for endpoint, v in getattr(pr, resp_name).endpoints.items():
+            # endpoint = re.sub(r"<.*?:", "<", k)
+            methods = set(x.name for x in v.contents)
+            typed_endpoints[endpoint] |= methods
+
+    missing_typing = {
+        k: v - typed_endpoints.get(k, set())
+        for k, v in all_api_endpoints.items()
+        if v - typed_endpoints.get(k, set())
+    }
+
+    log(
+        f"Total: {len(all_api_endpoints)} ({len(sum((list(x) for x in all_api_endpoints.values()), []))} methods)."
+    )
+    log(
+        f"Typed: {len(typed_endpoints)} ({len(sum((list(x) for x in typed_endpoints.values()), []))} methods)"
+    )
+    log(
+        f"Untyped: {len(missing_typing)} ({len(sum((list(x) for x in missing_typing.values()), []))} methods)"
+    )
+
+    log("Endpoints missing response type:")
+    for k, v in missing_typing.items():
+        log(f"{k}: {v}")
+
+    not_an_endpoint = set(typed_endpoints.keys()) - set(all_api_endpoints)
+    if not_an_endpoint:
+        err(f"Typed endpoint(s) not part of the API: {not_an_endpoint}")
+
+    typed_request_endpoints = defaultdict(set)
+    for req_name in request_names:
+        for endpoint, v in getattr(pr, req_name).endpoints.items():
+            # endpoint = re.sub(r"<.*?:", "<", k)
+            methods = set(x.name for x in v.contents)
+            typed_request_endpoints[endpoint] |= methods
+
+    missing_request_typing = {
+        k: v - typed_request_endpoints.get(k, set())
+        for k, v in all_payload_endpoints.items()
+        if v - typed_request_endpoints.get(k, set())
+    }
+
+    log(
+        f"Total: {len(all_payload_endpoints)} ({len(sum((list(x) for x in all_payload_endpoints.values()), []))} methods)."
+    )
+    log(
+        f"Typed: {len(typed_request_endpoints)} ({len(sum((list(x) for x in typed_request_endpoints.values()), []))} methods)"
+    )
+    log(
+        f"Untyped: {len(missing_request_typing)} ({len(sum((list(x) for x in missing_request_typing.values()), []))} methods)"
+    )
+
+    log("Endpoints missing request type:")
+    for k, v in missing_request_typing.items():
+        log(f"{k}: {v}")
+
+    not_a_payload_endpoint = set(typed_request_endpoints.keys()) - set(all_payload_endpoints)
+    if not_a_payload_endpoint:
+        err(f"Typed endpoint(s) not part of the API: {not_a_payload_endpoint}")
 
 
 ###
