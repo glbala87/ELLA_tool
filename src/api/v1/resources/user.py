@@ -108,7 +108,6 @@ class ChangePasswordResource(Resource):
 
         # change_password performs the authentication
         change_password(session, username, password, new_password)
-        return Response("Password for user %s changed. You can now log in." % username)
 
 
 class CurrentUser(LogRequestResource):

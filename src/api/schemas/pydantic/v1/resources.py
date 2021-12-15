@@ -32,7 +32,7 @@ from api.schemas.pydantic.v1.references import (
     ReusedReferenceAssessment,
 )
 from api.schemas.pydantic.v1.search import SearchOptions, SearchResults
-from api.schemas.pydantic.v1.users import User
+from api.schemas.pydantic.v1.users import User, UserFull
 from api.schemas.pydantic.v1.workflow import (
     AlleleCollision,
     AlleleInterpretation,
@@ -75,6 +75,9 @@ class EmptyResponse(ResponseValidator):
         f"{WORKFLOWS_ALLELES}/interpretations/<int:interpretation_id>/": ResourceMethods.PATCH,
         f"{WORKFLOWS_ALLELES}/logs/": ResourceMethods.POST,
         f"{WORKFLOWS_ALLELES}/logs/<int:log_id>/": ResourceMethods.PATCH | ResourceMethods.DELETE,
+        "/api/v1/users/actions/logout": ResourceMethods.POST,
+        "/api/v1/users/actions/login/": ResourceMethods.POST,
+        "/api/v1/users/actions/changepassword/": ResourceMethods.POST,
     }
 
     def json(self, *args, **kwargs) -> str:
@@ -288,6 +291,18 @@ class SimilarAllelesResponse(ResponseValidator):
     }
 
 
+class UserListResponse(ResponseValidator):
+    __root__: List[UserFull]
+    endpoints = {"/api/v1/users/": ResourceMethods.GET}
+
+
+class UserResponse(ResponseValidator, UserFull):
+    endpoints = {
+        "/api/v1/users/<int:user_id>/": ResourceMethods.GET,
+        "/api/v1/users/currentuser/": ResourceMethods.GET,
+    }
+
+
 ###
 ### Request models. Used by @request_json to validate JSON sent to the API
 ###
@@ -399,6 +414,21 @@ class ReferenceListRequest(RequestValidator):
         return values
 
 
+class LoginRequest(RequestValidator):
+    username: str
+    password: str
+
+    endpoints = {"/api/v1/users/actions/login/": ResourceMethods.POST}
+
+
+class ChangePasswordRequest(RequestValidator):
+    username: str
+    password: str
+    new_password: str
+
+    endpoints = {"/api/v1/users/actions/changepassword/": ResourceMethods.POST}
+
+
 ###
 
 
@@ -439,6 +469,8 @@ class ApiModel(BaseModel):
     search_options_response: SearchOptionsResponse
     search_response: SearchResponse
     similar_alleles_response: SimilarAllelesResponse
+    user_response: UserResponse
+    user_list_response: UserListResponse
 
     acmg_allele_request: ACMGAlleleRequest
     allele_action_finalize_request: AlleleActionFinalizeRequest
@@ -451,3 +483,5 @@ class ApiModel(BaseModel):
     patch_interpretation_request: PatchInterpretationRequest
     reference_assessment_post_request: ReferenceAssessmentPostRequest
     reference_list_request: ReferenceListRequest
+    login_request: LoginRequest
+    change_password_request: ChangePasswordRequest

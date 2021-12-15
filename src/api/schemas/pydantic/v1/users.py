@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import List
 
 from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1.genepanels import Genepanel
 
 
 class User(BaseModel):
@@ -16,6 +17,14 @@ class User(BaseModel):
     user_group_name: str
 
 
+class UserGroup(BaseModel):
+    id: int
+    name: str
+    genepanels: List[Genepanel]
+    default_import_genepanel: Genepanel
+    import_groups: List[str]
+
+
 class UserFull(User):
     id: int
     username: str
@@ -26,10 +35,3 @@ class UserFull(User):
     password_expiry: str
     active: bool
     group: UserGroup
-
-
-class UserGroup(BaseModel):
-    id: int
-    name: str
-    genepanels: List[Dict]  # TODO: List[GenePanel], but circular imports causing problems
-    default_import_genepanel: Dict  # TODO: GenePanel

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 from api.schemas.pydantic.v1 import BaseModel
-from api.schemas.pydantic.v1.gene_assessments import GeneAssessment
+
 from api.util.types import GenomeReference, StrandSymbol
 
 
@@ -85,10 +85,6 @@ class GenepanelTranscripts(Genepanel):
     phenotypes: List[Phenotype]
 
 
-class GenepanelFullAssessments(GenepanelFull):
-    geneassessments: List[GeneAssessment]
-
-
 class GeneAlternative(Gene):
     phenotypes: List[PhenotypeAlternative]
     transcripts: List[TranscriptAlternative]
@@ -104,3 +100,11 @@ class GenepanelStats(BaseModel):
     addition_cnt: int
     overlap_cnv: int
     missing_cnt: int
+
+
+# Put down here to avoid circular import issues with GeneAssessment -> User -> Genepanel
+from api.schemas.pydantic.v1.gene_assessments import GeneAssessment  # noqa: E402
+
+
+class GenepanelFullAssessments(GenepanelFull):
+    geneassessments: List[GeneAssessment]
