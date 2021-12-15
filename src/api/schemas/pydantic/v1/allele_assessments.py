@@ -64,10 +64,26 @@ class ReusedAlleleAssessment(BaseModel):
     presented_alleleassessment_id: int
 
 
+class IncludedItem(BaseModel):
+    op: Optional[str]
+    code: str
+    uuid: str
+    match: Optional[List[str]]
+    source: Optional[str]
+    comment: str
+
+
+class SuggestedItem(BaseModel):
+    op: Optional[str]
+    code: str
+    match: Optional[List[str]]
+    source: Optional[str]
+
+
 class SuggestedAcmg(BaseModel):
-    included: List
-    suggested: List
-    suggested_classification: Optional[int] = Field(None, min=1, max=5)
+    included: Optional[List[IncludedItem]] = None
+    suggested: Optional[List[SuggestedItem]] = None
+    suggested_classification: Optional[Optional[int]] = None
 
 
 class NewAlleleAssessmentEvaluation(BaseModel):

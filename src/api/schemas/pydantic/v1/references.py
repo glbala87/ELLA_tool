@@ -33,13 +33,33 @@ class Reference(BaseModel):
 class ReferenceEvaluation(BaseModel):
     comment: Optional[str] = None
     sources: Optional[List[str]] = None
+    relevance: Optional[str] = None
+    ref_quality: Optional[Optional[str]] = None
+    ref_auth_classification: Optional[Optional[str]] = None
+    ref_segregation: Optional[str] = None
+    ref_segregation_quality: Optional[str] = None
+    ref_ihc: Optional[str] = None
+    ref_msi: Optional[str] = None
     ref_prot: Optional[str] = None
-    relevance: Optional[ReferenceEvalRelevance] = None
+    ref_prediction: Optional[Optional[str]] = None
     ref_prot_quality: Optional[str] = None
-    ref_auth_classification: Optional[str] = None
-    ref_population_affecteds: Optional[str] = None
-    ref_phase: Optional[str] = None
-    ref_quality: Optional[str] = None
+    ref_population_affecteds: Optional[Optional[str]] = None
+    ref_rna: Optional[str] = None
+    ref_rna_quality: Optional[str] = None
+    ref_aa_overlap: Optional[str] = None
+    ref_aa_overlap_same_novel: Optional[str] = None
+    ref_domain_overlap: Optional[str] = None
+    ref_population_healthy: Optional[Optional[str]] = None
+    ref_prediction_tool: Optional[str] = None
+    ref_msi_quality: Optional[str] = None
+    ref_aa_overlap_aa: Optional[str] = None
+    ref_aa_overlap_sim: Optional[str] = None
+    ref_aa_overlap_aa_ref: Optional[str] = None
+    ref_aa_overlap_quality: Optional[str] = None
+    ref_phase: Optional[Optional[str]] = None
+    ref_ihc_quality: Optional[str] = None
+    ref_domain_benign: Optional[str] = None
+    ref_de_novo: Optional[str] = None
 
 
 class BaseReferenceAssessment(BaseModel):

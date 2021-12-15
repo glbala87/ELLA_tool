@@ -1,15 +1,30 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1.workflow_allele_state import AlleleState
 from api.schemas.pydantic.v1.users import User
+from api.schemas.pydantic.v1.common import Comment
 from api.util.types import (
     AlleleInterpretationWorkflowStatus,
     InterpretationStatus,
     WorkflowStatus,
     WorkflowTypes,
 )
+
+
+class Report(BaseModel):
+    included: bool
+
+
+class Workflow(BaseModel):
+    reviewed: bool
+
+
+class AlleleInterpretationState(BaseModel):
+    allele: Optional[Dict[str, AlleleState]]
+    manuallyAddedAlleles: Optional[List[int]]
 
 
 class AlleleInterpretationSnapshot(BaseModel):
@@ -33,12 +48,12 @@ class AlleleInterpretation(BaseModel):
     finalized: Optional[bool] = None
     workflow_status: AlleleInterpretationWorkflowStatus
     user_state: Dict
-    state: Dict
+    state: Optional[AlleleInterpretationState]
     genepanel_name: str
     genepanel_version: str
     date_last_update: str
     date_created: str
-    # NOTE: None/null found for these in test data. Is this behavior seen in production?
+    # NOTE: None/null means no user has worked on this (e.g. imported as standalone variant)
     user_id: Optional[int] = None
     user: Optional[User] = None
 
@@ -64,3 +79,8 @@ class AlleleCollision(BaseModel):
     analysis_name: str
     analysis_id: int
     workflow_status: WorkflowStatus
+
+
+class AnalysisInterpretationState(AlleleInterpretationState):
+    filterConfigId: Optional[int]
+    report: Comment
