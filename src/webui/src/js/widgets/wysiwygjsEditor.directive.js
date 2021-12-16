@@ -447,6 +447,9 @@ app.component('wysiwygEditor', {
                                 let text = e.clipboardData.getData('text/html')
                                 e.preventDefault()
                                 $ctrl.editor.insertHTML(sanitize(text))
+                            } else if (e.clipboardData.types.indexOf('text/plain') > -1) {
+                                // Handled by contenteditable directly
+                                return
                             } else {
                                 hasAttachment = true
                                 e.preventDefault()
