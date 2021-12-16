@@ -26,6 +26,7 @@ This is a bugfix release.
 
 <!-- MR !676-->
 - Fixed a bug causing inability to paste plain text into comment fields.
+- Fixed word wrapping in comment fields.
 
 ## Version 1.16
 
