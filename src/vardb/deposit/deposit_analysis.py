@@ -14,7 +14,6 @@ import logging
 from sqlalchemy import tuple_
 from datalayer import queries
 from vardb.util import vcfiterator
-from vardb.deposit.importers import get_allele_from_record
 
 from vardb.datamodel import sample, user, gene, assessment, allele
 
@@ -60,6 +59,9 @@ class PrefilterBatchGenerator:
 
         result_records = []
 
+        cnv_records = [r for r in records if r.variant.INFO.get("SVTYPE") is not None]
+        snv_records = [r for r in records if r.variant.INFO.get("SVTYPE") is None]
+
         allele_data = [
             (r.variant.CHROM, r.variant.POS, r.variant.REF, r.variant.ALT[0]) for r in records
         ]
@@ -84,7 +86,7 @@ class PrefilterBatchGenerator:
             .all()
         )
 
-        for r in records:
+        for r in snv_records:
             # If the current record is nearby the previous, and the previous record was excluded
             # because of the nearby-check (previous_should_import_if_nearby),
             # then include the previous record here
@@ -142,7 +144,7 @@ class PrefilterBatchGenerator:
                     all_checks, self.prefilters
                 )
             self.previous_record = r
-        return result_records
+        return result_records + cnv_records
 
     @staticmethod
     def _is_nearby(prev, current):
@@ -254,10 +256,12 @@ class BlockIterator(object):
                 # If the next item is on the same multiallelic block, then we need to continue block
                 return batch[i].get_block_id() != batch[i + 1].get_block_id()
 
+        allele = None
+
         for i, record in enumerate(batch):
             add_record_to_block = False
             if record.has_allele(self.proband_sample_name):
-                allele = get_allele_from_record(record, alleles)
+                allele = record.get_allele(alleles)
                 # We might have skipped importing the record as allele due to prefiltering
                 if allele:
                     self.proband_alleles.append(allele)
@@ -276,6 +280,14 @@ class BlockIterator(object):
                     add_record_to_block = True
 
                 if not all(x == -1 for x in sample_gt):
+                    self.sample_has_coverage[sample_name] = True
+
+                if (
+                    all(x == -1 for x in sample_gt)
+                    and allele
+                    and allele["caller_type"] == "cnv"
+                    and (allele["change_type"] == "dup" or allele["change_type"] == "dup_tandem")
+                ):
                     self.sample_has_coverage[sample_name] = True
 
             if add_record_to_block:
@@ -445,11 +457,9 @@ class DepositAnalysis(DepositFromVCF):
         )
 
         for data in analysis_config_data["data"]:
-            vi = vcfiterator.VcfIterator(data["vcf"])
+            vcf_iterator = vcfiterator.VcfIterator(data["vcf"])
             self.annotation_importer.reset()
-
-            vcf_sample_names = vi.samples
-
+            vcf_sample_names = vcf_iterator.samples
             log.info("Importing {}".format(db_analysis.name))
             db_samples = self.sample_importer.process(
                 vcf_sample_names, db_analysis, sample_type=data["technology"], ped_file=data["ped"]
@@ -495,14 +505,14 @@ class DepositAnalysis(DepositFromVCF):
 
             # batch_records are _all_ records
             for proband_only_records, batch_records in PrefilterBatchGenerator(
-                self.session, proband_sample_name, iter(vi), prefilters=prefilters
+                self.session, proband_sample_name, iter(vcf_iterator), prefilters=prefilters
             ):
                 for record in proband_only_records:
                     self.allele_importer.add(record)
                 alleles = self.allele_importer.process()
 
                 for record in proband_only_records:
-                    allele = get_allele_from_record(record, alleles)
+                    allele = record.get_allele(alleles)
                     self.annotation_importer.add(record, allele["id"])
 
                 # block_iterator splits batch_records into "multiallelic blocks" (if the site is multiallelic),

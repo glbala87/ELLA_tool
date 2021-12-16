@@ -2,6 +2,10 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from datalayer import queries
 from sqlalchemy.orm.session import Session
 from vardb.datamodel import assessment
+from sqlalchemy.sql.functions import func
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.types import Integer
 
 
 class ClassificationFilter(object):
@@ -47,7 +51,9 @@ class ClassificationFilter(object):
                 continue
 
             filtered_allele_ids = self.session.query(assessment.AlleleAssessment.allele_id).filter(
-                assessment.AlleleAssessment.allele_id.in_(allele_ids),
+                assessment.AlleleAssessment.allele_id.in_(
+                    self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+                ),
                 assessment.AlleleAssessment.classification.in_(filter_classes),
                 *valid_assessments
             )

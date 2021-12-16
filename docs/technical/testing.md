@@ -5,18 +5,20 @@
 ## Types of tests
 
 ### End-to-end
-A complete app with frontend and backend is started. Several use-cases
- are executed through the browser simulating a user clicking and entering text.
- The tests are written in Javascript and executed using [webdriverIO] (http://webdriver.io/).
+A complete app with frontend and backend is started. Several use-cases are executed through the
+ browser simulating a user clicking and entering text. The tests are written in Javascript and
+ executed using [webdriverIO] (http://webdriver.io/).
 
 ### Unit tests
 Testing of isolated Javascript or Python functions.
 
 ### API and integration tests
-A database instance and the python backend is started. Tests written in Python
-use the API and/or database to test various scenarios.
+A database instance and the Python backend are started. Tests written in Python use the API and/or
+ database to test various scenarios.
 
-The tests are run twice, once against current database schema and once again where the database schema has been migrated from baseline to current.
+The tests are run twice, once against current database schema and once again where the database
+ schema has been migrated from baseline to current.
+
 
 ## Running whole test suites
 
@@ -33,7 +35,7 @@ Remember to run `make test-build` before executing tests everytime you make chan
 
 If you want to run a specific API test while developing, enter your development container in VSCode, and select the `Test`-section in the left sidebar. From there you can run and debug specific tests.
 
-Alternatively, you can use `py.test <path>` like normal in the integrated terminal.
+Alternatively, you can use `py.test <path>` like you normally would, in the integrated terminal.
 
 The database fixtures are setup in different `conftest.py` files.
 
@@ -44,10 +46,11 @@ You can run `yarn test-watch` inside the container to watch for changes.
 
 
 ### End to end testing (e2e)
+
 We use webdriver.io for testing. See <http://webdriver.io>.
 
-In CI tests are run with `make e2e-test`. This will run Chrome inside the container and run the test suites.
-You can run this locally to check that the tests are passing, but it's unsuitable for authoring/editing tests.
+CI tests include an end-to-end (e2e) test (`make e2e-test`). This will start Chrome inside the container and run the test suites.
+The e2e test can be run locally to check that the tests are passing but is unsuitable for authoring/editing tests.
 
 To explore the e2e test data, start a local ELLA instance and import the e2e test data: `make dbreset TESTSET=e2e`
 
@@ -70,8 +73,7 @@ The ELLA app and the test execution (wdio) can be either run locally on your hos
 
 This will connect to the locally running Chromedriver and run one or several test specs. You'll see a local chrome browser where a "ghost" will click and enter text.
 
-You can put debug statements (`browser.debug()`) in your test spec to have the test execution stop and enter a REPL to interact with the
-browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
+You can put debug statements (`browser.debug()`) in your test spec to have the test execution stop and enter a REPL to interact with the browser. You can also open the dev tools in Chrome to dig around. Exit the REPL to have the test continue.
 
 Relevant [`options`] for the `make` command:
 Option|Explanation
@@ -86,12 +88,11 @@ Maximize the Chrome window to reduce the number of 'element-not-clickable' error
 :::
 
 ##### Misc
-
 To get and test selectors in Chrome, use an extension, or search (`Ctrl+F`) in the Developer Tools.
 
 You can connect a debugger to Node.js instance on port `5859` to play around.
 
-Use `browser.debug()` in a test file to pause the execution of the tests. This will present a REPL (webdriverio >= 4.5.0) where can you interact with webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
+Use `browser.debug()` in a test file to pause the execution of the tests. This will present a REPL (webdriverio >= 4.5.0) where can you interact with the webdriverio client to try out various commands, like `browser.element(...)`. It's also useful to head over to the browser's console to experiment and inspect variables.
 
 Hit `Ctrl-C` in the REPL to continue the test run. See more on <https://webdriver.io/docs/repl/>.
 

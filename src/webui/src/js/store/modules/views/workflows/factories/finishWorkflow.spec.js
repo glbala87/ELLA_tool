@@ -67,8 +67,15 @@ describe('finishWorkflow', function() {
                         data: {
                             filteredAlleleIds: {
                                 allele_ids: [1, 2],
-                                excluded_allele_ids: {
-                                    testFilter: [3]
+                                excluded_alleles_by_caller_type: {
+                                    snv: {
+                                        testFilter: [3],
+                                        testFilter2: [5]
+                                    },
+                                    cnv: {
+                                        testFilter: [4],
+                                        testFilter3: [6]
+                                    }
                                 }
                             },
                             alleles: {
@@ -122,16 +129,19 @@ describe('finishWorkflow', function() {
                     technical_allele_ids: [2],
                     notrelevant_allele_ids: [3],
                     excluded_allele_ids: {
-                        testFilter: [3]
+                        testFilter: [3, 4],
+                        testFilter2: [5],
+                        testFilter3: [6]
                     }
                 })
-
                 return Promise.resolve({})
             }
         }
         const path = {
             success() {},
-            error() {}
+            error(e) {
+                throw e
+            }
         }
         await runAction(finishWorkflow('Finalized'), {
             providers: { http, path },

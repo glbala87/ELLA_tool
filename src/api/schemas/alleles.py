@@ -15,4 +15,6 @@ class AlleleSchema(Schema):
             "vcf_pos",
             "vcf_ref",
             "vcf_alt",
+            "length",
+            "caller_type",
         )

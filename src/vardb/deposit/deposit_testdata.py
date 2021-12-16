@@ -11,8 +11,8 @@ import re
 import sys
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
-
 import yaml
+from api.config.config import feature_is_enabled
 from vardb.datamodel import DB
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.deposit.deposit_alleles import DepositAlleles
@@ -129,12 +129,12 @@ ALLELES = [
     AlleleInfo(
         "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf",
         ("HBOC", "v01"),
-    )
+    ),
 ]
+
 
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
 AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
-
 REFERENCES = "../testdata/references_test.json"
 CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
 
@@ -186,15 +186,24 @@ class DepositTestdata(object):
         testset_path = os.path.join(SCRIPT_DIR, testset.path)
         analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
         analysis_paths.sort()
-        for analysis_path in analysis_paths:
 
-            if not os.path.isdir(analysis_path):
-                continue
+        for analysis_path in analysis_paths:
+            analysis_files = [f for f in os.listdir(analysis_path) if f.endswith(".analysis")]
+            if len(analysis_files) > 1:
+                if feature_is_enabled("cnv"):
+                    analysis_file = next(f for f in analysis_files if f.endswith("cnv.analysis"))
+                else:
+                    analysis_file = next(
+                        f for f in analysis_files if not f.endswith("cnv.analysis")
+                    )
+                analysis_path = os.path.join(analysis_path, analysis_file)
+
             try:
                 acd = AnalysisConfigData(analysis_path)
                 acd["warnings"] = WARNINGS_EXAMPLE if acd["genepanel_name"] == "HBOC" else None
                 acd["report"] = REPORT_EXAMPLE
                 acd["date_requested"] = datetime.datetime.now().strftime("%Y-%m-%d")
+
                 da = DepositAnalysis(self.session)
                 da.import_vcf(acd)
 

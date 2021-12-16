@@ -1,8 +1,11 @@
 from typing import Any, Dict, List, Set, Tuple
 from sqlalchemy.orm.session import Session
-
+from sqlalchemy.sql.functions import func
 from sqlalchemy import or_, tuple_, text
 from vardb.datamodel import annotationshadow, gene
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.types import Integer, Text
 
 
 class ConsequenceFilter(object):
@@ -33,7 +36,9 @@ class ConsequenceFilter(object):
             allele_ids_with_consequence = (
                 self.session.query(annotationshadow.AnnotationShadowTranscript.allele_id)
                 .filter(
-                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids),
+                    annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                        self.session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+                    ),
                     annotationshadow.AnnotationShadowTranscript.consequences.op("&&")(consequences),
                 )
                 .distinct()
@@ -58,8 +63,16 @@ class ConsequenceFilter(object):
 
                 allele_ids_with_consequence = allele_ids_with_consequence.filter(
                     or_(
-                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(gp_gene_ids),
-                        annotationshadow.AnnotationShadowTranscript.symbol.in_(gp_gene_symbols),
+                        annotationshadow.AnnotationShadowTranscript.hgnc_id.in_(
+                            self.session.query(
+                                func.unnest(cast(gp_gene_ids, ARRAY(Integer)))
+                            ).subquery()
+                        ),
+                        annotationshadow.AnnotationShadowTranscript.symbol.in_(
+                            self.session.query(
+                                func.unnest(cast(gp_gene_symbols, ARRAY(Text)))
+                            ).subquery()
+                        ),
                     )
                 )
 

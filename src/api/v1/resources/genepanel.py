@@ -1,7 +1,11 @@
+from collections import namedtuple
 from typing import List, Dict, Any
 from sqlalchemy import tuple_, func, literal, and_, desc, Float
-from sqlalchemy.sql import case, cast
+from sqlalchemy.sql import case
 from vardb.datamodel import gene, user as user_model
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.types import Integer
 
 from api.util.util import paginate, rest_filter, authenticate, request_json
 from api import schemas, ApiError
@@ -101,11 +105,23 @@ class GenepanelListResource(LogRequestResource):
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
 
         transcripts = (
-            session.query(gene.Transcript).filter(gene.Transcript.id.in_(transcript_ids)).all()
+            session.query(gene.Transcript)
+            .filter(
+                gene.Transcript.id.in_(
+                    session.query(func.unnest(cast(transcript_ids, ARRAY(Integer)))).subquery()
+                )
+            )
+            .all()
         )
 
         phenotypes = (
-            session.query(gene.Phenotype).filter(gene.Phenotype.id.in_(phenotype_ids)).all()
+            session.query(gene.Phenotype)
+            .filter(
+                gene.Phenotype.id.in_(
+                    session.query(func.unnest(cast(phenotype_ids, ARRAY(Integer)))).subquery()
+                )
+            )
+            .all()
         )
 
         assert len(transcripts) == len(transcript_ids)
@@ -260,9 +276,12 @@ class GenepanelStatsResource(LogRequestResource):
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
 
-        user_genepanels = [(gp.name, gp.version, gp.official) for gp in user.group.genepanels]
-        if (name, version) not in user_genepanels:
-            raise ApiError("Invalid genepanel name or version")
+        GenepanelEntry = namedtuple("GenepanelEntry", "name version official")
+        user_genepanels = [
+            GenepanelEntry(gp.name, gp.version, gp.official) for gp in user.group.genepanels
+        ]
+        if (name, version) not in [(gp.name, gp.version) for gp in user_genepanels]:
+            raise ApiError(f"Invalid genepanel name '{name}' or version '{version}'")
 
         # get only official genepanels
         user_genepanels = [gp for gp in user_genepanels if gp.official]
@@ -280,8 +299,12 @@ class GenepanelStatsResource(LogRequestResource):
             .distinct()
         )
 
-        input_genepanel_gene_ids = genepanel_gene_ids.filter(
-            gene.Genepanel.name == name, gene.Genepanel.version == version
+        input_genepanel_gene_ids = (
+            session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
+            .join(gene.genepanel_transcript)
+            .join(gene.Genepanel)
+            .filter(gene.Genepanel.name == name, gene.Genepanel.version == version)
+            .distinct()
         ).subquery()
 
         input_gene_count = session.query(input_genepanel_gene_ids.c.gene_id).distinct().count()

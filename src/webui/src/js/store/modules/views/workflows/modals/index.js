@@ -7,6 +7,7 @@ import reassignWorkflow from './reassignWorkflow'
 import addPrediction from './addPrediction'
 import addExternal from './addExternal'
 import addReferences from './addReferences'
+import evaluateReference from './evaluateReference'
 
 export default Module({
     state: {
@@ -22,6 +23,7 @@ export default Module({
         reassignWorkflow,
         addPrediction,
         addExternal,
-        addReferences
+        addReferences,
+        evaluateReference
     }
 })

@@ -105,3 +105,15 @@ You can toggle a blue colouring of the background of the class by clicking on it
 <div class="figure"><img src="./img/mark_reviewed.png"></div>
 
 This is done automatically when you finalize a variant. Manual marking can be used to indicates which variants have been reviewed, i.e. to keep track of the work done in a review round.  
+
+## Experimental: CNV mode
+
+::: warning NOTE
+This functionality is currently disabled by default.
+:::
+
+If the experimental CNV mode is enabled, selecting the `CNV` button in the [top bar](/manual/top-bar.html#global) switches the view in the side bar to showing CNVs: 
+
+<div class="figure"><img src="./img/sidebar_CNV.png"></div>
+
+Except for the columns shown, sections and sorting works the same way as for SNVs.

@@ -1,114 +1,9 @@
-from typing import Any, Dict, IO, Mapping, Optional, Sequence, Tuple, Union
+from typing import Dict, IO, Union
 import cyvcf2
 import logging
-import numpy as np
+from vardb.util.vcfrecord import VCFRecord
 
 log = logging.getLogger(__name__)
-
-# have to re-declare here since only exist in cyvcf2 stub and fails on execution
-Text = Union[str, bytes]
-Primitives = Union[int, float, bool, Text]
-
-
-def _numpy_unknown_to_none(a: np.ndarray) -> list:
-    """
-    Unknown values ('.') in integer arrays are assigned as '-inf' (e.g. for in32 the value is -2^31)
-    Convert array to list, and replace these values with None
-    """
-    b = a.tolist()
-    n = max(a.shape)
-    indices = zip(*np.where(a < np.iinfo(a.dtype).min + n))
-
-    def set_value(x, i, value):
-        "Set value in nested lists"
-        if len(i) > 1:
-            x = set_value(x[i[0]], i[1:], value)
-        else:
-            x[i[0]] = value
-
-    for idx in indices:
-        set_value(b, idx, None)
-
-    return b
-
-
-def numpy_to_list(a: Optional[np.ndarray]):
-    if a is None:
-        return None
-    if np.issubdtype(a.dtype, np.integer):
-        return _numpy_unknown_to_none(a)
-    else:
-        return a.tolist()
-
-
-class Record(object):
-    variant: cyvcf2.Variant
-    samples: Sequence[str]
-    meta: Mapping[str, Any]
-
-    def __init__(self, variant: cyvcf2.Variant, samples: Sequence[str], meta: Mapping[str, Any]):
-        self.variant = variant
-        self.samples = samples
-        self.meta = meta
-
-    def _sample_index(self, sample_name: str):
-        return self.samples.index(sample_name)
-
-    def get_raw_filter(self):
-        """Need to implement this here, as cyvcf2 does not distinguish between 'PASS' and '.' (both return None).
-        Therefore, we need to parse the VCF line to get the raw filter status."""
-        return str(self.variant).split("\t")[6]
-
-    def sample_genotype(self, sample_name: str):
-        return tuple(self.variant.genotypes[self._sample_index(sample_name)][:-1])
-
-    def has_allele(self, sample_name: str):
-        gt = self.sample_genotype(sample_name)
-        return max(gt) == 1
-
-    def get_format_sample(self, property: str, sample_name: str, scalar: bool = False):
-        if property == "GT":
-            return self.sample_genotype(sample_name)
-        else:
-            prop = self.variant.format(property)
-            if prop is not None:
-                ret = numpy_to_list(prop[self._sample_index(sample_name)])
-                if scalar:
-                    assert len(ret) == 1
-                    return ret[0]
-                else:
-                    return ret
-
-    def get_format(self, property: str):
-        if property == "GT":
-            return self.variant.genotypes
-        else:
-            return numpy_to_list(self.variant.format(property))
-
-    def get_block_id(self):
-        return self.variant.INFO.get("OLD_MULTIALLELIC")
-
-    def is_multiallelic(self):
-        return self.get_block_id() is not None
-
-    def is_sample_multiallelic(self, sample_name: str):
-        return self.is_multiallelic() and bool(set(self.sample_genotype(sample_name)) - set([0, 1]))
-
-    def annotation(
-        self,
-    ) -> Dict[str, Union[Primitives, Tuple[Primitives, ...]]]:
-        return dict(x for x in self.variant.INFO)
-
-    def __str__(self):
-        s = repr(self.variant)
-
-        if self.samples:
-            genotypes = []
-            for i, x in enumerate(self.variant.gt_bases):
-                genotypes.append(f"{x} ({str(self.samples[i])})")
-
-            s += f" - Genotypes: {', '.join(genotypes)}"
-        return s
 
 
 RESERVED_GT_HEADERS = {
@@ -198,5 +93,5 @@ class VcfIterator(object):
                 yield str(variant), variant
         else:
             for variant in self.reader:
-                r = Record(variant, self.samples, self.meta)
+                r = VCFRecord(variant, self.samples, self.meta)
                 yield r

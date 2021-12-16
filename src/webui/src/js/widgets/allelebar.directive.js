@@ -8,6 +8,9 @@ import template from './allelebar.ngtmpl.html' // eslint-disable-line no-unused-
 import genePopover from './allelebar/genePopover.ngtmpl.html'
 import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
 import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
+import { chrToContigRef } from '../util'
+
+const GENOTYPE_DISPLAY_MAX_CHAR = 15
 
 const genotypeDisplay = Compute(state`${props`allelePath`}`, (allele) => {
     const genotypes = []
@@ -89,10 +92,27 @@ app.component('allelebar', {
                             })
                             .join('/')
                     },
+                    getTranscriptText(allele, transcript) {
+                        if (allele && allele.caller_type == 'snv') {
+                            return transcript.transcript + ':'
+                        } else return ''
+                    },
                     hasGeneAssessment(hgnc_id) {
                         return $ctrl.genepanel.geneassessments
                             .filter((ga) => ga.gene_id === hgnc_id)
                             .filter((ga) => ga.evaluation && ga.evaluation.comment).length
+                    },
+                    getHGVSTitle(allele) {
+                        if (allele && allele.caller_type == 'snv') {
+                            return 'HGVSc:'
+                        } else if (allele && allele.caller_type == 'cnv') {
+                            return 'HGVSg:'
+                        } else {
+                            return ''
+                        }
+                    },
+                    getHGVSg(allele) {
+                        return `${chrToContigRef(allele.chromosome)}:${allele.formatted.hgvsg}`
                     }
                 })
             }

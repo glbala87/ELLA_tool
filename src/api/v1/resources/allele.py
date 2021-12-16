@@ -1,12 +1,14 @@
-from collections import defaultdict
 from flask import request
 from sqlalchemy import text
+from sqlalchemy.sql.functions import func
 from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
+from sqlalchemy.types import Integer
 
 from api import schemas
 from api.config import config
 from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
-
 from datalayer import AlleleDataLoader
 
 from api.v1.resource import LogRequestResource
@@ -152,36 +154,55 @@ class AlleleByGeneListResource(LogRequestResource):
 
         allele_ids = request.args.get("allele_ids").split(",")
 
-        filters = [annotationshadow.AnnotationShadowTranscript.allele_id.in_(allele_ids)]
+        filters = [
+            annotationshadow.AnnotationShadowTranscript.allele_id.in_(
+                session.query(func.unnest(cast(allele_ids, ARRAY(Integer)))).subquery()
+            )
+        ]
         inclusion_regex = config.get("transcripts", {}).get("inclusion_regex")
         if inclusion_regex:
             filters.append(text("transcript ~ :reg").params(reg=inclusion_regex))
 
+        # deduplicate entries
         allele_id_genes = (
             session.query(
-                annotationshadow.AnnotationShadowTranscript.allele_id,
                 annotationshadow.AnnotationShadowTranscript.symbol,
                 annotationshadow.AnnotationShadowTranscript.hgnc_id,
+                allele.Allele.id.label("allele_id"),
+                allele.Allele.chromosome,
+                allele.Allele.start_position,
             )
             .join(allele.Allele)
             .filter(*filters)
-            .order_by(allele.Allele.chromosome, allele.Allele.start_position)
+            .order_by(
+                annotationshadow.AnnotationShadowTranscript.symbol,
+                annotationshadow.AnnotationShadowTranscript.hgnc_id,
+            )
+            .distinct()
+            .subquery()
+        )
+        # aggregate allele_ids by gene, sorted
+        allele_id_by_genes = (
+            session.query(
+                allele_id_genes.c.symbol,
+                allele_id_genes.c.hgnc_id,
+                func.array_agg(
+                    aggregate_order_by(
+                        allele_id_genes.c.allele_id,
+                        allele_id_genes.c.chromosome.asc(),
+                        allele_id_genes.c.start_position.asc(),
+                    )
+                ).label("allele_ids"),
+            )
+            .group_by(allele_id_genes.c.symbol, allele_id_genes.c.hgnc_id)
             .all()
         )
-
-        pre_sorted_result = defaultdict(set)
-        for a in allele_id_genes:
-            pre_sorted_result[(a[1], a[2])].add(a[0])
-
-        result = list()
-        for key in sorted(
-            list(pre_sorted_result.keys()), key=lambda x: x[0] if x[0] is not None else ""
-        ):
-            allele_ids = pre_sorted_result[key]
-            result.append(
-                {"symbol": key[0], "hgnc_id": key[1], "allele_ids": sorted(list(allele_ids))}
-            )
-        return result
+        # simulate a "json_agg()" in python as sqlalchemy does not seem to support it :(
+        # At least we get an idea how a return type would look like
+        return [
+            {"symbol": r.symbol, "hgnc_id": r.hgnc_id, "allele_ids": r.allele_ids}
+            for r in allele_id_by_genes
+        ]
 
 
 class AlleleAnalysisListResource(LogRequestResource):

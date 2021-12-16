@@ -1,11 +1,21 @@
 export default function prepareSelectedAllele({ state }) {
     const selectedComponent = state.get('views.workflows.selectedComponent')
     const alleles = state.get('views.workflows.interpretation.data.alleles')
-    const unclassified = state.get('views.workflows.alleleSidebar.unclassified')
-    const classified = state.get('views.workflows.alleleSidebar.classified')
-    const technical = state.get('views.workflows.alleleSidebar.technical')
-    const notRelevant = state.get('views.workflows.alleleSidebar.notRelevant')
+    const caller_type_selected = state.get('views.workflows.alleleSidebar.callerTypeSelected')
     let selectedAllele = state.get('views.workflows.selectedAllele')
+
+    const unclassified = state
+        .get('views.workflows.alleleSidebar.unclassified')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const classified = state
+        .get('views.workflows.alleleSidebar.classified')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const technical = state
+        .get('views.workflows.alleleSidebar.technical')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
+    const notRelevant = state
+        .get('views.workflows.alleleSidebar.notRelevant')
+        .filter((id) => alleles[id].caller_type == caller_type_selected)
 
     if (selectedComponent !== 'Classification') {
         state.set('views.workflows.selectedAllele', null)
@@ -13,7 +23,11 @@ export default function prepareSelectedAllele({ state }) {
     }
 
     // If already selected and it's still valid selection, do nothing
-    if (selectedAllele && selectedAllele in alleles) {
+    if (
+        selectedAllele &&
+        selectedAllele in alleles &&
+        alleles[selectedAllele].caller_type === caller_type_selected
+    ) {
         return
     }
 

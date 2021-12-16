@@ -22,10 +22,28 @@ class Allele(Base):
     open_end_position = Column(Integer, nullable=False)
     change_from = Column(String, nullable=False)
     change_to = Column(String, nullable=False)
-    change_type = Column(Enum("SNP", "del", "ins", "indel", name="change_type"), nullable=False)
+    change_type = Column(
+        Enum(
+            "SNP",
+            "del",
+            "ins",
+            "indel",
+            "dup",
+            "dup_tandem",
+            "del_me",
+            "ins_me",
+            "inv",
+            "bnd",
+            name="change_type",
+        ),
+        nullable=False,
+    )
+
+    caller_type = Column(Enum("snv", "cnv", name="caller_type"), nullable=False)
     vcf_pos = Column(Integer, nullable=False)
     vcf_ref = Column(String, nullable=False)
     vcf_alt = Column(String, nullable=False)
+    length = Column(Integer, nullable=False)
 
     __table_args__ = (
         Index("ix_alleleloci", "chromosome", "start_position", "open_end_position"),
@@ -39,16 +57,20 @@ class Allele(Base):
             "vcf_pos",
             "vcf_ref",
             "vcf_alt",
+            "length",
+            "caller_type",
             name="ucAllele",
         ),
     )
 
     def __repr__(self):
-        return "<Allele('%s','%s', '%s', '%s', '%s', '%s')>" % (
+        return "<Allele('%s','%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.chromosome,
             self.start_position,
             self.open_end_position,
             self.change_type,
             self.change_from,
             self.change_to,
+            self.length,
+            self.caller_type,
         )

@@ -2,13 +2,17 @@
     <div ng-repeat="t in $ctrl.allele.annotation.transcripts track by t.transcript">
         <li>
             <copy-text
+                ng-if="$ctrl.allele.caller_type=='snv'"
                 text="{{
                     t.transcript + '(' + t.symbol + '):' + t.HGVSc_short ||
                         $ctrl.allele.formatted.hgvsg
                 }}"
             ></copy-text>
+            <copy-text
+                ng-if="$ctrl.allele.caller_type=='cnv'"
+                text="{{ $ctrl.getHGVSg($ctrl.allele) }}"
+            ></copy-text>
         </li>
-
         <li class="small" ng-if="t.HGVSc_insertion">Insertion: {{ t.HGVSc_insertion }}</li>
     </div>
 </ul>

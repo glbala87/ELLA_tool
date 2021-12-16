@@ -31,17 +31,48 @@ function getSortFunctions(
             }
             return allele.formatted.inheritance
         },
+        chromosome: (allele) => {
+            const chr = allele.chromosome
+            if (chr === 'X') return 23
+            else if (chr === 'Y') return 24
+            else if (chr === 'MT') return 25
+            else return Number(chr)
+        },
+        start: (allele) => {
+            return allele.start_position
+        },
+        end: (allele) => {
+            return allele.open_end_position
+        },
+        pos: (allele) => {
+            allele.start_position
+        },
+        sv_type: (allele) => {
+            return allele.change_type
+        },
+        sv_len: (allele) => {
+            return allele.length
+        },
         gene: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
                 return allele.annotation.filtered[0].symbol
             }
             return -1
         },
+        band: (allele) => {
+            if (allele.annotation.cytoband) {
+                return allele.annotation.cytoband
+            } else return -1
+        },
         hgvsc: (allele) => {
             if (allele.annotation.filtered && allele.annotation.filtered.length) {
                 const s = allele.annotation.filtered[0].HGVSc_short || allele.formatted.hgvsg
-                const pos = s.match(/[cg]\.(\d+)/)
-                return pos ? parseInt(pos[1]) : 0
+                if (undefined != s) {
+                    const pos = s.match(/[cg]\.(\d+)/)
+                    return pos ? parseInt(pos[1]) : 0
+                } else {
+                    return -1
+                }
             }
             return -1
         },
@@ -194,6 +225,16 @@ export default function sortAlleles(alleles, key, reverse) {
                         .thenBy(sortFunctions.inheritance)
                         .thenBy(sortFunctions.gene)
                         .thenBy(sortFunctions.hgvsc)
+                )
+            } else if (key === 'chromosome') {
+                sortedAlleles.sort(
+                    thenBy(sortFunctions.chromosome, reverse ? -1 : 1)
+                        .thenBy(sortFunctions.start)
+                        .thenBy(sortFunctions.end)
+                )
+            } else if (key === 'pos') {
+                sortedAlleles.sort(
+                    thenBy(sortFunctions.start, reverse ? -1 : 1).thenBy(sortFunctions.end)
                 )
             } else if (key) {
                 sortedAlleles.sort(

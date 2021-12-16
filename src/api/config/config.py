@@ -76,40 +76,40 @@ jsonschema.validate(config, schema)
 # The following is not a natural part of the config, but left here for legacy reasons
 config.setdefault("transcripts", {})["consequences"] = [
     "transcript_ablation",
-    "splice_donor_variant",
     "splice_acceptor_variant",
+    "splice_donor_variant",
     "stop_gained",
     "frameshift_variant",
+    "stop_lost",
     "start_lost",
     "initiator_codon_variant",
-    "stop_lost",
+    "transcript_amplification",
     "inframe_insertion",
     "inframe_deletion",
     "missense_variant",
     "protein_altering_variant",
-    "transcript_amplification",
     "splice_region_variant",
     "incomplete_terminal_codon_variant",
-    "synonymous_variant",
     "start_retained_variant",
     "stop_retained_variant",
+    "synonymous_variant",
     "coding_sequence_variant",
     "mature_miRNA_variant",
     "5_prime_UTR_variant",
     "3_prime_UTR_variant",
     "non_coding_transcript_exon_variant",
-    "non_coding_transcript_variant",
     "intron_variant",
     "NMD_transcript_variant",
+    "non_coding_transcript_variant",
     "upstream_gene_variant",
     "downstream_gene_variant",
     "TFBS_ablation",
     "TFBS_amplification",
     "TF_binding_site_variant",
-    "regulatory_region_variant",
     "regulatory_region_ablation",
     "regulatory_region_amplification",
     "feature_elongation",
+    "regulatory_region_variant",
     "feature_truncation",
     "intergenic_variant",
 ]
@@ -117,6 +117,15 @@ config.setdefault("transcripts", {})["consequences"] = [
 
 config["acmg"] = acmgconfig
 config["custom_annotation"] = customannotationconfig
+
+
+def feature_is_enabled(feature):
+    return config["app"].get("feature_flags", {}).get(feature, False)
+
+
+class FeatureNotEnabledError(RuntimeError):
+    def __init__(self, feature):
+        super().__init__(f"Feature '{feature}' is not enabled.")
 
 
 def get_user_config(app_config, usergroup_config, user_config):

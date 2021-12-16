@@ -415,6 +415,8 @@ def replace_allele_table(session, entries):
             "change_from": "DUMMY",
             "change_to": "DUMMY",
             "change_type": "SNP",
+            "length": open_end_position - start_position,
+            "caller_type": "snv",
         }
         al = allele.Allele(**data)
         session.add(al)
@@ -1497,6 +1499,7 @@ class TestInheritanceFilter(object):
         AUTOSOMAL_RECESSIVE_HOMOZYGOUS = 5
         XLINKED_RECESSIVE_HOMOZYGOUS = 6
         HOMOZYGOUS_UNAFFECTED_SIBLINGS = 7
+        NOT_APPLICABLE = 8
 
         sf.no_coverage_father_mother = lambda a, b, c: set([NO_COVERAGE_PARENTS])
         sf.denovo = lambda a, b, c, d, e: set([DENOVO])
@@ -1518,6 +1521,18 @@ class TestInheritanceFilter(object):
         )
         sf.homozygous_unaffected_siblings = lambda a, b, c: set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])
 
+        sf.get_allele_ids_in_samples = lambda a, b: set(
+            [
+                NO_COVERAGE_PARENTS,
+                DENOVO,
+                PARENTAL_MOSAICISM,
+                COMPOUND_HETEROZYGOUS,
+                AUTOSOMAL_RECESSIVE_HOMOZYGOUS,
+                XLINKED_RECESSIVE_HOMOZYGOUS,
+                HOMOZYGOUS_UNAFFECTED_SIBLINGS,
+            ]
+        )
+
         ## Start tests
         all_allele_ids = set(
             [
@@ -1528,6 +1543,7 @@ class TestInheritanceFilter(object):
                 AUTOSOMAL_RECESSIVE_HOMOZYGOUS,
                 XLINKED_RECESSIVE_HOMOZYGOUS,
                 HOMOZYGOUS_UNAFFECTED_SIBLINGS,
+                NOT_APPLICABLE,
             ]
         )
 
@@ -1545,7 +1561,7 @@ class TestInheritanceFilter(object):
         categories_add_allele_ids = {"recessive_homozygous": set([HOMOZYGOUS_UNAFFECTED_SIBLINGS])}
 
         filter_config = {}
-        expected_result = all_allele_ids if has_parents else set()
+        expected_result = all_allele_ids - set([NOT_APPLICABLE]) if has_parents else set()
         for c in ALL_CATEGORIES:
             filter_config[c] = {"enable": c in categories}
             if c in categories:

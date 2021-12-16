@@ -1,6 +1,6 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import getManuallyAddedAlleleIds from '../interpretation/computed/getManuallyAddedAlleleIds'
+import { getManuallyAddedAlleleIds } from '../interpretation/computed/getManuallyAddedAlleleIds'
 
 export default Compute(
     state`views.workflows.interpretation.data.filteredAlleleIds.allele_ids`,

@@ -26,6 +26,8 @@ Various action buttons are available in the top bar, divided by Global actions (
 
 Button  | Explanation | More information
 :---  | :---  | :---
+`INFO` / `CLASSIFICATION` / `REPORT` | Switch between pages for [sample information](/manual/info-page.md), [classification of variants](/manual/classification-page.md) and [reporting](/manual/report-page.md) |
+`SNV` / `CNV` | Switch between mode for SNVs and CNVs. Note: CNV mode is currently disabled by default, meaning these buttons will not be visible under normal circumstances. | 
 `GENE PANEL INFO` | Show information about the gene panel used in the current analysis. | [Gene panel info](/manual/info-page.html#gene-panel-info)
 `WORK LOG`  | System and user messages related to current analysis/interpretation. The number of user added messages is shown in parentheses. |  [Work log](/manual/worklog.md)
 `START` / <br>`FINISH`+`SAVE` | Start, save changes and finish an analysis or interpretation. | [Start](/manual/classification-page.html#start-an-analysis-or-interpretation); [Save/Finish](/manual/classification-page.html#save-and-finish)
@@ -53,6 +55,7 @@ Header  | Explanation | More information
 LINKS | Click to go to corresponding gene information pages from external resources. 
 INHERITANCE | Inheritance mode, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
 PHENOTYPES | Associated phenotypes, specified in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
+TRANSCRIPTS | Shows the default transcript(s) used in the gene panel. | [Gene panels](/technical/genepanels.html#gene-panels)
 BS1/BA1 CUTOFF | Frequency thresholds for automatic suggestions of the corresponding ACMG-AMP criteria (divided by external and internal database). | [User group-specific ACMG rules](/technical/acmg.html#user-group-rules)
 GENE COMMENTS | User-added gene information. | (see below)
 

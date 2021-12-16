@@ -174,6 +174,13 @@ class AlleleSidebar extends Page {
         ).click()
     }
 
+    markCnvClassifiedReview(allele) {
+        const alleleIdx = this._getAlleleIdx(allele, '.id-classified')
+        $(
+            `allele-sidebar .id-classified .nav-row:nth-child(${alleleIdx + 3}) .id-classification`
+        ).click()
+    }
+
     quickSetTechnical(allele) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-unclassified')
         $(
@@ -229,6 +236,15 @@ class AlleleSidebar extends Page {
     setNotRelevantComment(allele, text) {
         const alleleIdx = this._getAlleleIdx(allele, '.id-notrelevant')
         this._setComment('.id-notrelevant', alleleIdx, text)
+    }
+
+    selectFilterConfig(filterConfigName) {
+        $('.id-select-filterconfig').click()
+        $(`.id-select-filterconfig option[label='${filterConfigName}']`).click()
+    }
+
+    getCurrentFilterConfig() {
+        return $(".id-select-filterconfig option[selected='selected']").getAttribute('label')
     }
 }
 

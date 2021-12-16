@@ -273,6 +273,7 @@ endef
 __gitlab_env:
 	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
 	echo "PRODUCTION=false" >> review_env
+	echo "ENABLE_CNV=true" >> review_env
 	$(eval ELLA_OPTS += --env-file=review_env)
 	$(eval ELLA_OPTS += -v $(REVAPP_SSH_KEY):$(REVAPP_SSH_KEY))
 
@@ -346,6 +347,7 @@ dev:
 	  -e ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  -p $(API_PORT):5000 \
 	  -p 35729:35729 \
 	  -p 5678:5678 \
@@ -418,6 +420,7 @@ test-js:
 	  --name $(CONTAINER_NAME)-js \
 	  --user $(UID):$(GID) \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  yarn test
 
@@ -427,6 +430,7 @@ test-js-auto:
 	  --user $(UID):$(GID) \
 	  -v $(shell pwd):/ella \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  yarn test-watch
 
@@ -437,6 +441,7 @@ test-python:
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  ops/test/run_python_tests.sh
 
@@ -447,6 +452,7 @@ test-api:
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_api_tests.sh
 
@@ -458,6 +464,7 @@ test-api-migration:
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  -e MIGRATION=1 \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_api_tests.sh
@@ -469,6 +476,7 @@ test-cli:
 	  --user $(UID):$(GID) \
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  /ella/ops/test/run_cli_tests.sh
 
@@ -480,6 +488,7 @@ test-report:
 	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	  -e DB_URL=postgresql:///postgres \
 	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
 	  ops/test/run_report_tests.sh
 
@@ -497,10 +506,12 @@ test-e2e:
 	   -v $(shell pwd)/logs:/logs \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
+	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 	   -e PRODUCTION=false \
+	   -e ENABLE_CNV=true \
 	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
 	   -e DB_URL=postgresql:///postgres \
 	   $(IMAGE_NAME) \
@@ -532,7 +543,9 @@ e2e-test-local: test-build
        -v $(shell pwd):/ella \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
+	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 	   -e PRODUCTION=false \
+	   -e ENABLE_CNV=true \
 	   -e DB_URL=postgresql:///postgres \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \

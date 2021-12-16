@@ -76,9 +76,13 @@ Subkey	|	Explanation |   Values
 `comment_fields`    |   Defines where (which comment fields) the template should be available. |   `classificationAnalysisSpecific`, <br>`classificationEvaluation`, <br>`classificationAcmg`,<br>`classificationReport`, <br>`classificationFrequency`,<br>`classificationPrediction`, <br>`classificationExternal`,<br>`classificationReferences`, <br>`reportIndications`, <br>`reportSummary`, <br>`referenceEvaluation`, <br>`workLogMessage`
 `template`  |   Specifies the template    |     [pure text or basic html]
 
-### IGV in VISUAL
+### IGV and tracks in VISUAL
 
-General configuration of IGV in VISUAL mode. See `/example_config.yml` for examples.
+Configuration of IGV and tracks shown in VISUAL mode. 
+
+#### General IGV configuration
+
+General configuration of IGV; see `/example_config.yml` for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `igv`
@@ -90,36 +94,63 @@ Subkey	|	Explanation
 
 All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igv.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
 
+#### Types of tracks in VISUAL
+
+Tracks shown in ELLA VISUAL are of three types: `DYNAMIC`, `STATIC` and `ANALYSIS` tracks.
+
+- Four built-in, `DYNAMIC` tracks are available:
+    File path | Description
+    :--- | :--- 
+    `DYNAMIC/variants` | Shows the unfiltered variants in the analysis
+    `DYNAMIC/classifications` | Shows the existing classifications from the database
+    `DYNAMIC/genepanel` | Shows the transcripts defined in the gene panel
+    `DYNAMIC/regions_of_interest` | Shows unfiltered variants as regions of interest
+
+- `STATIC` tracks can be added as files to the folder `$IGV_DATA/tracks`, with path configured as `STATIC/<filename>`.
+
+- `ANALYSIS` tracks are any track imported together with the analyses. with path configured as `ANALYSIS/<filename>`.
+
+#### Supported track formats
+
+The following track formats are supported: 
+
+Track type | Index file
+:--- | :--- 
+`.bam` | `.bam.bai, .bai`
+`.bed` | -
+`.bed.gz` | `.bed.gz.tbi`
+`.bigWig` | -
+`.cram` | `.cram.crai, .crai`
+`.gff3.gz` | `.gff3.gz.tbi`
+`.gtf.gz` | `.gtf.gz.tbi`
+`.vcf` | -
+`.vcf.gz` | `.vcf.gz.tbi`
+
+::: warning NOTE
+For best performance, we recommend using index and gzipped files whenever applicable.
+::: 
+
 #### Track configuration
 
-Configuration of tracks is done using a JSON file in the same folder as the track file, named as `<track file>.json`. It supports all the configuration values of [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), in addition to the following keys:
+- File: `$IGV_DATA/track_config.json` (see `/src/vardb/testdata/igv-data/track_config_default.json` for examples)
+- Key: [regex]
 
-- `presets`: List of strings defining which presets it should be in.
-- `show`: Boolean (`true`/`false`) indicating whether this track should be shown as default (and be part of the `Default` preset).
+Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config.json`; if no configuration is specified, `track_config_default.json` will be used). The keys of the configuration file are regular expressions (regex) that match file paths (see above). If a file path is matched by multiple regexes, their entries are merged (with the order defined by the position within the config file). 
 
-#### Dynamic tracks
-
-There are three built-in, dynamic tracks available:
-
-Track	|	Description |   Config file
-:---	|	:---    |	:---
-`Variants` | Shows the unfiltered variants in the analysis | `$IGV_DATA/tracks/analysis_variants.json`
-`Classifications` | Shows the existing classifications from the database | `$IGV_DATA/tracks/classifications.json`
-`Genepanel` | Shows the transcripts defined in the gene panel | `$IGV_DATA/tracks/genepanel.json`
-
-#### Static tracks
-
-Static tracks can be added as files:
-
-Type of track	|	Explanation  |  Path
-:---	|	:---    |  :---
-Global tracks  |  Available to all users  |  `$IGV_DATA/tracks`
-User group specific tracks  |  Available to specific user groups only.  |   `$IGV_DATA/usergroups/<group name>/tracks` 
-Analysis tracks  |  Specific to the analysis, e.g. bam, vcf, bigwig files.  |  `$ANALYSES_PATH/<analysis name>/tracks`
-
-::: tip TIP
-Tracks that are found in these folders and have no associated preset (including `Default`) are available in the UI under the preset `Other`.
+::: warning NOTE
+When writing regex for file paths, note that the JSON format requires all characters with regex functions to be double-escaped using `\\`. E.g., `.bed.gz` should be written as `\\.bed\\.gz`.
 :::
+
+Each entry of the config file supports these fields:
+
+Field | Description | Values
+:--- | :--- | :--
+`limit_to_groups` | Controls access to the track. If one or more user groups are listed here, only those user groups will see the tracks, otherwise (`null`) all users will have access. | [[user groups](/technical/users.html#user-groups); list] or `null`
+`presets` | Define which preset(s) the track should belong to. Tracks that are found, available and have no associated preset (including `Default`) are available in the UI under the preset `Other`. | [preset name(s); list]
+`show` | Define whether the track should belong to the `Default` preset, which is turned on by default when loading VISUAL for a new analysis (all other tracks are turned off and must be switched on manually). | `true`/`false`
+`type` | When `roi`, the track will be displayed as a [region of interest](https://github.com/igvteam/igv.js/wiki/Regions-of-Interest) (e.g. useful for marking the region of a variant). | `roi`/`null`
+`url` | A template URL to retrieve the track. The URL will be used for igv.js (`igv.url`) | [URL template]
+`igv` | Supports all the configuration values of igv.js. The value for `name` will be the track's ID, if not set explicitly. | See [igv.js Tracks 2.0](https://github.com/igvteam/igv.js/wiki/Tracks-2.0)
 
 ### Auto-text in REPORT
 

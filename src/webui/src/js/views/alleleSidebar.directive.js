@@ -6,7 +6,7 @@ import isReadOnly from '../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getEditorReferences from '../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import getSelectedInterpretation from '../store/modules/views/workflows/computed/getSelectedInterpretation'
-import getManuallyAddedAlleleIds from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
+import { getManuallyAddedAlleleIdsByCallerType } from '../store/modules/views/workflows/interpretation/computed/getManuallyAddedAlleleIds'
 import template from './alleleSidebar.ngtmpl.html' // eslint-disable-line no-unused-vars
 
 const showControls = Compute(state`views.workflows.selectedComponent`, (selectedComponent) => {
@@ -63,6 +63,20 @@ const filterConfigs = Compute(
     }
 )
 
+const getExcludedAlleleCountsByCallerType = (excludedAlleleIds, callerType) => {
+    return Compute(
+        excludedAlleleIds,
+        callerType,
+
+        (excludedAlleleIds, callerType) => {
+            if (!excludedAlleleIds || !callerType) {
+                return
+            }
+            return excludedAlleleIds[callerType]
+        }
+    )
+}
+
 app.component('alleleSidebar', {
     templateUrl: 'alleleSidebar.ngtmpl.html',
     controller: connect(
@@ -80,8 +94,11 @@ app.component('alleleSidebar', {
             orderBy: state`views.workflows.alleleSidebar.orderBy`,
             selectedInterpretation: getSelectedInterpretation,
             selectedInterpretationId: state`views.workflows.interpretation.selectedId`,
-            manuallyAddedAlleleIds: getManuallyAddedAlleleIds,
-            excludedAlleleIds: state`views.workflows.interpretation.data.filteredAlleleIds.excluded_allele_ids`,
+            manuallyAddedAlleleIds: getManuallyAddedAlleleIdsByCallerType,
+            excludedAlleleIds: getExcludedAlleleCountsByCallerType(
+                state`views.workflows.interpretation.data.filteredAlleleIds.excluded_alleles_by_caller_type`,
+                state`views.workflows.alleleSidebar.callerTypeSelected`
+            ),
             selectedFilterConfig: state`views.workflows.interpretation.data.filterConfig`,
             isTogglable,
             isToggled,
@@ -91,7 +108,8 @@ app.component('alleleSidebar', {
             filterconfigChanged: signal`views.workflows.alleleSidebar.filterconfigChanged`,
             classificationTypeChanged: signal`views.workflows.alleleSidebar.classificationTypeChanged`,
             indicationsCommentChanged: signal`views.workflows.interpretation.indicationsCommentChanged`,
-            editorReferences: getEditorReferences('report')
+            editorReferences: getEditorReferences('report'),
+            callerTypeSelectedChanged: signal`views.workflows.alleleSidebar.callerTypeSelectedChanged`
         },
         'AlleleSidebar',
         [

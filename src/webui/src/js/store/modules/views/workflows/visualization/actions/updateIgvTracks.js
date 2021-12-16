@@ -3,11 +3,12 @@ export default function updateIgvTracks({ state }) {
     if (!tracks) {
         return
     }
-    const allTracks = Object.values(tracks)
-        .reduce((p, c) => {
-            return p.concat(c)
-        }, [])
-        .filter((t) => t.selected)
-        .map((t) => t.config)
-    state.set(`views.workflows.visualization.igv.tracks`, allTracks)
+    const selectedTracks = Object.entries(tracks)
+        .filter(([id, cfg]) => cfg.selected)
+        .map(([id, cfg]) => [id, { igvcfg: cfg.igv, type: cfg.type }])
+        .reduce((obj, [k, v]) => {
+            obj[k] = v
+            return obj
+        }, {})
+    state.set(`views.workflows.visualization.igv.tracks`, selectedTracks)
 }

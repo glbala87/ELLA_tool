@@ -10,7 +10,6 @@ import pytest
 from api.tests.util import FlaskClientProxy
 from vardb.datamodel import allele, annotation
 from vardb.deposit.annotationconverters import AnnotationConverters
-from vardb.deposit.importers import build_allele_from_record
 from vardb.util import DB
 from vardb.util.testdatabase import TestDatabase
 from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
@@ -240,7 +239,7 @@ def mock_allele(session, allele_data=None, vcf_data=None):
     if allele_data is None:
         allele_data = {}
     complete_allele_data = {
-        **build_allele_from_record(mock_record(vcf_data), ref_genome="GRCh37"),
+        **mock_record(vcf_data).allele,
         **allele_data,
     }
     al = allele.Allele(**complete_allele_data)

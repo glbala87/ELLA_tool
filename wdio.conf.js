@@ -4,7 +4,6 @@ var commands = require('./src/webui/tests/e2e/commands')
 
 // when debugging it's useful to alter some config values
 var debug = process.env.DEBUG
-
 var defaultCapabilities = [
     {
         'goog:chromeOptions': {

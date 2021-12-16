@@ -1,7 +1,7 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 
-export default Compute(
+const getManuallyAddedAlleleIds = Compute(
     /*
     Returns manuallyAddedAlleles that are actually filtered out,
     and not among the non-filtered alleles.
@@ -11,16 +11,16 @@ export default Compute(
 
     We assume that manually added alleles are important, and therefore
     the allele id should still remain in manuallyAddedAlleles in case user
-    switces back to the previous filter.
+    switches back to the previous filter.
     */
     state`views.workflows.interpretation.state`,
     state`views.workflows.interpretation.data.filteredAlleleIds`,
-    (interpretationState, filteredAlleleIds, get) => {
+    (interpretationState, filteredAlleleIds) => {
         if (
             !interpretationState ||
             !('manuallyAddedAlleles' in interpretationState) ||
             !filteredAlleleIds ||
-            !filteredAlleleIds.excluded_allele_ids
+            !filteredAlleleIds.excluded_alleles_by_caller_type
         ) {
             return []
         }
@@ -28,8 +28,13 @@ export default Compute(
         const stateManuallyAddedAlleles = interpretationState.manuallyAddedAlleles
         const alleleIds = filteredAlleleIds.allele_ids
         let allExcludedAlleleIds = []
-        for (const excludedAlleleIds of Object.values(filteredAlleleIds.excluded_allele_ids)) {
-            allExcludedAlleleIds = allExcludedAlleleIds.concat(excludedAlleleIds)
+
+        for (let k of Object.keys(filteredAlleleIds.excluded_alleles_by_caller_type)) {
+            for (const excludedAlleleIds of Object.values(
+                filteredAlleleIds.excluded_alleles_by_caller_type[k]
+            )) {
+                allExcludedAlleleIds = allExcludedAlleleIds.concat(excludedAlleleIds)
+            }
         }
 
         if (
@@ -45,3 +50,21 @@ export default Compute(
         return stateManuallyAddedAlleles.filter((aId) => !alleleIds.includes(aId))
     }
 )
+
+const getManuallyAddedAlleleIdsByCallerType = Compute(
+    getManuallyAddedAlleleIds,
+    state`views.workflows.alleleSidebar.callerTypeSelected`,
+    state`views.workflows.interpretation.data.alleles`,
+    (manuallyAddedAlleleIds, callerTypeSelected, alleles) => {
+        if (!alleles) {
+            return []
+        }
+        return Object.values(alleles)
+            .filter(
+                (a) => a.caller_type === callerTypeSelected && manuallyAddedAlleleIds.includes(a.id)
+            )
+            .map((a) => a.id)
+    }
+)
+
+export { getManuallyAddedAlleleIds, getManuallyAddedAlleleIdsByCallerType }

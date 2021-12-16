@@ -28,11 +28,4 @@
 - [ ] Includes changes to configuration
 - [ ] Includes configuration migration instructions in documentation
 
-## Merge checklist
-
-- [ ] **Self-review** of code has been performed.
-- [ ] **Feature review and validation** against specification has been performed (if applicable). Apply label: ~"QA::done"
-- [ ] Need for **documentation** has been evaluated and, if necessary, updated. Apply label: ~"docs::done"
-- [ ] **Code and implementation has been reviewed** by other core developer *(including any changes based on initial review)*. Apply label: ~"code review::done"
-
-/unlabel ~"work::draft" ~"work::next" ~"work::in progress" ~"work::blocked" ~"work::won't fix" ~"work::duplicate"
+/label ~"code review::needs" ~"QA::needs" ~"docs::needs"

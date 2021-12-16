@@ -6,12 +6,84 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
+[v1.16](#version-1-16)|
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
-[v1.12](#version-1-12)|[v1.12.1](#version-1-12-1), [v1.12.2](#version-1-12-2), [v1.12.3](#version-1-12-3)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.16
+
+Release date: 16.12.2021
+
+### Highlights
+
+#### Experimental support for CNV interpretation
+<!-- MRs !575, !606, !626, !636, !638, !643, !650, !659, !673 -->
+
+This version introduces experimental support for copy number variants (CNVs). 
+
+When enabled, a separate CNV mode is added (switched to using a button in the top bar), where CNVs are shown in a separate variant list and allow documenting, reporting and reusing CNV interpretations, as for SNVs. The current version supports CNV deletions, duplications and tandem duplications (VCF format: `DEL`, `DUP` and `DUP:TANDEM`, respectively; for variants of type = `SVTYPE`).
+
+<div class="figure_text">
+    <img src="./img/1-16-CNV-mode.png"><br>
+    <p><strong>Figure: </strong>Experimental CNV mode. Major changes from SNV mode are highlighted with red squares.</p>
+</div> 
+
+Note the limitations in this version: 
+- No CNV filtering is done in ELLA, for the time being this needs to be done upstream, prior to import. 
+- No particular adaptations have been made to presentation of annotation. However, any annotation from the VCF can be added in the configuration, and we recommend adding CNV-specific tracks to VISUAL to aid in interpretation.
+- No CNV-specific ACMG criteria have been added.
+- No manual import of CNVs is supported.
+
+::: warning DISCLAIMER
+As the CNV features are not fully validated, this functionality is currently disabled by default, and we recommend not enabling it in production. For testing, the new features can be enabled by setting the feature flag `ENABLE_CNV` to `true` in the [application configuration](/technical/application.md).
+:::
+
+#### Changes in VISUAL
+
+Configuration of tracks in VISUAL has been further improved, allowing all types of tracks to be placed under presets. To allow better zoom/scroll control with many tracks visible, this version also adds a requirement to hold the `Shift` or `Alt` key when zooming with the mousewheel. 
+
+### :small_red_triangle: Breaking changes
+
+#### Configuration of tracks in IGV
+<!-- MRs !605, !651, !652, !657, !660 -->
+
+With this version, configuration of tracks shown in IGV needs to be updated. 
+
+Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier versions will no longer work. 
+
+To configure a particular track, the file path must be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See `/src/vardb/testdata/igv-data/track_config_default.json` for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
+
+### All changes
+
+<!-- MR !575, !606, !626, !636, !638, !643, !650, !659, !667, !673 -->
+- [Added experimental support for CNV interpretation](#experimental-support-for-cnv-interpretation).
+<!-- MR !605, !651, !652, !657, !660, !668 -->
+- [Improved configuration of tracks in VISUAL, including dynamic and analysis tracks](#configuration-of-tracks-in-igv). 
+<!-- MR !633-->
+- Mousewheel zoom in VISUAL now requires holding the `Shift` or `Alt` key.
+<!-- MR !647 -->
+- Added default transcript to Gene info.
+<!-- MR !611 -->
+- Updated order of VEP consequences to match the [Ensembl default](https://www.ensembl.org/info/genome/variation/prediction/predicted_data.html).
+<!-- MR !645, !670 -->
+- Fixed another bug in listing "5 most similar gene panels" for analyses with custom or older gene panels.
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !584 Refactor ReferenceEvalModal
+MR !596 Refactor wysiwygjs
+MR !600 CI is not detecting front end javascript test failures
+MR !603 Provide a CORS policy for ELLA
+MR !607 Improvements to region filter
+MR !622 increase-api-call-timeout
+MR !623 SQL performance: large list of values as subquery expression
+MR !639 Upgrade to Postgres 14
+MR !640 Avoid postgres error with too many locks per transaction
+MR !646 Put pydantic models behind feature flag
+-->
+- Fixes and improvements to performance, development environment and code base. 
 
 ## Version 1.15.1
 
@@ -314,158 +386,3 @@ MR !513 Update black, and run black on code base
 MR !514 Fix memory issue in migration script. Reorder migrations.
 -->
 - Several fixes and improvements to development environment and code base. 
-
-## Version 1.12.3
-
-Release date: 19.02.2021
-
-### Highlights
-
-This release adds a few bugfixes. 
-
-### All changes
-
-<!-- MR !501 -->
-- Fixed a bug causing loading of certain historical analyses to fail.
-<!-- MR !494, MR !502  -->
-- Fixes to deposit and backend.
-
-## Version 1.12.2
-
-Release date: 29.01.2021
-
-### Highlights
-
-This release adds a few bugfixes. 
-
-### All changes
-
-<!-- MR !491 -->
-- Fixed a bug causing ELLA not to start.
-<!-- MR !489 -->
-- Fixed a bug causing excessive memory use in exports of variant interpretation database.
-<!-- MR !490 -->
-- Fixed an error in test configuration. 
-
-## Version 1.12.1
-
-Release date: 19.01.2021
-
-### Highlights
-
-This release adds a few bugfixes. 
-
-### All changes
-
-<!-- MR !486 -->
-- Fixed a bug that caused pre- and postprocessing to fail.
-- Fixed a bug that caused missing "Requested" date on imported analyses.
-- Fixed a bug that caused performance problems.
-
-## Version 1.12
-
-Release date: 13.01.2021
-
-### Highlights
-
-This release includes many fixes and improvements, both to the frontend and backend/development environment. The most significant changes for users include changes to [classification](#redefined-classification-choices), [history](#improvements-to-history) and [variant warnings](#improved-warnings): 
-
-#### Redefined classification choices
-
-<!-- MR !477 -->
-Variant classification choices have been redefined in line with [ClinVar definitions](https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/): 
-- `CLASS U` was renamed to `NOT PROVIDED`, meant for recording various information (literature/research/clinical/phenotyping) without interpreting clinical significance. It is recommended to configure this class to be immediately outdated.
-- The choice `RISK FACTOR` was added, meant for variants that are interpreted not to cause a disorder but to increase the risk.
-
-The classification choices are now: 
-
-<div class="figure_text">
-    <img src="./img/1-12-select-class.png"><br>
-    <p><strong>Figure: </strong>Redefined variant classification choices.</p>
-</div>
-
-#### Improvements to history
-
-<!-- MR !465 --> 
-History for changes to the variant CLASSIFICATION REPORT field was added, and the HISTORY pop-up now shows a drop-down for viewing previous versions instead of listing them: 
-
-<div class="figure_text">
-    <img src="./img/1-12-variant-history.png"><br>
-    <p><strong>Figure: </strong>Modified variant history view with addition of Report history and drop-down for previous versions.</p>
-</div>
-
-<!-- MR !454 -->
-In addition, when opening a previously finalized analysis, ELLA will now default to displaying the state corresponding to the latest interpretation round, i.e. showing variant interpretations, classifications and annotation exactly as they were presented at the time of the last finalization. The previous default, `CURRENT DATA` (along with any other interpretation round), is still available using the drop-down in the top bar. To prevent confusion, a warning was added when viewing historical data. 
-
-<div class="figure_text">
-    <img src="./img/1-12-analyses-history-select.png"><br>
-    <p><strong>Figure: </strong>Latest interpretation round now selected by default (with warning) for historic analyses.</p>
-</div>
-
-#### Improved warnings
-
-<!-- MR !458 --> 
-To improve visibility of the different variant warnings displayed on the CLASSIFICATION page, collision warnings are now shown in a yellow banner separate from annotation and user group warnings (red), and collision warnings are no longer included in the `!` tag in the sidebar: 
-
-<div class="figure_text">
-    <img src="./img/1-12-separate-warnings.png">
-    <p><strong>Figure: </strong>Collision and annotation warnings are now separate.</p>
-</div>
-
-<!-- MR !456 --> 
-In addition, ELLA now displays a message at the bottom of the page if a finalized variant in an ongoing analysis has been updated and finalized by another user: 
-
-<div class="figure_text">
-    <img src="./img/1-12-toast-updated-evaluation.png">
-    <p><strong>Figure: </strong>Message when evaluation has been updated by another user.</p>
-</div>
-
-Note that the message is only displayed when a user finalizes another variant or manually refreshes the view.
-
-#### Select user group on custom imports
-
-<!-- MR !463, MR !485-->
-To better support custom gene panel imports that should be available to more than one user group, the custom gene panel import dialogue now includes an option to select user groups: 
-
-<div class="figure_text">
-    <img src="./img/1-12-select-user-group-custom-import.png">
-    <p><strong>Figure: </strong>Message when evaluation has been updated by another user.</p>
-</div>
-
-
-### All changes
-
-<!-- MR !477 -->
-- [Redefined classification choices in line with ClinVar definitions](#redefined-classification-choices).
-<!-- MR !465 -->
-- [Improved design of the history modal, with addition of CLASSIFICATION REPORT history and sorted ACMG criteria](#improvements-to-history).
-<!-- MR !454 -->
-- [Show latest interpretation round by default for historical analyses, including warning](#improvements-to-history).
-<!-- MR !458 -->
-- [Variant collision warnings are now separated from annotation warnings on the CLASSIFICATION page](#improved-warnings).
-<!-- MR !456 -->
-- [Display message when variant in ongoing analysis has been updated by another user](#improved-warnings).
-<!-- MR !463 -->
-- [Added possibility to select which user groups an imported custom gene panel analysis should be available to](#select-user-group-on-custom-imports). 
-<!-- MR !433 -->
-- Search result limit has been increased from 10 to 100, with pagination of the search results.
-<!-- MR !435 -->
-- Added more external links in the gene information popup (ClinGen, PanelApp and ACMG incidental findings).
-<!-- MR !475 -->
-- Updated HGMD Pro links to point to new base url. 
-<!-- MR !450 -->
-- Added support for templates in the Gene information comment field.
-<!-- MR !473 -->
-- Added possibility for linking attachments on the INFO page.
-<!-- MR !444 -->
-- Made allele list in top bar scrollable when number of transcripts exceed 3. 
-<!-- MR !453 -->
-- Fixed wrong tooltip on `SUBMIT REPORT` button.
-<!-- MR !455 -->
-- Fixed a bug that caused variants that were removed from the REPORT to be added back again without user intent. 
-<!-- MR !482 -->
-- Fixed a bug that caused errors in loading of historical data.
-<!-- MR !429, !443, !446, !462, !464, !468, !469, !470, !474, !478, !483, !484 -->
-- Many fixes and improvements to development environment and code base.
-
-

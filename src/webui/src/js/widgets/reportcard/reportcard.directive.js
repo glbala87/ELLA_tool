@@ -4,7 +4,7 @@ import app from '../../ng-decorators'
 import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
-
+import { chrToContigRef, extractCytoband } from '../../util.js'
 import isReadOnly from '../../store/modules/views/workflows/computed/isReadOnly'
 import getAlleleState from '../../store/modules/views/workflows/interpretation/computed/getAlleleState'
 import getAlleleReport from '../../store/modules/views/workflows/interpretation/computed/getAlleleReport'
@@ -12,24 +12,62 @@ import getClassification from '../../store/modules/views/workflows/interpretatio
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
 
+function formatSNV(hgvs, allele, annotation, classification_text) {
+    hgvs += '\n'
+    if (annotation.HGVSc_short) {
+        hgvs += `${annotation.transcript}(${annotation.symbol}):`
+    }
+
+    let hgvs_short = annotation.HGVSc_short || allele.formatted.hgvsg
+
+    let [type, part] = hgvs_short.split('.')
+
+    hgvs += `${type}.[];[] `
+    hgvs += classification_text
+    hgvs += ` ${hgvs_short}`
+
+    if (annotation.HGVSp) {
+        hgvs += ` ${annotation.HGVSp}`
+    }
+
+    return hgvs
+}
+
+function formatCNV(hgvs, allele, annotation, classification_text) {
+    hgvs += '\n'
+    let hgvs_short = annotation.HGVSc_short || allele.formatted.hgvsg
+
+    hgvs += `${chrToContigRef(allele.chromosome)}:${hgvs_short}`
+    hgvs += ` ${classification_text}`
+
+    if (annotation.HGVSp) {
+        hgvs += ` ${annotation.HGVSp}`
+    }
+
+    hgvs += ` ${extractCytoband(allele)}`
+
+    return hgvs
+}
+
 function formatHGVS(allele, classification, config) {
     let hgvs = ''
-    for (let t of allele.annotation.filtered) {
-        hgvs += `${t.transcript}(${t.symbol}):`
-        let hgvs_short = t.HGVSc_short || allele.formatted.hgvsg
+    let classification_text = ''
 
-        let [type, part] = hgvs_short.split('.')
-        hgvs += `${type}.[];[]`
-        if (classification) {
-            hgvs += ` ${config.report.classification_text[classification]}`
-        }
-        hgvs += `\n${hgvs_short}`
-        if (t.HGVSp) {
-            hgvs += ` ${t.HGVSp}`
-        }
-        hgvs += '\n\n'
+    if (classification) {
+        classification_text = `${config.report.classification_text[classification]}`
     }
-    hgvs += ``
+
+    for (let annotation of allele.annotation.filtered) {
+        if (allele.caller_type === 'snv') {
+            hgvs += formatSNV(hgvs, allele, annotation, classification_text)
+        } else if (allele.caller_type === 'cnv') {
+            hgvs += formatCNV(hgvs, allele, annotation, classification_text)
+        } else {
+            throw Error(`caller_type not supported: ${allele.caller_type}`)
+        }
+        hgvs += '\n'
+    }
+    hgvs += ` `
     return hgvs
 }
 
@@ -54,15 +92,31 @@ const getReportAlleleData = Compute(
                     (o) => o.value === classification.classification
                 )
             }, -1)
-                .thenBy((a) => a.annotation.filtered[0].symbol)
-                .thenBy((a) => a.annotation.filtered[0].HGVSc_short)
+                /** for some big events, vep is not able to produce annotation, therefor we bypass sorting on these */
+
+                .thenBy((a) => {
+                    if (
+                        a.caller_type === 'cnv' &&
+                        (!a.annotation.filtered.length || !a.annotation.filtered[0].symbol)
+                    ) {
+                        0
+                    } else a.annotation.filtered[0].symbol
+                })
+                .thenBy((a) => {
+                    if (
+                        a.caller_type === 'cnv' &&
+                        (!a.annotation.filtered.length || !a.annotation.filtered[0].HGVSc_short)
+                    ) {
+                        0
+                    } else a.annotation.filtered[0].HGVSc_short
+                })
         )
 
         for (let allele of includedAlleles) {
             const classification = get(getClassification(allele))
             const alleleReport = get(getAlleleReport(allele.id))
             result.push({
-                hgvsc: formatHGVS(allele, classification.classification, config),
+                hgvs: formatHGVS(allele, classification.classification, config),
                 comment: alleleReport.evaluation.comment
             })
         }

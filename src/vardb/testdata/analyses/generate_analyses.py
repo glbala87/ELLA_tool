@@ -28,7 +28,7 @@ analyses = {
         "brca_sample_8.HBOCUTV_v01",
         "brca_sample_master.HBOCUTV_v01",
         "NA12878.Bindevev_v02",
-        "NA12878.Ciliopati_v03",
+        "NA12878.Ciliopati_v05",
         "NA12878.EEogPU_v02",
         "NA12878.Iktyose_v02",
         "NA12878.Joubert_v02",

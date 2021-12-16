@@ -45,6 +45,14 @@ class CustomAnnotationModal extends Page {
     }
 
     /**
+     * Sets an external annotation database other textarea to some value
+     */
+    setExternalAnnotationText(text) {
+        let textArea = $('.id-custom-annotation-modal textarea')
+        textArea.setValue(text)
+    }
+
+    /**
      * Sets prediction annotation to some value.
      * (uses <bttn-set>)
      * @param {*} idx  Index in the list of available prediction options

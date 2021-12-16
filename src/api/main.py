@@ -6,7 +6,7 @@ import datetime
 
 from flask import send_from_directory, request, g, make_response
 from flask_restful import Api
-from api import app, db
+from api import app, db, DEVELOPMENT_MODE
 from api.v1 import ApiV1
 from api.util.util import populate_g_user, populate_g_logging, log_request
 
@@ -47,6 +47,16 @@ def after_request(response):
         except Exception:
             log.exception("Something went wrong when commiting resourcelog entry")
             db.session.rollback()
+
+    # Allow a different front-end running on port 3000 to make requests to the API while developing.
+    is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, "").lower() == "true"
+    if is_dev:
+        response.headers["Access-Control-Allow-Origin"] = os.environ.get(
+            "SITE_URL", "http://localhost:3000"
+        )
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Pragma"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PATCH, DELETE"
 
     return response
 
@@ -120,8 +130,7 @@ if __name__ == "__main__":
     opts = {"host": "0.0.0.0", "threaded": True, "port": int(os.getenv("API_PORT", "5000"))}
 
     # Dev mode stuff
-    is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, "").lower() == "true"
-    if is_dev:
+    if DEVELOPMENT_MODE:
         opts["use_reloader"] = True
 
         # Enable remote debugging
@@ -131,8 +140,5 @@ if __name__ == "__main__":
             if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
                 print("Enabled python remote debugging at port {}".format(os.environ["PTVS_PORT"]))
                 ptvsd.enable_attach(address=("0.0.0.0", os.environ["PTVS_PORT"]))
-
-    if is_dev:
-        print("!!!!!DEVELOPMENT MODE!!!!!")
 
     app.run(**opts)  # type: ignore

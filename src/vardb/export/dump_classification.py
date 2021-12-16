@@ -328,7 +328,8 @@ def dump_alleleassessments(session: Session, filename: str, with_analysis_names:
             classification_columns = [classification_dict[col.field_name] for col in export_columns]
             csv_body.append(classification_columns)
             rows.append(classification_columns)
-            session.execute(f"discard temp")
+        session.execute(f"discard temp")
+        session.rollback()
         t_get = time.time()
         log.info("Read the allele assessments in %s seconds" % str(t_get - t_query))
         t_total += t_get - t_start

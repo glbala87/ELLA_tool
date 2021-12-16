@@ -25,6 +25,28 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'numberFormat'
+    })
+    numberFormat() {
+        return (text) => {
+            return text.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1 `)
+        }
+    }
+
+    @Filter({
+        filterName: 'bioinfSized'
+    })
+    bioinfSized() {
+        return (text) => {
+            if (text > 1000) {
+                return `${(text / 1000).toFixed(0)} kb`
+            } else {
+                return `${text} bp`
+            }
+        }
+    }
+
+    @Filter({
         filterName: 'killLeadingDashes'
     })
     killLeadingDashes() {
@@ -81,6 +103,15 @@ class Filters {
             } else {
                 return input.toFixed(precision)
             }
+        }
+    }
+
+    @Filter({
+        filterName: 'commaSeparated'
+    })
+    commaSeparated() {
+        return (input) => {
+            return input.join(', ')
         }
     }
 }

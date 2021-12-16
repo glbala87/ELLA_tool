@@ -13,9 +13,7 @@ def analysis_not_ready_warnings(session, analysis, interpretation, filter_config
     Set analysis as 'Not ready' if it has warnings _or_
     there are variants that needs verification.
     """
-    allele_ids, excluded_allele_ids = helpers.get_filtered_alleles(
-        session, interpretation, filter_config_id
-    )
+    allele_ids, _ = helpers.get_filtered_alleles(session, interpretation, filter_config_id)
 
     alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
 

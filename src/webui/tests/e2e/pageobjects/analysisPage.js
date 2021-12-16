@@ -19,6 +19,14 @@ class AnalysisPage extends Page {
         return util.element('analysis')
     }
 
+    get callerTypeSelector() {
+        return util.element('.caller-type-selector')
+    }
+
+    get cnvSelector() {
+        return util.element('#caller-type-selector-cnv')
+    }
+
     // button has many uses, where button text varies:
     get finishButton() {
         return util.element('.id-finish-analysis')
