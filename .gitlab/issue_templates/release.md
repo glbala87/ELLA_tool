@@ -27,6 +27,9 @@ Remember:
 - [ ] Schema checks
 - [ ] Check filter config
 
+### Post release
+- [ ] Check logs that all processes are running without errors
+
 ## Testing and documentation
 - [ ] Release notes (list any breaking changes)
 
