@@ -44,6 +44,7 @@
                     >
                         <i>{{ $ctrl.getTranscriptText($ctrl.allele, t) }}</i
                         ><b>{{ t.HGVSc_short || $ctrl.getHGVSg($ctrl.allele) }}</b>
+
                         {{ $ctrl.allele.formatted.genotype }}
                     </span>
                     <span ng-if="$ctrl.genotypeDisplay.length">
@@ -52,9 +53,10 @@
                             ng-repeat="gt in $ctrl.genotypeDisplay"
                             tippy-title="{{ gt.title }}"
                         >
-                            <span ng-if="$ctrl.genotypeDisplay.length > 1"
-                                >{{ gt.sample_label }}:
+                            <span ng-if="$ctrl.genotypeDisplay.length > 1">
+                                {{ gt.sample_label }}:
                             </span>
+                            {{ gt.display }}
                             <span
                                 tippy-title="Homozygous"
                                 class="tag red"
