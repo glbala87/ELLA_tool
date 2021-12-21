@@ -6,12 +6,26 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 [v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+
+## Version 1.16.2
+
+Release date: 21.12.2021
+
+### Highlights
+
+This is a bugfix release.
+
+### All changes
+
+<!-- MR !679-->
+- Fixed a bug where genotype display is not shown in allele bar
 
 
 ## Version 1.16.1
