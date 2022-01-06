@@ -33,7 +33,7 @@
     <h4 class="section-title">Phenotypes</h4>
     <ul class="popover-list indented">
         <li ng-repeat="ph in $ctrl.genepanelValues[$ctrl.hgncId].phenotypes">
-            {{ ph.description }} ({{ ph.inheritance || '?' }})
+            {{ ph }}
         </li>
     </ul>
     <h4 class="section-title">Transcripts</h4>

@@ -5,9 +5,9 @@ import { Compute } from 'cerebral'
 import getGenepanelValues from '../store/common/computes/getGenepanelValues'
 
 import template from './allelebar.ngtmpl.html' // eslint-disable-line no-unused-vars
-import genePopover from './allelebar/genePopover.ngtmpl.html'
-import cdnaPopover from './allelebar/cdnaPopover.ngtmpl.html'
-import proteinPopover from './allelebar/proteinPopover.ngtmpl.html'
+import genePopover from './genePopover.ngtmpl.html'
+import cdnaPopover from './cdnaPopover.ngtmpl.html'
+import proteinPopover from './proteinPopover.ngtmpl.html'
 import { chrToContigRef } from '../util'
 
 const GENOTYPE_DISPLAY_MAX_CHAR = 15
@@ -61,13 +61,14 @@ app.component('allelebar', {
     templateUrl: 'allelebar.ngtmpl.html',
     bindings: {
         allelePath: '<',
+        genepanelOverviewPath: '<',
         genepanelPath: '<'
     },
     controller: connect(
         {
             allele: state`${props`allelePath`}`,
             genepanel: state`${props`genepanelPath`}`,
-            genepanelValues: getGenepanelValues(state`${props`genepanelPath`}`),
+            genepanelValues: getGenepanelValues(state`${props`genepanelOverviewPath`}`),
             genotypeDisplay
         },
         'AlleleBar',

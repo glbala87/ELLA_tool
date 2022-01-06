@@ -29,7 +29,7 @@ import qualityPopoverTemplate from '../widgets/allelesidebar/alleleSidebarQualit
 import frequencyPopoverTemplate from '../widgets/allelesidebar/alleleSidebarFrequencyPopover.ngtmpl.html'
 import externalPopoverTemplate from '../widgets/allelesidebar/alleleSidebarExternalPopover.ngtmpl.html'
 
-const getAlleles = (alleleIds, alleles) => {
+const getAlleles = (alleleIds, alleles, inheritance = 'all') => {
     return Compute(
         alleleIds,
         alleles,
@@ -49,10 +49,25 @@ const getAlleles = (alleleIds, alleles) => {
                 }
             }
 
-            return alleleIds
+            const filterByInheritanceCriterion = (allele, inheritance) => {
+                if (inheritance == 'all') {
+                    return true
+                } else if (inheritance == 'cfg') {
+                    return allele.formatted.inheritance.match('[^*]$')
+                } else if (inheritance == 'inf') {
+                    return allele.formatted.inheritance.match('[*]$')
+                } else {
+                    throw `invalid inheritance criterion: '${inheritance}'`
+                }
+            }
+
+            const allelesToBeReturned = alleleIds
                 .map((aId) => alleles[aId])
                 .filter((a) => a !== undefined)
                 .filter((a) => filterByCallerType(a))
+                .filter((a) => filterByInheritanceCriterion(a, inheritance))
+
+            return allelesToBeReturned
         }
     )
 }
@@ -105,6 +120,16 @@ app.component('alleleSidebarList', {
         {
             selectedComponent: state`views.workflows.selectedComponent`,
             alleles: getAlleles(state`${props`alleleIdsPath`}`, state`${props`allelesPath`}`),
+            allelesWithInheritanceConfig: getAlleles(
+                state`${props`alleleIdsPath`}`,
+                state`${props`allelesPath`}`,
+                'cfg'
+            ),
+            allelesWithoutInheritanceConfig: getAlleles(
+                state`${props`alleleIdsPath`}`,
+                state`${props`allelesPath`}`,
+                'inf'
+            ),
             classification: getClassificationById(state`${props`allelesPath`}`),
             config: state`app.config`,
             sectionContents: state`${props`sectionContentPath`}`,

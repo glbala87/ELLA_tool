@@ -7,6 +7,7 @@ import template from './geneInformation.ngtmpl.html' // eslint-disable-line no-u
 
 app.component('geneInformation', {
     bindings: {
+        genepanelOverviewPath: '<',
         hgncId: '<',
         hgncSymbol: '<'
     },
@@ -14,9 +15,7 @@ app.component('geneInformation', {
     controller: connect(
         {
             config: state`app.config`,
-            genepanelValues: getGenepanelValues(
-                state`views.workflows.interpretation.data.genepanel`
-            ),
+            genepanelValues: getGenepanelValues(state`${props`genepanelOverviewPath`}`),
             externalInfo: state`views.workflows.interpretation.data.alleles.${state`views.workflows.selectedAllele`}.annotation.external`,
             commentTemplates: state`app.commentTemplates`,
             geneAssessment: getGeneAssessment(props`hgncId`),

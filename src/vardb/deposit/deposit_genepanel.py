@@ -64,6 +64,10 @@ def load_transcripts(transcripts_path):
                     )
                 )
             data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
+            if "inheritance" not in data or str(data["inheritance"]).lower() == "unknown":
+                data["inheritance"] = None
+            if "source" not in data:
+                data["source"] = None
             data["HGNC"] = int(data["HGNC"])
             data["txStart"], data["txEnd"], = (
                 int(data["txStart"]),
@@ -123,13 +127,13 @@ class DepositGenepanel(object):
             transcript_rows.append(
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
-                    "name": t.get("refseq"),  # TODO: Support other than RefSeq
-                    "source": t.get("source"),
+                    "name": t["refseq"],  # TODO: Support other than RefSeq
+                    "source": t["source"],
                     "type": "RefSeq",
                     "corresponding_refseq": None,
                     "corresponding_ensembl": None,
                     "corresponding_lrg": None,
-                    "inheritance": t.get("inheritance"),
+                    "inheritance": t["inheritance"],
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
                     "tx_end": t["txEnd"],

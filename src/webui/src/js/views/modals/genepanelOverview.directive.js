@@ -3,7 +3,7 @@ import { connect } from '@cerebral/angularjs'
 import { state, signal } from 'cerebral/tags'
 import { Compute } from 'cerebral'
 import template from './genepanelOverview.ngtmpl.html' // eslint-disable-line no-unused-vars
-import popoverTemplate from './genepanelOverviewGenePopover.ngtmpl.html'
+import genePopover from '../../widgets/genePopover.ngtmpl.html'
 
 const filteredGenes = Compute(
     state`views.workflows.modals.genepanelOverview.geneFilter`,
@@ -63,14 +63,6 @@ app.component('genepanelOverview', {
                 Object.assign($ctrl, {
                     close: () => {
                         $ctrl.closeClicked()
-                    },
-                    formatInheritance(gene) {
-                        return [...new Set(gene.phenotypes.map((p) => p.inheritance))]
-                            .filter((i) => i)
-                            .join(', ')
-                    },
-                    formatPhenotypes(gene) {
-                        return gene.phenotypes.map((p) => `${p.description} (${p.inheritance})`)
                     }
                 })
             }

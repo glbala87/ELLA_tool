@@ -2,6 +2,7 @@ import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import {
     formatInheritance,
+    formatPhenotypes,
     getOmimEntryId,
     findGeneConfigOverride
 } from '../../common/helpers/genepanel'
@@ -21,7 +22,7 @@ export default (genepanel) => {
             return result
         }
 
-        const uniqueHgncIds = new Set(genepanel.transcripts.map((t) => t.gene.hgnc_id))
+        const uniqueHgncIds = new Set(genepanel.genes.map((g) => g.hgnc_id))
         for (let hgncId of uniqueHgncIds) {
             result[hgncId] = {}
 
@@ -33,7 +34,22 @@ export default (genepanel) => {
                     overridden: p in geneConfigOverride
                 }
             }
-            result[hgncId].inheritance = formatInheritance(hgncId, genepanel)
+            if (!genepanel.genes) {
+                result[hgncId].inheritance = null
+                result[hgncId].phenotypes = null
+                result[hgncId].transcripts = null
+            } else {
+                const target_gene = genepanel.genes.filter((g) => g.hgnc_id === hgncId)
+                result[hgncId].transcripts = target_gene.map((g) => g.transcripts)
+                result[hgncId].inheritance = formatInheritance(
+                    target_gene.map((g) => g.phenotypes),
+                    result[hgncId].transcripts
+                )
+                result[hgncId].phenotypes = formatPhenotypes(
+                    target_gene.map((g) => g.phenotypes),
+                    result[hgncId].transcripts
+                )
+            }
 
             // If 'frequency' is defined for the gene, use that.
             // Otherwise, use the default given the inheritance key
@@ -52,13 +68,7 @@ export default (genepanel) => {
                 }
             }
 
-            result[hgncId].omimEntryId = getOmimEntryId(hgncId, genepanel)
-            result[hgncId].phenotypes = genepanel.phenotypes.filter(
-                (p) => p.gene.hgnc_id === hgncId
-            )
-            result[hgncId].transcripts = genepanel.transcripts.filter(
-                (t) => t.gene.hgnc_id === hgncId
-            )
+            result[hgncId].omimEntryId = getOmimEntryId(hgncId, genepanel.genes)
         }
         return result
     })

@@ -205,6 +205,7 @@ class GenepanelResource(LogRequestResource):
             session.query(
                 gene.Gene.hgnc_symbol,
                 gene.Gene.hgnc_id,
+                gene.Gene.omim_entry_id,
                 gene.Transcript.id,
                 gene.Transcript.name,
                 gene.Transcript.inheritance,
@@ -219,6 +220,7 @@ class GenepanelResource(LogRequestResource):
             session.query(
                 gene.Gene.hgnc_symbol,
                 gene.Gene.hgnc_id,
+                gene.Gene.omim_entry_id,
                 gene.Phenotype.id,
                 gene.Phenotype.inheritance,
                 gene.Phenotype.description,
@@ -247,6 +249,7 @@ class GenepanelResource(LogRequestResource):
                 genes[t.hgnc_id] = {
                     "hgnc_id": t.hgnc_id,
                     "hgnc_symbol": t.hgnc_symbol,
+                    "omim_entry_id": t.omim_entry_id,
                     "transcripts": [
                         {
                             "id": t.id,

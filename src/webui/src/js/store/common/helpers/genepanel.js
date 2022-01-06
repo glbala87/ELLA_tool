@@ -1,33 +1,58 @@
-export function getConfigInheritanceCodes(hgncId, genepanel) {
-    if (!genepanel.transcripts) {
-        return null
+function extractInheritance(obj) {
+    if ('inheritance' in obj) {
+        return obj.inheritance || ''
     }
-    const transcripts = genepanel.transcripts.filter((t) => t.gene.hgnc_id === hgncId)
+}
+
+export function getConfigInheritanceCodes(transcripts) {
+    if (!transcripts) {
+        return []
+    }
+    const codes = transcripts.map((tx) => extractInheritance(tx)).filter((i) => i && i.length > 0) // remove empty
+    const uniqueCodes = new Set(codes)
+    return Array.from(uniqueCodes.values()).sort()
+}
+
+export function getOtherInheritanceCodes(phenotypes) {
+    if (!phenotypes) {
+        return []
+    }
+    const codes = phenotypes.map((ph) => extractInheritance(ph)).filter((i) => i && i.length > 0) // remove empty
+    const uniqueCodes = new Set(codes)
+    return Array.from(uniqueCodes.values()).sort()
+}
+
+export function formatInheritance(phenotypes, transcripts) {
+    var formattedInheritance = ''
     if (transcripts) {
-        const codes = transcripts.map((tx) => tx.inheritance).filter((i) => i && i.length > 0) // remove empty
-        const uniqueCodes = new Set(codes)
-        return Array.from(uniqueCodes.values()).sort()
-    } else {
-        return []
+        formattedInheritance = getConfigInheritanceCodes(transcripts).join('/')
     }
+    if (!formattedInheritance && phenotypes) {
+        formattedInheritance = getOtherInheritanceCodes(phenotypes).join('/')
+        if (formattedInheritance) {
+            formattedInheritance = formattedInheritance + '*'
+        }
+    }
+    return formattedInheritance
 }
 
-export function getOtherInheritanceCodes(hgncId, genepanel) {
-    if (!genepanel.phenotypes) {
-        return null
-    }
-    const phenotypes = genepanel.phenotypes.filter((p) => p.gene.hgnc_id === hgncId)
-    if (phenotypes) {
-        const codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
-        const uniqueCodes = new Set(codes)
-        return Array.from(uniqueCodes.values()).sort()
-    } else {
-        return []
-    }
-}
-
-export function formatInheritance(hgncId, genepanel) {
-    return (getConfigInheritanceCodes(hgncId, genepanel) || ['']).join('/')
+export function formatPhenotypes(phenotypes, transcripts) {
+    const formattedInheritance = formatInheritance(phenotypes, transcripts)
+    const formattedPhenotypes = phenotypes
+        .filter((p) => p.description)
+        .map(
+            (p) =>
+                (p.inheritance &&
+                formattedInheritance &&
+                formattedInheritance.substring(formattedInheritance.length - 1) == '*'
+                    ? '*'
+                    : '') +
+                p.description +
+                '(' +
+                (p.inheritance || '?') +
+                ')'
+        )
+    return formattedPhenotypes
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
@@ -43,8 +68,8 @@ export function findGeneConfigOverride(hgncId, acmgConfig) {
  * @param  {String} geneSymbol Gene symbol
  * @return {String}            Entry ID like 113705
  */
-export function getOmimEntryId(hgncId, genepanel) {
-    const transcripts = genepanel.transcripts.filter((p) => p.gene.hgnc_id === hgncId)
-    // all have the same gene and thus omim entry
+export function getOmimEntryId(hgncId, genes) {
+    const transcripts = genes.filter((g) => g.hgnc_id === hgncId).transcripts
+    // all these are transcripts of the same gene and have the same omim entry
     return transcripts && transcripts.length > 0 ? transcripts[0].gene.omim_entry_id : ''
 }

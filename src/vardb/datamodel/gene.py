@@ -59,9 +59,10 @@ class Transcript(Base):
     exon_ends = Column(ARRAY(Integer), nullable=False)
 
     def __repr__(self):
-        return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (
+        return "<Transcript('%s','%s', '%s', '%s', '%s', '%s', '%s')>" % (
             self.gene,
             self.name,
+            self.inheritance,
             self.chromosome,
             self.tx_start,
             self.tx_end,

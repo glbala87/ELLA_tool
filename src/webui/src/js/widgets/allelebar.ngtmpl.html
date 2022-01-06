@@ -1,6 +1,6 @@
 <table>
     <tr ng-repeat="t in $ctrl.allele.annotation.filtered track by t.transcript">
-        <td ng-if="$ctrl.genepanel && $ctrl.getGenepanelValues(t.symbol).inheritance !== ''">
+        <td ng-if="$ctrl.genepanel">
             <h3 class="full-title">
                 {{ $ctrl.genepanelValues[t.hgnc_id].inheritance || '?' }}
             </h3>
@@ -15,7 +15,7 @@
                         tippy-placement="bottom"
                         tippy-popover-title="GENE INFO"
                     >
-                        {{ t.symbol }} ({{ t.exon }})
+                        {{ t.symbol }} ({{ t.exon || 'n/a' }})
                     </span>
                     <span
                         tippy-title="Has user-added gene comments"
@@ -82,7 +82,7 @@
                         tippy-popover-title="PROTEIN"
                     >
                         <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
-                            $ctrl.formatCodons(t.codons)
+                            $ctrl.formatCodons(t.codons) || 'n/a'
                         }})
                     </span>
                 </div>

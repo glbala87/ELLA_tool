@@ -108,7 +108,6 @@ function getFormatted(allele, genepanel) {
     //
     // hgvsc
     //
-
     if (allele.annotation.filtered.length) {
         const includeTranscript = allele.annotation.filtered.length > 1
         formatted.display = allele.annotation.filtered
@@ -135,7 +134,9 @@ function getFormatted(allele, genepanel) {
     //
     if (genepanel) {
         let inheritance = allele.annotation.filtered.map((a) => {
-            return formatInheritance(a.hgnc_id, genepanel)
+            const phenotypes = genepanel.phenotypes.filter((p) => p.gene.hgnc_id == a.hgnc_id)
+            const transcripts = genepanel.transcripts.filter((t) => t.gene.hgnc_id == a.hgnc_id)
+            return formatInheritance(phenotypes, transcripts)
         })
         formatted.inheritance = inheritance.filter((m) => m).join(' | ')
     }

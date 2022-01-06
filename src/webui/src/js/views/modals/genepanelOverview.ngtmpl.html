@@ -125,11 +125,11 @@
             <div class="genepanel-gene-container">
                 <div
                     class="genepanel-gene"
-                    ng-repeat="gene in $ctrl.filteredGenes.genes track by gene.hgnc_id"
-                    tippy-popover="genepanelOverviewGenePopover.ngtmpl.html"
+                    ng-repeat="t in $ctrl.filteredGenes.genes track by t.hgnc_id"
+                    tippy-popover="genePopover.ngtmpl.html"
                     tippy-placement="bottom"
                 >
-                    <span class="gene-name">{{ gene.hgnc_symbol }}</span>
+                    <span class="gene-name">{{ t.hgnc_symbol }}</span>
                 </div>
             </div>
             <div class="no-results" ng-if="$ctrl.filteredGenes.genes.length == 0">
