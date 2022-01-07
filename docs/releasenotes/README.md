@@ -25,15 +25,17 @@ Release date: 19.01.2022
 
 ### :small_red_triangle: Breaking changes
 
-
+...
 
 ### All changes
 
 <!-- MR -->
 - ...
-<!-- MR -->
-- ... 
-
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !683 Fix review app / demo functionality
+-->
+- Fixes and improvements to development environment and code base. 
 
 ## Version 1.16.2
 
