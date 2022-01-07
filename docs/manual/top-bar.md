@@ -65,13 +65,17 @@ The GENE COMMENTS field is editable; click the `EDIT` button and `UPDATE` when y
 In the current iteration, no collision warnings will be shown if another user is editing the information at the same time, and there is a risk for overwriting each other's work if this happens. 
 :::
 
-## Analysis history for previously finalized samples
+## Analysis history
 
-When a previously finalized sample is opened, all variants are shown with the variant interpretations, classifications and annotation available at the time of the last finalized interpretation round. As this may differ from the current state (especially if the interpretation was done a long time ago), a warning about historical data is given. To instead view current data, or any previous interpretation rounds (including non-finalized steps), use the drop-down menu in the top bar (right):
+When analyses with an existing, finished workflow step is opened and *before* it is started/reopened, a drop-down with the analysis history (with all previous workflow steps) is shown in the top bar (right). To switch between views of current data or any previous interpretation rounds, use the drop-down:
 
 <div class="figure"><img src="./img/analyses_history_select.png"></div>
 
-Note that if you click `REOPEN` (button the right of the drop-down) for a finalized sample, the annotation and variant interpretations shown are always equal to the most current state.
+When you select a a previous workflow step, all variants are shown with the variant interpretations, classifications and annotation available at the time that step was finished. As this may differ from the current state (especially if the interpretation was done a long time ago), ELLA shows a warning about historical data, as in the above example. 
+
+By default, non-finalized analyses (e.g. in a review step) are shown with current data selected, whereas finalized analyses are shown with the last finished workflow step selected.
+
+Note that if you click `REOPEN`/`START ...`, the drop-down disappears and the annotation and variant interpretations shown are always equal to the most current state, irrespective of what was selected in the drop-down.
 
 ::: warning NOTE
 This history view is specific to analyses performed in [ANALYSES mode](/manual/workflows.html#analyses-workflow-for-samples) and does not include history of independent variant interpretations performed in [VARIANTS mode](/manual/workflows.html#variants-workflow-for-independent-variants) (if any). See also [variant-specific classification histories](/manual/classification-section.html#variants-with-a-previous-interpretation).
