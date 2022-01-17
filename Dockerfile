@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
+ENV POSTGRES_VERSION 14
 # Install as much as reasonable in one go to reduce image size
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -27,12 +28,15 @@ RUN apt-get update && \
     nano \
     nginx-light \
     parallel \
-    postgresql-client \
     python3-venv \
     python3.7 \
     python3.7-dev \
     python3.7-venv \
-    tzdata \
+    tzdata && \
+    echo "Postgres:" && \
+    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get -yqq update && apt-get install -y postgresql-client-${POSTGRES_VERSION} \
     && echo "Cleanup:" && \
     apt-get clean && \
     apt-get autoclean && \
@@ -69,6 +73,8 @@ RUN apt-get update && \
     libpq-dev \
     make \
     openssh-client \
+    postgresql-${POSTGRES_VERSION} \
+    postgresql-contrib-${POSTGRES_VERSION} \
     unzip \
     && echo "Additional tools:" && \
     echo "Node v10.x:" && \
@@ -76,11 +82,7 @@ RUN apt-get update && \
     apt-get install -yqq nodejs && \
     echo "Yarn:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get -yqq update && apt-get install -yqq yarn && \
-    echo "Postgres:" && \
-    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bionic-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
-    curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-    apt-get -yqq update && apt-get install -yqq postgresql-14 postgresql-contrib-14
+    apt-get -yqq update && apt-get install -yqq yarn
 
 
 
@@ -142,8 +144,9 @@ FROM production AS review
 
 USER root
 COPY --from=dev --chown=ella-user:ella-user /pg-data /pg-data
-COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql/10 /usr/share/postgresql/10
-COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql/10 /usr/lib/postgresql/10
+COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql /usr/share/postgresql
+COPY --from=dev --chown=ella-user:ella-user /usr/share/postgresql-common /usr/share/postgresql-common
+COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql /usr/lib/postgresql
 
 USER ella-user
 # set demo defaults here, so demo/review apps can just `docker run -d`

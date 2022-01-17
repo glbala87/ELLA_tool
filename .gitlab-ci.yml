@@ -68,7 +68,8 @@ stages:
 .apk-setup: &apk-setup apk update && apk add -u make git bash
 .apt-setup: &apt-setup apt-get update -qq && apt-get install -qq --no-install-recommends git make
 .docker-login: &docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load
+# pull the last registry image if the cache has expired
+.docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load || docker pull $IMAGE_NAME
 
 # base jobs
 .revapp: &revapp
@@ -103,9 +104,8 @@ build:
         - *apk-setup
         - *docker-login
     script:
-        - docker pull $CI_REGISTRY_IMAGE:ci-latest || true
-        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $CI_REGISTRY_IMAGE:ci-latest -t $CI_REGISTRY_IMAGE:ci-latest"
-        - docker push $CI_REGISTRY_IMAGE:ci-latest
+        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $IMAGE_NAME --cache-from $CI_REGISTRY_IMAGE:dev"
+        - docker push $IMAGE_NAME
         - make build-review
         - docker push $REVAPP_IMAGE_NAME
         - mkdir -p images
@@ -115,6 +115,7 @@ build:
     cache:
         <<: *cache-push
 
+# review env failing should not block a merge
 start_review:
     extends: .revapp
     script:
@@ -127,10 +128,14 @@ start_review:
         url: http://$APP_IP
         on_stop: stop_review
         auto_stop_in: 6 hours
+    allow_failure: true
     only:
         - branches
     except:
-        - master
+        refs:
+            - master
+        variables:
+            - $CI_COMMIT_MESSAGE =~ /\bskip-review\b/
 
 stop_review:
     extends: .revapp
