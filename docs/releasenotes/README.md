@@ -29,8 +29,8 @@ Release date: 19.01.2022
 
 ### All changes
 
-<!-- MR -->
-- ...
+<!-- MR !691 -->
+- Fixed a bug causing analysis to fail loading  when PL values for de novo calculation is very high.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
