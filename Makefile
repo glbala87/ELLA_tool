@@ -318,7 +318,7 @@ dbresetinner:
 	DB_URL='postgresql:///postgres' /ella/ops/test/reset_testdata.py --testset $(TESTSET)
 
 dbsleep:
-	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
+	@while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
 
 #---------------------------------------------
 # DEVELOPMENT
@@ -412,6 +412,17 @@ update-yarn:
 test-build:
 	docker build ${BUILD_OPTIONS} -t $(IMAGE_NAME) --target dev .
 
+test-shell: test-build
+	docker run --rm \
+	  $(TERM_OPTS) \
+	  --name $(CONTAINER_NAME)-test-shell \
+	  --user $(UID):$(GID) \
+	  -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	  -e PRODUCTION=false \
+	  -e ENABLE_CNV=true \
+	  $(IMAGE_NAME) \
+    bash
+
 test: test-all
 test-all: test-js test-common test-api test-cli test-report test-e2e
 
@@ -443,7 +454,7 @@ test-python:
 	  -e PRODUCTION=false \
 	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
-	  ops/test/run_python_tests.sh
+	  /ella/ops/test/run_python_tests.sh $(TEST_MODULES)
 
 test-api:
 	docker run --rm  \
@@ -490,7 +501,7 @@ test-report:
 	  -e PRODUCTION=false \
 	  -e ENABLE_CNV=true \
 	  $(IMAGE_NAME) \
-	  ops/test/run_report_tests.sh
+	  /ella/ops/test/run_report_tests.sh
 
 
 test-e2e:

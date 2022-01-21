@@ -40,25 +40,32 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
     for idx in range(1, 4):
         gene_name = f"GENE{idx}"
         g = gene.Gene(hgnc_id=GENE_HGNC_ID[gene_name], hgnc_symbol=gene_name)
-        t = gene.Transcript(
-            gene=g,
-            name=f"NM_{idx}",
-            type="RefSeq",
-            genome_reference="",
-            chromosome="1",
-            tx_start=1000,
-            tx_end=1500,
-            strand="+",
-            cds_start=1230,
-            cds_end=1430,
-            exon_starts=[1100, 1200, 1300, 1400],
-            exon_ends=[1160, 1260, 1360, 1460],
-        )
         genes.append(g)
+        transcript_dict = {
+            "gene": g,
+            "name": f"NM_{idx}",
+            "type": "RefSeq",
+            "genome_reference": "",
+            "chromosome": "1",
+            "tx_start": 1000,
+            "tx_end": 1500,
+            "strand": "+",
+            "cds_start": 1230,
+            "cds_end": 1430,
+            "exon_starts": [1100, 1200, 1300, 1400],
+            "exon_ends": [1160, 1260, 1360, 1460],
+        }
+        if idx == 2:
+            # simulate 'AD' transcript inheritance from gene panel configuration
+            transcript_dict["inheritance"] = "AD"
+        if idx == 3:
+            # simulate 'AR' transcript inheritance from gene panel configuration
+            transcript_dict["inheritance"] = "AR"
+        t = gene.Transcript(**transcript_dict)
         transcripts.append(t)
 
-        for idx, inh in enumerate(gene_inheritance[idx - 1]):
-            p = gene.Phenotype(gene=g, description=f"Test phenotype {idx}", inheritance=inh)
+        for idy, inh in enumerate(gene_inheritance[idx - 1]):
+            p = gene.Phenotype(gene=g, description=f"Test phenotype {idy}", inheritance=inh)
             phenotypes.append(p)
 
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
@@ -67,28 +74,6 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
     genepanel.phenotypes = phenotypes
     session.add(genepanel)
     session.flush()
-
-
-@st.composite
-def inheritance_model_data(draw):
-    gene_inheritance = []
-    for _ in range(3):
-        inheritance_strategy = st.sampled_from(["AD", "AR", "AD/AR", "XR", "XD", ""])
-        gene_inheritance.append(draw(st.lists(inheritance_strategy, min_size=1, max_size=2)))
-
-    num_alleles: int = draw(st.integers(min_value=1, max_value=5))
-    alleles = list()
-    for idx in range(num_alleles):
-        gene = draw(st.lists(st.sampled_from(GENES), min_size=1, max_size=2, unique=True))
-        # Draw random genotype (or None) per sample
-        gt = draw(
-            st.lists(st.sampled_from(["Homozygous", "Heterozygous", None]), min_size=3, max_size=3)
-        )
-        ht.assume(any(gt))  # We need at least one sample to have a genotype
-
-        alleles.append((gene, gt))
-
-    return (tuple(gene_inheritance), alleles)
 
 
 def reset_analyses(session):
@@ -130,6 +115,7 @@ def reset_analyses(session):
     session.add(test_sample2)
     session.add(test_sample3)
     session.flush()
+
     return test_analysis, test_sample, test_sample2, test_sample3
 
 
@@ -183,7 +169,30 @@ def setup_fixtures(session, data):
         idx += 1
 
     session.flush()
+
     return test_analysis.id, allele_ids
+
+
+@st.composite
+def inheritance_model_data(draw):
+    gene_inheritance = []
+    for _ in range(3):
+        inheritance_strategy = st.sampled_from(["AD", "AR", "AD/AR", "XR", "XD", ""])
+        gene_inheritance.append(draw(st.lists(inheritance_strategy, min_size=1, max_size=2)))
+
+    num_alleles: int = draw(st.integers(min_value=1, max_value=5))
+    alleles = list()
+    for idx in range(num_alleles):
+        gene = draw(st.lists(st.sampled_from(GENES), min_size=1, max_size=2, unique=True))
+        # Draw random genotype (or None) per sample
+        gt = draw(
+            st.lists(st.sampled_from(["Homozygous", "Heterozygous", None]), min_size=3, max_size=3)
+        )
+        ht.assume(any(gt))  # We need at least one sample to have a genotype
+
+        alleles.append((gene, gt))
+
+    return (tuple(gene_inheritance), alleles)
 
 
 class TestInheritanceModelFilter(object):
@@ -348,7 +357,6 @@ class TestInheritanceModelFilter(object):
     )  # Multiple samples with same variant, conflicting genotype, one homozygous
     @ht.given(inheritance_model_data(), st.just(None))
     def test_recessive_candidates(self, session, data, manually_curated_result):
-
         session.rollback()
 
         analysis_id, allele_ids = setup_fixtures(session, data)

@@ -108,7 +108,6 @@ function getFormatted(allele, genepanel) {
     //
     // hgvsc
     //
-
     if (allele.annotation.filtered.length) {
         const includeTranscript = allele.annotation.filtered.length > 1
         formatted.display = allele.annotation.filtered

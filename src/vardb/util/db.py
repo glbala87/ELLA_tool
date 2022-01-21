@@ -20,6 +20,9 @@ class DB(object):
         self.disconnect()
         self.host = host or os.environ.get("DB_URL")
 
+        if not self.host:
+            return
+
         if not engine_kwargs:
             engine_kwargs = dict()
 

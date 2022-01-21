@@ -558,7 +558,12 @@
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"
                     class="cell inheritance id-inheritance"
-                    tippy-title="{{ allele.formatted.inheritance }}"
+                    tippy-title="{{
+                        allele.formatted.inheritance.split('*')[0] +
+                            (allele.formatted.inheritance.match('[*]$')
+                                ? ' (* from known phenotypes)'
+                                : '')
+                    }}"
                 >
                     {{ allele.formatted.inheritance }}
                 </div>

@@ -151,16 +151,22 @@ class InheritanceModelFilter(object):
             # | 7       | AR          |
             # | 13666   | AR          |
             # ...
-            genepanel_hgnc_id_phenotype = (
+            genepanel_hgnc_id_inheritance = (
                 self.session.query(
-                    gene.Phenotype.gene_id.label("hgnc_id"), gene.Phenotype.inheritance
+                    gene.Transcript.gene_id.label("hgnc_id"),
+                    gene.Transcript.inheritance.label("transcript_inheritance"),
+                    gene.Phenotype.inheritance.label("phenotype_inheritance"),
                 )
+                .join(gene.Phenotype, gene.Phenotype.gene_id == gene.Transcript.gene_id)
                 .filter(
+                    gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+                    gene.genepanel_transcript.c.genepanel_name == gp_name,
+                    gene.genepanel_transcript.c.genepanel_version == gp_version,
                     gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
                     gene.genepanel_phenotype.c.genepanel_name == gp_name,
                     gene.genepanel_phenotype.c.genepanel_version == gp_version,
                 )
-                .subquery("genepanel_hgnc_id_phenotype")
+                .subquery("genepanel_hgnc_id_inheritance")
             )
 
             # Set up column criterias from filter_config
@@ -169,9 +175,15 @@ class InheritanceModelFilter(object):
                 # - single, heterozygous variant
                 # - distinct AR
                 criteria_columns = [
-                    func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AR").label(
-                        "is_inheritance_match"
-                    ),
+                    func.bool_and(
+                        or_(
+                            genepanel_hgnc_id_inheritance.c.transcript_inheritance == "AR",
+                            and_(
+                                genepanel_hgnc_id_inheritance.c.transcript_inheritance == None,
+                                genepanel_hgnc_id_inheritance.c.phenotype_inheritance == "AR",
+                            ),
+                        ),
+                    ).label("is_inheritance_match"),
                     and_(
                         func.count(proband_genotype_table.c.allele_id.distinct()) == 1,
                         func.bool_and(proband_genotype_table.c.proband_genotype == "Heterozygous"),
@@ -181,9 +193,17 @@ class InheritanceModelFilter(object):
                 # - single homozygous variant or multiple variants
                 # - not distinct AD inheritance
                 criteria_columns = [
-                    not_(func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AD")).label(
-                        "is_inheritance_match"
-                    ),
+                    not_(
+                        func.bool_and(
+                            or_(
+                                genepanel_hgnc_id_inheritance.c.transcript_inheritance == "AD",
+                                and_(
+                                    genepanel_hgnc_id_inheritance.c.transcript_inheritance == None,
+                                    genepanel_hgnc_id_inheritance.c.phenotype_inheritance == "AD",
+                                ),
+                            )
+                        )
+                    ).label("is_inheritance_match"),
                     or_(
                         # single variant, at least one sample has homozygous genotype
                         and_(
@@ -225,8 +245,8 @@ class InheritanceModelFilter(object):
                     == annotationshadow.AnnotationShadowTranscript.allele_id,
                 )
                 .join(
-                    genepanel_hgnc_id_phenotype,
-                    genepanel_hgnc_id_phenotype.c.hgnc_id
+                    genepanel_hgnc_id_inheritance,
+                    genepanel_hgnc_id_inheritance.c.hgnc_id
                     == annotationshadow.AnnotationShadowTranscript.hgnc_id,
                 )
                 .filter(*filters)

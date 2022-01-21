@@ -10,7 +10,7 @@
 <h4 class="section-title">Phenotypes</h4>
 <ul class="popover-list indented">
     <li ng-repeat="pheno in gene.phenotypes">
-        {{ pheno.description }} ({{ pheno.inheritance || '?' }})
+        {{ pheno.description || 'n/a' }} ({{ pheno.inheritance || '?' }})
     </li>
 </ul>
 <h4 class="section-title">Transcripts</h4>

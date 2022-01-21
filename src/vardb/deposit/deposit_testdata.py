@@ -232,7 +232,7 @@ class DepositTestdata(object):
                 os.path.join(SCRIPT_DIR, gpdata.phenotypes),
                 gpdata.name,
                 gpdata.version,
-                replace=False,
+                replace=True,
             )
 
     def deposit_references(self):

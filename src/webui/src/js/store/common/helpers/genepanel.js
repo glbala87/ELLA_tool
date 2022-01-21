@@ -1,6 +1,6 @@
 export function getConfigInheritanceCodes(hgncId, genepanel) {
     if (!genepanel.transcripts) {
-        return null
+        return []
     }
     const transcripts = genepanel.transcripts.filter((t) => t.gene.hgnc_id === hgncId)
     if (transcripts) {
@@ -14,7 +14,7 @@ export function getConfigInheritanceCodes(hgncId, genepanel) {
 
 export function getOtherInheritanceCodes(hgncId, genepanel) {
     if (!genepanel.phenotypes) {
-        return null
+        return []
     }
     const phenotypes = genepanel.phenotypes.filter((p) => p.gene.hgnc_id === hgncId)
     if (phenotypes) {
@@ -27,7 +27,29 @@ export function getOtherInheritanceCodes(hgncId, genepanel) {
 }
 
 export function formatInheritance(hgncId, genepanel) {
-    return (getConfigInheritanceCodes(hgncId, genepanel) || ['']).join('/')
+    return (
+        (getConfigInheritanceCodes(hgncId, genepanel) || ['']).join('/') ||
+        (getOtherInheritanceCodes(hgncId, genepanel) || ['']).join('/') + '*'
+    )
+}
+
+export function formatPhenotypes(hgncId, genepanel) {
+    const formattedInheritance = formatInheritance(hgncId, genepanel)
+    return genepanel.phenotypes
+        .filter((p) => p.description && p.gene.hgnc_id === hgncId)
+        .map(
+            (p) =>
+                (p.inheritance &&
+                formattedInheritance &&
+                formattedInheritance.substring(formattedInheritance.length - 1) == '*'
+                    ? '* '
+                    : ' ') +
+                p.description +
+                ' ' +
+                '(' +
+                (p.inheritance || '?') +
+                ')'
+        )
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
