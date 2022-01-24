@@ -29,6 +29,8 @@ Release date: 19.01.2022
 
 ### All changes
 
+<!-- MR !688 -->
+- Fixed a bug causing a reset of analysis names whens clicking import options for batch imports.
 <!-- MR !691 -->
 - Fixed a bug causing analysis to fail loading  when PL values for de novo calculation is very high.
 <!-- 
