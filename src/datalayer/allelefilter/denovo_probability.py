@@ -122,5 +122,10 @@ def denovo_probability(pl_c, pl_f, pl_m, is_x_minus_par, proband_male, denovo_mo
         - (pl_f[f] + pl_m[m] + pl_c[c]) / 10,
     )
 
+    # In very rare cases, the above calculations can lead to sum of likelihoods being zero
+    # due to floating point rounding (e.g. 1e-500 == 0). If so, we simplify and return 0.
+    if sum_liks == 0:
+        return 0.0
+
     # Normalize likelihood to probability
     return lh / sum_liks
