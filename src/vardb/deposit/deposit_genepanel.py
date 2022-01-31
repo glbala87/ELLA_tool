@@ -17,8 +17,6 @@ log = logging.getLogger(__name__)
 
 
 def load_phenotypes(phenotypes_path):
-    if not phenotypes_path:
-        return None
     with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
         phenotypes = []
         header = None

@@ -2,6 +2,7 @@ import os
 import re
 from pathlib import Path
 import click
+from sqlalchemy.orm.session import Session
 
 from vardb.datamodel import user, gene
 from vardb.deposit.deposit_custom_annotations import import_custom_annotations
@@ -125,33 +126,46 @@ def cmd_deposit_custom_annotations(logger, session, custom_annotation_json):
 
 
 @deposit.command("genepanel")
-@click.option("--genepanel_name")
-@click.option("--genepanel_version")
-@click.option("--transcripts_path")
-@click.option("--phenotypes_path")
+@click.option("--genepanel_name", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--genepanel_version", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--transcripts_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--phenotypes_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--replace", is_flag=True)
-@click.option("--folder", help="Folder to look for files assuming standard filenames")
+@click.option(
+    "--folder",
+    help="Folder to look for files assuming standard filenames",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
 @session
 @cli_logger()
 def cmd_deposit_genepanel(
     logger,
-    session,
-    genepanel_name,
-    genepanel_version,
-    transcripts_path,
-    phenotypes_path,
-    replace,
-    folder,
+    session: Session,
+    genepanel_name: Path,
+    genepanel_version: Path,
+    transcripts_path: Path,
+    phenotypes_path: Path,
+    replace: bool,
+    folder: Path,
 ):
     """
     Create or replace genepanel. If replacing genepanel, use --replace flag.
     """
+    print(folder)
+    if not folder and not (
+        genepanel_name and genepanel_version and transcripts_path and phenotypes_path
+    ):
+        raise RuntimeError(
+            "Need to provide either a folder containing gene panel files or gene panel files + name/version"
+        )
     if folder:
-        p = Path(folder)
-        prefix = p.parts[-1]
-        transcripts_path = p / Path(prefix + ".transcripts.csv")
-        phenotypes_path = p / Path(prefix + ".phenotypes.csv")
+        prefix = folder.parts[-1]
+        transcripts_path = folder / Path(prefix + "_genes_transcripts_regions.tsv")
+        phenotypes_path = folder / Path(prefix + "_phenotypes.tsv")
         genepanel_name, genepanel_version = prefix.split("_", 1)
+        assert re.match(
+            r"^v\d+\.\d$", genepanel_version
+        ), f"Expected gene panel version to be of format vXX.X, found ${genepanel_version}"
         assert genepanel_version.startswith("v")
 
     dg = DepositGenepanel(session)
