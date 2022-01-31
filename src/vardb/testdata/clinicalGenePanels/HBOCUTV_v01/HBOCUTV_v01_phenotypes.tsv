@@ -1,4 +1,4 @@
-# Gene panel: HBOCUTV-v1 -- Date: 2021-09-22
+# Gene panel: HBOCUTV-v1 -- Date: 2022-01-31
 #gene symbol	HGNC	remove (add x)	phenotype	inheritance	omim_number	pmid	inheritance info	comment
 BRCA1	1100		Fanconi anemia, complementation group S	AR	617883			
 BRCA1	1100		{Breast-ovarian cancer, familial, 1}	AD	604370			
