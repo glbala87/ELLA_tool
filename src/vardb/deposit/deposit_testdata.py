@@ -7,6 +7,7 @@ import datetime
 import json
 import logging
 import os
+from pathlib import Path
 import re
 import sys
 from dataclasses import dataclass
@@ -34,6 +35,10 @@ log = logging.getLogger(__name__)
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+def absolute_path(rel_path: str) -> Path:
+    return (Path(SCRIPT_DIR) / Path(rel_path)).absolute()
+
+
 @dataclass(frozen=True)
 class AnalysisInfo:
     path: str
@@ -43,15 +48,15 @@ class AnalysisInfo:
 
 @dataclass(frozen=True)
 class GenepanelInfo:
-    transcripts: str
-    phenotypes: str
+    transcripts: Path
+    phenotypes: Path
     name: str
     version: str
 
 
 @dataclass(frozen=True)
 class AlleleInfo:
-    path: str
+    path: Path
     genepanel: Tuple[str, str]
 
 
@@ -91,43 +96,51 @@ chr2:g.48010497N>N chr2:g.48010531N>N
 
 GENEPANELS = [
     GenepanelInfo(
-        "../testdata/clinicalGenePanels/Mendeliome_v01.0/Mendeliome_v01.0_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/Mendeliome_v01.0/Mendeliome_v01.0_phenotypes.tsv",
+        absolute_path(
+            "../testdata/clinicalGenePanels/Mendeliome_v01.0/Mendeliome_v01.0_genes_transcripts_regions.tsv"
+        ),
+        absolute_path(
+            "../testdata/clinicalGenePanels/Mendeliome_v01.0/Mendeliome_v01.0_phenotypes.tsv"
+        ),
         "Mendeliome",
         "v01.0",
     ),
     GenepanelInfo(
-        "../testdata/clinicalGenePanels/HBOCUTV_v01.0/HBOCUTV_v01.0_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/HBOCUTV_v01.0/HBOCUTV_v01.0_phenotypes.tsv",
+        absolute_path(
+            "../testdata/clinicalGenePanels/HBOCUTV_v01.0/HBOCUTV_v01.0_genes_transcripts_regions.tsv"
+        ),
+        absolute_path("../testdata/clinicalGenePanels/HBOCUTV_v01.0/HBOCUTV_v01.0_phenotypes.tsv"),
         "HBOCUTV",
         "v01.0",
     ),
     GenepanelInfo(
-        "../testdata/clinicalGenePanels/HBOC_v01.0/HBOC_v01.0_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/HBOC_v01.0/HBOC_v01.0_phenotypes.tsv",
+        absolute_path(
+            "../testdata/clinicalGenePanels/HBOC_v01.0/HBOC_v01.0_genes_transcripts_regions.tsv"
+        ),
+        absolute_path("../testdata/clinicalGenePanels/HBOC_v01.0/HBOC_v01.0_phenotypes.tsv"),
         "HBOC",
         "v01.0",
     ),
-    GenepanelInfo(
-        "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_genes_transcripts_regions.tsv",
-        "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_phenotypes.tsv",
-        "Ciliopati",
-        "v05.0",
-    ),
+    # GenepanelInfo(
+    #     "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_genes_transcripts_regions.tsv",
+    #     "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_phenotypes.tsv",
+    #     "Ciliopati",
+    #     "v05.0",
+    # ),
 ]
 
 
 ANALYSES = [
-    AnalysisInfo("../testdata/analyses/default", "default", True),
-    AnalysisInfo("../testdata/analyses/e2e", "e2e"),
-    AnalysisInfo("../testdata/analyses/integration_testing", "integration_testing"),
-    AnalysisInfo("../testdata/analyses/custom", "custom"),
-    AnalysisInfo("../testdata/analyses/sanger", "sanger"),
+    AnalysisInfo(Path("../testdata/analyses/default"), "default", True),
+    AnalysisInfo(Path("../testdata/analyses/e2e"), "e2e"),
+    AnalysisInfo(Path("../testdata/analyses/integration_testing"), "integration_testing"),
+    AnalysisInfo(Path("../testdata/analyses/custom"), "custom"),
+    AnalysisInfo(Path("../testdata/analyses/sanger"), "sanger"),
 ]
 
 ALLELES = [
     AlleleInfo(
-        "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf",
+        Path("../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf"),
         ("HBOC", "v01"),
     ),
 ]
@@ -135,8 +148,8 @@ ALLELES = [
 
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
 AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
-REFERENCES = "../testdata/references_test.json"
-CUSTOM_ANNO = "../testdata/custom_annotation_test.json"
+REFERENCES = Path("../testdata/references_test.json")
+CUSTOM_ANNO = Path("../testdata/custom_annotation_test.json")
 
 
 class DepositTestdata(object):
@@ -228,8 +241,8 @@ class DepositTestdata(object):
         dg = DepositGenepanel(self.session)
         for gpdata in GENEPANELS:
             dg.add_genepanel(
-                os.path.join(SCRIPT_DIR, gpdata.transcripts),
-                os.path.join(SCRIPT_DIR, gpdata.phenotypes),
+                gpdata.transcripts,
+                gpdata.phenotypes,
                 gpdata.name,
                 gpdata.version,
                 replace=False,

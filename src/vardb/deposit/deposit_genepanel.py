@@ -218,7 +218,7 @@ class DepositGenepanel(object):
             row_data = {
                 "gene_id": ph["HGNC"],
                 "description": ph["phenotype"],
-                "inheritance": ph["inheritance"],
+                "inheritance": ph["inheritance"] or "N/A",
                 "omim_id": ph["omim_number"],
             }
 
