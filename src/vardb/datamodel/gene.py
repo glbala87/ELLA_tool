@@ -46,6 +46,8 @@ class Transcript(Base):
     corresponding_refseq = Column(String())
     corresponding_ensembl = Column(String())
     corresponding_lrg = Column(String())
+    inheritance = Column(String())
+    source = Column(String())
     genome_reference = Column(String(), nullable=False)
     chromosome = Column(String(), nullable=False)
     tx_start = Column(Integer, nullable=False)
