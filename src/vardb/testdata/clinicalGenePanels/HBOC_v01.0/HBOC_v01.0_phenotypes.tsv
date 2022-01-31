@@ -1,0 +1,13 @@
+# Gene panel: HBOC-v1 -- Date: 2022-01-31
+#gene symbol	HGNC	remove (add x)	phenotype	inheritance	omim_number	pmid	inheritance info	comment
+BRCA1	1100		Fanconi anemia, complementation group S	AR	617883			
+BRCA1	1100		{Breast-ovarian cancer, familial, 1}	AD	604370			
+BRCA1	1100		{Pancreatic cancer, susceptibility to, 4}		614320			
+BRCA2	1101		Fanconi anemia, complementation group D1	AR	605724			
+BRCA2	1101		Wilms tumor	AD/SM	194070			
+BRCA2	1101		{Breast cancer, male, susceptibility to}	AD/SM	114480			
+BRCA2	1101		{Breast-ovarian cancer, familial, 2}	AD	612555			
+BRCA2	1101		{Glioblastoma 3}	AR	613029			
+BRCA2	1101		{Medulloblastoma}	AD/AR/SM	155255			
+BRCA2	1101		{Pancreatic cancer 2}		613347			
+BRCA2	1101		{Prostate cancer}	AD/SM	176807			
