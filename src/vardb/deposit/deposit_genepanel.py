@@ -3,11 +3,11 @@
 Code for adding or modifying gene panels in varDB.
 """
 
-import io
-import os
 import sys
 import argparse
 import logging
+from pathlib import Path
+from typing import Any, Callable, Dict, List
 from sqlalchemy import and_
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
@@ -16,8 +16,18 @@ from vardb.deposit.importers import bulk_insert_nonexisting
 log = logging.getLogger(__name__)
 
 
-def load_phenotypes(phenotypes_path):
-    with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
+def load_phenotypes(phenotypes_path: Path):
+    converters: Dict[str, Callable] = {
+        "gene symbol": str,
+        "HGNC": int,
+        "phenotype": str,
+        "inheritance": str,
+        "omim_number": int,
+        "pmid": int,
+        "info": str,
+        "comment": str,
+    }
+    with phenotypes_path.open("rt") as f:
         phenotypes = []
         header = None
         for line in f:
@@ -25,6 +35,10 @@ def load_phenotypes(phenotypes_path):
                 if line.startswith("#gene symbol"):
                     line = line.replace("#gene", "gene")
                 header = line.strip().split("\t")
+                if set(header) - set(converters.keys()):
+                    log.debug(
+                        f"Missing converters for phenotype columns {','.join(set(header)-set(converters.keys()))}"
+                    )
                 continue
             if line.startswith("#") or line.isspace():
                 continue
@@ -35,24 +49,47 @@ def load_phenotypes(phenotypes_path):
                     )
                 )
 
-            data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
-
-            null_fields = ["pmid", "omim_number"]
-            for n in null_fields:
-                if n in data and data[n] == "":
-                    data[n] = None
+            data = dict(
+                {
+                    k: converters[k](v.strip()) if v.strip() else None
+                    for k, v in zip(header, line.split("\t"))
+                    if k in converters
+                }
+            )
             phenotypes.append(data)
         return phenotypes
 
 
-def load_transcripts(transcripts_path):
-    with io.open(os.path.abspath(os.path.normpath(transcripts_path)), encoding="utf-8") as f:
+def load_transcripts(transcripts_path: Path):
+    converters: Dict[str, Callable] = {
+        "chromosome": str,
+        "txStart": int,
+        "txEnd": int,
+        "refseq": str,
+        "source": str,
+        "score": str,
+        "strand": str,
+        "geneSymbol": str,
+        "HGNC": int,
+        "OMIM gene entry": int,
+        "geneAlias": str,
+        "inheritance": str,
+        "cdsStart": int,
+        "cdsEnd": int,
+        "exonStarts": lambda x: list(map(int, x.split(","))),
+        "exonEnds": lambda x: list(map(int, x.split(","))),
+    }
+    with open(transcripts_path, "rt") as f:
         transcripts = []
         header = None
         for line in f:
             if line.startswith("#chromosome"):
                 header = line.strip().split("\t")
                 header[0] = header[0][1:]  # Strip leading '#'
+                if set(header) - set(converters.keys()):
+                    log.debug(
+                        f"Missing converters for transcript columns {','.join(set(header)-set(converters.keys()))}"
+                    )
             if line.startswith("#") or line.isspace():
                 continue
             if not header:
@@ -61,15 +98,14 @@ def load_transcripts(transcripts_path):
                         transcripts_path
                     )
                 )
-            data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
-            data["HGNC"] = int(data["HGNC"])
-            data["txStart"], data["txEnd"], = (
-                int(data["txStart"]),
-                int(data["txEnd"]),
+
+            data = dict(
+                {
+                    k: converters[k](v.strip()) if v.strip() else None
+                    for k, v in zip(header, line.split("\t"))
+                    if k in converters
+                }
             )
-            data["cdsStart"], data["cdsEnd"] = (int(data["cdsStart"]), int(data["cdsEnd"]))
-            data["exonsStarts"] = list(map(int, data["exonsStarts"].split(",")))
-            data["exonEnds"] = list(map(int, data["exonEnds"].split(",")))
             transcripts.append(data)
         return transcripts
 
@@ -78,30 +114,16 @@ class DepositGenepanel(object):
     def __init__(self, session):
         self.session = session
 
-    def insert_genes(self, transcript_data):
+    def insert_genes(self, transcript_data: List[Dict[str, Any]]):
 
         # Avoid duplicate genes
         distinct_genes = set()
         for t in transcript_data:
-            distinct_genes.add(
-                (
-                    t["HGNC"],
-                    t["geneSymbol"],
-                    t["eGeneID"],
-                    int(t["Omim gene entry"]) if t.get("Omim gene entry") else None,
-                )
-            )
+            distinct_genes.add((t["HGNC"], t["geneSymbol"], t["OMIM gene entry"]))
 
         gene_rows = list()
         for d in list(distinct_genes):
-            gene_rows.append(
-                {
-                    "hgnc_id": d[0],
-                    "hgnc_symbol": d[1],
-                    "ensembl_gene_id": d[2],
-                    "omim_entry_id": d[3],
-                }
-            )
+            gene_rows.append({"hgnc_id": d[0], "hgnc_symbol": d[1], "omim_entry_id": d[2]})
 
         gene_inserted_count = 0
         gene_reused_count = 0
@@ -109,7 +131,7 @@ class DepositGenepanel(object):
             self.session,
             gm.Gene,
             gene_rows,
-            compare_keys=["hgnc_id", "hgnc_symbol", "ensembl_gene_id"],
+            compare_keys=["hgnc_id", "hgnc_symbol"],
         ):
             gene_inserted_count += len(created)
             gene_reused_count += len(existing)
@@ -123,18 +145,21 @@ class DepositGenepanel(object):
             transcript_rows.append(
                 {
                     "gene_id": t["HGNC"],  # foreign key to gene
-                    "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
+                    "transcript_name": t["refseq"],
                     "type": "RefSeq",
                     "corresponding_refseq": None,
-                    "corresponding_ensembl": t["eTranscriptID"],
+                    "corresponding_ensembl": None,
+                    "corresponding_ensembl": None,
                     "corresponding_lrg": None,
                     "chromosome": t["chromosome"],
                     "tx_start": t["txStart"],
                     "tx_end": t["txEnd"],
                     "strand": t["strand"],
+                    "inheritance": t["inheritance"],
+                    "source": t["source"],
                     "cds_start": t["cdsStart"],
                     "cds_end": t["cdsEnd"],
-                    "exon_starts": t["exonsStarts"],
+                    "exon_starts": t["exonStarts"],
                     "exon_ends": t["exonEnds"],
                     "genome_reference": genome_ref,
                 }
@@ -191,12 +216,10 @@ class DepositGenepanel(object):
                 continue
             # Database has unique constraint on (gene_id, description, inheritance)
             row_data = {
-                "gene_id": int(ph["HGNC"]),
+                "gene_id": ph["HGNC"],
                 "description": ph["phenotype"],
                 "inheritance": ph["inheritance"],
-                "omim_id": int(ph["omim_number"])
-                if ph.get("omim_number") and ph["omim_number"].isalnum()
-                else None,
+                "omim_id": ph["omim_number"],
             }
 
             is_duplicate = next(
