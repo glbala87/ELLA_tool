@@ -27,7 +27,7 @@ class TestAnalysisOverview(object):
 
         FIRST_ANALYSIS_ID = 1
         wh = WorkflowHelper(
-            "analysis", FIRST_ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+            "analysis", FIRST_ANALYSIS_ID, "HBOCUTV", "v01.0", filterconfig_id=FILTERCONFIG_ID
         )
 
         ##
@@ -173,7 +173,7 @@ class TestAlleleOverview(object):
 
         # Allele id 4 has existing alleleinterpretation from testdata
         ALLELE_ID = 4
-        wh = WorkflowHelper("allele", ALLELE_ID, "HBOC", "v01")
+        wh = WorkflowHelper("allele", ALLELE_ID, "HBOC", "v01.0")
 
         ##
         # Ongoing

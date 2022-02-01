@@ -7,7 +7,7 @@ from typing import List
 
 def test_nearbyalleles(session, test_database, client):
     genepanel_name = "HBOC"
-    genepanel_version = "v01"
+    genepanel_version = "v01.0"
 
     def _create_allele(start: int, end: int, classification: str = None) -> allele.Allele:
         a: allele.Allele = mock_allele(
@@ -84,7 +84,7 @@ def test_similaralleles(session, test_database, client):
     test_database.refresh()
 
     genepanel_name = "HBOC"
-    genepanel_version = "v01"
+    genepanel_version = "v01.0"
 
     for aid in [1, 2]:
         aa = assessment.AlleleAssessment(

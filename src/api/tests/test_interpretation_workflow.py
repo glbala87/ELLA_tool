@@ -25,7 +25,7 @@ workflow specific test fixture and branching based on workflow.
 """
 
 ANALYSIS_ID = 2  # analysis_id = 2, allele 1-6
-ALLELE_ID = 18  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+ALLELE_ID = 18  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01.0
 FILTERCONFIG_ID = 1
 
 ANALYSIS_ALLELE_IDS = [1, 3, 4, 7, 12, 13]
@@ -37,13 +37,13 @@ ALLELE_USERNAMES = ["testuser4", "testuser1", "testuser2"]
 @pytest.fixture(scope="module")
 def analysis_wh():
     return WorkflowHelper(
-        "analysis", ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+        "analysis", ANALYSIS_ID, "HBOCUTV", "v01.0", filterconfig_id=FILTERCONFIG_ID
     )
 
 
 @pytest.fixture(scope="module")
 def allele_wh():
-    return WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v01")
+    return WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v01.0")
 
 
 def update_user_config(session, username, user_config):
@@ -161,13 +161,13 @@ class TestOther(object):
             classification="1",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
         )
         session.add(aa)
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -184,7 +184,7 @@ class TestOther(object):
                 "allele_id": 1,
                 "evaluation": {"comment": "Something"},
                 "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
+                "genepanel_version": "v01.0",
             }
         ]
 
@@ -220,7 +220,7 @@ class TestOther(object):
             reference_id=1,
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
             date_superceeded=datetime.datetime.now(),
         )
         session.add(ra)
@@ -233,7 +233,7 @@ class TestOther(object):
             reference_id=1,
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
             previous_assessment_id=1,
         )
 
@@ -241,7 +241,7 @@ class TestOther(object):
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -249,7 +249,7 @@ class TestOther(object):
         alleles = r.get_json()
 
         # Create alleleassessment
-        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01.0")
         # Create allelereport
         allelereport = ih.allele_report_template(1)
 
@@ -287,7 +287,7 @@ class TestOther(object):
             classification="1",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
             date_superceeded=datetime.datetime.now(),
         )
         session.add(aa)
@@ -300,14 +300,14 @@ class TestOther(object):
             classification="2",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
             previous_assessment_id=1,
         )
         session.add(aa)
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -357,7 +357,7 @@ class TestFinalizationRequirements:
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -366,7 +366,7 @@ class TestFinalizationRequirements:
         alleles = r.get_json()
 
         # Create alleleassessment
-        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01.0")
         referenceassessments = []
         allelereport = ih.allele_report_template(1)
 
@@ -430,7 +430,7 @@ class TestFinalizationRequirements:
         r.status_code == 200
 
         ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         r = ih.finalize_allele(
@@ -484,7 +484,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -497,7 +497,7 @@ class TestFinalizationRequirements:
 
         # Try finalizing a single allele
         allele_id = alleles[0]["id"]
-        alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v01.0")
         referenceassessments = []
         allelereport = ih.allele_report_template(allele_id)
         r = ih.finalize_allele(
@@ -537,14 +537,14 @@ class TestFinalizationRequirements:
         )
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         # Finalize allele
         alleleassessment_ids = []
         allelereport_ids = []
         for allele in alleles:
-            alleleassessment = ih.allele_assessment_template(allele["id"], "HBOC", "v01")
+            alleleassessment = ih.allele_assessment_template(allele["id"], "HBOC", "v01.0")
             allelereport = ih.allele_report_template(allele["id"])
             referenceassessments = []
             r = ih.finalize_allele(
@@ -600,7 +600,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -620,7 +620,7 @@ class TestFinalizationRequirements:
                 classification="1",
                 evaluation={},
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
             )
             session.add(aa)
             session.commit()
@@ -710,7 +710,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -730,7 +730,7 @@ class TestFinalizationRequirements:
                 classification="1",
                 evaluation={},
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
             )
             session.add(aa)
             session.commit()
@@ -819,7 +819,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -839,7 +839,7 @@ class TestFinalizationRequirements:
                 classification="1",
                 evaluation={},
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
             )
             session.add(aa)
             session.commit()

@@ -52,7 +52,7 @@ def test_polling(session, client, test_database):
         user_id=1,
         data="Dummy vcf data for testing",
         genepanel_name="HBOC",
-        genepanel_version="v01",
+        genepanel_version="v01.0",
         properties=dict(analysis_name="abc", create_or_append="Create", sample_type="HTS"),
     )
 

@@ -6,7 +6,7 @@ from conftest import mock_allele_with_annotation
 
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
 
-    testpanels = [("HBOCUTV", "v01"), ("OMIM", "v01")]
+    testpanels = [("HBOCUTV", "v01.0"), ("OMIM", "v01.0")]
 
     for panel in testpanels:
         ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
@@ -97,12 +97,12 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
         t3 = gene.Transcript(gene=g3, transcript_name="NM_3.1", **transcript_base)
 
-        genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
+        genepanel1 = gene.Genepanel(name="testpanel1", version="v01.0", genome_reference="GRCh37")
         genepanel1.transcripts = [t1, t21]
         genepanel1.phenotypes = []
         session.add(genepanel1)
 
-        genepanel2 = gene.Genepanel(name="testpanel2", version="v01", genome_reference="GRCh37")
+        genepanel2 = gene.Genepanel(name="testpanel2", version="v01.0", genome_reference="GRCh37")
 
         genepanel2.transcripts = [t22, t3]
         genepanel1.phenotypes = []
@@ -165,7 +165,7 @@ def test_annotation_transcripts_genepanel(session, test_database):
     session.flush()
 
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
-        session, [("testpanel1", "v01"), ("testpanel2", "v01")]
+        session, [("testpanel1", "v01.0"), ("testpanel2", "v01.0")]
     ).subquery()
 
     result = session.query(
@@ -178,16 +178,16 @@ def test_annotation_transcripts_genepanel(session, test_database):
 
     passes = [
         # allele_id, panel, annotation, genepanel
-        (a1.id, "testpanel1", "v01", "NM_1.1", "NM_1.1"),
-        (a1.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a1.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
-        (a2.id, "testpanel1", "v01", "NM_2.2", "NM_2.1"),
-        (a2.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
-        (a2.id, "testpanel2", "v01", "NM_3.1", "NM_3.1"),
-        (a3.id, "testpanel1", "v01", "NM_1.3", "NM_1.1"),
-        (a3.id, "testpanel1", "v01", "NM_2.1", "NM_2.1"),
-        (a3.id, "testpanel2", "v01", "NM_2.2", "NM_2.2"),
-        (a3.id, "testpanel2", "v01", "NM_3.3_sometext", "NM_3.1"),
+        (a1.id, "testpanel1", "v01.0", "NM_1.1", "NM_1.1"),
+        (a1.id, "testpanel1", "v01.0", "NM_2.2", "NM_2.1"),
+        (a1.id, "testpanel2", "v01.0", "NM_2.2", "NM_2.2"),
+        (a2.id, "testpanel1", "v01.0", "NM_2.2", "NM_2.1"),
+        (a2.id, "testpanel2", "v01.0", "NM_2.2", "NM_2.2"),
+        (a2.id, "testpanel2", "v01.0", "NM_3.1", "NM_3.1"),
+        (a3.id, "testpanel1", "v01.0", "NM_1.3", "NM_1.1"),
+        (a3.id, "testpanel1", "v01.0", "NM_2.1", "NM_2.1"),
+        (a3.id, "testpanel2", "v01.0", "NM_2.2", "NM_2.2"),
+        (a3.id, "testpanel2", "v01.0", "NM_3.3_sometext", "NM_3.1"),
     ]
 
     assert set(result) == set(passes)

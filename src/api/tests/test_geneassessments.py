@@ -29,7 +29,7 @@ def test_create_assessment(session, client, test_database):
     check_geneassessment(ga1, ASSESSMENT1)
 
     # Check latest result when loading genepanel (allele_id 1 is in BRCA2)
-    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01/?allele_ids=1")
+    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01.0/?allele_ids=1")
     gp = r.get_json()
     assert len(gp["geneassessments"]) == 1
     check_geneassessment(gp["geneassessments"][0], ASSESSMENT1)
@@ -48,7 +48,7 @@ def test_create_assessment(session, client, test_database):
     ga2 = r.get_json()
     check_geneassessment(ga2, ASSESSMENT2, previous_assessment_id=ga1["id"])
 
-    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01/?allele_ids=1")
+    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01.0/?allele_ids=1")
     gp = r.get_json()
     assert len(gp["geneassessments"]) == 1
     check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1["id"])
@@ -70,7 +70,7 @@ def test_create_assessment(session, client, test_database):
     )
 
     # Check that latest is same as before
-    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01/?allele_ids=1")
+    r = client.get("/api/v1/workflows/analyses/1/genepanels/HBOC/v01.0/?allele_ids=1")
     gp = r.get_json()
     assert len(gp["geneassessments"]) == 1
     check_geneassessment(gp["geneassessments"][0], ASSESSMENT2, previous_assessment_id=ga1["id"])

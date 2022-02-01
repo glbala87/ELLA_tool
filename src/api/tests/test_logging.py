@@ -48,7 +48,7 @@ def test_resourcelog(client, test_database, session):
     payload_data = {
         "allele_ids": [1],
         "gp_name": "HBOCUTV",
-        "gp_version": "v01",
+        "gp_version": "v01.0",
         "referenceassessments": [],
     }
     r = client.post("/api/v1/acmg/alleles/?dummy=data", payload_data)
@@ -101,7 +101,7 @@ def test_resourcelog(client, test_database, session):
     payload_data = {
         "allele_ids": [1],
         "gp_name": "HBOCUTV",
-        "gp_version": "v01",
+        "gp_version": "v01.0",
         "referenceassessments": [],
     }
     client.logout()

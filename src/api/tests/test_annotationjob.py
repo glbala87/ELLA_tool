@@ -12,7 +12,7 @@ TESTDATA_DIR = "/ella/ella-testdata/testdata"
 
 ANALYSIS = "brca_sample_3"
 GENEPANEL_NAME = "HBOCUTV"
-GENEPANEL_VERSION = "v01"
+GENEPANEL_VERSION = "v01.0"
 
 
 @pytest.fixture(scope="session")
