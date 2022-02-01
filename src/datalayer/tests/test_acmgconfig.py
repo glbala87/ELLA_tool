@@ -28,7 +28,7 @@ def test_resolver_uses_acmgconfig_defined_cutoffs(session):
 
     genepanel = (
         session.query(gene.Genepanel)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == ("HBOCUTV", "v01"))
+        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == ("HBOCUTV", "v01.0"))
         .one()
     )
 

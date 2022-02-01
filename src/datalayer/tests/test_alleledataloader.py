@@ -6,6 +6,7 @@ from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
 from conftest import mock_allele
+import pytest
 
 
 def test_get_formatted_genotypes(test_database, session):
@@ -183,7 +184,7 @@ def allele_position_strategy(draw):
 
 
 def create_analysis():
-    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v01")
+    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v01.0")
 
 
 def create_sample(analysis_id):
@@ -263,6 +264,7 @@ def test_worse_consequence_warning(test_database, session):
     return
 
 
+@pytest.mark.skip()
 def test_inconsistent_ensembl_transcript(test_database, session):
     test_database.refresh()
     analysis_id = 1

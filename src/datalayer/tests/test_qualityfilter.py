@@ -9,7 +9,7 @@ import hypothesis.strategies as st
 
 def add_data(session, gt_data):
     analysis = sample.Analysis(
-        **{"name": "QualityTest", "genepanel_name": "HBOC", "genepanel_version": "v01"}
+        **{"name": "QualityTest", "genepanel_name": "HBOC", "genepanel_version": "v01.0"}
     )
     session.add(analysis)
     session.flush()

@@ -20,7 +20,7 @@ def assessments(session):
             allele_id=i + 1,
             classification=clazz,
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v01.0",
         )
         session.add(assm)
         assms.append(assm)
