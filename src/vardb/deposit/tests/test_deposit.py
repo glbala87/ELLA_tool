@@ -268,7 +268,7 @@ def test_prefilterbatchgenerator(
                 allele_id=a.id,
                 classification="1",
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
             )
             session.add(aa)
             session.flush()
@@ -353,7 +353,7 @@ def test_analysis_multiple(session, vcf_data):
             {
                 "name": analysis_name,
                 "genepanel_name": "HBOCUTV",
-                "genepanel_version": "v01",
+                "genepanel_version": "v01.0",
                 "data": [{"vcf": writer.filename, "ped": ped_file if ped_info else None}],
             }
         )

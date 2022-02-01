@@ -103,7 +103,7 @@ class TestPostprocessors:
             aa = assessment.AlleleAssessment(
                 allele_id=allele_id,
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
                 classification="1",
                 user_id=1,
                 usergroup_id=1,
@@ -148,7 +148,7 @@ class TestPostprocessors:
             aa = assessment.AlleleAssessment(
                 allele_id=allele_id,
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v01.0",
                 classification="5",
                 user_id=1,
                 usergroup_id=1,
