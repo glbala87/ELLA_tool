@@ -41,7 +41,7 @@ class Transcript(Base):
     id = Column(Integer, primary_key=True)
     gene_id = Column(Integer, ForeignKey("gene.hgnc_id"), nullable=False)
     gene = relationship("Gene", lazy="joined")
-    transcript_name = Column(String(), unique=True, nullable=False)
+    transcript_name = Column(String(), nullable=False)
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
     corresponding_refseq = Column(String())
     corresponding_ensembl = Column(String())
@@ -57,6 +57,8 @@ class Transcript(Base):
     cds_end = Column(Integer, nullable=False)
     exon_starts = Column(ARRAY(Integer), nullable=False)
     exon_ends = Column(ARRAY(Integer), nullable=False)
+
+    __table_args__ = (UniqueConstraint("transcript_name", "inheritance"),)
 
     def __repr__(self):
         return "<Transcript('%s','%s', '%s', '%s', '%s', '%s')>" % (

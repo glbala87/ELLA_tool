@@ -1,23 +1,14 @@
 import datetime
-from typing import Optional, Sequence, Tuple
-
 import pytz
 from api.config import config
 from api.util import filterconfig_requirements
-from sqlalchemy import Text, and_, cast, func, literal_column, or_, text, tuple_
+from sqlalchemy import literal, and_, or_, tuple_, cast, func, text, literal_column, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Integer
-from vardb.datamodel import (
-    Base,
-    allele,
-    annotation,
-    annotationshadow,
-    assessment,
-    gene,
-    sample,
-    workflow,
-)
+from typing import Optional, Sequence, Tuple
+from vardb.datamodel import Base, allele, gene
+from vardb.datamodel import annotation, annotationshadow, assessment, sample, workflow
 from vardb.util.extended_query import ExtendedQuery
 
 
@@ -301,6 +292,49 @@ def workflow_allele_review_comment(session, allele_ids=None):
     )
 
 
+def inheritance_hgnc_ids_for_genepanel(session, gp_name, gp_version):
+    """
+    Fetch inheritance for all hgnc ids in genepanel. Use transcript inheritance where available,
+    and fall back to phenotype where transcript inheritance is not defined
+    """
+    hgncs_ids_with_inheritance_from_transcripts = (
+        session.query(
+            gene.Transcript.gene_id,
+        )
+        .filter(
+            gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+            gene.genepanel_transcript.c.genepanel_name == gp_name,
+            gene.genepanel_transcript.c.genepanel_version == gp_version,
+            ~gene.Transcript.inheritance.is_(None),
+        )
+        .subquery()
+    )
+
+    hgnc_ids_transcript_inheritance = session.query(
+        gene.Transcript.gene_id.label("hgnc_id"),
+        gene.Transcript.inheritance.label("inheritance"),
+        literal("transcript").label("source"),
+    ).filter(
+        gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+        gene.genepanel_transcript.c.genepanel_name == gp_name,
+        gene.genepanel_transcript.c.genepanel_version == gp_version,
+        ~gene.Transcript.inheritance.is_(None),
+    )
+
+    hgnc_ids_phenotype_inheritance = session.query(
+        gene.Phenotype.gene_id.label("hgnc_id"),
+        gene.Phenotype.inheritance.label("inheritance"),
+        literal("phenotype").label("source"),
+    ).filter(
+        gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
+        gene.genepanel_phenotype.c.genepanel_name == gp_name,
+        gene.genepanel_phenotype.c.genepanel_version == gp_version,
+        ~gene.Phenotype.gene_id.in_(hgncs_ids_with_inheritance_from_transcripts),
+    )
+
+    return hgnc_ids_transcript_inheritance.union(hgnc_ids_phenotype_inheritance)
+
+
 def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, gp_version):
     """
     Fetches all hgnc_ids with _only_ {inheritance} phenotypes.
@@ -309,22 +343,19 @@ def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, g
     """
     # Get phenotypes having only one kind of inheritance
     # e.g. only 'AD' or only 'AR' etc...
-    hgnc_ids = (
-        session.query(gene.Phenotype.gene_id.label("hgnc_id"))
-        .filter(
-            gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
-            gene.genepanel_phenotype.c.genepanel_name == gp_name,
-            gene.genepanel_phenotype.c.genepanel_version == gp_version,
-        )
-        .group_by(
-            gene.genepanel_phenotype.c.genepanel_name,
-            gene.genepanel_phenotype.c.genepanel_version,
-            gene.Phenotype.gene_id,
-        )
-        .having(func.every(gene.Phenotype.inheritance == inheritance))
-    )
 
-    return hgnc_ids
+    inheritance_by_hgnc_ids = inheritance_hgnc_ids_for_genepanel(
+        session, gp_name, gp_version
+    ).subquery()
+
+    hgnc_ids_matching_inheritance_mode = (
+        session.query(
+            inheritance_by_hgnc_ids.c.hgnc_id,
+        )
+        .group_by(inheritance_by_hgnc_ids.c.hgnc_id)
+        .having(func.every(inheritance_by_hgnc_ids.c.inheritance == inheritance))
+    )
+    return hgnc_ids_matching_inheritance_mode
 
 
 def allele_genepanels(session, genepanel_keys, allele_ids=None):

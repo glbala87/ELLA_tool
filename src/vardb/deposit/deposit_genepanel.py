@@ -185,7 +185,7 @@ class DepositGenepanel(object):
             gm.Transcript,
             transcript_rows,
             include_pk="id",
-            compare_keys=["transcript_name"],
+            compare_keys=["transcript_name", "inheritance"],
             replace=replace,
         ):
             transcript_inserted_count += len(created)
@@ -193,7 +193,7 @@ class DepositGenepanel(object):
 
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
-            pks = [i["id"] for i in existing + created]
+            pks = [tx["id"] for tx in existing + created]
             for pk in pks:
                 junction_values.append(
                     {
