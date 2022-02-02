@@ -1,70 +1,100 @@
-from sqlalchemy import tuple_
+import time
+from sqlalchemy import func, tuple_
+from api.util.util import query_print_table
 from datalayer import queries
 from vardb.datamodel import gene
 from conftest import mock_allele_with_annotation
 
 
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
-
-    testpanels = [("HBOCUTV", "v01.0"), ("OMIM", "v01.0")]
+    testpanels = session.query(gene.Genepanel.name, gene.Genepanel.version).all()
+    inheritance_modes = ["AR", "AD"]
 
     for panel in testpanels:
-        ad_hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
-            session, "AD", panel[0], panel[1]
-        ).all()
-        ad_hgnc_ids = [a[0] for a in ad_hgnc_ids]
+        for inheritance_mode in inheritance_modes:
+            hgnc_ids = queries.distinct_inheritance_hgnc_ids_for_genepanel(
+                session, inheritance_mode, panel[0], panel[1]
+            ).scalar_all()
 
-        # Make sure all genes are actually part of input genepanel
-        assert (
-            session.query(gene.Transcript.gene_id)
-            .join(gene.Genepanel.transcripts)
-            .join(gene.Gene)
-            .filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
-                gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
-            )
-            .distinct()
-            .count()
-            == len(ad_hgnc_ids)
-        )
-
-        # Test that AD matches only has 'AD' phenotypes
-        inheritances = (
-            session.query(gene.Phenotype.inheritance)
-            .join(gene.Gene)
-            .join(gene.genepanel_phenotype)
-            .filter(
-                tuple_(
-                    gene.genepanel_phenotype.c.genepanel_name,
-                    gene.genepanel_phenotype.c.genepanel_version,
+            # Check that hgnc ids are subset of all gene panel hgnc ids
+            all_hgnc_ids = (
+                session.query(
+                    gene.Transcript.gene_id,
                 )
-                == panel,
-                gene.Gene.hgnc_id.in_(ad_hgnc_ids),
-            )
-            .all()
-        )
-        assert all(i[0] == "AD" for i in inheritances)
-
-        # Test opposite case: non-AD genes has at least one non-AD phenotype
-        inheritances = (
-            session.query(gene.Phenotype.gene_id, gene.Phenotype.inheritance)
-            .join(gene.Gene)
-            .join(gene.genepanel_phenotype)
-            .filter(
-                tuple_(
-                    gene.genepanel_phenotype.c.genepanel_name,
-                    gene.genepanel_phenotype.c.genepanel_version,
+                .join(gene.genepanel_transcript)
+                .filter(
+                    gene.genepanel_transcript.c.genepanel_name == panel[0],
+                    gene.genepanel_transcript.c.genepanel_version == panel[1],
                 )
-                == panel,
-                ~gene.Gene.hgnc_id.in_(ad_hgnc_ids),
-            )
-            .all()
-        )
+            ).scalar_all()
 
-        gene_ids = set([i[0] for i in inheritances])
-        for gene_id in gene_ids:
-            gene_inheritances = [i[1] for i in inheritances if i[0] == gene_id]
-            assert any(i != "AD" for i in gene_inheritances)
+            assert set(hgnc_ids).issubset(all_hgnc_ids)
+
+            # Collect inheritance for all transcripts and phenotypes in gene panel
+            genepanel_tx_inheritance = (
+                session.query(
+                    gene.Transcript.gene_id,
+                    func.array_agg(gene.Transcript.inheritance).label("tx_inheritance"),
+                )
+                .join(gene.genepanel_transcript)
+                .filter(
+                    tuple_(
+                        gene.genepanel_transcript.c.genepanel_name,
+                        gene.genepanel_transcript.c.genepanel_version,
+                    )
+                    == panel
+                )
+                .group_by(gene.Transcript.gene_id)
+            ).all()
+
+            genepanel_tx_inheritance = {k: set(v) for k, v in genepanel_tx_inheritance}
+
+            genepanel_phenotype_inheritance = (
+                session.query(
+                    gene.Phenotype.gene_id,
+                    func.array_agg(gene.Phenotype.inheritance).label("ph_inheritance"),
+                )
+                .join(gene.genepanel_phenotype)
+                .filter(
+                    tuple_(
+                        gene.genepanel_phenotype.c.genepanel_name,
+                        gene.genepanel_phenotype.c.genepanel_version,
+                    )
+                    == panel
+                )
+                .group_by(gene.Phenotype.gene_id)
+            ).all()
+
+            genepanel_phenotype_inheritance = {
+                k: set(v) for k, v in genepanel_phenotype_inheritance
+            }
+
+            # Expect that hgnc ids in query satisify either:
+            # a) inheritance matches all transcripts for hgnc id
+            # b) no transcripts have inheritance for hgnc id, and inheritance matches all phenotypes for hgnc_id
+            expected = set()
+            for hgnc_id in all_hgnc_ids:
+                if genepanel_tx_inheritance[hgnc_id] == set([inheritance_mode]):
+                    # Matches at transcript level
+                    expected.add(hgnc_id)
+                    continue
+
+                if genepanel_tx_inheritance[hgnc_id] == set(
+                    [None]
+                ) and genepanel_phenotype_inheritance[hgnc_id] == set([inheritance_mode]):
+                    # No inheritance at transcript level, matches at phenotype level
+                    expected.add(hgnc_id)
+                    continue
+
+                # Not expected, double check that it has a different inheritance
+                assert genepanel_tx_inheritance[hgnc_id] != set([inheritance_mode])
+
+                assert not (
+                    genepanel_tx_inheritance[hgnc_id] == set([None])
+                    and genepanel_phenotype_inheritance[hgnc_id] == set([inheritance_mode])
+                )
+
+            assert set(hgnc_ids) == expected
 
 
 def test_annotation_transcripts_genepanel(session, test_database):
