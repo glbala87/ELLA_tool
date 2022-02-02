@@ -41,7 +41,7 @@ def absolute_path(rel_path: str) -> Path:
 
 @dataclass(frozen=True)
 class AnalysisInfo:
-    path: str
+    path: Path
     name: str
     is_default: bool = False
 
@@ -121,35 +121,41 @@ GENEPANELS = [
         "HBOC",
         "v01.0",
     ),
-    # GenepanelInfo(
-    #     "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_genes_transcripts_regions.tsv",
-    #     "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_phenotypes.tsv",
-    #     "Ciliopati",
-    #     "v05.0",
-    # ),
+    GenepanelInfo(
+        absolute_path(
+            "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_genes_transcripts_regions.tsv"
+        ),
+        absolute_path(
+            "../testdata/clinicalGenePanels/Ciliopati_v05.0/Ciliopati_v05.0_phenotypes.tsv"
+        ),
+        "Ciliopati",
+        "v05.0",
+    ),
 ]
 
 
 ANALYSES = [
-    AnalysisInfo(Path("../testdata/analyses/default"), "default", True),
-    AnalysisInfo(Path("../testdata/analyses/e2e"), "e2e"),
-    AnalysisInfo(Path("../testdata/analyses/integration_testing"), "integration_testing"),
-    AnalysisInfo(Path("../testdata/analyses/custom"), "custom"),
-    AnalysisInfo(Path("../testdata/analyses/sanger"), "sanger"),
+    AnalysisInfo(absolute_path("../testdata/analyses/default"), "default", True),
+    AnalysisInfo(absolute_path("../testdata/analyses/e2e"), "e2e"),
+    AnalysisInfo(absolute_path("../testdata/analyses/integration_testing"), "integration_testing"),
+    AnalysisInfo(absolute_path("../testdata/analyses/custom"), "custom"),
+    AnalysisInfo(absolute_path("../testdata/analyses/sanger"), "sanger"),
 ]
 
 ALLELES = [
     AlleleInfo(
-        Path("../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf"),
-        ("HBOC", "v01"),
+        absolute_path(
+            "../testdata/analyses/default/brca_sample_1.HBOC_v01.0/brca_sample_1.HBOC_v01.0.vcf"
+        ),
+        ("HBOC", "v01.0"),
     ),
 ]
 
 
 DEFAULT_TESTSET: str = next(filter(lambda a: a.is_default, ANALYSES)).name
 AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
-REFERENCES = Path("../testdata/references_test.json")
-CUSTOM_ANNO = Path("../testdata/custom_annotation_test.json")
+REFERENCES = absolute_path("../testdata/references_test.json")
+CUSTOM_ANNO = absolute_path("../testdata/custom_annotation_test.json")
 
 
 class DepositTestdata(object):
@@ -196,20 +202,18 @@ class DepositTestdata(object):
         else:
             testset = next(v for v in ANALYSES if v.name == test_set)
 
-        testset_path = os.path.join(SCRIPT_DIR, testset.path)
-        analysis_paths = [os.path.join(testset_path, d) for d in os.listdir(testset_path)]
-        analysis_paths.sort()
-
-        for analysis_path in analysis_paths:
-            analysis_files = [f for f in os.listdir(analysis_path) if f.endswith(".analysis")]
+        for analysis_path in sorted(testset.path.iterdir()):
+            analysis_files = [f for f in analysis_path.iterdir() if f.suffix == ".analysis"]
             if len(analysis_files) > 1:
                 if feature_is_enabled("cnv"):
-                    analysis_file = next(f for f in analysis_files if f.endswith("cnv.analysis"))
+                    analysis_file = next(
+                        f for f in analysis_files if str(f).endswith("cnv.analysis")
+                    )
                 else:
                     analysis_file = next(
-                        f for f in analysis_files if not f.endswith("cnv.analysis")
+                        f for f in analysis_files if not str(f).endswith("cnv.analysis")
                     )
-                analysis_path = os.path.join(analysis_path, analysis_file)
+                analysis_path = analysis_file
 
             try:
                 acd = AnalysisConfigData(analysis_path)
@@ -230,11 +234,9 @@ class DepositTestdata(object):
     def deposit_alleles(self):
 
         for allele in ALLELES:
-            vcf_path = os.path.join(SCRIPT_DIR, allele.path)
-
             da = DepositAlleles(self.session)
-            da.import_vcf(vcf_path, allele.genepanel[0], allele.genepanel[1])
-            log.info("Deposited {} as single alleles".format(vcf_path))
+            da.import_vcf(allele.path, allele.genepanel[0], allele.genepanel[1])
+            log.info("Deposited {} as single alleles".format(allele.path))
             self.session.commit()
 
     def deposit_genepanels(self):
@@ -249,12 +251,10 @@ class DepositTestdata(object):
             )
 
     def deposit_references(self):
-        references_path = os.path.join(SCRIPT_DIR, REFERENCES)
-        import_references(self.session, references_path)
+        import_references(self.session, REFERENCES)
 
     def deposit_custom_annotation(self):
-        custom_anno_path = os.path.join(SCRIPT_DIR, CUSTOM_ANNO)
-        import_custom_annotations(self.session, custom_anno_path)
+        import_custom_annotations(self.session, CUSTOM_ANNO)
 
     def deposit_fixtures(self):
         log.info("Depositing test fixtures")
