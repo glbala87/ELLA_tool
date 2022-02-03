@@ -450,6 +450,7 @@ def annotation_transcripts_genepanel(
         session.query(
             gene.Genepanel.name,
             gene.Genepanel.version,
+            gene.Transcript.id,
             gene.Transcript.transcript_name,
             gene.Transcript.gene_id,
         )
@@ -471,6 +472,7 @@ def annotation_transcripts_genepanel(
         genepanel_transcripts.c.name.label("name"),
         genepanel_transcripts.c.version.label("version"),
         genepanel_transcripts.c.gene_id.label("genepanel_hgnc_id"),
+        genepanel_transcripts.c.id.label("transcript_id"),
         genepanel_transcripts.c.transcript_name.label("genepanel_transcript"),
         annotation_shadow_transcript_table.transcript.label("annotation_transcript"),
         annotation_shadow_transcript_table.symbol.label("annotation_symbol"),
@@ -498,6 +500,7 @@ def annotation_transcripts_genepanel(
     # - Otherwise, select the latest available transcript version
     result = result.order_by(
         annotation_shadow_transcript_table.allele_id,
+        genepanel_transcripts.c.id,
         genepanel_transcripts.c.name,
         genepanel_transcripts.c.version,
         genepanel_transcripts.c.gene_id,
@@ -510,6 +513,7 @@ def annotation_transcripts_genepanel(
 
     result = result.distinct(
         annotation_shadow_transcript_table.allele_id,
+        genepanel_transcripts.c.id,
         genepanel_transcripts.c.name,
         genepanel_transcripts.c.version,
         genepanel_transcripts.c.gene_id,

@@ -307,8 +307,7 @@ def load_genepanel_for_allele_ids(
         .options(joinedload(gene.Transcript.gene))
         .join(gene.Genepanel.transcripts)
         .filter(
-            gene.Transcript.transcript_name
-            == annotation_transcripts_genepanel.c.genepanel_transcript,
+            gene.Transcript.id == annotation_transcripts_genepanel.c.transcript_id,
         )
         .all()
     )
