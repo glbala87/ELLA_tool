@@ -16,7 +16,7 @@ class GeneFullSchema(Schema):
 class TranscriptSchema(Schema):
     class Meta:
         title = "Transcript"
-        fields = ("transcript_name", "gene")
+        fields = ("transcript_name", "gene", "inheritance")
 
     gene = fields.Nested(GeneSchema)
 
@@ -30,6 +30,8 @@ class TranscriptFullSchema(Schema):
             "corresponding_ensembl",
             "corresponding_lrg",
             "genome_reference",
+            "source",
+            "inheritance",
             "chromosome",
             "tx_start",
             "tx_end",
