@@ -1,9 +1,9 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
 import {
-    formatInheritance,
     getOmimEntryId,
-    findGeneConfigOverride
+    findGeneConfigOverride,
+    formatGenepanelInheritance
 } from '../../common/helpers/genepanel'
 
 /**
@@ -33,7 +33,7 @@ export default (genepanel) => {
                     overridden: p in geneConfigOverride
                 }
             }
-            result[hgncId].inheritance = formatInheritance(hgncId, genepanel)
+            result[hgncId].inheritance = formatGenepanelInheritance(hgncId, genepanel)
 
             // If 'frequency' is defined for the gene, use that.
             // Otherwise, use the default given the inheritance key
