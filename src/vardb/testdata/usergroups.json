@@ -125,7 +125,7 @@
             "deposit": {
                 "analysis": [
                     {
-                        "pattern": "^HG002-Trio.Mendeliome_v01",
+                        "pattern": "^HG002-Trio.Mendeliome_v01.0",
                         "postprocess": [],
                         "prefilters": [
                             [
