@@ -151,7 +151,6 @@ def cmd_deposit_genepanel(
     """
     Create or replace genepanel. If replacing genepanel, use --replace flag.
     """
-    print(folder)
     if not folder and not (
         genepanel_name and genepanel_version and transcripts_path and phenotypes_path
     ):

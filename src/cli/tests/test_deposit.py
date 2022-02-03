@@ -4,7 +4,7 @@ from vardb.datamodel import sample, assessment, gene, user
 
 TESTDATA = os.environ["TESTDATA"]
 VCF = os.path.join(
-    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf.gz"
+    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01.0/brca_sample_3.HBOCUTV_v01.0.vcf"
 )
 
 
@@ -47,7 +47,7 @@ def test_deposit_genepanel(session, run_command):
     run_command(["database", "make", "-f"])
 
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v05.0"
 
     assert (
         not session.query(gene.Genepanel)
@@ -71,7 +71,7 @@ def test_deposit_genepanel(session, run_command):
 def test_append_genepanel_to_usergroup(session, test_database, run_command):
     test_database.refresh()
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v05.0"
     usergroup = "testgroup01"
 
     ug = session.query(user.UserGroup).filter(user.UserGroup.name == usergroup)
