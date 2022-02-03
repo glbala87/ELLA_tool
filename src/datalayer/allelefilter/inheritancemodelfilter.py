@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Set
 
 from sqlalchemy import and_, func, text, or_, not_
+from datalayer.queries import inheritance_hgnc_ids_for_genepanel
 from vardb.datamodel import sample, gene, annotationshadow
 
 from datalayer.allelefilter.genotypetable import get_genotype_temp_table
@@ -151,17 +152,9 @@ class InheritanceModelFilter(object):
             # | 7       | AR          |
             # | 13666   | AR          |
             # ...
-            genepanel_hgnc_id_phenotype = (
-                self.session.query(
-                    gene.Phenotype.gene_id.label("hgnc_id"), gene.Phenotype.inheritance
-                )
-                .filter(
-                    gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
-                    gene.genepanel_phenotype.c.genepanel_name == gp_name,
-                    gene.genepanel_phenotype.c.genepanel_version == gp_version,
-                )
-                .subquery("genepanel_hgnc_id_phenotype")
-            )
+            genepanel_hgnc_id_phenotype = inheritance_hgnc_ids_for_genepanel(
+                self.session, gp_name, gp_version
+            ).subquery("genepanel_hgnc_id_phenotype")
 
             # Set up column criterias from filter_config
             criteria_columns: List = []
