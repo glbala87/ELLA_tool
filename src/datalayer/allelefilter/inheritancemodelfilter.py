@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Set
 
 from sqlalchemy import and_, func, text, or_, not_
 from datalayer.queries import inheritance_hgnc_ids_for_genepanel
-from vardb.datamodel import sample, gene, annotationshadow
+from vardb.datamodel import sample, annotationshadow
 
 from datalayer.allelefilter.genotypetable import get_genotype_temp_table
 

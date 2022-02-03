@@ -1,6 +1,4 @@
-import time
 from sqlalchemy import func, tuple_
-from api.util.util import query_print_table
 from datalayer import queries
 from vardb.datamodel import gene
 from conftest import mock_allele_with_annotation
