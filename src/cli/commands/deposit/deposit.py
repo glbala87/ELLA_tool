@@ -126,8 +126,8 @@ def cmd_deposit_custom_annotations(logger, session, custom_annotation_json):
 
 
 @deposit.command("genepanel")
-@click.option("--genepanel_name", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("--genepanel_version", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--genepanel_name", type=str)
+@click.option("--genepanel_version", type=str)
 @click.option("--transcripts_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--phenotypes_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--replace", is_flag=True)
@@ -141,8 +141,8 @@ def cmd_deposit_custom_annotations(logger, session, custom_annotation_json):
 def cmd_deposit_genepanel(
     logger,
     session: Session,
-    genepanel_name: Path,
-    genepanel_version: Path,
+    genepanel_name: str,
+    genepanel_version: str,
     transcripts_path: Path,
     phenotypes_path: Path,
     replace: bool,
