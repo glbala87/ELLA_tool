@@ -64,12 +64,16 @@ _book
 attachments
 errorShots
 images
+local_settings.py
 logs
+
+ella-testdata/
 node_modules
 src/package
 src/webui/build
 src/webui/dest
 src/webui/dev
+vardb-schema.png
 venv
 
 .favorites.json
@@ -78,5 +82,3 @@ venv
 *.pot
 *.pyc
 *~
-local_settings.py
-vardb-schema.png

@@ -2462,7 +2462,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890607-G-T?gp_name=HBOC&gp_version=v01&allele_id=2118'
+                '/workflows/variants/GRCh37/13-32890607-G-T?gp_name=HBOC&gp_version=v01.0&allele_id=2118'
         }
     },
     2119: {
@@ -2778,7 +2778,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890645-GAC-G?gp_name=HBOC&gp_version=v01&allele_id=2119'
+                '/workflows/variants/GRCh37/13-32890645-GAC-G?gp_name=HBOC&gp_version=v01.0&allele_id=2119'
         }
     },
     2120: {
@@ -2950,7 +2950,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890666-T-A?gp_name=HBOC&gp_version=v01&allele_id=2120'
+                '/workflows/variants/GRCh37/13-32890666-T-A?gp_name=HBOC&gp_version=v01.0&allele_id=2120'
         }
     },
     2121: {
@@ -3223,7 +3223,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32893218-A-T?gp_name=HBOC&gp_version=v01&allele_id=2121'
+                '/workflows/variants/GRCh37/13-32893218-A-T?gp_name=HBOC&gp_version=v01.0&allele_id=2121'
         }
     },
     2122: {
@@ -3409,7 +3409,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32893243-G-T?gp_name=HBOC&gp_version=v01&allele_id=2122'
+                '/workflows/variants/GRCh37/13-32893243-G-T?gp_name=HBOC&gp_version=v01.0&allele_id=2122'
         }
     }
 }

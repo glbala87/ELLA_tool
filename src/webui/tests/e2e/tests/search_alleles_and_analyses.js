@@ -83,8 +83,8 @@ describe('Search functionality', function() {
         search.runSearch()
         let analyses = search.getAnalysesForFirstAllele()
         expect(analyses).toEqual([
-            'brca_e2e_test01.HBOCUTV_v01 HTS',
-            'brca_e2e_test02.HBOCUTV_v01 HTS'
+            'brca_e2e_test01.HBOCUTV_v01.0 HTS',
+            'brca_e2e_test02.HBOCUTV_v01.0 HTS'
         ])
     })
 
@@ -93,14 +93,14 @@ describe('Search functionality', function() {
         browser.psql(
             `UPDATE analysis
             SET date_requested = CURRENT_TIMESTAMP - interval '3 weeks'
-            WHERE name = 'brca_e2e_test01.HBOCUTV_v01';`
+            WHERE name = 'brca_e2e_test01.HBOCUTV_v01.0';`
         )
         // check that date_deposited is correctly fallen back to if no date_requested is set
         browser.psql(
             `UPDATE analysis
             SET date_requested = NULL,
                 date_deposited = CURRENT_TIMESTAMP - interval '6 months'
-            WHERE name = 'brca_e2e_test02.HBOCUTV_v01';`
+            WHERE name = 'brca_e2e_test02.HBOCUTV_v01.0';`
         )
         // add review comment
         browser.psql(
@@ -115,7 +115,7 @@ describe('Search functionality', function() {
                     FROM analysisinterpretation AS ai
                     JOIN analysis AS an
                     ON an.id = ai.analysis_id
-                    WHERE name = 'brca_e2e_test03.HBOCUTV_v01'
+                    WHERE name = 'brca_e2e_test03.HBOCUTV_v01.0'
                 ),
                 1,
                 current_timestamp,

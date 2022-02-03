@@ -40,7 +40,7 @@ describe('Sample workflow ', function() {
         overview.selectPending(1)
         analysisPage.startButton.click()
 
-        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_INTERPRETATION)
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01.0' + TITLE_INTERPRETATION)
 
         const numberOfUnclassified = alleleSidebar.countOfUnclassified()
 
@@ -65,7 +65,7 @@ describe('Sample workflow ', function() {
         overview.selectTopReview()
         analysisPage.startButton.click()
 
-        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_REVIEW)
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01.0' + TITLE_REVIEW)
 
         analysisPage.selectSectionClassification()
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified()
@@ -99,7 +99,7 @@ describe('Sample workflow ', function() {
         overview.selectTopMedicalReview()
         analysisPage.startButton.click()
 
-        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_MEDICAL_REVIEW)
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01.0' + TITLE_MEDICAL_REVIEW)
 
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified()
         expect(numberOfClassifiedBefore).toBeGreaterThan(0)
@@ -138,7 +138,7 @@ describe('Sample workflow ', function() {
         overview.selectPending(1) // some variants assessed in another analysis
         analysisPage.startButton.click()
 
-        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01' + TITLE_INTERPRETATION)
+        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01.0' + TITLE_INTERPRETATION)
 
         const numberOfUnclassifiedBefore = alleleSidebar.countOfUnclassified()
         const numberOfClassifiedBefore = alleleSidebar.countOfClassified()
@@ -212,7 +212,7 @@ describe('Sample workflow ', function() {
         overview.selectFinished(2) // List is sorted desc, newest first
 
         // then
-        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01' + TITLE_MEDICAL_REVIEW)
+        expect(analysisPage.title).toBe('brca_e2e_test01.HBOCUTV_v01.0' + TITLE_MEDICAL_REVIEW)
         expect(analysisPage.getRounds().length).toBe(4) // 'Current data' "round" is added at end
 
         const numberOfClassified = alleleSidebar.countOfClassified()
@@ -268,7 +268,7 @@ describe('Sample workflow ', function() {
         overview.open()
         overview.selectFinished(1)
 
-        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01' + TITLE_INTERPRETATION)
+        expect(analysisPage.title).toBe('brca_e2e_test02.HBOCUTV_v01.0' + TITLE_INTERPRETATION)
 
         expect(analysisPage.getRounds().length).toBe(2)
 

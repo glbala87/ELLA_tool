@@ -28,7 +28,7 @@ describe('Import functionality', function() {
 
         importPage.enterCustomGenePanelName('MyPanel')
 
-        importPage.selectGenePanel('HBOCUTV_v01')
+        importPage.selectGenePanel('HBOCUTV_v01.0')
 
         importPage.selectFilterMode('batch')
 
@@ -78,7 +78,7 @@ describe('Import functionality', function() {
         importPage.parseDataButton.click()
         importPage.variantImportButton.click()
         expect(importPage.getActiveImportTitle(1)).toBe(
-            'Create new analysis: TestSample01 (HBOC_v01)'
+            'Create new analysis: TestSample01 (HBOC_v01.0)'
         )
     })
 })
