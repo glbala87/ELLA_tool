@@ -36,6 +36,7 @@ Release date: 19.01.2022
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
+MR !632 Add typing to all of our API endpoints
 -->
 - Fixes and improvements to development environment and code base. 
 
