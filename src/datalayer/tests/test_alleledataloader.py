@@ -2,11 +2,10 @@ from itertools import chain
 from sqlalchemy import or_
 import hypothesis as ht
 import hypothesis.strategies as st
-from vardb.datamodel import annotation, sample, allele, genotype, gene, annotationshadow
+from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
 from conftest import mock_allele
-import pytest
 
 
 def test_get_formatted_genotypes(test_database, session):
