@@ -2,7 +2,7 @@ from itertools import chain
 from sqlalchemy import or_
 import hypothesis as ht
 import hypothesis.strategies as st
-from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
+from vardb.datamodel import annotation, sample, allele, genotype, gene, annotationshadow
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from datalayer import queries
 from conftest import mock_allele
@@ -264,7 +264,6 @@ def test_worse_consequence_warning(test_database, session):
     return
 
 
-@pytest.mark.skip()
 def test_inconsistent_ensembl_transcript(test_database, session):
     test_database.refresh()
     analysis_id = 1
@@ -278,25 +277,26 @@ def test_inconsistent_ensembl_transcript(test_database, session):
     assert "warnings" not in loaded_alleles[0]
 
     # Modify corresponding ensembl transcript to not match genepanel transcript annotation
+
     q = queries.annotation_transcripts_genepanel(
         session, [(genepanel.name, genepanel.version)], allele_ids=[allele.id]
     ).one()
 
-    corr_ensembl = (
-        session.query(gene.Transcript.corresponding_ensembl)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
-        .scalar()
-    )
+    transcript_query = session.query(gene.Transcript).filter(gene.Transcript.id == q.transcript_id)
 
-    # Check mismatching HGVSc
-    ast = (
-        session.query(annotationshadow.AnnotationShadowTranscript)
-        .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == corr_ensembl,
-            annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
-        )
-        .one()
+    transcript = transcript_query.scalar()
+
+    # Find an Ensembl transcript that can act as corresponding_ensembl
+    ast_query = session.query(annotationshadow.AnnotationShadowTranscript).filter(
+        annotationshadow.AnnotationShadowTranscript.transcript.like("ENST%"),
+        annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
+        annotationshadow.AnnotationShadowTranscript.hgnc_id == transcript.gene_id,
     )
+    ast = ast_query.first()
+    assert ast is not None
+
+    # Modify transcript and annotation
+    transcript.corresponding_ensembl = ast.transcript
     ast.hgvsc = "c.xxxxxx"
     session.flush()
 
@@ -311,15 +311,10 @@ def test_inconsistent_ensembl_transcript(test_database, session):
     session.rollback()
 
     # Check mismatching HGVSp
-    ast = (
-        session.query(annotationshadow.AnnotationShadowTranscript)
-        .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == corr_ensembl,
-            annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
-        )
-        .one()
-    )
+    transcript = transcript_query.scalar()
+    ast = ast_query.first()
 
+    transcript.corresponding_ensembl = ast.transcript
     ast.hgvsp = "p.xxxxxx"
     session.flush()
     loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
@@ -334,23 +329,22 @@ def test_inconsistent_ensembl_transcript(test_database, session):
 
     # Check case where refseq is the corresponding transcript
     # Flip refseq/ensembl
-    tx = (
-        session.query(gene.Transcript)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
-        .one()
-    )
+    transcript = transcript_query.scalar()
+    ast = ast_query.first()
 
-    tx.corresponding_refseq = tx.transcript_name
-    tx.transcript_name = tx.corresponding_ensembl
-    tx.type = "Ensembl"
-    tx.corresponding_ensembl = None
+    transcript.corresponding_refseq = transcript.transcript_name
+    transcript.transcript_name = ast.transcript
+    transcript.type = "Ensembl"
+    transcript.corresponding_ensembl = None
 
     session.flush()
 
     ast = (
         session.query(annotationshadow.AnnotationShadowTranscript)
         .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == tx.corresponding_refseq,
+            annotationshadow.AnnotationShadowTranscript.transcript.like(
+                transcript.corresponding_refseq.split(".")[0] + "%"
+            ),
             annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
         )
         .one()
