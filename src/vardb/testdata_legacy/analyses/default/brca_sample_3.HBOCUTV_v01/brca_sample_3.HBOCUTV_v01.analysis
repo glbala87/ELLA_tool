@@ -1,0 +1,9 @@
+{
+    "params": {
+        "genepanel": "HBOCUTV_v01"
+    }, 
+    "name": "brca_sample_3.HBOCUTV_v01", 
+    "samples": [
+        "brca_sample_3"
+    ]
+}

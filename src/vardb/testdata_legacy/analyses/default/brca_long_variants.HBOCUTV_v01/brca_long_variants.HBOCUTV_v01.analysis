@@ -1,0 +1,9 @@
+{
+    "params": {
+        "genepanel": "HBOCUTV_v01"
+    }, 
+    "name": "brca_long_variants.HBOCUTV_v01",
+    "samples": [
+        "brca_long_variants"
+    ]
+}

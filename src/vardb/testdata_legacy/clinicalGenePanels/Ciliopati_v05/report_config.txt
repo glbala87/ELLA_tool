@@ -1,0 +1,14 @@
+[DEFAULT]
+title=Ciliopati
+version=v05
+coverage_threshold=100
+
+[Web publishing - table]
+# The values (not the keys) are printed line by line before the table with genes.
+legend = [
+    "Tabellen er sortert på gennavn (HGNC gensymbol)",
+    "Navn på gen er iht. HGNC",
+    "Sangersekvensering for påvisning av den sykdomsgivende varianten i CEP290 c.2991+1655A>G er utført",
+    "Kolonnen <b>>x10</b> viser andel av genet som vi forventer blir lest med tilfredstillende kvalitet flere enn 10 ganger under sekvensering"
+    ]
+
