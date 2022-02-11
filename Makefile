@@ -366,6 +366,11 @@ review-refresh-ip:
 # Misc. database
 #---------------------------------------------
 
+ci-fetch-testdata:
+	docker run \
+	  $(IMAGE_NAME) \
+	  make fetch-testdata TAG=$(TAG)
+
 fetch-testdata:
 	python /ella/ops/testdata/fetch-testdata.py $(if $(TAG), --tag $(TAG),)
 
