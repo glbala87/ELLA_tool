@@ -10,8 +10,7 @@ from vardb.deposit.importers import AlleleImporter
 
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
 
-TESTDATA_DIR = os.path.join(os.path.split(vardb.__file__)[0], "testdata")
-assert os.path.isdir(TESTDATA_DIR)
+TESTDATA_DIR = "/ella/ella-testdata/testdata"
 
 ANALYSIS = "brca_sample_3"
 GENEPANEL_NAME = "HBOCUTV"

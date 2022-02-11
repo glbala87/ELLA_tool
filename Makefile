@@ -15,7 +15,7 @@ API_PORT ?= 8000-9999
 ELLA_CONFIG ?= /ella/example_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
-TESTSET ?= 'default'
+TESTSET ?=
 HYPOTHESIS_PROFILE ?= 'default'
 
 # e2e test:
@@ -366,11 +366,11 @@ review-refresh-ip:
 # Misc. database
 #---------------------------------------------
 
-dbreset: dbsleep dbresetinner
+fetch-testdata:
+	python /ella/ops/testdata/fetch-testdata.py $(if $(TAG), --tag $(TAG),)
 
-dbresetinner:
-	@echo "Resetting database"
-	DB_URL='postgresql:///postgres' /ella/ops/test/reset_testdata.py --testset ${TESTSET}
+dbreset: fetch-testdata dbsleep
+	python /ella/ops/testdata/reset-testdata.py $(if $(TESTSET),--testset $(TESTSET),)
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
