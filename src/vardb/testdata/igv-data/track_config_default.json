@@ -157,7 +157,8 @@
         "igv": {
             "name": "Uniprot Domains",
             "order": 2
-        }
+        },
+        "description": "Uniprot Domains test description"
     },
     "^ANALYSIS/NA12878\\.bam$": {
         "igv": {
