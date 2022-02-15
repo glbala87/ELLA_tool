@@ -16,10 +16,13 @@ ELLA_TESTDATA_GIT = "git@gitlab.com:alleles/ella-testdata.git"
 
 
 def branch_exists_at_remote(branchname: str):
-    exists = subprocess.check_output(
-        f"git ls-remote {ELLA_TESTDATA_GIT} refs/heads/{branchname}".split()
-    )
-    return bool(exists)
+    try:
+        subprocess.check_call(
+            f"git ls-remote --exit-code {ELLA_TESTDATA_GIT} refs/heads/{branchname}".split()
+        )
+        return True
+    except:
+        return False
 
 
 def clone(branchname: str, full_clone: bool):
