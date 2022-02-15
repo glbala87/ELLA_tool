@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 import gzip
 import logging
 import os
