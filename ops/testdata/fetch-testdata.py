@@ -12,13 +12,20 @@ logger = logging.getLogger(__file__)
 
 ROOT = Path(__file__).parent.parent.parent.absolute()
 TESTDATA_FOLDER = ROOT / "ella-testdata"
-ELLA_TESTDATA_GIT = "git@gitlab.com:alleles/ella-testdata.git"
+
+
+try:
+    ELLA_TESTDATA_URL = "git@gitlab.com:alleles/ella-testdata.git"
+    subprocess.check_call(f"git ls-remote {ELLA_TESTDATA_URL} HEAD".split())
+except:
+    logger.info("Could not access repo over git+ssh. Falling back to https.")
+    ELLA_TESTDATA_URL = "https://gitlab.com/alleles/ella-testdata"
 
 
 def branch_exists_at_remote(branchname: str):
     try:
         subprocess.check_call(
-            f"git ls-remote --exit-code {ELLA_TESTDATA_GIT} refs/heads/{branchname}".split()
+            f"git ls-remote --exit-code {ELLA_TESTDATA_URL} refs/heads/{branchname}".split()
         )
         return True
     except:
@@ -27,7 +34,7 @@ def branch_exists_at_remote(branchname: str):
 
 def clone(branchname: str, full_clone: bool):
     subprocess.check_call(
-        f"git -C {ROOT} clone --branch {branchname} {'' if full_clone else '--depth 1'} {ELLA_TESTDATA_GIT}".split()
+        f"git -C {ROOT} clone --branch {branchname} {'' if full_clone else '--depth 1'} {ELLA_TESTDATA_URL}".split()
     )
 
 
