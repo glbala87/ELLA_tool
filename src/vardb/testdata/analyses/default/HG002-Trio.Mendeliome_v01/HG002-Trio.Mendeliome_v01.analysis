@@ -4,7 +4,7 @@
     "genepanel_version": "v01",
     "data": [
         {
-            "vcf": "HG002-Trio.Mendeliome_v01.vcf",
+            "vcf": "HG002-Trio.Mendeliome_v01.vcf.gz",
             "ped": "HG002-Trio.Mendeliome_v01.ped",
             "technology": "HTS",
             "callerName": "GATK 3.3.0"

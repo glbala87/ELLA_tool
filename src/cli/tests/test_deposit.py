@@ -4,7 +4,7 @@ from vardb.datamodel import sample, assessment, gene, user
 
 TESTDATA = os.environ["TESTDATA"]
 VCF = os.path.join(
-    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf"
+    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf.gz"
 )
 
 
@@ -18,9 +18,7 @@ def test_deposit_analysis(session, run_command):
     result = run_command(["deposit", "analysis", VCF])
     assert result.exit_code == 0
 
-    session.query(sample.Analysis).filter(
-        sample.Analysis.name == os.path.splitext(os.path.basename(VCF))[0]
-    ).one()
+    session.query(sample.Analysis).filter(sample.Analysis.name == "brca_sample_3.HBOCUTV_v01").one()
 
 
 def test_deposit_alleles(session, run_command):

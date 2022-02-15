@@ -127,7 +127,7 @@ ANALYSES = [
 
 ALLELES = [
     AlleleInfo(
-        "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf",
+        "../testdata/analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf.gz",
         ("HBOC", "v01"),
     ),
 ]
