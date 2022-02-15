@@ -1,9 +1,7 @@
-import os
 import pytest
 import subprocess
 
 from sqlalchemy import tuple_
-import vardb
 from api.polling import AnnotationJobsInterface
 from vardb.datamodel import sample, annotationjob, allele, genotype
 from vardb.deposit.importers import AlleleImporter
