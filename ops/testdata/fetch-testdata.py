@@ -16,9 +16,9 @@ TESTDATA_FOLDER = ROOT / "ella-testdata"
 
 try:
     ELLA_TESTDATA_URL = "git@gitlab.com:alleles/ella-testdata.git"
-    subprocess.check_call(f"git ls-remote {ELLA_TESTDATA_URL} HEAD".split())
+    subprocess.check_call(f"git ls-remote --exit-code {ELLA_TESTDATA_URL} HEAD".split())
 except:
-    logger.info("Could not access repo over git+ssh. Falling back to https.")
+    logger.info("Could not access repo with git protocol. Falling back to https.")
     ELLA_TESTDATA_URL = "https://gitlab.com/alleles/ella-testdata"
 
 

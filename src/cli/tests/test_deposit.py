@@ -36,7 +36,7 @@ def test_deposit_references(session, run_command):
     run_command(["database", "make", "-f"])
 
     assert not session.query(assessment.Reference).count()
-    references = os.path.join(TESTDATA, "references_test.json")
+    references = os.path.join(TESTDATA, "fixtures/references.json")
     result = run_command(["deposit", "references", references])
     assert result.exit_code == 0
     assert session.query(assessment.Reference).count() == len(open(references, "r").readlines())

@@ -13,7 +13,7 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 
 yellow "Deposit and create dump of testdata"
 createdb e2e-tmp
-DB_URL='postgresql:///e2e-tmp' /ella/ops/testdata/reset_testdata.py --testset e2e
+DB_URL='postgresql:///e2e-tmp' python /ella/ops/testdata/reset-testdata.py --testset e2e
 pg_dump e2e-tmp --no-owner >/ella/e2e-test-dump.sql
 dropdb e2e-tmp
 

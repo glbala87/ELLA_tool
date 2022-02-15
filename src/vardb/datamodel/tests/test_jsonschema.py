@@ -12,7 +12,7 @@ def filterconfig_schema():
 
 
 def _filterconfig():
-    with open("/ella/src/vardb/testdata/filterconfigs.json") as f:
+    with open("/ella/ella-testdata/testdata/fixtures/filterconfigs.json") as f:
         fc = json.load(f)
     return fc
 

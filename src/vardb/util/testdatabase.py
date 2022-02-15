@@ -16,7 +16,6 @@ class TestDatabase(object):
         # which prevents us from dropping/creating database
         db.disconnect()
         db.connect(engine_kwargs={"poolclass": NullPool})
-        subprocess.check_call("python /ella/ops/testdata/fetch-testdata.py".split())
         if not self.database_exists(self.db_name + "-template"):
             self.create_dump()
 
