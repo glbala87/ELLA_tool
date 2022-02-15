@@ -91,6 +91,7 @@ stages:
     before_script:
         - *apk-setup
         - *docker-load
+        - make ci-fetch-testdata
     needs: ['build']
     cache:
         <<: *cache-pull
