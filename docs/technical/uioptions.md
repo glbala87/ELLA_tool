@@ -150,6 +150,7 @@ Field | Description | Values
 `show` | Define whether the track should belong to the `Default` preset, which is turned on by default when loading VISUAL for a new analysis (all other tracks are turned off and must be switched on manually). | `true`/`false`
 `type` | When `roi`, the track will be displayed as a [region of interest](https://github.com/igvteam/igv.js/wiki/Regions-of-Interest) (e.g. useful for marking the region of a variant). | `roi`/`null`
 `url` | A template URL to retrieve the track. The URL will be used for igv.js (`igv.url`) | [URL template]
+`description` | Track description, shown when hovering over the track selector button. | See [Track selection](https://allel.es/docs/manual/visual.html#track-selection)
 `igv` | Supports all the configuration values of igv.js. The value for `name` will be the track's ID, if not set explicitly. | See [igv.js Tracks 2.0](https://github.com/igvteam/igv.js/wiki/Tracks-2.0)
 
 ### Auto-text in REPORT

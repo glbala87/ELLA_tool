@@ -24,6 +24,8 @@ This section lists all presets defined for individual tracks and allows you to q
 
 This section is collapsed by default. To switch on/off individual tracks, expand the section and click the associated track name. Tracks are grouped by their associated preset names. 
 
+To see a description of the track, hold the mouse pointer over the associated track button. 
+
 ### Dynamic tracks 
 
 Some tracks are dynamic and generated on-the-fly in ELLA. These currently include: 

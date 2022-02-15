@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17
 
-Release date: 19.01.2022
+Release date: TBD
 
 ### Highlights
 
@@ -33,6 +33,8 @@ Release date: 19.01.2022
 - Fixed a bug causing a reset of analysis names whens clicking import options for batch imports.
 <!-- MR !691 -->
 - Fixed a bug causing analysis to fail loading  when PL values for de novo calculation is very high.
+<!-- MR !695 -->
+- Added track description in mouseover for track selector buttons in VISUAL.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
