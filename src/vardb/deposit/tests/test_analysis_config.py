@@ -43,6 +43,7 @@ def create_file(folder, name, contents=None):
     st.booleans(),
     st.one_of(st.just(None), st.integers(min_value=1, max_value=3)),
     st.one_of(st.just(None), st.dates()),
+    st.one_of(st.just(".vcf"), st.just(".vcf.gz")),
 )
 def test_legacy_analysis_file(
     filename_stem,
@@ -54,6 +55,7 @@ def test_legacy_analysis_file(
     has_report,
     priority,
     date_requested,
+    vcf_suffix,
 ):
 
     legacy_analysis_file = {
@@ -69,7 +71,7 @@ def test_legacy_analysis_file(
         analysis_file = create_file(
             d, filename_stem + ".analysis", json.dumps(legacy_analysis_file)
         )
-        create_file(d, filename_stem + ".vcf")
+        create_file(d, filename_stem + vcf_suffix)
         if has_ped:
             create_file(d, filename_stem + ".ped")
 
@@ -90,7 +92,7 @@ def test_legacy_analysis_file(
         "priority": 1 if priority is None else priority,
         "data": [
             {
-                "vcf": str(d / (filename_stem + ".vcf")),
+                "vcf": str(d / (filename_stem + vcf_suffix)),
                 "ped": str(d / (filename_stem + ".ped")) if has_ped else None,
                 "technology": "HTS",
             }
@@ -115,10 +117,7 @@ def test_legacy_analysis_file(
         ),
         min_size=1,
     ),
-    st.booleans(),
-    st.booleans(),
-    st.one_of(st.just(None), st.integers(min_value=1, max_value=3)),
-    st.one_of(st.just(None), st.dates()),
+    st.one_of(st.just(".vcf"), st.just(".vcf.gz")),
 )
 def test_analysis_file(
     filename_stem,
@@ -126,10 +125,7 @@ def test_analysis_file(
     genepanel_name,
     genepanel_version,
     data,
-    has_warnings,
-    has_report,
-    priority,
-    date_requested,
+    vcf_suffix,
 ):
     analysis_file_contents = {
         "name": analysis_name,
@@ -139,8 +135,8 @@ def test_analysis_file(
     }
     with temporary_directory() as d:
         for i, (has_ped, technology, caller) in enumerate(data):
-            entry = {"vcf": f"vcf_file{i}.vcf"}
-            create_file(d, f"vcf_file{i}.vcf")
+            entry = {"vcf": f"vcf_file{i}" + vcf_suffix}
+            create_file(d, f"vcf_file{i}" + vcf_suffix)
             if has_ped:
                 create_file(d, f"ped_file{i}.ped")
                 entry["ped"] = f"ped_file{i}.ped"
@@ -189,7 +185,7 @@ def test_from_vcf(sample_name, genepanel_name, genepanel_version, sep1, sep2):
     analysis_name = f"{sample_name}{sep1}{genepanel_name}{sep2}{genepanel_version}"
 
     with temporary_directory() as d:
-        f = create_file(d, f"{analysis_name}.vcf")
+        f = create_file(d, f"{analysis_name}.vcf.gz")
         create_file(d, "warnings.txt", "Some warnings that are ignored")
         create_file(d, "report.txt", "Some report that's ignored")
         acd = AnalysisConfigData(f)
@@ -215,6 +211,7 @@ def test_from_vcf(sample_name, genepanel_name, genepanel_version, sep1, sep2):
     st.booleans(),
     st.booleans(),
     st.lists(st.booleans(), min_size=1),
+    st.one_of(st.just(".vcf"), st.just(".vcf.gz")),
 )
 def test_from_folder(
     sample_name,
@@ -225,13 +222,14 @@ def test_from_folder(
     has_warnings,
     has_report,
     vcf_with_ped_file,
+    vcf_suffix,
 ):
     analysis_name = f"{sample_name}{sep1}{genepanel_name}{sep2}{genepanel_version}"
 
     with temporary_directory(analysis_name) as d:
         expected_data = []
         for i, with_ped in enumerate(vcf_with_ped_file):
-            vcf = str(create_file(d, f"file{i}.vcf"))
+            vcf = str(create_file(d, f"file{i}" + vcf_suffix))
             if with_ped:
                 ped = str(create_file(d, f"file{i}.ped"))
             else:
