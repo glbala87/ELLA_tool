@@ -368,6 +368,7 @@ review-refresh-ip:
 
 ci-fetch-testdata:
 	docker run \
+	  -v $(shell pwd):/ella \
 	  $(IMAGE_NAME) \
 	  make fetch-testdata TAG=$(TAG)
 
