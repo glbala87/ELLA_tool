@@ -32,9 +32,11 @@ Release date: TBD
 <!-- MR !688 -->
 - Fixed a bug causing a reset of analysis names whens clicking import options for batch imports.
 <!-- MR !691 -->
-- Fixed a bug causing analysis to fail loading  when PL values for de novo calculation is very high.
+- Fixed a bug causing analysis to fail loading when PL values for de novo calculation is very high.
 <!-- MR !695 -->
 - Added track description in mouseover for track selector buttons in VISUAL.
+<!-- MR !696 -->
+- Added support for bgzipped VCF files.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
