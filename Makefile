@@ -12,7 +12,7 @@ export IMAGE_NAME ?= local/ella-${BRANCH}:latest
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 
-ELLA_CONFIG ?= /ella/example_config.yml
+ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
 ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
 TESTSET ?=
@@ -493,6 +493,9 @@ test-e2e:
 	   --user ${UID}:${GID} \
 	   -v $(shell pwd)/errorShots:/ella/errorShots \
 	   -v $(shell pwd)/logs:/logs \
+	   -v $(shell pwd)/.git:/ella/.git \
+	   -v $(shell pwd)/ella-testdata:/ella/ella-testdata \
+	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
 	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
 	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
 	   -e NUM_PROCS=${PARALLEL_INSTANCES} \
