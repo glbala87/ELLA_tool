@@ -14,7 +14,7 @@ API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
-ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
+ATTACHMENT_STORAGE ?= '/ella/ella-testdata/testdata/attachments/'
 TESTSET ?=
 HYPOTHESIS_PROFILE ?= 'default'
 
@@ -496,9 +496,9 @@ test-e2e:
 	   -v $(shell pwd)/.git:/ella/.git \
 	   -v $(shell pwd)/ella-testdata:/ella/ella-testdata \
 	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-	   -e NUM_PROCS=${PARALLEL_INSTANCES} \
+	   -e ANALYSES_PATH=/ella/ella-testdata/testdata/analyses/e2e/ \
+	   -e IGV_DATA="/ella/ella-testdata/testdata/igv-data/" \
+	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
 	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
 	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
 	   -e PRODUCTION=false \
@@ -526,9 +526,9 @@ e2e-test-local: test-build
 	   --user ${UID}:${GID} \
        -it \
        -v $(shell pwd):/ella \
-	   -e ELLA_CONFIG=${ELLA_CONFIG} \
-	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
+	   -e ANALYSES_PATH=/ella/ella-testdata/testdata/analyses/e2e/ \
+	   -e IGV_DATA="/ella/ella-testdata/testdata/igv-data/" \
 	   -e PRODUCTION=false \
 	   -e ENABLE_CNV=true \
 	   -e DB_URL=postgresql:///postgres \
