@@ -123,7 +123,7 @@ class AnalysisConfigData(dict):
         elif (
             folder_or_file.is_file()
             and folder_or_file.suffix == ".vcf"
-            or str(folder_or_file).endswith(".vcf.gz")
+            or folder_or_file.suffixes[-2:] == [".vcf", ".gz"]
         ):
             self._root = folder_or_file.parent
             self._init_from_vcf(folder_or_file)
