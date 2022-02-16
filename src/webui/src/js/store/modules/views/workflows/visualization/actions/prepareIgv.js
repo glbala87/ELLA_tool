@@ -17,6 +17,7 @@ export default async function prepareIgv({ state, http }) {
         const finalizedTrack = {
             selected: 'show' in trackConfig ? Boolean(trackConfig.show) : false,
             igv: 'igv' in trackConfig ? trackConfig.igv : {},
+            description: 'description' in trackConfig ? trackConfig.description : null,
             type: 'type' in trackConfig ? trackConfig.type : null,
             presets: 'presets' in trackConfig ? trackConfig.presets : []
         }
