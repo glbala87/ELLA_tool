@@ -120,10 +120,8 @@ class AnalysisConfigData(dict):
             self._init_from_folder(folder_or_file)
             self["warnings"] = self.__load_file(self._root / "warnings.txt")
             self["report"] = self.__load_file(self._root / "report.txt")
-        elif (
-            folder_or_file.is_file()
-            and folder_or_file.suffix == ".vcf"
-            or folder_or_file.suffixes[-2:] == [".vcf", ".gz"]
+        elif folder_or_file.is_file() and (
+            folder_or_file.suffix == ".vcf" or folder_or_file.suffixes[-2:] == [".vcf", ".gz"]
         ):
             self._root = folder_or_file.parent
             self._init_from_vcf(folder_or_file)
