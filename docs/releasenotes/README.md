@@ -6,26 +6,19 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.17](#version-1-17)|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
-## Version 1.17
+## Version 1.16.3
 
 Release date: TBD
 
 ### Highlights
 
-#### Support for new gene panel builder
-
-...
-
-### :small_red_triangle: Breaking changes
-
-...
+This is a bugfix release.
 
 ### All changes
 
@@ -41,6 +34,7 @@ Release date: TBD
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
 MR !632 Add typing to all of our API endpoints
+MR !697 filterconfig callertype schema doesn't catch miscased values
 -->
 - Fixes and improvements to development environment and code base. 
 
