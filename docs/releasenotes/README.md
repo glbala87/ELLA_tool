@@ -14,7 +14,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.16.3
 
-Release date: TBD
+Release date: 02.03.2022
 
 ### Highlights
 
@@ -22,19 +22,20 @@ This is a bugfix release.
 
 ### All changes
 
+<!-- MR !695 -->
+- Added track description in mouseover for track selector buttons in VISUAL.
+<!-- MR !698 -->
+- Upgraded IGV.js in VISUAL to [v2.10.5](https://github.com/igvteam/igv.js/releases/tag/v2.10.5). This includes some bugfixes and adds the option "colour alignments by insert size and pair orientation".
+<!-- MR !696 -->
+- Added support for bgzipped VCF files.
 <!-- MR !688 -->
 - Fixed a bug causing a reset of analysis names whens clicking import options for batch imports.
 <!-- MR !691 -->
 - Fixed a bug causing analysis to fail loading when PL values for de novo calculation is very high.
-<!-- MR !695 -->
-- Added track description in mouseover for track selector buttons in VISUAL.
-<!-- MR !696 -->
-- Added support for bgzipped VCF files.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !683 Fix review app / demo functionality
 MR !632 Add typing to all of our API endpoints
-MR !697 filterconfig callertype schema doesn't catch miscased values
 -->
 - Fixes and improvements to development environment and code base. 
 
