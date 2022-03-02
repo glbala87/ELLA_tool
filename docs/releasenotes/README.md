@@ -18,18 +18,18 @@ Release date: 02.03.2022
 
 ### Highlights
 
-This is a bugfix release.
+This is a minor release with a few bugfixes, but also includes an upgraded IGV and track descriptions available as a mouseover on the track selection buttons in VISUAL.
 
 ### All changes
 
 <!-- MR !695 -->
-- Added track description in mouseover for track selector buttons in VISUAL.
+- Added track description in mouseover for track selection buttons in VISUAL.
 <!-- MR !698 -->
 - Upgraded IGV.js in VISUAL to [v2.10.5](https://github.com/igvteam/igv.js/releases/tag/v2.10.5). This includes some bugfixes and adds the option "colour alignments by insert size and pair orientation".
 <!-- MR !696 -->
 - Added support for bgzipped VCF files.
 <!-- MR !688 -->
-- Fixed a bug causing a reset of analysis names whens clicking import options for batch imports.
+- Fixed a bug causing a reset of analysis names when clicking import options for batch imports.
 <!-- MR !691 -->
 - Fixed a bug causing analysis to fail loading when PL values for de novo calculation is very high.
 <!-- 
