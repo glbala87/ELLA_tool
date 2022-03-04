@@ -37,11 +37,13 @@ def unannotated_vcf():
 
 @pytest.fixture(scope="session")
 def annotated_vcf():
-    filename = "{}.{}_{}.vcf".format(ANALYSIS, GENEPANEL_NAME, GENEPANEL_VERSION)
+    filename = "{}.{}_{}.vcf.gz".format(ANALYSIS, GENEPANEL_NAME, GENEPANEL_VERSION)
     full_path = subprocess.check_output(
         "find %s -type f -name %s" % (TESTDATA_DIR, filename), shell=True
     ).strip()
-    with open(full_path, "r") as f:
+    import gzip
+
+    with gzip.open(full_path, "rt") as f:
         vcf = f.read()
     return vcf
 

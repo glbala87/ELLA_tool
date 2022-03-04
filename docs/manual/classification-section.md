@@ -32,6 +32,10 @@ Note that changes to the variant classification/evaluation and report fields are
 
 <div class="figure"><img src="./img/variant_history.png"></div>
 
+::: tip TIP
+You can also view the history for a previously finished analysis (either finished workflow step or finalized) with all included variant interpretations; see [Analysis history](/manual/top-bar.html#analysis-history).
+:::
+
 ### Interpretations that are still valid
 
 Previously finalized variant interpretations have a limited time period where they are still considered valid, and can be re-used without further evaluation. These variants are grouped with CLASSIFIED VARIANTS in the [side bar](/manual/side-bar.html#side-bar-sections). 

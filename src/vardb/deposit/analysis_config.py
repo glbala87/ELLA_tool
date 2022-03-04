@@ -120,7 +120,9 @@ class AnalysisConfigData(dict):
             self._init_from_folder(folder_or_file)
             self["warnings"] = self.__load_file(self._root / "warnings.txt")
             self["report"] = self.__load_file(self._root / "report.txt")
-        elif folder_or_file.is_file() and folder_or_file.suffix == ".vcf":
+        elif folder_or_file.is_file() and (
+            folder_or_file.suffix == ".vcf" or folder_or_file.suffixes[-2:] == [".vcf", ".gz"]
+        ):
             self._root = folder_or_file.parent
             self._init_from_vcf(folder_or_file)
         elif folder_or_file.is_file() and folder_or_file.suffix == ".analysis":
@@ -172,11 +174,12 @@ class AnalysisConfigData(dict):
     def _init_from_legacy_analysis_file(self, filename):
         with open(filename, "r") as f:
             legacy = json.load(f)
+
         d = {
             "name": legacy["name"],
             "genepanel_name": legacy["params"]["genepanel"].split("_")[0],
             "genepanel_version": legacy["params"]["genepanel"].split("_")[1],
-            "data": [{"vcf": filename.stem + ".vcf"}],
+            "data": [{"vcf": next(filename.parent.glob(filename.stem + ".vcf*")).name}],
         }
 
         if filename.absolute().with_suffix(".ped").is_file():
@@ -223,13 +226,14 @@ class AnalysisConfigData(dict):
             return self._init_from_analysis_file(folder / analysis_files[0])
         else:
             matches = re.match(FOLDER_FIELDS_RE, folder.name)
-            vcfs = sorted([p for p in folder.rglob("*.vcf")])
+            vcfs = sorted([p for p in folder.rglob("*.vcf*")])
             peds = [p for p in folder.rglob("*.ped")]
             assert len(vcfs) >= 1, "Unable to find vcf-file in folder"
 
             # Match vcfs with peds on filename stem
             vcf_peds = [
-                (vcf, next((ped for ped in peds if ped.stem == vcf.stem), None)) for vcf in vcfs
+                (vcf, next((ped for ped in peds if ped.stem == vcf.stem.split(".")[0]), None))
+                for vcf in vcfs
             ]
             self.update(
                 {

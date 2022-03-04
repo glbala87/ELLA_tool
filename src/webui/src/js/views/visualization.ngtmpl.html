@@ -30,6 +30,11 @@
                         ng-change="$ctrl.shownTracksChanged({tracksToUpdate: [{trackId: trackId, show: !$ctrl.tracks[trackId].selected}]})"
                         uib-btn-checkbox="track.data"
                         ng-repeat="trackId in trackIdsByPreset"
+                        ng-attr-tippy-title="{{
+                            $ctrl.tracks[trackId].description
+                                ? $ctrl.tracks[trackId].description
+                                : $ctrl.tracks[trackId].igv.name
+                        }}"
                         >{{ $ctrl.tracks[trackId].igv.name }}</label
                     >
                 </div>

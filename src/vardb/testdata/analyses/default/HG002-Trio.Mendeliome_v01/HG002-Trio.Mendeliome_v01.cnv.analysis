@@ -4,13 +4,13 @@
     "genepanel_version": "v01",
     "data": [
         {
-            "vcf": "HG002-Trio.Mendeliome_v01.vcf",
+            "vcf": "HG002-Trio.Mendeliome_v01.vcf.gz",
             "ped": "HG002-Trio.Mendeliome_v01.ped",
             "technology": "HTS",
             "callerName": "GATK 3.3.0"
         },
         {
-          "vcf": "HG002_sv_cnv.Mendeliome_v01.vcf",
+          "vcf": "HG002_sv_cnv.Mendeliome_v01.vcf.gz",
           "technology": "HTS",
           "callerName": "Manta, Delly, Tiddit, CNVnator"
         }
