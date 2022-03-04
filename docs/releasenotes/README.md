@@ -6,13 +6,37 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
-[v1.13](#version-1-13)|[v1.13.1](#version-1-13-1), [v1.13.2](#version-1-13-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.16.3
+
+Release date: 02.03.2022
+
+### Highlights
+
+This is a minor release with a few bugfixes, but also includes an upgraded IGV and track descriptions available as a mouseover on the track selection buttons in VISUAL.
+
+### All changes
+
+<!-- MR !695 -->
+- Added track description in mouseover for track selection buttons in VISUAL.
+<!-- MR !698 -->
+- Upgraded IGV.js in VISUAL to [v2.10.5](https://github.com/igvteam/igv.js/releases/tag/v2.10.5). This includes some bugfixes and adds the option "colour alignments by insert size and pair orientation".
+<!-- MR !696 -->
+- Added support for bgzipped VCF files.
+<!-- MR !688 -->
+- Fixed a bug causing a reset of analysis names when clicking import options for batch imports.
+<!-- MR !691 -->
+- Fixed a bug causing analysis to fail loading when PL values for de novo calculation is very high.
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !683 Fix review app / demo functionality
+-->
+- Fixes and improvements to development environment and code base. 
 
 ## Version 1.16.2
 
@@ -332,86 +356,4 @@ MR !534 Add typing stubs
 MR !548 Minor fixes
 MR !549 Load tracks in cerebral to avoid JS promises in watch. Remove duplicate tracks with AngularJS watch.
 -->
-- Fixes and improvements to development environment and code base. 
-
-## Version 1.13.2
-
-Release date: 19.05.2021
-
-### Highlights
-
-This release changes thresholds for verification warnings and adds a few other tweaks and bugfixes.
-
-### All changes
-
-<!-- MR !526-->
-- Thresholds for the ["Needs verification" warning](/manual/evidence-sections.html#warning-needs-verification) was adjusted to depth <20 (was ≤20) and allele ratio (heterozygous) ≤0.3 or ≥0.7 (was ≥0.6).
-<!-- MR !527 -->
-- Disallow spaces and underscores in custom gene panel names when [ordering reanalyses](/manual/data-import-reanalyses.html#use-custom-gene-panel) in the IMPORT module.
-<!-- MR !523 -->
-- Fixed a bug causing de novo likelihood calculation to fail in certain instances.
-<!-- MR !528 -->
-- Fixed a bug causing missing source information for studies and references.
-
-## Version 1.13.1
-
-Release date: 16.04.2021
-
-### Highlights
-
-This release adds a single bugfix.
-
-### All changes
-
-<!-- MR !517 -->
-- Fixed a bug causing excessive load on backend.
-
-## Version 1.13
-
-Release date: 09.04.2021
-
-### Highlights
-
-This release brings several improvements to variant filtering rules, as well as a number of smaller fixes.
-
-#### Improvements to variant filters in ELLA
-
-It is now possible to configure the [Classification filter](/technical/filtering.html#classification-filter) to only consider classifications that are still valid. With this option enabled it is possible to define that e.g.  class 1 and class 2 variants should be filtered only if they have a classification that is still valid (not outdated).
-
-#### Improvements to pre-filters
-
-The [pre-filters](/technical/filtering.html#pre-filter-before-import) (applied before import of variants into ELLA) are now configurable and has the added option of pre-filtering variants with low mapping quality (MQ<20). This latter option is relevant e.g. for variants called with Dragen-GATK, which unlike GATK does not automatically exclude variants with a low MQ. 
-
-#### Upgraded IGV in VISUAL
-
-`IGV.js` on the VISUAL page has been upgraded to [v2.7.9](https://github.com/igvteam/igv.js/releases/tag/v2.7.9). For ELLA users, this fixes a few bugs, but also brings new view mode options: Click the cog wheel to the right of a track to switch between "expand" (default), "squish" or "collapse" display modes (available options depend on track type).  
-
-### :small_red_triangle: Breaking changes
-
-With the [improvements to pre-filters](#improvements-to-pre-filters), the configuration in `usergroups.json` must be updated. The equivalent to the previous
-`"prefilter" = True` is now `"prefilter": [["hi_frequency", "no_nearby_variant", "no_classification", "not_multiallelic"]]`. See [pre-filters](/technical/filtering.html#pre-filter-before-import) for further details.
-
-### All changes
-
-<!-- MR !508 -->
-- [Added possibility for excluding outdated classifications in the Classification filter](#improvements-to-variant-filters-in-ella).
-<!-- MR !509 -->
-- [Added configurability and options for pre-filters](#improvements-to-pre-filters). 
-<!-- MR !506 -->
-- [`IGV.js` has been upgraded to v2.7.9](#upgraded-igv-in-visual).
-<!-- MR !510 -->
-- Tweaked front-end error reporting to reduce number of "An error occurred ..." messages displayed to users.
-<!-- MR !497 -->
-- Replaced custom vcf parser with [cyvcf2](https://github.com/brentp/cyvcf2).
-<!-- MR !511 -->
-- Added blacklist option in the [analysis watcher](/technical/import.html#analysis-watcher-for-automated-import), allowing exclusion of specific analyses during automated import.
-<!-- 
-No further release notes necessary, but adding here for reference: 
-MR !505 Create upload release artifacts
-MR !496 Split references from annotation in database
-MR !498 Fixes for running local demo instances
-MR !512 Update testdata
-MR !513 Update black, and run black on code base
-MR !514 Fix memory issue in migration script. Reorder migrations.
--->
-- Several fixes and improvements to development environment and code base. 
+- Fixes and improvements to development environment and code base.
