@@ -6,11 +6,24 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.16.4
+
+Release date: 08.03.2022
+
+### Highlights
+
+This is a bugfix release.
+
+### All changes
+
+<!-- MR !700 -->
+- Upgraded IGV.js in VISUAL to [v2.11.0](https://github.com/igvteam/igv.js/releases/tag/v2.11.0, using a [temporary fork](https://github.com/ousamg/igv.js) with additional bugfixes that remove excessive error messages in VISUAL.
 
 ## Version 1.16.3
 

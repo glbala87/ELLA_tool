@@ -75,8 +75,8 @@ class TrackTypeRoi extends TrackType {
         var defaults = {
             showNavigation: true,
             showRuler: true,
-            showCenterGuide: true,
             showCursorTrackingGuide: true,
+            showSVGButton: false,
             doubleClickDelay: 300,
             minimumBases: 50,
             promisified: true,
