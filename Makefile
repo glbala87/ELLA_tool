@@ -370,10 +370,10 @@ ci-fetch-testdata:
 	docker run \
 	  -v $(shell pwd):/ella \
 	  $(IMAGE_NAME) \
-	  make fetch-testdata TAG=$(TAG)
+	  make fetch-testdata REF=$(REF)
 
 fetch-testdata:
-	python /ella/ops/testdata/fetch-testdata.py $(if $(TAG), --tag $(TAG),)
+	python ./ops/testdata/fetch-testdata.py $(if $(REF), --ref $(REF),)
 
 dbreset: fetch-testdata dbsleep
 	python /ella/ops/testdata/reset-testdata.py $(if $(TESTSET),--testset $(TESTSET),)

@@ -1,77 +1,83 @@
-from argparse import ArgumentParser
-import shutil
-import subprocess
-from pathlib import Path
-import sys
+import argparse
 import logging
+from argparse import ArgumentParser
+from pathlib import Path
+from typing import Optional
+
+from git import Repository, RefType
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
+logging.getLogger("root").setLevel(logging.DEBUG)
 
-ROOT = Path(__file__).parent.parent.parent.absolute()
+DEFAULT_BRANCH = "master"
+ROOT = Path(__file__).absolute().parents[2]
 TESTDATA_FOLDER = ROOT / "ella-testdata"
+ELLA_TESTDATA_URL_GIT = "git@gitlab.com:alleles/ella-testdata.git"
+ELLA_TESTDATA_URL_HTTPS = "https://gitlab.com/alleles/ella-testdata"
 
 
-try:
-    ELLA_TESTDATA_URL = "git@gitlab.com:alleles/ella-testdata.git"
-    subprocess.check_call(f"git ls-remote --exit-code {ELLA_TESTDATA_URL} HEAD".split())
-except:
-    logger.info("Could not access repo with git protocol. Falling back to https.")
-    ELLA_TESTDATA_URL = "https://gitlab.com/alleles/ella-testdata"
+class Args(argparse.Namespace):
+    force: bool
+    ref: Optional[str]
+    full: bool
 
 
-def branch_exists_at_remote(branchname: str):
-    try:
-        subprocess.check_call(
-            f"git ls-remote --exit-code {ELLA_TESTDATA_URL} refs/heads/{branchname}".split()
-        )
-        return True
-    except:
-        return False
-
-
-def clone(branchname: str, full_clone: bool):
-    subprocess.check_call(
-        f"git -C {ROOT} clone --branch {branchname} {'' if full_clone else '--depth 1'} {ELLA_TESTDATA_URL}".split()
-    )
-
-
-def checkout_branch(branchname: str):
-    subprocess.check_call(f"git -C {TESTDATA_FOLDER} checkout --detach {branchname}".split())
-
-
-def main():
+def main(repo_dir: Path, remote_url: str):
     parser = ArgumentParser()
     parser.add_argument(
-        "-f", default=False, action="store_true", help="Remove testdata before refetching"
+        "--force",
+        "-f",
+        default=False,
+        action="store_true",
+        help="Remove testdata before refetching",
     )
-    parser.add_argument("--tag", help="Specific tag, sha or branch to fetch")
+    parser.add_argument("--ref", help="Specific tag, sha or branch to fetch")
     parser.add_argument("--full", default=False, action="store_true", help="Clone full repository")
-    args = parser.parse_args()
-    if args.f:
-        if len(sys.argv) > 1 and sys.argv[1] == "-f" and TESTDATA_FOLDER.exists():
-            shutil.rmtree(TESTDATA_FOLDER)
+    args = parser.parse_args(namespace=Args)
+    data_repo = Repository(repo_dir, remote_url)
 
     # Get current branch name
-    if args.tag is None:
-        branchname = (
-            subprocess.check_output("git rev-parse --abbrev-ref HEAD".split()).decode().strip("\n")
-        )
+    detached = False
+    if args.ref:
+        ref_type = data_repo.ref_type(args.ref)
+        if ref_type is RefType.NOT_FOUND:
+            raise ValueError(
+                f"Ref '{args.ref}' is invalid / not found at remote {data_repo.remote_url}"
+            )
+        elif ref_type is not RefType.BRANCH:
+            detached = True
+        target_ref = args.ref
+    elif data_repo.repo_dir.exists():
+        target_ref = data_repo.branchname
     else:
-        if not branch_exists_at_remote(args.tag):
-            raise RuntimeError(f"Ref {args.tag} not found at remote")
-        branchname = args.tag
+        target_ref = DEFAULT_BRANCH
 
-    if not TESTDATA_FOLDER.exists():
-        if branch_exists_at_remote(branchname):
-            clone(branchname, args.full)
-        else:
-            clone("master", args.full)
+    if args.full:
+        depth = None
+    else:
+        depth = 1
+
+    if not data_repo.repo_dir.exists() or args.force:
+        logger.info(f"Cloning new/overwriting existing test data")
+        data_repo.clone(branchname=target_ref, depth=depth, force=args.force)
+    elif data_repo.ref != target_ref:
+        logger.info(f"Switching from {data_repo.ref} to {target_ref}")
+        data_repo.checkout(target_ref, detached=detached)
     else:
         logger.info("Data already fetched. Nothing to do.")
 
 
 if __name__ == "__main__":
-    main()
+    if Repository(remote_url=ELLA_TESTDATA_URL_GIT).remote_ref_exists("HEAD"):
+        testdata_remote = ELLA_TESTDATA_URL_GIT
+    elif Repository(remote_url=ELLA_TESTDATA_URL_HTTPS).remote_ref_exists("HEAD"):
+        logger.info("Could not access repo with git protocol. Falling back to https.")
+        testdata_remote = ELLA_TESTDATA_URL_HTTPS
+    else:
+        raise RuntimeError(
+            f"Unable to access git repo via {ELLA_TESTDATA_URL_GIT} or {ELLA_TESTDATA_URL_HTTPS}"
+        )
+    main(repo_dir=TESTDATA_FOLDER, remote_url=testdata_remote)

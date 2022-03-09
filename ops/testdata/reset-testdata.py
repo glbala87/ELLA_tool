@@ -1,17 +1,17 @@
 import gzip
 import logging
 import os
-from pathlib import Path
-import requests
 import subprocess
 import sys
+from pathlib import Path
 
+import requests
 from cli.commands.database.make_db import make_db
 from vardb.util.db import DB
 
 logger = logging.getLogger(__file__)
 
-ROOT = Path(__file__).parent.parent.parent.absolute()
+ROOT = Path(__file__).absolute().parents[2]
 TESTDATA_FOLDER = ROOT / "ella-testdata"
 SPACES_CONFIG = {"bucket_name": "ella", "is_public": True, "region": "fra1"}
 
