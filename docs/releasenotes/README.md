@@ -23,7 +23,7 @@ This is a bugfix release.
 ### All changes
 
 <!-- MR !700 -->
-- Upgraded IGV.js in VISUAL to [v2.11.0](https://github.com/igvteam/igv.js/releases/tag/v2.11.0, using a [temporary fork](https://github.com/ousamg/igv.js) with additional bugfixes that remove excessive error messages in VISUAL.
+- Upgraded IGV.js in VISUAL to [v2.11.0](https://github.com/igvteam/igv.js/releases/tag/v2.11.0), using a [temporary fork](https://github.com/ousamg/igv.js) with additional bugfixes that remove excessive error messages in VISUAL.
 
 ## Version 1.16.3
 
