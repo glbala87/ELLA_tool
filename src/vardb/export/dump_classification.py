@@ -11,7 +11,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from pytz import utc
 from bs4 import BeautifulSoup
-from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import Session
 from datalayer import AlleleDataLoader
 from openpyxl import Workbook
@@ -19,6 +18,7 @@ from openpyxl.styles import Font
 from openpyxl.writer.write_only import WriteOnlyCell
 from sqlalchemy.orm import joinedload, subqueryload
 from vardb.datamodel import allele, assessment, genotype, sample
+from vardb.util.extended_query import ExtendedQuery
 
 KEY_ANALYSES = "analyses"
 
@@ -88,7 +88,7 @@ def html_to_text(html: str):
     )
 
 
-def get_batch(alleleassessments: Query):
+def get_batch(alleleassessments: ExtendedQuery):
     """
     Generates lists of AlleleAssessment objects
     :param alleleassessments: An sqlalchemy.orm.query object
@@ -260,7 +260,7 @@ def dump_alleleassessments(session: Session, filename: str, with_analysis_names:
 
     export_columns = DEFAULT_EXPORT_COLS if with_analysis_names else EXPORT_COLS_NO_ANALYSES
 
-    alleleassessments: Query[assessment.AlleleAssessment] = (
+    alleleassessments: ExtendedQuery = (
         session.query(assessment.AlleleAssessment)
         .options(
             subqueryload(assessment.AlleleAssessment.annotation)

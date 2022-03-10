@@ -1,13 +1,13 @@
 def check_geneassessment(result, payload, previous_assessment_id=None):
     assert result["gene_id"] == payload["gene_id"]
     assert result["evaluation"] == payload["evaluation"]
-    assert result["analysis_id"] == payload.get("analysis_id")
+    assert result.get("analysis_id") == payload.get("analysis_id")
     assert result["genepanel_name"] == payload["genepanel_name"]
     assert result["genepanel_version"] == payload["genepanel_version"]
-    assert result["date_superceeded"] is None
+    assert result.get("date_superceeded") is None
     assert result["user_id"] == 1
     assert result["usergroup_id"] == 1
-    assert result["previous_assessment_id"] == previous_assessment_id
+    assert result.get("previous_assessment_id") == previous_assessment_id
 
 
 def test_create_assessment(session, client, test_database):

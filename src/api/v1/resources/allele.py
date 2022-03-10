@@ -1,25 +1,37 @@
-from flask import request
-from sqlalchemy import text
-from sqlalchemy.sql.functions import func
-from vardb.datamodel import sample, genotype, allele, gene, annotationshadow
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
-from sqlalchemy.types import Integer
-
+from typing import Any, Dict, Optional
 from api import schemas
 from api.config import config
-from api.util.util import rest_filter, link_filter, authenticate, logger, paginate
-from datalayer import AlleleDataLoader
-
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    AlleleGeneListResponse,
+    AlleleListResponse,
+    AnalysisListResponse,
+    GenePanelListResponse,
+)
+from api.util.util import authenticate, link_filter, logger, paginate, rest_filter
 from api.v1.resource import LogRequestResource
+from datalayer import AlleleDataLoader
+from flask import request
+from sqlalchemy import cast, func, text
+from sqlalchemy.dialects.postgresql import ARRAY, aggregate_order_by
+from sqlalchemy.orm import Session
+from sqlalchemy.types import Integer
+from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
 
 
 class AlleleListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AlleleListResponse, paginated=True)
     @paginate
     @link_filter
     @rest_filter
-    def get(self, session, rest_filter=None, link_filter=None, user=None, page=None, per_page=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        link_filter: Optional[Dict],
+        **kwargs,
+    ):
         """
         Loads alleles based on q={..} and link={..} for entities linked/related to those alleles.
         See decorator link_filter  and AlleleDataLoader for details about the possible values of link_filter
@@ -73,7 +85,6 @@ class AlleleListResource(LogRequestResource):
         analysis_id = request.args.get("analysis_id")
         gp_name = request.args.get("gp_name")
         gp_version = request.args.get("gp_version")
-        annotation = request.args.get("annotation", "true") == "true"
 
         genepanel = None
         if gp_name and gp_version:
@@ -83,22 +94,21 @@ class AlleleListResource(LogRequestResource):
                 .one()
             )
 
-        kwargs = {"include_annotation": False, "include_custom_annotation": False}
+        adl_kwargs: Dict[str, Any] = {"include_annotation": True, "include_custom_annotation": True}
         if link_filter:
-            kwargs["link_filter"] = link_filter
+            adl_kwargs["link_filter"] = link_filter
         if analysis_id is not None:
-            kwargs["analysis_id"] = analysis_id
+            adl_kwargs["analysis_id"] = int(analysis_id)
         if genepanel:  # TODO: make genepanel required?
-            kwargs["genepanel"] = genepanel
-        if annotation:
-            kwargs["include_annotation"] = True
-            kwargs["include_custom_annotation"] = True
-        return AlleleDataLoader(session).from_objs(alleles, **kwargs), count
+            adl_kwargs["genepanel"] = genepanel
+
+        return AlleleDataLoader(session).from_objs(alleles, **adl_kwargs), count
 
 
 class AlleleGenepanelListResource(LogRequestResource):
     @authenticate()
-    def get(self, session, allele_id, user=None):
+    @validate_output(GenePanelListResponse)
+    def get(self, session: Session, allele_id: int, **kwargs):
         """
         Returns a list of genepanels associated with provided allele_id.
         ---
@@ -130,8 +140,9 @@ class AlleleGenepanelListResource(LogRequestResource):
 
 class AlleleByGeneListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AlleleGeneListResponse)
     @rest_filter
-    def get(self, session, rest_filter=None, user=None):
+    def get(self, session: Session, **kwargs):
         """
         Returns a list of genes, with associated allele ids
         ---
@@ -207,8 +218,9 @@ class AlleleByGeneListResource(LogRequestResource):
 
 class AlleleAnalysisListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AnalysisListResponse)
     @logger(hide_response=False)  # Important! We want to log response for auditing.
-    def get(self, session, allele_id, user=None):
+    def get(self, session: Session, allele_id: int, **kwargs):
         """
         Returns a list of analyses associated with provided allele_id.
         ---

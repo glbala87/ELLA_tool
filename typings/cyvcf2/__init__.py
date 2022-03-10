@@ -82,7 +82,7 @@ class Reader:
         """Add a new line to the VCF header
 
         Parameters:
-            line (str) – full vcf header line
+            line (str) - full vcf header line
         """
         ...
 
@@ -104,7 +104,7 @@ class Reader:
         Extract a field from the VCF header by id.
 
         Parameters
-            key (str) – ID to pull from the header.
+            key (str) - ID to pull from the header.
             order
         Returns
             dictionary containing header information.
@@ -138,7 +138,7 @@ class Reader:
         """Set the samples to be pulled from the VCF; this must be called before any iteration.
 
         Parameters:
-            samples (list) – list of samples to extract.
+            samples (list) - list of samples to extract.
         """
         ...
 
@@ -174,7 +174,7 @@ class Variant:
     ALT         the list of alternate alleles.
     CHROM       Chromosome of the variant.
     FILTER      the value of FILTER from the VCF field.
-                a value of PASS or ‘.’ in the VCF will give None for this function
+                a value of PASS or "." in the VCF will give None for this function
     FORMAT      VCF FORMAT field for this variant.
     ID          the value of ID from the VCF field.
     QUAL        the float value of QUAL from the VCF field.
@@ -210,7 +210,7 @@ class Variant:
         The numpy array shape will match the requested field. E.g. if the fields has number=3, then the shape will be (n_samples, 3).
 
         Parameters:
-            field (str) – FORMAT field to get the values.
+            field (str) - FORMAT field to get the values.
         Return type
             numpy array.
         """
@@ -412,7 +412,7 @@ class Writer:
 class HREC:
     @property
     def type(self) -> str:
-        """ Returns one of: FILTER, INFO, FORMAT, CONTIG, STR, GENERIC """
+        """Returns one of: FILTER, INFO, FORMAT, CONTIG, STR, GENERIC"""
         ...
 
     def __getitem__(self, key: Text) -> str:

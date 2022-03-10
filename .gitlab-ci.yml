@@ -26,7 +26,7 @@ variables:
 
     # singularity-in-docker
     SID_IMAGE: quay.io/singularity/singularity
-    SID_VERSION: v3.7.1
+    SID_VERSION: v3.8.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
     # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
@@ -36,6 +36,9 @@ variables:
     # ensure any breakpoints don't fire
     PYTHONBREAKPOINT: 0
     DEBIAN_FRONTEND: noninteractive
+
+    # Feature flags
+    ENABLE_PYDANTIC: 'true'
 
 stages:
     - build
@@ -207,6 +210,16 @@ report:
     extends: .common-test
     script:
         - make test-report
+
+dump_schemas:
+    extends: .common-test
+    needs: ['e2e', 'api', 'python']
+    script:
+        - make dump-schemas
+    artifacts:
+        paths:
+            - schemas_${CI_COMMIT_REF_NAME}.json
+            - schemas_${CI_COMMIT_REF_NAME}.ts
 
 release_docker:
     stage: release-docker

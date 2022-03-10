@@ -37,7 +37,7 @@ app.component('alleleList', {
 
                 Object.assign($ctrl, {
                     getClassificationText(allele) {
-                        if ('allele_assessment' in allele) {
+                        if (allele.allele_assessment) {
                             return `CLASS ${allele.allele_assessment.classification}`
                         }
                         return 'NEW'

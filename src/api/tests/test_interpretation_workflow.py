@@ -124,17 +124,17 @@ class TestAlleleInterpretationWorkflow(object):
         test_database.refresh()
 
     @pytest.mark.ai(order=1)
-    def test_round_one_review(self, allele_wh):
+    def test_round_one_review(self, allele_wh: WorkflowHelper):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[0])
         allele_wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
     @pytest.mark.ai(order=2)
-    def test_round_two_finalize(self, allele_wh):
+    def test_round_two_finalize(self, allele_wh: WorkflowHelper):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[1])
         allele_wh.perform_finalize_round(interpretation, "Finalize comment")
 
     @pytest.mark.ai(order=3)
-    def test_round_three_reopen_and_finalize(self, allele_wh):
+    def test_round_three_reopen_and_finalize(self, allele_wh: WorkflowHelper):
         allele_wh.reopen(ALLELE_USERNAMES[2])
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[2])
         allele_wh.perform_reopened_round(interpretation, "Reopened comment")
@@ -254,7 +254,9 @@ class TestOther(object):
         allelereport = ih.allele_report_template(1)
 
         # Reusing old referenceassessment
-        referenceassessments = [{"id": 1, "reference_id": 1, "allele_id": 1}]  # outdated
+        referenceassessments = [
+            {"id": 1, "reference_id": 1, "reuse": True, "reuseCheckedId": 1, "allele_id": 1}
+        ]  # outdated
 
         r = ih.finalize_allele(
             "allele",

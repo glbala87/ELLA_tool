@@ -2,6 +2,7 @@
 
 import os
 import json
+from typing import Any, Dict
 import jsonschema
 import yaml
 
@@ -128,7 +129,7 @@ class FeatureNotEnabledError(RuntimeError):
         super().__init__(f"Feature '{feature}' is not enabled.")
 
 
-def get_user_config(app_config, usergroup_config, user_config):
+def get_user_config(app_config, usergroup_config, user_config) -> Dict[str, Any]:
     # Use json instead of copy.deepcopy for performance
     merged_config = json.loads(json.dumps(app_config.get("user", {}).get("user_config", {})))
     merged_config.update(json.loads(json.dumps((usergroup_config))))

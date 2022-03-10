@@ -1,10 +1,13 @@
-from . import resources as r
-from .docs import ApiV1Docs
 from api import schemas
+from api.v1 import resources as r
+from api.v1.docs import ApiV1Docs
+from api.v1.resource import Resource
+from flask import Flask
+from flask_restful import Api
 
 
 class ApiV1(object):
-    def __init__(self, app, api):
+    def __init__(self, app: Flask, api: Api):
         self.app = app
         self.api = api
         self.api_v1_docs = ApiV1Docs(app, api)
@@ -33,7 +36,7 @@ class ApiV1(object):
         self.api_v1_docs.add_schema("CustomAnnotation", schemas.CustomAnnotationSchema())
         self.api_v1_docs.add_schema("Genotype", schemas.GenotypeSchema())
 
-    def _add_resource(self, resource, *paths):
+    def _add_resource(self, resource: Resource, *paths: str):
         """
         Add resource to both restful api and to docs.
         """

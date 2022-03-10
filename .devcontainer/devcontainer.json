@@ -65,12 +65,14 @@
         "DEV_IGV_CYTOBAND": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt",
         "DEV_IGV_FASTA": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
         "ELLA_CONFIG": "/ella/example_config.yml",
+        "HYPOTHESIS_PROFILE": "dev",
         "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
         "MYPYPATH": "/ella/typings",
         "OFFLINE_MODE": "false",
         "PRODUCTION": "false",
         "PTVS_PORT": "5678",
-        "ENABLE_CNV": "true"
+        "ENABLE_CNV": "true",
+        "ENABLE_PYDANTIC": "true"
     },
 
     "build": {
@@ -81,7 +83,7 @@
     "overrideCommand": false,
 
     // forwardPorts not forwarding livereload correctly (35729). Specify them using runArgs instead.
-    "runArgs": ["--publish=5000:5000", "--publish=35729:35729"],
+    "runArgs": ["--publish=5000:5000", "--publish=35729:35729", "--init"],
 
     "mounts": [
         "source=${localWorkspaceFolder},target=/ella,type=bind",

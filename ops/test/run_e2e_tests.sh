@@ -14,18 +14,17 @@ while ! pg_isready --dbname=postgres --username=postgres; do sleep 2; done
 yellow "Deposit and create dump of testdata"
 createdb e2e-tmp
 DB_URL='postgresql:///e2e-tmp' /ella/ops/test/reset_testdata.py --testset e2e
-pg_dump e2e-tmp --no-owner > /ella/e2e-test-dump.sql
+pg_dump e2e-tmp --no-owner >/ella/e2e-test-dump.sql
 dropdb e2e-tmp
 
 NUM_PROCS=${NUM_PROCS:-2}
 yellow "Starting ${NUM_PROCS} parallel e2e tests"
 
-if [ "${SPEC}" = "" ]
-    then
-        yellow "SPEC not set, will run all"
-        SPECS=$(ls src/webui/tests/e2e/tests/*.js)
-    else
-        SPECS=($SPEC)
+if [[ -z "${SPEC}" ]]; then
+    yellow "SPEC not set, will run all"
+    SPECS=$(ls src/webui/tests/e2e/tests/*.js)
+else
+    SPECS=("$SPEC")
 fi
 
 # For live output add --line-buffer to following command

@@ -1,14 +1,22 @@
-from vardb.datamodel import assessment
-
+from typing import Dict, Optional
 from api import schemas
-from api.util.util import paginate, rest_filter, authenticate, request_json
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    GeneAssessmentListResponse,
+    GeneAssessmentPostRequest,
+    GeneAssessmentResponse,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
 from datalayer import GeneAssessmentCreator
+from sqlalchemy.orm import Session
+from vardb.datamodel import assessment, user
 
 
 class GeneAssessmentResource(LogRequestResource):
     @authenticate()
-    def get(self, session, ga_id=None, user=None):
+    @validate_output(GeneAssessmentResponse)
+    def get(self, session: Session, ga_id: int, **kwargs):
         """
         Returns a single geneassessment.
         ---
@@ -37,9 +45,17 @@ class GeneAssessmentResource(LogRequestResource):
 
 class GeneAssessmentListResource(LogRequestResource):
     @authenticate()
+    @validate_output(GeneAssessmentListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=10000, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        per_page: int,
+        **kwargs,
+    ):
         """
         Returns a list of geneassessments.
 
@@ -73,18 +89,19 @@ class GeneAssessmentListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(jsonschema="geneAssessmentPost.json")
-    def post(self, session, data=None, user=None):
+    @validate_output(GeneAssessmentResponse)
+    @request_json(model=GeneAssessmentPostRequest)
+    def post(self, session: Session, data: GeneAssessmentPostRequest, user: user.User):
         ga = GeneAssessmentCreator(session)
         created = ga.create_from_data(
             user.id,
             user.group_id,
-            data["gene_id"],
-            data["genepanel_name"],
-            data["genepanel_version"],
-            data["evaluation"],
-            data.get("presented_geneassessment_id"),
-            data.get("analysis_id"),
+            data.gene_id,
+            data.genepanel_name,
+            data.genepanel_version,
+            data.evaluation.dump(),
+            data.presented_geneassessment_id,
+            data.analysis_id,
         )
 
         session.add(created)

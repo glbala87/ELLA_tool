@@ -1,8 +1,13 @@
 # -*- coding: latin1 -*-
-from api.util.util import provide_session, logger
-from flask_restful import Resource as flask_resource
+from typing import Optional
 import sqlalchemy
-from sqlalchemy import tuple_, Text
+from api.schemas.pydantic.v1.common import SearchFilter
+from api.util.util import logger, provide_session
+from flask_restful import Resource as flask_resource
+from sqlalchemy import Text, tuple_
+from sqlalchemy.orm.session import Session
+from marshmallow.schema import Schema
+from vardb.datamodel import Base
 
 FILTER_OPERATORS = {
     # Operators which accept two arguments.
@@ -42,7 +47,7 @@ class Resource(flask_resource):
             query = query.filter(*args)
         return query
 
-    def list_query(self, session, model, schema=None, **kwargs):
+    def list_query(self, session: Session, model: Base, schema: Optional[Schema] = None, **kwargs):
         query = session.query(model)
         if kwargs.get("rest_filter"):
             # Check if any of the requested filters are empty list, if so user has requested an empty
@@ -71,7 +76,14 @@ class Resource(flask_resource):
         else:
             return s, count
 
-    def list_search(self, session, model, search_filter, schema=None, **kwargs):
+    def list_search(
+        self,
+        session: Session,
+        model: Base,
+        search_filter: SearchFilter,
+        schema: Optional[Schema] = None,
+        **kwargs
+    ):
         """Searches only full word matches
         Example: String to search in is 'breast and ovarian cancer'
 
@@ -101,7 +113,7 @@ class Resource(flask_resource):
         - Unaccent all input, so that e.g. 'strohmberg' matches 'Str�hmberg'
         """
 
-        search_string = search_filter["search_string"]
+        search_string = search_filter.search_string
         query = session.query(model)
 
         words = session.query(

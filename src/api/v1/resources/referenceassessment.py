@@ -1,12 +1,21 @@
-from vardb.datamodel import assessment
+from typing import Dict, Optional
 from api import schemas
-from api.util.util import paginate, rest_filter, request_json, authenticate
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    ReferenceAssessmentListResponse,
+    ReferenceAssessmentPostRequest,
+    ReferenceAssessmentResponse,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
+from sqlalchemy.orm import Session
+from vardb.datamodel import assessment, user
 
 
 class ReferenceAssessmentResource(LogRequestResource):
     @authenticate()
-    def get(self, session, ra_id=None, user=None):
+    @validate_output(ReferenceAssessmentResponse)
+    def get(self, session: Session, ra_id: int, user: user.User):
         """
         Returns a single referenceassessment.
         ---
@@ -35,9 +44,16 @@ class ReferenceAssessmentResource(LogRequestResource):
 
 class ReferenceAssessmentListResource(LogRequestResource):
     @authenticate()
+    @validate_output(ReferenceAssessmentListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        **kwargs,
+    ):
         """
         Returns a list of referenceassessment.
 
@@ -70,19 +86,9 @@ class ReferenceAssessmentListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(
-        [
-            "allele_id",
-            "reference_id",
-            "evaluation",
-            "genepanel_name",
-            "genepanel_version",
-            "analysis_id",
-            "user_id",
-        ],
-        True,
-    )
-    def post(self, session, data=None, user=None):
+    @validate_output(ReferenceAssessmentResponse)
+    @request_json(model=ReferenceAssessmentPostRequest)
+    def post(self, session: Session, data: ReferenceAssessmentPostRequest, user: user.User):
         """
         Creates a new ReferenceAssessment(s) for a given allele(s).
 
@@ -150,15 +156,13 @@ class ReferenceAssessmentListResource(LogRequestResource):
             description: Created referenceassessment
         """
 
-        obj = schemas.ReferenceAssessmentSchema(strict=True).load(data).data
-
         # If there exists an assessment already for this allele_id which is not yet curated,
         # we update that one instead.
         existing_ass = (
             session.query(assessment.ReferenceAssessment)
             .filter(
-                assessment.ReferenceAssessment.allele_id == obj.allele_id,
-                assessment.ReferenceAssessment.reference_id == obj.reference_id,
+                assessment.ReferenceAssessment.allele_id == data.allele_id,
+                assessment.ReferenceAssessment.reference_id == data.reference_id,
                 assessment.ReferenceAssessment.date_superceeded.is_(None),
                 assessment.ReferenceAssessment.status == 0,
             )
@@ -166,17 +170,17 @@ class ReferenceAssessmentListResource(LogRequestResource):
         )
 
         if existing_ass:
-            obj.id = existing_ass.id
-            session.merge(obj)
+            data.id = existing_ass.id
+            session.merge(data)
         else:
-            session.add(obj)
+            session.add(data)
 
         session.commit()
 
         # Reload to fetch all data
         new_obj = (
             session.query(assessment.ReferenceAssessment)
-            .filter(assessment.ReferenceAssessment.id == obj.id)
+            .filter(assessment.ReferenceAssessment.id == data.id)
             .one()
         )
-        return schemas.ReferenceAssessmentSchema(strict=True).dump(new_obj).data, 200
+        return schemas.ReferenceAssessmentSchema(strict=True).dump(new_obj).data

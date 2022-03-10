@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from typing import Dict, List
 
 from api.config import config
 
@@ -740,7 +741,7 @@ class AlleleDataLoader(object):
         include_reference_assessments=True,
         include_allele_report=True,
         allele_assessment_schema=None,
-    ):
+    ) -> List[Dict]:
         """
         Loads data for a list of alleles from the database, and returns a dictionary
         with the final data, loaded using the allele schema.

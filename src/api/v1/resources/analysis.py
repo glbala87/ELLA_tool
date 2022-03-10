@@ -1,15 +1,29 @@
-from sqlalchemy import tuple_
-from vardb.datamodel import sample
+from typing import Dict, Optional
+
 from api import schemas
-from api.util.util import paginate, rest_filter, authenticate
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import AnalysisListResponse, AnalysisResponse
+from api.util.util import authenticate, paginate, rest_filter
 from api.v1.resource import LogRequestResource
+from sqlalchemy import tuple_
+from sqlalchemy.orm import Session
+from vardb.datamodel import sample, user
 
 
 class AnalysisListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AnalysisListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        per_page: int,
+        user: user.User,
+        **kwargs,
+    ):
         """
         Returns a list of analyses.
 
@@ -50,7 +64,8 @@ class AnalysisListResource(LogRequestResource):
 
 class AnalysisResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(AnalysisResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         """
         Returns a single analysis.
         ---

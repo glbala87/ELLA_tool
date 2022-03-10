@@ -110,7 +110,7 @@ describe('Read-only version of variant workflow ', function() {
         analysisPage.startButton.click()
         alleleSectionBox.reportCommentElement.click()
         expect(alleleSectionBox.reportCommentEditable).toBe(true)
-        $('body').click() // a trick to unfocus the above report comment
+        // $('body').click() // a trick to unfocus the above report comment
 
         alleleSectionBox.setReportComment('report changed')
         alleleSectionBox.finalize()

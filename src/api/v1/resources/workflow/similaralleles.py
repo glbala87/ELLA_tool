@@ -1,15 +1,19 @@
-from typing import List, Mapping, Dict
-from api.config import config
-from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from sqlalchemy import and_, or_, func
+from typing import Dict, List
+
 from api import ApiError
-from api.v1.resource import LogRequestResource
+from api.config import config
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import SimilarAllelesResponse
 from api.util.util import authenticate
+from api.v1.resource import LogRequestResource
+from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
 from flask import request
-from vardb.datamodel import allele, gene, assessment
+from sqlalchemy import and_, func, or_
+from sqlalchemy.orm.session import Session
+from vardb.datamodel import allele, assessment, gene, user
 
 
-def get_nearby_allele_ids(session, allele_ids: List[int]) -> Mapping[int, List[int]]:
+def get_nearby_allele_ids(session: Session, allele_ids: List[int]):
     max_dist = config["similar_alleles"]["max_genomic_distance"]
 
     # Create temporary table with regions to check assessed alles against
@@ -100,7 +104,8 @@ def get_nearby_allele_ids(session, allele_ids: List[int]) -> Mapping[int, List[i
 
 class SimilarAllelesResource(LogRequestResource):
     @authenticate()
-    def get(self, session, genepanel_name, genepanel_version, user=None):
+    @validate_output(SimilarAllelesResponse)
+    def get(self, session: Session, genepanel_name: str, genepanel_version: str, user: user.User):
         # get genepanel
         genepanel_result = session.query(gene.Genepanel).filter(
             and_(
