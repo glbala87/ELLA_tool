@@ -1,21 +1,35 @@
-from typing import Dict, Any, DefaultDict, Tuple, Set
 from collections import defaultdict
-from sqlalchemy import func, tuple_, and_
-from sqlalchemy.orm import defer, joinedload
-from vardb.datamodel import sample, workflow, allele, genotype, gene
+import json
+from typing import Any, DefaultDict, Dict, List, Set, Tuple
 
+from sqlalchemy.orm.query import Query
+
+from api import schemas
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    OverviewAlleleFinalizedResponse,
+    OverviewAlleleResponse,
+    OverviewAnalysisFinalizedResponse,
+    OverviewAnalysisResponse,
+    UserStatsResponse,
+)
+from api.schemas.pydantic.v1.alleles import AlleleOverview
+from api.util.types import GenepanelVersion, AlleleIDGenePanel
+from api.util.util import authenticate, paginate, log
+from api.v1.resource import LogRequestResource
 from datalayer import AlleleDataLoader, queries
 from datalayer.workflowcategorization import (
-    get_categorized_analyses,
     get_categorized_alleles,
+    get_categorized_analyses,
     get_finalized_analysis_ids,
 )
-from api import schemas
-from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, paginate
+from pydantic import ValidationError
+from sqlalchemy import and_, func, tuple_
+from sqlalchemy.orm import Session, defer, joinedload
+from vardb.datamodel import allele, gene, genotype, sample, user, workflow
 
 
-def load_alleles(session, allele_id_genepanel):
+def load_alleles(session: Session, allele_id_genepanel: List[AlleleIDGenePanel]):
     """
     Loads in allele data from AlleleDataLoader for all allele ids given by input structure:
 
@@ -38,15 +52,15 @@ def load_alleles(session, allele_id_genepanel):
     """
 
     # Preload all alleles
-    all_allele_ids = [a[0] for a in allele_id_genepanel]
-    alleles_by_id = dict(
+    all_allele_ids = [a.allele_id for a in allele_id_genepanel]
+    alleles_by_id: Dict[int, allele.Allele] = dict(
         session.query(allele.Allele.id, allele.Allele)
         .filter(allele.Allele.id.in_(all_allele_ids))
         .all()
     )
 
     # Preload interpretations for each allele
-    interpretations = (
+    interpretations: List[workflow.AlleleInterpretation] = (
         session.query(workflow.AlleleInterpretation)
         .options(defer("state"), defer("user_state"))
         .filter(workflow.AlleleInterpretation.allele_id.in_(all_allele_ids))
@@ -69,18 +83,22 @@ def load_alleles(session, allele_id_genepanel):
     review_comment_by_allele_id = dict(queries.workflow_allele_review_comment(session).all())
 
     # Set structures/loaders
-    final_alleles = list()
+    final_alleles: List[AlleleOverview] = list()
     adl = AlleleDataLoader(session)
     alleleinterpretation_schema = schemas.AlleleInterpretationOverviewSchema()
 
     # Create output data
     # Bundle allele_ids with genepanel to increase performance
-    gp_allele_ids: DefaultDict[Tuple[str, str], Set[int]] = defaultdict(set)
+    gp_allele_ids: DefaultDict[GenepanelVersion, Set[int]] = defaultdict(set)
     for allele_id, gp_key in allele_id_genepanel:
         gp_allele_ids[gp_key].add(allele_id)
 
-    for gp_key, allele_ids in sorted(gp_allele_ids.items(), key=lambda x: x[0]):
-        genepanel = next(g for g in genepanels if g.name == gp_key[0] and g.version == gp_key[1])
+    # for gp_key, allele_ids in sorted(gp_allele_ids.items(), key=lambda x: x[0]):
+    for gp_key in sorted(gp_allele_ids):
+        allele_ids = gp_allele_ids[gp_key]
+        genepanel = next(
+            g for g in genepanels if g.name == gp_key.name and g.version == gp_key.version
+        )
         gp_alleles = [alleles_by_id[a_id] for a_id in allele_ids]
 
         loaded_genepanel_alleles = adl.from_objs(
@@ -99,24 +117,26 @@ def load_alleles(session, allele_id_genepanel):
             dumped_interpretations = [
                 alleleinterpretation_schema.dump(i).data for i in allele_interpretations
             ]
-
-            final_alleles.append(
-                {
-                    "genepanel": {"name": genepanel.name, "version": genepanel.version},
-                    "allele": a,
-                    "date_created": min(
-                        [i.date_created for i in allele_interpretations]
-                    ).isoformat(),
-                    "priority": priority_by_allele_id.get(a["id"], 1),
-                    "review_comment": review_comment_by_allele_id.get(a["id"], None),
-                    "interpretations": dumped_interpretations,
-                }
+            ao_dict = dict(
+                genepanel={"name": genepanel.name, "version": genepanel.version},
+                allele=a,
+                date_created=min([i.date_created for i in allele_interpretations]).isoformat(),
+                priority=priority_by_allele_id.get(a["id"], 1),
+                review_comment=review_comment_by_allele_id.get(a["id"], None),
+                interpretations=dumped_interpretations,
             )
+            try:
+                ao_obj = AlleleOverview.parse_obj(ao_dict)
+            except ValidationError:
+                log.error(f"Failed to create AlleleOverview object from {json.dumps(ao_dict)}")
+                raise
+
+            final_alleles.append(ao_obj)
 
     return final_alleles
 
 
-def load_analyses(session, analysis_ids, user, keep_input_order=False):
+def load_analyses(session: Session, analysis_ids, user: user.User, keep_input_order: bool = False):
     """
     Loads in analysis data for all analysis ids given in input.
     Analyses are further restricted to the access for the provided user.
@@ -136,7 +156,7 @@ def load_analyses(session, analysis_ids, user, keep_input_order=False):
 
     user_analysis_ids = queries.analysis_ids_for_user(session, user)
 
-    analyses = (
+    analyses: Query[sample.Analysis] = (
         session.query(sample.Analysis)
         .options(joinedload(sample.Analysis.interpretations).defer("state").defer("user_state"))
         .filter(sample.Analysis.id.in_(user_analysis_ids), sample.Analysis.id.in_(analysis_ids))
@@ -177,7 +197,7 @@ def load_analyses(session, analysis_ids, user, keep_input_order=False):
 
 
 def get_analysis_gp_allele_ids(
-    session, analysis_allele_ids, analysis_ids, alleleinterpretation_allele_ids=None
+    session: Session, analysis_allele_ids: List[int], analysis_ids: List[int]
 ):
     """
     Creates a dictionary of genepanels and allele_ids as matched by analyses and/or
@@ -216,12 +236,12 @@ def get_analysis_gp_allele_ids(
     )
 
     for entry in allele_ids_genepanels:
-        analysis_gp_allele_ids[(entry[0], entry[1])].add(entry[2])
+        analysis_gp_allele_ids[GenepanelVersion(entry[0], entry[1])].add(entry[2])
 
     return analysis_gp_allele_ids
 
 
-def get_alleleinterpretation_allele_ids_genepanel(session, allele_ids):
+def get_alleleinterpretation_allele_ids_genepanel(session: Session, allele_ids: List[int]):
     """
     Creates a list of allele ids with genepanel as matched provided allele_ids.
 
@@ -248,7 +268,7 @@ def get_alleleinterpretation_allele_ids_genepanel(session, allele_ids):
         .subquery()
     )
 
-    allele_ids_genepanels = (
+    allele_ids_genepanels: List[Tuple[str, str, int]] = (
         session.query(
             workflow.AlleleInterpretation.genepanel_name,
             workflow.AlleleInterpretation.genepanel_version,
@@ -261,11 +281,11 @@ def get_alleleinterpretation_allele_ids_genepanel(session, allele_ids):
         .distinct()
     )
 
-    return [(a[2], (a[0], a[1])) for a in allele_ids_genepanels]
+    return [AlleleIDGenePanel(a[2], GenepanelVersion(a[0], a[1])) for a in allele_ids_genepanels]
 
 
 def get_alleles_existing_alleleinterpretation(
-    session, allele_filter, user=None, page=None, per_page=None
+    session: Session, allele_filter, page: int = None, per_page: int = None, **kwargs
 ):
     """
     Returns allele_ids that has connected AlleleInterpretations,
@@ -299,21 +319,25 @@ def get_alleles_existing_alleleinterpretation(
 
 class OverviewAlleleResource(LogRequestResource):
     @authenticate()
-    def get(self, session, user=None):
+    @validate_output(OverviewAlleleResponse)
+    def get(self, session: Session, user: user.User):
         categorized_allele_ids = get_categorized_alleles(session, user=user)
 
         result: Dict[str, Any] = dict()
         for key, allele_ids in categorized_allele_ids.items():
-            allele_id_genepanel = get_alleleinterpretation_allele_ids_genepanel(session, allele_ids)
-            result[key] = load_alleles(session, allele_id_genepanel)
+            allele_id_genepanels = get_alleleinterpretation_allele_ids_genepanel(
+                session, allele_ids
+            )
+            result[key] = load_alleles(session, allele_id_genepanels)
 
         return result
 
 
 class OverviewAlleleFinalizedResource(LogRequestResource):
     @authenticate()
+    @validate_output(OverviewAlleleFinalizedResponse, paginated=True)
     @paginate
-    def get(self, session, user=None, page=None, per_page=None):
+    def get(self, session: Session, user: user.User, page: int, per_page: int, **kwargs):
         allele_filters = [allele.Allele.id.in_(queries.workflow_alleles_finalized(session))]
         if user is not None:
             allele_filters.append(
@@ -334,14 +358,15 @@ class OverviewAlleleFinalizedResource(LogRequestResource):
         result = load_alleles(session, allele_ids_genepanel)
 
         # Re-sort result, since the db queries in load_alleles doesn't handle sorting
-        result.sort(key=lambda x: alleleinterpretation_allele_ids.index(x["allele"]["id"]))
+        result.sort(key=lambda x: alleleinterpretation_allele_ids.index(x.allele.id))
         return result, count
 
 
 class OverviewAnalysisFinalizedResource(LogRequestResource):
     @authenticate()
+    @validate_output(OverviewAnalysisFinalizedResponse, paginated=True)
     @paginate
-    def get(self, session, user=None, page=None, per_page=None):
+    def get(self, session: Session, user: user.User, page: int, per_page: int, **kwargs):
         finalized_analysis_ids, count = get_finalized_analysis_ids(
             session, user=user, page=page, per_page=per_page
         )
@@ -354,7 +379,8 @@ class OverviewAnalysisFinalizedResource(LogRequestResource):
 
 class OverviewAnalysisResource(LogRequestResource):
     @authenticate()
-    def get(self, session, user=None):
+    @validate_output(OverviewAnalysisResponse)
+    def get(self, session: Session, user: user.User):
         categorized_analysis_ids = get_categorized_analyses(session, user=user)
 
         result = {}
@@ -366,11 +392,9 @@ class OverviewAnalysisResource(LogRequestResource):
 
 class OverviewUserStatsResource(LogRequestResource):
     @authenticate()
-    def get(self, session, user=None):
-
-        stats = dict()
-
-        stats["analyses_cnt"] = (
+    @validate_output(UserStatsResponse)
+    def get(self, session: Session, user: user.User):
+        analyses_cnt = (
             session.query(sample.Analysis)
             .join(workflow.AnalysisInterpretation)
             .filter(workflow.AnalysisInterpretation.user_id == user.id)
@@ -378,7 +402,7 @@ class OverviewUserStatsResource(LogRequestResource):
             .count()
         )
 
-        stats["alleles_cnt"] = (
+        alleles_cnt = (
             session.query(allele.Allele)
             .join(workflow.AlleleInterpretation)
             .filter(workflow.AlleleInterpretation.user_id == user.id)
@@ -386,4 +410,4 @@ class OverviewUserStatsResource(LogRequestResource):
             .count()
         )
 
-        return stats
+        return {"analyses_cnt": analyses_cnt, "alleles_cnt": alleles_cnt}

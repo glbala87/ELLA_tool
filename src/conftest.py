@@ -14,7 +14,9 @@ from vardb.util import DB
 from vardb.util.testdatabase import TestDatabase
 from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
 
-ht.settings.register_profile("default", deadline=600)
+ht.settings.register_profile("default", deadline=1000)
+# allow disabling deadline for local dev testing
+ht.settings.register_profile("dev", deadline=None)
 ht.settings.register_profile("small", max_examples=20)
 ht.settings.register_profile(
     "extensive",

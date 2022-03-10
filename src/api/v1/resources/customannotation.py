@@ -1,18 +1,26 @@
 import datetime
+from typing import Dict, Optional
+
 import pytz
-from vardb.datamodel import annotation
-
 from api import schemas
-from api.util.util import rest_filter, request_json, authenticate, paginate
-
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    CreateCustomAnnotationRequest,
+    CustomAnnotationListResponse,
+    CustomAnnotationResponse,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
+from sqlalchemy.orm import Session
+from vardb.datamodel import annotation, user
 
 
 class CustomAnnotationList(LogRequestResource):
     @authenticate()
+    @validate_output(CustomAnnotationListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(self, session: Session, rest_filter: Optional[Dict], **kwargs):
         """
         Returns a list of customannotations.
 
@@ -43,8 +51,10 @@ class CustomAnnotationList(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["allele_id", "annotations"], True)
-    def post(self, session, data=None, user=None):
+    @validate_output(CustomAnnotationResponse)
+    # @request_json(required_fields=["allele_id", "annotations"], strict=True)
+    @request_json(model=CreateCustomAnnotationRequest)
+    def post(self, session: Session, data: CreateCustomAnnotationRequest, user: user.User):
         """
         Creates new CustomAnnotation(s) for a given allele id(s).
 
@@ -80,7 +90,7 @@ class CustomAnnotationList(LogRequestResource):
               $ref: '#/definitions/CustomAnnotation'
             description: Created customannotation
         """
-        allele_id = data["allele_id"]
+        allele_id = data.allele_id
 
         # Check for existing CustomAnnotations
         existing_ca = (
@@ -92,13 +102,13 @@ class CustomAnnotationList(LogRequestResource):
             .one_or_none()
         )
 
-        ca_data = {"user_id": user.id, "annotations": data["annotations"], "allele_id": allele_id}
+        ca_data = {"user_id": user.id, "annotations": data.annotations, "allele_id": allele_id}
 
         if existing_ca:
             # Update existing_ca.annotations
             ca_data["annotations"] = {
                 **(existing_ca.annotations if existing_ca.annotations else {}),
-                **data["annotations"],
+                **data.annotations,
             }
             ca_data["previous_annotation_id"] = existing_ca.id
             existing_ca.date_superceeded = datetime.datetime.now(pytz.utc)

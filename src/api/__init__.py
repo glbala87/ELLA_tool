@@ -1,15 +1,15 @@
 import os
-from flask import Flask, Response
+import sys
+
+from applogger import setup_logger
+from flask import Flask
+from vardb.datamodel import DB
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.exceptions import HTTPException
 
-from vardb.datamodel import DB
-
-from applogger import setup_logger
-
 DEVELOPMENT_MODE = os.environ.get("PRODUCTION", "").lower() in ["false", "0"]
 if DEVELOPMENT_MODE:
-    print("~~~~DEVELOPMENT MODE~~~~")
+    print("~~~~DEVELOPMENT MODE~~~~", file=sys.stderr)
 
 setup_logger()
 

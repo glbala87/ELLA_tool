@@ -2,7 +2,6 @@
 
 import datetime
 import hashlib
-import io
 import json
 import logging
 import logging.config
@@ -280,6 +279,14 @@ def get_ssh_conn(hostname: str, pkey: RSAKey, username: str = "root") -> SSHClie
     return ssh
 
 
+def _get_transport(ssh: SSHClient):
+    # this is always set after the client has connected, but checker still complains about Optional[Transport]
+    t = ssh.get_transport()
+    if t is None:
+        raise AttributeError(f"SSHClient has no transport object")
+    return t
+
+
 @retry((SocketTimeout, PipeTimeout, ExecFailed), err_msg="SSH cmd '{1}' failed after {max_retries}")
 def ssh_exec(
     ssh: SSHClient,
@@ -293,7 +300,7 @@ def ssh_exec(
 
     # SSHClient.exec_command does not allow checking the return code from what was executed, so we
     # are basically duplicating that function and checking it ourselves
-    chan = ssh._transport.open_session()
+    chan = _get_transport(ssh).open_session()
     # set timeout for blocking operations
     chan.settimeout(timeout)
     chan.exec_command(cmd)
@@ -302,7 +309,7 @@ def ssh_exec(
     stdout = [line.rstrip() for line in chan.makefile("r", bufsize).readlines()]
     stderr = [line.rstrip() for line in chan.makefile_stderr("r", bufsize).readlines()]
     json_blob = {
-        "host": ssh._transport.sock.getpeername()[0],
+        "host": _get_transport(ssh).sock.getpeername()[0],
         "cmd": cmd,
         "rc": rc,
         "stdout": "\n".join(stdout),
@@ -484,19 +491,12 @@ def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
         err = ValueError(f"Required environment variable(s) unset: {', '.join(empty_vars)}")
         raise err
 
-    # set up the env
-    cmd_list = [f"export {k}={v}" for k, v in revapp_env.items()]
     # remove any existing containers from failed/partial provisions
-    cmd_list.append("docker ps -aq | xargs docker rm -f")
-    # run non-empty, non-comment/shebang lines from start script
-    cmd_list.extend(
-        [
-            line.rstrip()
-            for line in io.StringIO(revapp_start_script.read_text())
-            if line.strip() != "" and not line.lstrip().startswith("#")
-        ]
-    )
-    cmd_str = "\n".join(cmd_list)
+    ssh_exec(ssh, "docker ps -aq | xargs docker rm -f")
+
+    # run make command with the appropriate env values
+    param_list = " ".join(f"{k}={v}" for k, v in revapp_env.items())
+    cmd_str = f"make demo {param_list}"
 
     logger.info(f"Starting application")
     rc, out_str, err_str = ssh_exec(ssh, cmd_str, timeout=300)

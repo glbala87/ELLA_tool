@@ -1,20 +1,27 @@
 import atexit
-from functools import wraps
-import os
-import json
-import datetime
-from typing import Dict, Mapping
-import pytz
-import time
 import collections
+import datetime
+import json
+import os
+import time
+from functools import wraps
 from pathlib import Path
-from jsonschema import validate, Draft7Validator, RefResolver
-from flask import request, g, Response
-from api import app, db, ApiError
-from api.config import config, get_user_config
-from vardb.datamodel.log import ResourceLog
-from api.util.useradmin import get_usersession_by_token
+from typing import Any, Callable, Dict, List, Mapping, Optional, Type
 
+import pytz
+from api import ApiError, app, db
+from api.config import config, get_user_config
+from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1.common import SearchFilter
+from api.schemas.pydantic.v1.config import UserConfig
+from api.util.types import StrDict
+from api.util.useradmin import get_usersession_by_token
+from flask import Response, g, request
+import flask
+from jsonschema import Draft7Validator, RefResolver, validate
+from pydantic.error_wrappers import ValidationError
+from pydantic.json import pydantic_encoder
+from vardb.datamodel.log import ResourceLog
 
 log = app.logger
 
@@ -120,13 +127,14 @@ def error(msg, code):
 def rest_filter(func):
     @wraps(func)
     def inner(*args, **kwargs):
-        q_filter = None
-        if request:
-            q = request.args.get("q")
-            if q:
-                q_filter = json.loads(q)
-
-        return func(*args, rest_filter=q_filter, **kwargs)
+        kwargs = _add_kwarg(
+            load_func=json.loads,
+            old_kwargs=kwargs,
+            req=request,
+            arg_name="q",
+            new_kwarg="rest_filter",
+        )
+        return func(*args, **kwargs)
 
     return inner
 
@@ -134,12 +142,14 @@ def rest_filter(func):
 def search_filter(func):
     @wraps(func)
     def inner(*args, **kwargs):
-        s_filter = None
-        if request:
-            s = request.args.get("s")
-            if s:
-                s_filter = json.loads(s)
-        return func(*args, search_filter=s_filter, **kwargs)
+        kwargs = _add_kwarg(
+            load_func=SearchFilter.parse_raw,
+            old_kwargs=kwargs,
+            req=request,
+            arg_name="s",
+            new_kwarg="search_filter",
+        )
+        return func(*args, **kwargs)
 
     return inner
 
@@ -147,15 +157,34 @@ def search_filter(func):
 def link_filter(func):
     @wraps(func)
     def inner(*args, **kwargs):
-        link_filter = None
-        if request:
-            link = request.args.get("link")
-            if link:
-                link_filter = json.loads(link)
-
-        return func(*args, link_filter=link_filter, **kwargs)
+        kwargs = _add_kwarg(
+            load_func=json.loads,
+            old_kwargs=kwargs,
+            req=request,
+            arg_name="link",
+            new_kwarg="link_filter",
+        )
+        return func(*args, **kwargs)
 
     return inner
+
+
+def _add_kwarg(
+    *,
+    req: Optional[flask.Request],
+    old_kwargs: Dict[str, Any],
+    arg_name: str,
+    new_kwarg: str,
+    load_func: Callable = None,
+):
+    if req:
+        val = req.args.get(arg_name)
+        if val and load_func:
+            val = load_func(val)
+    else:
+        val = None
+    old_kwargs[new_kwarg] = val
+    return old_kwargs
 
 
 def populate_g_logging():
@@ -227,8 +256,9 @@ def logger(exclude=False, hide_payload=False, hide_response=True):
 def provide_session(func):
     @wraps(func)
     def inner(*args, **kwargs):
+        kwargs["session"] = db.session
         try:
-            return func(db.session, *args, **kwargs)
+            return func(*args, **kwargs)
         except Exception:
             db.session.rollback()
             db.session.remove()
@@ -259,11 +289,12 @@ def paginate(func):
         else:
             per_page = 10000  # FIXME: Leave at high value until we add pagination in frontend
         limit = request.args.get("limit")
+        if limit:
+            limit = int(limit)
 
         kwargs["page"] = page
         kwargs["per_page"] = per_page
-        if limit is not None:
-            kwargs["limit"] = int(limit)
+        kwargs["limit"] = limit
         result, total = func(*args, **kwargs)
         response_headers = dict()
         if total is not None:
@@ -279,100 +310,108 @@ def paginate(func):
     return inner
 
 
-def request_json(required=None, only_required=False, allowed=None, jsonschema=None):
+def request_json(
+    *,
+    required_fields: Optional[List[str]] = None,
+    allowed_fields: Optional[List[str]] = None,
+    strict: bool = False,
+    field_map: Mapping[str, List[str]] = None,
+    jsonschema: Optional[str] = None,
+    model: Optional[Type[BaseModel]] = None,
+):
     """
     Decorator: Checks flasks's request (root) json object for 'required'
     fields before passing on the data to the function.
 
-    If 'only_required', the json input is "washed" so only
-    the fields in required are passed on.
+    required_fields: if set, all of these must be present in the Request.get_json() object
+        - @request_json(required_fields=["allele_id", "user_id"])
 
-    If 'allowed' is set, the json input is "washed" so only those fields are passed on.
-    'allowed' accepts either an array ["field1", "field2" ..] or a dict ["top_key1": ["field",...], "top_key2": [...]}
-    In the array case the array items tell which fields to keep in the root json object. In the dict case the array
-    value of each key are used to filter the similar keyed object in the root json object.
+    allowed_fields: if set, the fields will be included if available but not fail if missing. forces strict.
+        - @request_json(
+            required_fields=["allele_id", "user_id"],
+            allowed_fields=["comment", "genepanel"]
+        )
 
+    strict: if True, only required/optional fields are passed on
 
-    example:
-    @request_json(["allele_id", "user_id"], allowed=["comment", "genepanel"])
-    to filter an input like {"allele_id": 45, "user_id": 1, "illegal": 666, "comment": "important stuff"}
+    field_map: a dict of keys whose values are used to filter the keys of that name in Request.get_json() object
+        - @request_json(
+            required_keys=["user", "content"],
+            field_map={
+                "user": ["user_id", "name"],
+                "content": ["allele_id", "annotation"],
+            }
+        )
 
-    or
+    jsonschema: name of a jsonschema file to use for validating the Request.get_json() object
+        - @request_json(jsonschema="workflowActionFinalizeAllelePost.json")
 
-    @request_json(["user", "content"], allowed={"user": ["user_id", "name"], "content": ["allele_id", "annotation"]})
+    model: a pydantic class to validate/process the Request.get_json() object
+        - @request_json(model=CreateInterpretationLog)
 
-    to filter an input like {"user":    {"id": 4, "name": "Erik", "address": "Parkveien"}
-                             "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}}
+    If no keywords are used, the full response is passed on unaltered. Please, please don't do this.
 
+    example input data:
+        {
+            "user": {"id": 4, "name": "Erik", "address": "Parkveien"},
+            "content": {"mode": "weak", "allele_id": 34, "annotation": 44, "archived": true}
+        }
     """
 
-    # used by request_json to mutate an array of dicts
-    def _check_array_content(
-        source_array, required_fields, only_required=False, allowed_fields=None
-    ):
-        for idx, d in enumerate(source_array):
-            if required_fields:
-                for field in required_fields:
-                    if d.get(field) is None:
-                        raise ApiError(
-                            "Missing or empty required field {} in provided data.".format(field)
-                        )
+    # used by request_json to process an array of dicts
+    def _filter_array_content(source_array: List[Dict[str, Any]]):
+        assert required_fields is not None and allowed_fields is not None
+        include_fields = set(required_fields + allowed_fields)
 
-                if only_required:
-                    source_array[idx] = {k: v for k, v in d.items() if k in required_fields}
-                elif allowed_fields:
-                    source_array[idx] = {
-                        k: v for k, v in d.items() if k in required_fields + allowed_fields
-                    }
-            else:
-                if allowed_fields:
-                    source_array[idx] = {k: v for k, v in d.items() if k in allowed_fields}
+        filtered_data = []
+        for d in source_array:
+            _check_required(d)
+            filtered_data.append(
+                {k: v for k, v in d.items() if strict is False or k in include_fields}
+            )
+        return filtered_data
+
+    def _check_required(data: StrDict):
+        if required_fields:
+            for f in required_fields:
+                if data.get(f) is None:
+                    raise ApiError("Missing or empty required field {} in provided data.".format(f))
 
     def array_wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):
             data = request.get_json()
-            if not isinstance(data, list):
-                check_data = [data]
-            else:
-                check_data = data
+            convert_data = not isinstance(data, list)
 
-            _check_array_content(
-                check_data, required, only_required=only_required, allowed_fields=allowed
-            )
+            # always parse as list
+            if convert_data:
+                data = [data]
 
-            if not isinstance(data, list):
-                data = check_data[0]
-            else:
-                data = check_data
+            validated = _filter_array_content(data)
 
-            return func(*args, data=data, **kwargs)
+            # revert to non-list if appropriate
+            if convert_data:
+                validated = validated[0]
+            kwargs["data"] = validated
+
+            return func(*args, **kwargs)
 
         return inner
 
     def dict_wrapper(func):
         @wraps(func)
         def inner(*args, **kwargs):
-            data = request.get_json()
-            for data_key in list(data.keys()):
-                if required:
-                    for fields in required:
-                        if data.get(fields) is None:
-                            raise ApiError(
-                                "Missing or empty required field {} in provided data.".format(
-                                    fields
-                                )
-                            )
+            assert field_map, required_fields
+            data: Dict = request.get_json()
+            _check_required(data, required_fields)
 
-                if allowed:
-                    assert isinstance(allowed, dict)
-                    for allow_key in list(allowed.keys()):
-                        if allow_key == data_key:
-                            _check_array_content(
-                                data[data_key], None, allowed_fields=allowed[allow_key]
-                            )
+            validated = {}
+            for data_key in data.keys():
+                if data_key in field_map:
+                    validated[data_key] = _filter_array_content(data[data_key])
+            kwargs["data"] = validated
 
-            return func(*args, data=data, **kwargs)
+            return func(*args, **kwargs)
 
         return inner
 
@@ -383,18 +422,48 @@ def request_json(required=None, only_required=False, allowed=None, jsonschema=No
             jsonschema_validate(
                 os.path.join(JSON_SCHEMA_PATH, jsonschema), data, base_schema_path=JSON_SCHEMA_PATH
             )
-            return func(*args, data=data, **kwargs)
+            kwargs["data"] = data
+            return func(*args, **kwargs)
 
         return inner
 
-    assert not (jsonschema and required)
-    if required is not None:
-        if isinstance(allowed, dict):
+    def noop_wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            kwargs["data"] = request.get_json()
+            return func(*args, **kwargs)
+
+        return inner
+
+    def pydantic_wrapper(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            assert model
+            kwargs["data"] = model.parse_obj(request.get_json())
+            return func(*args, **kwargs)
+
+        return inner
+
+    if jsonschema:
+        assert not any([required_fields, allowed_fields, field_map, model])
+        return jsonschema_wrapper
+    elif model:
+        assert not any([required_fields, allowed_fields, field_map, jsonschema])
+        return pydantic_wrapper
+    else:
+        if required_fields is None:
+            required_fields = []
+        if allowed_fields is None:
+            allowed_fields = []
+        else:
+            strict = True
+        if field_map:
             return dict_wrapper
         else:
-            return array_wrapper
-    elif jsonschema is not None:
-        return jsonschema_wrapper
+            if not required_fields and not allowed_fields:
+                return noop_wrapper
+            else:
+                return array_wrapper
 
 
 def populate_g_user():
@@ -413,7 +482,12 @@ def populate_g_user():
         g.user = user_session.user
 
 
-def authenticate(user_config=False, usersession=False, optional=False):
+def authenticate(
+    user_config: bool = False,
+    usersession: bool = False,
+    optional: bool = False,
+    pydantic: bool = False,
+):
     """
     Decorator that works in conjunction with flask's 'g' object
     in a before_request trigger, in order to auth the user as
@@ -425,23 +499,31 @@ def authenticate(user_config=False, usersession=False, optional=False):
     def _authenticate(func):
         @wraps(func)
         def inner(*args, **kwargs):
+            if usersession:
+                kwargs["usersession_id"] = g.usersession_id
+
             if g.user:
                 # Logged in
                 kwargs["user"] = g.user
-
-                if usersession:
-                    kwargs["usersession_id"] = g.usersession_id
 
                 # Merge users config
                 if user_config:
                     kwargs["user_config"] = get_user_config(
                         config, g.user.group.config, g.user.config
                     )
-
+                    if pydantic:
+                        try:
+                            kwargs["user_config"] = UserConfig.parse_obj(kwargs["user_config"])
+                        except ValidationError:
+                            raise SyntaxError(
+                                f"Failed to load user_config: {json.dumps(kwargs['user_config'], default=pydantic_encoder)}"
+                            )
                 return func(*args, **kwargs)
             else:
                 # Not logged in
                 if optional:
+                    if user_config:
+                        kwargs["user_config"] = None
                     return func(*args, **kwargs)
                 else:
                     return Response(
@@ -508,3 +590,39 @@ def Timer():
 
     atexit.register(timeit.stop_timer)
     return timeit
+
+
+def str2intlist(val: str, *, sep=",", allow_none: bool = False) -> List[int]:
+    if val is None:
+        if allow_none:
+            return []
+        raise ValueError(f"Can't turn None into List[int]")
+    return [int(v.strip()) for v in val.split(sep) if v.strip()]
+
+
+def from_camel(val: str):
+    """converts camelCase to snake_case"""
+
+    # word boundaries at shift from lower to upper case e.g., camel^Case
+    # or upper to lower if several uppercase characters in a row e.g., UPPER^Lower
+    parts = []
+    p_start = 0
+    last_idx = len(val) - 1
+    for prev, c in enumerate(val[1:], 0):
+        i = prev + 1
+        if c.islower() ^ val[prev].islower() and prev > 0:
+            # case shift
+            if c.isupper():
+                # case[B]reak
+                parts.append(val[p_start:i])
+                p_start = i
+            elif val[prev - 1].isupper():
+                # SOMEB[r]eak
+                parts.append(val[p_start:prev])
+                p_start = prev
+
+        # end of string
+        if i == last_idx:
+            parts.append(val[p_start:])
+
+    return "_".join([x.lower() for x in parts])

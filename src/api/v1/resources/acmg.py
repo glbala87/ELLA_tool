@@ -1,16 +1,24 @@
-from flask import request
-from sqlalchemy.sql.functions import func
-from vardb.datamodel import allele, gene
-from datalayer import ACMGDataLoader
-from api.util.util import request_json, authenticate
+from typing import Dict, List
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    ACMGAlleleRequest,
+    ACMGAlleleResponse,
+    ACMGClassificationResponse,
+)
+from api.util.util import authenticate, request_json
 from api.v1.resource import LogRequestResource
+from datalayer import ACMGDataLoader
+from flask import request
 from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import array, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, array
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import func
 from sqlalchemy.types import Integer
+from vardb.datamodel import allele, gene, user
 
 
 class ACMGAlleleResource(LogRequestResource):
-    def get_alleles(self, session, allele_ids):
+    def get_alleles(self, session: Session, allele_ids: List[int]):
         """
 
         :param session:
@@ -33,7 +41,7 @@ class ACMGAlleleResource(LogRequestResource):
         else:
             return []
 
-    def get_genepanel(self, session, gp_name, gp_version):
+    def get_genepanel(self, session: Session, gp_name: str, gp_version: str):
         """
         Look up a genepanel
 
@@ -52,8 +60,9 @@ class ACMGAlleleResource(LogRequestResource):
         )
 
     @authenticate(user_config=True)
-    @request_json(["allele_ids", "gp_name", "gp_version"], allowed=["referenceassessments"])
-    def post(self, session, data=None, user=None, user_config=None):
+    @validate_output(ACMGAlleleResponse)
+    @request_json(model=ACMGAlleleRequest)
+    def post(self, session: Session, data: ACMGAlleleRequest, user: user.User, user_config: Dict):
         """
         Returns calculated ACMG codes for provided alleles and related data.
 
@@ -181,16 +190,17 @@ class ACMGAlleleResource(LogRequestResource):
 
         # This is POST by design, which is not strictly RESTful, but we
         # need a lot of dynamic user data and it works well.
-        alleles = self.get_alleles(session, data["allele_ids"])
-        genepanel = self.get_genepanel(session, data["gp_name"], data["gp_version"])
+        alleles = self.get_alleles(session, data.allele_ids)
+        genepanel = self.get_genepanel(session, data.gp_name, data.gp_version)
 
         return ACMGDataLoader(session).from_objs(
-            alleles, data.get("referenceassessments"), genepanel, user_config["acmg"]
+            alleles, data.referenceassessments, genepanel, user_config["acmg"]
         )
 
 
 class ACMGClassificationResource(LogRequestResource):
-    def get(self, session):
+    @validate_output(ACMGClassificationResponse)
+    def get(self, session: Session):
         """
         Returns the calculated suggested classification given the provided codes.
         ---

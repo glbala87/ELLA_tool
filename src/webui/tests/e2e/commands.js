@@ -70,9 +70,10 @@ function addCommands() {
         // changed, so our wysiwyg editor loses focus. This code splits setValue() into their
         // individual commands and refocuses the editor in-between.
         $(editorSelector).click()
+        browser.pause(500)
         const elemId = Object.values(browser.findElement('css selector', editorWysiwygSelector))[0]
         browser.elementClear(elemId)
-        browser.pause(50)
+        browser.pause(500)
         $(editorSelector).click()
         $(editorWysiwygSelector).addValue(value)
     })

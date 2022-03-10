@@ -1,23 +1,27 @@
-import os
-import typing
-
-from vardb.datamodel import sample
-from api.v1.resource import LogRequestResource
-from api.util.util import authenticate
-from api import ApiError
-from enum import Enum, auto
-from typing import List, Dict, Any, Pattern
-from flask import request
-import json
-import itertools
 import copy
-import re
+import itertools
+import json
 import logging
+import os
+import re
+import typing
+from enum import auto
+from typing import Any, Dict, List, Pattern
+
+from api import ApiError
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import IgvTrackConfigListResponse
+from api.util.types import StrEnum
+from api.util.util import authenticate
+from api.v1.resource import LogRequestResource
+from flask import request
+from sqlalchemy.orm import Session
+from vardb.datamodel import sample, user
 
 log = logging.getLogger(__name__)
 
 
-class TrackType(Enum):
+class TrackType(StrEnum):
     bam = auto()
     bed = auto()
     bedgz = auto()
@@ -30,6 +34,8 @@ class TrackType(Enum):
 
 
 class TrackSuffixType:
+    __slots__ = ["type", "track_suffix", "idx_suffixes"]
+
     def __init__(self, track_suffix: str, idx_suffixes: List[str], type: TrackType):
         self.type = type
         self.track_suffix = track_suffix
@@ -49,7 +55,7 @@ VALID_TRACK_TYPES = [
 ]
 
 
-class TrackSourceType(Enum):
+class TrackSourceType(StrEnum):
     DYNAMIC = auto()
     STATIC = auto()
     ANALYSIS = auto()
@@ -58,17 +64,17 @@ class TrackSourceType(Enum):
 DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel", "regions_of_interest"]
 
 
-class TrackCfgKey(Enum):
+class TrackCfgKey(StrEnum):
     applied_rules = auto()
     limit_to_groups = auto()
     url = auto()
     igv = auto()
 
 
-class TrackCfgIgvKey(Enum):
-    name = "name"  # can't use auto() here - mypy compains :(
-    url = "url"
-    indexURL = "indexURL"
+class TrackCfgIgvKey(StrEnum):
+    NAME = auto()
+    URL = auto()
+    INDEXURL = "indexURL"
 
 
 class TrackSrcId:
@@ -83,9 +89,7 @@ class TrackSrcId:
         self.rel_path = rel_path
 
     @staticmethod
-    def from_rel_paths(
-        track_source_id: TrackSourceType, rel_path: List[str]
-    ):  # TODO: need a return type here
+    def from_rel_paths(track_source_id: TrackSourceType, rel_path: List[str]):
         return [TrackSrcId(track_source_id, sid) for sid in rel_path]
 
     @staticmethod
@@ -100,7 +104,7 @@ class TrackSrcId:
         return tid
 
 
-def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, Any]:
+def load_raw_config(track_ids: List[TrackSrcId], usergroup_name: str) -> Dict[str, Any]:
     """Takes a list of track IDs and returns their raw config.
        This is done by checking if the tracks exist and by appling all config rules.
        The function is used in two siutations:
@@ -139,7 +143,7 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, An
     for track_src_id in track_ids:
         dst_cfg: Dict[str, Any] = {
             TrackCfgKey.applied_rules.name: [],
-            TrackCfgKey.igv.name: {TrackCfgIgvKey.name.name: track_src_id.id},
+            TrackCfgKey.igv.name: {TrackCfgIgvKey.NAME.name: track_src_id.id},
         }
         # for each track, integrate maching configs
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
@@ -228,7 +232,8 @@ def search_rel_track_paths(tracks_path: typing.Optional[str]) -> List[str]:
 
 class AnalysisTrackList(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(IgvTrackConfigListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         # resolve some stuff that we will need later
         analysis_name, genepanel_name, genepanel_version = (
             session.query(
@@ -271,7 +276,7 @@ class AnalysisTrackList(LogRequestResource):
             if TrackCfgKey.url.name not in cfg:
                 raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
             for pattern, replacement in url_var.items():
-                cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name].replace(
+                cfg[TrackCfgIgvKey.URL.name] = cfg[TrackCfgKey.url.name].replace(
                     f"<{pattern}>", replacement
                 )
             # create igv entry if it's missing
@@ -279,20 +284,20 @@ class AnalysisTrackList(LogRequestResource):
                 cfg[TrackCfgKey.igv.name] = {}
             # write igv url
             igv_cfg = cfg[TrackCfgKey.igv.name]
-            igv_cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name]
+            igv_cfg[TrackCfgIgvKey.URL.name] = cfg[TrackCfgKey.url.name]
             # remove un-interpolated url
             del cfg[TrackCfgKey.url.name]
             # default track name
-            if TrackCfgIgvKey.name.name not in igv_cfg:
-                igv_cfg[TrackCfgIgvKey.name.name] = os.path.basename(track_id).split(".")[0]
+            if TrackCfgIgvKey.NAME.name not in igv_cfg:
+                igv_cfg[TrackCfgIgvKey.NAME.name] = os.path.basename(track_id).split(".")[0]
             for track_type in VALID_TRACK_TYPES:
                 # find track type
                 if not track_id.endswith(track_type.track_suffix):
                     continue
                 # has index file?
                 if len(track_type.idx_suffixes) > 0:
-                    igv_cfg[TrackCfgIgvKey.indexURL.name] = (
-                        igv_cfg[TrackCfgIgvKey.url.name] + "?index=1"
+                    igv_cfg[TrackCfgIgvKey.INDEXURL.name] = (
+                        igv_cfg[TrackCfgIgvKey.URL.name] + "?index=1"
                     )
                 # TODO: search on fs?
                 break

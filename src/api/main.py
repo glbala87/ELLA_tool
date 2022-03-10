@@ -2,13 +2,16 @@ import json
 import os
 import sys
 import time
-import datetime
+from typing import Any, Dict
 
-from flask import send_from_directory, request, g, make_response
+from flask import Response, g, make_response, request, send_from_directory
 from flask_restful import Api
-from api import app, db, DEVELOPMENT_MODE
+from pydantic.json import pydantic_encoder
+
+from api import DEVELOPMENT_MODE, app, db
+from api.schemas.pydantic.v1 import BaseModel
+from api.util.util import log_request, populate_g_logging, populate_g_user
 from api.v1 import ApiV1
-from api.util.util import populate_g_user, populate_g_logging, log_request
 
 DEFAULT_STATIC_FILE = "index.html"
 REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
@@ -39,7 +42,7 @@ def populate_request():
 
 
 @app.after_request
-def after_request(response):
+def after_request(response: Response):
     if request.path and request.path.split("/")[1] not in VALID_STATIC_FILES:
         log_request(response.status_code, response)
         try:
@@ -82,8 +85,9 @@ def shutdown_session(exception=None):
     db.session.remove()
 
 
-def serve_static(path=None):
-    path = REWRITES.get(path, path)
+def serve_static(path: str = None):
+    if path:
+        path = REWRITES.get(path, path)
 
     if not path:
         path = DEFAULT_STATIC_FILE
@@ -98,19 +102,17 @@ def serve_static(path=None):
 api = Api(app)
 
 
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime.datetime):
-            return o.isoformat()
-
-        return super().default(self, o)
-
-
 # Turn off caching for whole API
 @api.representation("application/json")
-def output_json(data, code, headers=None):
+def output_json(data, code: int, headers: Dict[str, Any] = None):
     """Makes a Flask response with a JSON encoded body"""
-    resp = make_response(json.dumps(data, cls=DateTimeEncoder), code)
+
+    if isinstance(data, BaseModel):
+        # TODO: determine where exclude_none is actually needed for front-end
+        json_data = data.json(exclude_none=True, by_alias=True)
+    else:
+        json_data = json.dumps(data, default=pydantic_encoder)
+    resp = make_response(json_data, code)
     resp.headers.extend(headers or {})
     if "Cache-Control" not in resp.headers:
         resp.headers[

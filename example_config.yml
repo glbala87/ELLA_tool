@@ -6,6 +6,7 @@ app:
     max_upload_size: 52428800 # 50 MB
     feature_flags:
         cnv: !env_bool [ENABLE_CNV, false]
+        pydantic: !env_bool [ENABLE_PYDANTIC, false]
 user:
     # Password policy
     auth:

@@ -1,22 +1,46 @@
-from flask import request
-from sqlalchemy import tuple_
-from vardb.datamodel import sample, genotype, allele
+from typing import Dict
 
 from api import ApiError, ConflictError
-from api.util.util import request_json, authenticate, rest_filter, paginate
-from api.v1.resource import LogRequestResource
-
-from . import helpers
-from datalayer import queries
-from vardb.datamodel.workflow import AnalysisInterpretationSnapshot, AnalysisInterpretation
-from vardb.datamodel.sample import Analysis
 from api.schemas.analysisinterpretations import AnalysisInterpretationSnapshotSchema
 from api.schemas.filterconfigs import FilterConfigSchema
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.config import UserConfig
+from api.schemas.pydantic.v1.resources import (
+    AlleleCollisionResponse,
+    AlleleGenepanelResponse,
+    AlleleListResponse,
+    AnalysisInterpretationListResponse,
+    AnalysisInterpretationResponse,
+    AnalysisInterpretationSnapshotListResponse,
+    AnalysisStatsResponse,
+    CreateInterpretationLogRequest,
+    EmptyResponse,
+    FilterConfigListResponse,
+    FilteredAllelesResponse,
+    FinalizeAlleleInterpretationResponse,
+    FinalizeAlleleRequest,
+    InterpretationLogListResponse,
+    MarkAnalysisInterpretationRequest,
+    PatchInterpretationLogRequest,
+    PatchInterpretationRequest,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter, str2intlist
+from api.v1.resource import LogRequestResource
+from datalayer import queries
+from flask import request
+from sqlalchemy import tuple_
+from sqlalchemy.orm import Session
+from vardb.datamodel import allele, genotype, sample, user
+from vardb.datamodel.sample import Analysis
+from vardb.datamodel.workflow import AnalysisInterpretation, AnalysisInterpretationSnapshot
+
+from . import helpers
 
 
 class AnalysisStatsResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(AnalysisStatsResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
 
         # Number of alleles
         allele_count = (
@@ -33,22 +57,29 @@ class AnalysisStatsResource(LogRequestResource):
 
 class AnalysisGenepanelResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, gp_name, gp_version, user=None):
+    @validate_output(AlleleGenepanelResponse)
+    def get(
+        self, session: Session, analysis_id: int, gp_name: str, gp_version: str, user: user.User
+    ):
         """
         Returns genepanel for analysis, only including relevant transcripts and phenotypes.
         """
-        allele_ids = request.args.get("allele_ids", "")
-        if not allele_ids:
-            allele_ids = []
-        else:
-            allele_ids = allele_ids.split(",")
+        allele_ids = str2intlist(request.args.get("allele_ids", ""))
         return helpers.load_genepanel_for_allele_ids(session, allele_ids, gp_name, gp_version)
 
 
 class AnalysisInterpretationAllelesListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AlleleListResponse, paginated=True)
     @paginate
-    def get(self, session, analysis_id, interpretation_id, user=None, page=None, per_page=None):
+    def get(
+        self,
+        session: Session,
+        analysis_id: int,
+        interpretation_id: int,
+        user: user.User,
+        **kwargs,
+    ):
         if (
             not session.query(AnalysisInterpretation)
             .filter(
@@ -62,7 +93,7 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
                     interpretation_id, analysis_id
                 )
             )
-        allele_ids = request.args.get("allele_ids").split(",")
+        allele_ids = str2intlist(request.args.get("allele_ids"))
         current = request.args.get("current", "").lower() == "true"
         filterconfig_id = request.args.get("filterconfig_id")
         if filterconfig_id is not None:
@@ -82,7 +113,8 @@ class AnalysisInterpretationAllelesListResource(LogRequestResource):
 
 class AnalysisInterpretationResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, interpretation_id, user=None):
+    @validate_output(AnalysisInterpretationResponse)
+    def get(self, session: Session, analysis_id: int, interpretation_id: int, user: user.User):
         """
         Returns analysisinterpretation for analysis.
         ---
@@ -136,8 +168,16 @@ class AnalysisInterpretationResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["id"], allowed=["state", "user_state"])
-    def patch(self, session, analysis_id, interpretation_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=PatchInterpretationRequest)
+    def patch(
+        self,
+        session: Session,
+        analysis_id: int,
+        interpretation_id: int,
+        data: PatchInterpretationRequest,
+        user: user.User,
+    ):
         """
         Updates the current interpretation inplace.
 
@@ -174,12 +214,11 @@ class AnalysisInterpretationResource(LogRequestResource):
         )
         session.commit()
 
-        return None, 200
-
 
 class AnalysisInterpretationListResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(AnalysisInterpretationListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         """
         Returns all interpretations for analysis.
         ---
@@ -207,7 +246,8 @@ class AnalysisInterpretationListResource(LogRequestResource):
 
 class AnalysisActionOverrideResource(LogRequestResource):
     @authenticate()
-    def post(self, session, analysis_id, user=None):
+    @validate_output(EmptyResponse)
+    def post(self, session: Session, analysis_id: int, user: user.User):
         """
         Lets an user take over an analysis, by replacing the
         analysis' current interpretation's user_id with the authenticated user_id.
@@ -233,12 +273,11 @@ class AnalysisActionOverrideResource(LogRequestResource):
         helpers.override_interpretation(session, user.id, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionStartResource(LogRequestResource):
     @authenticate()
-    def post(self, session, analysis_id, user=None):
+    @validate_output(EmptyResponse)
+    def post(self, session: Session, analysis_id: int, user: user.User):
         """
         Starts an analysisinterpretation.
 
@@ -260,18 +299,21 @@ class AnalysisActionStartResource(LogRequestResource):
             description: Error
         """
 
-        helpers.start_interpretation(session, user.id, {}, workflow_analysis_id=analysis_id)
+        helpers.start_interpretation(session, user.id, data=None, workflow_analysis_id=analysis_id)
         session.commit()
-
-        return None, 200
 
 
 class AnalysisActionMarkNotReadyResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
-    )
-    def post(self, session, analysis_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkAnalysisInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        data: MarkAnalysisInterpretationRequest,
+        user: user.User,
+    ):
         """
         Marks an analysis as Not ready.
 
@@ -299,15 +341,18 @@ class AnalysisActionMarkNotReadyResource(LogRequestResource):
         helpers.marknotready_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionMarkInterpretationResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
-    )
-    def post(self, session, analysis_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkAnalysisInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        data: MarkAnalysisInterpretationRequest,
+        user: user.User,
+    ):
         """
         Marks an analysis for interpretation.
 
@@ -335,15 +380,18 @@ class AnalysisActionMarkInterpretationResource(LogRequestResource):
         helpers.markinterpretation_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionMarkReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
-    )
-    def post(self, session, analysis_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkAnalysisInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        data: MarkAnalysisInterpretationRequest,
+        **kwargs,
+    ):
         """
         Marks an analysis for review.
 
@@ -371,15 +419,18 @@ class AnalysisActionMarkReviewResource(LogRequestResource):
         helpers.markreview_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
     @authenticate()
-    @request_json(
-        ["alleleassessment_ids", "annotation_ids", "custom_annotation_ids", "allelereport_ids"]
-    )
-    def post(self, session, analysis_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkAnalysisInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        data: MarkAnalysisInterpretationRequest,
+        user: user.User,
+    ):
         """
         Marks an analysis for medical review.
 
@@ -407,12 +458,11 @@ class AnalysisActionMarkMedicalReviewResource(LogRequestResource):
         helpers.markmedicalreview_interpretation(session, data, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionReopenResource(LogRequestResource):
     @authenticate()
-    def post(self, session, analysis_id, user=None):
+    @validate_output(EmptyResponse)
+    def post(self, session: Session, analysis_id: int, user: user.User):
         """
         Reopens an analysis workflow that has previously been finalized.
 
@@ -441,13 +491,19 @@ class AnalysisActionReopenResource(LogRequestResource):
         helpers.reopen_interpretation(session, workflow_analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisActionFinalizeAlleleResource(LogRequestResource):
-    @authenticate(user_config=True)
-    @request_json(jsonschema="workflowActionFinalizeAllelePost.json")
-    def post(self, session, analysis_id, user_config=None, data=None, user=None):
+    @authenticate(user_config=True, pydantic=True)
+    @validate_output(FinalizeAlleleInterpretationResponse)
+    @request_json(model=FinalizeAlleleRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        user_config: UserConfig,
+        data: FinalizeAlleleRequest,
+        user: user.User,
+    ):
         """
         Finalizes a single allele within an analysis.
 
@@ -481,22 +537,21 @@ class AnalysisActionFinalizeAlleleResource(LogRequestResource):
         )
         session.commit()
 
-        return result, 200
+        return result
 
 
 class AnalysisActionFinalizeResource(LogRequestResource):
-    @authenticate(user_config=True)
-    @request_json(
-        [
-            "alleleassessment_ids",
-            "allelereport_ids",
-            "annotation_ids",
-            "custom_annotation_ids",
-            "notrelevant_allele_ids",
-            "technical_allele_ids",
-        ]
-    )
-    def post(self, session, analysis_id, user_config=None, data=None, user=None):
+    @authenticate(user_config=True, pydantic=True)
+    @validate_output(EmptyResponse)
+    @request_json(model=MarkAnalysisInterpretationRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        user_config: UserConfig,
+        data: MarkAnalysisInterpretationRequest,
+        user: user.User,
+    ):
         """
         Finalizes an analysis workflow.
 
@@ -521,15 +576,14 @@ class AnalysisActionFinalizeResource(LogRequestResource):
             description: Error
         """
 
-        result = helpers.finalize_workflow(
+        helpers.finalize_workflow(
             session, user.id, data, user_config, workflow_analysis_id=analysis_id
         )
         session.commit()
 
-        return result, 200
-
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(AnalysisInterpretationSnapshotListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         f = (
             session.query(AnalysisInterpretationSnapshot)
             .filter(
@@ -542,30 +596,29 @@ class AnalysisActionFinalizeResource(LogRequestResource):
             .all()
         )
 
-        result = AnalysisInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
-        return result
+        return AnalysisInterpretationSnapshotSchema(strict=True).dump(f, many=True).data
 
 
 class AnalysisCollisionResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
-
-        allele_ids = request.args.get("allele_ids")
-        if allele_ids is None:
+    @validate_output(AlleleCollisionResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
+        if request.args.get("allele_ids") is None:
             raise ApiError("Missing required arg allele_ids")
+        allele_ids = str2intlist(request.args.get("allele_ids"))
 
+        # TODO: why is empty string a silent error?
         if not allele_ids:
             return []
-
-        allele_ids = [int(i) for i in allele_ids.split(",")]
 
         return helpers.get_workflow_allele_collisions(session, allele_ids, analysis_id=analysis_id)
 
 
 class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
     @authenticate()
+    @validate_output(EmptyResponse)
     @rest_filter
-    def get(self, session, analysis_id, interpretation_id, rest_filter=None, data=None, user=None):
+    def get(self, session: Session, analysis_id: int, rest_filter: Dict, **kwargs):
         sample_ids = (
             session.query(sample.Sample.id).filter(sample.Sample.analysis_id == analysis_id).all()
         )
@@ -575,13 +628,12 @@ class AnalysisInterpretationFinishAllowedResource(LogRequestResource):
             raise ConflictError(
                 "Can not finish interpretation. Additional data have been added to this analysis. Please refresh."
             )
-        else:
-            return None, 200
 
 
 class AnalysisInterpretationLogListResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(InterpretationLogListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         """
         Get all interpreation log entries for an analysis workflow.
 
@@ -601,13 +653,18 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
           500:
             description: Error
         """
-        logs = helpers.get_interpretationlog(session, user.id, analysis_id=analysis_id)
-
-        return logs, 200
+        return helpers.get_interpretationlog(session, user.id, analysis_id=analysis_id)
 
     @authenticate()
-    @request_json([], allowed=["warning_cleared", "priority", "message", "review_comment"])
-    def post(self, session, analysis_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=CreateInterpretationLogRequest)
+    def post(
+        self,
+        session: Session,
+        analysis_id: int,
+        data: CreateInterpretationLogRequest,
+        user: user.User,
+    ):
         """
         Create a new interpretation log entry for an analysis workflow.
 
@@ -630,13 +687,19 @@ class AnalysisInterpretationLogListResource(LogRequestResource):
         helpers.create_interpretationlog(session, user.id, data, analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisInterpretationLogResource(LogRequestResource):
     @authenticate()
-    @request_json(["message"])
-    def patch(self, session, analysis_id, log_id, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(model=PatchInterpretationLogRequest)
+    def patch(
+        self,
+        session: Session,
+        analysis_id: int,
+        log_id: int,
+        data: PatchInterpretationLogRequest,
+        user: user.User,
+    ):
         """
         Patch an interpretation log entry.
 
@@ -657,14 +720,13 @@ class AnalysisInterpretationLogResource(LogRequestResource):
             description: Error
         """
         helpers.patch_interpretationlog(
-            session, user.id, log_id, data["message"], analysis_id=analysis_id
+            session, user.id, log_id, data.message, analysis_id=analysis_id
         )
         session.commit()
 
-        return None, 200
-
     @authenticate()
-    def delete(self, session, analysis_id, log_id, user=None):
+    @validate_output(EmptyResponse)
+    def delete(self, session: Session, analysis_id: int, log_id: int, user: user.User):
         """
         Delete an interpretation log entry.
 
@@ -691,12 +753,11 @@ class AnalysisInterpretationLogResource(LogRequestResource):
         helpers.delete_interpretationlog(session, user.id, log_id, analysis_id=analysis_id)
         session.commit()
 
-        return None, 200
-
 
 class AnalysisInterpretationFilteredAlleles(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id=None, interpretation_id=None, user=None):
+    @validate_output(FilteredAllelesResponse)
+    def get(self, session: Session, interpretation_id: int, **kwargs):
         interpretation = (
             session.query(AnalysisInterpretation)
             .filter(AnalysisInterpretation.id == interpretation_id)
@@ -711,22 +772,25 @@ class AnalysisInterpretationFilteredAlleles(LogRequestResource):
             allele_ids,
             excluded_alleles,
         ) = helpers.get_filtered_alleles(session, interpretation, filter_config_id=filterconfig_id)
+        assert (
+            excluded_alleles
+        ), f"Got unexpected excluded_alleles=None when filtering analysis interpretation {interpretation.id}"
 
         excluded_by_caller_type = helpers.filtered_by_caller_type(session, excluded_alleles)
-        result = {
+        return {
             "allele_ids": allele_ids,
             "excluded_alleles_by_caller_type": excluded_by_caller_type,
         }
 
-        return result
-
 
 class AnalysisFilterConfigResource(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id=None, user=None):
+    @validate_output(FilterConfigListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         filterconfigs = queries.get_valid_filter_configs(
             session, user.group_id, analysis_id=analysis_id
         ).all()
         if not filterconfigs:
             raise ApiError("Unable to find filter config matching analysis {}".format(analysis_id))
+
         return FilterConfigSchema().dump(filterconfigs, many=True).data

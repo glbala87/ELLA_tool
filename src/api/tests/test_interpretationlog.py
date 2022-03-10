@@ -23,12 +23,12 @@ def check_log(
         == 1
     )
 
-    assert log["message"] == message
-    assert log["review_comment"] == review_comment
-    assert log["priority"] == priority
-    assert log["warning_cleared"] == warning_cleared
-    assert bool(log["alleleassessment"]) == alleleassessment
-    assert bool(log["allelereport"]) == allelereport
+    assert log.get("message") == message
+    assert log.get("review_comment") == review_comment
+    assert log.get("priority") == priority
+    assert log.get("warning_cleared") == warning_cleared
+    assert bool(log.get("alleleassessment")) == alleleassessment
+    assert bool(log.get("allelereport")) == allelereport
 
 
 def check_latest_log(

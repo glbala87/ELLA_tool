@@ -1,25 +1,25 @@
-import re
 import json
-from flask import request
-from sqlalchemy import tuple_, or_, select, text, func
-from vardb.datamodel import (
-    sample,
-    assessment,
-    allele,
-    gene,
-    workflow,
-    annotationshadow,
-    user as user_model,
-)
-from api import schemas
+import re
+from typing import Dict, List, Optional
 
+from api import schemas
+from api.config import config
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.genepanels import Genepanel
+from api.schemas.pydantic.v1.resources import SearchOptionsResponse, SearchResponse
+from api.util.util import authenticate, paginate
 from api.v1.resource import LogRequestResource
 from api.v1.resources.overview import load_analyses
 from datalayer import AlleleDataLoader
 from datalayer.queries import annotation_transcripts_genepanel
-from api.util.util import authenticate, paginate
-
-from api.config import config
+from flask import request
+from sqlalchemy import func, or_, select, text, tuple_
+from sqlalchemy.dialects.postgresql.array import Any
+from sqlalchemy.orm import Session
+from vardb.datamodel import allele, annotationshadow, assessment, gene, sample
+from vardb.datamodel import user as user_model
+from vardb.datamodel import workflow
+from vardb.util.extended_query import ExtendedQuery
 
 
 class SearchQuery:
@@ -30,21 +30,21 @@ class SearchQuery:
     RE_POSITION_WITHOUT_CHR = re.compile(r"^(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?$")
     RE_G_POSITION = re.compile(r"g\.(?P<pos1>[0-9]+)")
 
-    def __init__(self, query):
-        self.query_type = None
-        self.chr = None
-        self.pos1 = None
-        self.pos2 = None
-        self.username = None
-        self.transcript = None
-        self.hgnc_id = None
-        self.hgvsp = None
-        self.hgvsc = None
-        self.freetext = None
+    def __init__(self, query: Dict[str, Any]):
+        self.query_type: Optional[str] = None
+        self.chr: Optional[str] = None
+        self.pos1: Optional[int] = None
+        self.pos2: Optional[int] = None
+        self.username: Optional[str] = None
+        self.transcript: Optional[str] = None
+        self.hgnc_id: Optional[str] = None
+        self.hgvsp: Optional[str] = None
+        self.hgvsc: Optional[str] = None
+        self.freetext: Optional[str] = None
 
         self._set_query(query)
 
-    def _match_position(self, freetext):
+    def _match_position(self, freetext: str):
         matches = dict()
         for expression in [
             SearchQuery.RE_POSITION_WITH_CHR,
@@ -56,13 +56,12 @@ class SearchQuery:
                 matches.update(match.groupdict())
         return matches
 
-    def _set_query(self, query):
-
-        if query.get("type"):
+    def _set_query(self, query: Dict[str, Any]):
+        if "type" in query:
             self.query_type = query["type"]
 
         if query.get("user"):
-            self.username = query["user"]["username"]
+            self.username = query["user"].get("username")
             assert self.username
 
         if query.get("gene"):
@@ -71,6 +70,7 @@ class SearchQuery:
 
         if query.get("freetext"):
             self.freetext = query["freetext"]
+            assert self.freetext
 
             # Try position search first
             matches = self._match_position(self.freetext)
@@ -146,8 +146,9 @@ class SearchResource(LogRequestResource):
     TSQUERY_ESCAPE = ["&", ":", "(", ")", "*", "!", "|"]
 
     @authenticate()
+    @validate_output(SearchResponse, paginated=True)
     @paginate
-    def get(self, session, page=None, per_page=None, limit=None, user=None):
+    def get(self, session: Session, page: int, per_page: int, limit: int, user: user_model.User):
         """
         Provides basic search functionality.
 
@@ -214,7 +215,7 @@ class SearchResource(LogRequestResource):
         query = json.loads(query)
         search_query = SearchQuery(query)
 
-        matches = {"alleles": [], "analyses": []}
+        matches: Dict[str, List] = {"alleles": [], "analyses": []}
 
         if not search_query.check():
             return matches, 0
@@ -232,7 +233,7 @@ class SearchResource(LogRequestResource):
                 matches["analyses"].append(analysis)
         elif search_query.is_alleles_search():
             # Use offical usergroup genepanels (unofficial genepanels are subsets of the official genepanels)
-            genepanels = [gp for gp in user.group.genepanels if gp.official]
+            genepanels: List[Genepanel] = [gp for gp in user.group.genepanels if gp.official]
             if search_query.check():
                 # Search allele
                 alleles, count = self._search_allele(
@@ -251,7 +252,7 @@ class SearchResource(LogRequestResource):
                     )
         return matches, count
 
-    def _get_analysis_interpretations(self, session, analysis_ids):
+    def _get_analysis_interpretations(self, session: Session, analysis_ids: List[int]):
         interpretations = (
             session.query(workflow.AnalysisInterpretation)
             .filter(workflow.AnalysisInterpretation.analysis_id.in_(analysis_ids))
@@ -260,7 +261,7 @@ class SearchResource(LogRequestResource):
         )
         return schemas.AnalysisInterpretationOverviewSchema().dump(interpretations, many=True).data
 
-    def _get_allele_interpretations(self, session, allele_ids):
+    def _get_allele_interpretations(self, session: Session, allele_ids: List[int]):
         interpretations = (
             session.query(workflow.AlleleInterpretation)
             .filter(workflow.AlleleInterpretation.allele_id.in_(allele_ids))
@@ -269,7 +270,9 @@ class SearchResource(LogRequestResource):
         )
         return schemas.AlleleInterpretationOverviewSchema().dump(interpretations, many=True).data
 
-    def _get_analyses_filters(self, session, search_query, genepanels):
+    def _get_analyses_filters(
+        self, session: Session, search_query: SearchQuery, genepanels: List[Genepanel]
+    ):
         filters = list()
 
         if not search_query.freetext and not search_query.username:
@@ -304,7 +307,7 @@ class SearchResource(LogRequestResource):
 
         return filters
 
-    def _get_allele_results_ids(self, session, search_query):
+    def _get_allele_results_ids(self, session: Session, search_query: SearchQuery):
         # Use CTEs or else PostgreSQL creates horrible plans
 
         filters = list()
@@ -353,7 +356,7 @@ class SearchResource(LogRequestResource):
             allele_ids = allele_ids.filter(False)
         return allele_ids
 
-    def _search_allele_hgvs(self, session, search_query):
+    def _search_allele_hgvs(self, session: Session, search_query: SearchQuery):
         """
         Performs a search in the database using the
         annotation table to lookup HGVS cDNA (c.) or protein (p.)
@@ -398,7 +401,7 @@ class SearchResource(LogRequestResource):
 
         return allele_ids
 
-    def _search_allele_position(self, session, search_query):
+    def _search_allele_position(self, session: Session, search_query: SearchQuery):
         # Searches for Alleles within the range provided in query (if any).
         allele_ids = session.query(allele.Allele.id)
 
@@ -424,7 +427,13 @@ class SearchResource(LogRequestResource):
 
         return allele_ids
 
-    def _filter_transcripts_query(self, session, alleles, genepanels, search_query):
+    def _filter_transcripts_query(
+        self,
+        session: Session,
+        alleles: List[Dict[str, Any]],
+        genepanels: List[Genepanel],
+        search_query: SearchQuery,
+    ):
         """
         Filters the filtered_transcripts in annotation data based on options in search_query.
         """
@@ -445,7 +454,10 @@ class SearchResource(LogRequestResource):
             .all()
         )
 
-        def annotation_transcripts_hgvs(transcripts, search_query):
+        # TODO: this is never called except by itself. Safe to just remove?
+        def annotation_transcripts_hgvs(
+            transcripts: List[Dict[str, str]], search_query: SearchQuery
+        ):
             results = list()
             for t in transcripts:
                 if search_query.hgvsc and search_query.hgvsc in t.get("HGVSc", ""):
@@ -478,7 +490,15 @@ class SearchResource(LogRequestResource):
                 list(set([t["transcript"] for t in filtered_transcripts]))
             )
 
-    def _search_allele(self, session, search_query, genepanels, page=1, per_page=10, limit=None):
+    def _search_allele(
+        self,
+        session: Session,
+        search_query: SearchQuery,
+        genepanels: List[Genepanel],
+        page: int = 1,
+        per_page: int = 10,
+        limit: int = None,
+    ):
 
         # CTE for performance
         allele_results_ids = self._get_allele_results_ids(session, search_query)
@@ -510,18 +530,26 @@ class SearchResource(LogRequestResource):
         self._filter_transcripts_query(session, allele_data, genepanels, search_query)
         return allele_data, count
 
-    def _search_analysis(self, session, query, user, page=1, per_page=10, limit=None):
-        analysis_ids = (
+    def _search_analysis(
+        self,
+        session: Session,
+        query: SearchQuery,
+        user: user_model.User,
+        page: int = 1,
+        per_page: int = 10,
+        limit: int = None,
+    ):
+        analysis_id_query: ExtendedQuery = (
             session.query(sample.Analysis.id)
             .filter(*self._get_analyses_filters(session, query, user.group.genepanels))
             .distinct()
         )
 
         if limit:
-            analysis_ids = analysis_ids.limit(limit)
-        count = analysis_ids.count()
+            analysis_id_query = analysis_id_query.limit(limit)
+        count = analysis_id_query.count()
 
-        analysis_ids = analysis_ids.limit(per_page).offset(per_page * (page - 1)).scalar_all()
+        analysis_ids = analysis_id_query.limit(per_page).offset(per_page * (page - 1)).scalar_all()
 
         return load_analyses(session, analysis_ids, user), count
 
@@ -530,13 +558,13 @@ class SearchOptionsResource(LogRequestResource):
 
     RESULT_LIMIT = 20
 
+    @validate_output(SearchOptionsResponse)
     @authenticate()
-    def get(self, session, user=None):
-
+    def get(self, session: Session, user: user_model.User):
         query = json.loads(request.args["q"])
         result = dict()
         if query.get("gene"):
-            gene_results = (
+            gene_results: ExtendedQuery = (
                 session.query(gene.Gene.hgnc_symbol, gene.Gene.hgnc_id)
                 .join(gene.Transcript, gene.Genepanel.transcripts)
                 .filter(
