@@ -13,6 +13,21 @@ title: Latest releases
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.17
+
+Release date: TBD
+
+### Highlights
+
+### All changes
+
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !632 Added typing to all of our API endpoints
+MR !705 Create default data directories in Dockerfile
+-->
+- Fixes and improvements to development environment and code base. 
+
 ## Version 1.16.4
 
 Release date: 08.03.2022
