@@ -1,3 +1,4 @@
+SHELL = /bin/bash
 # Configured on the outside when running in gitlab
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 # used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
@@ -13,8 +14,9 @@ BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
+ELLA_TESTDATA ?= ${PWD}/ella-testdata
 ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
-ATTACHMENT_STORAGE ?= '/ella/ella-testdata/testdata/attachments/'
+ATTACHMENT_STORAGE ?= /ella/ella-testdata/testdata/attachments
 TESTSET ?=
 HYPOTHESIS_PROFILE ?= 'default'
 
@@ -34,13 +36,16 @@ TERM_OPTS := -t
 endif
 
 
-# don't let user clobber docker run defaults, ELLA_OPTS should be used for customization
+# override used so docker run defaults can't get clobbered. Use ELLA_OPTS for any customization
+override LOCAL_USER = --user ${UID}:$(GID)
+
+override TESTDATA_OPTS = -v ${ELLA_TESTDATA}:/ella/ella-testdata -v ${PWD}/.git:/ella/.git
+
 override SHARED_OPTS = -e ANNOTATION_SERVICE_URL=${ANNOTATION_SERVICE_URL} \
 	-e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
 	-e DB_URL=postgresql:///postgres \
 	-e ELLA_CONFIG=${ELLA_CONFIG} \
-	-e OFFLINE_MODE="false" \
-	-e PRODUCTION=false \
+	-e OFFLINE_MODE=false \
 	-e ENABLE_CNV=true \
 	-e ENABLE_PYDANTIC=true \
 	--init
@@ -58,42 +63,48 @@ override DEV_OPTS = ${SHARED_OPTS} \
 
 override DEMO_OPTS = ${SHARED_OPTS} \
 	${TERM_OPTS} \
+	${TESTDATA_OPTS} \
 	-d --rm \
 	-e VIRTUAL_HOST=${DEMO_NAME} \
 	-e PORT=${DEMO_PORT} \
 	-p ${DEMO_HOST_PORT}=${DEMO_PORT} \
-	-v /tmp:/tmp \
+	-v /data/attachments \
 	-v ${PWD}:/local-repo \
 	${ELLA_OPTS}
 
-override E2E_OPTS = ${SHARED_OPTS} \
-	-e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
+override E2E_OPTS = ${LOCAL_USER} \
+	${SHARED_OPTS} \
+	${TESTDATA_OPTS} \
 	-e NUM_PROCS=${PARALLEL_INSTANCES} \
 	-v $(shell pwd)/errorShots:/ella/errorShots \
 	-v $(shell pwd)/logs:/logs \
 	--hostname e2e \
-	--name ${CONTAINER_NAME}-e2e
+	--name ${CONTAINER_NAME}-e2e \
+	${ELLA_OPTS}
 
-override E2E_DEBUG_OPTS = ${SHARED_OPTS} \
-	-e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
+override E2E_DEBUG_OPTS = ${LOCAL_USER} \
+	${SHARED_OPTS} \
 	-e API_PORT=28752 \
 	-p 28752:28752 \
 	-p 5859:5859 \
 	-v ${PWD}:/ella \
+	--cap-add SYS_PTRACE \
 	--hostname e2e-local \
 	--name ${CONTAINER_NAME}-e2e-local \
 	${ELLA_OPTS}
 
-override SCHEMA_OPTS = ${SHARED_OPTS} -v ${PWD}:/ella --rm ${ELLA_OPTS}
-
-override TEST_OPTS = ${TERM_OPTS} \
+override SCHEMA_OPTS = ${LOCAL_USER} \
+	${SHARED_OPTS} \
+	-v ${PWD}:/ella \
 	--rm \
-	--user ${UID}:${GID} \
-	-e DB_URL=postgresql:///postgres \
-	-e PRODUCTION=false \
-	-e ENABLE_CNV=true
+	${ELLA_OPTS}
 
-override PY_OPTS = ${TEST_OPTS} -e ENABLE_PYDANTIC=true
+override TEST_OPTS = ${LOCAL_USER} \
+	${SHARED_OPTS} \
+	${TERM_OPTS} \
+	${TESTDATA_OPTS} \
+	--rm \
+	${ELLA_OPTS}
 
 .PHONY: help
 
@@ -373,7 +384,7 @@ ci-fetch-testdata:
 	  make fetch-testdata REF=$(REF)
 
 fetch-testdata:
-	python ./ops/testdata/fetch-testdata.py $(if $(REF), --ref $(REF),)
+	python ./ops/testdata/fetch-testdata.py $(if $(REF),--ref $(REF),)
 
 dbreset: fetch-testdata dbsleep
 	python /ella/ops/testdata/reset-testdata.py $(if $(TESTSET),--testset $(TESTSET),)
@@ -458,20 +469,20 @@ test-js:
 
 
 test-python:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-common ${IMAGE_NAME} \
+	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-common ${IMAGE_NAME} \
 		ops/test/run_python_tests.sh
 
 test-api:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-api ${IMAGE_NAME} \
+	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-api ${IMAGE_NAME} \
 		/ella/ops/test/run_api_tests.sh
 
 
 test-api-migration:
-	docker run ${PY_OPTS} -e MIGRATION=1 --name ${CONTAINER_NAME}-api-migration ${IMAGE_NAME} \
+	docker run ${TEST_OPTS} -e MIGRATION=1 --name ${CONTAINER_NAME}-api-migration ${IMAGE_NAME} \
 		/ella/ops/test/run_api_tests.sh
 
 test-cli:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-cli ${IMAGE_NAME} \
+	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-cli ${IMAGE_NAME} \
 		/ella/ops/test/run_cli_tests.sh
 
 test-report:
@@ -488,27 +499,7 @@ test-e2e:
 	chmod a+rwX errorShots
 	mkdir -p logs
 	chmod a+rwX logs
-	docker run -d --hostname e2e \
-	   --name ${CONTAINER_NAME}-e2e \
-	   --user ${UID}:${GID} \
-	   -v $(shell pwd)/errorShots:/ella/errorShots \
-	   -v $(shell pwd)/logs:/logs \
-	   -v $(shell pwd)/.git:/ella/.git \
-	   -v $(shell pwd)/ella-testdata:/ella/ella-testdata \
-	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	   -e ANALYSES_PATH=/ella/ella-testdata/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/ella-testdata/testdata/igv-data/" \
-	   -e NUM_PROCS=$(PARALLEL_INSTANCES) \
-	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-	   -e PRODUCTION=false \
-	   -e ENABLE_CNV=true \
-	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -e DB_URL=postgresql:///postgres \
-	   -e ENABLE_PYDANTIC=true \
-	   ${IMAGE_NAME} \
-	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
-
+	docker run ${E2E_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e.cfg
 	docker exec -e SPEC=${SPEC} -t ${CONTAINER_NAME}-e2e ops/test/run_e2e_tests.sh
 	docker logs ${CONTAINER_NAME}-e2e
 	@docker rm -f ${CONTAINER_NAME}-e2e
@@ -521,27 +512,7 @@ test-e2e:
 
 e2e-test-local: test-build
 	-docker rm -f ${CONTAINER_NAME}-e2e-local
-	docker run -d \
-	   --name ${CONTAINER_NAME}-e2e-local \
-	   --user ${UID}:${GID} \
-       -it \
-       -v $(shell pwd):/ella \
-	   -e ELLA_CONFIG=$(ELLA_CONFIG) \
-	   -e ANALYSES_PATH=/ella/ella-testdata/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/ella-testdata/testdata/igv-data/" \
-	   -e PRODUCTION=false \
-	   -e ENABLE_CNV=true \
-	   -e DB_URL=postgresql:///postgres \
-	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-	   -e API_PORT=28752 \
-	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
-	   -e ENABLE_PYDANTIC=true \
-	   --cap-add SYS_PTRACE \
-	   --init \
-	   -p 28752:28752 -p 5859:5859 \
-	   ${IMAGE_NAME} \
+	docker run ${E2E_DEBUG_OPTS} ${IMAGE_NAME} \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
 	# get CHROME_HOST if it is not defined
 	if [ -z "${CHROME_HOST}" ]; then \
@@ -553,4 +524,5 @@ e2e-test-local: test-build
 		-e SPEC=$$SPEC \
 		-e DEBUG=$$DEBUG \
 		-it ${CONTAINER_NAME}-e2e-local \
-	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
+	    /ella/ops/test/run_e2e_tests_locally.sh
+	@echo "remember to 'docker rm ${CONTAINER_NAME}-e2e-local' once you're finished"

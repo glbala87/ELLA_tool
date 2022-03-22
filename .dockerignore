@@ -5,6 +5,7 @@ IGV_DATA/
 images/
 node_modules/
 src/webui/build
+ella-testdata/
 **/*.pyc
 **/*.sif
 **/*.simg
