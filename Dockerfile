@@ -53,6 +53,14 @@ ENV PATH=/dist/ella-python/bin:/ella/bin:${PATH} \
     VIRTUAL_ENV=/dist/ella-python
 RUN echo 'eval "$(_ELLA_CLI_COMPLETE=source ella-cli)"' >> /home/ella-user/.bashrc
 
+RUN mkdir -p /data/fixtures/genepanels /data/analyses/incoming /data/analyses/imported /data/attachments /data/igv-data && \
+    chown ella-user:ella-user /data/fixtures/genepanels /data/analyses/incoming /data/analyses/imported /data/attachments /data/igv-data
+
+ENV ATTACHMENT_STORAGE=/data/attachments \
+    ANALYSES_INCOMING=/data/analyses/incoming \
+    ANALYSES_PATH=/data/analyses/imported \
+    IGV_DATA=/data/igv-data
+
 ####
 # dev image
 # (also compiles files for production)
