@@ -14,7 +14,6 @@ BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
-ELLA_TESTDATA ?= ${PWD}/ella-testdata
 ANNOTATION_SERVICE_URL ?= http://172.17.0.1:6000
 ATTACHMENT_STORAGE ?= /ella/ella-testdata/testdata/attachments
 TESTSET ?=
@@ -39,7 +38,7 @@ endif
 # override used so docker run defaults can't get clobbered. Use ELLA_OPTS for any customization
 override LOCAL_USER = --user ${UID}:$(GID)
 
-override TESTDATA_OPTS = -v ${ELLA_TESTDATA}:/ella/ella-testdata -v ${PWD}/.git:/ella/.git
+override TESTDATA_OPTS = -v $$PWD/ella-testdata:/ella/ella-testdata -v ${PWD}/.git:/ella/.git
 
 override SHARED_OPTS = -e ANNOTATION_SERVICE_URL=${ANNOTATION_SERVICE_URL} \
 	-e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
@@ -67,9 +66,10 @@ override DEMO_OPTS = ${SHARED_OPTS} \
 	-d --rm \
 	-e VIRTUAL_HOST=${DEMO_NAME} \
 	-e PORT=${DEMO_PORT} \
-	-p ${DEMO_HOST_PORT}=${DEMO_PORT} \
-	-v /data/attachments \
+	-p ${DEMO_HOST_PORT}:${DEMO_PORT} \
+	-v ella-demo-pgdata:/pg-data \
 	-v ${PWD}:/local-repo \
+	--name ${DEMO_NAME} \
 	${ELLA_OPTS}
 
 override E2E_BASE_OPTS = ${LOCAL_USER} \
@@ -315,7 +315,9 @@ DEMO_NAME ?= ella-demo
 DEMO_PORT ?= 3114
 DEMO_HOST_PORT ?= 3114
 DEMO_IMAGE ?= ${REVAPP_IMAGE_NAME}
-export DEMO_NAME DEMO_PORT DEMO_HOST_PORT DEMO_OPTS
+DEMO_USER ?= ${UID}
+DEMO_GROUP ?= ${GID}
+export DEMO_NAME DEMO_IMAGE DEMO_USER DEMO_GROUP DEMO_PORT DEMO_HOST_PORT
 
 demo-build: build-review
 
@@ -328,7 +330,8 @@ demo-check-image:
 
 demo: demo-check-image
 	$(eval export DEMO_IMAGE = ${REVAPP_IMAGE_NAME})
-	./ops/start_demo.sh
+	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
+	docker exec ${TERM_OPTS} ${DEMO_NAME} make dbreset
 	@echo "Demo is now running at http://localhost:${DEMO_HOST_PORT}. Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
@@ -336,7 +339,7 @@ kill-demo:
 
 # Review apps
 define reviewapp-template
-docker run ${DEMO_OPTS} ${REVAPP_IMAGE_NAME} bash -ic "${RUN_CMD} ${RUN_CMD_ARGS}"
+docker run -v ${PWD}:/local-repo ${ELLA_OPTS} ${REVAPP_IMAGE_NAME} bash -ic "${RUN_CMD} ${RUN_CMD_ARGS}"
 endef
 
 __gitlab_env:
@@ -367,6 +370,7 @@ review:
 	./ops/review_app.py --token ${DO_TOKEN} create \
 		--image-name ${REVAPP_IMAGE_NAME} \
 		--ssh-key ${REVAPP_SSH_KEY} \
+		--replace \
 		${REVAPP_NAME}
 
 review-stop:
@@ -511,9 +515,9 @@ test-e2e:
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging
 #---------------------------------------------
-.PHONY: e2e-test-local
+.PHONY: test-e2e-local
 
-e2e-test-local: test-build
+test-e2e-local: test-build
 	-docker rm -f ${CONTAINER_NAME}-e2e-local
 	docker run ${E2E_DEBUG_OPTS} ${IMAGE_NAME} \
 	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg

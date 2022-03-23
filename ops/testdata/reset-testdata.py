@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import List
 
 import requests
 from cli.commands.database.make_db import make_db
@@ -64,23 +65,24 @@ def reset_from_dump(url: str):
         p.wait()
 
 
-def reset(additional_arguments=None):
+def reset(args: List[str] = None):
+    if not args:
+        args = []
     logger.info(f"Resetting database from script")
     drop_db(remake=True)
     subprocess.check_call(
-        f"python {TESTDATA_FOLDER}/testdata/deposit_testdata.py {'' if additional_arguments is None else additional_arguments}".split(),
+        ["python", f"{TESTDATA_FOLDER}/testdata/deposit_testdata.py"] + args,
         bufsize=0,
         stdout=sys.stdout,
     )
 
 
 def main():
-    if len(sys.argv) > 1:
-        additional_arguments = " ".join(sys.argv[1:])
-    else:
-        additional_arguments = ""
-
+    additional_arguments = sys.argv[1:]
     repo = Repository(repo_dir=TESTDATA_FOLDER)
+    archive_url = (
+        f"https://ella.fra1.digitaloceanspaces.com/testdata/{repo.sha}/ella-testdata.psql.gz"
+    )
 
     if additional_arguments:
         logger.info(
@@ -90,11 +92,11 @@ def main():
     elif not testdata_clean():
         logger.info(f"{TESTDATA_FOLDER} is not clean. Resetting with script.")
         reset()
-    elif not dump_exists(repo.remote_url):
+    elif not dump_exists(archive_url):
         logger.info(f"Dump for {repo.sha} does not exist. Resetting with script.")
         reset()
     else:
-        logger.info(f"Resetting database from dump {repo.remote_url}")
+        logger.info(f"Resetting database from dump {archive_url}")
         reset_from_dump(repo.remote_url)
     logger.info("Database reset")
 

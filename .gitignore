@@ -66,6 +66,7 @@ src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v01/tracks
 
 src/webui/node_modules
 
+ella-testdata/
 node_modules
 ops/builder/venv
 src/package
