@@ -7,6 +7,7 @@ from pathlib import Path
 
 import requests
 from cli.commands.database.make_db import make_db
+from git import Repository
 from vardb.util.db import DB
 
 logger = logging.getLogger(__file__)
@@ -79,8 +80,8 @@ def main():
     else:
         additional_arguments = ""
 
-    sha = get_sha()
-    url = remote_path(sha)
+    repo = Repository(repo_dir=TESTDATA_FOLDER)
+
     if additional_arguments:
         logger.info(
             f"Additional arguments provided ({additional_arguments}). Resetting with script."
@@ -89,12 +90,12 @@ def main():
     elif not testdata_clean():
         logger.info(f"{TESTDATA_FOLDER} is not clean. Resetting with script.")
         reset()
-    elif not dump_exists(url):
-        logger.info(f"Dump for {sha} does not exist. Resetting with script.")
+    elif not dump_exists(repo.remote_url):
+        logger.info(f"Dump for {repo.sha} does not exist. Resetting with script.")
         reset()
     else:
-        logger.info(f"Resetting database from dump {url}")
-        reset_from_dump(url)
+        logger.info(f"Resetting database from dump {repo.remote_url}")
+        reset_from_dump(repo.remote_url)
     logger.info("Database reset")
 
 

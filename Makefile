@@ -15,7 +15,7 @@ API_PORT ?= 8000-9999
 
 ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
 ELLA_TESTDATA ?= ${PWD}/ella-testdata
-ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
+ANNOTATION_SERVICE_URL ?= http://172.17.0.1:6000
 ATTACHMENT_STORAGE ?= /ella/ella-testdata/testdata/attachments
 TESTSET ?=
 HYPOTHESIS_PROFILE ?= 'default'
@@ -72,9 +72,13 @@ override DEMO_OPTS = ${SHARED_OPTS} \
 	-v ${PWD}:/local-repo \
 	${ELLA_OPTS}
 
-override E2E_OPTS = ${LOCAL_USER} \
+override E2E_BASE_OPTS = ${LOCAL_USER} \
 	${SHARED_OPTS} \
 	${TESTDATA_OPTS} \
+	-d \
+	-e ANNOTATION_SERVICE_URL=http://localhost:6000 \
+
+override E2E_OPTS = ${E2E_BASE_OPTS} \
 	-e NUM_PROCS=${PARALLEL_INSTANCES} \
 	-v $(shell pwd)/errorShots:/ella/errorShots \
 	-v $(shell pwd)/logs:/logs \
@@ -82,8 +86,7 @@ override E2E_OPTS = ${LOCAL_USER} \
 	--name ${CONTAINER_NAME}-e2e \
 	${ELLA_OPTS}
 
-override E2E_DEBUG_OPTS = ${LOCAL_USER} \
-	${SHARED_OPTS} \
+override E2E_DEBUG_OPTS = ${E2E_BASE_OPTS} \
 	-e API_PORT=28752 \
 	-p 28752:28752 \
 	-p 5859:5859 \
