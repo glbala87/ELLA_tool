@@ -176,7 +176,7 @@ class Repository:
             cmd.append(f"--depth={depth}")
         cmd.extend([self.remote_url, str(self.repo_dir)])
         logger.info(f"Cloning {self.remote_url} to {self.repo_dir}")
-        proc = git_exec(cmd)
+        git_exec(cmd)
         return self
 
     ### Convenience functions
