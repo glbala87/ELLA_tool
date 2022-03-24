@@ -138,6 +138,7 @@ start_review:
     except:
         refs:
             - master
+            - dev
         variables:
             - $CI_COMMIT_MESSAGE =~ /\bskip-review\b/
 
@@ -161,6 +162,29 @@ refresh_ip:
         <<: *revapp-env
         url: http://$APP_IP
     when: manual
+
+deploy_demo:
+    stage: review
+    variables:
+        REVAPP_REPLACE: 1
+        REVAPP_NAME: $CI_BUILD_REF_SLUG
+        REVAPP_COMMIT_SHA: $CI_COMMIT_SHA
+    before_script:
+        - *apk-setup
+        - *docker-login
+        - docker pull $REVAPP_IMAGE_NAME
+    script:
+        - echo do it
+    environment:
+        name: demo
+        url: http://demo.allel.es
+        deployment_tier: staging
+    rules:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+        - if: $CI_COMMIT_BRANCH
+          when: manual
+          allow_failure: true
+
 
 ###
 
