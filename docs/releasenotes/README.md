@@ -24,6 +24,7 @@ Release date: TBD
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !632 Added typing to all of our API endpoints
+MR !694 Create scaffolding for testdata, fix review app/local demo functionality, devcontainer optimizations
 MR !705 Create default data directories in Dockerfile
 -->
 - Fixes and improvements to development environment and code base. 
