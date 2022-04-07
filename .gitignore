@@ -66,19 +66,18 @@ src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v01/tracks
 
 src/webui/node_modules
 
+ella-testdata/
 node_modules
 ops/builder/venv
 src/package
 src/webui/build
 src/webui/dest
 src/webui/dev
-src/webui/node_modules
 vardb-schema.png
 *.log
 *.pot
 *.pyc
 *~
-errorShots
 _book
 
 .hypothesis

@@ -120,16 +120,23 @@ COPY --chown=ella-user:ella-user . /ella
 
 RUN rm -rf /ella/node_modules && ln -s /dist/node_modules /ella/
 
+RUN mkdir /home/ella-user/.ssh && \
+    echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" >> /home/ella-user/.ssh/known_hosts && \
+    echo "gitlab.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsj2bNKTBSpIYDEGk9KxsGh3mySTRgMtXL583qmBpzeQ+jqCMRgBqB98u3z++J1sKlXHWfM9dyhSevkMwSbhoR8XIq/U0tCNyokEi/ueaBMCvbcTHhO7FcwzY92WK4Yt0aGROY5qX2UKSeOvuP4D6TPqKF1onrSzH9bx9XUf2lEdWT/ia1NEKjunUqu1xOB/StKDHMoX4/OKyIzuS0q/T1zOATthvasJFoPrAjkohTyaDUz2LN5JoH839hViyEG82yB+MjcFV5MU3N1l1QL3cVUCh93xSaua1N85qivl+siMkPGbO5xR/En4iEY6K2XPASUEMaieWVNTRCtJ4S8H+9" >> /home/ella-user/.ssh/known_hosts && \
+    echo "gitlab.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFSMqzJeV9rUzU4kWitGjeR4PWSa29SPqJ1fVkhtj3Hw9xjLVXVYrU9QlYWrOLXBpQ6KWjbjTDTdDkoohFzgbEY=" >> /home/ella-user/.ssh/known_hosts
+
+
+
 ENV PGHOST="/socket" \
     PGDATA="/pg-data"
 WORKDIR /ella
 
-ENV ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
-    ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments/" \
+ENV ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments" \
+    DB_URL="postgresql:///postgres" \
     DEV_IGV_CYTOBAND="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt" \
     DEV_IGV_FASTA="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta" \
-    ELLA_CONFIG="/ella/example_config.yml" \
-    IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+    ELLA_CONFIG="/ella/ella-testdata/testdata/example_config.yml" \
+    IGV_DATA="/ella/ella-testdata/testdata/igv-data" \
     PGDATA="/pg-data" \
     PGHOST="/socket" \
     PORT="5000" \
@@ -169,12 +176,12 @@ COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql /usr/lib/postgre
 
 USER ella-user
 # set demo defaults here, so demo/review apps can just `docker run -d`
-ENV ANALYSES_PATH="/ella/src/vardb/testdata/analyses/default/" \
-    ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments/" \
+ENV ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments" \
+    DB_URL="postgresql:///postgres" \
     DEV_IGV_CYTOBAND="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt" \
     DEV_IGV_FASTA="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta" \
-    ELLA_CONFIG="/ella/example_config.yml" \
-    IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
+    ELLA_CONFIG="/ella/ella-testdata/testdata/example_config.yml" \
+    IGV_DATA="/ella/ella-testdata/testdata/igv-data/" \
     PGDATA="/pg-data" \
     PGHOST="/socket" \
     PORT="5000" \

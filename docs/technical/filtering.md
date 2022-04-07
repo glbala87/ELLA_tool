@@ -314,7 +314,7 @@ This configuration will filter out all variants _not_ annotated with either *BRC
 
 ### Inheritance model filter
 
-The `inheritance_mode` filter filters out or rescues alleles that are not consistent with the inheritance model for a gene given in the gene panel.
+The `inheritance_model` filter filters out or rescues alleles that are not consistent with the inheritance model for a gene given in the gene panel.
 
 ::: warning NOTE
 This filter is intended for single samples only and _does not use family information_.
@@ -337,7 +337,7 @@ This configuration will filter out variants meeting the criteria for _Recessive 
 
 ```json
 {
-    "name": "inheritance_mode",
+    "name": "inheritance_model",
     "config": {
         "filter_mode": "recessive_non_candidates"
     }

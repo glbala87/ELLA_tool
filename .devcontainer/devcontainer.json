@@ -9,6 +9,9 @@
     // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
     "dockerFile": "../Dockerfile",
 
+    // ensure test data / config are available
+    "initializeCommand": ["make", "fetch-testdata"],
+
     // Set *default* container specific settings.json values on container create.
     "settings": {
         "[python]": {
@@ -21,6 +24,7 @@
         "prettier.configPath": "/ella/.prettierrc",
         "prettier.prettierPath": "/dist/node_modules/prettier",
         "python.analysis.extraPaths": ["/dist/ella-python/lib/python3.7/site-packages/"],
+        "python.analysis.typeCheckingMode": "off",
         "python.formatting.blackPath": "/dist/ella-python/bin/black",
         "python.formatting.provider": "black",
         "python.languageServer": "Pylance",
@@ -45,28 +49,29 @@
                 "username": "ella-user"
             }
         ],
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.scrollback": 100000
     },
 
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
-        "esbenp.prettier-vscode",
+        "bungcip.better-toml",
         "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "gitlab.gitlab-workflow",
+        "ms-azuretools.vscode-docker",
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "mtxr.sqltools",
         "mtxr.sqltools-driver-pg",
+        "mtxr.sqltools",
+        "timonwong.shellcheck",
         "yzhang.markdown-all-in-one"
     ],
     "containerEnv": {
-        "ANALYSES_PATH": "/ella/src/vardb/testdata/analyses/default/",
-        "ATTACHMENT_STORAGE": "/tmp/attachments",
         "DB_URL": "postgresql:///postgres",
-        "DEV_IGV_CYTOBAND": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt",
-        "DEV_IGV_FASTA": "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta",
-        "ELLA_CONFIG": "/ella/example_config.yml",
         "HYPOTHESIS_PROFILE": "dev",
-        "IGV_DATA": "/ella/src/vardb/testdata/igv-data/",
         "MYPYPATH": "/ella/typings",
         "OFFLINE_MODE": "false",
         "PRODUCTION": "false",
@@ -83,12 +88,13 @@
     "overrideCommand": false,
 
     // forwardPorts not forwarding livereload correctly (35729). Specify them using runArgs instead.
-    "runArgs": ["--publish=5000:5000", "--publish=35729:35729", "--init"],
+    "runArgs": ["--publish=5000:5000", "--publish=35729:35729", "--shm-size", "4GB", "--init"],
 
     "mounts": [
         "source=${localWorkspaceFolder},target=/ella,type=bind",
         // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
-        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind"
+        "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind",
+        "source=${localWorkspaceFolderBasename}-db,target=/pg-data,type=volume"
     ],
 
     "workspaceFolder": "/ella"

@@ -54,7 +54,7 @@ class AlleleCollision(BaseModel):
 
 
 class OngoingWorkflow(BaseModel):
-    user_id: int
+    user_id: Optional[int]
     workflow_status: WorkflowStatus
     allele_id: int
     analysis_id: Optional[int]

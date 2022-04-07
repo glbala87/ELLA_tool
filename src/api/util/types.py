@@ -129,31 +129,32 @@ class Consequence(StrEnum):
     intergenic_variant = auto()
 
 
+# Used in {analysis,allele}interpretationsnapshot.filtered
 class FilteredAlleleCategories(StrEnum):
     CLASSIFICATION = auto()
+    CONSEQUENCE = auto()
     FREQUENCY = auto()
-    REGION = auto()
-    POLYPYRIMIDINE = auto()
     GENE = auto()
-    QUALITY = auto()
-    CONSEQUENCE = auto()
-    SEGREGATION = auto()
     INHERITANCEMODEL = auto()
-    SIZE = auto()
-
-
-class FilterNames(StrEnum):
-    FREQUENCY = auto()
-    CONSEQUENCE = auto()
+    POLYPYRIMIDINE = "ppy"
+    QUALITY = auto()
     REGION = auto()
+    SEGREGATION = auto()
+
+
+# Used with filter config
+class FilterNames(StrEnum):
+    CALLERTYPE = auto()  # new
     CLASSIFICATION = auto()
+    CONSEQUENCE = auto()
     EXTERNAL = auto()
+    FREQUENCY = auto()
+    INHERITANCEMODEL = auto()
     PPY = auto()
     QUALITY = auto()
+    REGION = auto()
     SEGREGATION = auto()
-    INHERITANCEMODEL = auto()
     SIZE = auto()
-    CALLERTYPE = auto()
 
 
 class GenomeReference(StrEnum):

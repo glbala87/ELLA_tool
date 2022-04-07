@@ -7,19 +7,6 @@ from vardb.datamodel import Base, annotation, assessment, workflow
 
 
 class SnapshotCreator(object):
-
-    EXCLUDED_FLAG = {
-        "classification": "CLASSIFICATION",
-        "frequency": "FREQUENCY",
-        "region": "REGION",
-        "ppy": "POLYPYRIMIDINE",
-        "gene": "GENE",
-        "quality": "QUALITY",
-        "consequence": "CONSEQUENCE",
-        "segregation": "SEGREGATION",
-        "inheritancemodel": "INHERITANCEMODEL",
-    }
-
     def __init__(self, session: Session):
         self.session = session
 

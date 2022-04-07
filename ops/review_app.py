@@ -5,14 +5,16 @@ import hashlib
 import json
 import logging
 import logging.config
+import subprocess
 import time
 from base64 import b64decode
+from dataclasses import dataclass
 from enum import Enum
 from functools import wraps
 from operator import itemgetter
 from pathlib import Path
 from socket import timeout as SocketTimeout
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Sequence, Union
 
 import click
 import requests
@@ -92,7 +94,7 @@ To                         Action      From
 ### review app settings
 ###
 
-revapp_start_script = Path(__file__).parent / "start_demo.sh"
+revapp_start_script = Path(__file__).parent / "start_review.sh"
 revapp_base_env = {
     "DEMO_NAME": "revapp",
     "DEMO_IMAGE": None,
@@ -105,6 +107,15 @@ revapp_base_env = {
 ###
 ### support classes
 ###
+
+
+class ContextObj:
+    mgr: Manager
+    token: str
+
+
+class AppContext(click.Context):
+    obj: ContextObj
 
 
 class RevappStatus(str, Enum):
@@ -148,6 +159,15 @@ class ExecFailed(Exception):
         if msg is None:
             msg = f"Received rc {self.rc} from {self.host} while running {self.cmd}: {self.stderr}"
         self.msg = msg
+
+
+@dataclass
+class ExecResponse:
+    cmd: str
+    host: str
+    rc: int
+    stdout: str
+    stderr: str
 
 
 ###
@@ -294,7 +314,7 @@ def ssh_exec(
     check_rc: bool = True,
     timeout: int = ssh_default_timeout,
     bufsize: int = -1,
-) -> Tuple[Optional[int], List[str], List[str]]:
+):
     """ executes the command, returning formatted output and optionally checking success (default) """
     logger.debug(f"Executing '{cmd}'")
 
@@ -305,24 +325,22 @@ def ssh_exec(
     chan.settimeout(timeout)
     chan.exec_command(cmd)
 
-    rc = chan.recv_exit_status()
-    stdout = [line.rstrip() for line in chan.makefile("r", bufsize).readlines()]
-    stderr = [line.rstrip() for line in chan.makefile_stderr("r", bufsize).readlines()]
-    json_blob = {
-        "host": _get_transport(ssh).sock.getpeername()[0],
-        "cmd": cmd,
-        "rc": rc,
-        "stdout": "\n".join(stdout),
-        "stderr": "\n".join(stderr),
-    }
+    resp = ExecResponse(
+        host=_get_transport(ssh).sock.getpeername()[0],
+        cmd=cmd,
+        rc=chan.recv_exit_status(),
+        stdout="\n".join([line.rstrip() for line in chan.makefile("r", bufsize).readlines()]),
+        stderr="\n".join(
+            [line.rstrip() for line in chan.makefile_stderr("r", bufsize).readlines()]
+        ),
+    )
 
-    if check_rc and rc:
-        err = ExecFailed(**json_blob)
-        logger.exception(err)
-        raise err
+    if check_rc and resp.rc:
+        logger.error(json.dumps(vars(resp)))
+        raise ExecFailed(**vars(resp))
     else:
-        logger.debug(json.dumps(json_blob))
-    return rc, stdout, stderr
+        logger.debug(json.dumps(vars(resp)))
+    return resp
 
 
 ###
@@ -386,29 +404,28 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
 
     provision_ufw(ssh, scp)
     logger.info(f"{droplet.name} provisioned")
-    revapp_launch(ssh, droplet.ip_address, image_name)
+    revapp_launch(ssh, scp, droplet.ip_address, image_name)
     logger.info(f"Review app started on {droplet.name}")
     ssh.close()
 
 
 def provision_ufw(ssh: SSHClient, scp: SCPClient):
     logger.debug(f"Checking ufw status")
-    rc, msg, err = ssh_exec(ssh, "ufw status")
-    if "\n".join(msg) == ufw_status_ok:
+    status_resp = ssh_exec(ssh, "ufw status")
+    if status_resp.stdout == ufw_status_ok:
         logger.info(f"ufw status ok, skipping")
         return
 
     logger.debug(f"moving current ufw configs")
     for ufw_conf in ufw_configs:
-        rc, stdout, stderr = ssh_exec(
-            ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old"
-        )
+        ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     scp_put(scp, ufw_configs, remote_path="/etc/ufw/")
+
     logger.debug(f"reloading ufw config")
     ssh_exec(ssh, "ufw reload")
-    rc, msg, err = ssh_exec(ssh, "ufw status")
-    if "\n".join(msg) == ufw_status_ok:
-        raise ValueError(f"ufw status not matching after update: {msg}")
+    status_resp = ssh_exec(ssh, "ufw status")
+    if status_resp.stdout == ufw_status_ok:
+        raise ValueError(f"ufw status not matching after update: {status_resp.stdout}")
     logger.info(f"ufw successfully configured")
 
 
@@ -475,11 +492,7 @@ def revapp_status(droplet: Droplet) -> RevappStatus:
     return RevappStatus.ServerError
 
 
-def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
-    # can take a little while, so run pull by itself
-    logger.info(f"pulling image {image_name}")
-    ssh_exec(ssh, f"docker pull {image_name}", timeout=300)
-
+def revapp_launch(ssh: SSHClient, scp: SCPClient, hostname: str, image_name: str):
     # set up environment for revapp_start_script
     revapp_env = revapp_base_env.copy()
     revapp_env["VIRTUAL_HOST"] = hostname
@@ -491,17 +504,22 @@ def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
         err = ValueError(f"Required environment variable(s) unset: {', '.join(empty_vars)}")
         raise err
 
-    # remove any existing containers from failed/partial provisions
-    ssh_exec(ssh, "docker ps -aq | xargs docker rm -f")
-
     # run make command with the appropriate env values
     param_list = " ".join(f"{k}={v}" for k, v in revapp_env.items())
-    cmd_str = f"make demo {param_list}"
 
-    logger.info(f"Starting application")
-    rc, out_str, err_str = ssh_exec(ssh, cmd_str, timeout=300)
-    if rc:
-        logger.warn(f"Got rc {rc} on command {cmd_str}")
+    logger.debug("generating start script")
+    subprocess.run(
+        f"make -n --no-print-directory demo-pull demo {param_list} TERM_OPTS= >> {revapp_start_script}",
+        shell=True,
+        check=True,
+        capture_output=True,
+    )
+    logger.debug("uploading start script")
+    scp_put(scp, revapp_start_script)
+    logger.info("running start script")
+    resp = ssh_exec(ssh, f"./{revapp_start_script.name}", timeout=300)
+    if resp.rc:
+        logger.warn(f"Got rc {resp.rc} on command {resp.cmd}")
         logger.warn(f"App may not have started correctly")
 
     logger.info(f"Review app started on {hostname}:{revapp_env['DEMO_HOST_PORT']}")
@@ -520,13 +538,13 @@ def revapp_launch(ssh: SSHClient, hostname: str, image_name: str) -> None:
 @click.option("--verbose", "-v", is_flag=True, help="set log level to INFO")
 @click.option("--debug", "-D", is_flag=True, help="set log level to DEBUG")
 @click.pass_context
-def app(ctx, token: str, verbose: bool, debug: bool):
+def app(ctx: AppContext, token: str, verbose: bool, debug: bool):
     if debug:
         logger.setLevel(logging.DEBUG)
     elif verbose:
         logger.setLevel(logging.INFO)
-    ctx.obj["token"] = token
-    ctx.obj["mgr"] = Manager(token=token)
+    ctx.obj.token = token
+    ctx.obj.mgr = Manager(token=token)
 
 
 @app.command(help="create a new droplet to run the review app")
@@ -559,17 +577,17 @@ def app(ctx, token: str, verbose: bool, debug: bool):
     help="replace review app of the same name, if found",
 )
 @click.pass_context
-def create(ctx, name: str, size: str, image_name: str, ssh_key: RSAKey, replace: bool) -> None:
+def create(ctx: AppContext, name: str, size: str, image_name: str, ssh_key: RSAKey, replace: bool):
     """ creates a new droplet to run the review app """
-    exists = get_droplet(ctx.obj["mgr"], name)
+    exists = get_droplet(ctx.obj.mgr, name)
     if exists:
         logger.info(f"Found existing droplet with name {name}: id {exists.id}")
         if not replace:
             raise ValueError(f"Review app for {name} already exists. Remove it or use --replace")
-        remove_droplet(ctx.obj["mgr"], name)
+        remove_droplet(ctx.obj.mgr, name)
 
     droplet_args = {
-        "token": ctx.obj["token"],
+        "token": ctx.obj.token,
         "name": name,
         "region": default_region,
         "size": size,
@@ -613,10 +631,10 @@ def create(ctx, name: str, size: str, image_name: str, ssh_key: RSAKey, replace:
     help="path to ssh private key to add to the review app (must be in digitalocean)",
 )
 @click.pass_context
-def provision(ctx, name: str, image_name: str, ssh_key: RSAKey):
+def provision(ctx: AppContext, name: str, image_name: str, ssh_key: RSAKey):
     # TODO: set timeout option on digitalocean side
     logger.info(f"Re-provisioning name {name}")
-    droplet = get_droplet(ctx.obj["mgr"], name)
+    droplet = get_droplet(ctx.obj.mgr, name)
     if droplet is None or droplet.status != "active":
         raise ValueError(f"Cannot re-provision a stopped or non-existent droplet: {name}")
     provision_droplet(droplet, ssh_key, image_name)
@@ -633,8 +651,8 @@ def provision(ctx, name: str, image_name: str, ssh_key: RSAKey):
     help="restrict output to the selected fields",
 )
 @click.pass_context
-def status(ctx, name: str, json_format: bool, fields: List[str]):
-    droplet = get_droplet(ctx.obj["mgr"], name)
+def status(ctx: AppContext, name: str, json_format: bool, fields: List[str]):
+    droplet = get_droplet(ctx.obj.mgr, name)
     if droplet is None:
         logger.error(f"No review app found named: {name}")
         if json_format:
@@ -678,8 +696,8 @@ def status(ctx, name: str, json_format: bool, fields: List[str]):
 )
 @click.option("--sort", "sort_key", type=click.Choice(droplet_attrs, False), default="name")
 @click.pass_context
-def list_apps(ctx, json_format: bool, detailed: bool, sort_key: str):
-    raw_droplets = list_droplets(ctx.obj["mgr"])
+def list_apps(ctx: AppContext, json_format: bool, detailed: bool, sort_key: str):
+    raw_droplets = list_droplets(ctx.obj.mgr)
     trimmed = sorted([trim_droplet(d) for d in raw_droplets], key=itemgetter(sort_key))
     if not json_format and not detailed:
         print_table(trimmed, droplet_attrs)
@@ -690,10 +708,10 @@ def list_apps(ctx, json_format: bool, detailed: bool, sort_key: str):
 @app.command(help="remove an existing review app droplet")
 @click.argument("name", envvar="REVAPP_NAME", callback=format_name)
 @click.pass_context
-def remove(ctx, name: str) -> None:
+def remove(ctx: AppContext, name: str):
     """ removes an existing review app droplet """
-    remove_droplet(ctx.obj["mgr"], name)
+    remove_droplet(ctx.obj.mgr, name)
 
 
 if __name__ == "__main__":
-    app(obj={})
+    app(obj=ContextObj())

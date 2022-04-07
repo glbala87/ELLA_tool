@@ -144,7 +144,7 @@ class Genepanel(Base):
     phenotypes = relationship("Phenotype", secondary=genepanel_phenotype)
 
     def __repr__(self):
-        return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)
+        return f"<Genepanel('{self.name}','{self.version}', '{self.genome_reference}')>"
 
     def __str__(self):
         return "_".join((self.name, self.version, self.genome_reference))

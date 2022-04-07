@@ -21,6 +21,8 @@ app.wsgi_app = ProxyFix(app.wsgi_app)  # type: ignore
 db = DB()
 engine_kwargs = {"pool_size": 5, "max_overflow": 10, "pool_timeout": 30}
 db.connect(engine_kwargs=engine_kwargs)
+if DEVELOPMENT_MODE:
+    print(f"Using database URL: {db.engine.url}", file=sys.stderr)
 
 
 class ApiError(HTTPException):
