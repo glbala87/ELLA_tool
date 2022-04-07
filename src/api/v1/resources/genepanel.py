@@ -290,7 +290,7 @@ class GenepanelStatsResource(LogRequestResource):
         ]
         # get only max version for each genepanel name
         latest_genepanels = [
-            (k, max(v))
+            (k, max(v, key=lambda x: x.version).version)
             for k, v in groupby(
                 sorted(official_genepanels, key=lambda x: x.name), key=lambda x: x.name
             )

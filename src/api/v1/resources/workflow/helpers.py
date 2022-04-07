@@ -2,10 +2,8 @@ import datetime
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, Union, overload
-from typing_extensions import Literal
 
 import pytz
-from sqlalchemy.dialects.postgresql.array import Any
 from api import ApiError, ConflictError, schemas
 from api.schemas.pydantic.v1.config import (
     AlleleFinalizeRequirementsConfig,
@@ -31,9 +29,11 @@ from datalayer import (
     queries,
 )
 from sqlalchemy import and_, func, literal, tuple_
+from sqlalchemy.dialects.postgresql.array import Any
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.schema import Column
+from typing_extensions import Literal
 from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
 
 ### Magic Metadata
@@ -1050,7 +1050,8 @@ def get_workflow_allele_collisions(
     analysis_ids: List[int] = []
     for wf_type in ongoing:
         for wf in ongoing[wf_type]:
-            user_ids.add(wf.user_id)
+            if wf.user_id is not None:
+                user_ids.add(wf.user_id)
             if wf_type is WorkflowTypes.ANALYSIS and wf.analysis_id:
                 analysis_ids.append(wf.analysis_id)
     user_map: Dict[int, Dict[str, Any]] = {
@@ -1080,7 +1081,7 @@ def get_workflow_allele_collisions(
                     {
                         **wf_obj.dump(exclude_none=True, exclude={"user_id"}),
                         "type": wf_type,
-                        "user": user_map.get(wf_obj.user_id),
+                        "user": None if wf_obj.user_id is None else user_map.get(wf_obj.user_id),
                         "analysis_name": analysis_name_by_id.get(wf_obj.analysis_id),
                     }
                 )

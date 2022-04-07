@@ -2,7 +2,6 @@ import os
 import subprocess
 import tempfile
 from sqlalchemy.pool import NullPool
-from vardb.deposit.deposit_testdata import DepositTestdata
 from vardb.datamodel.annotationshadow import update_annotation_shadow_columns
 from api import db
 from api.config import config
@@ -44,7 +43,6 @@ class TestDatabase(object):
         """
 
         with open(os.devnull, "w") as f:
-
             subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True, stdout=f)
             subprocess.check_call(f"createdb {self.db_name}", shell=True, stdout=f)
             subprocess.check_call("ella-cli database drop -f", shell=True, stdout=f)
@@ -53,7 +51,9 @@ class TestDatabase(object):
                 print("Migration running")
                 subprocess.call("ella-cli database ci-migration-head -f", shell=True)
                 subprocess.call("ella-cli database refresh -f", shell=True, stdout=f)
-            DepositTestdata(db).deposit_all(test_set="integration_testing")
+            subprocess.check_call(
+                "python /ella/ops/testdata/reset-testdata.py --testset integration_testing".split()
+            )
 
             subprocess.check_call(f"dropdb --if-exists {self.db_name}-template", shell=True)
             subprocess.check_call(

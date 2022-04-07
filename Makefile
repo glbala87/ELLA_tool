@@ -1,3 +1,4 @@
+SHELL = /bin/bash
 # Configured on the outside when running in gitlab
 BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 # used as prefix for all containers created in this pipeline. Allows easy cleanup and indentify origin of containers:
@@ -6,17 +7,19 @@ GID ?= 1000
 
 PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 
+DEFAULT_CONTAINER_NAME = ella-${BRANCH}
 CONTAINER_NAME ?= ella-${BRANCH}
 export IMAGE_NAME ?= local/ella-${BRANCH}:latest
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
 
-ELLA_CONFIG ?= /ella/example_config.yml
-ANNOTATION_SERVICE_URL ?= 'http://172.17.0.1:6000'
-ATTACHMENT_STORAGE ?= '/ella/src/vardb/testdata/attachments/'
-TESTSET ?= 'default'
+ELLA_CONFIG ?= /ella/ella-testdata/testdata/example_config.yml
+ANNOTATION_SERVICE_URL ?= http://172.17.0.1:6000
+ATTACHMENT_STORAGE ?= /ella/ella-testdata/testdata/attachments
+TESTSET ?=
 HYPOTHESIS_PROFILE ?= 'default'
+PGDATA_VOLNAME ?= pgdata-${CONTAINER_NAME}
 
 # e2e test:
 PARALLEL_INSTANCES ?= 2
@@ -28,22 +31,30 @@ DIAGRAM_IMAGE = local/${PIPELINE_ID}-diagram
 TMP_DIR ?= /tmp
 ifeq (${CI_REGISTRY_IMAGE},)
 # running locally, use interactive
-TERM_OPTS := -it
+TERM_OPTS := -i -t
 else
 TERM_OPTS := -t
 endif
 
+# override used so docker run defaults can't get clobbered. Use ELLA_OPTS for any customization
+override FEATURE_FLAGS = ENABLE_CNV ENABLE_PYDANTIC
+override LOCAL_USER = --user ${UID}:${GID}
+override ENABLED_FEATURES = $(foreach feat,${FEATURE_FLAGS},-e ${feat}=true)
+# use escaped $$PWD so locally generated start_review.sh can be used in the remote VM
+override MOUNT_TESTDATA = -v $$PWD/ella-testdata:/ella/ella-testdata -v $$PWD/.git:/ella/.git
 
-# don't let user clobber docker run defaults, ELLA_OPTS should be used for customization
-override SHARED_OPTS = -e ANNOTATION_SERVICE_URL=${ANNOTATION_SERVICE_URL} \
+# setup docker options for each variation we use
+
+override SHARED_OPTS = ${ENABLED_FEATURES} \
+	${TERM_OPTS} \
+	-e ANNOTATION_SERVICE_URL=${ANNOTATION_SERVICE_URL} \
 	-e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
 	-e DB_URL=postgresql:///postgres \
 	-e ELLA_CONFIG=${ELLA_CONFIG} \
-	-e OFFLINE_MODE="false" \
-	-e PRODUCTION=false \
-	-e ENABLE_CNV=true \
-	-e ENABLE_PYDANTIC=true \
-	--init
+	-e OFFLINE_MODE=false \
+	-v ${PGDATA_VOLNAME}:/pg-data \
+	--init \
+	--name ${CONTAINER_NAME}
 
 override DEV_OPTS = ${SHARED_OPTS} \
 	-d \
@@ -51,49 +62,56 @@ override DEV_OPTS = ${SHARED_OPTS} \
 	-p ${API_PORT}:5000 \
 	-p 35729:35729 \
 	-p 5678:5678 \
-	-v ${PWD}:/ella \
+	-v ${CURDIR}:/ella \
 	--hostname ${CONTAINER_NAME} \
-	--name ${CONTAINER_NAME} \
 	${ELLA_OPTS}
 
-override DEMO_OPTS = ${SHARED_OPTS} \
-	${TERM_OPTS} \
+# pydantic disabled in demo to match production
+override DEMO_OPTS = ${MOUNT_TESTDATA} \
+	${SHARED_OPTS} \
 	-d --rm \
-	-e VIRTUAL_HOST=${DEMO_NAME} \
+	-e ENABLE_PYDANTIC=false \
 	-e PORT=${DEMO_PORT} \
-	-p ${DEMO_HOST_PORT}=${DEMO_PORT} \
-	-v /tmp:/tmp \
-	-v ${PWD}:/local-repo \
+	-e VIRTUAL_HOST=${DEMO_NAME} \
+	-p ${DEMO_HOST_PORT}:${DEMO_PORT} \
+	-v ${CURDIR}:/local-repo \
 	${ELLA_OPTS}
 
-override E2E_OPTS = ${SHARED_OPTS} \
-	-e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
+override E2E_BASE_OPTS = ${LOCAL_USER} \
+	${MOUNT_TESTDATA} \
+	${SHARED_OPTS} \
+	-d \
+	-e ANNOTATION_SERVICE_URL=http://localhost:6000
+
+override E2E_OPTS = ${E2E_BASE_OPTS} \
 	-e NUM_PROCS=${PARALLEL_INSTANCES} \
 	-v $(shell pwd)/errorShots:/ella/errorShots \
 	-v $(shell pwd)/logs:/logs \
 	--hostname e2e \
-	--name ${CONTAINER_NAME}-e2e
-
-override E2E_DEBUG_OPTS = ${SHARED_OPTS} \
-	-e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
-	-e API_PORT=28752 \
-	-p 28752:28752 \
-	-p 5859:5859 \
-	-v ${PWD}:/ella \
-	--hostname e2e-local \
-	--name ${CONTAINER_NAME}-e2e-local \
 	${ELLA_OPTS}
 
-override SCHEMA_OPTS = ${SHARED_OPTS} -v ${PWD}:/ella --rm ${ELLA_OPTS}
+override E2E_DEBUG_OPTS = ${E2E_BASE_OPTS} \
+	-e API_PORT=28752 \
+	-e PYTHONIOENCODING=utf-8 \
+	-e PYTHONUNBUFFERED=true \
+	-p 28752:28752 \
+	-p 5859:5859 \
+	-v ${CURDIR}:/ella \
+	--cap-add SYS_PTRACE \
+	--hostname e2e-local \
+	${ELLA_OPTS}
 
-override TEST_OPTS = ${TERM_OPTS} \
+override SCHEMA_OPTS = ${LOCAL_USER} \
+	${SHARED_OPTS} \
+	-v ${CURDIR}:/ella \
 	--rm \
-	--user ${UID}:${GID} \
-	-e DB_URL=postgresql:///postgres \
-	-e PRODUCTION=false \
-	-e ENABLE_CNV=true
+	${ELLA_OPTS}
 
-override PY_OPTS = ${TEST_OPTS} -e ENABLE_PYDANTIC=true
+override TEST_OPTS = ${LOCAL_USER} \
+	${MOUNT_TESTDATA} \
+	${SHARED_OPTS} \
+	--rm \
+	${ELLA_OPTS}
 
 .PHONY: help
 
@@ -266,7 +284,7 @@ _release-get-api:
 
 # Assumes $RELEASE_IMAGE is available locally or can be pulled
 _release-get-static:
-	-docker rm -f ${STATIC_CONTAINER_NAME}
+	-docker rm -vf ${STATIC_CONTAINER_NAME}
 	docker run -d \
 		--name ${STATIC_CONTAINER_NAME} \
 		${RELEASE_IMAGE} \
@@ -301,28 +319,32 @@ DEMO_NAME ?= ella-demo
 DEMO_PORT ?= 3114
 DEMO_HOST_PORT ?= 3114
 DEMO_IMAGE ?= ${REVAPP_IMAGE_NAME}
-export DEMO_NAME DEMO_PORT DEMO_HOST_PORT DEMO_OPTS
+DEMO_USER ?= ${UID}
+DEMO_GROUP ?= ${GID}
+export DEMO_NAME DEMO_IMAGE DEMO_USER DEMO_GROUP DEMO_PORT DEMO_HOST_PORT
 
 demo-build: build-review
 
 demo-pull:
-	docker pull ${REVAPP_IMAGE_NAME}
+	docker pull -q ${REVAPP_IMAGE_NAME}
 
 demo-check-image:
 	docker image inspect ${REVAPP_IMAGE_NAME} >/dev/null 2>&1 || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
-	-@docker rm -f ${DEMO_NAME}
+	-@docker rm -vf ${DEMO_NAME}
 
 demo: demo-check-image
 	$(eval export DEMO_IMAGE = ${REVAPP_IMAGE_NAME})
-	./ops/start_demo.sh
+	$(eval CONTAINER_NAME = ${DEMO_NAME})
+	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
+	docker exec ${TERM_OPTS} ${DEMO_NAME} make dbreset
 	@echo "Demo is now running at http://localhost:${DEMO_HOST_PORT}. Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
-	docker rm -f ella-demo
+	docker rm -vf ella-demo
 
 # Review apps
 define reviewapp-template
-docker run ${DEMO_OPTS} ${REVAPP_IMAGE_NAME} bash -ic "${RUN_CMD} ${RUN_CMD_ARGS}"
+docker run -v ${CURDIR}:/local-repo ${ELLA_OPTS} ${REVAPP_IMAGE_NAME} bash -ic "${RUN_CMD} ${RUN_CMD_ARGS}"
 endef
 
 __gitlab_env:
@@ -353,6 +375,7 @@ review:
 	./ops/review_app.py --token ${DO_TOKEN} create \
 		--image-name ${REVAPP_IMAGE_NAME} \
 		--ssh-key ${REVAPP_SSH_KEY} \
+		--replace \
 		${REVAPP_NAME}
 
 review-stop:
@@ -363,14 +386,20 @@ review-refresh-ip:
 	echo APP_IP=${APP_IP} > /local-repo/deploy.env
 
 #---------------------------------------------
-# Misc. database
+# Test data and database
 #---------------------------------------------
 
-dbreset: dbsleep dbresetinner
+# see `ops/testdata/fetch-testdata.py --help` for options
+FETCH_OPTS ?=
+ci-fetch-testdata:
+	chmod 777 .
+	docker run --rm -v $(shell pwd):/ella ${IMAGE_NAME} make fetch-testdata REF=${REF} FETCH_OPTS=${FETCH_OPTS}
 
-dbresetinner:
-	@echo "Resetting database"
-	DB_URL='postgresql:///postgres' /ella/ops/test/reset_testdata.py --testset ${TESTSET}
+fetch-testdata:
+	python3 ./ops/testdata/fetch-testdata.py $(if ${REF},--ref ${REF},) ${FETCH_OPTS}
+
+dbreset: fetch-testdata dbsleep
+	python3 /ella/ops/testdata/reset-testdata.py $(if ${TESTSET},--testset ${TESTSET},)
 
 dbsleep:
 	while ! pg_isready --dbname=postgres --username=postgres; do sleep 5; done
@@ -414,7 +443,7 @@ node-inspect:
 	node inspect --harmony /dist/node_modules/jest/bin/jest.js --runInBand ${SPEC_NAME}
 
 create-diagrams:
-	docker run -v $(shell pwd):/ella ${IMAGE_NAME} python /ella/src/vardb/util/datamodel_to_uml.py
+	docker run -v $(shell pwd):/ella ${IMAGE_NAME} python3 /ella/src/vardb/util/datamodel_to_uml.py
 
 update-pipfile:
 	docker run \
@@ -435,113 +464,86 @@ dump-schemas:
 #---------------------------------------------
 # TESTING (unit / modules)
 #---------------------------------------------
-.PHONY: test-build test test-all test-api test-api-migration \
-        test-common test-js test-rule-engine test-cli
+.PHONY: test-build test-js test-python test-api test-api-migration test-cli test-report test-formatting \
+	test-e2e test-e2e-local _run_test _prep_test _prep_e2e 
 
 # all tests targets below first start a docker container with supervisor as process 1
 # and then does an 'exec' of the tests inside the container
 
+define prep-e2e-container
+mkdir -p ${E2E_DIRS}
+chmod a+rwX ${E2E_DIRS}
+${prep-test-container}
+endef
+
 test-build:
 	docker build ${BUILD_OPTIONS} -t ${IMAGE_NAME} --target dev .
 
-test: test-all
-test-all: test-js test-common test-api test-cli test-report test-e2e
+_prep_test:
+	$(call check_defined TEST_TYPE)
+	$(eval CONTAINER_NAME = ${DEFAULT_CONTAINER_NAME}-${TEST_TYPE})
+	-docker rm -vf ${CONTAINER_NAME}
+	-docker volume rm ${PGDATA_VOLNAME}
+	-docker volume ls | grep pgdata || true
+	@echo
 
-test-js:
-	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-js ${IMAGE_NAME} yarn test
+_run_test: TEST_CMD ?= /ella/ops/test/run_${TEST_TYPE}_tests.sh
+_run_test: _prep_test
+	docker run ${TEST_OPTS} ${SPECIAL_OPTS} ${IMAGE_NAME} ${TEST_CMD}
+	docker volume rm ${PGDATA_VOLNAME}
 
+_prep_e2e: _prep_test
+	mkdir -p ${E2E_DIRS}
+	chmod a+rwX ${E2E_DIRS}
 
-test-python:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-common ${IMAGE_NAME} \
-		ops/test/run_python_tests.sh
+test-js: TEST_TYPE = js
+test-js: _run_test
 
-test-api:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-api ${IMAGE_NAME} \
-		/ella/ops/test/run_api_tests.sh
+test-python: TEST_TYPE = python
+test-python: _run_test
 
+test-api: TEST_TYPE = api
+test-api: _run_test
 
-test-api-migration:
-	docker run ${PY_OPTS} -e MIGRATION=1 --name ${CONTAINER_NAME}-api-migration ${IMAGE_NAME} \
-		/ella/ops/test/run_api_tests.sh
+test-api-migration: TEST_TYPE = api-migration
+test-api-migration: SPECIAL_OPTS = -e MIGRATION=1
+test-api-migration: _run_test
 
-test-cli:
-	docker run ${PY_OPTS} --name ${CONTAINER_NAME}-cli ${IMAGE_NAME} \
-		/ella/ops/test/run_cli_tests.sh
+test-cli: TEST_TYPE = cli
+test-cli: _run_test
 
-test-report:
-	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-report ${IMAGE_NAME} \
-		ops/test/run_report_tests.sh
+test-report: TEST_TYPE = report
+test-report: _run_test
 
-test-formatting:
-	docker run ${TEST_OPTS} --name ${CONTAINER_NAME}-formatting ${IMAGE_NAME} \
-		ops/test/run_formatting_tests.sh
+test-formatting: TEST_TYPE = formatting
+test-formatting: _run_test
 
-test-e2e:
-	@-docker rm -f ${CONTAINER_NAME}-e2e
-	mkdir -p errorShots
-	chmod a+rwX errorShots
-	mkdir -p logs
-	chmod a+rwX logs
-	docker run -d --hostname e2e \
-	   --name ${CONTAINER_NAME}-e2e \
-	   --user ${UID}:${GID} \
-	   -v $(shell pwd)/errorShots:/ella/errorShots \
-	   -v $(shell pwd)/logs:/logs \
-	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-	   -e NUM_PROCS=${PARALLEL_INSTANCES} \
-	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-	   -e PRODUCTION=false \
-	   -e ENABLE_CNV=true \
-	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -e DB_URL=postgresql:///postgres \
-	   -e ENABLE_PYDANTIC=true \
-	   ${IMAGE_NAME} \
-	   supervisord -c /ella/ops/test/supervisor-e2e.cfg
+E2E_DIRS = errorShots logs
+test-e2e: TEST_TYPE = e2e
+test-e2e: _prep_e2e
+	docker run ${E2E_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e.cfg
+	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} ops/test/run_e2e_tests.sh
+	docker logs ${CONTAINER_NAME}
+	docker rm -vf ${CONTAINER_NAME}
 
-	docker exec -e SPEC=${SPEC} -t ${CONTAINER_NAME}-e2e ops/test/run_e2e_tests.sh
-	docker logs ${CONTAINER_NAME}-e2e
-	@docker rm -f ${CONTAINER_NAME}-e2e
 
 #---------------------------------------------
 # LOCAL END-2-END TESTING - locally using visible host browser
 #                           with webdriverio REPL for debugging
 #---------------------------------------------
-.PHONY: e2e-test-local
+.PHONY: test-e2e-local
 
-e2e-test-local: test-build
-	-docker rm -f ${CONTAINER_NAME}-e2e-local
-	docker run -d \
-	   --name ${CONTAINER_NAME}-e2e-local \
-	   --user ${UID}:${GID} \
-       -it \
-       -v $(shell pwd):/ella \
-	   -e ELLA_CONFIG=${ELLA_CONFIG} \
-	   -e ANALYSES_PATH=/ella/src/vardb/testdata/analyses/e2e/ \
-	   -e IGV_DATA="/ella/src/vardb/testdata/igv-data/" \
-	   -e PRODUCTION=false \
-	   -e ENABLE_CNV=true \
-	   -e DB_URL=postgresql:///postgres \
-	   -e DEV_IGV_FASTA=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta \
-	   -e DEV_IGV_CYTOBAND=https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt \
-	   -e API_PORT=28752 \
-	   -e ANNOTATION_SERVICE_URL=http://localhost:6000 \
-	   -e ATTACHMENT_STORAGE=${ATTACHMENT_STORAGE} \
-	   -e ENABLE_PYDANTIC=true \
-	   --cap-add SYS_PTRACE \
-	   --init \
-	   -p 28752:28752 -p 5859:5859 \
-	   ${IMAGE_NAME} \
-	   supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
-	# get CHROME_HOST if it is not defined
-	if [ -z "${CHROME_HOST}" ]; then \
-		CHROME_HOST=$$(docker inspect ${CONTAINER_NAME}-e2e-local --format '{{ .NetworkSettings.Gateway }}' ) ;\
-	fi ;\
+test-e2e-local: TEST_TYPE = e2e-local
+test-e2e-local: test-build _prep_e2e
+	docker run ${E2E_DEBUG_OPTS} ${ELLA_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
+	
+	CHROME_HOST=$${CHROME_HOST:-$$(docker inspect ${CONTAINER_NAME} --format '{{ .NetworkSettings.Gateway }}')} ; \
+	echo using CHROME_HOST=$$CHROME_HOST ; \
 	docker exec \
 		-e CHROME_HOST=$$CHROME_HOST \
 		-e APP_URL=$$APP_URL \
 		-e SPEC=$$SPEC \
 		-e DEBUG=$$DEBUG \
-		-it ${CONTAINER_NAME}-e2e-local \
-	    /bin/bash -ic "ops/test/run_e2e_tests_locally.sh"
+		-it ${CONTAINER_NAME} \
+	    /ella/ops/test/run_e2e_tests_locally.sh
+	@echo "remember to 'docker rm ${CONTAINER_NAME}' once you're finished"

@@ -37,6 +37,11 @@ def modify_schema(schema: Dict[str, Any], model: Type[BaseModel]):
     for field_props in schema.get("properties", {}).values():
         field_props.pop("title", None)
 
+    # mark fields with default values as required in schema
+    default_fields = set([f.alias for f in model.__fields__.values() if f.default is not None])
+    if default_fields:
+        schema["required"] = sorted(set(schema.get("required", [])) | default_fields)
+
     custom_props = model._meta()
     if custom_props:
         schema.update(**custom_props)

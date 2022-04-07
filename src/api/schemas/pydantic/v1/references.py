@@ -26,6 +26,12 @@ class Reference(BaseModel):
     published: bool = True
     year: Optional[int] = None
 
+    # @classmethod
+    # def _meta(cls: Type[Reference]) -> Dict[str, Any]:
+    #     # mark fields with default values as required in schema
+    #     req_fields = [k for k, v in cls.__fields__.items() if v.required or v.default is not None]
+    #     return {"required": req_fields}
+
 
 # NOTE: should ref assessments be stored in their own file?
 

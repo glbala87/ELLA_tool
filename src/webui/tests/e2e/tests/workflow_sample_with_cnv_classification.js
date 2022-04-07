@@ -299,6 +299,9 @@ describe('Sample workflow', function() {
         cnvSelector.waitForExist()
         cnvSelector.click()
 
+        console.log(`analysisComment: ${alleleSectionBox.analysisComment}`)
+        console.log(`(console) expected obj: ${JSON.stringify(expected_analysis_1_round_1)}`)
+        browser.pause(500)
         checkAlleleClassification(expected_analysis_1_round_1)
 
         workLog.open()

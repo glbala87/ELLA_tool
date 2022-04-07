@@ -7,7 +7,7 @@ from pathlib import Path
 FOLDER_FIELDS_RE = re.compile(
     r"(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))"
 )
-VCF_FIELDS_RE = re.compile(FOLDER_FIELDS_RE.pattern + r"\.vcf")
+VCF_FIELDS_RE = re.compile(FOLDER_FIELDS_RE.pattern + r"\.vcf(?:\.gz)?")
 
 
 class AnalysisConfigData(dict):
@@ -120,9 +120,7 @@ class AnalysisConfigData(dict):
             self._init_from_folder(folder_or_file)
             self["warnings"] = self.__load_file(self._root / "warnings.txt")
             self["report"] = self.__load_file(self._root / "report.txt")
-        elif folder_or_file.is_file() and (
-            folder_or_file.suffix == ".vcf" or folder_or_file.suffixes[-2:] == [".vcf", ".gz"]
-        ):
+        elif folder_or_file.is_file() and is_vcf_file(folder_or_file):
             self._root = folder_or_file.parent
             self._init_from_vcf(folder_or_file)
         elif folder_or_file.is_file() and folder_or_file.suffix == ".analysis":
@@ -164,14 +162,19 @@ class AnalysisConfigData(dict):
                         v[key] = str(self._root / v[key])
                     assert Path(v[key]).is_file(), "Unable to find file at {}".format(v[key])
 
-    def __load_file(self, path):
+    def __load_file(self, path: Path):
         if path.is_file():
             with open(path, "r") as f:
                 return f.read()
         else:
             return None
 
-    def _init_from_legacy_analysis_file(self, filename):
+    def __find_analysis_vcfs(self, path: Path):
+        vcfs = sorted([p for p in path.rglob("*.vcf*") if is_vcf_file(p)])
+        assert len(vcfs) >= 1, f"Unable to find vcf file in folder: {path}"
+        return vcfs
+
+    def _init_from_legacy_analysis_file(self, filename: Path):
         with open(filename, "r") as f:
             legacy = json.load(f)
 
@@ -179,7 +182,7 @@ class AnalysisConfigData(dict):
             "name": legacy["name"],
             "genepanel_name": legacy["params"]["genepanel"].split("_")[0],
             "genepanel_version": legacy["params"]["genepanel"].split("_")[1],
-            "data": [{"vcf": next(filename.parent.glob(filename.stem + ".vcf*")).name}],
+            "data": [{"vcf": self.__find_analysis_vcfs(filename.parent)[0].name}],
         }
 
         if filename.absolute().with_suffix(".ped").is_file():
@@ -194,8 +197,7 @@ class AnalysisConfigData(dict):
 
         self.update(d)
 
-    def _init_from_analysis_file(self, filename):
-
+    def _init_from_analysis_file(self, filename: Path):
         with open(filename, "r") as f:
             d = json.load(f)
 
@@ -204,8 +206,9 @@ class AnalysisConfigData(dict):
         else:
             self.update(d)
 
-    def _init_from_vcf(self, vcf):
+    def _init_from_vcf(self, vcf: Path):
         matches = re.match(VCF_FIELDS_RE, vcf.name)
+        assert matches
         self.update(
             {
                 "name": matches.group("analysis_name"),
@@ -215,26 +218,26 @@ class AnalysisConfigData(dict):
             }
         )
 
-    def _init_from_folder(self, folder):
+    def _init_from_folder(self, folder: Path):
         analysis_files = [p.name for p in folder.rglob("*.analysis")]
         assert (
             len(analysis_files) <= 1
-        ), "Multiple .analysis-files found in folder {}: {} This is not supported.".format(
-            folder, analysis_files
-        )
+        ), f"Multiple .analysis-files found in folder {folder}: {analysis_files}. This is not supported."
+
         if len(analysis_files) == 1:
             return self._init_from_analysis_file(folder / analysis_files[0])
         else:
-            matches = re.match(FOLDER_FIELDS_RE, folder.name)
-            vcfs = sorted([p for p in folder.rglob("*.vcf*")])
+            vcfs = self.__find_analysis_vcfs(folder)
             peds = [p for p in folder.rglob("*.ped")]
-            assert len(vcfs) >= 1, "Unable to find vcf-file in folder"
 
             # Match vcfs with peds on filename stem
             vcf_peds = [
                 (vcf, next((ped for ped in peds if ped.stem == vcf.stem.split(".")[0]), None))
                 for vcf in vcfs
             ]
+
+            matches = re.match(FOLDER_FIELDS_RE, folder.name)
+            assert matches
             self.update(
                 {
                     "name": matches.group("analysis_name"),
@@ -246,3 +249,7 @@ class AnalysisConfigData(dict):
                     ],
                 }
             )
+
+
+def is_vcf_file(path: Path):
+    return path.suffix == ".vcf" or path.suffixes[-2:] == [".vcf", ".gz"]

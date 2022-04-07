@@ -1,15 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import os
 import json
+import os
 from collections import OrderedDict
 from functools import cmp_to_key
 
 import sqlalchemy as sa
-from sqlalchemy.sql import table, column
-from sqlalchemy.dialects import postgresql
 from sqlalchemy import create_engine
-
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql import column, table
 
 GenepanelTranscript = table(
     "genepanel_transcript",

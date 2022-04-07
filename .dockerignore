@@ -5,6 +5,7 @@ IGV_DATA/
 images/
 node_modules/
 src/webui/build
+ella-testdata/
 **/*.pyc
 **/*.sif
 **/*.simg
@@ -12,3 +13,10 @@ src/webui/build
 # made by e2e tests:
 src/webui/tests/node_modules/
 src/webui/dev
+src/webui/build
+errorShots/
+logs/
+.mypy_cache
+.pytest_cache
+__pycache__
+*.pyc

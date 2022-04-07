@@ -80,7 +80,6 @@ stages:
     before_script:
         - *apk-setup
         - *docker-login
-        - docker pull $REVAPP_IMAGE_NAME
     variables:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
@@ -91,6 +90,7 @@ stages:
     before_script:
         - *apk-setup
         - *docker-load
+        - make ci-fetch-testdata
     needs: ['build']
     cache:
         <<: *cache-pull
@@ -172,7 +172,7 @@ check_formatting:
 e2e:
     extends: .common-test
     script:
-        - PARALLEL_INSTANCES=2 make test-e2e
+        - PARALLEL_INSTANCES=1 make test-e2e
     artifacts:
         paths:
             - errorShots/
