@@ -59,7 +59,7 @@ function addCommands() {
             stdio: ['ignore', 'ignore', 'pipe']
         })
 
-        execSync(`psql ${process.env.DB_URL} < /ella/e2e-test-dump.sql`, {
+        execSync(`/ella/ops/testdata/reset-testdata.py reset --testset e2e`, {
             stdio: ['ignore', 'ignore', 'pipe']
         })
         console.log('Database reset from dump done!')

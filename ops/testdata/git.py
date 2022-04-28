@@ -34,15 +34,32 @@ class GitProcess:
     stdout: Optional[bytes]
     stderr: Optional[bytes]
 
+    def _clean_bytes(self, bytestr: Optional[bytes], *, strip_chars: str = "\n") -> Optional[str]:
+        if bytestr is None:
+            return bytestr
+        return bytestr.decode("UTF-8").strip(strip_chars)
+
     def output(self):
-        if self.stdout:
-            return self.stdout.decode().strip("\n")
-        return ""
+        return self._clean_bytes(self.stdout) or ""
 
     def output_lines(self):
-        if self.output():
-            return self.output().split("\n")
-        return []
+        if not self.output():
+            return []
+        return self.output().split("\n")
+
+    def error(self):
+        return self._clean_bytes(self.stderr) or ""
+
+    def error_lines(self):
+        if not self.error():
+            return []
+        return self.error().split("\n")
+
+    @classmethod
+    def load(cls, proc: subprocess.CompletedProcess, *, cwd: Optional[Path] = None):
+        if cwd is None:
+            cwd = Path().absolute()
+        return cls(cwd=cwd, **vars(proc))
 
 
 class Repository:
@@ -134,7 +151,7 @@ class Repository:
             raise e
         logger.debug(f"Received: {proc!r}")
 
-        git_proc = GitProcess(cwd=cwd, **vars(proc))
+        git_proc = GitProcess.load(proc, cwd=cwd)
         if print_output:
             print(git_proc.output())
         self.history.append(git_proc)
@@ -211,27 +228,28 @@ class Repository:
         except subprocess.CalledProcessError:
             return False
 
-    def ref_type(self, ref_name: str) -> RefType:
-        if self.remote_ref_exists(ref_name):
-            proc = self._lookup_ref(ref_name)
-            ref_path = proc.output().split("\t")[-1]
-            if ref_path.startswith("refs/heads/"):
-                return RefType.BRANCH
-            elif ref_path.startswith("refs/tags/"):
-                return RefType.TAG
-            elif ref_path == "HEAD":
-                return RefType.HEAD
-            else:
-                raise ValueError(
-                    f"Cannot determine ref type of {ref_name} with git output: '{proc.output()}'"
-                )
-        elif is_hash(ref_name) and self.is_valid_commit(ref_name):
-            return RefType.COMMIT
+    def ref_type(self, ref_name: str, offline: bool = False) -> RefType:
+        if offline:
+            ref_cmd = "rev-parse --verify --quiet"
         else:
-            return RefType.NOT_FOUND
+            ref_cmd = "fetch origin --quiet"
 
-    def _lookup_ref(self, ref_name: str):
-        cmd = f"git ls-remote --exit-code {self.remote_url} {ref_name}".split()
+        if self._exec(f"git {ref_cmd} refs/tags/{ref_name}", check=False).returncode == 0:
+            return RefType.TAG
+        elif self._exec(f"git {ref_cmd} refs/heads/{ref_name}", check=False).returncode == 0:
+            return RefType.BRANCH
+        elif (
+            self._exec(f"git rev-parse --verify {ref_name}^{{commit}}", check=False).returncode == 0
+        ):
+            return RefType.COMMIT
+
+        return RefType.NOT_FOUND
+
+    def _lookup_ref(self, ref_name: str, offline: bool = False):
+        if offline:
+            cmd = f"git show-ref {ref_name}".split()
+        else:
+            cmd = f"git ls-remote --exit-code {self.remote_url} {ref_name}".split()
         return self._exec(cmd, cwd=Path())
 
 
