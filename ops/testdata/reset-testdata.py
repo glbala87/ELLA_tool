@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
-import argparse
 import datetime
 import gzip
 import json
@@ -12,8 +12,9 @@ import sys
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
+import click
 import requests
 import yaml
 from api.config.config import feature_is_enabled
@@ -34,6 +35,9 @@ from vardb.watcher.analysis_watcher import AnalysisConfigData
 from git import Repository
 
 logger = logging.getLogger(__file__)
+logger.setLevel(logging.INFO)
+logging.getLogger("git").setLevel(logging.INFO)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 ROOT = Path(__file__).absolute().parents[2]
 TESTDATA_REPO_DIR = ROOT / "ella-testdata"
@@ -41,17 +45,15 @@ TESTDATA_DIR = TESTDATA_REPO_DIR / "testdata"
 GP_DIR = TESTDATA_DIR / "clinicalGenePanels"
 FIXTURES_DIR = TESTDATA_DIR / "fixtures"
 ANALYSES_DIR = TESTDATA_DIR / "analyses"
+DB_URL = os.getenv("DB_URL", "postgresql:///postgres")
 
 SPACES_CONFIG = {"bucket_name": "ella", "is_public": True, "region": "fra1"}
+DUMP_URL_ROOT = "https://ella.fra1.digitaloceanspaces.com/testdata"
 SPECIAL_TESTSET_SKIPPING_VCF = "empty"
 
 ###
-### deposit_testdata.py
+### Find and load metadata for all available and versioned testsets
 ###
-
-
-class Args(argparse.Namespace):
-    testset: Optional[str]
 
 
 class Fixtures(Enum):
@@ -104,7 +106,7 @@ for an_item in ANALYSES_DIR.iterdir():
     if not an_item.is_dir():
         continue
     ANALYSES.append(AnalysisInfo(an_item, an_item.name, an_item.name == DEFAULT_TESTSET))
-AVAILABLE_TESTSETS: List[str] = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
+AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
 
 # TODO: determine a way to not have this hard coded
 ALLELES = [
@@ -115,7 +117,78 @@ ALLELES = [
 ]
 
 
-class DepositTestdata(object):
+###
+### Classes
+###
+
+
+class Context:
+    db: DB
+    repo: Repository
+    testset: str
+    dump_url: Optional[str] = None
+    dump_path: Optional[Path] = None
+
+    def __init__(self) -> None:
+        self.repo = Repository(repo_dir=TESTDATA_REPO_DIR)
+        self.db = DB()
+        self.db.connect()
+
+    @property
+    def dump_dir(self):
+        dd = self.repo.repo_dir / "dumps"
+        if self.repo.sha:
+            dd = dd / self.repo.sha
+        return dd
+
+    @property
+    def web_dump(self):
+        if self.dump_url is None:
+            self.dump_url = f"{DUMP_URL_ROOT}/{self.repo.sha}/{self.local_dump.name}"
+        return self.dump_url
+
+    @property
+    def dump_exists(self):
+        return self.local_dump_exists or self.web_dump_exists
+
+    @property
+    def web_dump_exists(self):
+        r = requests.head(self.web_dump)
+        logger.debug(f"got {r.status_code} back when checking HEAD for {self.web_dump}")
+        return r.status_code < 400
+
+    @property
+    def local_dump_exists(self):
+        return self.local_dump.exists()
+
+    @property
+    def local_dump(self):
+        if self.dump_path is None:
+            self.dump_path = self.dump_dir / f"ella-testdata-{self.testset}.psql.gz"
+        return self.dump_path
+
+    def read_dump(self):
+        if self.local_dump_exists:
+            return self.local_dump.read_bytes()
+        elif self.web_dump_exists:
+            r = requests.get(self.web_dump)
+            if r.status_code < 400:
+                return r.content
+            else:
+                logger.error(f"got {r.status_code} when attempting to download {self.web_dump}")
+                exit(1)
+        else:
+            logger.error(f"no dump found for {self.testset}")
+            exit(1)
+
+
+class CliActions(Enum):
+    RESET = "reset"
+    DUMP = "dump"
+    UPLOAD = "upload"
+
+
+class DepositTestdata:
     session: scoped_session
     engine: Engine
 
@@ -125,32 +198,8 @@ class DepositTestdata(object):
 
     def __init__(self, db: DB):
         assert db.session and db.engine
-        self.engine = db.engine
+        self.engine = cast(Engine, db.engine)
         self.session = db.session
-        self._genepanels = None
-        self._analyses = None
-        self._alleles = None
-
-    @property
-    def genepanels(self):
-        if not self._genepanels:
-            ...
-
-        return self._genepanels
-
-    @property
-    def analyses(self):
-        if not self._analyses:
-            ...
-
-        return self._analyses
-
-    @property
-    def alleles(self):
-        if not self._alleles:
-            ...
-
-        return self._alleles
 
     def deposit_users(self):
         import_groups(self.session, json.loads(Fixtures.USERGROUPS.value.read_text()))
@@ -168,7 +217,7 @@ class DepositTestdata(object):
         deposit_annotationconfig(self.session, annotation_config)
         logger.info("Added annotation config")
 
-    def deposit_analyses(self, test_set=None):
+    def deposit_analyses(self, test_set: str):
         """
         :param test_set: Which set to import.
         """
@@ -265,34 +314,38 @@ class DepositTestdata(object):
 
 
 ###
-
-
-def dump_exists(url: str):
-    r = requests.head(url)
-    logger.info(f"got {r.status_code} back when checking HEAD for {url}")
-    return r.status_code < 400
+### Database functions
+###
 
 
 def drop_db(db: DB, remake: bool = False):
-    db.engine.execute("DROP SCHEMA public CASCADE")  # type: ignore
-    db.engine.execute("CREATE SCHEMA public")  # type: ignore
+    db.engine.execute("DROP SCHEMA public CASCADE")
+    db.engine.execute("CREATE SCHEMA public")
 
     if remake:
         make_db(db)
-        db.session.commit()  # type: ignore
+        db.session.commit()
 
     db.disconnect()
 
 
-def reset_from_dump(db: DB, url: str):
+def restore_db(db: DB, remake: bool = False):
+    drop_db(db, remake=False)
+    make_db(db)
+    db.session.commit()
+    db.disconnect()
+
+
+def reset_from_dump(db: DB, data):
     drop_db(db, remake=False)
 
-    with requests.get(url) as r:
-        p = subprocess.Popen(
-            "psql -d postgres".split(), stdin=subprocess.PIPE, stdout=Path(os.devnull).open("w")
-        )
-        p.communicate(gzip.decompress(r.content))
-        p.wait()
+    p = subprocess.Popen(
+        ["psql", DB_URL],
+        stdin=subprocess.PIPE,
+        stdout=Path(os.devnull).open("w"),
+    )
+    p.communicate(gzip.decompress(data))
+    p.wait()
 
 
 def reset(db: DB, test_set: str = "default"):
@@ -303,30 +356,92 @@ def reset(db: DB, test_set: str = "default"):
     dt.deposit_all(test_set)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--testset", help="Name of testset to import (legacy)")
-    args = parser.parse_args(namespace=Args)
+###
+### CLI
+###
 
-    repo = Repository(repo_dir=TESTDATA_REPO_DIR)
-    archive_url = (
-        "https://ella.fra1.digitaloceanspaces.com/testdata/"
-        f"{repo.sha}/{args.testset or DEFAULT_TESTSET}/ella-testdata.psql.gz"
+
+@click.group(invoke_without_command=True)
+@click.option("--testset", hidden=True)
+@click.pass_context
+def cli(ctx: click.Context, testset: Optional[str]):
+    # support reset as default command
+    if ctx.invoked_subcommand is None:
+        ctx.invoke(reset_db, testset=testset)  # type: ignore
+
+
+@click.command("dump")
+@click.option("--testset", required=True, help="Name for the new dataset")
+@click.pass_obj
+def dump_db(ctx: Context, testset: str):
+    ctx.testset = testset
+
+    ctx.dump_dir.mkdir(exist_ok=True, parents=True)
+    if ctx.local_dump.exists():
+        logger.warning(f"Overwriting existing local dump file for {ctx.testset}: {ctx.local_dump}")
+
+    proc = subprocess.run(
+        ["pg_dump", DB_URL],
+        cwd=ctx.local_dump.parent,
+        stdout=subprocess.PIPE,
     )
+    ctx.local_dump.write_bytes(gzip.compress(proc.stdout))
+    logger.info(f"Dumped database to {ctx.local_dump}")
 
-    db = DB()
-    db.connect()
-    if dump_exists(archive_url):
-        logger.info(f"Resetting database from dump {archive_url}")
-        reset_from_dump(db, archive_url)
-    elif args.testset:
-        logger.info(f"Resetting from given testset: {args.testset}")
-        reset(db, args.testset)
+
+@click.command("reset")
+@click.option(
+    "--testset",
+    default=DEFAULT_TESTSET,
+    show_default=True,
+    help="Name of test set to use",
+)
+@click.pass_obj
+def reset_db(ctx: Context, testset: str):
+    ctx.testset = testset or DEFAULT_TESTSET
+
+    if ctx.dump_exists:
+        if ctx.local_dump.exists():
+            source = "local"
+            path = ctx.local_dump
+        else:
+            source = "web"
+            path = ctx.web_dump
+        logger.info(f"Restoring database {DB_URL} from {source} dump: {path}")
+        reset_from_dump(ctx.db, ctx.read_dump())
+    elif ctx.testset not in AVAILABLE_TESTSETS:
+        logger.error(f"Invalid or non-existent testset name: {ctx.testset}")
+        exit(1)
     else:
-        logger.info(f"No dump available, loading default dataset")
-        reset(db)
+        logger.info(f"Resetting {DB_URL} from legacy testset: {ctx.testset}")
+        reset(ctx.db, ctx.testset)
     logger.info("Database reset")
 
 
+@click.command("upload")
+@click.option("--testset", required=True, help="Name of the dataset to upload")
+@click.pass_obj
+def upload_dump(ctx: Context, testset: str):
+    ctx.testset = testset
+    if not ctx.local_dump.exists():
+        raise FileNotFoundError(f"No dump found for {testset}")
+
+    print("\nrun manually:")
+    print(
+        f"awsdo s3 cp --acl public-read {ctx.local_dump.relative_to(ROOT)} s3://ella/testdata/{ctx.repo.sha}/{ctx.local_dump.name}"
+    )
+    print()
+
+    print("NotImplementedError: Automated uploading of dumps is not yet implemented")
+    exit(1)
+
+
+###
+
+cli.add_command(reset_db)
+cli.add_command(dump_db)
+cli.add_command(upload_dump)
+
+
 if __name__ == "__main__":
-    main()
+    cli(obj=Context())

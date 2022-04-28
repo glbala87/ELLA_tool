@@ -10,6 +10,7 @@ PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 DEFAULT_CONTAINER_NAME = ella-${BRANCH}
 CONTAINER_NAME ?= ella-${BRANCH}
 export IMAGE_NAME ?= local/ella-${BRANCH}:latest
+REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${BRANCH}
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -135,7 +136,6 @@ help :
 	@echo "                            e.g., make any kill"
 	@echo
 	@echo "-- TEST COMMANDS --"
-	@echo "make test-all             - run all tests"
 	@echo "make test-js              - run Javascript tests"
 	@echo "make test-common          - run Python tests "
 	@echo "make test-api             - run backend API tests"
@@ -390,10 +390,15 @@ review-refresh-ip:
 #---------------------------------------------
 
 # see `ops/testdata/fetch-testdata.py --help` for options
+# git safedir: https://github.blog/2022-04-12-git-security-vulnerability-announced/
 FETCH_OPTS ?=
 ci-fetch-testdata:
 	chmod 777 .
-	docker run --rm -v $(shell pwd):/ella ${IMAGE_NAME} make fetch-testdata REF=${REF} FETCH_OPTS=${FETCH_OPTS}
+	docker run --rm \
+		-v ${CURDIR}/.gitlab/gitconfig:/home/ella-user/.gitconfig \
+		-v ${CURDIR}:/ella \
+		${IMAGE_NAME} \
+		make fetch-testdata REF="${REF}" FETCH_OPTS="${FETCH_OPTS}"
 
 fetch-testdata:
 	python3 ./ops/testdata/fetch-testdata.py $(if ${REF},--ref ${REF},) ${FETCH_OPTS}
@@ -517,6 +522,9 @@ test-report: _run_test
 
 test-formatting: TEST_TYPE = formatting
 test-formatting: _run_test
+
+test-testdata: TEST_TYPE = testdata
+test-testdata: _run_test
 
 E2E_DIRS = errorShots logs
 test-e2e: TEST_TYPE = e2e

@@ -12,11 +12,11 @@ echo "Lanching spec $SPEC with tag $TAG"
 ATTACHMENT_STORAGE=/ella/attachments/${TAG}
 mkdir -p "${ATTACHMENT_STORAGE}"
 
-DB_URL=postgresql:///${TAG}
+export DB_URL=postgresql:///${TAG}
 createdb ${TAG}
 
 # Load dump
-psql "$DB_URL" </ella/e2e-test-dump.sql >/dev/null
+/ella/ops/testdata/reset-testdata.py --testset e2e
 
 # Start API
 { DB_URL=$DB_URL API_PORT=$API_PORT ATTACHMENT_STORAGE=$ATTACHMENT_STORAGE DEVELOP=true python -u src/api/main.py &>"/logs/api-$TAG.log"; } &
