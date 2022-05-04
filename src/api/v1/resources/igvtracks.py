@@ -512,7 +512,7 @@ class StaticTrack(LogRequestResource):
     @authenticate()
     @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, filepath: str, user: user.User):
+    def get(self, filepath: str, user: user.User, **kwargs):
         index: bool = request.args.get("index", "") == "1"
 
         # get track path

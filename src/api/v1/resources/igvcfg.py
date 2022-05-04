@@ -56,19 +56,19 @@ VALID_TRACK_TYPES = [
 
 
 class TrackSourceType(StrEnum):
-    DYNAMIC = auto()
-    STATIC = auto()
-    ANALYSIS = auto()
+    DYNAMIC = "DYNAMIC"
+    STATIC = "STATIC"
+    ANALYSIS = "ANALYSIS"
 
 
 DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel", "regions_of_interest"]
 
 
 class TrackCfgKey(StrEnum):
-    applied_rules = auto()
-    limit_to_groups = auto()
-    url = auto()
-    igv = auto()
+    APPLIED_RULES = auto()
+    LIMIT_TO_GROUPS = auto()
+    URL = auto()
+    IGV = auto()
 
 
 class TrackCfgIgvKey(StrEnum):
@@ -82,7 +82,7 @@ class TrackSrcId:
 
     def __init__(self, source_type: TrackSourceType, rel_path: str):
         def _track_id(track_source_id: TrackSourceType, rel_track_path: str) -> str:
-            return f"{track_source_id.name}/{rel_track_path}"
+            return f"{track_source_id}/{rel_track_path}"
 
         self.source_type = source_type
         self.id = _track_id(source_type, rel_path)
@@ -100,7 +100,7 @@ class TrackSrcId:
             return s
 
         for src_id in TrackSourceType:
-            tid = _rm_prefix(tid, f"{src_id.name}/")
+            tid = _rm_prefix(tid, f"{src_id}/")
         return tid
 
 
@@ -141,9 +141,9 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name: str) -> Dict[st
     # apply configs to tracks (one config per track)
     track_cfgs = {}
     for track_src_id in track_ids:
-        dst_cfg: Dict[str, Any] = {
-            TrackCfgKey.applied_rules.name: [],
-            TrackCfgKey.igv.name: {TrackCfgIgvKey.NAME.name: track_src_id.id},
+        dst_cfg: Dict[TrackCfgKey, Any] = {
+            TrackCfgKey.APPLIED_RULES: [],
+            TrackCfgKey.IGV: {TrackCfgIgvKey.NAME: track_src_id.id},
         }
         # for each track, integrate maching configs
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
@@ -152,29 +152,29 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name: str) -> Dict[st
             if not compiled_regexes[inp_cfg_id_pattern].match(track_src_id.id):
                 continue
             # merge igv config separately to not overwite its configs
-            if TrackCfgKey.igv.name in inp_cfg_value:
-                dst_cfg[TrackCfgKey.igv.name] = {
-                    **dst_cfg[TrackCfgKey.igv.name],
-                    **inp_cfg_value[TrackCfgKey.igv.name],
+            if TrackCfgKey.IGV in inp_cfg_value:
+                dst_cfg[TrackCfgKey.IGV] = {
+                    **dst_cfg[TrackCfgKey.IGV],
+                    **inp_cfg_value[TrackCfgKey.IGV],
                 }
-                del inp_cfg_value[TrackCfgKey.igv.name]
+                del inp_cfg_value[TrackCfgKey.IGV]
             # need to deepcopy because we will modify the object
             dst_cfg = {**dst_cfg, **inp_cfg_value}
-            dst_cfg[TrackCfgKey.applied_rules.name].append(inp_cfg_id_pattern)
+            dst_cfg[TrackCfgKey.APPLIED_RULES].append(inp_cfg_id_pattern)
         track_cfgs[track_src_id.id] = dst_cfg
     # filter tracks by user
     for track_id in list(track_cfgs):  # creates copy of keys as we are deleting some in the loop
         cfg = track_cfgs[track_id]
         keep_track = True
-        # TODO: keep track if user == admin (maybe also keep limit_to_groups field)
-        keep_track = keep_track and TrackCfgKey.limit_to_groups.name in cfg.keys()
+        # TODO: keep track if user == admin (maybe also keep LIMIT_TO_GROUPS field)
+        keep_track = keep_track and TrackCfgKey.LIMIT_TO_GROUPS in cfg.keys()
         keep_track = keep_track and (
-            cfg[TrackCfgKey.limit_to_groups.name]
-            is None  # "limit_to_groups: null" enables public access
-            or any(g == usergroup_name for g in cfg[TrackCfgKey.limit_to_groups.name])
+            cfg[TrackCfgKey.LIMIT_TO_GROUPS]
+            is None  # "LIMIT_TO_GROUPS: null" enables public access
+            or any(g == usergroup_name for g in cfg[TrackCfgKey.LIMIT_TO_GROUPS])
         )
         # rm group key
-        cfg.pop(TrackCfgKey.limit_to_groups.name, None)
+        cfg.pop(TrackCfgKey.LIMIT_TO_GROUPS, None)
         # rm track?
         if not keep_track:
             del track_cfgs[track_id]
@@ -273,32 +273,28 @@ class AnalysisTrackList(LogRequestResource):
             # interpolate urls
             url_var = _get_url_vars(track_id)
             # we require generic urls
-            if TrackCfgKey.url.name not in cfg:
-                raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
+            if TrackCfgKey.URL not in cfg:
+                raise ApiError(f"no key '{TrackCfgKey.URL}' found for track '{track_id}'")
             for pattern, replacement in url_var.items():
-                cfg[TrackCfgIgvKey.URL.name] = cfg[TrackCfgKey.url.name].replace(
-                    f"<{pattern}>", replacement
-                )
+                cfg[TrackCfgIgvKey.URL] = cfg[TrackCfgKey.URL].replace(f"<{pattern}>", replacement)
             # create igv entry if it's missing
-            if TrackCfgKey.igv.name not in cfg:
-                cfg[TrackCfgKey.igv.name] = {}
+            if TrackCfgKey.IGV not in cfg:
+                cfg[TrackCfgKey.IGV] = {}
             # write igv url
-            igv_cfg = cfg[TrackCfgKey.igv.name]
-            igv_cfg[TrackCfgIgvKey.URL.name] = cfg[TrackCfgKey.url.name]
+            igv_cfg = cfg[TrackCfgKey.IGV]
+            igv_cfg[TrackCfgIgvKey.URL] = cfg[TrackCfgKey.URL]
             # remove un-interpolated url
-            del cfg[TrackCfgKey.url.name]
+            del cfg[TrackCfgKey.URL]
             # default track name
-            if TrackCfgIgvKey.NAME.name not in igv_cfg:
-                igv_cfg[TrackCfgIgvKey.NAME.name] = os.path.basename(track_id).split(".")[0]
+            if TrackCfgIgvKey.NAME not in igv_cfg:
+                igv_cfg[TrackCfgIgvKey.NAME] = os.path.basename(track_id).split(".")[0]
             for track_type in VALID_TRACK_TYPES:
                 # find track type
                 if not track_id.endswith(track_type.track_suffix):
                     continue
                 # has index file?
                 if len(track_type.idx_suffixes) > 0:
-                    igv_cfg[TrackCfgIgvKey.INDEXURL.name] = (
-                        igv_cfg[TrackCfgIgvKey.URL.name] + "?index=1"
-                    )
+                    igv_cfg[TrackCfgIgvKey.INDEXURL] = igv_cfg[TrackCfgIgvKey.URL] + "?index=1"
                 # TODO: search on fs?
                 break
         return track_cfgs

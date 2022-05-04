@@ -320,9 +320,7 @@ describe('Sample workflow', function() {
         sampleSelectionPage.expandReviewSection()
         sampleSelectionPage.selectTopReview()
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_REVIEW)
-        browser.pause(500)
         analysisPage.startButton.click()
-        browser.pause(1500)
         checkAlleleClassification(expected_analysis_1_round_1)
 
         workLog.open()
