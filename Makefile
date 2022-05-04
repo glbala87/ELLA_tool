@@ -390,12 +390,10 @@ review-refresh-ip:
 #---------------------------------------------
 
 # see `ops/testdata/fetch-testdata.py --help` for options
-# git safedir: https://github.blog/2022-04-12-git-security-vulnerability-announced/
 FETCH_OPTS ?=
 ci-fetch-testdata:
 	chmod 777 .
 	docker run --rm \
-		-v ${CURDIR}/.gitlab/gitconfig:/home/ella-user/.gitconfig \
 		-v ${CURDIR}:/ella \
 		${IMAGE_NAME} \
 		make fetch-testdata REF="${REF}" FETCH_OPTS="${FETCH_OPTS}"
@@ -530,8 +528,7 @@ E2E_DIRS = errorShots logs
 test-e2e: TEST_TYPE = e2e
 test-e2e: _prep_e2e
 	docker run ${E2E_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e.cfg
-	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} ops/test/run_e2e_tests.sh
-	docker logs ${CONTAINER_NAME}
+	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} /ella/ops/test/run_e2e_tests.sh || (docker logs ${CONTAINER_NAME} >/ella/logs/docker.log && false)
 	docker rm -vf ${CONTAINER_NAME}
 
 

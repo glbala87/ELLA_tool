@@ -56,6 +56,9 @@ RUN echo 'eval "$(_ELLA_CLI_COMPLETE=source ella-cli)"' >> /home/ella-user/.bash
 RUN mkdir -p /data/fixtures/genepanels /data/analyses/incoming /data/analyses/imported /data/attachments /data/igv-data && \
     chown ella-user:ella-user /data/fixtures/genepanels /data/analyses/incoming /data/analyses/imported /data/attachments /data/igv-data
 
+# git safedir: https://github.blog/2022-04-12-git-security-vulnerability-announced/
+COPY --chown=ella-user:ella-user .gitlab/gitconfig /home/ella-user/.gitconfig
+
 ENV ATTACHMENT_STORAGE=/data/attachments \
     ANALYSES_INCOMING=/data/analyses/incoming \
     ANALYSES_PATH=/data/analyses/imported \
