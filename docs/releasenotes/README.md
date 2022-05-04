@@ -27,6 +27,7 @@ MR !632 Added typing to all of our API endpoints
 MR !694 Create scaffolding for testdata, fix review app/local demo functionality, devcontainer optimizations
 MR !705 Create default data directories in Dockerfile
 MR !706 Add db dump/reset for tesdata
+MR !707 API returns invalid IGV config
 -->
 - Fixes and improvements to development environment and code base. 
 
