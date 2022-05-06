@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # For dev/demo use only! Production uses external database
 
@@ -10,29 +10,29 @@
 # Also handles multiple start/stop cycles (í.e. using supervisorctl to stop/start). We only run initdb once.
 # Creating root user fails the second time, but the script continues.
 
-if [ "$1" =  "init" ]
-then
+PGBIN=/usr/lib/postgresql/14/bin
+PIDFILE=$PGDATA/postmaster.pid
+
+if [ "$1" = "init" ]; then
     echo "Init of Postgres cluster in $PGDATA"
-    mkdir -p $PGDATA
+    mkdir -p "$PGDATA"
 
     if [ -d "$PGDATA/pg_logical" ]; then
-       echo "The database data dir already exists."
+        echo "The database data dir already exists."
     else
         echo "Creating database cluster in $PGDATA"
 
         TMPPASSFILE=$(mktemp)
-        echo "alleles" > $TMPPASSFILE
-        /usr/lib/postgresql/14/bin/initdb -A trust --pwfile $TMPPASSFILE
-        rm $TMPPASSFILE
+        echo "alleles" >"$TMPPASSFILE"
+        $PGBIN/initdb -A trust --pwfile "$TMPPASSFILE"
+        rm "$TMPPASSFILE"
 
         # Use /socket for socket
-        echo "unix_socket_directories = '${PGHOST}'" >> $PGDATA/postgresql.conf
+        echo "unix_socket_directories = '${PGHOST}'" >>"$PGDATA/postgresql.conf"
     fi
 fi
 
-
-function shutdown()
-{
+shutdown() {
     echo "Shutting down PostgreSQL"
     pkill postgres
 }
@@ -41,6 +41,17 @@ echo "Starting PostgreSQL"
 
 # Allow any signal which would kill a process to stop PostgreSQL using the 'shutdown' function
 # KILL goes directly to kernel, so it's useless here.
-trap shutdown HUP INT QUIT ABRT KILL ALRM TERM TSTP
+trap shutdown HUP INT QUIT ABRT ALRM TERM TSTP
 
-exec /usr/lib/postgresql/14/bin/postgres -c listen_addresses='127.0.0.1'
+if [[ -f "$PIDFILE" ]]; then
+    # Check if the process is still running
+    if [[ -d /proc/$(head -1 "$PIDFILE") ]]; then
+        echo "PostgreSQL is already running"
+        exit 0
+    else
+        echo "Removing stale PID file ($PIDFILE)"
+        rm "$PIDFILE"
+    fi
+fi
+
+exec $PGBIN/postgres -c listen_addresses='127.0.0.1'
