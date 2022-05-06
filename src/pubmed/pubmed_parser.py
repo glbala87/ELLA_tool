@@ -1,10 +1,10 @@
 import logging
 import re
 import xml.etree.ElementTree as ET
-from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from api.schemas.pydantic.v1.references import NewReference
+from api.util.types import StrEnum
 
 """
 This module parses an PubmedArticle XML tree and returns the reference as
@@ -17,19 +17,19 @@ NOT_IN_PUBMED = None
 STYLE_TAG_RE = re.compile("</?[ibu]>")
 
 
-class AuthorPatterns(str, Enum):
+class AuthorPatterns(StrEnum):
     AUTHOR = "./Author"
     LAST_NAME = "./LastName"
     INITIALS = "./Initials"
     COLLECTIVE_NAME = "./CollectiveName"
 
 
-class PublisherPatterns(str, Enum):
+class PublisherPatterns(StrEnum):
     PUBLISHER_NAME = "PublisherName"
     PUBLISHER_LOCATION = "PublisherLocation"
 
 
-class JournalPatterns(str, Enum):
+class JournalPatterns(StrEnum):
     JOURNAL_ISO = "ISOAbbreviation"
     JOURNAL_TITLE = "Title"
     VOLUME = "JournalIssue/Volume"
@@ -152,7 +152,6 @@ class PubMedParser(object):
         :param pubmed_article: An XML tree of the PubmedArticle
                                or PubmedBookArticle class
         """
-
         if pubmed_article.tag == "PubmedArticle":
             base_tree = "./MedlineCitation/Article/%s"
             base_tree_year = base_tree % "Journal/JournalIssue/PubDate/%s"
@@ -231,7 +230,7 @@ class PubMedParser(object):
         """
         article_field = pubmed_article.find(pattern)
 
-        if not article_field or not getattr(article_field, "text", None):
+        if article_field is None or not getattr(article_field, "text", None):
             att_err = f"Field '{pattern}' was not found"
             log.debug(att_err)
             raise AttributeError(att_err)
@@ -340,23 +339,24 @@ class PubMedParser(object):
 
         return book_pattern_start + ", ".join(book_pattern) + "."
 
-    def format_abstract(self, abstract_parts):
+    def format_abstract(self, abstract_parts: List[ET.Element]) -> Optional[str]:
         """
         :param abstract_parts: Abstract as list (e.g. Method, Result etc.)
         :return : Abstract formatted as one body UTF-8
         """
-        abstract = ""
+        abstract: str = ""
         for abstract_part in abstract_parts:
-            try:
+            if abstract_part is None:
+                log.debug(f"Abstract part is NoneType: {abstract_parts!r}")
+            elif getattr(abstract_part, "text", None) is None:
+                log.debug(f"Abstract text is NoneType: {abstract_parts!r}")
+            else:
+                assert abstract_part.text
                 abstract += abstract_part.text + "\n"
-            except TypeError as e:
-                log.debug("Abstract text is NoneType: %s" % e)
-            except AttributeError as e:
-                log.debug("Abstract part is NoneType: %s" % e)
 
-        if len(abstract) == 0:
+        if not abstract.strip():
             log.debug("Abstract text is empty")
-            abstract = NOT_IN_PUBMED
+            return NOT_IN_PUBMED
 
         return abstract.strip()
 

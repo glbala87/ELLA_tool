@@ -1,6 +1,7 @@
-import click
 import datetime
+from pathlib import Path
 
+import click
 from pubmed.pubmed_fetcher import PubMedFetcher
 
 
@@ -11,10 +12,10 @@ def references():
 
 @references.command("fetch")
 @click.argument("pubmed_ids", type=click.Path(exists=True), required=True)
-def cmd_references_fetch(pubmed_ids):
+def cmd_references_fetch(pubmed_ids: str):
 
     d = datetime.datetime.now()
 
-    output = "references-" + d.strftime("%y%m%d") + ".txt"
+    output = Path("references-" + d.strftime("%y%m%d") + ".txt")
     pm = PubMedFetcher()
-    pm.get_references_from_file(pubmed_ids, output)
+    pm.get_references_from_file(Path(pubmed_ids), output)

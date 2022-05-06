@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import logging
 import sys
 import time
@@ -8,7 +7,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from contextlib import closing, contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
+
+from api.schemas.pydantic.v1.references import NewReference
 
 from .pubmed_parser import PubMedParser
 
@@ -116,6 +117,7 @@ class PubMedFetcher:
                 pmid_selection = pmids[pmid_start:pmid_end]
                 t_prev_query = self.control_query_frequency(t_prev_query)
 
+                references: List[NewReference] = []
                 for count in range(10):
                     try:
                         references = self.get_references_core(pmid_selection)
@@ -136,12 +138,12 @@ class PubMedFetcher:
                             t_prev_query, wait_time=self.WAIT_TIME
                         )
                     else:
-                        raise
+                        break
 
                 for ref in references:
-                    out.write(json.dumps(ref, indent=None) + "\n")
+                    out.write(ref.json(indent=None, exclude_none=True) + "\n")
 
-    def get_references_core(self, pmids: List[str]) -> List[Dict[str, Any]]:
+    def get_references_core(self, pmids: List[str]) -> List[NewReference]:
         """
         :param pmids: Pubmed IDs (Either one or a list)
         :return : List of references as dictionaries
