@@ -5,7 +5,6 @@ from typing import List, Optional
 from api.schemas.pydantic.v1 import BaseModel
 from api.util.types import ReferenceEvalRelevance
 
-
 ###
 
 
@@ -16,15 +15,18 @@ class AnnotationReference(BaseModel):
     source_info: Optional[str] = None
 
 
-class Reference(BaseModel):
-    id: int
+class NewReference(BaseModel):
     authors: Optional[str] = None
     title: Optional[str] = None
     journal: Optional[str] = None
     abstract: Optional[str] = None
     pubmed_id: int
-    published: bool = True
     year: Optional[int] = None
+
+
+class Reference(NewReference):
+    id: int
+    published: bool = True
 
     # @classmethod
     # def _meta(cls: Type[Reference]) -> Dict[str, Any]:
