@@ -1,8 +1,9 @@
-from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple, Union, List
-import cyvcf2
 import logging
-import numpy as np
 from os.path import commonprefix
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+
+import cyvcf2
+import numpy as np
 
 log = logging.getLogger(__name__)
 
@@ -59,22 +60,22 @@ change_type_from_sv_alt_field = {
 class VCFRecord(object):
     variant: cyvcf2.Variant
     samples: Sequence[str]
-    meta: Mapping[str, Any]
-    _allele: Optional[Mapping[str, Any]]
+    meta: Dict[str, Any]
+    _allele: Optional[Dict[str, Any]]
 
-    def __init__(self, variant: cyvcf2.Variant, samples: Sequence[str], meta: Mapping[str, Any]):
+    def __init__(self, variant: cyvcf2.Variant, samples: Sequence[str], meta: Dict[str, Any]):
         self.variant = variant
         self.samples = samples
         self.meta = meta
         self._allele = None
 
     @property
-    def allele(self) -> Mapping[str, Any]:
+    def allele(self) -> Dict[str, Any]:
         if self._allele is None:
             self._allele = self._build_allele("GRCh37")
         return self._allele
 
-    def get_allele(self, alleles: List[Mapping[str, Any]]) -> Optional[Mapping[str, Any]]:
+    def get_allele(self, alleles: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
         # Note: We need this, as the allele can be instrumented with id from importers.bulk_insert_nonexisting
         # TODO: Investigate how we can avoid dictionaries, and use vardb.datamodel.allele.Allele objects instead
         for allele in alleles:
@@ -174,7 +175,7 @@ class VCFRecord(object):
 
         return start_position, open_end_position, change_type, allele_length, ref, alt
 
-    def _build_allele(self, ref_genome: str) -> Mapping[str, Any]:
+    def _build_allele(self, ref_genome: str) -> Dict[str, Any]:
         vcf_ref, vcf_alt, vcf_pos = (
             self.variant.REF,
             self.variant.ALT[0],

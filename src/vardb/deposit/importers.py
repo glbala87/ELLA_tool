@@ -11,15 +11,12 @@ import base64
 import datetime
 import logging
 from collections import defaultdict
-
 from typing import (
     Any,
     Callable,
     DefaultDict,
     Dict,
     List,
-    Mapping,
-    MutableMapping,
     MutableSequence,
     Optional,
     Sequence,
@@ -29,8 +26,8 @@ from typing import (
 )
 
 import pytz
+from api.config.config import FeatureNotEnabledError, feature_is_enabled
 from api.util.util import dict_merge
-from api.config.config import feature_is_enabled, FeatureNotEnabledError
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import scoped_session
 from vardb.datamodel import allele as am
@@ -39,6 +36,7 @@ from vardb.datamodel import assessment
 from vardb.datamodel import genotype as gm
 from vardb.datamodel import sample as sm
 from vardb.datamodel import workflow as wf
+from vardb.datamodel.gene import Genepanel
 from vardb.datamodel.user import User
 from vardb.deposit.annotation_config import AnnotationImportConfig
 from vardb.deposit.annotationconverters import (
@@ -104,12 +102,12 @@ def batch_generator(generator, n):
 def bulk_insert_nonexisting(
     session: scoped_session,
     model,
-    rows,
-    all_new=False,
-    include_pk=None,
-    compare_keys=None,
-    replace=False,
-    batch_size=1000,
+    rows: List[Dict[str, Any]],
+    all_new: bool = False,
+    include_pk: Optional[str] = None,
+    compare_keys: Optional[List[str]] = None,
+    replace: bool = False,
+    batch_size: int = 1000,
 ):
     """
     Inserts data in bulk according to batch_size.
@@ -160,8 +158,8 @@ def bulk_insert_nonexisting(
         if not all_new:
             db_existing = session.query(*q_fields).filter(q_filter).all()
             db_existing = [r._asdict() for r in db_existing]
-        created = list()
-        input_existing = list()
+        created: List[Dict[str, Any]] = list()
+        input_existing: List[Dict[str, Any]] = list()
 
         if db_existing:
             # Filter our batch_rows based on existing in db to see which objects we need to insert
@@ -710,12 +708,12 @@ class AssessmentImporter(object):
 
 class AnnotationImporter(object):
     annotation_config: annm.AnnotationConfig
-    batch_items: List[Mapping[str, Any]]
+    batch_items: List[Dict[str, Any]]
     import_config: List[AnnotationImportConfig]
     session: scoped_session
     _converters: Dict[str, MutableSequence[AnnotationConverter]]
 
-    def __init__(self, session: scoped_session, import_config: Optional[Sequence[Mapping]] = None):
+    def __init__(self, session: scoped_session, import_config: Optional[Sequence[Dict]] = None):
         self.session = session
         self.batch_items: List[Dict] = list()
 
@@ -736,7 +734,7 @@ class AnnotationImporter(object):
         self._converters = {}
 
     def _get_or_create_converters(
-        self, source: str, vcf_meta: Mapping[str, Sequence[Mapping[str, Any]]]
+        self, source: str, vcf_meta: Dict[str, Sequence[Dict[str, Any]]]
     ) -> MutableSequence[AnnotationConverter]:
         if source not in self._converters:
             self._converters[source] = []
@@ -818,17 +816,17 @@ class AnnotationImporter(object):
             assert isinstance(obj[leaf], dict)
             dict_merge(obj[leaf], item)
 
-    def _extract_annotation_from_record(self, record: VCFRecord) -> Mapping[str, Any]:
+    def _extract_annotation_from_record(self, record: VCFRecord) -> Dict[str, Any]:
         """Given a record, return dict with annotation to be stored in db."""
 
-        target_mode_funcs: Mapping[str, Callable[..., None]] = {
+        target_mode_funcs: Dict[str, Callable[..., None]] = {
             "insert": self.insert_at_target,
             "extend": self.extend_at_target,
             "append": self.append_at_target,
             "merge": self.merge_at_target,
         }
 
-        annotations: MutableMapping[str, Any] = {}
+        annotations: Dict[str, Any] = {}
         for source, value in record.annotation().items():
             converters = self._get_or_create_converters(source, record.meta)
             for converter in converters:
@@ -968,7 +966,7 @@ class AlleleImporter(object):
         self.counter = defaultdict(int)
         self.batch_items = list()  # Items for batch processing
 
-    def add(self, record):
+    def add(self, record: VCFRecord):
         """
         Adds a new record to internal batch
         """
@@ -981,19 +979,18 @@ class AlleleImporter(object):
         return record.allele
 
     def process(self):
-        if not self.batch_items:
-            return list()
-        results = list()
-        for existing, created in bulk_insert_nonexisting(
-            self.session,
-            am.Allele,
-            self.batch_items,
-            include_pk="id",
-            replace=False,
-            batch_size=len(self.batch_items),  # Insert whole batch
-        ):
-            results.extend(existing + created)
-        self.batch_items = list()
+        results: List[Dict[str, Any]] = list()
+        if self.batch_items:
+            for existing, created in bulk_insert_nonexisting(
+                self.session,
+                am.Allele,
+                self.batch_items,
+                include_pk="id",
+                replace=False,
+                batch_size=len(self.batch_items),  # Insert whole batch
+            ):
+                results.extend(existing + created)
+            self.batch_items = list()
         return results
 
 
@@ -1085,7 +1082,7 @@ class AlleleInterpretationImporter(object):
     def __init__(self, session: scoped_session):
         self.session = session
 
-    def process(self, genepanel, allele_id):
+    def process(self, genepanel: Genepanel, allele_id: int):
         existing = (
             self.session.query(wf.AlleleInterpretation)
             .filter(wf.AlleleInterpretation.allele_id == allele_id)

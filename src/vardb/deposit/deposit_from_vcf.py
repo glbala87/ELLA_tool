@@ -11,20 +11,18 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 import logging
 from collections import defaultdict
 
-from sqlalchemy import and_
 import sqlalchemy.orm.exc
-
+from sqlalchemy import and_
 from vardb.datamodel import gene
 from vardb.deposit.importers import (
-    AnalysisImporter,
-    AnnotationImporter,
-    SampleImporter,
-    GenotypeImporter,
     AlleleImporter,
-    AnalysisInterpretationImporter,
     AlleleInterpretationImporter,
+    AnalysisImporter,
+    AnalysisInterpretationImporter,
+    AnnotationImporter,
+    GenotypeImporter,
+    SampleImporter,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +39,7 @@ class DepositFromVCF(object):
         self.allele_interpretation_importer = AlleleInterpretationImporter(self.session)
         self.counter = defaultdict(int)
 
-    def get_genepanel(self, gp_name, gp_version):
+    def get_genepanel(self, gp_name: str, gp_version: str) -> gene.Genepanel:
         try:
             genepanel = (
                 self.session.query(gene.Genepanel)

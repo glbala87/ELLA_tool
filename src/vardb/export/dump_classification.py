@@ -6,17 +6,17 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass
 from os import path
-from typing import Any, Dict, Optional
-from openpyxl.worksheet.worksheet import Worksheet
+from typing import Any, Dict, Generator, List, Optional
 
-from pytz import utc
 from bs4 import BeautifulSoup
-from sqlalchemy.orm.session import Session
 from datalayer import AlleleDataLoader
 from openpyxl import Workbook
 from openpyxl.styles import Font
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.writer.write_only import WriteOnlyCell
+from pytz import utc
 from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.orm.session import Session
 from vardb.datamodel import allele, assessment, genotype, sample
 from vardb.util.extended_query import ExtendedQuery
 
@@ -88,7 +88,9 @@ def html_to_text(html: str):
     )
 
 
-def get_batch(alleleassessments: ExtendedQuery):
+def get_batch(
+    alleleassessments: ExtendedQuery,
+) -> Generator[List[assessment.AlleleAssessment], None, None]:
     """
     Generates lists of AlleleAssessment objects
     :param alleleassessments: An sqlalchemy.orm.query object
@@ -304,7 +306,7 @@ def dump_alleleassessments(session: Session, filename: str, with_analysis_names:
         )
 
         for alleleassessment in batch_alleleassessments:
-            previous_alleleassessment = (
+            previous_alleleassessment: Optional[assessment.AlleleAssessment] = (
                 session.query(assessment.AlleleAssessment)
                 .filter(~assessment.AlleleAssessment.date_superceeded.is_(None))  # Is superceeded
                 .filter(assessment.AlleleAssessment.allele_id == alleleassessment.allele_id)

@@ -8,9 +8,11 @@ Can use specific annotation parsers to split e.g. allele specific annotation.
 """
 
 import logging
+from typing import List, Optional
 
-from vardb.util import vcfiterator
 from vardb.deposit.importers import batch_generator
+from vardb.util import vcfiterator
+from vardb.util.vcfrecord import VCFRecord
 
 from .deposit_from_vcf import DepositFromVCF
 
@@ -20,16 +22,24 @@ BATCH_SIZE = 1000
 
 
 class DepositAlleles(DepositFromVCF):
-    def import_vcf(self, path, gp_name=None, gp_version=None, annotation_only=False):
+    def import_vcf(
+        self,
+        path: str,
+        gp_name: Optional[str] = None,
+        gp_version: Optional[str] = None,
+        annotation_only: bool = False,
+    ):
         vi = vcfiterator.VcfIterator(path)
 
+        db_genepanel = None
         if gp_name and gp_version:
             db_genepanel = self.get_genepanel(gp_name, gp_version)
 
+        batch_records: List[VCFRecord]
         for batch_records in batch_generator(iter(vi), BATCH_SIZE):
-
             if not annotation_only:
-                is_not_inside_transcripts = []
+                assert db_genepanel, "Must specify genepanel if importing more than annotation"
+                is_not_inside_transcripts: List[VCFRecord] = []
                 for record in batch_records:
                     # When importing vcf we keep structural variants outside of transcripts,
                     # they can still be filtered using the filterchains
@@ -39,17 +49,18 @@ class DepositAlleles(DepositFromVCF):
                         is_not_inside_transcripts.append(record)
 
                 if is_not_inside_transcripts:
-                    error = "The following variants are not inside the genepanel %s\n" % (
-                        db_genepanel.name + "_" + db_genepanel.version
-                    )
+                    error = f"The following variants are not inside the genepanel {db_genepanel.name}_{db_genepanel.version}\n"
                     for record in is_not_inside_transcripts:
-                        error += "%s\t%s\t%s\t%s\t%s\n" % (
-                            record.variant.CHROM,
-                            record.variant.POS,
-                            record.variant.ID,
-                            record.variant.REF,
-                            ",".join(record.variant.ALT),
+                        record_str = "\t".join(
+                            [
+                                str(record.variant.CHROM),
+                                str(record.variant.POS),
+                                str(record.variant.ID),
+                                str(record.variant.REF),
+                                ",".join([str(x) for x in record.variant.ALT]),
+                            ]
                         )
+                        error += record_str + "\n"
                     raise RuntimeError(error)
 
             for record in batch_records:
@@ -58,8 +69,10 @@ class DepositAlleles(DepositFromVCF):
             alleles = self.allele_importer.process()
 
             for record in batch_records:
-                allele = record.get_allele(alleles)
-                self.annotation_importer.add(record, allele["id"])
+                rec_allele = record.get_allele(alleles)
+                if not rec_allele:
+                    raise RuntimeError(f"Could not find allele for {record!r}")
+                self.annotation_importer.add(record, rec_allele["id"])
 
             # Import annotation for these alleles
             annotations = self.annotation_importer.process()

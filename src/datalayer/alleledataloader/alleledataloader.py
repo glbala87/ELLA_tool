@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from api.config import config
 
@@ -23,7 +23,7 @@ from datalayer.allelefilter.genotypetable import get_genotype_temp_table
 from datalayer.allelefilter.segregationfilter import SegregationFilter
 from sqlalchemy import and_, case, func, or_, text, tuple_
 from sqlalchemy.orm import aliased
-from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
+from vardb.datamodel import Base, allele, annotationshadow, gene, genotype, sample
 from vardb.datamodel.annotation import Annotation, CustomAnnotation
 from vardb.datamodel.assessment import AlleleAssessment, AlleleReport, ReferenceAssessment
 
@@ -730,16 +730,16 @@ class AlleleDataLoader(object):
 
     def from_objs(
         self,
-        alleles,
-        link_filter=None,
-        genepanel=None,  # Make genepanel mandatory?
-        analysis_id=None,
-        filterconfig_id=None,
-        include_annotation=True,
-        include_custom_annotation=True,
-        include_allele_assessment=True,
-        include_reference_assessments=True,
-        include_allele_report=True,
+        alleles: List[allele.Allele],
+        link_filter: Optional[Dict[str, Any]] = None,
+        genepanel: Optional[gene.Genepanel] = None,  # Make genepanel mandatory?
+        analysis_id: Optional[int] = None,
+        filterconfig_id: Optional[int] = None,
+        include_annotation: bool = True,
+        include_custom_annotation: bool = True,
+        include_allele_assessment: bool = True,
+        include_reference_assessments: bool = True,
+        include_allele_report: bool = True,
         allele_assessment_schema=None,
     ) -> List[Dict]:
         """
@@ -789,7 +789,7 @@ class AlleleDataLoader(object):
         allele_schema = AlleleSchema()
 
         accumulated_allele_data = dict()
-        allele_ids = list()  # To keep input order
+        allele_ids: List[int] = list()  # To keep input order
 
         for al in alleles:
             accumulated_allele_data[al.id] = {KEY_ALLELE: allele_schema.dump(al).data}
@@ -1047,7 +1047,13 @@ class AlleleDataLoader(object):
             else:
                 accumulator[item.allele_id][key] = schema.dump(item, None).data
 
-    def setup_entity_filter(self, entity_clazz, key, allele_ids, query_object):
+    def setup_entity_filter(
+        self,
+        entity_clazz: Base,
+        key: str,
+        allele_ids: List[int],
+        query_object: Optional[Dict[str, Any]],
+    ):
         """
         Create a list of filters for finding entities having a relationship
         with Allele. If the IDs of the entities are not defined in the query object,
