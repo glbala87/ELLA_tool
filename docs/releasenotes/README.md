@@ -19,8 +19,22 @@ Release date: TBD
 
 ### Highlights
 
-### All changes
+This version does not add significant new features, but switches to a new, improved format of gene panels.
 
+#### Improved format of gene panels
+
+The biggest change in this release is a new setup for gene panels. Although this doesn't add any new features in ELLA by itself, the new process for building, updating and configuring gene panels represent a significant improvement, both in terms of more easily keeping transcript and gene names updated and in terms of keeping manual configuration consistent across gene panels. 
+
+For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blob/dev/README.md) in the separate repository [Genepanel builder](https://gitlab.com/alleles/genepanel-builder). 
+
+### :small_red_triangle: Breaking changes
+
+Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version.
+
+
+### All changes
+<!-- MR !693 -->
+- [Improved format of gene panels](#improved-format-of-gene-panels).
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !632 Added typing to all of our API endpoints
