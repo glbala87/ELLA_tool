@@ -107,7 +107,7 @@ def get_batch(
         i_batch += 1
 
 
-def format_transcripts(allele_annotation: Dict[str, Any]):
+def format_transcripts(allele_annotation: Dict[str, Any]) -> Dict[str, str]:
     """
     Make dict with info about a transcript for all
     filtered transcript in allele_annotation

@@ -7,17 +7,18 @@ import subprocess
 import tempfile
 import time
 import traceback
-from typing import Sequence
 import urllib.error
 import urllib.parse
 import urllib.request
 from os.path import join
 from pathlib import Path
+from typing import Dict, Sequence, Tuple
 from urllib.parse import urlencode
 
 import pytz
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
+from typing_extensions import TypedDict
 from vardb.datamodel.annotationjob import AnnotationJob
 from vardb.deposit.analysis_config import AnalysisConfigData
 from vardb.deposit.deposit_alleles import DepositAlleles
@@ -29,7 +30,12 @@ from api.util.genepanel_to_bed import genepanel_to_bed
 log = logging.getLogger(__name__)
 
 
-def run_preimport(job):
+class PreimportData(TypedDict, total=False):
+    variables: Dict[str, str]
+    files: Dict[str, Tuple[str, str]]
+
+
+def run_preimport(job: AnnotationJob) -> PreimportData:
     preimport_script = config["import"].get("preimport_script")
     if preimport_script is None:
         return {"files": {}, "variables": {}}
@@ -49,7 +55,7 @@ def run_preimport(job):
     output = subprocess.check_output(cmd, shell=True).decode()
     unparsed_data = json.loads(output)
 
-    parsed_data = {}
+    parsed_data: PreimportData = {}
     parsed_data["variables"] = {}
     parsed_data["variables"] = unparsed_data["variables"]
 
@@ -220,7 +226,7 @@ class AnnotationServiceInterface:
         k = urllib.request.urlopen(r)
         return json.loads(k.read().decode())
 
-    def annotate_sample(self, job):
+    def annotate_sample(self, job: AnnotationJob):
         regions = genepanel_to_bed(self.session, job.genepanel_name, job.genepanel_version)
 
         data = run_preimport(job)

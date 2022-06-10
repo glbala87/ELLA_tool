@@ -875,7 +875,7 @@ class AnnotationImporter(object):
             )
         return annotations
 
-    def add(self, record, allele_id):
+    def add(self, record: VCFRecord, allele_id: int):
         annotation_data = self._extract_annotation_from_record(record)
 
         data = {
