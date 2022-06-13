@@ -142,10 +142,10 @@ help :
 	@echo
 	@echo "-- TEST COMMANDS --"
 	@echo "make test-js              - run Javascript tests"
-	@echo "make test-common          - run Python tests "
 	@echo "make test-api             - run backend API tests"
 	@echo "make test-api-migration   - run database migration tests"
 	@echo "make test-cli             - run command line interface tests"
+	@echo "make test-python          - run Python tests"
 	@echo
 	@echo "-- END 2 END tests--"
 	@echo "make test-e2e             - Run e2e tests"
