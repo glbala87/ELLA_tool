@@ -5,7 +5,7 @@ from vardb.datamodel import gene
 
 def test_resolver_uses_acmgconfig_defined_cutoffs(session):
 
-    # HBOCUTV v01 contains BRCA2 and has no defined config
+    # HBOCUTV v01.0 contains BRCA2 and has no defined config
     acmgconfig = {
         "disease_mode": "TEST_ANY",
         "last_exon_important": "TEST_LEI",
@@ -54,7 +54,7 @@ def test_resolver_uses_acmgconfig_defined_cutoffs(session):
     assert props["disease_mode"] == acmgconfig["disease_mode"]
     assert props["last_exon_important"] == acmgconfig["last_exon_important"]
 
-    # HBOCUTV v01 contains BRCA2
+    # HBOCUTV v01.0 contains BRCA2
     acmgconfig = {
         "disease_mode": "PANELLEVEL_ANY",
         "last_exon_important": "PANELLEVEL_LEI",

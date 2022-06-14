@@ -146,7 +146,7 @@ def create_genepanel(genepanel_config):
 
     p2 = gene.Phenotype(gene=g1_ar, inheritance="AD,AR", description="P2")
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse, t6_reverse]
     genepanel.phenotypes = [p1, p2]
@@ -224,7 +224,7 @@ class TestRegionFilter(object):
         )
 
         allele_ids = [al.id]
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         rf = RegionFilter(session, None)
         result = rf.filter_alleles({gp_key: allele_ids}, FILTER_CONFIG)
 
@@ -237,7 +237,7 @@ class TestRegionFilter(object):
 
         genepanel = (
             session.query(gene.Genepanel)
-            .filter(gene.Genepanel.name == "testpanel", gene.Genepanel.version == "v01")
+            .filter(gene.Genepanel.name == "testpanel", gene.Genepanel.version == "v01.0")
             .one()
         )
 
@@ -375,7 +375,7 @@ class TestRegionFilter(object):
 
         session.flush()
 
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [a1.id, a2.id, a3.id, a4.id, na1.id]
 
         rf = RegionFilter(session, None)
@@ -562,7 +562,7 @@ def test_regions(
     session.rollback()
 
     max_padding = max(abs(x) for x in (*splice_region, *utr_region))
-    genepanel = gene.Genepanel(name="testpanel", version="v02", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v02.0", genome_reference="GRCh37")
 
     genepanel.transcripts = [transcript]
     genepanel.phenotypes = []
@@ -589,7 +589,7 @@ def test_regions(
     ]
 
     genepanel_tx_regions = rf.create_genepanel_transcripts_table(
-        ("testpanel", "v02"), [al.id], max_padding
+        ("testpanel", "v02.0"), [al.id], max_padding
     )
     # Check that transcript is included (on basis of allele)
     assert session.query(genepanel_tx_regions).count() == len(transcript.exon_starts)

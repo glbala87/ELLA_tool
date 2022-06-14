@@ -223,13 +223,14 @@ def preimport(
 
     import tempfile
 
-    transcripts_file = os.path.join(tempfile.gettempdir(), basename + "_transcripts.csv")
+    transcripts_file = os.path.join(
+      tempfile.gettempdir(), basename + "_genes_transcripts_regions.tsv"
+    )
     with open(transcripts_file, "w") as f:
         f.write(_get_transcript_data(transcripts))
-
     files["TRANSCRIPTS"] = transcripts_file
 
-    phenotypes_file = os.path.join(tempfile.gettempdir(), basename + "_phenotypes.csv")
+    phenotypes_file = os.path.join(tempfile.gettempdir(), basename + "_phenotypes.tsv")
     with open(phenotypes_file, "w") as f:
         f.write(_get_phenotype_data(phenotypes))
     files["PHENOTYPES"] = phenotypes_file

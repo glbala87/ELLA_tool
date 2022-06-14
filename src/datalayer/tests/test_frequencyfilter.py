@@ -119,7 +119,7 @@ def create_genepanel():
 
     p2 = gene.Phenotype(gene=g1_ar, inheritance="AD,AR", description="P2")
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = [t1_ad, t1_ar, t2]
     genepanel.phenotypes = [p1, p2]
@@ -285,7 +285,7 @@ class TestFrequencyFilter(object):
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_info = [a1ad.id, a1ar.id, a1nogene.id, a1nofreq.id, a1g2.id, a1adg2.id]
         result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
 
@@ -380,7 +380,7 @@ class TestFrequencyFilter(object):
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [anum1.id, anum2.id, anum3.id, anum4.id]
         result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
@@ -417,7 +417,7 @@ class TestFrequencyFilter(object):
         )
 
         session.commit()
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [a2common.id]
         result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
@@ -448,7 +448,7 @@ class TestFrequencyFilter(object):
         )
 
         session.commit()
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [a2less_common.id]
         result = ff.get_commonness_groups({gp_key: allele_ids}, COMMONESS_FILTER_CONFIG)
 
@@ -479,7 +479,7 @@ class TestFrequencyFilter(object):
         )
 
         session.commit()
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_info = [a2low_freq.id]
         result = ff.get_commonness_groups({gp_key: allele_info}, COMMONESS_FILTER_CONFIG)
 
@@ -626,7 +626,7 @@ class TestFrequencyFilter(object):
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [pa1ad.id, pa1ar.id, pa1nogene.id, pa2.id, pa3.id, pa4.id, pa5.id]
         result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
 
@@ -736,7 +736,7 @@ class TestFrequencyFilter(object):
         session.commit()
 
         ff = FrequencyFilter(session, GLOBAL_CONFIG)
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         allele_ids = [na1ad.id, na1ar.id, na2.id, na3.id, na4.id, na5.id]
         result = ff.filter_alleles({gp_key: allele_ids}, FILTER_ALLELES_FILTER_CONFIG)
 

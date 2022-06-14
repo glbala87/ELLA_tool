@@ -30,7 +30,7 @@ def test_callertypefilter(session, allele_caller_types, filter_config):
     session.flush()
 
     ctf = CallerTypeFilter(session, None)
-    cfgKey = ("dummyname", "v01")
+    cfgKey = ("dummyname", "v01.0")
     testdata = {cfgKey: allele_ids}
 
     for callertypeFilter in filter_config:

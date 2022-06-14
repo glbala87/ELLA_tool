@@ -380,7 +380,11 @@ class DepositGenepanel(object):
 
 
 def main(argv=None):
-    """Example: ./deposit_genepanel.py --transcripts=./clinicalGenePanels/HBOC/HBOC.transcripts.csv"""
+    """
+    Example:
+        ./deposit_genepanel.py \
+            --transcripts=./clinicalGenePanels/HBOC/HBOC_genes_transcripts_regions.tsv
+    """
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(
         description="""Adds or updates gene panels in varDB.

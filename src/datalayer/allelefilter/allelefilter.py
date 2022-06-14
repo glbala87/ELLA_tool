@@ -171,13 +171,13 @@ class AlleleFilter(object):
 
         gp_allele_ids:
             {
-                ('HBOC', 'v01'): [1, 2, 3, ...],
+                ('HBOC', 'v01.0'): [1, 2, 3, ...],
                 ...
             }
 
         Returns result:
             {
-                ('HBOC', 'v01'): {
+                ('HBOC', 'v01.0'): {
                     'allele_ids': [1, 2, 3],
                     'excluded_allele_ids': {
                         'region': [6, 7],

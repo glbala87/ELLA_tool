@@ -176,7 +176,7 @@ class FrequencyFilter(object):
         combine_func: Callable,
     ) -> Dict[Tuple[str, str], BooleanClauseList]:
 
-        gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
+        gp_filter = dict()  # {('HBOC', 'v01.0'): <SQLAlchemy filter>, ...}
 
         # Filter config could be loaded from json and have string keys for 'genes'
         # hgnc ids. We want to use int, so we convert the config.
@@ -360,7 +360,7 @@ class FrequencyFilter(object):
 
         :note: Allele ids with no frequencies are not excluded from the results.
 
-        :param gp_allele_ids: {('HBOC', 'v01'): [1, 2, 3, ...], ...}
+        :param gp_allele_ids: {('HBOC', 'v01.0'): [1, 2, 3, ...], ...}
         :param common_only: Whether to only check for 'common' group. Use when you only
                             need the common group, as it's faster.
         :returns: Structure with results for the three categories.
@@ -403,7 +403,7 @@ class FrequencyFilter(object):
 
         Example for returned data:
         {
-            ('HBOC', 'v01'): {
+            ('HBOC', 'v01.0'): {
                 'common': [1, 2, ...],
                 'less_common': [5, 84, ...],
                 'low_freq': [13, 40, ...],
@@ -521,7 +521,7 @@ class FrequencyFilter(object):
 
         :param filter_config: Filter configuration
         :param gp_allele_ids: Dict of genepanel key with corresponding
-                              allele_ids {('HBOC', 'v01'): [1, 2, 3])}
+                              allele_ids {('HBOC', 'v01.0'): [1, 2, 3])}
         :returns: Structure similar to input, but only containing set()
                   with allele ids that have high frequency.
 

@@ -66,7 +66,7 @@ def reset_genepanel(
             p = gene.Phenotype(gene=g, description=f"Test phenotype {idx}", inheritance=inh)
             phenotypes.append(p)
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = transcripts
     genepanel.phenotypes = phenotypes
@@ -111,7 +111,7 @@ def reset_analyses(session):
     session.execute("DELETE FROM analysis")
 
     test_analysis = sample.Analysis(
-        name="Test analysis", genepanel_name="testpanel", genepanel_version="v01"
+        name="Test analysis", genepanel_name="testpanel", genepanel_version="v01.0"
     )
     session.add(test_analysis)
     session.flush()

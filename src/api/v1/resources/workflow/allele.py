@@ -243,7 +243,7 @@ class AlleleActionStartResource(LogRequestResource):
                   type: string
               example:
                 gp_name: HBOC
-                gp_version: v01
+                gp_version: v01.0
             description: Genepanel
 
         responses:

@@ -76,7 +76,7 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
 
     expected_filtered = (has_filtered_class & has_valid_date) & set(allele_ids)
 
-    testdata = {("dummyname", "v01"): allele_ids}
+    testdata = {("dummyname", "v01.0"): allele_ids}
 
     filter_config = {"classes": classes_to_filter, "exclude_outdated": exclude_outdated}
 
@@ -86,4 +86,4 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
             cf.filter_alleles(testdata, filter_config)
     else:
         result = cf.filter_alleles(testdata, filter_config)
-        assert result[("dummyname", "v01")] == expected_filtered
+        assert result[("dummyname", "v01.0")] == expected_filtered

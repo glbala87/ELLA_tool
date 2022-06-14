@@ -34,7 +34,7 @@ def load_alleles(session: Session, allele_id_genepanel: List[AlleleIDGenePanel])
     Loads in allele data from AlleleDataLoader for all allele ids given by input structure:
 
     allele_id_genepanel = [
-        (1, ('HBOC', 'v01')),
+        (1, ('HBOC', 'v01.0')),
         ...
     ]
 
@@ -207,8 +207,8 @@ def get_analysis_gp_allele_ids(
     :param analysis_ids: List of analysis ids from which we should get genepanels.
 
     Returns a dict of format: {
-        ('HBOC', 'v01'): set([1, 3, 4]),
-        ('SomethingElse', 'v01'): set([1])
+        ('HBOC', 'v01.0'): set([1, 3, 4]),
+        ('SomethingElse', 'v01.0'): set([1])
     }
     """
     if not analysis_ids:
@@ -253,8 +253,8 @@ def get_alleleinterpretation_allele_ids_genepanel(session: Session, allele_ids: 
 
     Returns a list of format:
         [
-            (1, ('HBOC', 'v01')),
-            (2, ('SomethingElse', 'v01')),
+            (1, ('HBOC', 'v01.0')),
+            (2, ('SomethingElse', 'v01.0')),
         ]
     """
 

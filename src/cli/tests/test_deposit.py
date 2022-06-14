@@ -18,7 +18,9 @@ def test_deposit_analysis(session, run_command):
     result = run_command(["deposit", "analysis", VCF])
     assert result.exit_code == 0
 
-    session.query(sample.Analysis).filter(sample.Analysis.name == "brca_sample_3.HBOCUTV_v01").one()
+    session.query(sample.Analysis).filter(
+        sample.Analysis.name == "brca_sample_3.HBOCUTV_v01.0"
+    ).one()
 
 
 def test_deposit_alleles(session, run_command):

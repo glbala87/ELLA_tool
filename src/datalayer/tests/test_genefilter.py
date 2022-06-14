@@ -15,7 +15,7 @@ from conftest import mock_allele_with_annotation
 def create_genepanel(hgnc_ids_transcripts):
     # Create fake genepanel for testing purposes
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = []
     genepanel.phenotypes = []

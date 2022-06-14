@@ -328,11 +328,11 @@ class GenepanelStatsResource(LogRequestResource):
         # -------------------------------------------------------------------
         # | name       | version | gene_id | name       | version | gene_id |
         # -------------------------------------------------------------------
-        # | Mendeliome | v01     | 8124    | None       | None    | None    |
-        # | Ciliopati  | v05     | 4221    | Ciliopati  | v05     | 4221    |
-        # | Mendeliome | v01     | 16404   | None       | None    | None    |
-        # | Mendeliome | v01     | 966     | Ciliopati  | v05     | 966     |
-        # | Mendeliome | v01     | 4887    | None       | None    | None    |
+        # | Mendeliome | v01.0   | 8124    | None       | None    | None    |
+        # | Ciliopati  | v05.0   | 4221    | Ciliopati  | v05     | 4221    |
+        # | Mendeliome | v01.0   | 16404   | None       | None    | None    |
+        # | Mendeliome | v01.0   | 966     | Ciliopati  | v05     | 966     |
+        # | Mendeliome | v01.0   | 4887    | None       | None    | None    |
         # input.gene_id is null -> missing from our gene panel
         # input.gene_id is not null -> overlaps our gene panel
 

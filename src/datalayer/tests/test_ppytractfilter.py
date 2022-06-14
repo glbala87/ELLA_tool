@@ -7,12 +7,13 @@ import pytest
 from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
 from vardb.datamodel import gene
 from conftest import mock_allele
+from typing import Dict
 
 import hypothesis as ht
 import hypothesis.strategies as st
 
 
-GLOBAL_CONFIG = {}
+GLOBAL_CONFIG: Dict = {}
 
 
 @st.composite
@@ -72,7 +73,7 @@ def create_genepanel(genepanel_config):
         exon_ends=[2160, 2260, 2360, 2460],
     )
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = [t1_forward, t2_reverse]
     genepanel.phenotypes = []
@@ -141,7 +142,7 @@ class TestPolypyrimidineTractFilter(object):
         filter_config = {"ppy_tract_region": ppy_tract_region}
 
         allele_ids = [al.id]
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         ppyf = PolypyrimidineTractFilter(session, GLOBAL_CONFIG)
         result = ppyf.filter_alleles({gp_key: allele_ids}, filter_config)
 
@@ -161,7 +162,7 @@ class TestPolypyrimidineTractFilter(object):
 
         genepanel = (
             session.query(gene.Genepanel)
-            .filter(gene.Genepanel.name == "testpanel", gene.Genepanel.version == "v01")
+            .filter(gene.Genepanel.name == "testpanel", gene.Genepanel.version == "v01.0")
             .one()
         )
 

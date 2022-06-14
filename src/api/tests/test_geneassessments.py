@@ -20,7 +20,7 @@ def test_create_assessment(session, client, test_database):
         "evaluation": {"comment": "TEST1"},
         "analysis_id": 1,
         "genepanel_name": "Mendel",
-        "genepanel_version": "v04",
+        "genepanel_version": "v01.0",
     }
 
     r = client.post("/api/v1/geneassessments/", ASSESSMENT1)
@@ -39,7 +39,7 @@ def test_create_assessment(session, client, test_database):
         "gene_id": 1101,
         "evaluation": {"comment": "TEST2"},
         "genepanel_name": "Mendel",
-        "genepanel_version": "v04",
+        "genepanel_version": "v01.0",
         "presented_geneassessment_id": ga1["id"],
     }
 
@@ -58,7 +58,7 @@ def test_create_assessment(session, client, test_database):
         "gene_id": 1101,
         "evaluation": {"comment": "TEST3"},
         "genepanel_name": "Mendel",
-        "genepanel_version": "v04",
+        "genepanel_version": "v01.0",
         "presented_geneassessment_id": ga1["id"],
     }
 

@@ -105,7 +105,7 @@ class ReferenceAssessmentListResource(LogRequestResource):
             "evaluation": {...data...},
             "analysis_id": 3,  # Optional, should be given when assessment is made in context of analysis
             "genepanel_name": "HBOC",
-            "genepanel_version": "v01"
+            "genepanel_version": "v01.0"
         }
         ```
 

@@ -99,7 +99,7 @@ def create_genepanel():
         exon_ends=[1160, 1260, 1360, 1460],
     )
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    genepanel = gene.Genepanel(name="testpanel", version="v01.0", genome_reference="GRCh37")
 
     genepanel.transcripts = [t1]
     genepanel.phenotypes = []
@@ -166,7 +166,7 @@ class TestConsequenceFilter(object):
             )
             all_consequences[al.id] = set(sum([t["consequences"] for t in include_tx], []))
 
-        gp_key = ("testpanel", "v01")
+        gp_key = ("testpanel", "v01.0")
         cf = ConsequenceFilter(session, GLOBAL_CONFIG)
         result = cf.filter_alleles({gp_key: allele_ids}, filter_config)
 

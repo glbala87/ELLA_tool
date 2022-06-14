@@ -407,14 +407,14 @@ def annotation_transcripts_genepanel(
     Returns a joined representation of annotation transcripts against genepanel transcripts
     for given genepanel_keys.
 
-    genepanel_keys = [('HBOC', 'v01'), ('LYNCH', 'v01'), ...]
+    genepanel_keys = [('HBOC', 'v01.0'), ('LYNCH', 'v01.0'), ...]
 
     Returns Query object, representing:
     -----------------------------------------------------------------------------
     | allele_id | name | version | annotation_transcript | genepanel_transcript |
     -----------------------------------------------------------------------------
-    | 1         | HBOC | v01     | NM_000059.2           | NM_000059.3          |
-    | 1         | HBOC | v01     | ENST00000530893       | ENST00000530893      |
+    | 1         | HBOC | v01.0   | NM_000059.2           | NM_000059.3          |
+    | 1         | HBOC | v01.0   | ENST00000530893       | ENST00000530893      |
       etc...
 
     :warning: If there is no match between the genepanel and the annotation,

@@ -56,5 +56,5 @@ def test_sizefilter(session, allele_sizes, filter_config):
     local_filtered = local_sizefilter_impl(filter_config, allele_objs)
 
     sf = SizeFilter(session, None)
-    db_filtered = sf.filter_alleles({("Dabla", "v01"): allele_ids}, filter_config)
-    assert sorted(list(db_filtered[("Dabla", "v01")])) == sorted(local_filtered)
+    db_filtered = sf.filter_alleles({("Dabla", "v01.0"): allele_ids}, filter_config)
+    assert sorted(list(db_filtered[("Dabla", "v01.0")])) == sorted(local_filtered)

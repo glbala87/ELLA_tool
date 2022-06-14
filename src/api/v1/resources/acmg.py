@@ -80,7 +80,7 @@ class ACMGAlleleResource(LogRequestResource):
             ],
             "allele_ids": [1, 2, 3, 4],
             "gp_name": "PanelName",
-            "gp_version": "v01"
+            "gp_version": "v01.0"
         }
         ```
 
