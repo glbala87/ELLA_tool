@@ -4,7 +4,7 @@ from vardb.datamodel import sample, assessment, gene, user
 
 TESTDATA = os.environ["TESTDATA"]
 VCF = os.path.join(
-    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01.0/brca_sample_3.HBOCUTV_v01.0.vcf"
+    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01.0/brca_sample_3.HBOCUTV_v01.0.vcf.gz"
 )
 
 
