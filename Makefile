@@ -149,7 +149,7 @@ help :
 	@echo
 	@echo "-- END 2 END tests--"
 	@echo "make test-e2e             - Run e2e tests"
-	@echo "make e2e-test-local       - For running e2e tests locally."
+	@echo "make test-e2e-local       - For running e2e tests locally."
 	@echo "                            Requires: APP_URL, CHROME_HOST, SPEC and DEBUG."
 	@echo
 	@echo "-- DEMO COMMANDS --"
