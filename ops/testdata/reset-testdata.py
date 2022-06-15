@@ -110,20 +110,21 @@ for gp_item in GP_DIR.iterdir():
         )
     )
 
-ALLELES: List[AlleleInfo] = []
 ANALYSES: List[AnalysisInfo] = []
 DEFAULT_TESTSET = "default"
-for an_item in (ANALYSES_DIR / DEFAULT_TESTSET).iterdir():
-    vcf_path = an_item / (an_item.name + ".vcf.gz")
-    if vcf_path.is_file():
-        vcf_relative_path = Path(ANALYSES_DIR.name) / DEFAULT_TESTSET / an_item.name / vcf_path.name
-        gp_name, gp_version = an_item.name.rsplit("_", maxsplit=1)
-        ALLELES.append(AlleleInfo(str(vcf_relative_path), (gp_name, gp_version)))
 for an_item in ANALYSES_DIR.iterdir():
     if not an_item.is_dir():
         continue
     ANALYSES.append(AnalysisInfo(an_item, an_item.name, an_item.name == DEFAULT_TESTSET))
 AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
+
+# TODO: determine a way to not have this hard coded
+ALLELES = [
+    AlleleInfo(
+        "analyses/default/brca_sample_1.HBOC_v01.0/brca_sample_1.HBOC_v01.0.vcf.gz",
+        ("HBOC", "v01.0"),
+    ),
+]
 
 
 ###
