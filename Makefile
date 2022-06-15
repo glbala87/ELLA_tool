@@ -556,8 +556,8 @@ dump-schemas:
 #---------------------------------------------
 # TESTING (unit / modules)
 #---------------------------------------------
-.PHONY: test-build test-js test-python test-api test-api-migration test-cli test-report test-formatting \
-	test-e2e test-e2e-local _run_test _prep_test _run_e2e
+.PHONY: test-build test-js test-python test-api test-api-migration test-cli test-report test-formatting test-testdata \
+	test-e2e test-e2e-local _run_test _prep_test _prep_e2e
 
 # all tests targets below first start a docker container with supervisor as process 1
 # and then does an 'exec' of the tests inside the container
