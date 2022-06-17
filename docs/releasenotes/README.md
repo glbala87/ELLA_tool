@@ -42,6 +42,7 @@ MR !694 Create scaffolding for testdata, fix review app/local demo functionality
 MR !705 Create default data directories in Dockerfile
 MR !706 Add db dump/reset for tesdata
 MR !707 API returns invalid IGV config
+MR !710 Updated VEP CSQ order in typing
 -->
 - Fixes and improvements to development environment and code base. 
 
