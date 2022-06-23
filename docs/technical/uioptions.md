@@ -119,7 +119,8 @@ Track type | Index file
 `.bam` | `.bam.bai, .bai`
 `.bed` | -
 `.bed.gz` | `.bed.gz.tbi`
-`.bigWig` | -
+`.bigBed` / `.bb` | -
+`.bigWig` / `.bw` | -
 `.cram` | `.cram.crai, .crai`
 `.gff3.gz` | `.gff3.gz.tbi`
 `.gtf.gz` | `.gtf.gz.tbi`

@@ -33,6 +33,8 @@ Changes in this version deprecates all gene panels in the old format. Historic a
 
 
 ### All changes
+<!-- MR !711 -->
+- Added support for bigBed file format.
 <!-- MR !693 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
 <!-- 
