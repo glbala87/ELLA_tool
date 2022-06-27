@@ -32,9 +32,7 @@ The main configuration of the ELLA application (excluding any data that is impor
 
 In the YAML file, you may use environment variables using YAML constructors, such as `my_key: !env ENVIRONMENT_VARIABLE`, or `my_key: !env [ENVIRONMENT_VARIABLE, "default"]`. Custom YAML constructors available are `!env_bool`, `!env_int`, `!env_float`, and `!file` (file path relative to ELLA root folder).
 
-Options for various settings are described in the [above referred pages](#contents). See also
-[`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml)
-for examples.
+Options for various settings are described in the [above referred pages](#contents). See also [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 ### Fixtures
 

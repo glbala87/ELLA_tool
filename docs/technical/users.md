@@ -46,7 +46,7 @@ For simplicity, `password` and `password_expiry` are provided in the testdata ve
 
 ## User configuration
 
-Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/example_config.yml` for examples. 
+Default settings for all users (shallow merged with usergroup's and user's config at runtime). See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user`

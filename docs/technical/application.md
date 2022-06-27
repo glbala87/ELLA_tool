@@ -1,6 +1,6 @@
 # Application configuration
 
-Various settings related to setup of ELLA. See `/example_config.yml` for examples, and [Configuration overview](/technical/configuration.html#application-configuration) for how to specify environment variables.
+Various settings related to setup of ELLA. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples, and [Configuration overview](/technical/configuration.html#application-configuration) for how to specify environment variables.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `app`

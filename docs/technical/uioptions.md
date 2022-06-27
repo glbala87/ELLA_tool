@@ -13,7 +13,7 @@ Configuration related to the user interface and user experience in ELLA. Most ar
 
 ## Configure elements to show
 
-Configure user interface elements for different pages. See `/example_config.yml` for examples. 
+Configure user interface elements for different pages. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 
 ### OVERVIEW and INFO page
@@ -82,7 +82,7 @@ Configuration of IGV and tracks shown in VISUAL mode.
 
 #### General IGV configuration
 
-General configuration of IGV; see `/example_config.yml` for examples.
+General configuration of IGV; see [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `igv`
@@ -92,7 +92,7 @@ Subkey	|	Explanation
 `reference`    |   Define what to show as reference data. 
 `valid_resource_files`    |   Files permitted accessible on `/igv/<file>` resource, relative to `$IGV_DATA` env.    
 
-All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igv.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
+All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igvcfg.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
 
 #### Types of tracks in VISUAL
 
@@ -156,7 +156,7 @@ Field | Description | Values
 
 ### Auto-text in REPORT
 
-Configure text to include automatically for different classifications on the REPORT page. See `/example_config.yml` for examples.
+Configure text to include automatically for different classifications on the REPORT page. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `report.classification_text`
@@ -166,7 +166,7 @@ Configure text to include automatically for different classifications on the REP
 
 ### Finalize requirements
 
-Define default requirements for finalizing a workflow for all users. Values will be used unless overridden by user group specific settings. See `/example_config.yml` for examples. 
+Define default requirements for finalizing a workflow for all users. Values will be used unless overridden by user group specific settings. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user.user_config.workflows`

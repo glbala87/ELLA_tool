@@ -63,4 +63,4 @@ Sort order and how long an interpretation should be considered valid (`outdated_
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment)) 
 - Key: `classification.options`
 
-See `/example_config.yml` for examples.
+See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.
