@@ -38,7 +38,7 @@ Changes in command line arguments require a restart of the analysis watcher to t
 
 ## Deposit
 
-Processes that should be run when new analyses are deposited into ELLA, configured per [user group](/technical/users.html#user-groups). See [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.  
+Processes that should be run when new analyses are deposited into ELLA, configured per [user group](/technical/users.html#user-groups). See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.  
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `config.deposit.analysis`
@@ -57,7 +57,7 @@ See also [Annotation configuration](/docs/technical/annotation.html#annotation-d
 
 ## Default import gene panel
 
-Gene panel that should be pre-selected when importing data through the [IMPORT function](/manual/data-import-reanalyses.html#import-variant-data), configured per [user group](/technical/users.html#user-groups). See [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. : 
+Gene panel that should be pre-selected when importing data through the [IMPORT function](/manual/data-import-reanalyses.html#import-variant-data), configured per [user group](/technical/users.html#user-groups). See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. : 
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `default_import_genepanel`

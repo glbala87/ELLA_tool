@@ -157,7 +157,7 @@ With this version, configuration of tracks shown in IGV needs to be updated.
 
 Specifically, all tracks are now configured in a single config file and specified as either `DYNAMIC`, `STATIC` or `ANALYSIS` tracks. This means all tracks (including dynamic and analysis tracks) are now configurable, but also means that the individual track JSON config files used in earlier versions will no longer work. 
 
-To configure a particular track, the file path must be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See `/src/vardb/testdata/igv-data/track_config_default.json` for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
+To configure a particular track, the file path must be matched with a regular expression (regex). Note that the JSON format requires special regex characters to be double-escaped (e.g. `.bed.gz` should be written as `\\.bed\\.gz`). See [`track_config_default.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/igv-data/track_config_default.json) for examples and [IGV in VISUAL](/technical/uioptions.md) for further details.
 
 ### All changes
 
