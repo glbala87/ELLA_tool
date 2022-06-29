@@ -25,6 +25,7 @@ class TrackType(StrEnum):
     bam = auto()
     bed = auto()
     bedgz = auto()
+    bigBed = auto()
     bigWig = auto()
     cram = auto()
     gff3gz = auto()
@@ -46,6 +47,9 @@ VALID_TRACK_TYPES = [
     TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
     TrackSuffixType(".bed", [], TrackType.bed),
     TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bedgz),
+    TrackSuffixType(".bb", [], TrackType.bigBed),
+    TrackSuffixType(".bigBed", [], TrackType.bigBed),
+    TrackSuffixType(".bw", [], TrackType.bigWig),
     TrackSuffixType(".bigWig", [], TrackType.bigWig),
     TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
     TrackSuffixType(".gff3.gz", [".gff3.gz.tbi"], TrackType.gff3gz),
