@@ -43,6 +43,7 @@ override LOCAL_USER = --user ${UID}:${GID}
 override ENABLED_FEATURES = $(foreach feat,${FEATURE_FLAGS},-e ${feat}=true)
 # use escaped $$PWD so locally generated start_review.sh can be used in the remote VM
 override MOUNT_TESTDATA = -v $$PWD/ella-testdata:/ella/ella-testdata -v $$PWD/.git:/ella/.git
+override MOUNT_TESTLOG_DIRS = -v $$PWD/errorShots:/ella/errorShots -v $$PWD/logs:/logs
 
 # setup docker options for each variation we use
 
@@ -53,6 +54,7 @@ override SHARED_OPTS = ${ENABLED_FEATURES} \
 	-e DB_URL=postgresql:///postgres \
 	-e ELLA_CONFIG=${ELLA_CONFIG} \
 	-e OFFLINE_MODE=false \
+	-e REF=${REF} \
 	-v ${PGDATA_VOLNAME}:/pg-data \
 	--init \
 	--name ${CONTAINER_NAME}
@@ -85,9 +87,8 @@ override E2E_BASE_OPTS = ${LOCAL_USER} \
 	-e ANNOTATION_SERVICE_URL=http://localhost:6000
 
 override E2E_OPTS = ${E2E_BASE_OPTS} \
+	${MOUNT_TESTLOG_DIRS} \
 	-e NUM_PROCS=${PARALLEL_INSTANCES} \
-	-v $(shell pwd)/errorShots:/ella/errorShots \
-	-v $(shell pwd)/logs:/logs \
 	--hostname e2e \
 	${ELLA_OPTS}
 
@@ -110,6 +111,7 @@ override SCHEMA_OPTS = ${LOCAL_USER} \
 
 override TEST_OPTS = ${LOCAL_USER} \
 	${MOUNT_TESTDATA} \
+	${MOUNT_TESTLOG_DIRS} \
 	${SHARED_OPTS} \
 	--rm \
 	${ELLA_OPTS}
@@ -238,7 +240,7 @@ ci-release-src: _clean-dist _release-get-static _release-get-api
 # NOTE: -F overwrites any existing images without prompting, take caution when running locally
 ci-release-singularity:
 	$(call check_defined, SIF_PREFIX)
-	[ -n ${DIST_DIR} ] && mkdir -p ${DIST_DIR}
+	[[ -n ${DIST_DIR} ]] && mkdir -p ${DIST_DIR}
 	singularity build -F ${DIST_SIF} ${SIF_PREFIX}://${RELEASE_IMAGE}
 
 ci-release-upload: _ci-release-configure-upload _release-upload-artifacts
@@ -265,9 +267,9 @@ build-singularity: _release-build-docker release-singularity
 ## shared
 ##
 
-# CI has creds stored at 
+# AWS_CONFIG_FILE is set as a group level CI variable
 _ci-release-configure-upload:
-	[ -f ${AWS_CONFIG_FILE} ] || (echo "No aws config found at ${AWSCLI_CONFIG}"; exit 1)
+	[[ -f ${AWS_CONFIG_FILE} ]] || (echo "No aws config found at ${AWS_CONFIG_FILE}"; exit 1)
 
 _clean-dist:
 	$(call check_defined, DIST_BUILD DIST_DIR)
@@ -367,6 +369,7 @@ gitlab-review-refresh-ip:
 	${reviewapp-template}
 
 build-review:
+	docker pull -q ${REVAPP_IMAGE_NAME} || true
 	docker build ${BUILD_OPTIONS} -t ${REVAPP_IMAGE_NAME} --label commit_sha=${REVAPP_COMMIT_SHA} --target review .
 
 review:
@@ -390,7 +393,10 @@ review-refresh-ip:
 #---------------------------------------------
 
 # see `ops/testdata/fetch-testdata.py --help` for options
-FETCH_OPTS ?=
+FETCH_OPTS ?= --mode https $(if ${CI},--clean,--full)
+fetch-testdata:
+	python3 ./ops/testdata/fetch-testdata.py $(if ${REF},--ref ${REF},) ${FETCH_OPTS}
+
 ci-fetch-testdata:
 	chmod 777 .
 	docker run --rm \
@@ -398,10 +404,7 @@ ci-fetch-testdata:
 		${IMAGE_NAME} \
 		make fetch-testdata REF="${REF}" FETCH_OPTS="${FETCH_OPTS}"
 
-fetch-testdata:
-	python3 ./ops/testdata/fetch-testdata.py $(if ${REF},--ref ${REF},) ${FETCH_OPTS}
-
-dbreset: fetch-testdata dbsleep
+dbreset: dbsleep
 	python3 /ella/ops/testdata/reset-testdata.py $(if ${TESTSET},--testset ${TESTSET},)
 
 dbsleep:
@@ -411,6 +414,7 @@ dbsleep:
 # DEVELOPMENT
 #---------------------------------------------
 .PHONY: any build dev url kill shell logs restart db node-inspect create-diagrams
+.PHONY: ci-% _in_ci
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-${USER}/ {print $$NF}'))
@@ -418,6 +422,36 @@ any:
 
 build:
 	docker build ${BUILD_OPTIONS} -t ${IMAGE_NAME} --target dev .
+
+_in_ci:
+	$(call check_defined,CI,aborting ${_ci_stage}: only run CI mode)
+
+# having cache miss every other build, so do an explict pull beforehand even though it "shouldn't"
+# be necessary.
+# ref: https://github.com/moby/buildkit/issues/1981#issuecomment-1008149971
+_ci_pull:
+	docker pull -q ${IMAGE_NAME} || docker pull -q ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}
+
+# checking $UPSTREAM_TRIGGER allows the build job to run/pass, so the tests that require the build
+# stage can still run. ideally this would be handled by workflow logic, but this works for now.
+ifeq (${UPSTREAM_TRIGGER},)
+ci-build-dev: override BUILD_OPTIONS += --cache-from ${IMAGE_NAME} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}
+ci-build-dev: _ci_stage = build-dev
+ci-build-dev: _in_ci _ci_pull build
+	$(call check_defined,CI,only push images to registry in CI - aborting $@)
+	docker push ${IMAGE_NAME}
+	mkdir -p $(dir ${CI_CACHE_IMAGE_FILE})
+	docker save ${IMAGE_NAME} >${CI_CACHE_IMAGE_FILE}
+
+ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
+ci-build-review: _ci_stage = build-review
+ci-build-review: _in_ci build-review
+	$(call check_defined,CI,only push images to registry in CI - aborting $@)
+	docker push ${REVAPP_IMAGE_NAME}
+else
+ci-build-%:
+	$(info Pipeline triggered by ${UPSTREAM_TRIGGER}, skipping $@)
+endif
 
 dev:
 	docker run -d ${DEV_OPTS} ${ELLA_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/dev/supervisor.cfg
@@ -468,16 +502,10 @@ dump-schemas:
 # TESTING (unit / modules)
 #---------------------------------------------
 .PHONY: test-build test-js test-python test-api test-api-migration test-cli test-report test-formatting \
-	test-e2e test-e2e-local _run_test _prep_test _prep_e2e 
+	test-e2e test-e2e-local _run_test _prep_test _run_e2e
 
 # all tests targets below first start a docker container with supervisor as process 1
 # and then does an 'exec' of the tests inside the container
-
-define prep-e2e-container
-mkdir -p ${E2E_DIRS}
-chmod a+rwX ${E2E_DIRS}
-${prep-test-container}
-endef
 
 test-build:
 	docker build ${BUILD_OPTIONS} -t ${IMAGE_NAME} --target dev .
@@ -488,16 +516,14 @@ _prep_test:
 	-docker rm -vf ${CONTAINER_NAME}
 	-docker volume rm ${PGDATA_VOLNAME}
 	-docker volume ls | grep pgdata || true
+	mkdir -p ${TEST_DIRS}
+	chmod a+rwX ${TEST_DIRS}
 	@echo
 
 _run_test: TEST_CMD ?= /ella/ops/test/run_${TEST_TYPE}_tests.sh
 _run_test: _prep_test
 	docker run ${TEST_OPTS} ${SPECIAL_OPTS} ${IMAGE_NAME} ${TEST_CMD}
 	docker volume rm ${PGDATA_VOLNAME}
-
-_prep_e2e: _prep_test
-	mkdir -p ${E2E_DIRS}
-	chmod a+rwX ${E2E_DIRS}
 
 test-js: TEST_TYPE = js
 test-js: _run_test
@@ -522,11 +548,12 @@ test-formatting: TEST_TYPE = formatting
 test-formatting: _run_test
 
 test-testdata: TEST_TYPE = testdata
+test-testdata: SPECIAL_OPTS = -e 'TEST_REF=${TEST_REF}'
 test-testdata: _run_test
 
-E2E_DIRS = errorShots logs
+TEST_DIRS = errorShots logs
 test-e2e: TEST_TYPE = e2e
-test-e2e: _prep_e2e
+test-e2e: _prep_test
 	docker run ${E2E_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e.cfg
 	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} /ella/ops/test/run_e2e_tests.sh || (docker logs ${CONTAINER_NAME} >/ella/logs/docker.log && false)
 	docker rm -vf ${CONTAINER_NAME}
@@ -539,7 +566,7 @@ test-e2e: _prep_e2e
 .PHONY: test-e2e-local
 
 test-e2e-local: TEST_TYPE = e2e-local
-test-e2e-local: test-build _prep_e2e
+test-e2e-local: test-build _prep_test
 	docker run ${E2E_DEBUG_OPTS} ${ELLA_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e-debug.cfg
 	
 	CHROME_HOST=$${CHROME_HOST:-$$(docker inspect ${CONTAINER_NAME} --format '{{ .NetworkSettings.Gateway }}')} ; \

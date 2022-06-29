@@ -19,8 +19,8 @@ import requests
 import yaml
 from api.config.config import feature_is_enabled
 from cli.commands.database.make_db import make_db
-from sqlalchemy.orm import scoped_session
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import scoped_session
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
@@ -137,8 +137,12 @@ class Context:
     @property
     def dump_dir(self):
         dd = self.repo.repo_dir / "dumps"
-        if self.repo.sha:
-            dd = dd / self.repo.sha
+        if self.repo.tag:
+            dd /= str(self.repo.tag)
+        elif self.repo.sha:
+            dd /= str(self.repo.sha)
+        else:
+            raise ValueError(f"No tag or sha found in {self.repo.repo_dir}")
         return dd
 
     @property

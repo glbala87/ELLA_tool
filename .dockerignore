@@ -1,19 +1,21 @@
-.git/
+.git
+.vscode
+.devcontainer
 attachments
-dist/
-IGV_DATA/
-images/
-node_modules/
+dist
+ella-testdata
+IGV_DATA
+images
+node_modules
+
+# release / build artifacts
 src/webui/build
-ella-testdata/
-**/*.pyc
-**/*.sif
-**/*.simg
+src/webui/dev
+src/webui/dest
+*.sif
+*.simg
 
 # made by e2e tests:
-src/webui/tests/node_modules/
-src/webui/dev
-src/webui/build
 errorShots/
 logs/
 .mypy_cache

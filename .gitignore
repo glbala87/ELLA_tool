@@ -47,6 +47,9 @@ coverage.xml
 # Pycharm
 .idea
 
+# VS Code
+.devcontainer/vscode-server/
+
 #R
 .Rhistory
 
@@ -55,34 +58,26 @@ _book
 .cache
 .hypothesis
 .mypy_cache
-.pytest_cache
+.pytest_*
+.venv
 .vscode
 attachments
+ella-testdata
 errorShots
 images
-local_settings.py
-# whole genome test/track data
-src/vardb/testdata/analyses/default/HG002_sv.Mendeliome_v01/tracks
-
-src/webui/node_modules
-
-ella-testdata/
+logs
 node_modules
-ops/builder/venv
 src/package
 src/webui/build
 src/webui/dest
 src/webui/dev
-vardb-schema.png
+venv
+
+.favorites.json
+*.bak
 *.log
 *.pot
 *.pyc
 *~
-_book
-
-.hypothesis
-.mypy_cache
-.vscode
-.favorites.json
-.pytest_cache/v/cache/nodeids
-.pytest_*
+local_settings.py
+vardb-schema.png

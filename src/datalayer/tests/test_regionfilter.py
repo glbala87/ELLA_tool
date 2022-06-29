@@ -3,15 +3,13 @@ Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
 import copy
-import pytest
-
-from datalayer.allelefilter.regionfilter import RegionFilter
-from vardb.datamodel import gene
-from conftest import mock_allele_with_annotation, mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
-
+import pytest
+from conftest import mock_allele, mock_allele_with_annotation
+from datalayer.allelefilter.regionfilter import RegionFilter
+from vardb.datamodel import gene
 
 # prevent screen getting filled with output (useful when testing manually)
 # import logging
@@ -208,7 +206,7 @@ class TestRegionFilter(object):
         ),
         st.just(None),
     )
-    @ht.settings(deadline=500)
+    @ht.settings(deadline=1000)
     def test_genomic_region_filtering(self, session, positions, manually_curated_result):
         """
         Tests both using manually curated test and parallell implementation in Python.
