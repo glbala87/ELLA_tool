@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-
 import argparse
 import logging
 from argparse import ArgumentParser
@@ -9,19 +8,24 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from git import Repository, RefType
+from git import GitRef, RefType, Repository
+
+###
+### This script is meant to be run directly on a host, even if ELLA is running in a container.
+### As such, we're using only standard library modules and not a more complete python git
+### implementation.
+###
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(Path(__file__).stem)
-logging.getLogger("root").setLevel(logging.DEBUG)
 
-DEFAULT_BRANCH = "master"
 ROOT = Path(__file__).absolute().parents[2]
 TESTDATA_FOLDER = ROOT / "ella-testdata"
 ELLA_TESTDATA_URL_GIT = "git@gitlab.com:alleles/ella-testdata.git"
-ELLA_TESTDATA_URL_HTTPS = "https://gitlab.com/alleles/ella-testdata"
+ELLA_TESTDATA_URL_HTTPS = "https://gitlab.com/alleles/ella-testdata.git"
+DEFAULT_REF = GitRef(type=RefType.DEFAULT)
 
 
 class FetchModes(Enum):
@@ -40,6 +44,8 @@ class FetchModes(Enum):
 
 
 class Args(argparse.Namespace):
+    status: bool
+    reset: bool
     clean: bool
     ref: Optional[str]
     full: bool
@@ -58,69 +64,86 @@ def guess_url():
         )
 
 
+def repo_status(repo: Repository):
+    print("Repo:")
+    print(f"    path:     {repo.repo_dir}")
+    if not repo.repo_dir.exists():
+        print(f"    exists:   {repo.repo_dir.exists()}")
+        exit(1)
+    print(f"    ref:      {repo.ref} ({repo.sha.ref})")
+    print(f"    shallow:  {repo.is_shallow()}")
+    print()
+    print("Remote:")
+    print(f"    url:      {repo.remote_url}")
+
+
 def main():
     if args.mode is FetchModes.OFFLINE:
         remote_url = None
     elif args.mode is FetchModes.SSH:
-        remote_url = ELLA_TESTDATA_URL_HTTPS
-    elif args.mode is FetchModes.HTTPS:
         remote_url = ELLA_TESTDATA_URL_GIT
+    elif args.mode is FetchModes.HTTPS:
+        remote_url = ELLA_TESTDATA_URL_HTTPS
     else:
         remote_url = guess_url()
 
-    is_offline = remote_url is None
-    data_repo = Repository(TESTDATA_FOLDER, remote_url)
+    data_repo = Repository(TESTDATA_FOLDER, remote_url, offline=args.mode is FetchModes.OFFLINE)
+
+    if args.status:
+        repo_status(data_repo)
+        exit()
+    elif args.reset:
+        if data_repo.repo_dir.exists():
+            data_repo.reset_repo(keep_dir=True)
+        else:
+            logger.info("Repo does not exist, skipping reset")
+
+        if args.ref:
+            logger.warning(
+                f"If you want to reset to a specific ref, use --clean instead of --reset"
+            )
+        exit()
 
     # Get current branch name
-    detached = False
     if args.ref:
-        ref_type = data_repo.ref_type(args.ref, offline=is_offline)
-        if ref_type is RefType.NOT_FOUND:
-            raise ValueError(
-                f"Ref '{args.ref}' is invalid. offline_mode={args.offline}, remote_url={data_repo.remote_url}"
+        target_ref = data_repo.find_ref(args.ref)
+    elif data_repo.git_dir.exists() and not args.clean:
+        target_ref = data_repo.ref
+    else:
+        target_ref = DEFAULT_REF
+    logger.debug(f"Using ref {target_ref}")
+
+    if target_ref.type is RefType.NOT_FOUND:
+        if not data_repo.repo_dir.exists():
+            logger.error(
+                f"Repo {data_repo.repo_dir} does not exist locally. If ref is a commit hash and not the HEAD of a branch, try again using --full"
             )
-        elif ref_type in [RefType.COMMIT, RefType.TAG]:
-            detached = True
-        target_ref = args.ref
-    else:
-        if data_repo.repo_dir.exists():
-            target_ref = data_repo.ref
-            ref_type = data_repo.ref_type(target_ref)
-        else:
-            target_ref = DEFAULT_BRANCH
-            ref_type = RefType.BRANCH
+        raise ValueError(
+            f"Ref '{args.ref}' is invalid. mode={args.mode}, remote_url={data_repo.remote_url}"
+        )
 
-    if args.full:
-        depth = None
-    else:
-        depth = 1
-
-    if not data_repo.git_dir.exists() or args.clean:
-        if is_offline:
-            logger.error(f"Cannot clone new data in offline mode")
-            exit(1)
+    if args.clean or not data_repo.git_dir.exists():
         logger.info(f"Cloning new/overwriting existing test data")
-        data_repo.clone(branchname=target_ref, depth=depth, force=args.clean)
-    else:
-        if data_repo.ref != target_ref:
-            logger.info(f"Switching from {data_repo.ref} to {target_ref}")
-            if is_offline:
-                logger.warning(f"Checking out new ref in offline mode, only using local worktree")
-            data_repo.checkout(target_ref, detached=detached)
-        elif not data_repo.is_shallow() and ref_type is RefType.BRANCH:
-            if is_offline:
-                logger.warning(
-                    f"Running in offline mode, using existing data from ref {data_repo.ref}"
-                )
-            else:
-                logger.info(f"Checking for new data in branch {target_ref}")
-                data_repo.pull()
+
+        if args.full or target_ref.type is RefType.COMMIT:
+            depth = None
         else:
-            logger.info("Data already fetched. Nothing to do.")
+            depth = 1
+
+        data_repo.clone(target_ref, depth=depth, force=args.clean)
+        logger.info(f"Successfully cloned testdata to ref {data_repo.ref} ({data_repo.sha})")
+    elif data_repo.ref.matches(target_ref):
+        data_repo.pull()
+    else:
+        data_repo.checkout(target_ref)
+
+    repo_status(data_repo)
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument("--status", action="store_true", help="Show status of local testdata repo")
+    parser.add_argument("--reset", action="store_true", help="Remove contents in local repo dir")
     parser.add_argument(
         "--clean",
         default=False,

@@ -94,6 +94,8 @@
         "source=${localWorkspaceFolder},target=/ella,type=bind",
         // Override workspace settings, tasks and launch configs. Uncomment to keep workspace configs.
         "source=${localWorkspaceFolder}/.devcontainer,target=/ella/.vscode,type=bind",
+        // store vscode-server files in host OS for faster load / extension re-use
+        "source=${localWorkspaceFolder}/.devcontainer/vscode-server,target=/home/ella-user/.vscode-server,type=bind",
         "source=${localWorkspaceFolderBasename}-db,target=/pg-data,type=volume"
     ],
 

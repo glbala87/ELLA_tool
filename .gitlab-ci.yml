@@ -6,7 +6,7 @@ services:
 variables:
     # build vars
     DOCKER_DRIVER: overlay2
-    DOCKER_BUILDKIT: 1
+    DOCKER_BUILDKIT: '1'
     BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
 
     # repo vars
@@ -34,11 +34,16 @@ variables:
 
     # Misc settings
     # ensure any breakpoints don't fire
-    PYTHONBREAKPOINT: 0
+    PYTHONBREAKPOINT: '0'
     DEBIAN_FRONTEND: noninteractive
 
     # Feature flags
     ENABLE_PYDANTIC: 'true'
+
+default:
+    # allow running jobs to be canceled if a new pipeline starts before they finish
+    # ref: https://docs.gitlab.com/ee/ci/yaml/index.html#interruptible
+    interruptible: true
 
 stages:
     - build
@@ -94,7 +99,7 @@ stages:
     needs: ['build']
     artifacts:
         paths:
-            - /logs/
+            - logs/
         name: ella-${CI_JOB_NAME}-errors-${CI_BUILD_REF_SLUG}
         when: on_failure
         expire_in: 2 weeks
@@ -113,20 +118,21 @@ build:
         - *apk-setup
         - *docker-login
     script:
-        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $IMAGE_NAME --cache-from $CI_REGISTRY_IMAGE:dev"
-        - docker push $IMAGE_NAME
-        - make build-review
-        - docker push $REVAPP_IMAGE_NAME
-        - mkdir -p images
-        - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
+        - make ci-build-dev
     tags:
         - do-large
     cache:
         <<: *cache-push
 
+build_review:
+    extends: .revapp
+    script:
+        - make ci-build-review
+
 # review env failing should not block a merge
 start_review:
     extends: .revapp
+    needs: ['build_review']
     script:
         - make gitlab-review
     artifacts:
@@ -174,6 +180,9 @@ check_formatting:
     stage: formatting
     script:
         - make test-formatting
+    except:
+        variables:
+            - $UPSTREAM_TRIGGER
 
 check_testdata:
     extends: .common-test

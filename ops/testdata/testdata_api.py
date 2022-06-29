@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
+import datetime
 import logging
 import subprocess
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
-from flask import Flask
+from flask import Flask, make_response
 from flask_restful import Api, Resource, reqparse
+from pydantic import BaseModel, Field
 from pydantic.json import pydantic_encoder
 
 from git import GitProcess as FinishedProcess
@@ -22,13 +24,27 @@ SUPERVISOR_CFG = REPO_ROOT / "ops" / "dev" / "supervisor.cfg"
 parser = reqparse.RequestParser()
 parser.add_argument("testset")
 
+
+###
+
+app = Flask("testdata-server")
+app.config["RESTFUL_JSON"] = {
+    "default": pydantic_encoder,
+    "separators": (",", ":"),
+    "indent": None,
+}
+api = Api(app)
+
 ###
 
 
 class HealthcheckStatus(Enum):
-    OK = 200
-    LOADING = 503
-    DOWN = 503
+    OK = "OK"
+    LOADING = "LOADING"
+    DOWN = "DOWN"
+
+    def __str__(self) -> str:
+        return self.name
 
 
 @dataclass(frozen=True)
@@ -42,6 +58,29 @@ class HealthcheckTarget:
 
     def __bool__(self):
         return self.healthy
+
+
+class HealthcheckResponse(BaseModel):
+    status: HealthcheckStatus
+    details: Dict[str, HealthcheckTarget]
+
+
+class ApiResponse(BaseModel):
+    message: Union[str, BaseModel]
+    status: int = 200
+    ts: str = Field(default_factory=datetime.datetime.now)
+    error: Optional[Dict[str, Any]] = None
+
+
+###
+
+
+@api.representation("application/json")
+def output_json(data, code: int, headers: Optional[Dict[str, Any]] = None):
+    data_obj = ApiResponse(**data, status=code)
+    resp = make_response(data_obj.json(exclude_none=True), code)
+    resp.headers.extend(headers or {})
+    return resp
 
 
 ###
@@ -118,26 +157,16 @@ class Healthcheck(Resource):
         status_checks = {x.name: x for x in [_supervisor_ok(), _postgres_ok()]}
         if not status_checks["pg_isready"].healthy:
             status = HealthcheckStatus.DOWN
+            code = 500
         elif not status_checks["supervisorctl"].healthy:
             status = HealthcheckStatus.LOADING
+            code = 503
         else:
             status = HealthcheckStatus.OK
+            code = 200
 
-        return {
-            "status": status.name,
-            "details": status_checks,
-        }, status.value
+        return {"message": HealthcheckResponse(status=status, details=status_checks)}, code
 
-
-###
-
-app = Flask("testdata-server")
-app.config["RESTFUL_JSON"] = {
-    "default": pydantic_encoder,
-    "separators": (",", ":"),
-    "indent": None,
-}
-api = Api(app)
 
 api.add_resource(DumpTestdata, "/database/dump")
 api.add_resource(ResetTestdata, "/database/reset")
