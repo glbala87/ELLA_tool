@@ -9,6 +9,13 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union
 
+###
+### NOTE: this was originally created when the testdata repo was managed by a python script instead
+### of git. The majority of the functionality is no longer needed, but the Repository class is
+### still used by reset-testdata.py. This could probably be simplified / removed, but it works so
+### there's not a big need to do so.
+###
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -99,44 +106,48 @@ class GitProcess:
 
 
 class Repository:
-    __slots__ = ["repo_dir", "remote_url", "history", "offline"]
+    __slots__ = ["repo_dir", "remote_url", "history", "offline", "git_dir"]
     repo_dir: Path
     remote_url: str
     history: List[GitProcess]
     offline: bool
+    git_dir: Path
 
     def __init__(
         self,
         repo_dir: Optional[Path] = None,
         remote_url: Optional[str] = None,
         *,
+        git_dir: Optional[Path] = None,
         offline: bool = False,
     ):
-        self.history = []
-
-        if repo_dir is None and remote_url is None:
+        if not repo_dir and not remote_url:
             raise ValueError("You must specify at least one of: repo_dir, remote_url")
-        elif repo_dir and not (repo_dir / ".git").exists() and remote_url is None:
-            raise ValueError(f"{repo_dir}/.git does not exist and no remote_url specified")
 
-        if repo_dir and remote_url:
-            self.repo_dir = repo_dir.absolute()
-            self.remote_url = remote_url
-        elif repo_dir and not remote_url:
-            self.repo_dir = repo_dir.absolute()
-            self.remote_url = self.remote_get_url()
-        elif remote_url and not repo_dir:
-            self.remote_url = remote_url
-            self.repo_dir = ROOT / url2reponame(self.remote_url)
-
+        self.history = []
         self.offline = offline or remote_url is None
+        # either repo_dir or remote_url is non-None, but type checker logic doesn't catch it
+        self.repo_dir = repo_dir or ROOT / url2reponame(remote_url)  # type: ignore
+        if git_dir:
+            self.git_dir = git_dir
+        else:
+            default_git_dir = self.repo_dir / ".git"
+            if default_git_dir.is_file():
+                try:
+                    submodule_git_dir = (
+                        default_git_dir.read_text().strip().splitlines()[0].split()[1]
+                    )
+                except KeyError:
+                    raise FileNotFoundError(
+                        f"{default_git_dir} is invalid or in an unexpected format"
+                    )
+                self.git_dir = Path(submodule_git_dir).resolve()
+            else:
+                self.git_dir = default_git_dir
+        self.remote_url = remote_url or self.remote_get_url()
 
     def __repr__(self):
         return f"<{self.__class__.__name__} repo_dir={self.repo_dir} remote_url={self.remote_url}>"
-
-    @property
-    def git_dir(self):
-        return self.repo_dir / ".git"
 
     @property
     def sha(self) -> GitRef:

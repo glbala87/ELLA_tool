@@ -4,6 +4,8 @@ services:
     - docker:stable-dind
 
 variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+
     # build vars
     DOCKER_DRIVER: overlay2
     DOCKER_BUILDKIT: '1'
@@ -21,7 +23,7 @@ variables:
     # CI / release
     # Value is branch name when running on a branch pipeline, tag name for tag pipelines (releases)
     RELEASE_TAG: $CI_COMMIT_REF_NAME
-    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$RELEASE_TAG
     SIF_PREFIX: docker
 
     # singularity-in-docker
@@ -80,7 +82,7 @@ stages:
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load || docker pull $IMAGE_NAME
 
 # base jobs
-.revapp: &revapp
+.revapp:
     stage: review
     before_script:
         - *apk-setup
@@ -90,12 +92,12 @@ stages:
         REVAPP_NAME: $CI_BUILD_REF_SLUG
         REVAPP_COMMIT_SHA: $CI_COMMIT_SHA
 
-.common-test: &common-test
+.common-test:
     stage: test
     before_script:
         - *apk-setup
         - *docker-load
-        - make ci-fetch-testdata
+        - make ci-set-testdata
     needs: ['build']
     artifacts:
         paths:

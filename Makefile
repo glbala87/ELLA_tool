@@ -54,7 +54,6 @@ override SHARED_OPTS = ${ENABLED_FEATURES} \
 	-e DB_URL=postgresql:///postgres \
 	-e ELLA_CONFIG=${ELLA_CONFIG} \
 	-e OFFLINE_MODE=false \
-	-e REF=${REF} \
 	-v ${PGDATA_VOLNAME}:/pg-data \
 	--init \
 	--name ${CONTAINER_NAME}
@@ -391,18 +390,28 @@ review-refresh-ip:
 #---------------------------------------------
 # Test data and database
 #---------------------------------------------
+.PHONY: update-testdata setup-gitmodules set-testdata-branch dbreset dbsleep
 
-# see `ops/testdata/fetch-testdata.py --help` for options
-FETCH_OPTS ?= --mode https $(if ${CI},--clean,--full)
-fetch-testdata:
-	python3 ./ops/testdata/fetch-testdata.py $(if ${REF},--ref ${REF},) ${FETCH_OPTS}
+update-testdata:
+	git submodule update --init --remote --recursive
 
-ci-fetch-testdata:
-	chmod 777 .
-	docker run --rm \
-		-v ${CURDIR}:/ella \
-		${IMAGE_NAME} \
-		make fetch-testdata REF="${REF}" FETCH_OPTS="${FETCH_OPTS}"
+TESTDATA_DIR ?= ${CURDIR}/ella-testdata
+# only needs to be run if repo cloned without --recursive
+setup-gitmodules:
+	[[ -d ${TESTDATA_DIR} ]] && rm -rf ${TESTDATA_DIR}
+	git submodule sync
+	git submodule update --init --recursive
+
+.SILENT: set-testdata-branch
+set-testdata-branch:
+	$(call check_defined, REF, set REF to the branch you want to use)
+	if grep -Eq '^\s+branch = ${REF}$$' .gitmodules; then \
+		echo "testdata branch already set to ${REF}"; \
+	else \
+		git submodule set-branch -b ${REF} -- ella-testdata ; \
+		git submodule update --remote ; \
+		echo "testdata branch set to ${REF}"; \
+	fi
 
 dbreset: dbsleep
 	python3 /ella/ops/testdata/reset-testdata.py $(if ${TESTSET},--testset ${TESTSET},)
@@ -414,7 +423,7 @@ dbsleep:
 # DEVELOPMENT
 #---------------------------------------------
 .PHONY: any build dev url kill shell logs restart db node-inspect create-diagrams
-.PHONY: ci-% _in_ci
+.PHONY: ci-% _in_ci _ci_pull
 
 any:
 	$(eval CONTAINER_NAME = $(shell docker ps | awk '/ella-.*-${USER}/ {print $$NF}'))
@@ -452,6 +461,8 @@ else
 ci-build-%:
 	$(info Pipeline triggered by ${UPSTREAM_TRIGGER}, skipping $@)
 endif
+
+ci-set-testdata: $(if ${REF},set-testdata-branch)
 
 dev:
 	docker run -d ${DEV_OPTS} ${ELLA_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/dev/supervisor.cfg
