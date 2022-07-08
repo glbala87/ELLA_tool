@@ -41,6 +41,7 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 ROOT = Path(__file__).absolute().parents[2]
 TESTDATA_REPO_DIR = ROOT / "ella-testdata"
+TESTDATA_SUBMODULE = ROOT / ".git" / "modules" / "ella-testdata"
 TESTDATA_DIR = TESTDATA_REPO_DIR / "testdata"
 GP_DIR = TESTDATA_DIR / "clinicalGenePanels"
 FIXTURES_DIR = TESTDATA_DIR / "fixtures"
@@ -130,7 +131,10 @@ class Context:
     dump_path: Optional[Path] = None
 
     def __init__(self) -> None:
-        self.repo = Repository(repo_dir=TESTDATA_REPO_DIR)
+        self.repo = Repository(
+            repo_dir=TESTDATA_REPO_DIR,
+            # git_dir=TESTDATA_SUBMODULE if TESTDATA_SUBMODULE.exists() else None,
+        )
         self.db = DB()
         self.db.connect()
 

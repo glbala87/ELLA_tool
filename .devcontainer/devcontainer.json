@@ -10,7 +10,7 @@
     "dockerFile": "../Dockerfile",
 
     // ensure test data / config are available
-    "initializeCommand": ["make", "fetch-testdata"],
+    "initializeCommand": ["make", "update-testdata"],
 
     // Set *default* container specific settings.json values on container create.
     "settings": {
@@ -66,6 +66,7 @@
         "ms-python.vscode-pylance",
         "mtxr.sqltools-driver-pg",
         "mtxr.sqltools",
+        "redhat.vscode-yaml",
         "timonwong.shellcheck",
         "yzhang.markdown-all-in-one"
     ],
