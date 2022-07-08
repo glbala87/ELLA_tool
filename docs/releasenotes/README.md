@@ -46,6 +46,7 @@ MR !706 Add db dump/reset for tesdata
 MR !707 API returns invalid IGV config
 MR !709 Fixes to fetching of testdata
 MR !710 Updated VEP CSQ order in typing
+MR !712 Tesdata submodule
 -->
 - Fixes and improvements to development environment and code base. 
 
