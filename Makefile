@@ -30,20 +30,18 @@ DIAGRAM_CONTAINER = ${PIPELINE_ID}-diagram
 DIAGRAM_IMAGE = local/${PIPELINE_ID}-diagram
 
 TMP_DIR ?= /tmp
-ifeq (${CI_REGISTRY_IMAGE},)
+TERM_OPTS = -t
+ifeq ($(shell test -t 0 && echo 1),1)
 # running locally, use interactive
-TERM_OPTS := -i -t
-else
-TERM_OPTS := -t
+TERM_OPTS += -i
 endif
 
 # override used so docker run defaults can't get clobbered. Use ELLA_OPTS for any customization
 override FEATURE_FLAGS = ENABLE_CNV ENABLE_PYDANTIC
 override LOCAL_USER = --user ${UID}:${GID}
 override ENABLED_FEATURES = $(foreach feat,${FEATURE_FLAGS},-e ${feat}=true)
-# use escaped $$PWD so locally generated start_review.sh can be used in the remote VM
-override MOUNT_TESTDATA = -v $$PWD/ella-testdata:/ella/ella-testdata -v $$PWD/.git:/ella/.git
-override MOUNT_TESTLOG_DIRS = -v $$PWD/errorShots:/ella/errorShots -v $$PWD/logs:/logs
+override MOUNT_TESTDATA = -v ${CURDIR}/ella-testdata:/ella/ella-testdata -v ${CURDIR}/.git:/ella/.git
+override MOUNT_TESTLOG_DIRS = -v ${CURDIR}/errorShots:/ella/errorShots -v ${CURDIR}/logs:/logs
 
 # setup docker options for each variation we use
 
@@ -310,11 +308,12 @@ _release-upload-artifacts:
 
 # set var defaults for running review steps locally
 REVAPP_NAME ?= ${BRANCH}
-REVAPP_IMAGE_NAME ?= registry.gitlab.com/alleles/ella:${REVAPP_NAME}-review
+REVAPP_IMAGE_NAME ?= ${REGISTRY_IMAGE}-review
 REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
-export REVAPP_NAME REVAPP_IMAGE_NAME REVAPP_COMMIT_SHA
+REVAPP_REF ?= ${REF}
+export REVAPP_NAME REVAPP_IMAGE_NAME REVAPP_COMMIT_SHA REVAPP_REF
 
-# set and export demo vars used in ops/start_demo.sh
+# review apps are a special case of demo apps used in the QA review process
 DEMO_NAME ?= ella-demo
 # PORT is the nginx port, not API_PORT
 DEMO_PORT ?= 3114
@@ -322,7 +321,6 @@ DEMO_HOST_PORT ?= 3114
 DEMO_IMAGE ?= ${REVAPP_IMAGE_NAME}
 DEMO_USER ?= ${UID}
 DEMO_GROUP ?= ${GID}
-export DEMO_NAME DEMO_IMAGE DEMO_USER DEMO_GROUP DEMO_PORT DEMO_HOST_PORT
 
 demo-build: build-review
 
@@ -330,10 +328,10 @@ demo-pull:
 	docker pull -q ${REVAPP_IMAGE_NAME}
 
 demo-check-image:
-	docker image inspect ${REVAPP_IMAGE_NAME} >/dev/null 2>&1 || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
+	docker image inspect ${REVAPP_IMAGE_NAME} &>/dev/null || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
 	-@docker rm -vf ${DEMO_NAME}
 
-demo: demo-check-image
+demo: demo-check-image ci-set-testdata
 	$(eval export DEMO_IMAGE = ${REVAPP_IMAGE_NAME})
 	$(eval CONTAINER_NAME = ${DEMO_NAME})
 	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
@@ -345,15 +343,19 @@ kill-demo:
 
 # Review apps
 define reviewapp-template
-docker run -v ${CURDIR}:/local-repo ${ELLA_OPTS} ${REVAPP_IMAGE_NAME} bash -ic "${RUN_CMD} ${RUN_CMD_ARGS}"
+docker run -v ${CURDIR}:/local-repo \
+	${ELLA_OPTS} \
+	${REVAPP_IMAGE_NAME} \
+	bash -c "${RUN_CMD} ${RUN_CMD_ARGS}"
 endef
 
+# docker envfile includes any quotes in the variable value, so ensure there aren't any
 __gitlab_env:
-	env | grep -E '^(CI|REVAPP|GITLAB|DO_)' > review_env
-	echo "PRODUCTION=false" >> review_env
-	echo "ENABLE_CNV=true" >> review_env
-	$(eval ELLA_OPTS += --env-file=review_env)
-	$(eval ELLA_OPTS += -v ${REVAPP_SSH_KEY}:${REVAPP_SSH_KEY})
+	env | grep -E '^(REF|BRANCH|CI|REVAPP|GITLAB|DEMO_|DO_)' | sort >review_env
+	echo "PRODUCTION=false" >>review_env
+	echo "ENABLE_CNV=true" >>review_env
+	$(eval override ELLA_OPTS += --env-file=review_env)
+	$(eval override ELLA_OPTS += -v ${REVAPP_SSH_KEY}:${REVAPP_SSH_KEY})
 
 gitlab-review: __gitlab_env
 	$(eval RUN_CMD = make review review-refresh-ip)
@@ -369,12 +371,13 @@ gitlab-review-refresh-ip:
 
 build-review:
 	docker pull -q ${REVAPP_IMAGE_NAME} || true
+	docker pull -q ${IMAGE_NAME} || true
 	docker build ${BUILD_OPTIONS} -t ${REVAPP_IMAGE_NAME} --label commit_sha=${REVAPP_COMMIT_SHA} --target review .
 
 review:
 	$(call check_defined, DO_TOKEN, set DO_TOKEN with your DigitalOcean API token and try again)
 	$(call check_defined, REVAPP_SSH_KEY, set REVAPP_SSH_KEY with the absolute path to the private ssh key you will use to connect to the remote droplet)
-	./ops/review_app.py --token ${DO_TOKEN} create \
+	./ops/review_app.py create \
 		--image-name ${REVAPP_IMAGE_NAME} \
 		--ssh-key ${REVAPP_SSH_KEY} \
 		--replace \
@@ -396,22 +399,28 @@ update-testdata:
 	git submodule update --init --remote --recursive
 
 TESTDATA_DIR ?= ${CURDIR}/ella-testdata
-# only needs to be run if repo cloned without --recursive
+# only needs to be run if old clone or cloned without --recursive
 setup-gitmodules:
-	[[ -d ${TESTDATA_DIR} ]] && rm -rf ${TESTDATA_DIR}
+	$(if $(shell [[ -d ${TESTDATA_DIR}/.git ]] && echo yes),git submodule absorbgitdirs)
 	git submodule sync
 	git submodule update --init --recursive
 
+# When initially cloned as shallow repo, the submodule fetch strategy is restricted to its current
+# branch. This persists even if you `git fetch --unshallow` later.
+#     e.g., '+refs/heads/main:refs/remotes/origin/main' vs. '+refs/heads/*:refs/remotes/origin/*'
+# This causes any later submodule update commands to fail, even if you explicitly fetch that branch.
+# So we need to check that the value is the correct one and replace it if not.
 .SILENT: set-testdata-branch
 set-testdata-branch:
 	$(call check_defined, REF, set REF to the branch you want to use)
-	if grep -Eq '^\s+branch = ${REF}$$' .gitmodules; then \
-		echo "testdata branch already set to ${REF}"; \
-	else \
-		git submodule set-branch -b ${REF} -- ella-testdata ; \
-		git submodule update --remote ; \
-		echo "testdata branch set to ${REF}"; \
-	fi
+	$(if \
+		$(shell git -C ./ella-testdata config --get remote.origin.fetch | grep -q '/\*$$' || echo yes), \
+		git -C ella-testdata config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' \
+	)
+	git submodule set-branch -b ${REF} -- ella-testdata || echo "testdata branch already set to ${REF}"
+	git submodule update --remote
+	git diff --submodule=log
+	echo "testdata branch set to ${REF}"
 
 dbreset: dbsleep
 	python3 /ella/ops/testdata/reset-testdata.py $(if ${TESTSET},--testset ${TESTSET},)
@@ -441,9 +450,21 @@ _in_ci:
 _ci_pull:
 	docker pull -q ${IMAGE_NAME} || docker pull -q ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}
 
+_ci_pull_review:
+	docker pull -q ${REVAPP_IMAGE_NAME} || true
+	docker pull -q ${REGISTRY_IMAGE} || true
+	docker pull -q ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review || true
+
 # checking $UPSTREAM_TRIGGER allows the build job to run/pass, so the tests that require the build
 # stage can still run. ideally this would be handled by workflow logic, but this works for now.
-ifeq (${UPSTREAM_TRIGGER},)
+# ref:
+#    - https://docs.gitlab.com/ee/ci/triggers/index.html#configure-cicd-jobs-to-run-in-triggered-pipelines
+#    - https://docs.gitlab.com/ee/ci/yaml/workflow.html#common-if-clauses-for-workflowrules
+#    - CI_PIPELINE_SOURCE on https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+ifneq (,$(or ${UPSTREAM_TRIGGER},$(filter-out pipeline push merge_request_event,${CI_PIPELINE_SOURCE})))
+ci-build-%:
+	$(info Pipeline triggered by ${UPSTREAM_TRIGGER}, skipping $@)
+else
 ci-build-dev: override BUILD_OPTIONS += --cache-from ${IMAGE_NAME} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}
 ci-build-dev: _ci_stage = build-dev
 ci-build-dev: _in_ci _ci_pull build
@@ -452,14 +473,11 @@ ci-build-dev: _in_ci _ci_pull build
 	mkdir -p $(dir ${CI_CACHE_IMAGE_FILE})
 	docker save ${IMAGE_NAME} >${CI_CACHE_IMAGE_FILE}
 
-ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
+ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${REGISTRY_IMAGE} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
 ci-build-review: _ci_stage = build-review
-ci-build-review: _in_ci build-review
+ci-build-review: _in_ci _ci_pull_review build-review
 	$(call check_defined,CI,only push images to registry in CI - aborting $@)
 	docker push ${REVAPP_IMAGE_NAME}
-else
-ci-build-%:
-	$(info Pipeline triggered by ${UPSTREAM_TRIGGER}, skipping $@)
 endif
 
 ci-set-testdata: $(if ${REF},set-testdata-branch)
@@ -566,7 +584,7 @@ TEST_DIRS = errorShots logs
 test-e2e: TEST_TYPE = e2e
 test-e2e: _prep_test
 	docker run ${E2E_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/test/supervisor-e2e.cfg
-	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} /ella/ops/test/run_e2e_tests.sh || (docker logs ${CONTAINER_NAME} >/ella/logs/docker.log && false)
+	docker exec -e SPEC=${SPEC} ${TERM_OPTS} ${CONTAINER_NAME} /ella/ops/test/run_e2e_tests.sh || (docker logs ${CONTAINER_NAME} >logs/docker.log && false)
 	docker rm -vf ${CONTAINER_NAME}
 
 

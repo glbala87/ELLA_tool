@@ -5,6 +5,8 @@ services:
 
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
+    # don't remove artifacts directory
+    GIT_CLEAN_FLAGS: -ffdx -e images/
 
     # build vars
     DOCKER_DRIVER: overlay2
@@ -42,10 +44,21 @@ variables:
     # Feature flags
     ENABLE_PYDANTIC: 'true'
 
+    # pre-populate variables/descriptions for manual trigger via gitlab.com UI
+    REF:
+        value: ''
+        description: 'Specify a branch from ella-testdata to use instead of the default'
+    UPSTREAM_TRIGGER:
+        value: ''
+        description: 'Set a descriptive name when using REF to run a testdata branch'
+
 default:
     # allow running jobs to be canceled if a new pipeline starts before they finish
     # ref: https://docs.gitlab.com/ee/ci/yaml/index.html#interruptible
     interruptible: true
+    # use the small DO runners unless explicitly stated otherwise
+    tags:
+        - do-small
 
 stages:
     - build
@@ -107,8 +120,6 @@ stages:
         expire_in: 2 weeks
     cache:
         <<: *cache-pull
-    tags:
-        - do-small
     except:
         - /^ops-.*$/
 
@@ -140,6 +151,12 @@ start_review:
     artifacts:
         reports:
             dotenv: deploy.env
+        paths:
+            - build.log
+            - review_env
+            - '*.env'
+        name: ella-$CI_COMMIT_REF_SLUG-$CI_JOB_NAME-$CI_JOB_STATUS
+        when: always
     environment:
         <<: *revapp-env
         url: http://$APP_IP
@@ -268,8 +285,6 @@ release_src:
             - dist/ella-release-*-dist.tgz
         name: src-$CI_COMMIT_REF_NAME
         expire_in: 1 week
-    tags:
-        - do-small
 
 release_singularity:
     image:
