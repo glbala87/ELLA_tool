@@ -164,7 +164,7 @@ def cmd_deposit_genepanel(
         genepanel_name, genepanel_version = prefix.split("_", 1)
         assert re.match(
             r"^v\d+\.\d$", genepanel_version
-        ), f"Expected gene panel version to be of format vXX.X, found ${genepanel_version}"
+        ), f"Expected gene panel version to be of format vX.Y, found ${genepanel_version}"
         assert genepanel_version.startswith("v")
 
     dg = DepositGenepanel(session)
