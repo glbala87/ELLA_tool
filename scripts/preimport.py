@@ -224,7 +224,7 @@ def preimport(
     import tempfile
 
     transcripts_file = os.path.join(
-      tempfile.gettempdir(), basename + "_genes_transcripts_regions.tsv"
+        tempfile.gettempdir(), basename + "_genes_transcripts_regions.tsv"
     )
     with open(transcripts_file, "w") as f:
         f.write(_get_transcript_data(transcripts))
