@@ -7,7 +7,7 @@ Please contact developers for more details.
 :::
 
 ::: danger WARNING
-For proper security, ELLA should be run in a walled garden with restricted external access, rather than on a public network.  
+For proper security, ELLA should be run in a walled garden with restricted external access, rather than on a public network.
 :::
 
 ::: danger WARNING
@@ -22,83 +22,104 @@ ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/all
 - ELLA primarily uses [Docker](https://www.docker.com/) for deployment. Other alternatives (e.g. using [Singularity](https://sylabs.io/) or no container) is also possible, but is not documented here.
 
 
-## Build image
+## Fetch or build container image
 
-First build the docker image:
+Using the tagged released images is recommended, however you can build them locally if preferred.
 
-``` bash
-docker build -t {image_name} .
+### Fetching a release image
+
+Check the [ELLA release page](https://gitlab.com/alleles/ella/-/releases) to see info on the latest release.
+
+#### Docker
+
+Pull the Docker image using the tag from the most recent release (_e.g.,_ `v1.16.4`).
+
+```shell
+docker pull registry.gitlab.com/alleles/ella:${TAG}
 ```
 
-where `{image_name}` is what you want to name the image.
+#### Singularity
+
+A link to the Singularity image (built directly from the Docker image) is available on the release page. For automation,
+The URL will follow the pattern:
+
+- `https://gitlab.com/alleles/ella/-/releases/${TAG}/downloads/ella-release-${TAG}.sif`
+
+
+### Building the image
+
+#### Docker
+
+Although not recommended, you can build a production ELLA image using make:
+
+``` bash
+make _release-build-docker RELEASE_TAG=custom
+```
+
+#### Singularity
+
+A singularity image can be built directly from the docker release image:
+
+```shell
+singularity pull docker://registry.gitlab.com/alleles/ella:${TAG}
+```
 
 ## Mount points
 
-The production container defines a few mount points. If you're not using containers for deployment, you can skip this section.
+There are several directories you will want to mount from the host OS into the container.
 
-| Destination	| Description  	                          |
-|------------	|----------------------	                  |
-| /logs/      | Destination for the log files           |
-| /data/      | Data files           	                  |
-| /socket/    | Location for unix sockets (optional)    |
-| /tmp/       | Location for temporary files (optional) |
+| Destination | Description                                             |
+| ----------- | ------------------------------------------------------- |
+| `/data`     | Data files (details below)                              |
+| `/logs`     | API / supervisor log files                              |
+| `/tmp`      | Using host `/tmp` can increase performance _(optional)_ |
 
 
 ## Data directory
 
-The recommended approach is to have one data directory for ELLA, which contains imported analyses, attachments and IGV data. This directory is outside of the container, and can be mounted in to /data.
+ELLA needs access to various types of data, and while it is possible to mount those all individually,
+using a single unified `/data` directory is _strongly_ recommended for both clarity and simplicity.
 
-Example folder structure:
+Recommended folder structure:
 
 ```
-/data/
+data/
 ├── attachments/  # Storage of user attachments
 ├── analyses/
-|  ├── incoming/  # New analyses for analysis watcher
-|  └── imported/  # Analyses that are imported
+|  ├── incoming/  # Analyses to be imported automatically by the analysis watcher
+|  └── imported/  # Analyses that have already been imported
 ├── igv-data/     # IGV resources, global and usergroup tracks.
-├── fixtures/     # Configuration data that should be imported into the database, e.g.:
+├── fixtures/     # Configuration data to be imported into the database
 |  ├── users.json
 |  ├── usergroups.json
 |  ├── references.json
 |  ├── filterconfigs.json
 |  └── genepanels/
-
 ```
 
-## Setup environment
+## Setup environment variables
 
-There are a few environment variables that should be set:
+There are a few environment variables that should be set. Check the relavent [Docker](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)
+and/or [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/environment_and_metadata.html#environment-from-the-host)
+documentation for how to pass this information to the container.
 
-| Variable  	    | Description  	                                 | Values  |
-|:--- | :---  | :---  |
-| `DB_URL`    | URI to PostgreSQL database.	                         | (e.g. `postgresql://dbuser@host/dbname`)   |
-| `PORT`     | Listen port for nginx.	                         | Default: `3114`  |
-| `ANALYSES_PATH`  | Path to imported analyses. 	| path (e.g. `/data/analyses/imported`) |
-| `ANALYSES_INCOMING`   | Path to incoming analyses. Used by analysis watcher to import new analyses 	| path (e.g. `/data/analyses/incoming`) |
-| `ELLA_CONFIG`  | Application configuration. 	| path (e.g. `/config/ella_config.yml`) |
-| `IGV_DATA`  | Path to IGV resources. 	| path (e.g. `/data/igv_data`) |
+| Variable            | Description                                              | Example/Default value             |
+| :------------------ | :------------------------------------------------------- | :-------------------------------- |
+| `PORT`              | Listen port for nginx                                    | Default: `3114`                   |
+| `DB_URL`            | URI with PostgreSQL credentials                          | `postgresql://dbuser@host/dbname` |
+| `ELLA_CONFIG`       | Application configuration                                | `/data/ella_config.yml`           |
+| `ANALYSES_INCOMING` | Path used by the watcher for auto-importing new analyses | `/data/analyses/incoming`         |
+| `ANALYSES_PATH`     | Path to analyses that have already been imported         | `/data/analyses/imported`         |
+| `IGV_DATA`          | Path to IGV resources                                    | `/data/igv_data`                  |
 
 Additional environment variables can be utilized in the [Application configuration](/technical/application.md).
 
-## Start container
 
-We can launch a new container like the following
+<!--
 
-``` bash
-docker run \
-  --name {container_name} \
-  -p 80:80 \
-  -v /local/data/path:/data \
-  -v /local/config/path:/config \
-  -v /local/logs/path:/logs \
-  -e ELLA_CONFIG=/config/ella_config.yml \
-  -e DB_URL={db_url} \
-  -e ANALYSES_PATH=/data/analyses/imported \
-  -e ANALYSES_INCOMING=/data/analyses/incoming \
-  -e IGV_DATA=/data/igv_data \
-  {image_name}
-```
+This is useful information, but this is not a good place for it.
+
+---
 
 The default entrypoint is `ops/prod/entrypoint.sh`, which will in turn start Supervisor to manage the different processes.
 
@@ -110,11 +131,23 @@ Internally, the `supervisord` will spin up several services:
   - gunicorn - launching several API workers
   - analyses-watcher - handles watching for and importing new analyses
   - polling - watches for and handles new import jobs
+ -->
 
+TODO:
+
+- fetch / setup fixtures
+  - `ella-cli igv-download`
+  - genepanels
+  - usergroups
+  - filterconfigs
+  - users
+- create initial database
+- load fixture data
+- start supervisor processes
 
 ## Creating the production database
 
-ELLA relies on an external PostgreSQL database, using the default "public" schema. 
+ELLA relies on an external PostgreSQL database, using the default "public" schema.
 
 Provide the URI to the database using the `DB_URL` environment variable.
 
@@ -124,15 +157,15 @@ Run the following command:
 ella-cli database make-production
 ```
 
-This will: 
+This will:
 1. Setup the database from the migration base.
-2. Run all the migration scripts. 
+2. Run all the migration scripts.
 3. Run the `database refresh` command, to setup json schemas and various triggers.
 
 
 ## Populate reference table
 
-The references table in the database can be populated with PubMed IDs using a json file generated by the ella-cli: 
+The references table in the database can be populated with PubMed IDs using a json file generated by the ella-cli:
 
 1. Gather all the PubMed IDs you want to populate the database with in a line-separated file.
 2. Run this command to create a file named references-YYMMDD.json:<br>

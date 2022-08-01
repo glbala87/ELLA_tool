@@ -10,7 +10,11 @@ PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 DEFAULT_CONTAINER_NAME = ella-${BRANCH}
 CONTAINER_NAME ?= ella-${BRANCH}
 export IMAGE_NAME ?= local/ella-${BRANCH}:latest
+ifeq (,${RELEASE_TAG})
 REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${BRANCH}
+else
+REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${RELEASE_TAG}
+endif
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
