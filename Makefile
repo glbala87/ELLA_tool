@@ -7,7 +7,7 @@ GID ?= 1000
 
 PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 
-LATEST_RELEASE = $(shell git tag -l 'v*' | grep -vE -- '-rc\d+$$' | sort -Vr | head -1)
+LATEST_RELEASE = $(shell git describe --tags $$(git rev-list --tags --max-count=1))
 REGISTRY_IMAGE = registry.gitlab.com/alleles/ella
 REGISTRY_TAG = $(or ${RELEASE_TAG},${BRANCH})
 REGISTRY_SLUG = ${REGISTRY_IMAGE}:${REGISTRY_TAG}
@@ -216,6 +216,7 @@ DIST_BUNDLE = ${DIST_DIR}/ella-release-${RELEASE_TAG}-dist.tgz
 SIF_RELEASE ?= ella-release-${RELEASE_TAG}.sif
 DIST_SIF = ${DIST_DIR}/${SIF_RELEASE}
 SIF_PREFIX ?= docker-daemon
+SIF_URL = https://gitlab.com/alleles/ella/-/releases/${RELEASE_TAG}/downloads/ella-release-${RELEASE_TAG}.sif
 
 # release settings - upload to digitalocean
 RELEASE_BUCKET ?= s3://ella/releases/${RELEASE_TAG}
@@ -309,7 +310,7 @@ _release-upload-artifacts:
 # demo is a local review app, a review app is a remote demo
 
 .PHONY: review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
-.PHONY: demo-build demo-pull _demo-check-image demo demo-release demo-dev kill-demo
+.PHONY: demo-build demo-pull _demo-check-image demo demo-release demo-dev kill-demo latest-release-info
 
 # set var defaults for running review steps locally
 REVAPP_NAME ?= ${REGISTRY_TAG}
@@ -356,6 +357,13 @@ demo-local: demo-pull demo
 
 kill-demo:
 	docker rm -vf ${DEMO_NAME}
+
+.SILENT: latest-release-info
+latest-release-info: override RELEASE_TAG = ${LATEST_RELEASE}
+latest-release-info:
+	echo 'Version:     ${LATEST_RELEASE}'
+	echo 'Docker:      ${REGISTRY_SLUG}'
+	echo 'Singularity: ${SIF_URL}'
 
 # Review apps
 define reviewapp-template
