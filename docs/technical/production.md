@@ -1,70 +1,44 @@
 # Production
 
 ::: warning NOTE
-This documentation is a work in progress and is incomplete.
-
-Please contact developers for more details.
+This documentation is a work in progress and may be incomplete.
 :::
 
 ::: danger WARNING
-For proper security, ELLA should be run in a walled garden with restricted external access, rather than on a public network.
+This guide does not include setting up SSL. For proper security, ELLA should either be run in a
+secured environment (internal network, *"walled garden"*, etc.) or with the nginx config modified
+to handle remote connections securely.
 :::
 
 ::: danger WARNING
-ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data. The [documentation for this service](http://allel.es/anno-docs) is work in progress, please contact [ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F) for details on how to configure your own production setup.
+ELLA relies on a separate annotation service, [ella-anno](https://gitlab.com/alleles/ella-anno), to annotate and import data.
+The [documentation for this service](http://allel.es/anno-docs) is also a work in progress. Please contact
+[ella-support](ma&#105;lt&#111;&#58;&#101;%6&#67;la&#37;2&#68;s&#117;pport&#64;m&#101;&#100;i&#115;&#105;&#110;&#46;%75i%&#54;F&#46;n%&#54;F)
+for details on how to configure it for your own production setup. A sample docker-compose stack is
+(or will eventually be) available at [alleles/demo](https://gitlab.com/alleles/demo).
 :::
 
 [[toc]]
 
+
 ## Requirements
 
-- A [PostgreSQL](https://www.postgresql.org/) database. Minimum required version is 9.6, but we recommend version 11.4 or higher.
-- ELLA primarily uses [Docker](https://www.docker.com/) for deployment. Other alternatives (e.g. using [Singularity](https://sylabs.io/) or no container) is also possible, but is not documented here.
+- [PostgreSQL](https://www.postgresql.org/)
+  - Minimum: &ge; v9.6
+  - Recommended: &ge; v11.4
+- [Docker](https://www.docker.com/)
+  - Some steps also include info for using [Singularity](https://sylabs.io/) rather than Docker,
+    but may not be as comprehensive.
+  - Running ELLA outside of a container is also possible, but is not documented (or recommended).
 
+## Background
 
-## Fetch or build container image
+### Using `ella-cli`
 
-Using the tagged released images is recommended, however you can build them locally if preferred.
+Some of the following steps require or are made simpler by using `ella-cli`. To function properly
+it requires the same environment as the ELLA application. It is recommended to use the 
 
-### Fetching a release image
-
-Check the [ELLA release page](https://gitlab.com/alleles/ella/-/releases) to see info on the latest release.
-
-#### Docker
-
-Pull the Docker image using the tag from the most recent release (_e.g.,_ `v1.16.4`).
-
-```shell
-docker pull registry.gitlab.com/alleles/ella:${TAG}
-```
-
-#### Singularity
-
-A link to the Singularity image (built directly from the Docker image) is available on the release page. For automation,
-The URL will follow the pattern:
-
-- `https://gitlab.com/alleles/ella/-/releases/${TAG}/downloads/ella-release-${TAG}.sif`
-
-
-### Building the image
-
-#### Docker
-
-Although not recommended, you can build a production ELLA image using make:
-
-``` bash
-make _release-build-docker RELEASE_TAG=custom
-```
-
-#### Singularity
-
-A singularity image can be built directly from the docker release image:
-
-```shell
-singularity pull docker://registry.gitlab.com/alleles/ella:${TAG}
-```
-
-## Mount points
+### Mount points
 
 There are several directories you will want to mount from the host OS into the container.
 
@@ -75,7 +49,7 @@ There are several directories you will want to mount from the host OS into the c
 | `/tmp`      | Using host `/tmp` can increase performance _(optional)_ |
 
 
-## Data directory
+### Data directory
 
 ELLA needs access to various types of data, and while it is possible to mount those all individually,
 using a single unified `/data` directory is _strongly_ recommended for both clarity and simplicity.
@@ -97,55 +71,116 @@ data/
 |  └── genepanels/
 ```
 
-## Setup environment variables
+### Supervisor
 
-There are a few environment variables that should be set. Check the relavent [Docker](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)
-and/or [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/environment_and_metadata.html#environment-from-the-host)
-documentation for how to pass this information to the container.
+The default entrypoint is `ops/prod/entrypoint.sh`, which uses Supervisor to manage several
+processes.
 
-| Variable            | Description                                              | Example/Default value             |
-| :------------------ | :------------------------------------------------------- | :-------------------------------- |
-| `PORT`              | Listen port for nginx                                    | Default: `3114`                   |
-| `DB_URL`            | URI with PostgreSQL credentials                          | `postgresql://dbuser@host/dbname` |
-| `ELLA_CONFIG`       | Application configuration                                | `/data/ella_config.yml`           |
-| `ANALYSES_INCOMING` | Path used by the watcher for auto-importing new analyses | `/data/analyses/incoming`         |
-| `ANALYSES_PATH`     | Path to analyses that have already been imported         | `/data/analyses/imported`         |
-| `IGV_DATA`          | Path to IGV resources                                    | `/data/igv_data`                  |
+  - _nginx_ - reverse proxy for the gunicorn workers and serves static files
+  - _gunicorn_ - API / worker processes
+  - _analyses-watcher_ - monitors `$ANALYSES_INCOMING` to import new analyses as they come in and
+    then moves them to `$ANALYSES_PATH`
+  - _polling_ - interfaces with the annotation service and imports data for samples sent for
+    reanalysis
 
-Additional environment variables can be utilized in the [Application configuration](/technical/application.md).
+## First time setup
+
+The [ELLA release page](https://gitlab.com/alleles/ella/-/releases) has information on past and
+current releases, including the Docker and Singularity images. This information can also be quickly
+gathered by running `make latest-release-info`.
+
+### Fetching the release image
+
+Determine the latest Docker and Singularity image by whichever method you prefer, and then pull
+them to the local server.
+
+```bash
+# Docker
+docker pull registry.gitlab.com/alleles/ella:${TAG}
+
+# Singularity - download
+wget https://gitlab.com/alleles/ella/-/releases/${TAG}/downloads/ella-release-${TAG}.sif
+
+# Singularity - build from Docker
+singularity pull docker://registry.gitlab.com/alleles/ella:${TAG}
+```
 
 
-<!--
+### Define the environment
 
-This is useful information, but this is not a good place for it.
+There are a few environment variables that should be set, and many others than can be modified to
+fit the production environment. In the following steps, it is assumed they are in an env file.
 
----
 
-The default entrypoint is `ops/prod/entrypoint.sh`, which will in turn start Supervisor to manage the different processes.
+An example env file is:
 
-### Behind the scenes
+```bash
+# Listen port for nginx. Default: 3114
+# PORT=3114
 
-Internally, the `supervisord` will spin up several services:
+# URI with PostgreSQL credentials
+DB_URL=postgresql://dbuser@host/dbname
 
-  - nginx - acting as reverse proxy and serving static files
-  - gunicorn - launching several API workers
-  - analyses-watcher - handles watching for and importing new analyses
-  - polling - watches for and handles new import jobs
- -->
+# Application configuration
+ELLA_CONFIG=/data/ella_config.yml
 
-TODO:
+# Path used by the watcher for auto-importing new analyses
+ANALYSES_INCOMING=/data/analyses/incoming
 
-- fetch / setup fixtures
+# Path to analyses that have already been imported
+ANALYSES_PATH=/data/analyses/imported
+
+# Path to IGV resources
+IGV_DATA=/data/igv_data
+```
+
+See [Application Configuration](/technical/application.md) for all variables related to the setup
+of ELLA application.
+
+Check the relevant
+[Docker](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)
+and/or
+[Singularity](https://docs.sylabs.io/guides/3.10/user-guide/environment_and_metadata.html#environment-from-the-host)
+documentation for other ways of passing this information to the container.
+
+### Define/Fetch configuration fixtures
+
+ELLA is very configurable and as a result there are several configuration files that need to be prepared before
+the database can created and populated. Each file has documentation contain the details of its contents as well
+as a sample config available in the test data that can be used as reference.
+
+In depth info is available in [Configuration](/technical/configuration.md) for all configuration options.
+
+#### IGV
+
+TODO
+
+[IGV.js](https://github.com/igvteam/igv.js) is used in [visual mode](/manual/visual.md) for examining variants
+in more detail. 
+
   - `ella-cli igv-download`
-  - genepanels
-  - usergroups
-  - filterconfigs
-  - users
-- create initial database
-- load fixture data
-- start supervisor processes
 
-## Creating the production database
+#### Gene Panels
+
+TODO
+
+- error message on bad genepanel folder sucks
+- add `--all` flag?
+- can only deposit one by one
+
+#### User Groups
+
+TODO
+
+#### Filter Configs
+
+TODO
+
+#### Users
+
+TODO
+
+### Create the production database
 
 ELLA relies on an external PostgreSQL database, using the default "public" schema.
 
@@ -162,8 +197,15 @@ This will:
 2. Run all the migration scripts.
 3. Run the `database refresh` command, to setup json schemas and various triggers.
 
+### Load configuration files
 
-## Populate reference table
+TODO
+
+```bash
+ella-cli blah blah blah
+```
+
+### Populate reference table
 
 The references table in the database can be populated with PubMed IDs using a json file generated by the ella-cli:
 
@@ -177,6 +219,6 @@ The references table in the database can be populated with PubMed IDs using a js
     ella-cli deposit references <path to references-YYMMDD.json>
     ```
 
-## Configure ELLA
+### Log in / verify
 
-See [Application configuration](/technical/application.md) for settings related to setup of the ELLA application, as well as [Configuration](/technical/configuration.md) for other options.
+TODO
