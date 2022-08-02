@@ -7,14 +7,15 @@ GID ?= 1000
 
 PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 
+LATEST_RELEASE = $(shell git tag -l 'v*' | grep -vE -- '-rc\d+$$' | sort -Vr | head -1)
+REGISTRY_IMAGE = registry.gitlab.com/alleles/ella
+REGISTRY_TAG = $(or ${RELEASE_TAG},${BRANCH})
+REGISTRY_SLUG = ${REGISTRY_IMAGE}:${REGISTRY_TAG}
+
 DEFAULT_CONTAINER_NAME = ella-${BRANCH}
 CONTAINER_NAME ?= ella-${BRANCH}
 export IMAGE_NAME ?= local/ella-${BRANCH}:latest
-ifeq (,${RELEASE_TAG})
-REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${BRANCH}
-else
-REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${RELEASE_TAG}
-endif
+
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -308,12 +309,12 @@ _release-upload-artifacts:
 # demo is a local review app, a review app is a remote demo
 
 .PHONY: review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
-.PHONY: demo-build demo-pull demo-check-image demo kill-demo
+.PHONY: demo-build demo-pull _demo-check-image demo demo-release demo-dev kill-demo
 
 # set var defaults for running review steps locally
-REVAPP_NAME ?= ${BRANCH}
-REVAPP_IMAGE_NAME ?= ${REGISTRY_IMAGE}-review
-REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+REVAPP_NAME ?= ${REGISTRY_TAG}
+REVAPP_IMAGE_NAME ?= ${REGISTRY_SLUG}-review
+REVAPP_COMMIT_SHA ?= $(shell git rev-parse ${REGISTRY_TAG})
 REVAPP_REF ?= ${REF}
 export REVAPP_NAME REVAPP_IMAGE_NAME REVAPP_COMMIT_SHA REVAPP_REF
 
@@ -331,19 +332,30 @@ demo-build: build-review
 demo-pull:
 	docker pull -q ${REVAPP_IMAGE_NAME}
 
-demo-check-image:
+_demo-check-image:
 	docker image inspect ${REVAPP_IMAGE_NAME} &>/dev/null || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
 	-@docker rm -vf ${DEMO_NAME}
 
-demo: demo-check-image ci-set-testdata
+# ensure testdata exists before starting demo
+demo: $(if $(shell [[ -e ${TESTDATA_DIR}/.git ]] || echo 'missing testdata'),setup-gitmodules)
+demo: _demo-check-image ci-set-testdata
 	$(eval export DEMO_IMAGE = ${REVAPP_IMAGE_NAME})
 	$(eval CONTAINER_NAME = ${DEMO_NAME})
 	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
 	docker exec ${TERM_OPTS} ${DEMO_NAME} make dbreset
 	@echo "Demo is now running at http://localhost:${DEMO_HOST_PORT}. Some example user/pass are testuser1/demo and testuser5/demo."
 
+demo-release: override RELEASE_TAG = ${LATEST_RELEASE}
+demo-release: demo-pull demo
+
+demo-dev: override RELEASE_TAG = dev
+demo-dev: demo-pull demo
+
+demo-local: override REVAPP_IMAGE_NAME = ${IMAGE_NAME}
+demo-local: demo-pull demo
+
 kill-demo:
-	docker rm -vf ella-demo
+	docker rm -vf ${DEMO_NAME}
 
 # Review apps
 define reviewapp-template
@@ -456,7 +468,7 @@ _ci_pull:
 
 _ci_pull_review:
 	docker pull -q ${REVAPP_IMAGE_NAME} || true
-	docker pull -q ${REGISTRY_IMAGE} || true
+	docker pull -q ${REGISTRY_SLUG} || true
 	docker pull -q ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review || true
 
 # checking $UPSTREAM_TRIGGER allows the build job to run/pass, so the tests that require the build
@@ -477,7 +489,7 @@ ci-build-dev: _in_ci _ci_pull build
 	mkdir -p $(dir ${CI_CACHE_IMAGE_FILE})
 	docker save ${IMAGE_NAME} >${CI_CACHE_IMAGE_FILE}
 
-ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${REGISTRY_IMAGE} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
+ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${REGISTRY_SLUG} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
 ci-build-review: _ci_stage = build-review
 ci-build-review: _in_ci _ci_pull_review build-review
 	$(call check_defined,CI,only push images to registry in CI - aborting $@)
