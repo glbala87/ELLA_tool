@@ -279,6 +279,10 @@ the CLI.
 ella-cli users add_many /data/fixtures/users.json
 ```
 
+#### Annotation
+
+TODO: normal + configurable annotation
+
 #### IGV
 
 [IGV.js](https://github.com/igvteam/igv.js) is used in [visual mode](/manual/visual.md) for
