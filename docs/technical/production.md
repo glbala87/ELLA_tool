@@ -33,11 +33,6 @@ for details on how to configure it for your own production setup. A sample docke
 
 ## Background
 
-### Using `ella-cli`
-
-Some of the following steps require or are made simpler by using `ella-cli`. To function properly
-it requires the same environment as the ELLA application. It is recommended to use the 
-
 ### Mount points
 
 There are several directories you will want to mount from the host OS into the container.
@@ -54,21 +49,24 @@ There are several directories you will want to mount from the host OS into the c
 ELLA needs access to various types of data, and while it is possible to mount those all individually,
 using a single unified `/data` directory is _strongly_ recommended for both clarity and simplicity.
 
-Recommended folder structure:
+The following steps assume the folder structure and config locations:
 
 ```
 data/
-├── attachments/  # Storage of user attachments
 ├── analyses/
-|  ├── incoming/  # Analyses to be imported automatically by the analysis watcher
-|  └── imported/  # Analyses that have already been imported
-├── igv-data/     # IGV resources, global and usergroup tracks.
+|  └── imported/  # Analyses that have already been imported                         $ANALYSES_PATH
+|  ├── incoming/  # Analyses to be imported automatically by the analysis watcher    $ANALYSES_INCOMING
+├── attachments/  # Storage of user attachments                                      $ATTACHMENT_STORAGE
 ├── fixtures/     # Configuration data to be imported into the database
+|  └── genepanels/
 |  ├── users.json
 |  ├── usergroups.json
 |  ├── references.json
 |  ├── filterconfigs.json
-|  └── genepanels/
+├── igv-data/     # IGV resources, global and usergroup tracks                       $IGV_DATA
+|  ├── tracks/
+|  ├── track_config_default.json
+├── ella_config.yml                                                                  $ELLA_CONFIG
 ```
 
 ### Supervisor
@@ -105,20 +103,18 @@ wget https://gitlab.com/alleles/ella/-/releases/${TAG}/downloads/ella-release-${
 singularity pull docker://registry.gitlab.com/alleles/ella:${TAG}
 ```
 
-
 ### Define the environment
 
 There are a few environment variables that should be set, and many others than can be modified to
 fit the production environment. In the following steps, it is assumed they are in an env file.
 
-
-An example env file is:
+_e.g.,_
 
 ```bash
 # Listen port for nginx. Default: 3114
 # PORT=3114
 
-# URI with PostgreSQL credentials
+# URI with PostgreSQL credentials. The user and database must already exist.
 DB_URL=postgresql://dbuser@host/dbname
 
 # Application configuration
@@ -143,48 +139,55 @@ and/or
 [Singularity](https://docs.sylabs.io/guides/3.10/user-guide/environment_and_metadata.html#environment-from-the-host)
 documentation for other ways of passing this information to the container.
 
-### Define/Fetch configuration fixtures
+### Create ELLA application config
 
-ELLA is very configurable and as a result there are several configuration files that need to be prepared before
-the database can created and populated. Each file has documentation contain the details of its contents as well
-as a sample config available in the test data that can be used as reference.
+Many of the settings can be adjusted as you go, but a basic application config is required for all
+additional steps. It must be available inside the container at the value given by `ELLA_CONFIG` in
+the env file.
 
-In depth info is available in [Configuration](/technical/configuration.md) for all configuration options.
+- Documentation
+  - [Configuration overview](/technical/configuration.html#application-configuration)
+  - [Application configuration](/technical/application.md)
+- Example in [alleles/ella-testdata](https://gitlab.com/alleles/ella-testdata)
+  - [testdata/example_config.yml](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/example_config.yml)
 
-#### IGV
+### Using `ella-cli`
 
-TODO
+The following steps use `ella-cli` from inside the ella container. You can do this by starting a
+shell session inside a running container or using an alias/function wrapper to run directly from
+the host OS. The latter will make each command take longer, but lets you interact with the host
+OS and container in a single terminal.
 
-[IGV.js](https://github.com/igvteam/igv.js) is used in [visual mode](/manual/visual.md) for examining variants
-in more detail. 
+```bash
+ELLA_DIR=$PWD
+ELLA_IMAGE=registry.gitlab.com/alleles/ella:v1.16.4
+ENV_FILE=prod.env
 
-  - `ella-cli igv-download`
+# start an interactive bash shell
+ella-shell() {
+  docker run -it --rm \
+    --name ella-shell \
+  	--env-file "$ENV_FILE" \
+  	-v "$ELLA_DIR/data:/data" \
+  	-v "$ELLA_DIR/logs:/logs" \
+  	-v /tmp \
+  	"$ELLA_IMAGE" bash
+}
 
-#### Gene Panels
+# run a single command in an 
+ella-cli() {
+  docker run -it --rm \
+  	--env-file "$ENV_FILE" \
+  	-v "$ELLA_DIR/data:/data" \
+  	-v "$ELLA_DIR/logs:/logs" \
+  	-v /tmp \
+  	"$ELLA_IMAGE" ella-cli "$@"
+}
+```
 
-TODO
-
-- error message on bad genepanel folder sucks
-- add `--all` flag?
-- can only deposit one by one
-
-#### User Groups
-
-TODO
-
-#### Filter Configs
-
-TODO
-
-#### Users
-
-TODO
-
-### Create the production database
+### Initializing the database
 
 ELLA relies on an external PostgreSQL database, using the default "public" schema.
-
-Provide the URI to the database using the `DB_URL` environment variable.
 
 Run the following command:
 
@@ -193,16 +196,110 @@ ella-cli database make-production
 ```
 
 This will:
+
 1. Setup the database from the migration base.
 2. Run all the migration scripts.
 3. Run the `database refresh` command, to setup json schemas and various triggers.
 
-### Load configuration files
+Once this is complete, you can start a persistent ELLA container and it will stay running. Most of
+the supervisord processes will fail, but it can make running the next `ella-cli` commands easier.
 
-TODO
+### Define/Fetch configuration fixtures
+
+ELLA is very configurable and as a result there are several configuration files that need to be
+prepared before the database can created and populated. Each file has documentation contain the
+details of its contents as well as a sample config available in the test data that can be used as
+reference.
+
+In depth info is available in [Configuration](/technical/configuration.md) for all configuration
+options.
+
+Some configs rely on each other, so when initially populating the database they must be loaded in
+the following order.
+
+#### Gene Panels
+
+Gene panels are a core part of ELLA and must be loaded first.
+
+- Documentation
+  - [Gene Panel Configuration](/technical/genepanels.md)
+- Examples
+  - [alleles/ella-testdata:testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
+- Gene Panels used by OUS AMG
+  - [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
+
+It is not currently possible to bulk load gene panels, so using a loop is recommended.
 
 ```bash
-ella-cli blah blah blah
+# adjust path to genepanels as needed
+for gp_dir in /data/fixtures/genepanels/*/; do
+  ella-cli deposit genepanel --folder $gp_dir
+done
+```
+
+#### User Groups
+
+User groups are used to determine who can see what as well as which filters are available and
+used by default.
+
+- Documentation
+  - [Users and User Group Configuration](/technical/users.html#user-groups)
+- Examples
+  - [alleles/ella-testdata:usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json)
+
+```bash
+ella-cli users add_groups /data/fixtures/usergroups.json
+```
+
+#### Filter Configs
+
+In addition to gene panels, ELLA has highly configurable and extendable filters that make ignoring
+technical and known-but-uninteresting variants much simpler.
+
+- Documentation
+  - [Filter Configuration](/technical/filtering.md)
+- Examples
+  - [alleles/ella-testdata:filterconfigs.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json)
+
+```bash
+ella-cli filterconfigs update /data/fixtures/filterconfigs.json
+```
+
+#### Users
+
+Users can be added one by one or as a bulk action. It is currently only possible to add users via
+the CLI.
+
+- Documentation
+  - [Users and Passwords](/technical/users.html#users-and-passwords)
+- Examples
+  - [alleles/ella-testdata:users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.
+
+```bash
+ella-cli users add_many /data/fixtures/users.json
+```
+
+#### IGV
+
+[IGV.js](https://github.com/igvteam/igv.js) is used in [visual mode](/manual/visual.md) for
+examining variants in more detail. Its configuration is dynamic, so does not need to be loaded into
+the database. The config and any necessary files for the track info must be available in
+`$IGV_DATA`/`$IGV_DATA/tracks` and have the correct permissions.
+
+- Documentation:
+  - [UI Options: IGV](/technical/uioptions.html#igv-and-tracks-in-visual)
+- Example:
+  - [alleles/ella-testdata:igv-data](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/igv-data)
+
+```bash
+# Download the default IGV data
+ella-cli igv-download "$IGV_DATA"
+
+# If running ELLA in an airgapped network, you can download the files directly for a manual
+# transfer afterwarads. This does not need to be run inside an ELLA container.
+mkdir igv-data
+./src/cli/commands/fetch-igv-data.sh igv-data
+tar cvf igv_data.tar igv-data/
 ```
 
 ### Populate reference table
@@ -221,4 +318,31 @@ The references table in the database can be populated with PubMed IDs using a js
 
 ### Log in / verify
 
-TODO
+1. If you haven't already, start the ELLA container
+2. Verify the container is running
+   ```bash
+   # from the host
+   docker ps --filter=name=ella-prod
+   # CONTAINER ID   IMAGE                                      COMMAND                  CREATED         STATUS         PORTS     NAMES
+   # e475a3c0068b   registry.gitlab.com/alleles/ella:v1.16.4   "/ella/ops/prod/entr…"   2 minutes ago   Up 2 minutes             ella-prod
+   ```
+3. Check the status of supervisord processes. If you started the container after first initializing
+   the database, they will be failed and need to be started again.
+   ```bash
+   # inside the container
+   supervisorctl -c /ella/ops/prod/supervisor.cfg status
+   # analysis-watcher                 RUNNING   pid 42, uptime 0:05:10
+   # api                              RUNNING   pid 43, uptime 0:05:10
+   # nginx                            RUNNING   pid 44, uptime 0:05:10
+   # polling                          RUNNING   pid 45, uptime 0:05:10
+   ```
+4. If any processes have exited, start them up again
+   ```bash
+   supervisorctl -c /ella/ops/prod/supervisor.cfg start all
+   supervisorctl -c /ella/ops/prod/supervisor.cfg status
+   # analysis-watcher                 RUNNING   pid 42, uptime 0:00:07
+   # ...
+   ```
+   - if any of the processes still fail to start, check the logs to determine the cause.
+5. Go to the appropriate URL/port and log in.
+6. Success!
