@@ -145,11 +145,11 @@ Many of the settings can be adjusted as you go, but a basic application config i
 additional steps. It must be available inside the container at the value given by `ELLA_CONFIG` in
 the env file.
 
-- Documentation
-  - [Configuration overview](/technical/configuration.html#application-configuration)
-  - [Application configuration](/technical/application.md)
-- Example in [alleles/ella-testdata](https://gitlab.com/alleles/ella-testdata)
-  - [testdata/example_config.yml](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/example_config.yml)
+_See also:_
+
+- [Configuration overview](/technical/configuration.html#application-configuration)
+- [Application configuration](/technical/application.md)
+- [testdata/example_config.yml](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/example_config.yml)
 
 ### Using `ella-cli`
 
@@ -219,16 +219,8 @@ the following order.
 
 #### Gene Panels
 
-Gene panels are a core part of ELLA and must be loaded first.
-
-- Documentation
-  - [Gene Panel Configuration](/technical/genepanels.md)
-- Examples
-  - [testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
-- Gene Panels used by OUS AMG
-  - [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
-
-It is not currently possible to bulk load gene panels, so using a loop is recommended.
+Gene panels are a core part of ELLA and must be loaded first. It is not currently possible to bulk
+load gene panels, so using a loop is recommended.
 
 ```bash
 # adjust path to genepanels as needed
@@ -237,47 +229,53 @@ for gp_dir in /data/fixtures/genepanels/*/; do
 done
 ```
 
+_See also:_
+
+- [Gene Panel Configuration](/technical/genepanels.md)
+- [testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
+- [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
+
 #### User Groups
 
 User groups are used to determine who can see what as well as which filters are available and
 used by default.
 
-- Documentation
-  - [Users and User Group Configuration](/technical/users.html#user-groups)
-- Examples
-  - [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json)
-
 ```bash
 ella-cli users add_groups /data/fixtures/usergroups.json
 ```
+
+_See also:_
+
+- [Users and User Group Configuration](/technical/users.html#user-groups)
+- [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json)
 
 #### Filter Configs
 
 In addition to gene panels, ELLA has highly configurable and extendable filters that make ignoring
 technical and known-but-uninteresting variants much simpler.
 
-- Documentation
-  - [Filter Configuration](/technical/filtering.md)
-- Examples
-  - [filterconfigs.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json)
-
 ```bash
 ella-cli filterconfigs update /data/fixtures/filterconfigs.json
 ```
+
+_See also:_
+
+- [Filter Configuration](/technical/filtering.md)
+- [filterconfigs.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json)
 
 #### Users
 
 Users can be added one by one or as a bulk action. It is currently only possible to add users via
 the CLI.
 
-- Documentation
-  - [Users and Passwords](/technical/users.html#users-and-passwords)
-- Examples
-  - [users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.json)
-
 ```bash
 ella-cli users add_many /data/fixtures/users.json
 ```
+
+_See also:_
+
+- [Users and Passwords](/technical/users.html#users-and-passwords)
+- [users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.json)
 
 #### Annotation
 
@@ -290,11 +288,6 @@ examining variants in more detail. Its configuration is dynamic, so does not nee
 the database. The config and any necessary files for the track info must be available in
 `$IGV_DATA`/`$IGV_DATA/tracks` and have the correct permissions.
 
-- Documentation:
-  - [UI Options: IGV](/technical/uioptions.html#igv-and-tracks-in-visual)
-- Example:
-  - [igv-data](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/igv-data)
-
 ```bash
 # Download the default IGV data
 ella-cli igv-download "$IGV_DATA"
@@ -305,6 +298,11 @@ mkdir igv-data
 ./src/cli/commands/fetch-igv-data.sh igv-data
 tar cvf igv_data.tar igv-data/
 ```
+
+_See also:_
+
+- [UI Options: IGV](/technical/uioptions.html#igv-and-tracks-in-visual)
+- [igv-data](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/igv-data)
 
 ### Populate reference table
 
