@@ -33,7 +33,7 @@ The main configuration of the ELLA application (excluding any data that is impor
 In the YAML file, you may use environment variables using YAML constructors, such as `my_key: !env ENVIRONMENT_VARIABLE`, or `my_key: !env [ENVIRONMENT_VARIABLE, "default"]`. Custom YAML constructors available are `!env_bool`, `!env_int`, `!env_float`, and `!file` (file path relative to ELLA root folder).
 
 Options for various settings are described in the [above referred pages](#contents). See also
-[`alleles/ella-testdata:example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml)
+[`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml)
 for examples.
 
 ### Fixtures
@@ -47,7 +47,7 @@ Fixtures include any kind of configuration data that should be imported into the
 | `filterconfigs.json` | Variant filters                                         | [Filtering](/technical/filtering.html)             |
 | `genepanels/`        | Gene panels (transcripts, phenotypes, ...)              | [Gene panels](/technical/genepanels.html)          |
 
-Examples can be found in `/src/vardb/testdata/`.
+Examples can be found in [alleles/ella-testdata](https://gitlab.com/alleles/ella-testdata).
 
 ### Source code
 

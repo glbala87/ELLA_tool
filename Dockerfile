@@ -136,7 +136,7 @@ ENV PGHOST="/socket" \
     PGDATA="/pg-data"
 WORKDIR /ella
 
-ENV ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments" \
+ENV ATTACHMENT_STORAGE="/ella/ella-testdata/testdata/attachments" \
     DB_URL="postgresql:///postgres" \
     DEV_IGV_CYTOBAND="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt" \
     DEV_IGV_FASTA="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta" \
@@ -181,7 +181,7 @@ COPY --from=dev --chown=ella-user:ella-user /usr/lib/postgresql /usr/lib/postgre
 
 USER ella-user
 # set demo defaults here, so demo/review apps can just `docker run -d`
-ENV ATTACHMENT_STORAGE="/ella/src/vardb/testdata/attachments" \
+ENV ATTACHMENT_STORAGE="/ella/ella-testdata/testdata/attachments" \
     DB_URL="postgresql:///postgres" \
     DEV_IGV_CYTOBAND="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/b37/b37_cytoband.txt" \
     DEV_IGV_FASTA="https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/1kg_v37/human_g1k_v37_decoy.fasta" \

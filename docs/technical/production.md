@@ -224,7 +224,7 @@ Gene panels are a core part of ELLA and must be loaded first.
 - Documentation
   - [Gene Panel Configuration](/technical/genepanels.md)
 - Examples
-  - [alleles/ella-testdata:testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
+  - [testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
 - Gene Panels used by OUS AMG
   - [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
 
@@ -245,7 +245,7 @@ used by default.
 - Documentation
   - [Users and User Group Configuration](/technical/users.html#user-groups)
 - Examples
-  - [alleles/ella-testdata:usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json)
+  - [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json)
 
 ```bash
 ella-cli users add_groups /data/fixtures/usergroups.json
@@ -259,7 +259,7 @@ technical and known-but-uninteresting variants much simpler.
 - Documentation
   - [Filter Configuration](/technical/filtering.md)
 - Examples
-  - [alleles/ella-testdata:filterconfigs.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json)
+  - [filterconfigs.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json)
 
 ```bash
 ella-cli filterconfigs update /data/fixtures/filterconfigs.json
@@ -273,7 +273,7 @@ the CLI.
 - Documentation
   - [Users and Passwords](/technical/users.html#users-and-passwords)
 - Examples
-  - [alleles/ella-testdata:users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.
+  - [users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.json)
 
 ```bash
 ella-cli users add_many /data/fixtures/users.json
@@ -289,7 +289,7 @@ the database. The config and any necessary files for the track info must be avai
 - Documentation:
   - [UI Options: IGV](/technical/uioptions.html#igv-and-tracks-in-visual)
 - Example:
-  - [alleles/ella-testdata:igv-data](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/igv-data)
+  - [igv-data](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/igv-data)
 
 ```bash
 # Download the default IGV data

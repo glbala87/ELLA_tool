@@ -24,7 +24,7 @@ See `/src/rule_engine/README` for details.
 
 ### User group rules
 
-[User group](/technical/users.html#user-groups)-specific ACMG value rules. See `/src/vardb/testdata/usergroups.json` for examples. 
+[User group](/technical/users.html#user-groups)-specific ACMG value rules. See [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. 
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `config.acmg` 

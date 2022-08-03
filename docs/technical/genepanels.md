@@ -21,5 +21,5 @@ ella-cli deposit genepanel --folder <path to gene panel directory>
 
 Note that `<PanelName>_<version>.transcripts.csv` and `<PanelName>_<version>.phenotypes.csv` files are required.
 
-- Examples are available in the testdata: [alleles/ella-testdata:testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
+- Examples are available in the testdata: [testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
 - An authoritative collection of gene panels is also available: [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
