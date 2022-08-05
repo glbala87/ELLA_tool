@@ -363,3 +363,49 @@ The references table in the database can be populated with PubMed IDs using a js
    - if any of the processes still fail to start, check the logs to determine the cause.
 5. Go to the appropriate URL/port and log in.
 6. Success!
+
+### Upload an analysis
+
+A new analysis can be uploaded either via the automated analysis-watcher or manually via
+`ella-cli`. In both cases, the files/directories must follow the naming format:
+`{analysis_name}-{genepanel_name}-v{genepanel_version}`.
+
+#### Deposit with `ella-cli`
+
+If you have a single VCF without any accompanying files, it can be easily deposited:
+
+```bash
+ella-cli depost analysis sample_123-Mendeliome-v01.vcf
+```
+
+#### Automatic import
+
+To automatically import an analysis, have the final steps of your variant calling pipeline write
+the output to itws own directory in `$ANALYSES_INCOMING`. Once all the files have been written /
+copied, create a file named `READY` in the directory and the watcher will add it to the queue the
+next time it scans the directory.
+
+```bash
+# pipeline finishes, copy the output to watched location
+rsync -a output/ /host/path/to/analyses/incoming/sample_123-Mendeliome-v01/
+
+# check that all desired files are there
+ls -1 /host/path/to/analyses/incoming/sample_123-Mendeliome-v01/
+# sample_123-Mendeliome-v01.analysis
+# sample_123-Mendeliome-v01.cnv.vcf
+# sample_123-Mendeliome-v01.vcf
+
+# add READY to indicate it can be imported
+touch /host/path/to/analyses/incoming/sample_123-Mendeliome-v01/READY
+
+# watch log to verify it was imported successfully
+tail -f /opt/ella/logs/analysis-watcher.log
+# 2022-06-19 13:12:23,542 [info] vardb.deposit.deposit_analysis: Importing sample_123-Mendeliome-v01
+# ... 
+# 2022-06-19 13:12:24,677 [info] vardb.deposit.deposit_analysis: All done!
+# 2022-06-19 13:12:24,695 [info] __main____: Analysis sample_123-Mendeliome-v01 successfully imported!
+```
+
+_See also:_
+
+- [Import and Deposit](/technical/import.html#analysis-watcher-for-automated-import)
