@@ -6,7 +6,7 @@ def test_login(client, test_database):
     test_database.refresh()  # Reset db
     data = {"username": USER, "password": PASSWORD}
     resp = client.post("/api/v1/users/actions/login/", data=data, username=None)
-    assert resp.status_code == 302
+    assert resp.status_code == 200
 
 
 def test_login_fails(client, test_database):
@@ -52,4 +52,4 @@ def test_change_password(client, test_database):
     # Test login with new password
     data = {"username": USER, "password": new_password}
     resp = client.post("/api/v1/users/actions/login/", data=data, username=None)
-    assert resp.status_code == 302
+    assert resp.status_code == 200

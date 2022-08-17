@@ -19,7 +19,7 @@ from api.util.useradmin import (
 )
 from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource, Resource
-from flask import make_response, redirect, request
+from flask import make_response, request
 from sqlalchemy.orm import Session, aliased
 from vardb.datamodel import user as user_model
 
@@ -108,7 +108,7 @@ class LoginResource(Resource):
         u = authenticate_user(session, data.username, data.password)
 
         token = create_session(session, u.id)
-        resp = make_response(redirect("/"))
+        resp = make_response()
         resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
 
         return resp
