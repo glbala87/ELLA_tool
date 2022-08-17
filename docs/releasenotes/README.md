@@ -49,6 +49,7 @@ MR !710 Updated VEP CSQ order in typing
 MR !712 Tesdata submodule
 MR !713 Use submodules in review apps
 MR !714 Tech doc improvements; includes Makefile and testdata changes
+MR !715 Do not navigate on frontend from the backend
 -->
 - Fixes and improvements to development environment and code base. 
 
