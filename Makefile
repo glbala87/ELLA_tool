@@ -7,6 +7,7 @@ GID ?= 1000
 
 PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 
+GIT_REMOTE = https://gitlab.com/alleles/ella
 LATEST_RELEASE = $(shell git describe --tags $$(git rev-list --tags --max-count=1))
 REGISTRY_IMAGE = registry.gitlab.com/alleles/ella
 REGISTRY_TAG = $(or ${RELEASE_TAG},${BRANCH})
@@ -216,7 +217,7 @@ DIST_BUNDLE = ${DIST_DIR}/ella-release-${RELEASE_TAG}-dist.tgz
 SIF_RELEASE ?= ella-release-${RELEASE_TAG}.sif
 DIST_SIF = ${DIST_DIR}/${SIF_RELEASE}
 SIF_PREFIX ?= docker-daemon
-SIF_URL = https://gitlab.com/alleles/ella/-/releases/${RELEASE_TAG}/downloads/ella-release-${RELEASE_TAG}.sif
+SIF_URL = ${GIT_REMOTE}/-/releases/${RELEASE_TAG}/downloads/ella-release-${RELEASE_TAG}.sif
 
 # release settings - upload to digitalocean
 RELEASE_BUCKET ?= s3://ella/releases/${RELEASE_TAG}
@@ -310,7 +311,8 @@ _release-upload-artifacts:
 # demo is a local review app, a review app is a remote demo
 
 .PHONY: review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
-.PHONY: demo-build demo-pull _demo-check-image demo demo-release demo-dev kill-demo latest-release-info
+.PHONY: _demo-check-image demo-build demo-dev demo-local demo-pull demo-release demo kill-demo
+.PHONY: latest-release-info
 
 # set var defaults for running review steps locally
 REVAPP_NAME ?= ${REGISTRY_TAG}
@@ -330,8 +332,17 @@ DEMO_GROUP ?= ${GID}
 
 demo-build: build-review
 
+demo-dev: override RELEASE_TAG = dev
+demo-dev: demo-pull demo
+
+demo-local: override REVAPP_IMAGE_NAME = ${IMAGE_NAME}
+demo-local: demo-pull demo
+
 demo-pull:
 	docker pull -q ${REVAPP_IMAGE_NAME}
+
+demo-release: override RELEASE_TAG = ${LATEST_RELEASE}
+demo-release: demo-pull demo
 
 _demo-check-image:
 	docker image inspect ${REVAPP_IMAGE_NAME} &>/dev/null || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
@@ -345,15 +356,6 @@ demo: _demo-check-image ci-set-testdata
 	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
 	docker exec ${TERM_OPTS} ${DEMO_NAME} make dbreset
 	@echo "Demo is now running at http://localhost:${DEMO_HOST_PORT}. Some example user/pass are testuser1/demo and testuser5/demo."
-
-demo-release: override RELEASE_TAG = ${LATEST_RELEASE}
-demo-release: demo-pull demo
-
-demo-dev: override RELEASE_TAG = dev
-demo-dev: demo-pull demo
-
-demo-local: override REVAPP_IMAGE_NAME = ${IMAGE_NAME}
-demo-local: demo-pull demo
 
 kill-demo:
 	docker rm -vf ${DEMO_NAME}
