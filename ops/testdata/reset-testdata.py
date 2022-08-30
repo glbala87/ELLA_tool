@@ -66,6 +66,15 @@ class Fixtures(Enum):
     CUSTOM_ANNO = FIXTURES_DIR / "custom_annotation_test.json"
 
 
+class DumpType(Enum):
+    LOCAL = "local"
+    WEB = "web"
+    NONE = "none"
+
+    def __str__(self) -> str:
+        return self.value
+
+
 @dataclass(frozen=True)
 class AnalysisInfo:
     path: Path
@@ -127,8 +136,9 @@ class Context:
     db: DB
     repo: Repository
     testset: str
-    dump_url: Optional[str] = None
-    dump_path: Optional[Path] = None
+    _web_dump: Optional[str] = None
+    _local_dump: Optional[Path] = None
+    _dump_type: Optional[DumpType] = None
 
     def __init__(self) -> None:
         self.repo = Repository(
@@ -137,6 +147,23 @@ class Context:
         )
         self.db = DB()
         self.db.connect()
+
+    @property
+    def dump_type(self) -> DumpType:
+        if not self._dump_type:
+            if self.repo.is_clean():
+                if self.local_dump_exists():
+                    self._dump_type = DumpType.LOCAL
+                elif self.web_dump_exists():
+                    self._dump_type = DumpType.WEB
+                else:
+                    self._dump_type = DumpType.NONE
+            else:
+                logger.warning(
+                    "Found uncommitted changes in local testdata repo: not loading from db dump"
+                )
+                self._dump_type = DumpType.NONE
+        return self._dump_type
 
     @property
     def dump_dir(self):
@@ -151,34 +178,33 @@ class Context:
 
     @property
     def web_dump(self):
-        if self.dump_url is None:
-            self.dump_url = f"{DUMP_URL_ROOT}/{self.repo.sha}/{self.local_dump.name}"
-        return self.dump_url
+        if self._web_dump is None:
+            self._web_dump = f"{DUMP_URL_ROOT}/{self.repo.sha}/{self.local_dump.name}"
+        return self._web_dump
 
     @property
-    def dump_exists(self):
-        return self.local_dump_exists or self.web_dump_exists
+    def local_dump(self):
+        if self._local_dump is None:
+            self._local_dump = self.dump_dir / f"ella-testdata-{self.testset}.psql.gz"
+        return self._local_dump
 
-    @property
+    def has_dump(self):
+        return self.dump_type is not DumpType.NONE
+
     def web_dump_exists(self):
         r = requests.head(self.web_dump)
         logger.debug(f"got {r.status_code} back when checking HEAD for {self.web_dump}")
         return r.status_code < 400
 
-    @property
     def local_dump_exists(self):
         return self.local_dump.exists()
 
-    @property
-    def local_dump(self):
-        if self.dump_path is None:
-            self.dump_path = self.dump_dir / f"ella-testdata-{self.testset}.psql.gz"
-        return self.dump_path
-
     def read_dump(self):
-        if self.local_dump_exists:
+        if self.dump_type is DumpType.LOCAL:
+            logger.info(f"Loading local dump {self.local_dump}")
             return self.local_dump.read_bytes()
-        elif self.web_dump_exists:
+        elif self.dump_type is DumpType.WEB:
+            logger.info(f"Loading web dump {self.web_dump}")
             r = requests.get(self.web_dump)
             if r.status_code < 400:
                 return r.content
@@ -344,7 +370,7 @@ def restore_db(db: DB, remake: bool = False):
     db.disconnect()
 
 
-def reset_from_dump(db: DB, data):
+def reset_from_dump(db: DB, data: bytes):
     drop_db(db, remake=False)
 
     p = subprocess.Popen(
@@ -408,14 +434,8 @@ def dump_db(ctx: Context, testset: str):
 def reset_db(ctx: Context, testset: str):
     ctx.testset = testset or DEFAULT_TESTSET
 
-    if ctx.dump_exists:
-        if ctx.local_dump.exists():
-            source = "local"
-            path = ctx.local_dump
-        else:
-            source = "web"
-            path = ctx.web_dump
-        logger.info(f"Restoring database {DB_URL} from {source} dump: {path}")
+    if ctx.has_dump():
+        logger.info(f"Restoring database {DB_URL} from {ctx.dump_type} dump")
         reset_from_dump(ctx.db, ctx.read_dump())
     elif ctx.testset not in AVAILABLE_TESTSETS:
         logger.error(f"Invalid or non-existent testset name: {ctx.testset}")
@@ -452,4 +472,6 @@ cli.add_command(upload_dump)
 
 
 if __name__ == "__main__":
+    if not TESTDATA_DIR.is_dir():
+        raise FileNotFoundError(f"No directory found at {TESTDATA_DIR}")
     cli(obj=Context())
