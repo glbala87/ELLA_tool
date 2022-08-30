@@ -35,7 +35,7 @@ Subkey	|	Explanation |   Values
 `views`  |   Tabs to show on the OVERVIEW page.   |   `variants`: Variant centered workflow; <br>`analyses-by-findings`: Sample centered workflow, grouped by the findings in the analysis;<br>`import`: Manual import
 `show_variant_report`   |   Show/hide externally generated variant report on INFO page.   |   `true`/`false`
 
-Examples also in `/src/vardb/testdata/usergroups.json`.
+Examples also in [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json).
 
 #### Priority
 
@@ -63,7 +63,7 @@ Subkey	|	Explanation |   Values
 
 ### Comment field templates
 
-It is possible to define templates for most comment fields in ELLA, which are available to add for the user in the text format menu. This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. 
+It is possible to define templates for most comment fields in ELLA, which are available to add for the user in the text format menu. This is a [user group](/technical/users.html#user-groups) specific setting, see [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. 
 
 Templates can be defined as pure text or with basic html formatting in: 
 
@@ -132,7 +132,7 @@ For best performance, we recommend using index and gzipped files whenever applic
 
 #### Track configuration
 
-- File: `$IGV_DATA/track_config.json` (see `/src/vardb/testdata/igv-data/track_config_default.json` for examples)
+- File: `$IGV_DATA/track_config.json` (see [track_config_default.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/igv-data/track_config_default.json) for examples)
 - Key: [regex]
 
 Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config.json`; if no configuration is specified, `track_config_default.json` will be used). The keys of the configuration file are regular expressions (regex) that match file paths (see above). If a file path is matched by multiple regexes, their entries are merged (with the order defined by the position within the config file). 
@@ -183,7 +183,7 @@ Workflow    |   Subkey	|	Explanation |   Values
 
 Certain references retrieved from annotation sources such as ClinVar are generic and do not contain information relevant for any particular variant classification per se (an example is the [ACMG guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868)). These references can be set to be automatically [IGNORED](/manual/evidence-sections.html#reference-evaluation) in the reference evaluation module. 
 
-This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. PubMed IDs to be ignored should be added in:
+This is a [user group](/technical/users.html#user-groups) specific setting, see [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. PubMed IDs to be ignored should be added in:
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `interpretation.autoIgnoreReferencePubmedIds`

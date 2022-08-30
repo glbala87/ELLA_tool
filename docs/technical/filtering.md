@@ -102,7 +102,7 @@ A set of filters are implemented in ELLA, and are described below. The modularit
 - [Segregation filter](#segregation-filter)
 - [Pre-filter (before import)](#pre-filter-before-import)
 
-See also `/src/vardb/testdata/filterconfigs.json` for examples of a complete setup. The schema is located in `/src/vardb/datamodel/jsonschemas/filterconfig_v2.json`.
+See also [`filterconfigs.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/filterconfigs.json) for examples of a complete setup. The schema is located in `/src/vardb/datamodel/jsonschemas/filterconfig_v2.json`.
 
 ### Classification filter
 

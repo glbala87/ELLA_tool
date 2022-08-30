@@ -7,10 +7,16 @@ GID ?= 1000
 
 PIPELINE_ID ?= ella-${BRANCH}# Configured on the outside when running in gitlab
 
+GIT_REMOTE = https://gitlab.com/alleles/ella
+LATEST_RELEASE = $(shell git describe --tags $$(git rev-list --tags --max-count=1))
+REGISTRY_IMAGE = registry.gitlab.com/alleles/ella
+REGISTRY_TAG = $(or ${RELEASE_TAG},${BRANCH})
+REGISTRY_SLUG = ${REGISTRY_IMAGE}:${REGISTRY_TAG}
+
 DEFAULT_CONTAINER_NAME = ella-${BRANCH}
 CONTAINER_NAME ?= ella-${BRANCH}
 export IMAGE_NAME ?= local/ella-${BRANCH}:latest
-REGISTRY_IMAGE = registry.gitlab.com/alleles/ella:${BRANCH}
+
 # use --no-cache to have Docker rebuild the image (using the latests version of all deps)
 BUILD_OPTIONS ?=
 API_PORT ?= 8000-9999
@@ -211,6 +217,7 @@ DIST_BUNDLE = ${DIST_DIR}/ella-release-${RELEASE_TAG}-dist.tgz
 SIF_RELEASE ?= ella-release-${RELEASE_TAG}.sif
 DIST_SIF = ${DIST_DIR}/${SIF_RELEASE}
 SIF_PREFIX ?= docker-daemon
+SIF_URL = ${GIT_REMOTE}/-/releases/${RELEASE_TAG}/downloads/ella-release-${RELEASE_TAG}.sif
 
 # release settings - upload to digitalocean
 RELEASE_BUCKET ?= s3://ella/releases/${RELEASE_TAG}
@@ -304,12 +311,13 @@ _release-upload-artifacts:
 # demo is a local review app, a review app is a remote demo
 
 .PHONY: review review-stop gitlab-review gitlab-review-stop gitlab-review-refresh-ip review-refresh-ip
-.PHONY: demo-build demo-pull demo-check-image demo kill-demo
+.PHONY: _demo-check-image demo-build demo-dev demo-local demo-pull demo-release demo kill-demo
+.PHONY: latest-release-info
 
 # set var defaults for running review steps locally
-REVAPP_NAME ?= ${BRANCH}
-REVAPP_IMAGE_NAME ?= ${REGISTRY_IMAGE}-review
-REVAPP_COMMIT_SHA ?= $(shell git rev-parse HEAD)
+REVAPP_NAME ?= ${REGISTRY_TAG}
+REVAPP_IMAGE_NAME ?= ${REGISTRY_SLUG}-review
+REVAPP_COMMIT_SHA ?= $(shell git rev-parse ${REGISTRY_TAG})
 REVAPP_REF ?= ${REF}
 export REVAPP_NAME REVAPP_IMAGE_NAME REVAPP_COMMIT_SHA REVAPP_REF
 
@@ -324,14 +332,25 @@ DEMO_GROUP ?= ${GID}
 
 demo-build: build-review
 
+demo-dev: override RELEASE_TAG = dev
+demo-dev: demo-pull demo
+
+demo-local: override REVAPP_IMAGE_NAME = ${IMAGE_NAME}
+demo-local: demo-pull demo
+
 demo-pull:
 	docker pull -q ${REVAPP_IMAGE_NAME}
 
-demo-check-image:
+demo-release: override RELEASE_TAG = ${LATEST_RELEASE}
+demo-release: demo-pull demo
+
+_demo-check-image:
 	docker image inspect ${REVAPP_IMAGE_NAME} &>/dev/null || (echo "you must use demo-build, demo-pull or build ${REVAPP_IMAGE_NAME} yourself"; exit 1)
 	-@docker rm -vf ${DEMO_NAME}
 
-demo: demo-check-image ci-set-testdata
+# ensure testdata exists before starting demo
+demo: $(if $(shell [[ -e ${TESTDATA_DIR}/.git ]] || echo 'missing testdata'),setup-gitmodules)
+demo: _demo-check-image ci-set-testdata
 	$(eval export DEMO_IMAGE = ${REVAPP_IMAGE_NAME})
 	$(eval CONTAINER_NAME = ${DEMO_NAME})
 	docker run ${DEMO_OPTS} ${DEMO_IMAGE}
@@ -339,7 +358,14 @@ demo: demo-check-image ci-set-testdata
 	@echo "Demo is now running at http://localhost:${DEMO_HOST_PORT}. Some example user/pass are testuser1/demo and testuser5/demo."
 
 kill-demo:
-	docker rm -vf ella-demo
+	docker rm -vf ${DEMO_NAME}
+
+.SILENT: latest-release-info
+latest-release-info: override RELEASE_TAG = ${LATEST_RELEASE}
+latest-release-info:
+	echo 'Version:     ${LATEST_RELEASE}'
+	echo 'Docker:      ${REGISTRY_SLUG}'
+	echo 'Singularity: ${SIF_URL}'
 
 # Review apps
 define reviewapp-template
@@ -452,7 +478,7 @@ _ci_pull:
 
 _ci_pull_review:
 	docker pull -q ${REVAPP_IMAGE_NAME} || true
-	docker pull -q ${REGISTRY_IMAGE} || true
+	docker pull -q ${REGISTRY_SLUG} || true
 	docker pull -q ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review || true
 
 # checking $UPSTREAM_TRIGGER allows the build job to run/pass, so the tests that require the build
@@ -473,7 +499,7 @@ ci-build-dev: _in_ci _ci_pull build
 	mkdir -p $(dir ${CI_CACHE_IMAGE_FILE})
 	docker save ${IMAGE_NAME} >${CI_CACHE_IMAGE_FILE}
 
-ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${REGISTRY_IMAGE} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
+ci-build-review: override BUILD_OPTIONS += --cache-from ${REVAPP_IMAGE_NAME} --cache-from ${REGISTRY_SLUG} --cache-from ${CI_REGISTRY_IMAGE}:${CI_DEFAULT_BRANCH}-review
 ci-build-review: _ci_stage = build-review
 ci-build-review: _in_ci _ci_pull_review build-review
 	$(call check_defined,CI,only push images to registry in CI - aborting $@)
