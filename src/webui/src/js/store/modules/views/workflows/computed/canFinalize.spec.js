@@ -210,8 +210,6 @@ function createState(config) {
                             analysis: {
                                 finalize_requirements: {
                                     workflow_status: config.requiredWorkflowStatus,
-                                    allow_technical: config.allowTechnical,
-                                    allow_notrelevant: config.allowNotRelevant,
                                     allow_unclassified: config.allowUnclassified
                                 }
                             },
@@ -327,65 +325,6 @@ describe('canFinalize', function() {
         })
     })
 
-    it('check allow_technical', function() {
-        let state = createState({
-            numTechnical: 1,
-            allowTechnical: false
-        })
-        let result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as technical, while this is disallowed in configuration.'
-            ]
-        })
-
-        state = createState({
-            numTechnical: 1,
-            allowTechnical: true
-        })
-        result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: true,
-            messages: []
-        })
-    })
-
-    it('check allow_notrelevant', function() {
-        let state = createState({
-            numNotRelevant: 1,
-            allowNotRelevant: false
-        })
-        let result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as not relevant, while this is disallowed in configuration.'
-            ]
-        })
-
-        state = createState({
-            numNotRelevant: 1,
-            allowNotRelevant: true
-        })
-        result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: true,
-            messages: []
-        })
-    })
 
     it('check require classifications', function() {
         let state = createState({

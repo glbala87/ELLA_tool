@@ -46,8 +46,6 @@ class AlleleWorkflowConfig(BaseModel):
 
 class AnalysisFinalizeRequirementsConfig(BaseModel):
     workflow_status: Optional[List[AnalysisInterpretationWorkflowStatus]]
-    allow_notrelevant: Optional[bool]
-    allow_technical: Optional[bool]
     allow_unclassified: Optional[bool]
 
 

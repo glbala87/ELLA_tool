@@ -35,16 +35,12 @@ describe('Sample workflow', function() {
     })
 
     function setFinalizationRequirements(
-        allow_technical = false,
-        allow_notrelevant = false,
         allow_unclassified = false,
         workflow_status = ['Review', 'Medical review']
     ) {
         let result = browser.psql(`
           UPDATE "user" SET config =
           '{ "workflows": { "analysis": { "finalize_requirements": {
-              "allow_technical": ${allow_technical ? 'true' : 'false'},
-              "allow_notrelevant": ${allow_notrelevant ? 'true' : 'false'},
               "allow_unclassified": ${allow_unclassified ? 'true' : 'false'},
               "workflow_status": ${JSON.stringify(workflow_status)}
               } } } }' WHERE username IN ('testuser4')

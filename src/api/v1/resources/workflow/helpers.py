@@ -898,16 +898,6 @@ def finalize_workflow(
         finalize_requirements = _get_finalize_reqs(user_config, meta.name)
         excluded_allele_ids = data.excluded_allele_ids
 
-        if finalize_requirements.allow_technical is False and data.technical_allele_ids:
-            raise ApiError(
-                "allow_technical is set to false, but some allele ids are marked technical"
-            )
-
-        if finalize_requirements.allow_notrelevant is False and data.notrelevant_allele_ids:
-            raise ApiError(
-                "allow_notrelevant is set to false, but some allele ids are marked not relevant"
-            )
-
         unclassified_allele_ids = (
             set(data.allele_ids)
             - set(data.notrelevant_allele_ids)
