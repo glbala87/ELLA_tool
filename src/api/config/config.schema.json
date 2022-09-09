@@ -209,10 +209,7 @@
                                         "finalize_requirements": {
                                             "type": "object",
                                             "additionalProperties": false,
-                                            "required": [
-                                                "workflow_status",
-                                                "allow_unclassified"
-                                            ],
+                                            "required": ["workflow_status", "allow_unclassified"],
                                             "properties": {
                                                 "workflow_status": {
                                                     "type": "array",

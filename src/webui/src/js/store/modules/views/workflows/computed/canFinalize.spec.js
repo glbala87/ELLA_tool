@@ -325,7 +325,6 @@ describe('canFinalize', function() {
         })
     })
 
-
     it('check require classifications', function() {
         let state = createState({
             numUnclassified: 1,

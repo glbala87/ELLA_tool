@@ -79,7 +79,6 @@ export default Compute(
                 })
                 .map((a) => a.id)
 
-
             // Check allow_unclassified
             if (finalizeRequirementsConfig.allow_unclassified) {
                 metRequirements.classifications = true
