@@ -7,8 +7,6 @@ const defaultConfig = {
     workflowStatus: 'Review',
     status: 'Ongoing',
     requiredWorkflowStatus: ['Review'],
-    allowTechnical: true,
-    allowNotRelevant: true,
     allowUnclassified: false,
     numTechnical: 0,
     numNotRelevant: 0,
@@ -311,9 +309,7 @@ describe('canFinalize', function() {
     it('can finalize when no alleles', function() {
         // No variants
         const state = createState({
-            allowUnclassified: false,
-            allowNotRelevant: false,
-            allowTechnical: false
+            allowUnclassified: false
         })
         const result = runCompute(canFinalize, {
             state,
@@ -445,9 +441,7 @@ describe('canFinalize', function() {
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
-            allowUnclassified: false,
-            allowNotRelevant: true,
-            allowTechnical: true
+            allowUnclassified: false
         })
         let result = runCompute(canFinalize, {
             state,
@@ -463,7 +457,6 @@ describe('canFinalize', function() {
             numUnclassified: 1,
             numClassified: 3,
             numOutdated: 1,
-            allowTechnical: true,
             allowUnclassified: false
         })
         result = runCompute(canFinalize, {
@@ -482,9 +475,7 @@ describe('canFinalize', function() {
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
-            allowUnclassified: true,
-            allowNotRelevant: true,
-            allowTechnical: true
+            allowUnclassified: true
         })
         result = runCompute(canFinalize, {
             state,
@@ -493,27 +484,6 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: true,
             messages: []
-        })
-
-        state = createState({
-            numUnclassified: 1,
-            numClassified: 1,
-            numNotRelevant: 2,
-            numTechnical: 2,
-            allowUnclassified: true,
-            allowNotRelevant: false,
-            allowTechnical: false
-        })
-        result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as technical, while this is disallowed in configuration.',
-                'Some variants are marked as not relevant, while this is disallowed in configuration.'
-            ]
         })
     })
 
