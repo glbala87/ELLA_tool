@@ -80,7 +80,7 @@ describe('Sample workflow', function() {
         expect(analysisPage.title).toBe(SAMPLE_ONE + TITLE_INTERPRETATION)
         analysisPage.startButton.click()
 
-        setFinalizationRequirements(true, true, true, ['Interpretation'])
+        setFinalizationRequirements(true, ['Interpretation'])
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(true)
     })
@@ -92,7 +92,7 @@ describe('Sample workflow', function() {
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
         // For rest of the test, make sure all must be classified, except technical and not relevant
-        setFinalizationRequirements(true, true, false)
+        setFinalizationRequirements(false)
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
@@ -339,7 +339,7 @@ describe('Sample workflow', function() {
     it('reuses classified variants from a different sample', function() {
         loginPage.open()
         // Allow finalization directly from Interpretation
-        setFinalizationRequirements(true, true, false, ['Interpretation'])
+        setFinalizationRequirements(false, ['Interpretation'])
         browser.refresh()
         loginPage.open()
         loginPage.loginAs('testuser1')

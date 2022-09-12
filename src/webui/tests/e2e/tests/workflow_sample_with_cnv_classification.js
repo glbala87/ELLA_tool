@@ -65,7 +65,7 @@ describe('Sample workflow', function() {
         let selectedAllele = alleleSidebar.getSelectedAllele()
         expect(selectedAllele).toBe('c.4958_4975dup')
 
-        setFinalizationRequirements(true, true, true, ['Interpretation'])
+        setFinalizationRequirements(true, ['Interpretation'])
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(true)
         expect(alleleSidebar.getCurrentFilterConfig()).toBe('SingleDefault')
@@ -76,7 +76,7 @@ describe('Sample workflow', function() {
     let expected_analysis_1_round_1 = {}
 
     it('allows interpretation, classification and reference evaluation to be set to review', function() {
-        setFinalizationRequirements(true, true, false)
+        setFinalizationRequirements(false)
         browser.refresh()
         expect(analysisPage.getFinalizePossible()).toBe(false)
 
