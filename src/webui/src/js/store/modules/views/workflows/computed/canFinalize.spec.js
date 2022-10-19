@@ -8,11 +8,11 @@ const defaultConfig = {
     status: 'Ongoing',
     requiredWorkflowStatus: ['Review'],
     allowUnclassified: false,
-    numTechnical: 0,
-    numNotRelevant: 0,
-    numUnclassified: 0,
     numClassified: 0,
-    numOutdated: 0
+    numNotRelevant: 0,
+    numOutdated: 0,
+    numTechnical: 0,
+    numUnclassified: 0
 }
 
 function createState(config) {
@@ -437,10 +437,10 @@ describe('canFinalize', function() {
 
     it('check require classifications, various cases', function() {
         let state = createState({
-            numUnclassified: 1,
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
+            numUnclassified: 1,
             allowUnclassified: false
         })
         let result = runCompute(canFinalize, {
@@ -453,10 +453,10 @@ describe('canFinalize', function() {
         })
 
         state = createState({
-            numTechnical: 1,
-            numUnclassified: 1,
             numClassified: 3,
             numOutdated: 1,
+            numTechnical: 1,
+            numUnclassified: 1,
             allowUnclassified: false
         })
         result = runCompute(canFinalize, {
@@ -471,10 +471,10 @@ describe('canFinalize', function() {
         })
 
         state = createState({
-            numUnclassified: 1,
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
+            numUnclassified: 1,
             allowUnclassified: true
         })
         result = runCompute(canFinalize, {
