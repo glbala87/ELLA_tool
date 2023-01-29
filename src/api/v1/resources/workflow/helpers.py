@@ -1,26 +1,25 @@
-from typing import DefaultDict, List, Set, Union, Type
 import datetime
-import pytz
 from collections import defaultdict
+from typing import DefaultDict, List, Set, Type, Union
 
-from sqlalchemy import tuple_, literal, func, and_
-from sqlalchemy.orm import joinedload
-from sqlalchemy import cast
+import pytz
+from sqlalchemy import and_, cast, func, literal, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import joinedload
 from sqlalchemy.types import Integer
 
-from vardb.datamodel import user, assessment, sample, genotype, allele, workflow, gene, annotation
-
-from api import schemas, ApiError, ConflictError
+from api import ApiError, ConflictError, schemas
+from api.util.util import get_nested
 from datalayer import (
-    AlleleFilter,
     AlleleDataLoader,
-    AssessmentCreator,
+    AlleleFilter,
     AlleleReportCreator,
+    AssessmentCreator,
     SnapshotCreator,
+    filters,
     queries,
 )
-from api.util.util import get_nested
+from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
 
 
 def _check_interpretation_input(allele, analysis):
@@ -363,8 +362,10 @@ def get_interpretations(
         session.query(interpretation_model)
         .filter(
             interpretation_model_field == model_id,
-            tuple_(interpretation_model.genepanel_name, interpretation_model.genepanel_version).in_(
-                (gp.name, gp.version) for gp in genepanels
+            filters.in_(
+                session,
+                (interpretation_model.genepanel_name, interpretation_model.genepanel_version),
+                [(gp.name, gp.version) for gp in genepanels],
             ),
         )
         .order_by(interpretation_model.id)
