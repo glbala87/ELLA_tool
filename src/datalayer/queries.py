@@ -1,15 +1,15 @@
-from typing import Sequence, Tuple
 import datetime
-import pytz
-from sqlalchemy import or_, and_, tuple_, func, text, literal_column, Text
-from sqlalchemy.sql.sqltypes import Integer
-from vardb.datamodel import sample, workflow, assessment, allele, gene, annotation
-from vardb.datamodel import annotationshadow
-from sqlalchemy import cast
-from sqlalchemy.dialects.postgresql import ARRAY
+from typing import Sequence, Tuple
 
-from api.util import filterconfig_requirements
+import pytz
+from sqlalchemy import Text, and_, cast, func, literal_column, or_, text
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.sql.sqltypes import Integer
+
 from api.config import config
+from api.util import filterconfig_requirements
+from datalayer import filters
+from vardb.datamodel import allele, annotation, annotationshadow, assessment, gene, sample, workflow
 
 
 def valid_alleleassessments_filter(session):
@@ -83,16 +83,16 @@ def workflow_by_status(
         .subquery()
     )
 
-    filters = []
+    workflow_filters = []
     if workflow_status:
-        filters.append(latest_interpretation.c.workflow_status == workflow_status)
+        workflow_filters.append(latest_interpretation.c.workflow_status == workflow_status)
     if status:
-        filters.append(latest_interpretation.c.status == status)
+        workflow_filters.append(latest_interpretation.c.status == status)
     if finalized is not None:
         if finalized:
-            filters.append(latest_interpretation.c.finalized.is_(True))
+            workflow_filters.append(latest_interpretation.c.finalized.is_(True))
         else:
-            filters.append(
+            workflow_filters.append(
                 or_(
                     latest_interpretation.c.finalized.is_(None),
                     latest_interpretation.c.finalized.is_(False),
@@ -100,7 +100,7 @@ def workflow_by_status(
             )
     return session.query(
         getattr(latest_interpretation.c, model_id_attr).label(model_id_attr)
-    ).filter(*filters)
+    ).filter(*workflow_filters)
 
 
 def workflow_analyses_finalized(session):
@@ -166,8 +166,10 @@ def workflow_analyses_ongoing(session):
 
 def workflow_analyses_for_genepanels(session, genepanels):
     return session.query(sample.Analysis.id).filter(
-        tuple_(sample.Analysis.genepanel_name, sample.Analysis.genepanel_version).in_(
-            (gp.name, gp.version) for gp in genepanels
+        filters.in_(
+            session,
+            (sample.Analysis.genepanel_name, sample.Analysis.genepanel_version),
+            [(gp.name, gp.version) for gp in genepanels],
         )
     )
 
@@ -216,10 +218,14 @@ def workflow_alleles_for_genepanels(session, genepanels):
     allele_ids_for_alleleinterpretation = (
         session.query(workflow.AlleleInterpretation.allele_id)
         .filter(
-            tuple_(
-                workflow.AlleleInterpretation.genepanel_name,
-                workflow.AlleleInterpretation.genepanel_version,
-            ).in_((gp.name, gp.version) for gp in genepanels)
+            filters.in_(
+                session,
+                (
+                    workflow.AlleleInterpretation.genepanel_name,
+                    workflow.AlleleInterpretation.genepanel_version,
+                ),
+                [(gp.name, gp.version) for gp in genepanels],
+            )
         )
         .distinct()
     )
@@ -237,13 +243,15 @@ def analysis_ids_for_user(session, user):
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):
 
-    filters = [~getattr(workflow.InterpretationLog, field).is_(None)]
+    interpretationlog_filters = [~getattr(workflow.InterpretationLog, field).is_(None)]
     if model_ids:
-        filters.append(getattr(model, model_id_attr).in_(model_ids))
+        interpretationlog_filters.append(
+            filters.in_(session, getattr(model, model_id_attr), model_ids)
+        )
     return (
         session.query(getattr(model, model_id_attr), getattr(workflow.InterpretationLog, field))
         .join(workflow.InterpretationLog)
-        .filter(*filters)
+        .filter(*interpretationlog_filters)
         .order_by(getattr(model, model_id_attr), workflow.InterpretationLog.date_created.desc())
         .distinct(getattr(model, model_id_attr))
     )
@@ -323,7 +331,7 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
             gene.Genepanel.official.label("official"),
         )
         .join(gene.Genepanel.transcripts)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys))
+        .filter(filters.in_(session, (gene.Genepanel.name, gene.Genepanel.version), genepanel_keys))
         .filter(
             allele.Allele.chromosome == gene.Transcript.chromosome,
             or_(
@@ -409,7 +417,7 @@ def annotation_transcripts_genepanel(
             gene.Transcript.gene_id,
         )
         .join(gene.Genepanel.transcripts)
-        .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(genepanel_keys))
+        .filter(filters.in_(session, (gene.Genepanel.name, gene.Genepanel.version), genepanel_keys))
         .subquery()
     )
 
