@@ -4,6 +4,13 @@ from dataclasses import dataclass
 from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, Union, overload
 
 import pytz
+from sqlalchemy import and_, func, literal, tuple_
+from sqlalchemy.dialects.postgresql.array import Any
+from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.schema import Column
+from typing_extensions import Literal
+
 from api import ApiError, ConflictError, schemas
 from api.schemas.pydantic.v1.config import (
     AlleleFinalizeRequirementsConfig,
@@ -26,14 +33,9 @@ from datalayer import (
     AlleleReportCreator,
     AssessmentCreator,
     SnapshotCreator,
+    filters,
     queries,
 )
-from sqlalchemy import and_, func, literal, tuple_
-from sqlalchemy.dialects.postgresql.array import Any
-from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.schema import Column
-from typing_extensions import Literal
 from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
 
 ### Magic Metadata
@@ -98,7 +100,7 @@ class InterpretationMetadata:
         "returns interpretation by unique id, optionally filtering by Genepanel"
         q = session.query(self.model).filter(self.model.id == interpretation_id)
         if genepanels:
-            q = q.filter(self._genepanel_filter(genepanels))
+            q = q.filter(self._genepanel_filter(session, genepanels))
         return q.one()
 
     def get_model_interpretations(
@@ -110,15 +112,17 @@ class InterpretationMetadata:
         "gets all interpretations for the model id, optionally filtering by Genepanel"
         q = session.query(self.model).filter(self.model_id == model_id)
         if genepanels:
-            q = q.filter(self._genepanel_filter(genepanels))
+            q = q.filter(self._genepanel_filter(session, genepanels))
         return q.order_by(self.model.id).all()
 
     def get_snapshots(self, session: Session, snap_id: int):
         return session.query(self.snapshot).filter(self.snapshot_id == snap_id).all()
 
-    def _genepanel_filter(self, genepanels: Sequence[gene.Genepanel]):
-        return tuple_(self.model.genepanel_name, self.model.genepanel_version).in_(
-            (gp.name, gp.version) for gp in genepanels
+    def _genepanel_filter(self, session: Session, genepanels: Sequence[gene.Genepanel]):
+        return filters.in_(
+            session,
+            (self.model.genepanel_name, self.model.genepanel_version),
+            [(gp.name, gp.version) for gp in genepanels],
         )
 
 
@@ -432,7 +436,6 @@ def get_interpretations(
 ):
     model_id, meta = _get_interpretation_meta(allele_id=allele_id, analysis_id=analysis_id)
     interpretations = meta.get_model_interpretations(session, model_id, genepanels)
-
     loaded_interpretations = []
     if interpretations:
         loaded_interpretations = meta.schema().dump(interpretations, many=True).data
