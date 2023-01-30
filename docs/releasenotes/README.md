@@ -6,11 +6,24 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4), , [v1.16.5](#version-1-16-5)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.16.5
+
+Release date: 30.01.2023
+
+### Highlights
+
+This is a bugfix release
+
+### All changes
+
+<!--MR !721 -->
+- Refined some queries that used sequential scans on large tables due to how they were formed
 
 ## Version 1.16.4
 
