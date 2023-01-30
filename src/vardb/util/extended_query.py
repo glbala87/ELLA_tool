@@ -66,6 +66,12 @@ class ExtendedQuery(Query):
         else:
             return explained
 
+    def sql_statement(self):
+        """
+        Returns the SQL statement of the query that can be executed directly in psql.
+        """
+        return str(self.statement.compile(compile_kwargs={"literal_binds": True}))
+
     def temp_table(self, name, analyze=True, index=None):
         """
         Creates a ON COMMIT DROP temporary table from query with provided name.
