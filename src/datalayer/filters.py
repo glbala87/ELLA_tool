@@ -45,7 +45,7 @@ def in_(
 ):
     """
     A drop-in replacement for sqlalchemy's `in_` filter, that uses a subquery with unnest
-    for performance.
+    for performance (if length of values is above 100).
 
     See https://levelup.gitconnected.com/why-is-in-query-slow-on-indexed-column-in-postgresql-b716d9b563e2
     for an explanation of why this is the case.
@@ -56,10 +56,9 @@ def in_(
     session.query(
         Allele
     ).filter(
-        unnest_tuple_filter(
+        in_(
             session,
-            Allele,
-            id,
+            Allele.id,
             (1,2,3),
         )
     )
@@ -84,10 +83,9 @@ def in_(
     session.query(
         Genepanel
     ).filter(
-        unnest_filter(
+        in_(
             session,
-            Genepanel,
-            (name, version),
+            (Genepanel.name, Genepanel.version),
             (("panel1", "v01"), ("panel2", "v02")),
         )
     )
@@ -120,9 +118,6 @@ def in_(
     if not values:
         # Empty list, return a filter that will never match
         return false()
-
-    if not isinstance(values, (list, tuple)):
-        values = list(values)
 
     if len(values) < 100:
         # Use the default in_ filter for small lists
