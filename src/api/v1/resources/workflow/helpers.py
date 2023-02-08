@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import DefaultDict, Dict, List, Optional, Sequence, Set, Tuple, Type, Union, overload
 
 import pytz
-from sqlalchemy import and_, func, literal, tuple_
+from sqlalchemy import and_, func, literal
 from sqlalchemy.dialects.postgresql.array import Any
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.session import Session
