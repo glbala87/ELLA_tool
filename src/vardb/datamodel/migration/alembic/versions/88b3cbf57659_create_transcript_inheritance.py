@@ -54,9 +54,9 @@ def upgrade():
         hgnc_id_inheritances = conn.execute(
             f"""
             SELECT gene_id, array_agg(inheritance) FROM phenotype WHERE id IN (
-                SELECT DISTINCT phenotype_id 
-                FROM genepanel_phenotype 
-                WHERE genepanel_name = '{genepanel_name}' 
+                SELECT DISTINCT phenotype_id
+                FROM genepanel_phenotype
+                WHERE genepanel_name = '{genepanel_name}'
                 AND genepanel_version = '{genepanel_version}'
             )
             GROUP BY gene_id
@@ -66,9 +66,9 @@ def upgrade():
         hgnc_id_transcript_ids = conn.execute(
             f"""
             SELECT gene_id, id FROM transcript WHERE id IN (
-                SELECT DISTINCT transcript_id 
-                FROM genepanel_transcript 
-                WHERE genepanel_name = '{genepanel_name}' 
+                SELECT DISTINCT transcript_id
+                FROM genepanel_transcript
+                WHERE genepanel_name = '{genepanel_name}'
                 AND genepanel_version = '{genepanel_version}'
             )
             """,
@@ -84,20 +84,20 @@ def upgrade():
                 )
             conn.execute(
                 f"""
-                UPDATE genepanel_transcript SET inheritance = '{consensus_inheritance}' 
-                WHERE transcript_id = '{transcript_id}' 
-                AND genepanel_name = '{genepanel_name}' 
+                UPDATE genepanel_transcript SET inheritance = '{consensus_inheritance}'
+                WHERE transcript_id = '{transcript_id}'
+                AND genepanel_name = '{genepanel_name}'
                 AND genepanel_version = '{genepanel_version}'
                 """
             )
         print(
             conn.execute(
                 f"""
-            SELECT inheritance, count(*) FROM genepanel_transcript 
-            WHERE genepanel_name = '{genepanel_name}' 
-            AND genepanel_version = '{genepanel_version}'
-            GROUP BY inheritance
-            """
+                SELECT inheritance, count(*) FROM genepanel_transcript
+                WHERE genepanel_name = '{genepanel_name}'
+                AND genepanel_version = '{genepanel_version}'
+                GROUP BY inheritance
+                """
             ).fetchall()
         )
 
