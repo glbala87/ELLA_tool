@@ -24,10 +24,14 @@ from sqlalchemy.sql import column, table
 
 # Genepanel = table("genepanel", column("name", sa.String()), column("version", sa.String()))
 def compute_consensus_inheritance(inheritances: Set[str]):
-    if inheritances == {"AR"}:
-        return "AR"
-    elif inheritances == {"AD"}:
+    if inheritances == {"AD"}:
         return "AD"
+    elif inheritances == {"AR"}:
+        return "AR"
+    elif inheritances == {"XD"}:
+        return "XD"
+    elif inheritances == {"XR"}:
+        return "XR"
     return "AD/AR"
 
 
