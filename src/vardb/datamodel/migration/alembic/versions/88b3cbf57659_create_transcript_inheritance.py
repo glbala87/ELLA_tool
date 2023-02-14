@@ -76,12 +76,12 @@ def upgrade():
 
         inheritance_by_hgnc_id = dict(hgnc_id_inheritances)
         for hgnc_id, transcript_id in hgnc_id_transcript_ids:
-            if hgnc_id not in inheritance_by_hgnc_id:
-                consensus_inheritance = "N/A"
-            else:
+            if hgnc_id in inheritance_by_hgnc_id:
                 consensus_inheritance = compute_consensus_inheritance(
                     set(inheritance_by_hgnc_id[hgnc_id])
                 )
+            else:
+                consensus_inheritance = "N/A"
             conn.execute(
                 f"""
                 UPDATE genepanel_transcript SET inheritance = '{consensus_inheritance}'
