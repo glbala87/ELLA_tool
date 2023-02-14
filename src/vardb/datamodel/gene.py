@@ -1,10 +1,21 @@
 """varDB datamodel classes for Gene and Transcript"""
 import datetime
+
 import pytz
-from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime, Index, func
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Table,
+    func,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKeyConstraint, UniqueConstraint
 
 from vardb.datamodel import Base
@@ -84,6 +95,7 @@ genepanel_transcript = Table(
     Column("genepanel_name", nullable=False),
     Column("genepanel_version", nullable=False),
     Column("transcript_id", Integer, ForeignKey("transcript.id"), nullable=False),
+    Column("inheritance", String(), nullable=False),
     ForeignKeyConstraint(
         ["genepanel_name", "genepanel_version"],
         ["genepanel.name", "genepanel.version"],
