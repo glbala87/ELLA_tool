@@ -12,17 +12,14 @@ down_revision = "1675e8d8b078"
 branch_labels = None
 depends_on = None
 
-import hashlib
 from typing import Set
 
-import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql import column, table
+
+from datalayer import queries
 
 
-# Genepanel = table("genepanel", column("name", sa.String()), column("version", sa.String()))
 def compute_consensus_inheritance(inheritances: Set[str]):
     if inheritances == {"AD"}:
         return "AD"
@@ -32,7 +29,25 @@ def compute_consensus_inheritance(inheritances: Set[str]):
         return "XD"
     elif inheritances == {"XR"}:
         return "XR"
+    elif any(inh.startswith("X") for inh in inheritances):
+        return "XD/XR"
     return "AD/AR"
+
+
+def distinct_inheritance_hgnc_ids(conn, genepanel_name, genepanel_version, inheritance):
+    res = conn.execute(
+        f"""
+        SELECT phenotype.gene_id AS hgnc_id 
+        FROM phenotype, genepanel_phenotype 
+        WHERE phenotype.id = genepanel_phenotype.phenotype_id 
+        AND genepanel_phenotype.genepanel_name = '{genepanel_name}' 
+        AND genepanel_phenotype.genepanel_version = '{genepanel_version}' 
+        GROUP BY genepanel_phenotype.genepanel_name, genepanel_phenotype.genepanel_version, phenotype.gene_id
+        HAVING every(phenotype.inheritance = '{inheritance}')
+        """
+    ).fetchall()
+
+    return [r[0] for r in res]
 
 
 def upgrade():
@@ -47,10 +62,8 @@ def upgrade():
     genepanels = conn.execute("SELECT name, version FROM genepanel").fetchall()
 
     for genepanel_name, genepanel_version in genepanels:
-        # Update genepanel_transcript table
-
-        print(genepanel_name, genepanel_version)
-
+        # Update genepanel_transcript table with consensus inheritance
+        # from genepanel phenotypes for each gene
         hgnc_id_inheritances = conn.execute(
             f"""
             SELECT gene_id, array_agg(inheritance) FROM phenotype WHERE id IN (
@@ -75,13 +88,18 @@ def upgrade():
         ).fetchall()
 
         inheritance_by_hgnc_id = dict(hgnc_id_inheritances)
+        new_ad_genes = set()
+        new_ar_genes = set()
         for hgnc_id, transcript_id in hgnc_id_transcript_ids:
-            if hgnc_id in inheritance_by_hgnc_id:
-                consensus_inheritance = compute_consensus_inheritance(
-                    set(inheritance_by_hgnc_id[hgnc_id])
-                )
-            else:
-                consensus_inheritance = "N/A"
+            consensus_inheritance = compute_consensus_inheritance(
+                set(inheritance_by_hgnc_id.get(hgnc_id, []))
+            )
+            if consensus_inheritance == "AD":
+                raise RuntimeError()
+                new_ad_genes.add(hgnc_id)
+            elif consensus_inheritance == "AR":
+                new_ar_genes.add(hgnc_id)
+
             conn.execute(
                 f"""
                 UPDATE genepanel_transcript SET inheritance = '{consensus_inheritance}'
@@ -90,18 +108,30 @@ def upgrade():
                 AND genepanel_version = '{genepanel_version}'
                 """
             )
-        print(
-            conn.execute(
-                f"""
-                SELECT inheritance, count(*) FROM genepanel_transcript
-                WHERE genepanel_name = '{genepanel_name}'
-                AND genepanel_version = '{genepanel_version}'
-                GROUP BY inheritance
-                """
-            ).fetchall()
-        )
 
-    conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance text NOT NULL")
+            legacy_ad_genes = distinct_inheritance_hgnc_ids(
+                conn, genepanel_name, genepanel_version, "AD"
+            )
+            legacy_ar_genes = distinct_inheritance_hgnc_ids(
+                conn, genepanel_name, genepanel_version, "AR"
+            )
+
+            if legacy_ad_genes != new_ad_genes:
+                print("AD genes differ")
+                print(legacy_ad_genes)
+                print(new_ad_genes)
+            assert legacy_ad_genes == new_ad_genes
+            assert legacy_ar_genes == new_ar_genes
+
+    conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance SET NOT NULL")
+
+    # Test that migration makes sense
+    # session = Session(bind=conn)
+    # for genepanel_name, genepanel_version in genepanels:
+    #     legacy_ad_genes = distinct_inheritance_hgnc_ids(genepanel_name, genepanel_version, "AD")
+    #     legacy_ar_genes = distinct_inheritance_hgnc_ids(genepanel_name, genepanel_version, "AR")
+
+    #     new_ad_genes =
 
     raise RuntimeError()
 
