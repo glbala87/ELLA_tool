@@ -2,10 +2,11 @@
 
 import os
 import sys
-from alembic.script import ScriptDirectory
-from alembic.migration import MigrationContext
-from alembic.config import Config
+
 from alembic import command
+from alembic.config import Config
+from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 
 from vardb.util import DB
 
@@ -44,7 +45,7 @@ def migration_current():
     db.connect()
     with db.engine.begin() as connection:
         alembic_cfg.attributes["connection"] = connection
-        command.current(alembic_cfg)
+        return command.current(alembic_cfg)
 
 
 def migration_history(range=None, verbose=False):
@@ -75,3 +76,14 @@ def migration_compare():
             sys.exit(1)
         else:
             print("Migration status OK!")
+
+
+def mock_revision(revision):
+    db = DB()
+    db.connect()
+    with db.engine.begin() as connection:
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS alembic_version (version_num VARCHAR(32) NOT NULL)"
+        )
+        connection.execute("TRUNCATE TABLE alembic_version")
+        connection.execute(f"INSERT INTO alembic_version (version_num) VALUES ('{revision}')")

@@ -4,27 +4,29 @@ Script for dropping all tables in a vardb database.
 """
 import os
 from contextlib import contextmanager
+
 import click
 import psycopg2
 
+from cli.decorators import cli_logger
 from vardb.datamodel import DB
-from .drop_db import drop_db
-from .make_db import make_db, refresh, refresh_tmp
+
 from .ci_migration_db import (
     ci_migration_db_remake,
-    ci_migration_upgrade_downgrade,
     ci_migration_head,
+    ci_migration_upgrade_downgrade,
     make_migration_base_db,
 )
+from .drop_db import drop_db
+from .make_db import make_db, refresh, refresh_tmp
 from .migration_db import (
-    migration_upgrade,
-    migration_downgrade,
-    migration_current,
-    migration_history,
     migration_compare,
+    migration_current,
+    migration_downgrade,
+    migration_history,
+    migration_upgrade,
+    mock_revision,
 )
-from cli.decorators import cli_logger
-
 
 DEFAULT_WARNING = "THIS WILL WIPE OUT {} COMPLETELY! \nAre you sure you want to proceed? Type 'CONFIRM' to confirm.\n".format(
     os.environ.get("DB_URL")
@@ -168,9 +170,15 @@ def cmd_downgrade(logger, revision):
     migration_downgrade(revision)
 
 
+@database.command("mock-revision", help="Create a mock revision for testing purposes.")
+@click.argument("revision")
+def cmd_mock_revision(revision):
+    mock_revision(revision)
+
+
 @database.command("current", help="Show revision of current migration.", short_help="Show current")
 def cmd_current():
-    migration_current()
+    click.echo(migration_current())
 
 
 @database.command(
