@@ -35,12 +35,12 @@ def distinct_inheritance_hgnc_ids(conn, genepanel_name, genepanel_version, inher
     "Equal to queries.distinct_inheritance_hgnc_ids at time of writing"
     res = conn.execute(
         f"""
-        SELECT phenotype.gene_id AS hgnc_id 
-        FROM phenotype, genepanel_phenotype 
-        WHERE phenotype.id = genepanel_phenotype.phenotype_id 
-        AND genepanel_phenotype.genepanel_name = '{genepanel_name}' 
-        AND genepanel_phenotype.genepanel_version = '{genepanel_version}' 
-        GROUP BY genepanel_phenotype.genepanel_name, genepanel_phenotype.genepanel_version, phenotype.gene_id
+        SELECT phenotype.gene_id AS hgnc_id
+        FROM phenotype, genepanel_phenotype AS gp_phenotype
+        WHERE phenotype.id = gp_phenotype.phenotype_id
+        AND gp_phenotype.genepanel_name = '{genepanel_name}'
+        AND gp_phenotype.genepanel_version = '{genepanel_version}'
+        GROUP BY gp_phenotype.genepanel_name, gp_phenotype.genepanel_version, phenotype.gene_id
         HAVING every(phenotype.inheritance = '{inheritance}')
         """
     ).fetchall()
