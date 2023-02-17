@@ -55,6 +55,7 @@ class Transcript(Base):
     gene = relationship("Gene", lazy="joined")
     transcript_name = Column(String(), unique=True, nullable=False)
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
+    source = Column(String(), nullable=False)
     corresponding_refseq = Column(String())
     corresponding_ensembl = Column(String())
     corresponding_lrg = Column(String())

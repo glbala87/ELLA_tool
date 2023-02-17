@@ -120,16 +120,7 @@ def upgrade():
         assert legacy_ar_genes == new_ar_genes
 
     conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance SET NOT NULL")
-
-    # Test that migration makes sense
-    # session = Session(bind=conn)
-    # for genepanel_name, genepanel_version in genepanels:
-    #     legacy_ad_genes = distinct_inheritance_hgnc_ids(genepanel_name, genepanel_version, "AD")
-    #     legacy_ar_genes = distinct_inheritance_hgnc_ids(genepanel_name, genepanel_version, "AR")
-
-    #     new_ad_genes =
-
-    raise RuntimeError()
+    conn.execute("ALTER TABLE transcript ADD COLUMN source text NOT NULL DEFAULT ('Ensembl')")
 
 
 def downgrade():
