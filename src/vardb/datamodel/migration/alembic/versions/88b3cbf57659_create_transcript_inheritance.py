@@ -35,6 +35,7 @@ def compute_consensus_inheritance(inheritances: Set[str]):
 
 
 def distinct_inheritance_hgnc_ids(conn, genepanel_name, genepanel_version, inheritance):
+    "Equal to queries.distinct_inheritance_hgnc_ids at time of writing"
     res = conn.execute(
         f"""
         SELECT phenotype.gene_id AS hgnc_id 
@@ -47,7 +48,7 @@ def distinct_inheritance_hgnc_ids(conn, genepanel_name, genepanel_version, inher
         """
     ).fetchall()
 
-    return [r[0] for r in res]
+    return set([r[0] for r in res])
 
 
 def upgrade():
@@ -95,7 +96,6 @@ def upgrade():
                 set(inheritance_by_hgnc_id.get(hgnc_id, []))
             )
             if consensus_inheritance == "AD":
-                raise RuntimeError()
                 new_ad_genes.add(hgnc_id)
             elif consensus_inheritance == "AR":
                 new_ar_genes.add(hgnc_id)
@@ -116,12 +116,8 @@ def upgrade():
                 conn, genepanel_name, genepanel_version, "AR"
             )
 
-            if legacy_ad_genes != new_ad_genes:
-                print("AD genes differ")
-                print(legacy_ad_genes)
-                print(new_ad_genes)
-            assert legacy_ad_genes == new_ad_genes
-            assert legacy_ar_genes == new_ar_genes
+        assert legacy_ad_genes == new_ad_genes
+        assert legacy_ar_genes == new_ar_genes
 
     conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance SET NOT NULL")
 
