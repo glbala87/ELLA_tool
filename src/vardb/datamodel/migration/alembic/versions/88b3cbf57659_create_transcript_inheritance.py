@@ -15,9 +15,6 @@ depends_on = None
 from typing import Set
 
 from alembic import op
-from sqlalchemy.orm.session import Session
-
-from datalayer import queries
 
 
 def compute_consensus_inheritance(inheritances: Set[str]):
