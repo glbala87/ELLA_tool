@@ -55,6 +55,7 @@ def upgrade():
     # Compute consensus inheritance
     # Add consensus inheritance to genepanel_transcript entry
     conn = op.get_bind()
+
     conn.execute("ALTER TABLE genepanel_transcript ADD COLUMN inheritance text")
 
     genepanels = conn.execute("SELECT name, version FROM genepanel").fetchall()
