@@ -49,6 +49,7 @@ MR !712 Tesdata submodule
 MR !713 Use submodules in review apps
 MR !714 Tech doc improvements; includes Makefile and testdata changes
 MR !715 Do not navigate on frontend from the backend
+MR !725 Fixed types used with validation turned off
 -->
 - Fixes and improvements to development environment and code base. 
 
