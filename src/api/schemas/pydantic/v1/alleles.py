@@ -55,3 +55,4 @@ class AlleleOverview(BaseModel):
     priority: int
     review_comment: Optional[str] = None
     interpretations: List[AlleleInterpretationOverview]
+    warnings: Optional[Warnings] = None

@@ -18,7 +18,7 @@ from api.util.types import (
 
 from pydantic import Field
 
-rank_pattern = r"[1-9]\d*/[1-9]\d*"
+rank_pattern = r"[\d\-]+/[\d\-]+"
 # NOTE: these are not enforced by pydantic, but it keeps them in the schema spec like they were before
 freq_props = {"[a-zA-Z]*": {"type": "number", "minimum": 0, "maximum": 1.0}}
 count_props = {"[a-zA-Z]*": {"type": "integer", "minimum": 0}}

@@ -48,8 +48,8 @@ class AlleleCollision(BaseModel):
     type: WorkflowTypes
     user: Optional[User]
     allele_id: int
-    analysis_name: str
-    analysis_id: int
+    analysis_name: Optional[str]
+    analysis_id: Optional[int]
     workflow_status: WorkflowStatus
 
 
