@@ -7,7 +7,7 @@ title: Latest releases
 |Major versions|Minor versions|
 |:--|:--|
 [v1.17](#version-1-17)|
-[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4), , [v1.16.5](#version-1-16-5)
+[v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4), [v1.16.5](#version-1-16-5)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
@@ -31,7 +31,6 @@ For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blo
 
 Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version.
 
-
 ### All changes
 <!-- MR !711 -->
 - Added support for bigBed file format.
@@ -52,6 +51,19 @@ MR !714 Tech doc improvements; includes Makefile and testdata changes
 MR !715 Do not navigate on frontend from the backend
 -->
 - Fixes and improvements to development environment and code base. 
+
+## Version 1.16.5
+
+Release date: 30.01.2023
+
+### Highlights
+
+This is a bugfix release
+
+### All changes
+
+<!-- MR !721 -->
+- Refined some queries that used sequential scans on large tables due to how they were formed
 
 ## Version 1.16.4
 
