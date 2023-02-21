@@ -46,7 +46,7 @@ class TranscriptRecord(BaseModel):
         return [int(x) for x in v.split(",") if x]
 
 
-def load_phenotypes(phenotypes_path):
+def load_phenotypes(phenotypes_path: Path):
     return []
     if not phenotypes_path:
         return None
@@ -78,14 +78,21 @@ def load_phenotypes(phenotypes_path):
         return phenotypes
 
 
-def load_transcripts(transcripts_path):
+def load_transcripts(transcripts_path: Path):
+    header = None
     transcripts = []
-    with Path(transcripts_path).open() as f:
+    with transcripts_path.open() as f:
         for l in f:
             if l.startswith("#chromosome"):
                 header = l.strip().split("\t")
+                header[0] = header[0][1:]  # strip leading '#'
             if l.startswith("#"):
                 continue
+            if not header:
+                raise RuntimeError(
+                    f"No valid header found in {transcripts_path}. "
+                    "Make sure the file header starts with '#chromosome'."
+                )
             data = dict(zip(header, [l.strip() for l in l.split("\t")]))
             tx_record = TranscriptRecord.parse_obj(data)
             transcripts.append(tx_record)
@@ -96,29 +103,15 @@ class DepositGenepanel(object):
     def __init__(self, session):
         self.session = session
 
-    def insert_genes(self, transcript_data):
+    def insert_genes(self, transcript_data: List[TranscriptRecord]):
         # Avoid duplicate genes
         distinct_genes = set()
         for t in transcript_data:
-            distinct_genes.add(
-                (
-                    t["HGNC"],
-                    t["geneSymbol"],
-                    t["eGeneID"],
-                    int(t["Omim gene entry"]) if t.get("Omim gene entry") else None,
-                )
-            )
+            distinct_genes.add((t.hgnc_id, t.gene_symbol))
 
         gene_rows = list()
         for d in list(distinct_genes):
-            gene_rows.append(
-                {
-                    "hgnc_id": d[0],
-                    "hgnc_symbol": d[1],
-                    "ensembl_gene_id": d[2],
-                    "omim_entry_id": d[3],
-                }
-            )
+            gene_rows.append({"hgnc_id": d[0], "hgnc_symbol": d[1]})
 
         gene_inserted_count = 0
         gene_reused_count = 0
@@ -126,33 +119,35 @@ class DepositGenepanel(object):
             self.session,
             gm.Gene,
             gene_rows,
-            compare_keys=["hgnc_id", "hgnc_symbol", "ensembl_gene_id"],
+            compare_keys=["hgnc_id", "hgnc_symbol"],
         ):
             gene_inserted_count += len(created)
             gene_reused_count += len(existing)
         return gene_inserted_count, gene_reused_count
 
     def insert_transcripts(
-        self, transcript_data, genepanel_name, genepanel_version, genome_ref, replace=False
+        self,
+        transcript_data: List[TranscriptRecord],
+        genepanel_name: str,
+        genepanel_version: str,
+        genome_ref: str,
+        replace: bool = False,
     ):
         transcript_rows = list()
         for t in transcript_data:
             transcript_rows.append(
                 {
-                    "gene_id": t["HGNC"],  # foreign key to gene
-                    "transcript_name": t["refseq"],  # TODO: Support other than RefSeq
+                    "gene_id": t.hgnc_id,  # foreign key to gene
+                    "transcript_name": t.name,
                     "type": "RefSeq",
-                    "corresponding_refseq": None,
-                    "corresponding_ensembl": t["eTranscriptID"],
-                    "corresponding_lrg": None,
-                    "chromosome": t["chromosome"],
-                    "tx_start": t["txStart"],
-                    "tx_end": t["txEnd"],
-                    "strand": t["strand"],
-                    "cds_start": t["cdsStart"],
-                    "cds_end": t["cdsEnd"],
-                    "exon_starts": t["exonsStarts"],
-                    "exon_ends": t["exonEnds"],
+                    "chromosome": t.chromosome,
+                    "tx_start": t.start,
+                    "tx_end": t.end,
+                    "strand": t.strand,
+                    "cds_start": t.coding_start,
+                    "cds_end": t.coding_end,
+                    "exon_starts": t.exon_starts,
+                    "exon_ends": t.exon_ends,
                     "genome_reference": genome_ref,
                 }
             )
@@ -177,7 +172,7 @@ class DepositGenepanel(object):
             gm.Transcript,
             transcript_rows,
             include_pk="id",
-            compare_keys=["transcript_name"],
+            compare_keys=["transcript_name", "inheritance"],
             replace=replace,
         ):
             transcript_inserted_count += len(created)
@@ -185,7 +180,7 @@ class DepositGenepanel(object):
 
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
-            pks = [i["id"] for i in existing + created]
+            pks = [tx["id"] for tx in existing + created]
             for pk in pks:
                 junction_values.append(
                     {
@@ -371,7 +366,12 @@ class DepositGenepanel(object):
 
 
 def main(argv=None):
-    """Example: ./deposit_genepanel.py --transcripts=./clinicalGenePanels/HBOC/HBOC.transcripts.csv"""
+    """
+    Example:
+        ./deposit_genepanel.py \
+            --transcripts=./clinicalGenePanels/HBOC/HBOC_genes_transcripts_regions.tsv \
+            --phenotypes=./clinicalGenePanels/HBOC/HBOC_phenotypes.tsv \
+    """
     argv = argv or sys.argv[1:]
     parser = argparse.ArgumentParser(
         description="""Adds or updates gene panels in varDB.

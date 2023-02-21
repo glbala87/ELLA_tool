@@ -5,8 +5,8 @@ This documentation is a work in progress and may be incomplete.
 :::
 
 Everything in ELLA revolves around gene panels, and they're an essential part of the configuration.
-Note that a gene panel doesn't have to be a targeted panel in the traditional sense, but can
-include all genes in the exome if desired.
+Note that a gene panel doesn't have to be a targeted panel in the traditional sense, but can include
+all genes in the exome if desired.
 
 A gene panel includes, among other things, the following:
 
@@ -19,7 +19,14 @@ To add a new gene panel, run the following command:
 ella-cli deposit genepanel --folder <path to gene panel directory>
 ```
 
-Note that `<PanelName>_<version>.transcripts.csv` and `<PanelName>_<version>.phenotypes.csv` files are required.
+Note that `<PanelName>_<version>_genes_transcripts_regions_tsv` and
+`<PanelName>_<version>_phenotypes.tsv` files are required.
 
-- Examples are available in the testdata: [testdata/clinicalGenePanels](https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels)
-- An authoritative collection of gene panels is also available: [alleles/genepanel-store](https://gitlab.com/alleles/genepanel-store)
+- Examples are available in the test data at
+  [testdata/clinicalGenePanels](
+    https://gitlab.com/alleles/ella-testdata/-/tree/main/testdata/clinicalGenePanels
+  );
+- An authoritative collection of gene panels is also available at
+  [alleles/genepanel-store](
+    https://gitlab.com/alleles/genepanel-store
+  ).
