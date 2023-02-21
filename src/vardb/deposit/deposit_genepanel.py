@@ -4,9 +4,7 @@ Code for adding or modifying gene panels in varDB.
 """
 
 import argparse
-import io
 import logging
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -49,36 +47,50 @@ class TranscriptRecord(BaseModel):
         extra = "ignore"
 
 
+class PhenotypeRecord(BaseModel):
+    hgnc_id: int = Field(alias="HGNC id")
+    hgnc_symbol: str = Field(alias="HGNC symbol")
+    inheritance: str = Field(default="N/A")
+    omim_id: Optional[int] = Field(alias="phenotype MIM number")
+    description: str = Field(alias="phenotype")
+
+    @validator("omim_id", pre=True)
+    def empty_str_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
+    @validator("inheritance", pre=True)
+    def empty_inheritance_to_n_a(cls, v):
+        if v == "":
+            return "N/A"
+        return v
+
+    class Config:
+        extra = "ignore"
+
+
 def load_phenotypes(phenotypes_path: Path):
-    return []
-    if not phenotypes_path:
-        return None
-    with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
-        phenotypes = []
-        header = None
+    header = None
+    phenotypes = []
+    with phenotypes_path.open() as f:
         for line in f:
-            if line.startswith("gene symbol") or line.startswith("#gene symbol"):
-                if line.startswith("#gene symbol"):
-                    line = line.replace("#gene", "gene")
-                header = line.strip().split("\t")
+            if line.startswith("#"):
                 continue
-            if line.startswith("#") or line.isspace():
+            if line.startswith("HGNC id"):
+                header = line.strip().split("\t")
                 continue
             if not header:
                 raise RuntimeError(
-                    "Found no valid header in {}. Header should start with 'gene symbol'. ".format(
-                        phenotypes_path
-                    )
+                    f"No valid header found in {phenotypes_path}. "
+                    "Make sure the file header starts with 'HGNC id'."
                 )
 
             data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
+            ph_record = PhenotypeRecord(**data)
+            phenotypes.append(ph_record)
 
-            null_fields = ["pmid", "omim_number"]
-            for n in null_fields:
-                if n in data and data[n] == "":
-                    data[n] = None
-            phenotypes.append(data)
-        return phenotypes
+    return phenotypes
 
 
 def load_transcripts(transcripts_path: Path):
@@ -98,7 +110,7 @@ def load_transcripts(transcripts_path: Path):
                 )
 
             data = dict(zip(header, [l.strip() for l in l.split("\t")]))
-            tx_record = TranscriptRecord.parse_obj(data)
+            tx_record = TranscriptRecord(**data)
             transcripts.append(tx_record)
     return transcripts
 
@@ -200,20 +212,21 @@ class DepositGenepanel(object):
 
         return transcript_inserted_count, transcript_reused_count
 
-    def insert_phenotypes(self, phenotype_data, genepanel_name, genepanel_version, replace=False):
-        phenotype_rows = list()
+    def insert_phenotypes(
+        self,
+        phenotype_data: List[PhenotypeRecord],
+        genepanel_name,
+        genepanel_version,
+        replace=False,
+    ):
+        phenotype_rows: List[Dict] = list()
         for ph in phenotype_data:
-            if not ph.get("HGNC"):
-                log.warning("Skipping phenotype {} since HGNC is empty".format(ph.get("phenotype")))
-                continue
             # Database has unique constraint on (gene_id, description, inheritance)
             row_data = {
-                "gene_id": int(ph["HGNC"]),
-                "description": ph["phenotype"],
-                "inheritance": ph["inheritance"],
-                "omim_id": int(ph["omim_number"])
-                if ph.get("omim_number") and ph["omim_number"].isalnum()
-                else None,
+                "gene_id": ph.hgnc_id,
+                "description": ph.description,
+                "inheritance": ph.inheritance,
+                "omim_id": ph.omim_id,
             }
 
             is_duplicate = next(
@@ -227,7 +240,7 @@ class DepositGenepanel(object):
                 None,
             )
             if is_duplicate:
-                log.warning("Skipping duplicate phenotype {}".format(ph.get("phenotype")))
+                log.warning("Skipping duplicate phenotype {}".format(ph.description))
                 continue
 
             phenotype_rows.append(row_data)
