@@ -3,12 +3,17 @@
 Code for adding or modifying gene panels in varDB.
 """
 
+import argparse
 import io
+import logging
 import os
 import sys
-import argparse
-import logging
+from pathlib import Path
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, validator
 from sqlalchemy import and_
+
 from vardb.datamodel import DB
 from vardb.datamodel import gene as gm
 from vardb.deposit.importers import bulk_insert_nonexisting
@@ -16,7 +21,33 @@ from vardb.deposit.importers import bulk_insert_nonexisting
 log = logging.getLogger(__name__)
 
 
+class TranscriptRecord(BaseModel):
+    chromosome: str = Field(alias="#chromosome")
+    start: int = Field(alias="read start")
+    end: int = Field(alias="read end")
+    name: str = Field(alias="name")
+    score: float = Field(default=0.0, alias="score")
+    strand: str = Field(default="+", alias="strand")
+    source: str = Field(default="custom", alias="source")
+    hgnc_id: int = Field(default=None, alias="HGNC id")
+    gene_symbol: str = Field(default=None, alias="HGNC symbol")
+    gene_aliases: str = Field(default=None, alias="gene aliases")
+    inheritance: str = Field(alias="inheritance")
+    coding_start: Optional[int] = Field(default=None, alias="coding start")
+    coding_end: Optional[int] = Field(default=None, alias="coding end")
+    exon_starts: List[int] = Field(default=None, alias="exon starts")
+    exon_ends: List[int] = Field(default=None, alias="exon ends")
+    metadata: Optional[str] = Field(default=None, alias="metadata")
+
+    @validator("exon_starts", "exon_ends", pre=True)
+    def validate_exon_starts_ends(cls, v):
+        if v is None:
+            return None
+        return [int(x) for x in v.split(",") if x]
+
+
 def load_phenotypes(phenotypes_path):
+    return []
     if not phenotypes_path:
         return None
     with io.open(os.path.abspath(os.path.normpath(phenotypes_path)), encoding="utf-8") as f:
@@ -48,35 +79,17 @@ def load_phenotypes(phenotypes_path):
 
 
 def load_transcripts(transcripts_path):
-    with io.open(os.path.abspath(os.path.normpath(transcripts_path)), encoding="utf-8") as f:
-        transcripts = []
-        header = None
-        for line in f:
-            if line.startswith("#chromosome"):
-                header = line.strip().split("\t")
-                header[0] = header[0][1:]  # Strip leading '#'
-            if line.startswith("#") or line.isspace():
+    transcripts = []
+    with Path(transcripts_path).open() as f:
+        for l in f:
+            if l.startswith("#chromosome"):
+                header = l.strip().split("\t")
+            if l.startswith("#"):
                 continue
-            if not header:
-                raise RuntimeError(
-                    "Found no valid header in {}. Header should start with '#chromosome'. ".format(
-                        transcripts_path
-                    )
-                )
-            data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
-            data["HGNC"] = int(data["HGNC"])
-            (
-                data["txStart"],
-                data["txEnd"],
-            ) = (
-                int(data["txStart"]),
-                int(data["txEnd"]),
-            )
-            data["cdsStart"], data["cdsEnd"] = (int(data["cdsStart"]), int(data["cdsEnd"]))
-            data["exonsStarts"] = list(map(int, data["exonsStarts"].split(",")))
-            data["exonEnds"] = list(map(int, data["exonEnds"].split(",")))
-            transcripts.append(data)
-        return transcripts
+            data = dict(zip(header, [l.strip() for l in l.split("\t")]))
+            tx_record = TranscriptRecord.parse_obj(data)
+            transcripts.append(tx_record)
+    return transcripts
 
 
 class DepositGenepanel(object):
