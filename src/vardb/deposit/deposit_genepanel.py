@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 from sqlalchemy import and_
@@ -22,11 +22,11 @@ log = logging.getLogger(__name__)
 
 
 class TranscriptRecord(BaseModel):
-    chromosome: str = Field(alias="#chromosome")
+    chromosome: str = Field(alias="chromosome")
     start: int = Field(alias="read start")
     end: int = Field(alias="read end")
     name: str = Field(alias="name")
-    score: float = Field(default=0.0, alias="score")
+    # score: float = Field(default=0.0, alias="score")
     strand: str = Field(default="+", alias="strand")
     source: str = Field(default="custom", alias="source")
     hgnc_id: int = Field(default=None, alias="HGNC id")
@@ -37,13 +37,16 @@ class TranscriptRecord(BaseModel):
     coding_end: Optional[int] = Field(default=None, alias="coding end")
     exon_starts: List[int] = Field(default=None, alias="exon starts")
     exon_ends: List[int] = Field(default=None, alias="exon ends")
-    metadata: Optional[str] = Field(default=None, alias="metadata")
+    # metadata: Optional[str] = Field(default=None, alias="metadata")
 
     @validator("exon_starts", "exon_ends", pre=True)
     def validate_exon_starts_ends(cls, v):
         if v is None:
             return None
         return [int(x) for x in v.split(",") if x]
+
+    class Config:
+        extra = "ignore"
 
 
 def load_phenotypes(phenotypes_path: Path):
@@ -93,6 +96,7 @@ def load_transcripts(transcripts_path: Path):
                     f"No valid header found in {transcripts_path}. "
                     "Make sure the file header starts with '#chromosome'."
                 )
+
             data = dict(zip(header, [l.strip() for l in l.split("\t")]))
             tx_record = TranscriptRecord.parse_obj(data)
             transcripts.append(tx_record)
@@ -134,7 +138,9 @@ class DepositGenepanel(object):
         replace: bool = False,
     ):
         transcript_rows = list()
+        inheritances: Dict[str, str] = {}
         for t in transcript_data:
+            inheritances[t.name] = t.inheritance
             transcript_rows.append(
                 {
                     "gene_id": t.hgnc_id,  # foreign key to gene
@@ -144,6 +150,7 @@ class DepositGenepanel(object):
                     "tx_start": t.start,
                     "tx_end": t.end,
                     "strand": t.strand,
+                    "source": t.source,
                     "cds_start": t.coding_start,
                     "cds_end": t.coding_end,
                     "exon_starts": t.exon_starts,
@@ -172,7 +179,7 @@ class DepositGenepanel(object):
             gm.Transcript,
             transcript_rows,
             include_pk="id",
-            compare_keys=["transcript_name", "inheritance"],
+            compare_keys=["transcript_name"],
             replace=replace,
         ):
             transcript_inserted_count += len(created)
@@ -180,13 +187,13 @@ class DepositGenepanel(object):
 
             # Connect to genepanel by inserting into the junction table
             junction_values = list()
-            pks = [tx["id"] for tx in existing + created]
-            for pk in pks:
+            for tx in existing + created:
                 junction_values.append(
                     {
                         "genepanel_name": genepanel_name,
                         "genepanel_version": genepanel_version,
-                        "transcript_id": pk,
+                        "transcript_id": tx["id"],
+                        "inheritance": inheritances[tx["transcript_name"]],
                     }
                 )
             self.session.execute(gm.genepanel_transcript.insert(), junction_values)

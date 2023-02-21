@@ -122,7 +122,7 @@ AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
 ALLELES = [
     AlleleInfo(
         "analyses/default/brca_sample_1.HBOC_v1.0.0/brca_sample_1.HBOC_v1.0.0.vcf.gz",
-        ("HBOC", "1.0.0"),
+        ("HBOC", "v1.0.0"),
     ),
 ]
 
