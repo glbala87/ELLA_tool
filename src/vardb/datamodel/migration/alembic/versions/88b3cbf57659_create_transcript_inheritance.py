@@ -119,8 +119,15 @@ def upgrade():
 
     conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance SET NOT NULL")
     conn.execute("ALTER TABLE transcript ADD COLUMN source text NOT NULL DEFAULT ('Ensembl')")
+    conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_refseq")
+    conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_ensembl")
+    conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_lrg")
 
 
 def downgrade():
     conn = op.get_bind()
     conn.execute("ALTER TABLE genepanel_transcript DROP COLUMN inheritance")
+    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_refseq text")
+    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_ensembl text")
+    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_lrg text")
+    conn.execute("ALTER TABLE transcript DROP COLUMN source")
