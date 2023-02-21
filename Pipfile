@@ -46,4 +46,4 @@ XlsxWriter = "==1.1.2"
 pydantic = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.11"
