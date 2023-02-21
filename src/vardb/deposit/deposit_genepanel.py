@@ -27,14 +27,14 @@ class TranscriptRecord(BaseModel):
     # score: float = Field(default=0.0, alias="score")
     strand: str = Field(default="+", alias="strand")
     source: str = Field(default="custom", alias="source")
-    hgnc_id: int = Field(default=None, alias="HGNC id")
-    gene_symbol: str = Field(default=None, alias="HGNC symbol")
-    gene_aliases: str = Field(default=None, alias="gene aliases")
+    hgnc_id: int = Field(alias="HGNC id")
+    gene_symbol: str = Field(alias="HGNC symbol")
+    gene_aliases: str = Field(alias="gene aliases")
     inheritance: str = Field(alias="inheritance")
     coding_start: Optional[int] = Field(default=None, alias="coding start")
     coding_end: Optional[int] = Field(default=None, alias="coding end")
-    exon_starts: List[int] = Field(default=None, alias="exon starts")
-    exon_ends: List[int] = Field(default=None, alias="exon ends")
+    exon_starts: List[int] = Field(alias="exon starts")
+    exon_ends: List[int] = Field(alias="exon ends")
     # metadata: Optional[str] = Field(default=None, alias="metadata")
 
     @validator("exon_starts", "exon_ends", pre=True)
@@ -42,6 +42,23 @@ class TranscriptRecord(BaseModel):
         if v is None:
             return None
         return [int(x) for x in v.split(",") if x]
+
+    def as_row(self, genome_ref: str):
+        return {
+            "gene_id": self.hgnc_id,  # foreign key to gene
+            "transcript_name": self.name,
+            "type": "RefSeq",
+            "chromosome": self.chromosome,
+            "tx_start": self.start,
+            "tx_end": self.end,
+            "strand": self.strand,
+            "source": self.source,
+            "cds_start": self.coding_start,
+            "cds_end": self.coding_end,
+            "exon_starts": self.exon_starts,
+            "exon_ends": self.exon_ends,
+            "genome_reference": genome_ref,
+        }
 
     class Config:
         extra = "ignore"
@@ -66,8 +83,13 @@ class PhenotypeRecord(BaseModel):
             return "N/A"
         return v
 
-    class Config:
-        extra = "ignore"
+    def as_row(self):
+        return {
+            "gene_id": self.hgnc_id,
+            "description": self.description,
+            "inheritance": self.inheritance,
+            "omim_id": self.omim_id,
+        }
 
 
 def load_phenotypes(phenotypes_path: Path):
@@ -149,27 +171,8 @@ class DepositGenepanel(object):
         genome_ref: str,
         replace: bool = False,
     ):
-        transcript_rows = list()
-        inheritances: Dict[str, str] = {}
-        for t in transcript_data:
-            inheritances[t.name] = t.inheritance
-            transcript_rows.append(
-                {
-                    "gene_id": t.hgnc_id,  # foreign key to gene
-                    "transcript_name": t.name,
-                    "type": "RefSeq",
-                    "chromosome": t.chromosome,
-                    "tx_start": t.start,
-                    "tx_end": t.end,
-                    "strand": t.strand,
-                    "source": t.source,
-                    "cds_start": t.coding_start,
-                    "cds_end": t.coding_end,
-                    "exon_starts": t.exon_starts,
-                    "exon_ends": t.exon_ends,
-                    "genome_reference": genome_ref,
-                }
-            )
+        transcript_rows = [t.as_row(genome_ref) for t in transcript_data]
+        inheritances = {t.name: t.inheritance for t in transcript_data}
 
         transcript_inserted_count = 0
         transcript_reused_count = 0
@@ -219,31 +222,7 @@ class DepositGenepanel(object):
         genepanel_version,
         replace=False,
     ):
-        phenotype_rows: List[Dict] = list()
-        for ph in phenotype_data:
-            # Database has unique constraint on (gene_id, description, inheritance)
-            row_data = {
-                "gene_id": ph.hgnc_id,
-                "description": ph.description,
-                "inheritance": ph.inheritance,
-                "omim_id": ph.omim_id,
-            }
-
-            is_duplicate = next(
-                (
-                    p
-                    for p in phenotype_rows
-                    if p["gene_id"] == row_data["gene_id"]
-                    and p["description"] == row_data["description"]
-                    and p["inheritance"] == row_data["inheritance"]
-                ),
-                None,
-            )
-            if is_duplicate:
-                log.warning("Skipping duplicate phenotype {}".format(ph.description))
-                continue
-
-            phenotype_rows.append(row_data)
+        phenotype_rows = [ph.as_row() for ph in phenotype_data]
 
         phenotype_inserted_count = 0
         phenotype_reused_count = 0
