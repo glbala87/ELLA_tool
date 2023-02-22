@@ -1,15 +1,16 @@
 import re
-from datalayer.allelefilter.qualityfilter import QualityFilter
-from vardb.datamodel import sample, genotype
-from conftest import mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
 
+from conftest import mock_allele
+from datalayer.allelefilter.qualityfilter import QualityFilter
+from vardb.datamodel import genotype, sample
+
 
 def add_data(session, gt_data):
     analysis = sample.Analysis(
-        **{"name": "QualityTest", "genepanel_name": "HBOC", "genepanel_version": "v01"}
+        **{"name": "QualityTest", "genepanel_name": "HBOC", "genepanel_version": "v1.0.0"}
     )
     session.add(analysis)
     session.flush()

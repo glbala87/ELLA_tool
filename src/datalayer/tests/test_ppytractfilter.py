@@ -36,8 +36,11 @@ def allele_positions(draw, chromosome, start, end):
     return (chromosome, start_position, vcf_ref, vcf_alt)
 
 
-def create_genepanel(genepanel_config):
+def create_genepanel(session):
     # Create fake genepanel for testing purposes
+    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add(genepanel)
+    session.flush()
 
     g1 = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1")
     g2 = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE2")
@@ -47,6 +50,7 @@ def create_genepanel(genepanel_config):
         transcript_name="NM_1.1",
         type="RefSeq",
         genome_reference="",
+        source="test",
         chromosome="1",
         tx_start=1000,
         tx_end=1500,
@@ -62,6 +66,7 @@ def create_genepanel(genepanel_config):
         transcript_name="NM_2.1",
         type="RefSeq",
         genome_reference="",
+        source="test",
         chromosome="2",
         tx_start=2000,
         tx_end=2500,
@@ -72,10 +77,20 @@ def create_genepanel(genepanel_config):
         exon_ends=[2160, 2260, 2360, 2460],
     )
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add_all([t1_forward, t2_reverse])
+    session.flush()
+    for tx in [t1_forward, t2_reverse]:
+        session.execute(
+            gene.genepanel_transcript.insert(),
+            {
+                "transcript_id": tx.id,
+                "genepanel_name": genepanel.name,
+                "genepanel_version": genepanel.version,
+                "inheritance": "AD/AR",
+            },
+        )
+    session.flush()
 
-    genepanel.transcripts = [t1_forward, t2_reverse]
-    genepanel.phenotypes = []
     return genepanel
 
 
@@ -84,8 +99,7 @@ class TestPolypyrimidineTractFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-        gp = create_genepanel({})
-        session.add(gp)
+        create_genepanel(session)
         session.commit()
 
     @pytest.mark.aa(order=1)
