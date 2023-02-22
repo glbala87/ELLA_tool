@@ -19,7 +19,7 @@ let workLog = new WorkLog()
 let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
 
-const SAMPLE_ONE = 'HG002-Trio.Mendeliome_v01'
+const SAMPLE_ONE = 'HG002-Trio.Mendeliome_v1.0'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
 const TITLE_REVIEW = ' • REVIEW'
 

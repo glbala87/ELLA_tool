@@ -560,7 +560,7 @@
                     class="cell inheritance id-inheritance"
                     tippy-title="{{ allele.formatted.inheritance }}"
                 >
-                    {{ allele.formatted.inheritance }}
+                    {{ allele.formatted.inheritance || 'N/A' }}
                 </div>
                 <div
                     ng-click="$ctrl.rowClicked({alleleId: allele.id})"

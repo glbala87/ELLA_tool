@@ -35,8 +35,8 @@ let customAnnotationModal = new CustomAnnotationModal()
 let referenceEvalModal = new ReferenceEvalModal()
 
 const BUTTON_TEXT_REUSE_EXISTING_CLASSIFICATION = 'RE-EVALUATE'
-const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v01'
-const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v01'
+const SAMPLE_ONE = 'brca_e2e_test01.HBOCUTV_v1.0'
+const SAMPLE_TWO = 'brca_e2e_test02.HBOCUTV_v1.0'
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
 const TITLE_REVIEW = ' • REVIEW'
 

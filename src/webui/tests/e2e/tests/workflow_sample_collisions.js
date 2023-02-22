@@ -46,7 +46,7 @@ describe('Sample workflow', function() {
         analysesSelectionPage.selectTopPending()
         alleleSidebar.selectUnclassifiedAlleleByIdx(3)
         expect(alleleSectionBox.alleleWarningText).toEqual(
-            'This variant is currently being worked on by Henrik Ibsen in another analysis: brca_e2e_test01.HBOCUTV_v01.'
+            'This variant is currently being worked on by Henrik Ibsen in another analysis: brca_e2e_test01.HBOCUTV_v1.0.'
         )
     })
 

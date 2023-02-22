@@ -1,10 +1,10 @@
-export function getInheritanceCodes(hgncId, genepanel) {
-    if (!genepanel.phenotypes) {
-        return null
+function getInheritanceCodes(hgncId, genepanel) {
+    if (!genepanel.transcripts) {
+        return []
     }
-    const phenotypes = genepanel.phenotypes.filter((p) => p.gene.hgnc_id === hgncId)
-    if (phenotypes) {
-        const codes = phenotypes.map((ph) => ph.inheritance).filter((i) => i && i.length > 0) // remove empty
+    const transcripts = genepanel.transcripts.filter((tx) => tx.gene.hgnc_id == hgncId)
+    if (transcripts) {
+        const codes = transcripts.map((tx) => tx.inheritance).filter(Boolean)
         const uniqueCodes = new Set(codes)
         return Array.from(uniqueCodes.values()).sort()
     } else {
@@ -12,8 +12,18 @@ export function getInheritanceCodes(hgncId, genepanel) {
     }
 }
 
-export function formatInheritance(hgncId, genepanel) {
-    return (getInheritanceCodes(hgncId, genepanel) || ['']).join('/')
+function formatInheritance(inheritanceCodes) {
+    return inheritanceCodes.join('/')
+}
+
+export function formatGenepanelInheritance(hgncId, genepanel) {
+    // Gene panel inheritance is defined as collection of transcript inheritance modes.
+    const transcriptInheritanceCodes = getInheritanceCodes(hgncId, genepanel)
+    if (transcriptInheritanceCodes.length) {
+        return formatInheritance(transcriptInheritanceCodes)
+    }
+
+    return ''
 }
 
 export function findGeneConfigOverride(hgncId, acmgConfig) {
