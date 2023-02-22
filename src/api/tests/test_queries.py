@@ -74,7 +74,7 @@ def test_annotation_transcripts_genepanel(session, test_database):
             "type": "RefSeq",
             "genome_reference": "123",
             "chromosome": "123",
-            "source": "test",
+            "tags": None,
             "tx_start": 123,
             "tx_end": 123,
             "strand": "+",

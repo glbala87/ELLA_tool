@@ -312,25 +312,23 @@ def workflow_allele_review_comment(session, allele_ids=None):
 
 def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all hgnc_ids with _only_ {inheritance} phenotypes.
+    Fetches all hgnc_ids with _only_ {inheritance} transcripts.
 
     e.g. only 'AD' or only 'AR'
     """
-    # Get phenotypes having only one kind of inheritance
+    # Get genes with transcripts having only provided inheritance
     # e.g. only 'AD' or only 'AR' etc...
     hgnc_ids = (
-        session.query(gene.Phenotype.gene_id.label("hgnc_id"))
+        session.query(gene.Transcript.gene_id)
         .filter(
-            gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
-            gene.genepanel_phenotype.c.genepanel_name == gp_name,
-            gene.genepanel_phenotype.c.genepanel_version == gp_version,
+            gene.genepanel_transcript.c.transcript_id == gene.Transcript.id,
+            gene.genepanel_transcript.c.genepanel_name == gp_name,
+            gene.genepanel_transcript.c.genepanel_version == gp_version,
         )
         .group_by(
-            gene.genepanel_phenotype.c.genepanel_name,
-            gene.genepanel_phenotype.c.genepanel_version,
-            gene.Phenotype.gene_id,
+            gene.Transcript.gene_id,
         )
-        .having(func.every(gene.Phenotype.inheritance == inheritance))
+        .having(func.every(gene.genepanel_transcript.c.inheritance == inheritance))
     )
 
     return hgnc_ids

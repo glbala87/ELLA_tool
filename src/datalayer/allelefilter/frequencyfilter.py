@@ -1,15 +1,16 @@
 import copy
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
-from sqlalchemy import or_, and_, tuple_, cast
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
+from sqlalchemy import and_, cast, or_, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
 
-from vardb.datamodel import gene, annotationshadow
 from datalayer import queries
+from vardb.datamodel import annotationshadow, gene
 
 
 class FrequencyFilter(object):
