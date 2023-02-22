@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema
+from marshmallow import Schema, fields
 
 
 class GeneSchema(Schema):
@@ -26,9 +26,6 @@ class TranscriptFullSchema(Schema):
         title = "Transcript"
         fields = (
             "transcript_name",
-            "corresponding_refseq",
-            "corresponding_ensembl",
-            "corresponding_lrg",
             "genome_reference",
             "chromosome",
             "tx_start",
