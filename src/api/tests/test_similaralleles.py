@@ -1,13 +1,14 @@
-from vardb.datamodel import allele, assessment
+from typing import List
+
+from api.config import config
 from api.v1.resources.workflow.similaralleles import get_nearby_allele_ids
 from conftest import mock_allele
-from api.config import config
-from typing import List
+from vardb.datamodel import allele, assessment
 
 
 def test_nearbyalleles(session, test_database, client):
     genepanel_name = "HBOC"
-    genepanel_version = "v01"
+    genepanel_version = "v1.0.0"
 
     def _create_allele(start: int, end: int, classification: str = None) -> allele.Allele:
         a: allele.Allele = mock_allele(
@@ -84,7 +85,7 @@ def test_similaralleles(session, test_database, client):
     test_database.refresh()
 
     genepanel_name = "HBOC"
-    genepanel_version = "v01"
+    genepanel_version = "v1.0.0"
 
     for aid in [1, 2]:
         aa = assessment.AlleleAssessment(

@@ -1,5 +1,11 @@
 from itertools import groupby
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
+
+from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import case
+from sqlalchemy.types import Integer
 
 from api import ApiError, schemas
 from api.schemas.pydantic.v1 import validate_output
@@ -11,11 +17,6 @@ from api.schemas.pydantic.v1.resources import (
 )
 from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
-from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import case
-from sqlalchemy.types import Integer
 from vardb.datamodel import gene
 from vardb.datamodel import user as user_model
 
@@ -138,6 +139,31 @@ class GenepanelListResource(LogRequestResource):
         genepanel = gene.Genepanel(
             name=data["name"], genome_reference="GRCh37", version=data["version"]
         )
+
+        def get_inferred_inheritance(inheritances: Set, on_chrom_x: bool):
+            if len(inheritances) == 1:
+                return inheritances.pop()
+            elif on_chrom_x:
+                return "XD/XR"
+            else:
+                return "AD/AR"
+
+        junction_values = []
+        for tx in transcripts:
+            junction_values.append(
+                {
+                    "transcript_id": tx.id,
+                    "genepanel_name": data["name"],
+                    "genepanel_version": data["version"],
+                    "inheritance": get_inferred_inheritance(
+                        set(ph.inheritance for ph in phenotypes), tx.chromosome == "X"
+                    ),
+                }
+            )
+        session.add(genepanel)
+        session.flush()
+        session.execute(gene.genepanel_transcript.insert(), junction_values)
+
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
 

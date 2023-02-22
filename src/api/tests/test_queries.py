@@ -1,7 +1,8 @@
 from sqlalchemy import tuple_
+
+from conftest import mock_allele_with_annotation
 from datalayer import queries
 from vardb.datamodel import gene
-from conftest import mock_allele_with_annotation
 
 
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
@@ -73,6 +74,7 @@ def test_annotation_transcripts_genepanel(session, test_database):
             "type": "RefSeq",
             "genome_reference": "123",
             "chromosome": "123",
+            "source": "test",
             "tx_start": 123,
             "tx_end": 123,
             "strand": "+",
@@ -83,23 +85,45 @@ def test_annotation_transcripts_genepanel(session, test_database):
         }
 
         t1 = gene.Transcript(gene=g1, transcript_name="NM_1.1", **transcript_base)
+        session.add(t1)
 
         t21 = gene.Transcript(gene=g2, transcript_name="NM_2.1", **transcript_base)
+        session.add(t21)
 
         t22 = gene.Transcript(gene=g2, transcript_name="NM_2.2", **transcript_base)
+        session.add(t22)
 
         t3 = gene.Transcript(gene=g3, transcript_name="NM_3.1", **transcript_base)
+        session.add(t3)
 
         genepanel1 = gene.Genepanel(name="testpanel1", version="v01", genome_reference="GRCh37")
-        genepanel1.transcripts = [t1, t21]
-        genepanel1.phenotypes = []
         session.add(genepanel1)
+        session.flush()
+        for tx in [t1, t21]:
+            session.execute(
+                gene.genepanel_transcript.insert(),
+                {
+                    "transcript_id": tx.id,
+                    "genepanel_name": genepanel1.name,
+                    "genepanel_version": genepanel1.version,
+                    "inheritance": "AD/AR",
+                },
+            )
 
         genepanel2 = gene.Genepanel(name="testpanel2", version="v01", genome_reference="GRCh37")
-
-        genepanel2.transcripts = [t22, t3]
-        genepanel1.phenotypes = []
         session.add(genepanel2)
+        session.flush()
+        for tx in [t22, t3]:
+            session.execute(
+                gene.genepanel_transcript.insert(),
+                {
+                    "transcript_id": tx.id,
+                    "genepanel_name": genepanel2.name,
+                    "genepanel_version": genepanel2.version,
+                    "inheritance": "AD/AR",
+                },
+            )
+        session.flush()
 
         a1, _ = mock_allele_with_annotation(
             session,

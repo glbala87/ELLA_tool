@@ -184,7 +184,7 @@ def allele_position_strategy(draw):
 
 
 def create_analysis():
-    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v01")
+    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v1.0.0")
 
 
 def create_sample(analysis_id):

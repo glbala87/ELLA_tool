@@ -1,12 +1,13 @@
 import datetime
-import pytest
-import pytz
-from datalayer.allelefilter.classificationfilter import ClassificationFilter
-from vardb.datamodel import assessment
-from api.config import config
 
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
+import pytz
+
+from api.config import config
+from datalayer.allelefilter.classificationfilter import ClassificationFilter
+from vardb.datamodel import assessment
 
 CLASSES = assessment.AlleleAssessment.classification.type.enums
 
@@ -20,7 +21,7 @@ def assessments(session):
             allele_id=i + 1,
             classification=clazz,
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
         )
         session.add(assm)
         assms.append(assm)
@@ -76,7 +77,7 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
 
     expected_filtered = (has_filtered_class & has_valid_date) & set(allele_ids)
 
-    testdata = {("dummyname", "v01"): allele_ids}
+    testdata = {("dummyname", "v1.0.0"): allele_ids}
 
     filter_config = {"classes": classes_to_filter, "exclude_outdated": exclude_outdated}
 
@@ -86,4 +87,4 @@ def test_classificationfilter(session, assessments, days_since_created, filter_d
             cf.filter_alleles(testdata, filter_config)
     else:
         result = cf.filter_alleles(testdata, filter_config)
-        assert result[("dummyname", "v01")] == expected_filtered
+        assert result[("dummyname", "v1.0.0")] == expected_filtered
