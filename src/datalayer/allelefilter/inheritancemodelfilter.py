@@ -1,10 +1,9 @@
 from typing import Any, Dict, List, Set
 
-from sqlalchemy import and_, func, text, or_, not_
-from vardb.datamodel import sample, gene, annotationshadow
+from sqlalchemy import and_, func, not_, or_, text
 
 from datalayer.allelefilter.genotypetable import get_genotype_temp_table
-
+from vardb.datamodel import annotationshadow, gene, sample
 
 FILTER_MODES = ["recessive_non_candidates", "recessive_candidates"]
 
@@ -143,7 +142,7 @@ class InheritanceModelFilter(object):
             # 2          1002     AR
             #
 
-            # Get genepanel phenotypes' inheritance per hgnc id
+            # Get genepanel transcript' inheritance per hgnc id
             # ------------------------
             # | hgnc_id | inheritance |
             # ------------------------
@@ -153,12 +152,13 @@ class InheritanceModelFilter(object):
             # ...
             genepanel_hgnc_id_phenotype = (
                 self.session.query(
-                    gene.Phenotype.gene_id.label("hgnc_id"), gene.Phenotype.inheritance
+                    gene.Transcript.gene_id.label("hgnc_id"),
+                    gene.genepanel_transcript.c.inheritance,
                 )
                 .filter(
-                    gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
-                    gene.genepanel_phenotype.c.genepanel_name == gp_name,
-                    gene.genepanel_phenotype.c.genepanel_version == gp_version,
+                    gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+                    gene.genepanel_transcript.c.genepanel_name == gp_name,
+                    gene.genepanel_transcript.c.genepanel_version == gp_version,
                 )
                 .subquery("genepanel_hgnc_id_phenotype")
             )
