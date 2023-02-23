@@ -132,7 +132,7 @@ function getFormatted(allele, genepanel) {
     //
     // inheritance
     //
-    if (genepanel) {
+    if (genepanel && genepanel.inheritances) {
         let inheritance = allele.annotation.filtered.map((a) =>
             genepanel.inheritances
                 .filter((i) => i.hgnc_id === a.hgnc_id)
