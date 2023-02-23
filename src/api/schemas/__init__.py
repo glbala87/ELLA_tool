@@ -26,6 +26,7 @@ from .genepanels import (
     TranscriptFullSchema,
     PhenotypeSchema,
     PhenotypeFullSchema,
+    InheritanceSchema,
 )
 from .annotations import AnnotationSchema
 from .customannotations import CustomAnnotationSchema

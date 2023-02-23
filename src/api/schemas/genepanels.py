@@ -80,3 +80,8 @@ class GenepanelTranscriptsSchema(Schema):
 class GenepanelSchema(Schema):
     class Meta:
         fields = ("name", "version", "official")
+
+
+class InheritanceSchema(Schema):
+    class Meta:
+        fields = ("hgnc_id", "inheritance", "transcript_name")

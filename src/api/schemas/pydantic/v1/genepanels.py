@@ -111,5 +111,12 @@ class NewGenepanelGene(BaseModel):
 from api.schemas.pydantic.v1.gene_assessments import GeneAssessment  # noqa: E402
 
 
-class GenepanelFullAssessments(GenepanelFull):
+class Inheritances(BaseModel):
+    inheritance: str
+    transcript_name: str
+    hgnc_id: int
+
+
+class GenepanelFullAssessmentsInheritances(GenepanelFull):
     geneassessments: List[GeneAssessment]
+    inheritances: List[Inheritances]

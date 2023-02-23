@@ -3,12 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Any, ClassVar, Dict, List, Optional, Union
 
-from api.schemas.pydantic.v1 import (
-    BaseModel,
-    ExtraOK,
-    RequestValidator,
-    ResponseValidator,
-)
+from pydantic import Field, create_model, root_validator
+
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK, RequestValidator, ResponseValidator
 from api.schemas.pydantic.v1.allele_assessments import (
     AlleleAssessment,
     NewAlleleAssessment,
@@ -35,7 +32,7 @@ from api.schemas.pydantic.v1.filterconfig import FilterConfig
 from api.schemas.pydantic.v1.genepanels import (
     GeneAssessment,
     Genepanel,
-    GenepanelFullAssessments,
+    GenepanelFullAssessmentsInheritances,
     GenepanelSingle,
     GenepanelStats,
     NewGenepanelGene,
@@ -60,7 +57,6 @@ from api.schemas.pydantic.v1.workflow import (
 )
 from api.util.types import CallerTypes, ResourceMethods
 from api.util.util import from_camel
-from pydantic import Field, create_model, root_validator
 
 WORKFLOWS_ALLELES = "/api/v1/workflows/alleles/<int:allele_id>"
 WORKFLOWS_ANALYSES = "/api/v1/workflows/analyses/<int:analysis_id>"
@@ -192,7 +188,7 @@ class AlleleGeneListResponse(ResponseValidator):
     endpoints = {"/api/v1/alleles/by-gene/": ResourceMethods.GET}
 
 
-class AlleleGenepanelResponse(GenepanelFullAssessments, ResponseValidator):
+class AlleleGenepanelResponse(GenepanelFullAssessmentsInheritances, ResponseValidator):
     endpoints = {
         f"{WORKFLOWS_ALLELES}/genepanels/<gp_name>/<gp_version>/": ResourceMethods.GET,
         f"{WORKFLOWS_ANALYSES}/genepanels/<gp_name>/<gp_version>/": ResourceMethods.GET,
