@@ -4,8 +4,7 @@ import pytest
 from sqlalchemy import tuple_
 
 from api.polling import AnnotationJobsInterface
-from api.util.util import query_print_table
-from vardb.datamodel import allele, annotationjob, gene, genotype, sample
+from vardb.datamodel import allele, annotationjob, genotype, sample
 from vardb.deposit.importers import AlleleImporter
 
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"

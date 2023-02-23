@@ -2,8 +2,7 @@ import json
 from collections import defaultdict
 from typing import Dict, List
 
-from sqlalchemy import and_, case, func, or_, text, tuple_
-from sqlalchemy.orm import aliased
+from sqlalchemy import and_, or_, text
 
 from api.config import config
 
@@ -24,7 +23,7 @@ from datalayer.alleledataloader.annotationprocessor import AnnotationProcessor
 from datalayer.alleledataloader.calculate_qc import genotype_calculate_qc
 from datalayer.allelefilter.genotypetable import get_genotype_temp_table
 from datalayer.allelefilter.segregationfilter import SegregationFilter
-from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
+from vardb.datamodel import allele, annotationshadow, genotype, sample
 from vardb.datamodel.annotation import Annotation, CustomAnnotation
 from vardb.datamodel.assessment import AlleleAssessment, AlleleReport, ReferenceAssessment
 

@@ -37,9 +37,6 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
     session.add(genepanel)
     session.flush()
 
-    genes = list()
-    transcripts = list()
-    phenotypes = list()
     tx_idx = 0
     for idx, inheritances in enumerate(gene_inheritance):
         gene_name = f"GENE{idx+1}"

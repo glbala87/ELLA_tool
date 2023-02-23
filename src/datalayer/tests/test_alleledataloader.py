@@ -5,9 +5,8 @@ import hypothesis.strategies as st
 from sqlalchemy import or_
 
 from conftest import mock_allele
-from datalayer import queries
 from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
+from vardb.datamodel import allele, gene, genotype, sample
 
 
 def test_get_formatted_genotypes(test_database, session):
