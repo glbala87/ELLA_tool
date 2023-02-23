@@ -17,6 +17,7 @@ app.component('geneInformation', {
             genepanelValues: getGenepanelValues(
                 state`views.workflows.interpretation.data.genepanel`
             ),
+            inheritances: state`views.workflows.interpretation.data.genepanel.inheritances`,
             commentTemplates: state`app.commentTemplates`,
             geneAssessment: getGeneAssessment(props`hgncId`),
             userGeneAssessment: state`views.workflows.interpretation.geneInformation.geneassessment.${props`hgncId`}`,
@@ -69,6 +70,11 @@ app.component('geneInformation', {
                         return $ctrl.userGeneAssessment
                             ? $ctrl.userGeneAssessment.evaluation
                             : $ctrl.geneAssessment.evaluation
+                    },
+                    getTranscriptInheritance(transcript_name) {
+                        return $ctrl.inheritances.find(
+                            (inh) => inh.transcript_name === transcript_name
+                        ).inheritance
                     },
                     isCommmentEditable() {
                         // If there's a userGeneAssessment, it's per definition

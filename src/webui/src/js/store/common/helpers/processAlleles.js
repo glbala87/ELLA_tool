@@ -1,5 +1,4 @@
 import thenBy from 'thenby'
-import { formatGenepanelInheritance } from './genepanel'
 
 export default function processAlleles(alleles, genepanel = null) {
     for (let allele of alleles) {
@@ -134,10 +133,12 @@ function getFormatted(allele, genepanel) {
     // inheritance
     //
     if (genepanel) {
-        let inheritance = allele.annotation.filtered.map((a) => {
-            return formatGenepanelInheritance(a.hgnc_id, genepanel)
-        })
-        formatted.inheritance = inheritance.join(' | ')
+        let inheritance = allele.annotation.filtered.map((a) =>
+            genepanel.inheritances
+                .filter((i) => i.hgnc_id === a.hgnc_id)
+                .map((inh) => inh.inheritance)
+        )
+        formatted.inheritance = [...new Set(inheritance.flat())].join(' | ')
     }
 
     return formatted
