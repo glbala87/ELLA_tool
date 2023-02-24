@@ -1,5 +1,5 @@
-# kinetic = 20.10
-FROM ubuntu:kinetic-20230126 AS base
+# focal = 20.04
+FROM ubuntu:focal-20230126 AS base
 LABEL maintainer="OUS AMG <ella-support@medisin.uio.no>"
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -8,6 +8,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LC_ALL=C.UTF-8
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
+
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa
+
+RUN apt update && \
+    apt install python3.11 python3.11-venv python3.11-dev -y
 
 ENV POSTGRES_VERSION 14
 # Install as much as reasonable in one go to reduce image size
@@ -29,14 +36,13 @@ RUN apt-get update && \
     nano \
     nginx-light \
     parallel \
-    python3-venv \
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
+    # python3-venv \
+    # python3.7 \
+    # python3.7-dev \
+    # python3.7-venv \
     tzdata
-
 RUN echo "Postgres:" && \
-    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt kinetic-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
+    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
     curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     apt-get -yqq update && apt-get install -y postgresql-client-${POSTGRES_VERSION} \
     && echo "Cleanup:" && \
@@ -91,8 +97,8 @@ RUN apt-get update && \
     unzip \
     vim \
     && echo "Additional tools:" && \
-    echo "Node v18.x:" && \
-    curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
+    echo "Node v10.x:" && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get install -yqq nodejs && \
     echo "Yarn:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
@@ -101,18 +107,19 @@ RUN apt-get update && \
 
 
 # Add our requirements files
-COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
+# COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 
 USER ella-user
 
 # Standalone python
 RUN cd /dist && \
     WORKON_HOME="/dist" python3.11 -m venv ella-python && \
-    /dist/ella-python/bin/pip install --no-cache-dir pipenv==2023.2.18 && \
+    /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
+    /dist/ella-python/bin/pipenv lock && \
     /dist/ella-python/bin/pipenv sync --dev
 
 # Patch supervisor, so "Clear log" is not available from UI
-RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
+# RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
 
 COPY --chown=ella-user:ella-user ./package.json /dist/package.json
 COPY --chown=ella-user:ella-user ./yarn.lock /dist/yarn.lock
