@@ -1,8 +1,28 @@
+version: "3.3"
+
 networks:
   ella-network:
     name: ella-network
 
 services:
+  dbreset:
+    image: legacy
+    container_name: dbreset
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    entrypoint: python /ella/ops/testdata/reset-testdata.py
+    volumes:
+      - .:/ella
+    networks:
+      - ella-network
+    environment:
+      - DB_URL=$DB_URL
+      - DEVELOP=true
+    depends_on:
+      postgres:
+        condition: service_healthy
   backendv1:
     image: legacy
     container_name: backendv1
@@ -18,7 +38,7 @@ services:
     networks:
       - ella-network
     environment:
-      - DB_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - DB_URL=$DB_URL
       - DEVELOP=true
   webpack_legacy:
     image: legacy
@@ -48,13 +68,14 @@ services:
           "-h",
           "localhost"
         ]
-      interval: 10s
-      timeout: 5s
+      interval: 1s
+      timeout: 2s
       retries: 10
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    volumes:
+      - .:/ella
     environment:
-      PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

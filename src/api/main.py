@@ -13,22 +13,11 @@ from api.schemas.pydantic.v1 import BaseModel
 from api.util.util import log_request, populate_g_logging, populate_g_user
 from api.v1 import ApiV1
 
-DEFAULT_STATIC_FILE = "index.html"
-REWRITES = {"docs/": "docs/index.html", "docs": "docs/index.html"}
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 KEYWORD_DEVELOPER_MODE = "DEVELOP"
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 STATIC_FILE_DIR = os.path.join(SCRIPT_DIR, "../webui/build")
-VALID_STATIC_FILES = [
-    "app.css",
-    "base.css",
-    "app.js",
-    "thirdparty.js",
-    "templates.js",
-    "fonts",
-    "docs",
-]
 
 log = app.logger
 
@@ -37,19 +26,17 @@ log = app.logger
 def populate_request():
     g.request_start_time = time.time() * 1000.0
     populate_g_logging()
-    if request.path and request.path.split("/")[1] not in VALID_STATIC_FILES:
-        populate_g_user()
+    populate_g_user()
 
 
 @app.after_request
 def after_request(response: Response):
-    if request.path and request.path.split("/")[1] not in VALID_STATIC_FILES:
-        log_request(response.status_code, response)
-        try:
-            db.session.commit()
-        except Exception:
-            log.exception("Something went wrong when commiting resourcelog entry")
-            db.session.rollback()
+    log_request(response.status_code, response)
+    try:
+        db.session.commit()
+    except Exception:
+        log.exception("Something went wrong when commiting resourcelog entry")
+        db.session.rollback()
 
     # Allow a different front-end running on port 3000 to make requests to the API while developing.
     is_dev = os.getenv(KEYWORD_DEVELOPER_MODE, "").lower() == "true"
@@ -84,23 +71,7 @@ def teardown_request(exc):
 def shutdown_session(exception=None):
     db.session.remove()
 
-
-def serve_static(path: str = None):
-    if path:
-        path = REWRITES.get(path, path)
-
-    if not path:
-        path = DEFAULT_STATIC_FILE
-    elif path.startswith("api/v"):
-        return "Bad request", 400
-    elif not any(v == path or path.startswith(v) for v in VALID_STATIC_FILES):
-        path = DEFAULT_STATIC_FILE
-
-    return send_from_directory(STATIC_FILE_DIR, path, cache_timeout=-1)
-
-
 api = Api(app)
-
 
 # Turn off caching for whole API
 @api.representation("application/json")
@@ -123,9 +94,6 @@ def output_json(data, code: int, headers: Dict[str, Any] = None):
 
 # Setup resources for v1
 ApiV1(app, api).setup_api()
-
-app.add_url_rule("/", "index", serve_static)
-app.add_url_rule("/<path:path>", "index_redirect", serve_static)
 
 # This is used by development - production will not trigger it
 if __name__ == "__main__":

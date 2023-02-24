@@ -10,8 +10,8 @@ if [ -z "$PORT" ]; then
     exit 1
 fi
 
-envsubst '$PORT' < /ella/ops/common/nginx.tmpl.conf > /socket/nginx.conf
+envsubst '$PORT' < /etc/nginx/nginx.tmpl.conf > /etc/nginx/nginx.conf
 
 echo "Starting nginx listening on port ${PORT}"
-exec nginx -c /socket/nginx.conf
+exec nginx
 
