@@ -49,6 +49,8 @@ services:
     command: yarn dev
     networks:
       - ella-network
+    ports:
+      - "35729:35729"
     depends_on:
       - backendv1
       - postgres
