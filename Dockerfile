@@ -147,7 +147,7 @@ ENV ATTACHMENT_STORAGE="/ella/ella-testdata/testdata/attachments" \
     PORT="5000" \
     PRODUCTION="false"
 
-CMD ["supervisord", "-c", "/ella/ops/dev/supervisor.cfg"]
+CMD ["gunicorn", "-c", "/ella/ops/prod/gunicorn.conf.py", "api.main:app"]
 
 ####
 # production image

@@ -30,7 +30,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    entrypoint: gunicorn -c /ella/ops/prod/gunicorn.conf.py api.main:app
     ports:
       - "5000:5000"
     volumes:

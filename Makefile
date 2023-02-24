@@ -132,7 +132,6 @@ help :
 	@echo "make dev                  - run image ${IMAGE_NAME}, with container name ${CONTAINER_NAME}"
 	@echo "                            Optional: API_PORT, ELLA_OPTS"
 	@echo "make db                   - populates the db with fixture data. Use TESTSET variable to choose testset"
-	@echo "make url                  - shows the url of your Ella app"
 	@echo "make kill                 - stop and remove ${CONTAINER_NAME}"
 	@echo "make shell                - get a bash shell into ${CONTAINER_NAME}"
 	@echo "make logs                 - tail logs from ${CONTAINER_NAME}"
@@ -509,13 +508,10 @@ endif
 ci-set-testdata: $(if ${REF},set-testdata-branch)
 
 dev:
-	docker run -d ${DEV_OPTS} ${ELLA_OPTS} ${IMAGE_NAME} supervisord -c /ella/ops/dev/supervisor.cfg
+    docker compose up
 
 db:
 	docker exec ${CONTAINER_NAME} make dbreset TESTSET=${TESTSET}
-
-url:
-	@./ops/dev/show-url.sh ${CONTAINER_NAME}
 
 kill:
 	docker stop ${CONTAINER_NAME}
