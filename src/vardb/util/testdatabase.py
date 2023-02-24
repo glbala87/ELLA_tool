@@ -1,16 +1,20 @@
 import os
 import subprocess
 import tempfile
+
 from sqlalchemy.pool import NullPool
-from vardb.datamodel.annotationshadow import update_annotation_shadow_columns
+
 from api import db
 from api.config import config
+from vardb.datamodel.annotationshadow import update_annotation_shadow_columns
 
 
 class TestDatabase(object):
     def __init__(self):
         db_url = os.environ["DB_URL"]
         self.db_name = db_url.rsplit("/", 1)[-1]
+        self.service_db = db_url.rsplit("/", 1)[0] + "/template1"
+
 
         # Reconnect with NullPool in order to avoid hanging connections
         # which prevents us from dropping/creating database
@@ -37,28 +41,34 @@ class TestDatabase(object):
 
         return False
 
+    def _drop(self, db_name):
+        with open(os.devnull, "w") as f:
+            subprocess.check_call(f"psql {self.service_db} -c 'DROP DATABASE IF EXISTS \"{db_name}\"'", shell=True, stdout=f)
+
+    def _create(self, dbname, template=None):
+        sql = f"CREATE DATABASE \"{dbname}\""
+        if template:
+            sql += f" TEMPLATE \"{template}\""
+        with open(os.devnull, "w") as f:
+            subprocess.check_call(f"psql {self.service_db} -c '{sql}'", shell=True, stdout=f)
+
     def create_dump(self):
         """
         Deposit testdata, and creates a dump of the test database into a template database to be used for refresh
         """
 
+        self._drop(self.db_name)
+        self._create(self.db_name)
         with open(os.devnull, "w") as f:
-            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True, stdout=f)
-            subprocess.check_call(f"createdb {self.db_name}", shell=True, stdout=f)
-            subprocess.check_call("ella-cli database drop -f", shell=True, stdout=f)
-            subprocess.check_call("ella-cli database make -f", shell=True, stdout=f)
             if os.getenv("MIGRATION") == "1":
                 print("Migration running")
                 subprocess.call("ella-cli database ci-migration-head -f", shell=True)
                 subprocess.call("ella-cli database refresh -f", shell=True, stdout=f)
             subprocess.check_call(
-                "python /ella/ops/testdata/reset-testdata.py --testset integration_testing".split()
+                "python /ella/ops/testdata/reset-testdata.py --testset integration_testing".split(), stdout=f
             )
-
-            subprocess.check_call(f"dropdb --if-exists {self.db_name}-template", shell=True)
-            subprocess.check_call(
-                f"createdb {self.db_name}-template --template {self.db_name}", shell=True
-            )
+        self._drop(self.db_name + "-template")
+        self._create(self.db_name + "-template", self.db_name)
         print(f"Template database for testdata created in database {self.db_name}-template")
 
     def refresh(self):
@@ -68,12 +78,8 @@ class TestDatabase(object):
         print("Refreshing database with data from template")
         if not self.database_exists(self.db_name + "-template"):
             self.create_dump()
-        with open(os.devnull, "w") as f:
-            subprocess.check_call(f"dropdb --if-exists {self.db_name}", shell=True, stdout=f)
-            subprocess.check_call(
-                f"createdb {self.db_name} --template {self.db_name}-template", shell=True, stdout=f
-            )
-
+        self._drop(self.db_name)
+        self._create(self.db_name, self.db_name + "-template")
         # Update mapping of annotation shadow tables based on global config
         update_annotation_shadow_columns(config)
 
