@@ -40,6 +40,9 @@ services:
     environment:
       - DB_URL=$DB_URL
       - DEVELOP=true
+    depends_on:
+      dbreset:
+        condition: service_completed_successfully
   webpack_legacy:
     image: legacy
     container_name: webpack_legacy
@@ -56,7 +59,7 @@ services:
       - postgres
       - nginx
   postgres:
-    image: postgres
+    image: postgres:14-alpine
     container_name: postgres
     networks:
       - ella-network
@@ -75,8 +78,6 @@ services:
       retries: 10
     ports:
       - "5432:5432"
-    volumes:
-      - .:/ella
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres

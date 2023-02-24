@@ -415,7 +415,7 @@ def dump_db(ctx: Context, testset: str):
         logger.warning(f"Overwriting existing local dump file for {ctx.testset}: {ctx.local_dump}")
 
     proc = subprocess.run(
-        ["pg_dump", DB_URL],
+        ["pg_dump", "--no-owner", DB_URL],
         cwd=ctx.local_dump.parent,
         stdout=subprocess.PIPE,
     )
