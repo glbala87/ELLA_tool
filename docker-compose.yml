@@ -1,0 +1,79 @@
+networks:
+  ella-network:
+    name: ella-network
+
+services:
+  backendv1:
+    image: legacy
+    container_name: backendv1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    entrypoint: gunicorn -c /ella/ops/prod/gunicorn.conf.py api.main:app
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/ella
+    networks:
+      - ella-network
+    environment:
+      - DB_URL=postgresql://postgres:postgres@postgres:5432/postgres
+      - DEVELOP=true
+  webpack_legacy:
+    image: legacy
+    container_name: webpack_legacy
+    volumes:
+      - .:/ella
+    working_dir: /ella/src/webui
+    command: yarn dev
+    networks:
+      - ella-network
+    depends_on:
+      - backendv1
+      - postgres
+      - nginx
+  postgres:
+    image: postgres
+    container_name: postgres
+    networks:
+      - ella-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "postgres",
+          "-h",
+          "localhost"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5433:5432"
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  nginx:
+    image: nginx
+    container_name: ella-nginx
+    ports:
+      - "8080:8080"
+    entrypoint:
+      - /etc/nginx/common_nginx_startup
+    volumes:
+      - ./ops/common/nginx.tmpl.conf:/etc/nginx/nginx.tmpl.conf
+      - ./ops/common/common_nginx_startup:/etc/nginx/common_nginx_startup
+      - ${LOGS}:/logs
+      - ./src/webui/build:/static
+    networks:
+      - ella-network
+    environment:
+      PORT: 8080
+    depends_on:
+      - backendv1
+      - postgres
