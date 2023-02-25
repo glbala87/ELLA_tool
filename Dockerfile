@@ -36,10 +36,6 @@ RUN apt-get update && \
     nano \
     nginx-light \
     parallel \
-    # python3-venv \
-    # python3.7 \
-    # python3.7-dev \
-    # python3.7-venv \
     tzdata
 RUN echo "Postgres:" && \
     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
@@ -107,7 +103,7 @@ RUN apt-get update && \
 
 
 # Add our requirements files
-# COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
+COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 
 USER ella-user
 
@@ -115,7 +111,6 @@ USER ella-user
 RUN cd /dist && \
     WORKON_HOME="/dist" python3.11 -m venv ella-python && \
     /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
-    /dist/ella-python/bin/pipenv lock && \
     /dist/ella-python/bin/pipenv sync --dev
 
 # Patch supervisor, so "Clear log" is not available from UI
