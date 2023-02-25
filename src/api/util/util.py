@@ -595,7 +595,7 @@ def str2intlist(val: str, *, sep=",", allow_none: bool = False) -> List[int]:
     if val is None:
         if allow_none:
             return []
-        raise ValueError(f"Can't turn None into List[int]")
+        raise ValueError("Can't turn None into List[int]")
     return [int(v.strip()) for v in val.split(sep) if v.strip()]
 
 

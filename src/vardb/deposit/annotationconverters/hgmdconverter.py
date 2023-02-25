@@ -39,7 +39,7 @@ class HGMDConverter(AnnotationConverter):
         ), f"Invalid parameter for HGMDConverter: {args.value} ({type(args.value)})"
         assert (
             args.additional_values is not None
-        ), f"HGMDConverter cannot have None for args.additional_values"
+        ), "HGMDConverter cannot have None for args.additional_values"
 
         disease: str = args.additional_values["HGMD__disease"]
         tag: str = args.additional_values["HGMD__tag"]

@@ -44,7 +44,7 @@ class InheritanceModelFilter(object):
         """
 
         if "filter_mode" not in filter_config:
-            raise RuntimeError(f"Filter configuration is missing required config key 'filter_mode'")
+            raise RuntimeError("Filter configuration is missing required config key 'filter_mode'")
 
         filter_mode = filter_config["filter_mode"]
         assert (

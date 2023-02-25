@@ -58,7 +58,7 @@ Base.metadata = MetaData(naming_convention=convention)
 make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 
 # Don't remove!
-from vardb.datamodel import (
+from vardb.datamodel import (  # noqa: E402
     allele,
     annotation,
     annotationshadow,
@@ -72,4 +72,4 @@ from vardb.datamodel import (
     workflow,
     log,
     jsonschema,
-)  # noqa: E402
+)

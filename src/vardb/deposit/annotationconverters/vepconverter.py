@@ -388,14 +388,14 @@ class VEPConverter(AnnotationConverter):
         pass
 
     def setup(self):
-        assert self.meta is not None, f"VEPConverter requires meta"
+        assert self.meta is not None, "VEPConverter requires meta"
         self.csq_fields = self.meta["Description"].split("Format: ", 1)[1].split("|")
 
     def __call__(self, args: ConverterArgs) -> List[Dict[str, Any]]:
         assert isinstance(
             args.value, str
         ), f"Invalid parameter for VEPConverter: {args.value} ({type(args.value)})"
-        assert self.meta is not None, f"VEPConverter requires meta"
+        assert self.meta is not None, "VEPConverter requires meta"
 
         # Prefer refseq annotations coming from the latest annotated RefSeq release (RefSeq_gff) over the
         # RefSeq interim release (RefSeq_Interim_gff) and VEP default (RefSeq).

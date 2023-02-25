@@ -505,7 +505,7 @@ def start_interpretation(
         interpretation.genepanel = analysis.genepanel
     elif meta.name is WorkflowTypes.ALLELE:
         if data is None:
-            raise ValueError(f"Cannot create allele intepretation without genepanel info")
+            raise ValueError("Cannot create allele intepretation without genepanel info")
         # For allele workflow, the user can choose genepanel context for each interpretation
         interpretation.genepanel_name = data.gp_name
         interpretation.genepanel_version = data.gp_version
@@ -1444,12 +1444,12 @@ def _get_finalize_reqs(
 
 def _get_finalize_reqs(cfg, wf_type):
     if not cfg.workflows:
-        raise ValueError(f"User config missing: workflows")
+        raise ValueError("User config missing: workflows")
     elif wf_type is WorkflowTypes.ALLELE:
         if not cfg.workflows.allele:
-            raise ValueError(f"User config missing: workflows.allele")
+            raise ValueError("User config missing: workflows.allele")
         return cfg.workflows.allele.finalize_requirements
     elif wf_type is WorkflowTypes.ANALYSIS:
         if not cfg.workflows.analysis:
-            raise ValueError(f"User config missing: workflows.analysis")
+            raise ValueError("User config missing: workflows.analysis")
         return cfg.workflows.analysis.finalize_requirements
