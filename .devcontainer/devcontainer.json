@@ -19,6 +19,9 @@
         },
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": false
+        },
         "javascript.suggest.completeFunctionCalls": true,
         "js/ts.implicitProjectConfig.experimentalDecorators": true,
         "prettier.configPath": "/ella/.prettierrc",
