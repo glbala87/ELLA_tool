@@ -1,5 +1,5 @@
 import atexit
-import collections
+import collections.abc
 import datetime
 import json
 import os
@@ -80,7 +80,7 @@ def dict_merge(destination: Dict, src: Mapping):
         if (
             k in destination
             and isinstance(destination[k], dict)
-            and isinstance(src[k], collections.Mapping)
+            and isinstance(src[k], collections.abc.Mapping)
         ):
             dict_merge(destination[k], src[k])
         else:

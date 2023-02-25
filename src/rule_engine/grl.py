@@ -1,4 +1,6 @@
 import collections
+import collections.abc
+
 from .grm import GRM
 
 """
@@ -23,7 +25,7 @@ class GRL:
         return rules
 
     def parseRule(self, rulebody, code, source=None, aggregate=False):
-        if not isinstance(rulebody, collections.Mapping):
+        if not isinstance(rulebody, collections.abc.Mapping):
             # Just for example "transcript.splice.effect": "de_novo"
             return GRM.InRule([rulebody], source, code)
         for left, right in rulebody.items():

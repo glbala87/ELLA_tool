@@ -14,27 +14,26 @@ from vardb.util import DB
 from vardb.util.testdatabase import TestDatabase
 from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
 
-ht.settings.register_profile("default", deadline=1000)
+ht.settings.register_profile("default", deadline=1000, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
 # allow disabling deadline for local dev testing
-ht.settings.register_profile("dev", deadline=None)
-ht.settings.register_profile("small", max_examples=20)
+ht.settings.register_profile("dev", deadline=None, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
+ht.settings.register_profile("small", max_examples=20, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
 ht.settings.register_profile(
     "extensive",
     max_examples=3000,
-    timeout=900,
-    suppress_health_check=[ht.HealthCheck.hung_test],
     deadline=2000,
+    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
 )
 ht.settings.register_profile(
     "soak",
     max_examples=1_000_000,
-    timeout=ht.unlimited,
-    suppress_health_check=[ht.HealthCheck.hung_test],
     deadline=2000,
+    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
 )
 
 hypothesis_profile = os.environ.get("HYPOTHESIS_PROFILE", "default").lower()
 ht.settings.load_profile(hypothesis_profile)
+
 
 
 @pytest.yield_fixture

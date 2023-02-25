@@ -26,9 +26,9 @@ class CreateInterpretationLog(BaseModel):
 
     @root_validator
     def has_content(cls, values: Dict[str, Any]):
-        if any(values.get(a) is not None for a in cls.__annotations__):
+        if any(values.get(a) is not None for a in cls.__fields__):
             return values
-        raise ValueError(f"Must specify at least one of: {', '.join(cls.__annotations__.keys())}")
+        raise ValueError(f"Must specify at least one of: {', '.join(cls.__fields__.keys())}")
 
 
 class InterpretationLog(CreateInterpretationLog):

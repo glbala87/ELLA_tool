@@ -333,7 +333,7 @@ def test_prefilterbatchgenerator(
 
 @ht.given(vcf_family_strategy(6))
 @ht.settings(
-    deadline=None, max_examples=300, timeout=ht.unlimited
+    deadline=None, max_examples=300
 )  # A bit heavy, so few tests by default
 def test_analysis_multiple(session, vcf_data):
     global ANALYSIS_NUM

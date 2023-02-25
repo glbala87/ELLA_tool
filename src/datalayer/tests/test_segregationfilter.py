@@ -851,7 +851,7 @@ class TestInheritanceFilter(object):
         [],
     )
     @ht.given(compound_heterozygous_strategy(), st.just(None))
-    @ht.settings(deadline=None, suppress_health_check=[ht.HealthCheck.filter_too_much])
+    @ht.settings(deadline=None, suppress_health_check=[ht.HealthCheck.filter_too_much, ht.HealthCheck.function_scoped_fixture])
     def test_compound_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
