@@ -2,17 +2,17 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-import pytest
-
-from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
-from vardb.datamodel import gene
-from conftest import mock_allele
+from typing import Any
 
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
 
+from conftest import mock_allele
+from datalayer.allelefilter.polypyrimidinetractfilter import PolypyrimidineTractFilter
+from vardb.datamodel import gene
 
-GLOBAL_CONFIG = {}
+GLOBAL_CONFIG: dict[Any, Any] = {}
 
 
 @st.composite

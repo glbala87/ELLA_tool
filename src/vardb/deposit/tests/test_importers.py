@@ -31,7 +31,7 @@ def positions(draw) -> Tuple[str, int, str, str]:
     else:
         ht.assume(len(commonprefix([ref, alt])) == 0)
 
-    pos = draw(st.integers(min_value=1e4, max_value=1e7))
+    pos = draw(st.integers(min_value=int(1e4), max_value=int(1e7)))
     return chrom, pos, ref, alt
 
 

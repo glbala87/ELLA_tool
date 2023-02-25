@@ -27,7 +27,7 @@ def hgmd_text(draw) -> str:
 
 @st.composite
 def reference(draw) -> Dict[str, Union[str, int]]:
-    pmid: int = draw(st.integers(min_value=1, max_value=1e7))
+    pmid: int = draw(st.integers(min_value=1, max_value=int(1e7)))
     reftag: str = draw(st.sampled_from(RefTag.tag_strings()))
     comments: str = draw(hgmd_text())
 
@@ -57,7 +57,7 @@ def test_get_HGMD_extrarefs(extraref_format: str, references: Sequence[Mapping[s
         data[i][comment_idx] = ref["comments"]
         data[i][reftag_idx] = ref["reftag"]
 
-    converter = HGMDExtraRefsConverter(meta=meta, config=cc.hgmdextrarefs())
+    converter = HGMDExtraRefsConverter(meta=meta, config=cc.hgmdextrarefs())  # type: ignore
     converter.setup()
     raw = ",".join("|".join(x) for x in data)
     converted = converter(ConverterArgs(raw))
@@ -77,9 +77,9 @@ def test_get_HGMD_extrarefs(extraref_format: str, references: Sequence[Mapping[s
         assert converted_ref["source_info"] == source_info
 
 
-@ht.given(st.one_of(st.integers(min_value=1, max_value=1e7)), st.one_of(hgmd_text()))
+@ht.given(st.one_of(st.integers(min_value=1, max_value=int(1e7))), st.one_of(hgmd_text()))
 def test_HGMD_primaryreport(pmid: int, comments: str):
-    converter = HGMDPrimaryReportConverter(config=cc.hgmdprimaryreport())
+    converter = HGMDPrimaryReportConverter(config=cc.hgmdprimaryreport())  # type: ignore
     expected_source_info = "Primary literature report. No comments."
     for additional_values in [
         {},
@@ -87,7 +87,7 @@ def test_HGMD_primaryreport(pmid: int, comments: str):
         {"HGMD__comments": None},
         {"HGMD__comments": ""},
     ]:
-        converted = converter(ConverterArgs(pmid, additional_values))
+        converted = converter(ConverterArgs(pmid, additional_values))  # type: ignore
         assert len(converted) == 1
         assert converted[0] == {
             "pubmed_id": pmid,
@@ -109,9 +109,9 @@ def test_HGMD_primaryreport(pmid: int, comments: str):
     }
 
 
-@ht.given(st.lists(st.integers(min_value=1, max_value=1e7), min_size=1, max_size=10))
+@ht.given(st.lists(st.integers(min_value=1, max_value=int(1e7)), min_size=1, max_size=10))
 def test_clinvar_reference(pmids: Sequence[int]):
-    converter = ClinVarReferencesConverter(config=cc.clinvarreferences())
+    converter = ClinVarReferencesConverter(config=cc.clinvarreferences())  # type: ignore
     for key in ["pubmeds", "pubmed_ids"]:
         clinvarjson = {key: pmids}
         data = base64.b16encode(json.dumps(clinvarjson).encode())

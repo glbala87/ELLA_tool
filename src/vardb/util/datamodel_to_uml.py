@@ -119,8 +119,8 @@ GROUPS = [
 
 print("Generating diagrams...")
 for group in GROUPS:
-    desc = sadisplay.describe(group["tables"])
-    name = f"ella-datamodel-{group['name']}"
+    desc = sadisplay.describe(group["tables"])  # type: ignore
+    name = f"ella-datamodel-{group['name']}"  # type: ignore
     with tempfile.NamedTemporaryFile() as f:
         f.write(sadisplay.dot(desc).encode())
         print(f"Writing {name}.png")
