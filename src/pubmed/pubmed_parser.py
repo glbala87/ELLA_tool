@@ -35,7 +35,6 @@ class PubMedParser(object):
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
     def from_medline(self, medline_text):
-
         # Regex pattern:
         # Identify all keys - values, like "TI - Some text here"
         # Text is word wrapped from PUBMED, so we need to match line breaks within

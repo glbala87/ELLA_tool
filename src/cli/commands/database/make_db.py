@@ -10,7 +10,6 @@ from api.config import config
 
 
 def make_db(db):
-
     configure_mappers()
     Base.metadata.create_all(db.engine)  # noqa: F405
 

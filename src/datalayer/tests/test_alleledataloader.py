@@ -1,15 +1,16 @@
 from itertools import chain
-from sqlalchemy import or_
+
 import hypothesis as ht
 import hypothesis.strategies as st
-from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
-from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from datalayer import queries
+from sqlalchemy import or_
+
 from conftest import mock_allele
+from datalayer import queries
+from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
+from vardb.datamodel import allele, annotationshadow, gene, genotype, sample
 
 
 def test_get_formatted_genotypes(test_database, session):
-
     test_database.refresh()
 
     # Just get a random sample id that exists, doesn't matter which one

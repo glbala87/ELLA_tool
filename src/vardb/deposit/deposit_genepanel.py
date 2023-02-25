@@ -65,7 +65,10 @@ def load_transcripts(transcripts_path):
                 )
             data = dict(list(zip(header, [l.strip() for l in line.split("\t")])))
             data["HGNC"] = int(data["HGNC"])
-            data["txStart"], data["txEnd"], = (
+            (
+                data["txStart"],
+                data["txEnd"],
+            ) = (
                 int(data["txStart"]),
                 int(data["txEnd"]),
             )
@@ -81,7 +84,6 @@ class DepositGenepanel(object):
         self.session = session
 
     def insert_genes(self, transcript_data):
-
         # Avoid duplicate genes
         distinct_genes = set()
         for t in transcript_data:
@@ -184,10 +186,8 @@ class DepositGenepanel(object):
         return transcript_inserted_count, transcript_reused_count
 
     def insert_phenotypes(self, phenotype_data, genepanel_name, genepanel_version, replace=False):
-
         phenotype_rows = list()
         for ph in phenotype_data:
-
             if not ph.get("HGNC"):
                 log.warning("Skipping phenotype {} since HGNC is empty".format(ph.get("phenotype")))
                 continue
@@ -266,7 +266,6 @@ class DepositGenepanel(object):
         genomeRef="GRCh37",
         replace=False,
     ):
-
         if not transcripts_path:
             raise RuntimeError("Missing mandatory argument: path to transcript file")
         if not phenotypes_path:

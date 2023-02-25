@@ -34,7 +34,6 @@ def cmd_update_annotationconfig(logger: Logger, session: scoped_session, annotat
 @annotationconfig.command("list")
 @session
 def list(session: scoped_session):
-
     print("\nCurrent active annotationconfig:\n")
 
     active_annotationconfig = (

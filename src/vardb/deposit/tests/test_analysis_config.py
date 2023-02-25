@@ -57,7 +57,6 @@ def test_legacy_analysis_file(
     date_requested,
     vcf_suffix,
 ):
-
     legacy_analysis_file = {
         "name": analysis_name,
         "params": {"genepanel": genepanel_name + "_" + genepanel_version},

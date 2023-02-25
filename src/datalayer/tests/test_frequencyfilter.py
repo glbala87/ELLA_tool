@@ -146,7 +146,6 @@ class TestFrequencyFilter(object):
 
     @pytest.mark.aa(order=1)
     def test_commonness(self, session):
-
         # Filter config should end up being the following
         # (GENE2 has override in genepanel config, hence different threshold)
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
@@ -490,7 +489,6 @@ class TestFrequencyFilter(object):
 
     @pytest.mark.aa(order=2)
     def test_frequency_filtering(self, session):
-
         # Filter config should end up being the following
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
         # GENE1AR: external: 0.30/0.01 , internal: 0.05/0.01

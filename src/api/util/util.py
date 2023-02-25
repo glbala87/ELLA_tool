@@ -194,7 +194,6 @@ def populate_g_logging():
 
 
 def log_request(statuscode, response=None):
-
     duration = int(time.time() * 1000.0 - g.request_start_time)
     remote_addr = request.remote_addr
     payload = None

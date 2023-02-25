@@ -14,26 +14,31 @@ from vardb.util import DB
 from vardb.util.testdatabase import TestDatabase
 from vardb.util.vcfiterator import RESERVED_GT_HEADERS, VcfIterator
 
-ht.settings.register_profile("default", deadline=1000, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
+ht.settings.register_profile(
+    "default", deadline=1000, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
+)
 # allow disabling deadline for local dev testing
-ht.settings.register_profile("dev", deadline=None, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
-ht.settings.register_profile("small", max_examples=20, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,))
+ht.settings.register_profile(
+    "dev", deadline=None, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
+)
+ht.settings.register_profile(
+    "small", max_examples=20, suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
+)
 ht.settings.register_profile(
     "extensive",
     max_examples=3000,
     deadline=2000,
-    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
+    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,),
 )
 ht.settings.register_profile(
     "soak",
     max_examples=1_000_000,
     deadline=2000,
-    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,)
+    suppress_health_check=(ht.HealthCheck.function_scoped_fixture,),
 )
 
 hypothesis_profile = os.environ.get("HYPOTHESIS_PROFILE", "default").lower()
 ht.settings.load_profile(hypothesis_profile)
-
 
 
 @pytest.yield_fixture
@@ -148,7 +153,6 @@ class MockVcfWriter:
         if not fmt:
             return ""
         else:
-
             assert self.samples is not None and len(self.samples) == len(fmt)
             format_keys = set(sum((list(x.keys()) for x in fmt), []))
             format_str = "\t" + ":".join(format_keys)
@@ -217,7 +221,6 @@ class MockVcfWriter:
 
 def mock_record(variant=None, fmt=None, samples=None):
     with MockVcfWriter() as writer:
-
         writer.set_samples(samples)
         writer.add_variant(variant, fmt)
         writer.close()

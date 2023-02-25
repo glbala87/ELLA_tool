@@ -5,7 +5,6 @@ from conftest import mock_allele_with_annotation
 
 
 def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
-
     testpanels = [("HBOCUTV", "v01"), ("OMIM", "v01")]
 
     for panel in testpanels:
@@ -15,17 +14,13 @@ def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
         ad_hgnc_ids = [a[0] for a in ad_hgnc_ids]
 
         # Make sure all genes are actually part of input genepanel
-        assert (
-            session.query(gene.Transcript.gene_id)
-            .join(gene.Genepanel.transcripts)
-            .join(gene.Gene)
-            .filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
-                gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
-            )
-            .distinct()
-            .count()
-            == len(ad_hgnc_ids)
+        assert session.query(gene.Transcript.gene_id).join(gene.Genepanel.transcripts).join(
+            gene.Gene
+        ).filter(
+            tuple_(gene.Genepanel.name, gene.Genepanel.version) == panel,
+            gene.Gene.hgnc_symbol.in_(ad_hgnc_ids),
+        ).distinct().count() == len(
+            ad_hgnc_ids
         )
 
         # Test that AD matches only has 'AD' phenotypes
@@ -68,11 +63,9 @@ def test_distinct_inheritance_hgnc_ids_for_genepanel(session):
 
 
 def test_annotation_transcripts_genepanel(session, test_database):
-
     test_database.refresh()
 
     def insert_data():
-
         g1 = gene.Gene(hgnc_id=1, hgnc_symbol="GENE1")
         g2 = gene.Gene(hgnc_id=2, hgnc_symbol="GENE2")
         g3 = gene.Gene(hgnc_id=3, hgnc_symbol="GENE3")

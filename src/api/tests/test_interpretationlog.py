@@ -59,7 +59,6 @@ def check_latest_log(
 
 
 def test_allele_workflow(client, test_database):
-
     test_database.refresh()  # Reset db
 
     # Insert message
@@ -123,7 +122,6 @@ def test_allele_workflow(client, test_database):
 
 
 def test_analyses_workflow(client, test_database):
-
     test_database.refresh()  # Reset db
 
     # Insert message

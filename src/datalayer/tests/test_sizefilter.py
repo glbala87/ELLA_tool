@@ -47,7 +47,6 @@ def local_sizefilter_impl(config, alleles):
 
 @ht.given(st.one_of(allele_sizes()), st.one_of(filter_config()))
 def test_sizefilter(session, allele_sizes, filter_config):
-
     allele_objs = session.query(allele.Allele).limit(len(allele_sizes)).all()
     for obj, size in zip(allele_objs, allele_sizes):
         obj.length = size

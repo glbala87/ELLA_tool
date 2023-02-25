@@ -7,7 +7,6 @@ class JSONValidationError(Exception):
 
 
 def concatenate_json_validation_errors(session, data, schema_name):
-
     available_schemas = (
         session.query(dbjsonschema.JSONSchema.version, dbjsonschema.JSONSchema.schema)
         .filter(dbjsonschema.JSONSchema.name == schema_name)

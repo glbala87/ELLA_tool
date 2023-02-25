@@ -164,7 +164,6 @@ class ExternalFilter(object):
             return set([a[0] for a in filtered_allele_ids])
 
     def _filter_hgmd(self, allele_ids: List[int], hgmd_config: Dict[str, Any]) -> Set[int]:
-
         hgmd_tags = hgmd_config["tags"]
         assert hgmd_tags, "No tags provided to hgmd filter, even though config is defined"
         assert (

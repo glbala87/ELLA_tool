@@ -19,7 +19,6 @@ def filter_config(draw):
 
 @ht.given(st.one_of(allele_caller_types()), st.one_of(filter_config()))
 def test_callertypefilter(session, allele_caller_types, filter_config):
-
     # Apply sizes to some allele objects
     # We can filter on callertypes, extracting only the exact callerType
     # Then we can do filtering on all filter_configs, check that they
@@ -34,7 +33,6 @@ def test_callertypefilter(session, allele_caller_types, filter_config):
     testdata = {cfgKey: allele_ids}
 
     for callertypeFilter in filter_config:
-
         callerType = callertypeFilter["callerTypes"]
 
         localCheck = [obj for obj in allele_objs if obj.caller_type == callerType[0]]

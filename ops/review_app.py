@@ -242,7 +242,7 @@ def is_optional_arg(obj, arg: str) -> bool:
 
 
 def fingerprint_key(pubkey: str) -> str:
-    """ generates the md5 hexdigest of the public key used by digitalocean """
+    """generates the md5 hexdigest of the public key used by digitalocean"""
     pub_digest = hashlib.md5(b64decode(pubkey.encode("utf-8"))).hexdigest()
     return ":".join([pub_digest[i : i + 2] for i in range(0, len(pub_digest), 2)])
 
@@ -318,7 +318,7 @@ def retry(
                     return f(*args, **kwargs)
                 except catch_exc as e:
                     err_list.append(e)
-                    backoff = delay * 2 ** retry_num
+                    backoff = delay * 2**retry_num
                     logger.error(f"{type(e).__name__}: {e}")
                     retry_num += 1
                     if try_again(retry_num):
@@ -386,7 +386,7 @@ def ssh_exec(
     timeout: int = SSH_DEFAULT_TIMEOUT,
     bufsize: int = -1,
 ):
-    """ executes the command, returning formatted output and optionally checking success (default) """
+    """executes the command, returning formatted output and optionally checking success (default)"""
     logger.debug(f"Executing '{cmd}'")
 
     # SSHClient.exec_command does not allow checking the return code from what was executed, so we
@@ -539,7 +539,7 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
 def trim_droplet(drop: Droplet, detailed=False) -> Dict:
     new_drop = {a: getattr(drop, a) for a in DROPLET_ATTRS}
     if detailed:
-        for (key, vals) in DROPLET_DETAILS:
+        for key, vals in DROPLET_DETAILS:
             if key not in drop:
                 logger.warn(f"Could not find {key} attr in droplet {drop.name}/{drop.id}")
                 continue
@@ -668,7 +668,7 @@ def create(
     ssh_key: RSAKey,
     replace: bool,
 ):
-    """ creates a new droplet to run the review app """
+    """creates a new droplet to run the review app"""
     exists = get_droplet(ctx.mgr, name)
     if exists:
         logger.info(f"Found existing droplet with name {name}: id {exists.id}")
@@ -801,7 +801,7 @@ def list_apps(ctx: AppContext, json_format: bool, detailed: bool, sort_key: str)
 @click.argument("name", envvar="REVAPP_NAME", callback=format_name)
 @click.pass_obj
 def remove(ctx: AppContext, name: str):
-    """ removes an existing review app droplet """
+    """removes an existing review app droplet"""
     remove_droplet(ctx.mgr, name)
 
 

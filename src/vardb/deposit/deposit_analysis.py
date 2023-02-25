@@ -154,13 +154,11 @@ class PrefilterBatchGenerator:
         )
 
     def __next__(self):
-
         batch = list()
         # We need to look ahead one item due to nearby check,
         # so whole loop is lagging one item
         prev = None
         while True:
-
             current = next(self.generator, None)
             # None -> generator is empty
             if current is None:
@@ -197,7 +195,6 @@ class PrefilterBatchGenerator:
         proband_records = list()
         # We only import variants found in proband
         for record in batch:
-
             if record.has_allele(self.proband_sample_name):
                 proband_records.append(record)
 
@@ -270,7 +267,6 @@ class BlockIterator(object):
                 add_record_to_block = True
 
             for sample_name in self.sample_names:
-
                 # Track samples that have no coverage within a multiallelic block
                 # './.' often occurs for single records when the sample has genotype in other records,
                 # but if it is './.' in _all_ records within a block, it has no coverage at this site

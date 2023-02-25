@@ -47,7 +47,6 @@ def allele_wh():
 
 
 def update_user_config(session, username, user_config):
-
     user = session.query(user_model.User).filter(user_model.User.username == username).one()
 
     user.config = user_config

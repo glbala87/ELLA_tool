@@ -40,7 +40,6 @@ def prefilter_batch_strategy(draw, max_size=8):
     batch_size = draw(st.integers(1, max_size))
     batch = list()
     for idx in range(batch_size):
-
         pos_increment = draw(st.integers(1, NEARBY_DISTANCE + 10))
         ALLELE_POS += pos_increment
 
@@ -332,9 +331,7 @@ def test_prefilterbatchgenerator(
 
 
 @ht.given(vcf_family_strategy(6))
-@ht.settings(
-    deadline=None, max_examples=300
-)  # A bit heavy, so few tests by default
+@ht.settings(deadline=None, max_examples=300)  # A bit heavy, so few tests by default
 def test_analysis_multiple(session, vcf_data):
     global ANALYSIS_NUM
     ANALYSIS_NUM += 1

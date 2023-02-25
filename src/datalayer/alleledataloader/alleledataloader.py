@@ -331,7 +331,6 @@ class AlleleDataLoader(object):
         return segregation_results.get(analysis_id)
 
     def get_tags(self, allele_data, analysis_id=None, segregation_results=None):
-
         allele_ids_tags = defaultdict(set)
 
         for al in allele_data:
@@ -340,7 +339,6 @@ class AlleleDataLoader(object):
                 allele_ids_tags[al["id"]].add("has_references")
 
         if analysis_id:
-
             for al in allele_data:
                 allele_id = al["id"]
                 # Homozygous
@@ -488,7 +486,6 @@ class AlleleDataLoader(object):
                         f"Unhandled genotype: {g.caller_type} - {g.change_type} - {g.type}"
                     )
             else:
-
                 if g.type == "No coverage":
                     gt1 = gt2 = "."
                     genotype_id_formatted[g.id] = "/".join([gt1, gt2])
@@ -560,7 +557,6 @@ class AlleleDataLoader(object):
         return genotype_id_formatted
 
     def get_p_denovo(self, allele_ids, analysis_id):
-
         family_ids = self.segregation_filter.get_family_ids(analysis_id)
 
         if len(family_ids) != 1:
@@ -582,7 +578,6 @@ class AlleleDataLoader(object):
         )
 
     def _load_sample_data(self, alleles, analysis_id, segregation_results):
-
         allele_ids = [al["id"] for al in alleles]
         genotype_schema = GenotypeSchema()
         sample_schema = SampleSchema()
@@ -947,7 +942,6 @@ class AlleleDataLoader(object):
                     final_allele[key] = data[key]
 
             if KEY_ANNOTATION in data:
-
                 # Copy data to avoid mutating db object.
                 # json -> much faster than copy.deepcopy
                 annotation_data = json.loads(json.dumps(data[KEY_ANNOTATION][KEY_ANNOTATIONS]))

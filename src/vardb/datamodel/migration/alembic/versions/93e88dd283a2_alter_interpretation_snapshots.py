@@ -54,7 +54,6 @@ def get_interpretation_allelereport_query(interpretationtype: str) -> str:
 
 
 def upgrade():
-
     # Change overview:
     # presented_alleleassessment_id and alleleassessment_id in snapshot table
     # indicated before/after id for alleleassessment in finalization of alleles.

@@ -111,7 +111,6 @@ def sequence(draw) -> str:
 )
 @ht.given(st.one_of(positions()), st.just(None))
 def test_allele_from_record(session, positions, manually_curated_result):
-
     chrom, pos, ref, alt = positions
     record = mock_record({"CHROM": chrom, "POS": pos, "REF": ref, "ALT": alt})
 

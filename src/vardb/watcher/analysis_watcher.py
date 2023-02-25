@@ -153,7 +153,6 @@ class AnalysisWatcher(object):
         # src/vardb/watcher/testdata/analyses, the target folder for analysis will be
         # the analysis folder
         for analysis_dir in sorted(self.watch_path.iterdir()):
-
             if analysis_dir in self.processed:
                 continue
 
@@ -243,7 +242,6 @@ def start_polling(
 
 
 if __name__ == "__main__":
-
     from applogger import setup_logger
 
     setup_logger()

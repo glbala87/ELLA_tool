@@ -70,7 +70,6 @@ def test_prepare_data(session):
 
 
 def test_annotationshadowcreate(session):
-
     a1_annotation = {
         "frequencies": {"ExAC": {"freq": {"G": 0.0051}, "num": {"G": 9000}}},
         "transcripts": [

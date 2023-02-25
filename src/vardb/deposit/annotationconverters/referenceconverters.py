@@ -20,7 +20,7 @@ class RefTag(str, Enum):
 
     @classmethod
     def tag_strings(cls) -> List[str]:
-        """ Lists tags as they appear in HGMD, only used in testing """
+        """Lists tags as they appear in HGMD, only used in testing"""
         return ["" if rt is RefTag.NA else rt.name for rt in cls]
 
     NA = "Reftag not specified"

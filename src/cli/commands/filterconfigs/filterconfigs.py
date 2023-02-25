@@ -107,7 +107,6 @@ def deactivate(logger, session, filterconfig_id):
 @filterconfigs.command("list")
 @session
 def list(session):
-
     print("\nCurrent active filterconfigs:\n")
 
     q = (
