@@ -103,18 +103,8 @@ RUN apt-get update && \
 
 
 # Add our requirements files
-COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 
 USER ella-user
-
-# Standalone python
-RUN cd /dist && \
-    WORKON_HOME="/dist" python3.11 -m venv ella-python && \
-    /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
-    /dist/ella-python/bin/pipenv sync --dev
-
-# Patch supervisor, so "Clear log" is not available from UI
-# RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
 
 COPY --chown=ella-user:ella-user ./package.json /dist/package.json
 COPY --chown=ella-user:ella-user ./yarn.lock /dist/yarn.lock
@@ -122,6 +112,16 @@ COPY --chown=ella-user:ella-user ./yarn.lock /dist/yarn.lock
 RUN cd /dist &&  \
     yarn install --frozen-lockfile --non-interactive && \
     yarn cache clean
+
+# Standalone python
+COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
+RUN cd /dist && \
+    WORKON_HOME="/dist" python3.11 -m venv ella-python && \
+    /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
+    /dist/ella-python/bin/pipenv sync --dev
+
+# Patch supervisor, so "Clear log" is not available from UI
+# RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
 
 # See .dockerignore for files that won't be copied
 COPY --chown=ella-user:ella-user . /ella
