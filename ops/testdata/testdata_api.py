@@ -68,7 +68,7 @@ class HealthcheckResponse(BaseModel):
 class ApiResponse(BaseModel):
     message: Union[str, BaseModel]
     status: int = 200
-    ts: str = Field(default_factory=datetime.datetime.now)
+    ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
     error: Optional[Dict[str, Any]] = None
 
 
