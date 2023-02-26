@@ -72,6 +72,8 @@ ENV ATTACHMENT_STORAGE=/data/attachments \
 
 FROM base AS dev
 
+WORKDIR /dist
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -87,13 +89,33 @@ RUN apt-get update && \
     postgresql-contrib-${POSTGRES_VERSION} \
     unzip \
     vim \
+    # Chrome dependencies
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libxkbcommon0 \
+    libnss3 \
     && echo "Additional tools:" && \
     echo "Node v10.x:" && \
     curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get install -yqq nodejs && \
     echo "Yarn:" && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo "deb http://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
-    apt-get -yqq update && apt-get install -yqq yarn
+    apt-get -yqq update && apt-get install -yqq yarn && \
+    echo "chromium: " && \
+    curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchrome-linux.zip?alt=media > chrome_linux.zip && \
+    unzip chrome_linux.zip && \
+    ln -s /dist/chrome-linux/chrome /usr/bin/chrome && \
+    rm chrome_linux.zip && \
+    echo "chromedriver: " && \
+    curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchromedriver_linux64.zip?alt=media > chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    ln -s /dist/chromedriver_linux64/chromedriver /usr/bin/chromedriver && \
+    rm chromedriver_linux64.zip
 
 
 # Add our requirements files
@@ -103,45 +125,18 @@ USER ella-user
 COPY --chown=ella-user:ella-user ./package.json /dist/package.json
 COPY --chown=ella-user:ella-user ./yarn.lock /dist/yarn.lock
 
-RUN cd /dist &&  \
-    yarn install --frozen-lockfile --non-interactive && \
+RUN yarn install --frozen-lockfile --non-interactive && \
     yarn cache clean
-
-USER root
-
-WORKDIR /dist
-
-RUN apt-get install -y \
-    libatk-bridge2.0-0 \
-    libdrm2 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libxkbcommon0
-
-RUN curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchrome-linux.zip?alt=media > chrome_linux.zip && \
-    unzip chrome_linux.zip && \
-    ln -s /dist/chrome-linux/chrome /usr/bin/chrome && \
-    rm chrome_linux.zip
-
-RUN apt install -y libnss3 && \
-    curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchromedriver_linux64.zip?alt=media > chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip && \
-    ln -s /dist/chromedriver_linux64/chromedriver /usr/bin/chromedriver && \
-    rm chromedriver_linux64.zip
 
 USER ella-user
 # Standalone python
 COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
-RUN cd /dist && \
-    WORKON_HOME="/dist" python3.11 -m venv ella-python && \
+RUN WORKON_HOME="/dist" python3.11 -m venv ella-python && \
     /dist/ella-python/bin/pip install --no-cache-dir pipenv && \
     /dist/ella-python/bin/pipenv sync --dev
 
 # Patch supervisor, so "Clear log" is not available from UI
-# RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
+RUN sed -i -r "s/(actions = \[)(.*?)(, clearlog)(.*)/\1\2\4/g" /dist/ella-python/lib/python3.11/site-packages/supervisor/web.py
 
 # See .dockerignore for files that won't be copied
 COPY --chown=ella-user:ella-user . /ella
