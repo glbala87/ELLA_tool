@@ -9,13 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN echo 'Acquire::ForceIPv4 "true";' | tee /etc/apt/apt.conf.d/99force-ipv4
 
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa
-
-RUN apt update && \
-    apt install python3.11 python3.11-venv python3.11-dev -y
-
 ENV POSTGRES_VERSION 14
 # Install as much as reasonable in one go to reduce image size
 RUN apt-get update && \
@@ -36,8 +29,12 @@ RUN apt-get update && \
     nano \
     nginx-light \
     parallel \
-    tzdata
-RUN echo "Postgres:" && \
+    software-properties-common \
+    tzdata && \
+    echo "Python:" && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get -yqq update && apt-get install -yqq python3.11 python3.11-dev python3.11-venv && \
+    echo "Postgres:" && \
     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
     curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     apt-get -yqq update && apt-get install -y postgresql-client-${POSTGRES_VERSION} \
@@ -79,8 +76,6 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
-    chromium-browser \
-    chromium-chromedriver \
     fontconfig \
     gcc \
     graphviz \
@@ -101,7 +96,6 @@ RUN apt-get update && \
     apt-get -yqq update && apt-get install -yqq yarn
 
 
-
 # Add our requirements files
 
 USER ella-user
@@ -113,6 +107,32 @@ RUN cd /dist &&  \
     yarn install --frozen-lockfile --non-interactive && \
     yarn cache clean
 
+USER root
+
+WORKDIR /dist
+
+RUN apt-get install -y \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libxkbcommon0
+
+RUN curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchrome-linux.zip?alt=media > chrome_linux.zip && \
+    unzip chrome_linux.zip && \
+    ln -s /dist/chrome-linux/chrome /usr/bin/chrome && \
+    rm chrome_linux.zip
+
+RUN apt install -y libnss3 && \
+    curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchromedriver_linux64.zip?alt=media > chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    ln -s /dist/chromedriver_linux64/chromedriver /usr/bin/chromedriver && \
+    rm chromedriver_linux64.zip
+
+USER ella-user
 # Standalone python
 COPY --chown=ella-user:ella-user  ./Pipfile.lock /dist/Pipfile.lock
 RUN cd /dist && \
