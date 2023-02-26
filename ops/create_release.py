@@ -64,14 +64,14 @@ class Link:
 
     def save(self) -> "Link":
         """Create a link object on an existing release"""
-        assert self.id == -1, f"Can't save an existing link, use old_link.update(new_link)"
+        assert self.id == -1, "Can't save an existing link, use old_link.update(new_link)"
         log(f"Adding new link for '{self.name}'")
         resp = requests.post(self.class_url, json=self.toJSON(), headers=headers)
         if resp.status_code != 201:
             error(f"Failed to add link: {resp.status_code} - {resp.json()['message']}")
             error(f"Link: {self}")
             exit(1)
-        log(f"Link created successfully")
+        log("Link created successfully")
         return Link.from_api(resp.json())
 
     def update(self, new_link: "Link") -> "Link":
@@ -83,7 +83,7 @@ class Link:
             error(f"Failed to update link {new_link}")
             breakpoint()
             exit(1)
-        log(f"Link updated successfully")
+        log("Link updated successfully")
         return Link.from_api(resp.json())
 
     @classmethod
@@ -118,7 +118,7 @@ class ReleaseAssets:
     links: List[Link]
 
     def __post_init__(self):
-        assert len(self.links) > 0, f"Cannot instantiate empty link list"
+        assert len(self.links) > 0, "Cannot instantiate empty link list"
 
     def toJSON(self) -> Dict[Literal["links"], List[Dict[str, str]]]:
         return {"links": [l.toJSON() for l in self.links]}
@@ -155,9 +155,7 @@ class Release:
 
     def save(self) -> "Release":
         """Send API request to create Gitlab release"""
-        assert (
-            self.id == -1
-        ), f"Cannot save an existing release, use old_release.update(new_release)"
+        assert self.id == -1, "Cannot save an existing release, use old_release.update(new_release)"
         resp = requests.post(self.class_url, headers=headers, json=self.toJSON())
         if resp.status_code != 201:
             error(

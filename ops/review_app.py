@@ -226,7 +226,7 @@ class RevappEnviron:
             # write copy to /local-repo for CI debugging
             shutil.copy(self._file, LOCAL_REPO / self._file.name)
         scp_put(client, file=self._file, remote_path=remote_path)
-        logger.info(f"Uploaded env file to remote host")
+        logger.info("Uploaded env file to remote host")
 
 
 ###
@@ -374,7 +374,7 @@ def _get_transport(ssh: SSHClient):
     # this is always set after the client has connected, but checker still complains about Optional[Transport]
     t = ssh.get_transport()
     if t is None:
-        raise AttributeError(f"SSHClient has no transport object")
+        raise AttributeError("SSHClient has no transport object")
     return t
 
 
@@ -492,23 +492,23 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
 
 
 def provision_ufw(ssh: SSHClient, scp: SCPClient):
-    logger.debug(f"Checking ufw status")
+    logger.debug("Checking ufw status")
     status_resp = ssh_exec(ssh, "ufw status")
     if status_resp.stdout == UFW_STATUS_OK:
-        logger.info(f"ufw status ok, skipping")
+        logger.info("ufw status ok, skipping")
         return
 
-    logger.debug(f"moving current ufw configs")
+    logger.debug("moving current ufw configs")
     for ufw_conf in UFW_CONFIGS:
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     scp_put(scp, files=UFW_CONFIGS, remote_path="/etc/ufw/")
 
-    logger.debug(f"reloading ufw config")
+    logger.debug("reloading ufw config")
     ssh_exec(ssh, "ufw reload")
     status_resp = ssh_exec(ssh, "ufw status")
     if status_resp.stdout == UFW_STATUS_OK:
         raise ValueError(f"ufw status not matching after update: {status_resp.stdout}")
-    logger.info(f"ufw successfully configured")
+    logger.info("ufw successfully configured")
 
 
 def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[Droplet] = None):
@@ -601,7 +601,7 @@ def revapp_launch(ssh: SSHClient, scp: SCPClient, hostname: str, image_name: str
     resp = ssh_exec(ssh, exec_cmd, timeout=300)
     if resp.rc:
         logger.warn(f"Got rc {resp.rc} on command {resp.cmd}")
-        logger.warn(f"App may not have started correctly")
+        logger.warn("App may not have started correctly")
     REVAPP_BUILD_LOG.write_text(json.dumps(vars(resp), sort_keys=True, indent=4))
     logger.info(f"remote build log written to {REVAPP_BUILD_LOG}")
 

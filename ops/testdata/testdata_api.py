@@ -113,7 +113,7 @@ def _postgres_ok():
 def _supervisor_ok():
     proc = FinishedProcess.load(
         subprocess.run(
-            [f"supervisorctl", "-c", str(SUPERVISOR_CFG), "status", "dbreset"],
+            ["supervisorctl", "-c", str(SUPERVISOR_CFG), "status", "dbreset"],
             capture_output=True,
         )
     )

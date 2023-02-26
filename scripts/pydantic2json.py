@@ -359,7 +359,7 @@ def main(
 ) -> None:
     if not any([model, endpoint, dump_all]):
         err(
-            f"You must specify schema(s) to dump with --model, --endpoint or --all",
+            "You must specify schema(s) to dump with --model, --endpoint or --all",
             Error.MISSING_PARAMETER,
         )
 
@@ -409,7 +409,7 @@ def check_validators(api_model: BaseModel, model_names: Optional[List[str]] = No
 
     if errs:
         err_strs = ["\n\t".join([k, *v]) for k, v in errs.items()]
-        err("\n".join([f"Validators failed validation:", *err_strs]))
+        err("\n".join(["Validators failed validation:", *err_strs]))
     log(f"Found {requests + responses} validators ({requests} Request, {responses} Response)")
 
 

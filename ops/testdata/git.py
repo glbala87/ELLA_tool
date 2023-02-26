@@ -246,11 +246,11 @@ class Repository:
             try:
                 return self._exec(cmd)
             except subprocess.CalledProcessError:
-                err_msg = f"Checkout failed. "
+                err_msg = "Checkout failed. "
                 if self.is_shallow():
-                    err_msg += f"Repo is in shallow mode. Verify ref exists and try again with --clean and --full to clone the repo with full history."
+                    err_msg += "Repo is in shallow mode. Verify ref exists and try again with --clean and --full to clone the repo with full history."
                 else:
-                    err_msg += f"Verify '{ref}' is a valid ref and try again."
+                    err_msg += "Verify '{ref}' is a valid ref and try again."
                 bail(err_msg)
 
     def clone(
@@ -261,9 +261,9 @@ class Repository:
         force: bool = False,
     ):
         if self.offline:
-            bail(f"Cannot clone new data in offline mode")
+            bail("Cannot clone new data in offline mode")
         elif target.type is RefType.COMMIT and depth:
-            bail(f"Cannot shallow clone to a commit hash, use a tag or branch instead")
+            bail("Cannot shallow clone to a commit hash, use a tag or branch instead")
 
         if self.git_dir.exists():
             if not force:
@@ -294,7 +294,7 @@ class Repository:
 
     def pull(self):
         if self.is_shallow():
-            logger.info(f"Shallow repo and data already fetched, nothing to do")
+            logger.info("Shallow repo and data already fetched, nothing to do")
         elif self.offline:
             logger.warning(f"Running in offline mode, using existing data from {self.ref}")
         else:

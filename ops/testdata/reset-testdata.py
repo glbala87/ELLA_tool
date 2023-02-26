@@ -383,7 +383,7 @@ def reset_from_dump(db: DB, data: bytes):
 
 
 def reset(db: DB, test_set: str = "default"):
-    logger.info(f"Resetting database from script")
+    logger.info("Resetting database from script")
     drop_db(db=db, remake=True)
 
     dt = DepositTestdata(db)
