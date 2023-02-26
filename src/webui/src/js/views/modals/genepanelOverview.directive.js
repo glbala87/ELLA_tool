@@ -63,26 +63,6 @@ app.component('genepanelOverview', {
                 Object.assign($ctrl, {
                     close: () => {
                         $ctrl.closeClicked()
-                    },
-                    formatInheritance(gene) {
-                        const transcriptInheritance = [
-                            ...new Set(gene.transcripts.map((tx) => tx.inheritance).filter(Boolean))
-                        ]
-                        if (transcriptInheritance.length) {
-                            return transcriptInheritance.join(', ')
-                        }
-                        return ''
-                    },
-                    formatPhenotypes(gene) {
-                        return gene.phenotypes.map((p) => `${p.description} (${p.inheritance})`)
-                    },
-                    formatTranscripts(gene) {
-                        return gene.transcripts.map(
-                            (tx) =>
-                                `${tx.transcript_name} ${
-                                    tx.inheritance ? `(${tx.inheritance})` : ''
-                                }`
-                        )
                     }
                 })
             }

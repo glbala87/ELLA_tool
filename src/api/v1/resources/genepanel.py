@@ -1,5 +1,6 @@
 from itertools import groupby
 from typing import Any, Dict, List, Optional, Set
+from datalayer import queries
 
 from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -265,6 +266,8 @@ class GenepanelResource(LogRequestResource):
             .all()
         )
 
+        inheritances = queries.inheritance_for_genepanel(session, name, version).all()
+
         genes: Dict[int, Any] = {}
         for t in transcripts:
             if t.hgnc_id in genes:
@@ -284,6 +287,10 @@ class GenepanelResource(LogRequestResource):
                 genes[p.hgnc_id]["phenotypes"].append(
                     {"id": p.id, "inheritance": p.inheritance, "description": p.description}
                 )
+
+        for i in inheritances:
+            if i.hgnc_id in genes:
+                genes[i.hgnc_id]["inheritance"] = i.inheritance
 
         result_genes: List[Any] = list(genes.values())
         result_genes.sort(key=lambda x: x["hgnc_symbol"])

@@ -334,6 +334,39 @@ def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, g
     return hgnc_ids
 
 
+def inheritance_for_genepanel(session, genepanel_name, genepanel_version, hgnc_ids=None):
+    """
+    Fetches inheritance for all genes in a gene panel or a subset of genes in a gene panel.
+
+    Also includes the transcript name for each inheritance.
+    """
+    inheritances = (
+        session.query(
+            gene.genepanel_transcript.c.inheritance,
+            gene.Transcript.gene_id.label("hgnc_id"),
+            gene.Transcript.transcript_name,
+        )
+        .join(
+            gene.Transcript,
+            gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+        )
+        .filter(
+            gene.genepanel_transcript.c.genepanel_name == genepanel_name,
+            gene.genepanel_transcript.c.genepanel_version == genepanel_version,
+        )
+    )
+
+    if hgnc_ids is not None:
+        inheritances = inheritances.filter(
+            filters.in_(
+                session,
+                gene.Transcript.gene_id,
+                hgnc_ids,
+            )
+        )
+    return inheritances
+
+
 def allele_genepanels(session, genepanel_keys, allele_ids=None):
     result = (
         session.query(

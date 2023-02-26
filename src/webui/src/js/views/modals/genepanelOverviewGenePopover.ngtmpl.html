@@ -1,8 +1,8 @@
 <h4 class="section-title">Inheritance:</h4>
-{{ $ctrl.formatInheritance(gene) }}
+{{ gene.inheritance }}
 <h4 class="section-title">Transcripts:</h4>
-<div ng-repeat="t in $ctrl.formatTranscripts(gene)">
-    {{ t }}
+<div ng-repeat="t in gene.transcripts">
+    {{ t.transcript_name }}
 </div>
 <h4 class="section-title">Indications:</h4>
-<div ng-repeat="p in $ctrl.formatPhenotypes(gene)">{{ p }}</div>
+<div ng-repeat="p in gene.phenotypes">{{ p.description }} ({{ p.inheritance }})</div>
