@@ -38,7 +38,7 @@ run() {
 }
 
 run black --check /ella
-run mypy /ella/src/api/main.py
+run mypy /ella/src
 run flake8
 run yarn prettier -l '**/*\.@(js|scss|json|css|html|yml)'
 run yarn eslint /ella

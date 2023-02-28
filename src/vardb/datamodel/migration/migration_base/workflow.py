@@ -13,7 +13,6 @@ from vardb.util.mutjson import JSONMutableDict
 
 
 class InterpretationMixin(object):
-
     id = Column(Integer, primary_key=True)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
@@ -62,7 +61,6 @@ class InterpretationMixin(object):
 
 
 class InterpretationSnapshotMixin(object):
-
     id = Column(Integer, primary_key=True)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)

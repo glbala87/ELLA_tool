@@ -84,11 +84,6 @@ repo_is_shallow() {
     testdata_status | grep -iEq 'shallow:[[:space:]]+True'
 }
 
-###
-### general tests
-###
-
-mypy /ella/ops/testdata
 
 ###
 ### API tests

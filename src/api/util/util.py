@@ -1,5 +1,5 @@
 import atexit
-import collections
+import collections.abc
 import datetime
 import json
 import os
@@ -80,7 +80,7 @@ def dict_merge(destination: Dict, src: Mapping):
         if (
             k in destination
             and isinstance(destination[k], dict)
-            and isinstance(src[k], collections.Mapping)
+            and isinstance(src[k], collections.abc.Mapping)
         ):
             dict_merge(destination[k], src[k])
         else:
@@ -194,7 +194,6 @@ def populate_g_logging():
 
 
 def log_request(statuscode, response=None):
-
     duration = int(time.time() * 1000.0 - g.request_start_time)
     remote_addr = request.remote_addr
     payload = None
@@ -596,7 +595,7 @@ def str2intlist(val: str, *, sep=",", allow_none: bool = False) -> List[int]:
     if val is None:
         if allow_none:
             return []
-        raise ValueError(f"Can't turn None into List[int]")
+        raise ValueError("Can't turn None into List[int]")
     return [int(v.strip()) for v in val.split(sep) if v.strip()]
 
 

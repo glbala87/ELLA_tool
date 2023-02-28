@@ -81,7 +81,6 @@ def cmd_new_message(logger, session, message):
 @session
 @cli_logger()
 def cmd_deactivate_message(logger, session, message_id):
-
     message = (
         session.query(broadcast_model.Broadcast)
         .filter(broadcast_model.Broadcast.id == message_id)

@@ -44,7 +44,6 @@ class ApiV1(object):
         self.api_v1_docs.add_resource(paths[0], resource)
 
     def setup_api(self):
-
         # Expose swagger UI at /api/v1/docs
         # and expose the api spec at /api/v1/specs/
         self.api_v1_docs.init_api_docs("/api/v1/docs", "/api/v1/specs/")

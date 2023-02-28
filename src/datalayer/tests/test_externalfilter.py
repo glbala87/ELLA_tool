@@ -115,7 +115,6 @@ def external_annotation(draw):
 
 @st.composite
 def clinvar_strategy(draw):
-
     ca = draw(st.sampled_from(["benign", "uncertain", "pathogenic"]))
     op = draw(st.sampled_from(["==", "<", "<=", ">", ">="]))
     cb = draw(st.sampled_from(["benign", "uncertain", "pathogenic"] + list(range(6))))
@@ -161,7 +160,7 @@ def test_externalfilter(
 ):
     allele_ids_annotations = []
     allele_ids = []
-    for (meta_annotation, annotation) in external_annotations:
+    for meta_annotation, annotation in external_annotations:
         al, _ = mock_allele_with_annotation(session, annotations=annotation)
         allele_ids_annotations.append((al.id, meta_annotation))
         allele_ids.append(al.id)

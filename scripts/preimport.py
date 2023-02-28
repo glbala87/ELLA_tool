@@ -205,7 +205,7 @@ def _get_exon_regions(transcripts):
                 ranges.append((es, ee, exon_no + 1))
             if end:
                 break
-        for (es, ee, exon_no) in ranges:
+        for es, ee, exon_no in ranges:
             row = [v(t, es, ee, exon_no) for v in list(exon_columns.values())]
             rows.append(row)
 

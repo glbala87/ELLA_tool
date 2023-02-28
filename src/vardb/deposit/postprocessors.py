@@ -100,7 +100,6 @@ def analysis_finalize_without_findings(session, analysis, interpretation, filter
     without_findings = set(allele_ids) - set(allele_ids_without_findings) == set()
 
     if without_findings and not analysis.warnings:
-
         # Interpretation is flushed already, so we have an id
         # Log item must be created before finalization so that the dates are correct
         il = workflow.InterpretationLog(

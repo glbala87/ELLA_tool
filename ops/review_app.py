@@ -226,7 +226,7 @@ class RevappEnviron:
             # write copy to /local-repo for CI debugging
             shutil.copy(self._file, LOCAL_REPO / self._file.name)
         scp_put(client, file=self._file, remote_path=remote_path)
-        logger.info(f"Uploaded env file to remote host")
+        logger.info("Uploaded env file to remote host")
 
 
 ###
@@ -242,7 +242,7 @@ def is_optional_arg(obj, arg: str) -> bool:
 
 
 def fingerprint_key(pubkey: str) -> str:
-    """ generates the md5 hexdigest of the public key used by digitalocean """
+    """generates the md5 hexdigest of the public key used by digitalocean"""
     pub_digest = hashlib.md5(b64decode(pubkey.encode("utf-8"))).hexdigest()
     return ":".join([pub_digest[i : i + 2] for i in range(0, len(pub_digest), 2)])
 
@@ -318,7 +318,7 @@ def retry(
                     return f(*args, **kwargs)
                 except catch_exc as e:
                     err_list.append(e)
-                    backoff = delay * 2 ** retry_num
+                    backoff = delay * 2**retry_num
                     logger.error(f"{type(e).__name__}: {e}")
                     retry_num += 1
                     if try_again(retry_num):
@@ -374,7 +374,7 @@ def _get_transport(ssh: SSHClient):
     # this is always set after the client has connected, but checker still complains about Optional[Transport]
     t = ssh.get_transport()
     if t is None:
-        raise AttributeError(f"SSHClient has no transport object")
+        raise AttributeError("SSHClient has no transport object")
     return t
 
 
@@ -386,7 +386,7 @@ def ssh_exec(
     timeout: int = SSH_DEFAULT_TIMEOUT,
     bufsize: int = -1,
 ):
-    """ executes the command, returning formatted output and optionally checking success (default) """
+    """executes the command, returning formatted output and optionally checking success (default)"""
     logger.debug(f"Executing '{cmd}'")
 
     # SSHClient.exec_command does not allow checking the return code from what was executed, so we
@@ -492,23 +492,23 @@ def provision_droplet(droplet: Droplet, pkey: RSAKey, image_name: str):
 
 
 def provision_ufw(ssh: SSHClient, scp: SCPClient):
-    logger.debug(f"Checking ufw status")
+    logger.debug("Checking ufw status")
     status_resp = ssh_exec(ssh, "ufw status")
     if status_resp.stdout == UFW_STATUS_OK:
-        logger.info(f"ufw status ok, skipping")
+        logger.info("ufw status ok, skipping")
         return
 
-    logger.debug(f"moving current ufw configs")
+    logger.debug("moving current ufw configs")
     for ufw_conf in UFW_CONFIGS:
         ssh_exec(ssh, f"mv /etc/ufw/{ufw_conf.name} /etc/ufw/{ufw_conf.name}.old")
     scp_put(scp, files=UFW_CONFIGS, remote_path="/etc/ufw/")
 
-    logger.debug(f"reloading ufw config")
+    logger.debug("reloading ufw config")
     ssh_exec(ssh, "ufw reload")
     status_resp = ssh_exec(ssh, "ufw status")
     if status_resp.stdout == UFW_STATUS_OK:
         raise ValueError(f"ufw status not matching after update: {status_resp.stdout}")
-    logger.info(f"ufw successfully configured")
+    logger.info("ufw successfully configured")
 
 
 def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[Droplet] = None):
@@ -539,7 +539,7 @@ def remove_droplet(mgr: Manager, name: Optional[str] = None, droplet: Optional[D
 def trim_droplet(drop: Droplet, detailed=False) -> Dict:
     new_drop = {a: getattr(drop, a) for a in DROPLET_ATTRS}
     if detailed:
-        for (key, vals) in DROPLET_DETAILS:
+        for key, vals in DROPLET_DETAILS:
             if key not in drop:
                 logger.warn(f"Could not find {key} attr in droplet {drop.name}/{drop.id}")
                 continue
@@ -601,7 +601,7 @@ def revapp_launch(ssh: SSHClient, scp: SCPClient, hostname: str, image_name: str
     resp = ssh_exec(ssh, exec_cmd, timeout=300)
     if resp.rc:
         logger.warn(f"Got rc {resp.rc} on command {resp.cmd}")
-        logger.warn(f"App may not have started correctly")
+        logger.warn("App may not have started correctly")
     REVAPP_BUILD_LOG.write_text(json.dumps(vars(resp), sort_keys=True, indent=4))
     logger.info(f"remote build log written to {REVAPP_BUILD_LOG}")
 
@@ -668,7 +668,7 @@ def create(
     ssh_key: RSAKey,
     replace: bool,
 ):
-    """ creates a new droplet to run the review app """
+    """creates a new droplet to run the review app"""
     exists = get_droplet(ctx.mgr, name)
     if exists:
         logger.info(f"Found existing droplet with name {name}: id {exists.id}")
@@ -801,7 +801,7 @@ def list_apps(ctx: AppContext, json_format: bool, detailed: bool, sort_key: str)
 @click.argument("name", envvar="REVAPP_NAME", callback=format_name)
 @click.pass_obj
 def remove(ctx: AppContext, name: str):
-    """ removes an existing review app droplet """
+    """removes an existing review app droplet"""
     remove_droplet(ctx.mgr, name)
 
 

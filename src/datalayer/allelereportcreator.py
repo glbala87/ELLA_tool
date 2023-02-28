@@ -61,7 +61,6 @@ class AlleleReportCreator(object):
         alleleassessment: assessment.AlleleAssessment = None,
         analysis_id: int = None,
     ) -> Tuple[assessment.AlleleReport, bool]:
-
         assert allelereport["allele_id"] == allele_id
 
         existing_report: Optional[assessment.AlleleReport] = (

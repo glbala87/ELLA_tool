@@ -5,7 +5,6 @@ import sqlalchemy as sa
 
 @contextmanager
 def update_enum(op, table_names, column, enum_name, old_options, new_options, nullable=False):
-
     if not isinstance(table_names, list):
         table_names = [table_names]
 

@@ -37,7 +37,6 @@ class WorkflowHelper(object):
     def __init__(
         self, workflow_type, workflow_id, genepanel_name, genepanel_version, filterconfig_id=None
     ):
-
         assert genepanel_name and genepanel_version
 
         if workflow_type == "analysis" and not filterconfig_id:
@@ -167,7 +166,6 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
     def perform_finalize_round(self, interpretation, comment):
-
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
@@ -286,7 +284,6 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
     def perform_reopened_round(self, interpretation, comment):
-
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
@@ -425,7 +422,6 @@ class WorkflowHelper(object):
         )
 
     def check_finalize_allele(self, allele_id, interpretation):
-
         # Check alleleassessment in database
         state_alleleassessment = next(
             a for a in interpretation["state"]["alleleassessments"] if a["allele_id"] == allele_id

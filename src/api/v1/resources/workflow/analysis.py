@@ -41,7 +41,6 @@ class AnalysisStatsResource(LogRequestResource):
     @authenticate()
     @validate_output(AnalysisStatsResponse)
     def get(self, session: Session, analysis_id: int, user: user.User):
-
         # Number of alleles
         allele_count = (
             session.query(allele.Allele.id)

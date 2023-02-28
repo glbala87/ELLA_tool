@@ -23,7 +23,6 @@ from vardb.util.extended_query import ExtendedQuery
 
 
 class SearchQuery:
-
     RE_POSITION_WITH_CHR = re.compile(
         r"^(chr)?((?P<chr>[1-9]{1,2}|[XY]{1}|MT):)(?P<pos1>[0-9]+)(-(?P<pos2>[0-9]+))?$"
     )
@@ -134,7 +133,6 @@ class SearchQuery:
 
 
 class SearchResource(LogRequestResource):
-
     # Matches:
     # 14:234234234-123123123
     # chr14:143000-234234
@@ -499,7 +497,6 @@ class SearchResource(LogRequestResource):
         per_page: int = 10,
         limit: int = None,
     ):
-
         # CTE for performance
         allele_results_ids = self._get_allele_results_ids(session, search_query)
         if limit:
@@ -555,7 +552,6 @@ class SearchResource(LogRequestResource):
 
 
 class SearchOptionsResource(LogRequestResource):
-
     RESULT_LIMIT = 20
 
     @validate_output(SearchOptionsResponse)

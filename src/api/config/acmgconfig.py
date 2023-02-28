@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-acmgconfig = {
+acmgconfig: dict[str, dict] = {
     "formatting": {
         "operators": {
             "$in": "=",

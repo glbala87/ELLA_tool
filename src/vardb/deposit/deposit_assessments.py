@@ -61,7 +61,6 @@ class DepositAssessments(object):
     def import_vcf(
         self, path, genepanel_name=None, genepanel_version=None, update_annotations=True
     ):
-
         vi = vcfiterator.VcfIterator(path)
 
         self.get_genepanel(genepanel_name, genepanel_version)

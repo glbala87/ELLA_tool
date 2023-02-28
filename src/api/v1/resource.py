@@ -25,7 +25,6 @@ FILTER_OPERATORS = {
 
 
 class Resource(flask_resource):
-
     method_decorators = [logger(hide_payload=True), provide_session]
 
     def _filter(self, query, model, rest_filter):

@@ -63,7 +63,6 @@ def get_genotype_temp_table(
         genotypesampledata_extras = {}
 
     def create_query(secondallele=False):
-
         samples = (
             session.query(sample.Sample)
             .filter(

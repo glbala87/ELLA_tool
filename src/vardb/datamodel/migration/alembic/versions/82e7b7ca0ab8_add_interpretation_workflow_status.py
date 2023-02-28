@@ -51,7 +51,6 @@ def migrate_interpretations(conn, model, id_attr):
         )
 
         for idx, i in enumerate(interpretations):
-
             values = {
                 # In old format, any round (except first) is a review
                 "workflow_status": "Interpretation"
@@ -65,7 +64,6 @@ def migrate_interpretations(conn, model, id_attr):
 
 
 def upgrade():
-
     conn = op.get_bind()
 
     workflow_status = sa.Enum(

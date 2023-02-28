@@ -11,7 +11,6 @@ log = logging.getLogger(__name__)
 
 
 def import_groups(session, groups, log=log.info):
-
     # Store import_groups data (has to be inserted after groups)
     import_groups: Dict[str, List[str]] = dict()
 
@@ -75,7 +74,6 @@ def import_groups(session, groups, log=log.info):
     usergroup_id_names = session.query(user.UserGroup.id, user.UserGroup.name).all()
     usergroup_name_id = {gn: gid for gid, gn in usergroup_id_names}
     for group_name, import_group_names in import_groups.items():
-
         # Delete all usergroupimport rows for this group before re-inserting new
         session.execute(
             user.UserGroupImport.delete().where(
@@ -94,7 +92,6 @@ def import_groups(session, groups, log=log.info):
 
 
 def import_users(session, users):
-
     for u in users:
         existing_user = (
             session.query(user.User).filter(user.User.username == u["username"]).one_or_none()

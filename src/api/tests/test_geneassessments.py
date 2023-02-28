@@ -11,7 +11,6 @@ def check_geneassessment(result, payload, previous_assessment_id=None):
 
 
 def test_create_assessment(session, client, test_database):
-
     test_database.refresh()
 
     # Insert new geneassessment with analysis_id

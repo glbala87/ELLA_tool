@@ -18,7 +18,7 @@ log "Dumping json schemas to $json_schemas..."
 python3 "$DIR/pydantic2json.py" --all --output "$json_schemas"
 
 log "Generating typescript from json schemas..."
-npx --package=json-schema-to-typescript -c "json2ts -i $json_schemas" | sed 's/: unknown\b/: any/g' >"$ts_interfaces"
+npx --package=json-schema-to-typescript@10.1.5 -c "json2ts -i $json_schemas" | sed 's/: unknown\b/: any/g' >"$ts_interfaces"
 log "Conversion complete!\n"
 
 log "TypeScript interfaces available in $ts_interfaces"

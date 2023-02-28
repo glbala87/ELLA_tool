@@ -78,7 +78,6 @@ def upgrade():
 
 
 def downgrade():
-
     conn = op.get_bind()
     session = Session(bind=conn)
     # Drop trigger that disallows modification on annotation.annotations.

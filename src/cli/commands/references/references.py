@@ -12,7 +12,6 @@ def references():
 @references.command("fetch")
 @click.argument("pubmed_ids", type=click.Path(exists=True), required=True)
 def cmd_references_fetch(pubmed_ids):
-
     d = datetime.datetime.now()
 
     output = "references-" + d.strftime("%y%m%d") + ".txt"

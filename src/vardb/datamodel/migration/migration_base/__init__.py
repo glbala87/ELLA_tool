@@ -1,3 +1,4 @@
+from typing import Any
 from vardb.util import DB
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -51,7 +52,7 @@ convention = {
 }
 
 
-Base = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
+Base: Any = declarative_base(cls=CustomBase)  # NB! Use this Base instance always.
 Base.metadata = MetaData(naming_convention=convention)
 make_searchable(Base.metadata)  # Create triggers to keep search vectors up to date
 

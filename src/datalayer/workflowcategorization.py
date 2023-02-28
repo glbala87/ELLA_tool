@@ -57,7 +57,6 @@ def get_categorized_analyses(session: Session, user: Optional[user.User] = None)
 def get_finalized_analysis_ids(
     session: Session, user: user.User, page: Optional[int] = None, per_page: Optional[int] = None
 ):
-
     user_analysis_ids = queries.analysis_ids_for_user(session, user)
 
     sorted_analysis_ids = (

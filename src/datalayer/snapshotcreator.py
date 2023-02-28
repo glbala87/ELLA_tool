@@ -31,7 +31,6 @@ class SnapshotCreator(object):
         allelereport_ids: Sequence[int],
         excluded_allele_ids: Dict = None,
     ) -> Sequence[Dict]:
-
         excluded: Dict = {}
 
         if interpretation_snapshot_model == "analysis":

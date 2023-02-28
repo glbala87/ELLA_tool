@@ -30,7 +30,6 @@ ALL_CATEGORIES = [
 
 
 class Sample:
-
     name = None
     sex = None
     proband = False
@@ -851,7 +850,13 @@ class TestInheritanceFilter(object):
         [],
     )
     @ht.given(compound_heterozygous_strategy(), st.just(None))
-    @ht.settings(deadline=None, suppress_health_check=[ht.HealthCheck.filter_too_much])
+    @ht.settings(
+        deadline=None,
+        suppress_health_check=[
+            ht.HealthCheck.filter_too_much,
+            ht.HealthCheck.function_scoped_fixture,
+        ],
+    )
     def test_compound_heterozygous(self, session, entries, manually_curated_result):
         # Hypothesis reuses session, make sure it's rolled back
         session.rollback()
@@ -1475,7 +1480,6 @@ class TestInheritanceFilter(object):
 
     @ht.given(st.lists(st.sampled_from(ALL_CATEGORIES), unique=True), st.booleans())
     def test_filter_alleles(self, session, categories, has_parents):
-
         session.rollback()
 
         sf = SegregationFilter(session, GLOBAL_CONFIG)

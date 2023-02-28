@@ -66,7 +66,7 @@ def encode_multipart_formdata(fields, files):
     LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10)).decode()
     CRLF = "\r\n"
     L = []
-    for (key, value) in fields.items():
+    for key, value in fields.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append("")
@@ -77,7 +77,7 @@ def encode_multipart_formdata(fields, files):
                 value = value + '"'
         value = str(value)
         L.append(value)
-    for (key, (filename, value)) in files.items():
+    for key, (filename, value) in files.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
         L.append("Content-Type: application/octet-stream")
@@ -416,7 +416,6 @@ def polling(session):
 
 
 if __name__ == "__main__":
-
     from applogger import setup_logger
 
     setup_logger()

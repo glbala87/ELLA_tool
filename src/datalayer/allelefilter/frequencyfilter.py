@@ -49,7 +49,6 @@ class FrequencyFilter(object):
         threshold_func: Callable,
         combine_func: Callable,
     ) -> BooleanClauseList:
-
         filters = list()
         for (
             group,
@@ -175,7 +174,6 @@ class FrequencyFilter(object):
         threshold_func: Callable,
         combine_func: Callable,
     ) -> Dict[Tuple[str, str], BooleanClauseList]:
-
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
         # Filter config could be loaded from json and have string keys for 'genes'
@@ -190,7 +188,6 @@ class FrequencyFilter(object):
             gp_key,
             allele_ids,
         ) in gp_allele_ids.items():  # loop over every genepanel, with related genes
-
             # Create the different kinds of frequency filters
             #
             # We have three types of filters:
@@ -215,7 +212,6 @@ class FrequencyFilter(object):
             # 1. Gene specific thresholds
             gene_specific_allele_ids = set()
             if per_gene_hgnc_ids:
-
                 # Optimization: adding filters for genes not present in our alleles
                 # is costly -> only filter the symbols
                 # that overlap with the alleles in question.
@@ -444,7 +440,6 @@ class FrequencyFilter(object):
         }
 
         for commonness_group, result in commonness_result.items():
-
             # Create query filter this genepanel
             gp_filters = self._create_freq_filter(
                 filter_config,

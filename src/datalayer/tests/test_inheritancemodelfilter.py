@@ -92,7 +92,6 @@ def inheritance_model_data(draw):
 
 
 def reset_analyses(session):
-
     session.execute("DELETE FROM interpretationlog")
     session.execute("DELETE FROM analysisinterpretation")
     session.execute("DELETE FROM genotypesampledata")
@@ -348,7 +347,6 @@ class TestInheritanceModelFilter(object):
     )  # Multiple samples with same variant, conflicting genotype, one homozygous
     @ht.given(inheritance_model_data(), st.just(None))
     def test_recessive_candidates(self, session, data, manually_curated_result):
-
         session.rollback()
 
         analysis_id, allele_ids = setup_fixtures(session, data)

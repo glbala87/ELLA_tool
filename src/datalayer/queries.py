@@ -258,7 +258,6 @@ def analysis_ids_for_user(session, user):
 
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):
-
     interpretationlog_filters = [~getattr(workflow.InterpretationLog, field).is_(None)]
     if model_ids:
         interpretationlog_filters.append(
@@ -338,7 +337,6 @@ def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, g
 
 
 def allele_genepanels(session, genepanel_keys, allele_ids=None):
-
     result = (
         session.query(
             allele.Allele.id.label("allele_id"),
@@ -381,7 +379,6 @@ def annotation_transcripts_genepanel(
     allele_ids: Sequence[int] = None,
     annotation_ids: Sequence[int] = None,
 ) -> ExtendedQuery:
-
     """
     Returns a joined representation of annotation transcripts against genepanel transcripts
     for given genepanel_keys.

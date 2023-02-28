@@ -753,7 +753,6 @@ class SegregationFilter(object):
         return set([a[0] for a in compound_heterozygous_allele_ids.all()])
 
     def no_coverage_father_mother(self, genotype_table, father_sample_id, mother_sample_id):
-
         if not father_sample_id or not mother_sample_id:
             return set()
 
@@ -839,7 +838,6 @@ class SegregationFilter(object):
         return proband_sample
 
     def get_father_sample(self, proband_sample):
-
         father_sample = (
             self.session.query(sample.Sample)
             .filter(sample.Sample.id == proband_sample.father_id)
@@ -849,7 +847,6 @@ class SegregationFilter(object):
         return father_sample
 
     def get_mother_sample(self, proband_sample):
-
         mother_sample = (
             self.session.query(sample.Sample)
             .filter(sample.Sample.id == proband_sample.mother_id)
@@ -859,7 +856,6 @@ class SegregationFilter(object):
         return mother_sample
 
     def get_siblings_samples(self, proband_sample, affected=False):
-
         siblings_samples = (
             self.session.query(sample.Sample)
             .filter(
@@ -875,10 +871,8 @@ class SegregationFilter(object):
     def get_segregation_results(
         self, analysis_allele_ids: Dict[int, List[int]], filter_config: Dict[str, Any]
     ) -> Dict[int, Dict[str, Set[int]]]:
-
         result: Dict[int, Dict[str, Set[int]]] = dict()
         for analysis_id, allele_ids in analysis_allele_ids.items():
-
             family_ids = self.get_family_ids(analysis_id)
 
             # All filters below need a family data set to work on
