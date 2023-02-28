@@ -351,9 +351,6 @@ def load_genepanel_for_allele_ids(
             gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
         )
         .filter(
-            filters.in_(
-                session, gene.genepanel_transcript.c.transcript_id, [tx.id for tx in transcripts]
-            ),
             gene.genepanel_transcript.c.genepanel_name == gp_name,
             gene.genepanel_transcript.c.genepanel_version == gp_version,
         )
