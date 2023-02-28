@@ -32,10 +32,16 @@ For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blo
 Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version.
 
 ### All changes
-<!-- MR !711 -->
-- Added support for bigBed file format.
 <!-- MR !693 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
+<!-- MR !711 -->
+- Added support for bigBed file format.
+<!-- MR !716 -->
+- Removed config option for disallowing Technical and Not relevant for Finalize (set to always allowed).
+<!-- MR !727 -->
+- Upgraded Python to v3.11 and pydantic to v1.10.5.
+<!-- MR !731 -->
+- Updated parser and fetcher for PubMed records.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !632 Added typing to all of our API endpoints
@@ -51,7 +57,7 @@ MR !714 Tech doc improvements; includes Makefile and testdata changes
 MR !715 Do not navigate on frontend from the backend
 MR !725 Fixed types used with validation turned off
 -->
-- Fixes and improvements to development environment and code base. 
+- Fixes and improvements to development environment and code base.
 
 ## Version 1.16.5
 
@@ -117,7 +123,6 @@ This is a bugfix release.
 
 <!-- MR !679-->
 - Fixed a bug where genotype display is not shown in allele bar
-
 
 ## Version 1.16.1
 
