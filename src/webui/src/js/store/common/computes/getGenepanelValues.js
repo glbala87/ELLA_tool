@@ -17,7 +17,10 @@ export default (genepanel) => {
             return result
         }
 
-        const uniqueHgncIds = new Set(genepanel.transcripts.map((t) => t.gene.hgnc_id))
+        const uniqueHgncIds = new Set([
+            ...genepanel.transcripts.map((t) => t.gene.hgnc_id),
+            ...genepanel.phenotypes.map((p) => p.gene.hgnc_id)
+        ])
         for (let hgncId of uniqueHgncIds) {
             result[hgncId] = {}
 
