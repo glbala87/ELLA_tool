@@ -44,7 +44,7 @@ class TranscriptRecord(BaseModel):
 
     @validator("tags", pre=True)
     def validate_tags(cls, v):
-        if v is None:
+        if v == "" or v is None:
             return None
         return [x.strip() for x in v.split(",")]
 

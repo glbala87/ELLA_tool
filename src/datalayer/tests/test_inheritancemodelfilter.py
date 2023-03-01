@@ -48,7 +48,7 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
                 transcript_name=f"NM_{tx_idx}",
                 type="RefSeq",
                 genome_reference="",
-                source="test",
+                tags=None,
                 chromosome="1",
                 tx_start=1000,
                 tx_end=1500,

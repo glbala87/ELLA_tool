@@ -87,7 +87,7 @@ def create_genepanel(session):
         transcript_name="NM_1",
         type="RefSeq",
         genome_reference="",
-        source="test",
+        tags=None,
         chromosome="1",
         tx_start=1000,
         tx_end=1500,

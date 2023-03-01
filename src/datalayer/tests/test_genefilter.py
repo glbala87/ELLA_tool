@@ -27,7 +27,7 @@ def create_genepanel(session, hgnc_ids_transcripts):
             transcript_name=transcript_name,
             type="RefSeq",
             genome_reference="",
-            source="test",
+            tags=None,
             chromosome="1",
             tx_start=1000,
             tx_end=1500,
