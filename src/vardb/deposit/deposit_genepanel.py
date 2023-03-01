@@ -26,10 +26,9 @@ class TranscriptRecord(BaseModel):
     name: str = Field(alias="name")
     # score: float = Field(default=0.0, alias="score")
     strand: str = Field(default="+", alias="strand")
-    source: str = Field(default="custom", alias="source")
+    tags: Optional[List[str]] = Field(default=None, alias="tags")
     hgnc_id: int = Field(alias="HGNC id")
     gene_symbol: str = Field(alias="HGNC symbol")
-    gene_aliases: str = Field(alias="gene aliases")
     inheritance: str = Field(alias="inheritance")
     coding_start: Optional[int] = Field(default=None, alias="coding start")
     coding_end: Optional[int] = Field(default=None, alias="coding end")
@@ -43,6 +42,12 @@ class TranscriptRecord(BaseModel):
             return None
         return [int(x) for x in v.split(",") if x]
 
+    @validator("tags", pre=True)
+    def validate_tags(cls, v):
+        if v is None:
+            return None
+        return [x.strip() for x in v.split(",")]
+
     def as_row(self, genome_ref: str):
         return {
             "gene_id": self.hgnc_id,  # foreign key to gene
@@ -52,7 +57,7 @@ class TranscriptRecord(BaseModel):
             "tx_start": self.start,
             "tx_end": self.end,
             "strand": self.strand,
-            "source": self.source,
+            "tags": self.tags,
             "cds_start": self.coding_start,
             "cds_end": self.coding_end,
             "exon_starts": self.exon_starts,
@@ -368,7 +373,7 @@ def main(argv=None):
     """
     Example:
         ./deposit_genepanel.py \
-            --transcripts=./clinicalGenePanels/HBOC/HBOC_genes_transcripts_regions.tsv \
+            --transcripts=./clinicalGenePanels/HBOC/HBOC_genes_transcripts.tsv \
             --phenotypes=./clinicalGenePanels/HBOC/HBOC_phenotypes.tsv \
     """
     argv = argv or sys.argv[1:]

@@ -104,7 +104,7 @@ for gp_item in GP_DIR.iterdir():
         continue
     GENEPANELS.append(
         GenepanelInfo(
-            gp_item / f"{gp_item.name}_genes_transcripts_regions.tsv",
+            gp_item / f"{gp_item.name}_genes_transcripts.tsv",
             gp_item / f"{gp_item.name}_phenotypes.tsv",
             *gp_item.name.split("_"),
         )

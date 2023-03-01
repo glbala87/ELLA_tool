@@ -19,7 +19,7 @@ To add a new gene panel, run the following command:
 ella-cli deposit genepanel --folder <path to gene panel directory>
 ```
 
-Note that `<PanelName>_<version>_genes_transcripts_regions_tsv` and
+Note that `<PanelName>_<version>_genes_transcripts.tsv` and
 `<PanelName>_<version>_phenotypes.tsv` files are required.
 
 - Examples are available in the test data at
