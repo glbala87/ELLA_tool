@@ -1,4 +1,4 @@
-"""Create transcript inheritance
+"""Support gene panels from GPB (Gene Panel Builder)
 
 Revision ID: 88b3cbf57659
 Revises: 1675e8d8b078
@@ -118,16 +118,12 @@ def upgrade():
         assert legacy_ar_genes == new_ar_genes
 
     conn.execute("ALTER TABLE genepanel_transcript ALTER COLUMN inheritance SET NOT NULL")
-    conn.execute("ALTER TABLE transcript ADD COLUMN source text NOT NULL DEFAULT ('Ensembl')")
+    conn.execute("ALTER TABLE transcript ADD COLUMN tags text[]")
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_refseq")
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_ensembl")
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_lrg")
 
 
 def downgrade():
-    conn = op.get_bind()
-    conn.execute("ALTER TABLE genepanel_transcript DROP COLUMN inheritance")
-    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_refseq text")
-    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_ensembl text")
-    conn.execute("ALTER TABLE transcript ADD COLUMN corresponding_lrg text")
-    conn.execute("ALTER TABLE transcript DROP COLUMN source")
+    # Downgrade not supported, since we no longer have the information (e.g. corresponding_ensembl)
+    raise NotImplementedError("Downgrade not supported")
