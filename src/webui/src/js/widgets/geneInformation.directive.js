@@ -71,10 +71,12 @@ app.component('geneInformation', {
                             ? $ctrl.userGeneAssessment.evaluation
                             : $ctrl.geneAssessment.evaluation
                     },
-                    getTranscriptInheritance(transcript_name) {
-                        return $ctrl.inheritances.find(
-                            (inh) => inh.transcript_name === transcript_name
-                        ).inheritance
+                    getTranscriptTags(transcript) {
+                        console.log(transcript)
+                        if (transcript.tags && transcript.tags.length) {
+                            return `• ${transcript.tags.join(', ')}`
+                        }
+                        return ''
                     },
                     isCommmentEditable() {
                         // If there's a userGeneAssessment, it's per definition

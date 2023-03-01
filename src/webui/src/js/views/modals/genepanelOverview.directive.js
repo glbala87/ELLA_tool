@@ -63,6 +63,13 @@ app.component('genepanelOverview', {
                 Object.assign($ctrl, {
                     close: () => {
                         $ctrl.closeClicked()
+                    },
+                    getTranscriptTags(transcript) {
+                        console.log(transcript)
+                        if (transcript.tags && transcript.tags.length) {
+                            return `• ${transcript.tags.join(', ')}`
+                        }
+                        return ''
                     }
                 })
             }

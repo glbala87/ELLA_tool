@@ -9,3 +9,4 @@ docs/
 ella-testdata/
 src/webui/build/
 src/webui/src/thirdparty/
+.devcontainer

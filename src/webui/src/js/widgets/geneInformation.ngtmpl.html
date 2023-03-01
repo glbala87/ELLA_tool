@@ -34,7 +34,8 @@
     <ul class="popover-list indented">
         <li>
             <span ng-repeat="tx in $ctrl.genepanelValues[$ctrl.hgncId].transcripts">
-                {{ tx.transcript_name }} ({{ $ctrl.getTranscriptInheritance(tx.transcript_name) }})
+                {{ tx.transcript_name }}
+                <span> {{ $ctrl.getTranscriptTags(tx) }}</span>
             </span>
         </li>
     </ul>

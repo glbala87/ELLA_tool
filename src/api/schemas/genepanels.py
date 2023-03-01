@@ -31,6 +31,7 @@ class TranscriptFullSchema(Schema):
             "tx_start",
             "tx_end",
             "strand",
+            "tags",
             "cds_start",
             "cds_end",
             "exon_starts",

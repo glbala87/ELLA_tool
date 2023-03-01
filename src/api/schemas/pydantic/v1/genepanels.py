@@ -41,6 +41,7 @@ class TranscriptFull(Transcript):
 class TranscriptAlternative(BaseModel):
     id: int
     transcript_name: str
+    tags: Optional[List[str]]
 
 
 class PhenotypeBasic(BaseModel):

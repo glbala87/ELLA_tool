@@ -2,7 +2,7 @@
 {{ gene.inheritance }}
 <h4 class="section-title">Transcripts:</h4>
 <div ng-repeat="t in gene.transcripts">
-    {{ t.transcript_name }}
+    {{ t.transcript_name }} {{ $ctrl.getTranscriptTags(t) }}
 </div>
 <h4 class="section-title">Indications:</h4>
 <div ng-repeat="p in gene.phenotypes">{{ p.description }} ({{ p.inheritance }})</div>
