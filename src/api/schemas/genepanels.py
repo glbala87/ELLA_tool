@@ -7,12 +7,6 @@ class GeneSchema(Schema):
         fields = ("hgnc_id", "hgnc_symbol")
 
 
-class GeneFullSchema(Schema):
-    class Meta:
-        title = "Gene"
-        fields = ("hgnc_id", "hgnc_symbol", "ensembl_gene_id", "omim_entry_id")
-
-
 class TranscriptSchema(Schema):
     class Meta:
         title = "Transcript"
@@ -39,7 +33,7 @@ class TranscriptFullSchema(Schema):
             "gene",
         )
 
-    gene = fields.Nested(GeneFullSchema)
+    gene = fields.Nested(GeneSchema)
 
 
 class PhenotypeSchema(Schema):
@@ -55,7 +49,7 @@ class PhenotypeFullSchema(Schema):
         title = "Phenotype"
         fields = ("id", "description", "inheritance", "omim_id", "gene")
 
-    gene = fields.Nested(GeneFullSchema)
+    gene = fields.Nested(GeneSchema)
 
 
 class GenepanelFullSchema(Schema):

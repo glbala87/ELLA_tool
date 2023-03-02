@@ -122,6 +122,8 @@ def upgrade():
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_refseq")
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_ensembl")
     conn.execute("ALTER TABLE transcript DROP COLUMN corresponding_lrg")
+    conn.execute("ALTER TABLE gene DROP column omim_entry_id")
+    conn.execute("ALTER TABLE gene DROP column ensemble_gene_id")
 
 
 def downgrade():

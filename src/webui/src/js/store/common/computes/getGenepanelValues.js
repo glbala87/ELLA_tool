@@ -1,6 +1,6 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import { findGeneConfigOverride, getOmimEntryId } from '../../common/helpers/genepanel'
+import { findGeneConfigOverride } from '../../common/helpers/genepanel'
 
 /**
  * Calculates various genepanel information for every gene
@@ -55,7 +55,6 @@ export default (genepanel) => {
                 }
             }
 
-            result[hgncId].omimEntryId = getOmimEntryId(hgncId, genepanel)
             result[hgncId].phenotypes = genepanel.phenotypes.filter(
                 (p) => p.gene.hgnc_id === hgncId
             )

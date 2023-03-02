@@ -57,8 +57,6 @@ Gene = table(
     "gene",
     column("hgnc_id", sa.Integer()),
     column("hgnc_symbol", sa.String()),
-    column("ensembl_gene_id", sa.String()),
-    column("omim_entry_id", sa.Integer()),
 )
 
 

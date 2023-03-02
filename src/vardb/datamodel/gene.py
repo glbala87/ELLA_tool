@@ -29,8 +29,6 @@ class Gene(Base):
 
     hgnc_id = Column(Integer, primary_key=True)
     hgnc_symbol = Column(String, nullable=False)
-    ensembl_gene_id = Column(String, unique=True)
-    omim_entry_id = Column(Integer)
 
     __table_args__ = (
         Index(

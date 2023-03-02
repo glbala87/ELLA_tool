@@ -12,18 +12,13 @@ class Gene(BaseModel):
     hgnc_symbol: str
 
 
-class GeneFull(Gene):
-    ensembl_gene_id: Optional[str] = None
-    omim_entry_id: Optional[int] = None
-
-
 class Transcript(BaseModel):
     transcript_name: str
     gene: Gene
 
 
 class TranscriptFull(Transcript):
-    gene: GeneFull
+    gene: Gene
     corresponding_refseq: Optional[str]
     corresponding_ensembl: Optional[str]
     corresponding_lrg: Optional[str]
@@ -60,7 +55,7 @@ class PhenotypeAlternative(PhenotypeBasic):
 class PhenotypeFull(PhenotypeBasic):
     description: str
     omim_id: int
-    gene: GeneFull
+    gene: Gene
 
 
 class GenepanelBasic(BaseModel):
