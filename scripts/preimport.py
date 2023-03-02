@@ -26,7 +26,7 @@ Transcript = table(
     column("transcript_name", sa.String()),
     column("type", sa.String()),
     column("genome_reference", sa.String()),
-    column("source", sa.String()),
+    column("tags", sa.ARRAY(sa.String())),
     column("chromosome", sa.String()),
     column("tx_start", sa.Integer()),
     column("tx_end", sa.Integer()),
@@ -108,17 +108,24 @@ chr_int_map = dict(list(zip([str(x) for x in range(1, 23)] + ["X", "Y", "MT"], l
 
 
 def sort_rows(r1, r2):
-    if r1[0] != r2[0]:
-        return chr_int_map[r1[0]] - chr_int_map[r2[0]]
-    else:
-        return int(r1[1]) - int(r2[1])
+    r1_chrom, r1_start, r1_end = r1[0], int(r1[1]), int(r1[2])
+    r2_chrom, r2_start, r2_end = r2[0], int(r2[1]), int(r2[2])
+    if r1 == r2:
+        return 0
+    elif (r1_chrom, r1_start, r1_end) == (r2_chrom, r2_start, r2_end):
+        return -1 if tuple(r1) < tuple(r2) else 1
+    elif chr_int_map[r1_chrom] != chr_int_map[r2_chrom]:
+        return chr_int_map[r1_chrom] - chr_int_map[r2_chrom]
+    elif r1_start != r2_start:
+        return r1_start - r2_start
+    elif r1_end != r2_end:
+        return r1_end - r2_end
 
 
 def _get_phenotype_data(phenotypes):
     phenotypes_columns = OrderedDict()
     phenotypes_columns["HGNC id"] = lambda p: str(p.hgnc_id)
     phenotypes_columns["HGNC symbol"] = lambda p: p.hgnc_symbol
-    phenotypes_columns["gene MIM number"] = lambda p: ""
     phenotypes_columns["inheritance"] = lambda p: p.inheritance if p.inheritance != "N/A" else ""
     phenotypes_columns["phenotype MIM number"] = lambda p: str(p.omim_id)
     phenotypes_columns["phenotype"] = lambda p: p.description
@@ -131,6 +138,7 @@ def _get_phenotype_data(phenotypes):
     for p in phenotypes:
         row = [v(p) for v in list(phenotypes_columns.values())]
         phenotypes_data += "\n" + "\t".join(row)
+    phenotypes_data += "\n"
     return phenotypes_data
 
 
@@ -142,10 +150,9 @@ def _get_transcript_data(transcripts):
     transcript_columns["name"] = lambda t: t["transcript_name"]
     transcript_columns["score"] = lambda t: "0.0"
     transcript_columns["strand"] = lambda t: t["strand"]
-    transcript_columns["source"] = lambda t: t["source"]
+    transcript_columns["tags"] = lambda t: ",".join(t["tags"])
     transcript_columns["HGNC id"] = lambda t: str(t["hgnc_id"])
     transcript_columns["HGNC symbol"] = lambda t: t["hgnc_symbol"]
-    transcript_columns["gene aliases"] = lambda t: ""
     transcript_columns["inheritance"] = lambda t: t["inheritance"]
     transcript_columns["coding start"] = lambda t: str(t["cds_start"])
     transcript_columns["coding end"] = lambda t: str(t["cds_end"])
@@ -162,6 +169,7 @@ def _get_transcript_data(transcripts):
 
     for r in sorted(rows, key=cmp_to_key(sort_rows)):
         transcript_data += "\n" + "\t".join(r)
+    transcript_data += "\n"
     return transcript_data
 
 
@@ -227,9 +235,7 @@ def preimport(
 
     import tempfile
 
-    transcripts_file = os.path.join(
-        tempfile.gettempdir(), basename + "_genes_transcripts_regions.tsv"
-    )
+    transcripts_file = os.path.join(tempfile.gettempdir(), basename + "_genes_transcripts.tsv")
     header = f"# Gene panel: {genepanel_name}-{genepanel_version} -- Date: {datetime.now().strftime('%Y-%m-%d')} -- exported from ELLA\n"
     with open(transcripts_file, "w") as f:
         f.write(header)
@@ -249,12 +255,19 @@ def preimport(
         f.write(_get_exon_regions(transcripts))
     files["EXON_REGIONS"] = exon_regions_file
 
-    report_config_file = os.path.join(tempfile.gettempdir(), basename + "_report_config.txt")
+    report_config_file = os.path.join(tempfile.gettempdir(), "report_config.txt")
     with open(report_config_file, "w") as f:
         f.write(
-            "[DEFAULT]\ntitle={gp_name}\nversion={gp_version}".format(
-                gp_name=genepanel_name, gp_version=genepanel_version
-            )
+            "[DEFAULT]\n"
+            "# Used in attachment sent to doctor and internal web\n"
+            f"  title={genepanel_name}\n"
+            f"  version={genepanel_version}\n"
+            "  coverage_threshold=100\n"
+            "  coverage_description=\n\n"
+            "[Web publishing - table]\n"
+            "# The values (not the keys) are printed line by line before the gene table.\n"
+            "  legend = [\n"
+            "        ]\n"
         )
 
     files["REPORT_CONFIG"] = report_config_file
@@ -269,7 +282,7 @@ def preimport(
     print(json.dumps({"files": files, "variables": variables}, indent=4))
 
 
-if __name__ == "__main__":
+def main():
     host = os.environ["DB_URL"]
     conn = get_connection(host)
     sample_id = os.environ["SAMPLE_ID"]
@@ -284,3 +297,7 @@ if __name__ == "__main__":
     preimport(
         sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes, priority
     )
+
+
+if __name__ == "__main__":
+    main()
