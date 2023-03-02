@@ -34,15 +34,12 @@ export default function filterAndFlattenGenepanel(source, flattenedDest, query) 
         // Create flattened list for UI
         const flattened = []
         for (const g of Object.values(filtered)) {
-            const inheritance = Array.from(new Set(g.phenotypes.map((p) => p.inheritance))).join(
-                ','
-            )
             for (const t of g.transcripts) {
                 flattened.push({
                     hgnc_id: g.hgnc_id,
                     hgnc_symbol: g.hgnc_symbol,
                     transcript_name: t.transcript_name,
-                    inheritance: inheritance
+                    inheritance: g.inheritance
                 })
             }
         }

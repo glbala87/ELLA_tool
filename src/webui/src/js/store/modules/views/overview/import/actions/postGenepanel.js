@@ -19,7 +19,8 @@ export default function postGenepanel({ props, http, path }) {
                 return {
                     id: p.id
                 }
-            })
+            }),
+            inheritance: g.inheritance
         }
     })
     return http

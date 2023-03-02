@@ -93,7 +93,7 @@ class GenepanelListResource(LogRequestResource):
                     description: Genepanel version
                     type: string
                   genes:
-                    description: Object with transcripts and phenotypes
+                    description: Object with transcripts, phenotypes and inheritance
                     type: object
             description: Submitted data
         responses:
@@ -110,9 +110,11 @@ class GenepanelListResource(LogRequestResource):
 
         transcript_ids: List[int] = list()
         phenotype_ids: List[int] = list()
+        inheritance_by_hgnc_id: Dict[int, str] = {}
         for g in data["genes"]:
             transcript_ids += [t["id"] for t in g["transcripts"]]
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
+            inheritance_by_hgnc_id[g["hgnc_id"]] = g["inheritance"]
 
         transcripts = (
             session.query(gene.Transcript)
@@ -141,14 +143,6 @@ class GenepanelListResource(LogRequestResource):
             name=data["name"], genome_reference="GRCh37", version=data["version"]
         )
 
-        def get_inferred_inheritance(inheritances: Set, on_chrom_x: bool):
-            if len(inheritances) == 1:
-                return inheritances.pop()
-            elif on_chrom_x:
-                return "XD/XR"
-            else:
-                return "AD/AR"
-
         junction_values = []
         for tx in transcripts:
             junction_values.append(
@@ -156,9 +150,7 @@ class GenepanelListResource(LogRequestResource):
                     "transcript_id": tx.id,
                     "genepanel_name": data["name"],
                     "genepanel_version": data["version"],
-                    "inheritance": get_inferred_inheritance(
-                        set(ph.inheritance for ph in phenotypes), tx.chromosome == "X"
-                    ),
+                    "inheritance": inheritance_by_hgnc_id[tx.gene_id],
                 }
             )
         session.add(genepanel)
