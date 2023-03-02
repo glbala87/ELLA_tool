@@ -65,7 +65,6 @@ app.component('genepanelOverview', {
                         $ctrl.closeClicked()
                     },
                     getTranscriptTags(transcript) {
-                        console.log(transcript)
                         if (transcript.tags && transcript.tags.length) {
                             return `• ${transcript.tags.join(', ')}`
                         }

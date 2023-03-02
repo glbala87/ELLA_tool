@@ -150,7 +150,7 @@ class InheritanceModelFilter(object):
             # | 7       | AR          |
             # | 13666   | AR          |
             # ...
-            genepanel_hgnc_id_phenotype = (
+            genepanel_hgnc_id_inheritance = (
                 self.session.query(
                     gene.Transcript.gene_id.label("hgnc_id"),
                     gene.genepanel_transcript.c.inheritance,
@@ -160,7 +160,7 @@ class InheritanceModelFilter(object):
                     gene.genepanel_transcript.c.genepanel_name == gp_name,
                     gene.genepanel_transcript.c.genepanel_version == gp_version,
                 )
-                .subquery("genepanel_hgnc_id_phenotype")
+                .subquery("genepanel_hgnc_id_inheritance")
             )
 
             # Set up column criterias from filter_config
@@ -169,7 +169,7 @@ class InheritanceModelFilter(object):
                 # - single, heterozygous variant
                 # - distinct AR
                 criteria_columns = [
-                    func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AR").label(
+                    func.bool_and(genepanel_hgnc_id_inheritance.c.inheritance == "AR").label(
                         "is_inheritance_match"
                     ),
                     and_(
@@ -181,7 +181,7 @@ class InheritanceModelFilter(object):
                 # - single homozygous variant or multiple variants
                 # - not distinct AD inheritance
                 criteria_columns = [
-                    not_(func.bool_and(genepanel_hgnc_id_phenotype.c.inheritance == "AD")).label(
+                    not_(func.bool_and(genepanel_hgnc_id_inheritance.c.inheritance == "AD")).label(
                         "is_inheritance_match"
                     ),
                     or_(
@@ -225,8 +225,8 @@ class InheritanceModelFilter(object):
                     == annotationshadow.AnnotationShadowTranscript.allele_id,
                 )
                 .join(
-                    genepanel_hgnc_id_phenotype,
-                    genepanel_hgnc_id_phenotype.c.hgnc_id
+                    genepanel_hgnc_id_inheritance,
+                    genepanel_hgnc_id_inheritance.c.hgnc_id
                     == annotationshadow.AnnotationShadowTranscript.hgnc_id,
                 )
                 .filter(*filters)

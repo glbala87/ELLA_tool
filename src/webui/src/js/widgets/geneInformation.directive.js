@@ -17,7 +17,6 @@ app.component('geneInformation', {
             genepanelValues: getGenepanelValues(
                 state`views.workflows.interpretation.data.genepanel`
             ),
-            inheritances: state`views.workflows.interpretation.data.genepanel.inheritances`,
             commentTemplates: state`app.commentTemplates`,
             geneAssessment: getGeneAssessment(props`hgncId`),
             userGeneAssessment: state`views.workflows.interpretation.geneInformation.geneassessment.${props`hgncId`}`,
@@ -69,7 +68,6 @@ app.component('geneInformation', {
                             : $ctrl.geneAssessment.evaluation
                     },
                     getTranscriptTags(transcript) {
-                        console.log(transcript)
                         if (transcript.tags && transcript.tags.length) {
                             return `• ${transcript.tags.join(', ')}`
                         }
