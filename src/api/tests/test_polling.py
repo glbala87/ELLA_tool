@@ -1,15 +1,24 @@
 """Testing is done by using a dummy annotation server.
 This server is specified in ./annotationserver.py
 and started in fixture"""
-import pytest
+import multiprocessing
 import re
 import socket
-import urllib
 import time
-import multiprocessing
+import urllib
+
+import pytest
+
+from api.polling import (
+    ANNOTATION_SERVICE_URL,
+    AnnotationJobsInterface,
+    AnnotationServiceInterface,
+    process_annotated,
+    process_running,
+    process_submitted,
+)
+
 from .annotationserver import app
-from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
-from api.polling import process_annotated, process_submitted, process_running
 
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
 
@@ -52,7 +61,7 @@ def test_polling(session, client, test_database):
         user_id=1,
         data="Dummy vcf data for testing",
         genepanel_name="HBOC",
-        genepanel_version="v01",
+        genepanel_version="v1.0.0",
         properties=dict(analysis_name="abc", create_or_append="Create", sample_type="HTS"),
     )
 

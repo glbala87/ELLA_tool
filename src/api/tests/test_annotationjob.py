@@ -1,9 +1,10 @@
-import pytest
 import subprocess
 
+import pytest
 from sqlalchemy import tuple_
+
 from api.polling import AnnotationJobsInterface
-from vardb.datamodel import sample, annotationjob, allele, genotype
+from vardb.datamodel import allele, annotationjob, genotype, sample
 from vardb.deposit.importers import AlleleImporter
 
 ANNOTATION_JOBS_PATH = "/api/v1/import/service/jobs/"
@@ -12,7 +13,7 @@ TESTDATA_DIR = "/ella/ella-testdata/testdata"
 
 ANALYSIS = "brca_sample_3"
 GENEPANEL_NAME = "HBOCUTV"
-GENEPANEL_VERSION = "v01"
+GENEPANEL_VERSION = "v1.0.0"
 
 
 @pytest.fixture(scope="session")
@@ -180,9 +181,9 @@ def test_status_update_annotationjob(session, client):
 
 
 def get_alleles(vcf, session):
-    from vardb.util.vcfiterator import VcfIterator
-
     from io import StringIO
+
+    from vardb.util.vcfiterator import VcfIterator
 
     fd = StringIO()
     fd.write(vcf)

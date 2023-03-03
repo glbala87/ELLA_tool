@@ -1,17 +1,17 @@
 import os
 import re
 from pathlib import Path
+
 import click
 
-from vardb.datamodel import user, gene
-from vardb.deposit.deposit_custom_annotations import import_custom_annotations
-from vardb.deposit.deposit_references import import_references
-from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.deposit.deposit_alleles import DepositAlleles
-from vardb.deposit.deposit_genepanel import DepositGenepanel
-from vardb.deposit.analysis_config import AnalysisConfigData
-
 from cli.decorators import cli_logger, session
+from vardb.datamodel import gene, user
+from vardb.deposit.analysis_config import AnalysisConfigData
+from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_analysis import DepositAnalysis
+from vardb.deposit.deposit_custom_annotations import import_custom_annotations
+from vardb.deposit.deposit_genepanel import DepositGenepanel
+from vardb.deposit.deposit_references import import_references
 
 VCF_FIELDS_RE = re.compile(
     r"(?P<analysis_name>.+[.-](?P<genepanel_name>.+)[-_](?P<genepanel_version>.+))\.vcf"
@@ -149,8 +149,8 @@ def cmd_deposit_genepanel(
     if folder:
         p = Path(folder)
         prefix = p.parts[-1]
-        transcripts_path = p / Path(prefix + ".transcripts.csv")
-        phenotypes_path = p / Path(prefix + ".phenotypes.csv")
+        transcripts_path = p / Path(prefix + "_genes_transcripts.tsv")
+        phenotypes_path = p / Path(prefix + "_phenotypes.tsv")
         genepanel_name, genepanel_version = prefix.split("_", 1)
         assert genepanel_version.startswith("v")
 

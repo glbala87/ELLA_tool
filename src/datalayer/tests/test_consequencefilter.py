@@ -2,15 +2,13 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-import pytest
-
-from datalayer.allelefilter.consequencefilter import ConsequenceFilter
-from vardb.datamodel import gene, annotationshadow
-from conftest import mock_allele_with_annotation
-
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
 
+from conftest import mock_allele_with_annotation
+from datalayer.allelefilter.consequencefilter import ConsequenceFilter
+from vardb.datamodel import annotationshadow, gene
 
 # prevent screen getting filled with output (useful when testing manually)
 # import logging
@@ -79,7 +77,7 @@ def allele_positions(draw, chromosome, start, end):
 allele_start = 1300
 
 
-def create_genepanel():
+def create_genepanel(session):
     # Create fake genepanel for testing purposes
 
     g1 = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1")
@@ -89,6 +87,7 @@ def create_genepanel():
         transcript_name="NM_1",
         type="RefSeq",
         genome_reference="",
+        tags=None,
         chromosome="1",
         tx_start=1000,
         tx_end=1500,
@@ -98,11 +97,21 @@ def create_genepanel():
         exon_starts=[1100, 1200, 1300, 1400],
         exon_ends=[1160, 1260, 1360, 1460],
     )
+    session.add(t1)
 
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add(genepanel)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        {
+            "transcript_id": t1.id,
+            "genepanel_name": genepanel.name,
+            "genepanel_version": genepanel.version,
+            "inheritance": "AD/AR",
+        },
+    )
 
-    genepanel.transcripts = [t1]
-    genepanel.phenotypes = []
     return genepanel
 
 
@@ -146,8 +155,7 @@ class TestConsequenceFilter(object):
         session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
-        gp = create_genepanel()
-        session.add(gp)
+        create_genepanel(session)
         session.commit()
 
     @ht.given(st.one_of(filter_config()), st.lists(transcripts(), min_size=1))

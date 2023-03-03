@@ -1,6 +1,7 @@
-import sys
 import datetime
 import getpass
+import sys
+
 from vardb.datamodel import log
 
 
@@ -26,7 +27,7 @@ def test_clilog(test_database, session, run_command):
 
     entry = session.query(log.CliLog).order_by(log.CliLog.id.desc()).first()
     assert entry.user == getpass.getuser()
-    assert entry.output == "Analysis 1 (brca_decomposed.HBOC_v01) deleted successfully"
+    assert entry.output == "Analysis 1 (brca_decomposed.HBOC_v1.0.0) deleted successfully"
     assert entry.group == "delete"
     assert entry.groupcommand == "analysis"
     assert entry.reason == "Test reason"

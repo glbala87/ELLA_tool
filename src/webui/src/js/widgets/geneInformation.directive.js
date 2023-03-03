@@ -32,10 +32,7 @@ app.component('geneInformation', {
                 Object.assign($ctrl, {
                     getOmimLink() {
                         if ($ctrl.hgncId in $ctrl.genepanelValues) {
-                            const entryId = $ctrl.genepanelValues[$ctrl.hgncId].omimEntryId
-                            return entryId
-                                ? `https://www.omim.org/entry/${entryId}`
-                                : `https://www.omim.org/search/?search=${$ctrl.hgncSymbol}`
+                            return `https://www.omim.org/search/?search=${$ctrl.hgncSymbol}`
                         }
                     },
                     getHgmdLink() {
@@ -69,6 +66,12 @@ app.component('geneInformation', {
                         return $ctrl.userGeneAssessment
                             ? $ctrl.userGeneAssessment.evaluation
                             : $ctrl.geneAssessment.evaluation
+                    },
+                    getTranscriptTags(transcript) {
+                        if (transcript.tags && transcript.tags.length) {
+                            return `• ${transcript.tags.join(', ')}`
+                        }
+                        return ''
                     },
                     isCommmentEditable() {
                         // If there's a userGeneAssessment, it's per definition

@@ -1,5 +1,12 @@
 from itertools import groupby
 from typing import Any, Dict, List, Optional
+from datalayer import queries
+
+from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import case
+from sqlalchemy.types import Integer
 
 from api import ApiError, schemas
 from api.schemas.pydantic.v1 import validate_output
@@ -11,11 +18,6 @@ from api.schemas.pydantic.v1.resources import (
 )
 from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
-from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import case
-from sqlalchemy.types import Integer
 from vardb.datamodel import gene
 from vardb.datamodel import user as user_model
 
@@ -91,7 +93,7 @@ class GenepanelListResource(LogRequestResource):
                     description: Genepanel version
                     type: string
                   genes:
-                    description: Object with transcripts and phenotypes
+                    description: Object with transcripts, phenotypes and inheritance
                     type: object
             description: Submitted data
         responses:
@@ -108,9 +110,11 @@ class GenepanelListResource(LogRequestResource):
 
         transcript_ids: List[int] = list()
         phenotype_ids: List[int] = list()
+        inheritance_by_hgnc_id: Dict[int, str] = {}
         for g in data["genes"]:
             transcript_ids += [t["id"] for t in g["transcripts"]]
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
+            inheritance_by_hgnc_id[g["hgnc_id"]] = g["inheritance"]
 
         transcripts = (
             session.query(gene.Transcript)
@@ -138,6 +142,21 @@ class GenepanelListResource(LogRequestResource):
         genepanel = gene.Genepanel(
             name=data["name"], genome_reference="GRCh37", version=data["version"]
         )
+
+        junction_values = []
+        for tx in transcripts:
+            junction_values.append(
+                {
+                    "transcript_id": tx.id,
+                    "genepanel_name": data["name"],
+                    "genepanel_version": data["version"],
+                    "inheritance": inheritance_by_hgnc_id[tx.gene_id],
+                }
+            )
+        session.add(genepanel)
+        session.flush()
+        session.execute(gene.genepanel_transcript.insert(), junction_values)
+
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
 
@@ -214,6 +233,7 @@ class GenepanelResource(LogRequestResource):
                 gene.Gene.hgnc_id,
                 gene.Transcript.id,
                 gene.Transcript.transcript_name,
+                gene.Transcript.tags,
             )
             .join(gene.Genepanel.transcripts, gene.Transcript.gene)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
@@ -239,17 +259,21 @@ class GenepanelResource(LogRequestResource):
             .all()
         )
 
+        inheritances = queries.inheritance_for_genepanel(session, name, version).all()
+
         genes: Dict[int, Any] = {}
         for t in transcripts:
             if t.hgnc_id in genes:
                 genes[t.hgnc_id]["transcripts"].append(
-                    {"id": t.id, "transcript_name": t.transcript_name}
+                    {"id": t.id, "transcript_name": t.transcript_name, "tags": t.tags}
                 )
             else:
                 genes[t.hgnc_id] = {
                     "hgnc_id": t.hgnc_id,
                     "hgnc_symbol": t.hgnc_symbol,
-                    "transcripts": [{"id": t.id, "transcript_name": t.transcript_name}],
+                    "transcripts": [
+                        {"id": t.id, "transcript_name": t.transcript_name, "tags": t.tags}
+                    ],
                     "phenotypes": [],
                 }
 
@@ -258,6 +282,10 @@ class GenepanelResource(LogRequestResource):
                 genes[p.hgnc_id]["phenotypes"].append(
                     {"id": p.id, "inheritance": p.inheritance, "description": p.description}
                 )
+
+        for i in inheritances:
+            if i.hgnc_id in genes:
+                genes[i.hgnc_id]["inheritance"] = i.inheritance
 
         result_genes: List[Any] = list(genes.values())
         result_genes.sort(key=lambda x: x["hgnc_symbol"])

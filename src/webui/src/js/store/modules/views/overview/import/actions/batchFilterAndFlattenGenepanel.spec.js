@@ -26,9 +26,10 @@ function getState() {
                                     phenotypes: [
                                         {
                                             id: 1,
-                                            inheritance: 'AR'
+                                            inheritance: 'IRRELVANT'
                                         }
-                                    ]
+                                    ],
+                                    inheritance: 'AR'
                                 },
                                 GENE2: {
                                     hgnc_id: 2,
@@ -46,9 +47,10 @@ function getState() {
                                     phenotypes: [
                                         {
                                             id: 1,
-                                            inheritance: 'AR'
+                                            inheritance: 'IRRELEVANT'
                                         }
-                                    ]
+                                    ],
+                                    inheritance: 'AR'
                                 },
                                 GENE3: {
                                     hgnc_id: 3,
@@ -59,7 +61,8 @@ function getState() {
                                             transcript_name: 'T1'
                                         }
                                     ],
-                                    phenotypes: []
+                                    phenotypes: [],
+                                    inheritance: ''
                                 }
                             }
                         }

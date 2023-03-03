@@ -19,7 +19,7 @@ describe('finishWorkflow', function() {
                                 state: {},
                                 user_state: {},
                                 genepanel_name: 'Test',
-                                genepanel_version: 'v01'
+                                genepanel_version: 'v1.0.0'
                             }
                         ]
                     },

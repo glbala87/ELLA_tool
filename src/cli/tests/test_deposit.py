@@ -1,10 +1,12 @@
 import os
+
 from sqlalchemy import tuple_
-from vardb.datamodel import sample, assessment, gene, user
+
+from vardb.datamodel import assessment, gene, sample, user
 
 TESTDATA = os.environ["TESTDATA"]
 VCF = os.path.join(
-    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v01/brca_sample_3.HBOCUTV_v01.vcf.gz"
+    TESTDATA, "analyses/default/brca_sample_3.HBOCUTV_v1.0.0/brca_sample_3.HBOCUTV_v1.0.0.vcf.gz"
 )
 
 
@@ -18,7 +20,9 @@ def test_deposit_analysis(session, run_command):
     result = run_command(["deposit", "analysis", VCF])
     assert result.exit_code == 0
 
-    session.query(sample.Analysis).filter(sample.Analysis.name == "brca_sample_3.HBOCUTV_v01").one()
+    session.query(sample.Analysis).filter(
+        sample.Analysis.name == "brca_sample_3.HBOCUTV_v1.0.0"
+    ).one()
 
 
 def test_deposit_alleles(session, run_command):
@@ -47,7 +51,7 @@ def test_deposit_genepanel(session, run_command):
     run_command(["database", "make", "-f"])
 
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v6.0.0"
 
     assert (
         not session.query(gene.Genepanel)
@@ -71,7 +75,7 @@ def test_deposit_genepanel(session, run_command):
 def test_append_genepanel_to_usergroup(session, test_database, run_command):
     test_database.refresh()
     genepanel_name = "Ciliopati"
-    genepanel_version = "v05"
+    genepanel_version = "v6.0.0"
     usergroup = "testgroup01"
 
     ug = session.query(user.UserGroup).filter(user.UserGroup.name == usergroup)

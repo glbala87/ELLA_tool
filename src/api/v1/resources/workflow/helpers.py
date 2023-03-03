@@ -340,8 +340,25 @@ def load_genepanel_for_allele_ids(
         .all()
     )
 
+    inheritances = (
+        session.query(
+            gene.genepanel_transcript.c.inheritance,
+            gene.Transcript.gene_id.label("hgnc_id"),
+            gene.Transcript.transcript_name,
+        )
+        .join(
+            gene.Transcript,
+            gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+        )
+        .filter(
+            gene.genepanel_transcript.c.genepanel_name == gp_name,
+            gene.genepanel_transcript.c.genepanel_version == gp_version,
+        )
+    ).all()
+
     genepanel_data = schemas.GenepanelSchema().dump(genepanel).data
     genepanel_data["transcripts"] = schemas.TranscriptFullSchema().dump(transcripts, many=True).data
+    genepanel_data["inheritances"] = schemas.InheritanceSchema().dump(inheritances, many=True).data
     genepanel_data["phenotypes"] = schemas.PhenotypeFullSchema().dump(phenotypes, many=True).data
     genepanel_data["geneassessments"] = (
         schemas.GeneAssessmentSchema().dump(geneassessments, many=True).data

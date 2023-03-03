@@ -24,9 +24,10 @@ describe('filterAndFlattenGenepanel', function() {
                             phenotypes: [
                                 {
                                     id: 1,
-                                    inheritance: 'AR'
+                                    inheritance: 'IRRELEVANT'
                                 }
-                            ]
+                            ],
+                            inheritance: 'AR'
                         },
                         TRANSCRIPT_SHOULD_MATCH: {
                             hgnc_id: 2,
@@ -46,7 +47,8 @@ describe('filterAndFlattenGenepanel', function() {
                                     id: 1,
                                     inheritance: 'AR'
                                 }
-                            ]
+                            ],
+                            inheritance: 'AR'
                         },
                         GENE_NO_MATCH: {
                             hgnc_id: 3,
@@ -57,7 +59,8 @@ describe('filterAndFlattenGenepanel', function() {
                                     transcript_name: 'not a match'
                                 }
                             ],
-                            phenotypes: []
+                            phenotypes: [],
+                            inheritance: 'AD'
                         }
                     }
                 },

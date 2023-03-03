@@ -12,18 +12,13 @@ class Gene(BaseModel):
     hgnc_symbol: str
 
 
-class GeneFull(Gene):
-    ensembl_gene_id: Optional[str] = None
-    omim_entry_id: Optional[int] = None
-
-
 class Transcript(BaseModel):
     transcript_name: str
     gene: Gene
 
 
 class TranscriptFull(Transcript):
-    gene: GeneFull
+    gene: Gene
     corresponding_refseq: Optional[str]
     corresponding_ensembl: Optional[str]
     corresponding_lrg: Optional[str]
@@ -41,6 +36,7 @@ class TranscriptFull(Transcript):
 class TranscriptAlternative(BaseModel):
     id: int
     transcript_name: str
+    tags: Optional[List[str]]
 
 
 class PhenotypeBasic(BaseModel):
@@ -59,7 +55,7 @@ class PhenotypeAlternative(PhenotypeBasic):
 class PhenotypeFull(PhenotypeBasic):
     description: str
     omim_id: int
-    gene: GeneFull
+    gene: Gene
 
 
 class GenepanelBasic(BaseModel):
@@ -111,5 +107,12 @@ class NewGenepanelGene(BaseModel):
 from api.schemas.pydantic.v1.gene_assessments import GeneAssessment  # noqa: E402
 
 
-class GenepanelFullAssessments(GenepanelFull):
+class Inheritances(BaseModel):
+    inheritance: str
+    transcript_name: str
+    hgnc_id: int
+
+
+class GenepanelFullAssessmentsInheritances(GenepanelFull):
     geneassessments: List[GeneAssessment]
+    inheritances: List[Inheritances]

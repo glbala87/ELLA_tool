@@ -2,17 +2,16 @@
 Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
-from typing import List, Tuple
 from collections import defaultdict
-import pytest
-
-from datalayer.allelefilter.inheritancemodelfilter import InheritanceModelFilter
-from vardb.datamodel import gene, annotationshadow, sample, genotype
-from conftest import mock_allele_with_annotation
+from typing import List, Tuple
 
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
 
+from conftest import mock_allele_with_annotation
+from datalayer.allelefilter.inheritancemodelfilter import InheritanceModelFilter
+from vardb.datamodel import annotationshadow, gene, genotype, sample
 
 GLOBAL_CONFIG = {
     "frequencies": {
@@ -34,38 +33,42 @@ def reset_genepanel(session, gene_inheritance: Tuple[List[str], List[str], List[
      - genepanel with 3 genes, each with inheritance from input
     """
 
-    genes = list()
-    transcripts = list()
-    phenotypes = list()
-    for idx in range(1, 4):
-        gene_name = f"GENE{idx}"
-        g = gene.Gene(hgnc_id=GENE_HGNC_ID[gene_name], hgnc_symbol=gene_name)
-        t = gene.Transcript(
-            gene=g,
-            transcript_name=f"NM_{idx}",
-            type="RefSeq",
-            genome_reference="",
-            chromosome="1",
-            tx_start=1000,
-            tx_end=1500,
-            strand="+",
-            cds_start=1230,
-            cds_end=1430,
-            exon_starts=[1100, 1200, 1300, 1400],
-            exon_ends=[1160, 1260, 1360, 1460],
-        )
-        genes.append(g)
-        transcripts.append(t)
-
-        for idx, inh in enumerate(gene_inheritance[idx - 1]):
-            p = gene.Phenotype(gene=g, description=f"Test phenotype {idx}", inheritance=inh)
-            phenotypes.append(p)
-
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
-
-    genepanel.transcripts = transcripts
-    genepanel.phenotypes = phenotypes
     session.add(genepanel)
+    session.flush()
+
+    tx_idx = 0
+    for idx, inheritances in enumerate(gene_inheritance):
+        gene_name = f"GENE{idx+1}"
+        g = gene.Gene(hgnc_id=GENE_HGNC_ID[gene_name], hgnc_symbol=gene_name)
+        for inh in inheritances:
+            tx_idx += 1
+            t = gene.Transcript(
+                gene=g,
+                transcript_name=f"NM_{tx_idx}",
+                type="RefSeq",
+                genome_reference="",
+                tags=None,
+                chromosome="1",
+                tx_start=1000,
+                tx_end=1500,
+                strand="+",
+                cds_start=1230,
+                cds_end=1430,
+                exon_starts=[1100, 1200, 1300, 1400],
+                exon_ends=[1160, 1260, 1360, 1460],
+            )
+            session.add(t)
+            session.flush()
+            session.execute(
+                gene.genepanel_transcript.insert(),
+                {
+                    "transcript_id": t.id,
+                    "genepanel_name": genepanel.name,
+                    "genepanel_version": genepanel.version,
+                    "inheritance": inh,
+                },
+            )
     session.flush()
 
 

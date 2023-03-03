@@ -1,16 +1,10 @@
-from marshmallow import fields, Schema
+from marshmallow import Schema, fields
 
 
 class GeneSchema(Schema):
     class Meta:
         title = "Gene"
         fields = ("hgnc_id", "hgnc_symbol")
-
-
-class GeneFullSchema(Schema):
-    class Meta:
-        title = "Gene"
-        fields = ("hgnc_id", "hgnc_symbol", "ensembl_gene_id", "omim_entry_id")
 
 
 class TranscriptSchema(Schema):
@@ -26,14 +20,12 @@ class TranscriptFullSchema(Schema):
         title = "Transcript"
         fields = (
             "transcript_name",
-            "corresponding_refseq",
-            "corresponding_ensembl",
-            "corresponding_lrg",
             "genome_reference",
             "chromosome",
             "tx_start",
             "tx_end",
             "strand",
+            "tags",
             "cds_start",
             "cds_end",
             "exon_starts",
@@ -41,7 +33,7 @@ class TranscriptFullSchema(Schema):
             "gene",
         )
 
-    gene = fields.Nested(GeneFullSchema)
+    gene = fields.Nested(GeneSchema)
 
 
 class PhenotypeSchema(Schema):
@@ -57,7 +49,7 @@ class PhenotypeFullSchema(Schema):
         title = "Phenotype"
         fields = ("id", "description", "inheritance", "omim_id", "gene")
 
-    gene = fields.Nested(GeneFullSchema)
+    gene = fields.Nested(GeneSchema)
 
 
 class GenepanelFullSchema(Schema):
@@ -83,3 +75,8 @@ class GenepanelTranscriptsSchema(Schema):
 class GenepanelSchema(Schema):
     class Meta:
         fields = ("name", "version", "official")
+
+
+class InheritanceSchema(Schema):
+    class Meta:
+        fields = ("hgnc_id", "inheritance", "transcript_name")

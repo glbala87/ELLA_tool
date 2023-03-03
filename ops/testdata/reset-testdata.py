@@ -17,10 +17,12 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 import click
 import requests
 import yaml
-from api.config.config import feature_is_enabled
-from cli.commands.database.make_db import make_db
+from git import Repository
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session
+
+from api.config.config import feature_is_enabled
+from cli.commands.database.make_db import make_db
 from vardb.deposit.annotation_config import deposit_annotationconfig
 from vardb.deposit.deposit_alleles import DepositAlleles
 from vardb.deposit.deposit_analysis import DepositAnalysis
@@ -31,8 +33,6 @@ from vardb.deposit.deposit_references import import_references
 from vardb.deposit.deposit_users import import_groups, import_users
 from vardb.util.db import DB
 from vardb.watcher.analysis_watcher import AnalysisConfigData
-
-from git import Repository
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
@@ -104,8 +104,8 @@ for gp_item in GP_DIR.iterdir():
         continue
     GENEPANELS.append(
         GenepanelInfo(
-            gp_item / f"{gp_item.name}.transcripts.csv",
-            gp_item / f"{gp_item.name}.phenotypes.csv",
+            gp_item / f"{gp_item.name}_genes_transcripts.tsv",
+            gp_item / f"{gp_item.name}_phenotypes.tsv",
             *gp_item.name.split("_"),
         )
     )
@@ -121,8 +121,8 @@ AVAILABLE_TESTSETS = [SPECIAL_TESTSET_SKIPPING_VCF] + [a.name for a in ANALYSES]
 # TODO: determine a way to not have this hard coded
 ALLELES = [
     AlleleInfo(
-        "analyses/default/brca_sample_1.HBOC_v01/brca_sample_1.HBOC_v01.vcf.gz",
-        ("HBOC", "v01"),
+        "analyses/default/brca_sample_1.HBOC_v1.0.0/brca_sample_1.HBOC_v1.0.0.vcf.gz",
+        ("HBOC", "v1.0.0"),
     ),
 ]
 

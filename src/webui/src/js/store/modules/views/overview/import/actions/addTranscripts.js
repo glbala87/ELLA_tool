@@ -29,7 +29,8 @@ export default function addTranscripts({ state, props }) {
                     hgnc_id: sourceGene.hgnc_id,
                     hgnc_symbol: sourceGene.hgnc_symbol,
                     transcripts: [],
-                    phenotypes: []
+                    phenotypes: [],
+                    inheritance: sourceGene.inheritance
                 }
             }
             addedGenepanel.genes[item.hgnc_id].transcripts.push(sourceTranscript)

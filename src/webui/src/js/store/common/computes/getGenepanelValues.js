@@ -1,10 +1,6 @@
 import { Compute } from 'cerebral'
 import { state } from 'cerebral/tags'
-import {
-    formatInheritance,
-    getOmimEntryId,
-    findGeneConfigOverride
-} from '../../common/helpers/genepanel'
+import { findGeneConfigOverride } from '../../common/helpers/genepanel'
 
 /**
  * Calculates various genepanel information for every gene
@@ -33,7 +29,14 @@ export default (genepanel) => {
                     overridden: p in geneConfigOverride
                 }
             }
-            result[hgncId].inheritance = formatInheritance(hgncId, genepanel)
+
+            result[hgncId].inheritance = [
+                ...new Set(
+                    genepanel.inheritances
+                        .filter((inh) => inh.hgnc_id === hgncId)
+                        .map((inh) => inh.inheritance)
+                )
+            ].join('|')
 
             // If 'frequency' is defined for the gene, use that.
             // Otherwise, use the default given the inheritance key
@@ -52,7 +55,6 @@ export default (genepanel) => {
                 }
             }
 
-            result[hgncId].omimEntryId = getOmimEntryId(hgncId, genepanel)
             result[hgncId].phenotypes = genepanel.phenotypes.filter(
                 (p) => p.gene.hgnc_id === hgncId
             )

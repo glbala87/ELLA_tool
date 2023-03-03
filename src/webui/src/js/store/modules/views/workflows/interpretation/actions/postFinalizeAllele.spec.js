@@ -12,7 +12,7 @@ function createState(state, alleles) {
                 id: 1,
                 selectedGenepanel: {
                     name: 'test',
-                    version: 'v01'
+                    version: 'v1.0.0'
                 },
                 data: {
                     interpretations: [
@@ -22,7 +22,7 @@ function createState(state, alleles) {
                             state: {},
                             user_state: {},
                             genepanel_name: 'Test',
-                            genepanel_version: 'v01'
+                            genepanel_version: 'v1.0.0'
                         }
                     ]
                 },
