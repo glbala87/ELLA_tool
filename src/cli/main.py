@@ -7,7 +7,6 @@ import click
 from cli.commands.broadcast.broadcast import broadcast
 from cli.commands.database.database import database
 from cli.commands.deposit.deposit import deposit
-from cli.commands.export.export import export
 from cli.commands.references.references import references
 from cli.commands.users.users import users
 from cli.commands.filterconfigs.filterconfigs import filterconfigs
@@ -34,7 +33,6 @@ cli_group.add_command(database)
 cli_group.add_command(deposit)
 cli_group.add_command(delete)
 cli_group.add_command(download_igv)
-cli_group.add_command(export)
 cli_group.add_command(references)
 cli_group.add_command(users)
 cli_group.add_command(filterconfigs)
