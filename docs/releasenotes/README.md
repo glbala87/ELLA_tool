@@ -32,7 +32,7 @@ For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blo
 Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version.
 
 ### All changes
-<!-- MR !693 -->
+<!-- MR !693, !723, !726, !728, !729 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
 <!-- MR !711 -->
 - Added support for bigBed file format.
