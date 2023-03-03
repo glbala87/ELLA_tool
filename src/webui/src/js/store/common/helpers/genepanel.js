@@ -5,4 +5,3 @@ export function findGeneConfigOverride(hgncId, acmgConfig) {
         return {}
     }
 }
-

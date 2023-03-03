@@ -1,5 +1,5 @@
 from itertools import groupby
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 from datalayer import queries
 
 from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_

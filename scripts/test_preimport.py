@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 import subprocess
 import json
-from preimport import main
 
 
 def test_preimport():
