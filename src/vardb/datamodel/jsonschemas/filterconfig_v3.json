@@ -593,15 +593,18 @@
                 "properties": {
                     "name": {
                         "enum": ["callertype"]
-                    }
-                },
-                "config": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["callerTypes"],
-                    "properties": {
-                        "mode": {
-                            "enum": ["snv", "cnv"]
+                    },
+                    "config": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["callerTypes"],
+                        "properties": {
+                            "callerTypes": {
+                                "type": "array",
+                                "items": {
+                                    "enum": ["cnv", "snv"]
+                                }
+                            }
                         }
                     }
                 }
