@@ -35,7 +35,10 @@ def test_preimport():
                 if gp_file.name in ignore_files:
                     continue
                 matching_file = next(x for x in d["files"].values() if x.name == gp_file.name)
-                assert matching_file != gp_file, "Same file!"
+                assert matching_file != gp_file, (
+                    "Same file! This should not happen, and indicates an error with the test setup. "
+                    "Does the preimport script output files to the testdata directory?"
+                )
                 with open(gp_file) as f1, open(matching_file) as f2:
                     for i, (line1, line2) in enumerate(zip(f1, f2)):
                         if i == 0 and line1 != line2:
