@@ -37,8 +37,6 @@ const testUiConfig = {
                             'Review',
                             'Medical review'
                         ],
-                        allow_notrelevant: false,
-                        allow_technical: true,
                         allow_unclassified: false
                     }
                 }

@@ -175,8 +175,6 @@ Separate settings are given for subkeys `allele.finalize_requirements` (VARIANTS
 Workflow    |   Subkey	|	Explanation |   Values
 :---    |   :---	|	:---    |	:---
 `allele` or `analysis`  |   `workflow_status`  |   Workflow statuses allowing finalization. |   [list of statuses]
-`analysis`  |   `allow_not_relevant`    |   Allow variants marked as "Not relevant" when finalizing.    |   `True` / `False`
-`analysis`  |   `allow_technical`    |   Allow variants marked as "Technical" when finalizing.    |  `True` / `False`
 `analysis`  |   `allow_unclassified`    |   Allow unclassified variants when finalizing.  |   `True` / `False`
 
 ### Define references as IGNORED

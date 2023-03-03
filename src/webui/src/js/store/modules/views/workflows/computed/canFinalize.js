@@ -79,26 +79,6 @@ export default Compute(
                 })
                 .map((a) => a.id)
 
-            // Check allow_technical
-            metRequirements.technical = Boolean(
-                finalizeRequirementsConfig.allow_technical || technicalAlleleIds.length === 0
-            )
-            if (!metRequirements.technical) {
-                result.messages.push(
-                    `Some variants are marked as technical, while this is disallowed in configuration.`
-                )
-            }
-
-            // Check allow_notrelevant
-            metRequirements.notRelevant = Boolean(
-                finalizeRequirementsConfig.allow_notrelevant || notRelevantAlleleIds.length === 0
-            )
-            if (!metRequirements.notRelevant) {
-                result.messages.push(
-                    `Some variants are marked as not relevant, while this is disallowed in configuration.`
-                )
-            }
-
             // Check allow_unclassified
             if (finalizeRequirementsConfig.allow_unclassified) {
                 metRequirements.classifications = true

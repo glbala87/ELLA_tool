@@ -209,12 +209,7 @@
                                         "finalize_requirements": {
                                             "type": "object",
                                             "additionalProperties": false,
-                                            "required": [
-                                                "workflow_status",
-                                                "allow_notrelevant",
-                                                "allow_technical",
-                                                "allow_unclassified"
-                                            ],
+                                            "required": ["workflow_status", "allow_unclassified"],
                                             "properties": {
                                                 "workflow_status": {
                                                     "type": "array",
@@ -228,12 +223,6 @@
                                                             "Medical review"
                                                         ]
                                                     }
-                                                },
-                                                "allow_notrelevant": {
-                                                    "type": "boolean"
-                                                },
-                                                "allow_technical": {
-                                                    "type": "boolean"
                                                 },
                                                 "allow_unclassified": {
                                                     "type": "boolean"
