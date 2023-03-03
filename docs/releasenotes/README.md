@@ -19,7 +19,9 @@ Release date: TBD
 
 ### Highlights
 
-This version does not add significant new features, but switches to a new, improved format of gene panels.
+This version does not add significant new features, but switches to a new, improved format of gene panels. 
+
+Note there are several [breaking changes](#small_red_triangle-breaking-changes-for-117) with this version, and admins should take care to update the necessary files.
 
 #### Improved format of gene panels
 
@@ -27,17 +29,37 @@ The biggest change in this release is a new setup for gene panels. Although this
 
 For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blob/dev/README.md) in the separate repository [Genepanel builder](https://gitlab.com/alleles/genepanel-builder). 
 
-### :small_red_triangle: Breaking changes
+### :small_red_triangle: Breaking changes for 1.17
 
-Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version.
+#### Gene panels must be updated for new imports
+
+Changes in this version deprecates all gene panels in the old format. Historic analyses imported with old panels will still load, but no new imports will be possible until gene panels have been updated to the new version. See [above](#improved-format-of-gene-panels) for details.
+
+#### Changes to user configuration
+
+The configuration options `allow_notrelevant` and `allow_technical` have been removed. To update: 
+
+1. Remove `allow_notrelevant` and `allow_technical` (if any) from your user group config (usually `fixtures/usegroups.json`).
+2. Remove `allow_notrelevant` and `allow_technical` from your application config (under `user.user_config.workflows.analysis.finalize_requirements` in `ella_config.yml` or similar; see [UI options](/technical/uioptions.md#finalize-requirements)).
+3. Update user groups with: 
+
+    ``` bash
+    ella-cli users add_groups <path to usergroups.json>
+    ```
+
+#### Removal of export scripts
+
+The CLI command `ella-cli export classifications` has been removed and export scripts will no longer be maintained as part of this source code. The last version of the script is [available here](https://gitlab.com/alleles/ella/-/blob/09f29eb05732899baf83a59e7c420b9dc0cebabb/src/vardb/export/dump_classification.py).
 
 ### All changes
 <!-- MR !693, !723, !726, !728, !729 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
 <!-- MR !711 -->
-- Added support for bigBed file format.
+- Added support for bigBed file format in VISUAL.
 <!-- MR !716 -->
-- Removed config option for disallowing Technical and Not relevant for Finalize (set to always allowed).
+- [Removed config option for disallowing Technical and Not relevant for Finalize](#changes-to-user-configuration) (set to always allowed).
+<!-- MR !717 -->
+- [Removed export scripts](#removal-of-export-scripts).
 <!-- MR !727 -->
 - Upgraded Python to v3.11 and pydantic to v1.10.5.
 <!-- MR !731 -->
@@ -46,6 +68,7 @@ Changes in this version deprecates all gene panels in the old format. Historic a
 No further release notes necessary, but adding here for reference: 
 MR !632 Added typing to all of our API endpoints
 MR !694 Create scaffolding for testdata, fix review app/local demo functionality, devcontainer optimizations
+MR !697 Updated callerTypes in filterconfig schema
 MR !705 Create default data directories in Dockerfile
 MR !706 Add db dump/reset for tesdata
 MR !707 API returns invalid IGV config
@@ -170,7 +193,7 @@ As the CNV features are not fully validated, this functionality is currently dis
 
 Configuration of tracks in VISUAL has been further improved, allowing all types of tracks to be placed under presets. To allow better zoom/scroll control with many tracks visible, this version also adds a requirement to hold the `Shift` or `Alt` key when zooming with the mousewheel. 
 
-### :small_red_triangle: Breaking changes
+### :small_red_triangle: Breaking changes for 1.16
 
 #### Configuration of tracks in IGV
 <!-- MRs !605, !651, !652, !657, !660 -->
@@ -399,7 +422,7 @@ In addition, the Classification track now includes links to existing allele asse
 
 Lastly, it is now possible to zoom the view quickly using the mouse wheel, and clicking a selected variant in the side bar recenters the view on the variant. 
 
-### :small_red_triangle: Breaking changes
+### :small_red_triangle: Breaking changes for 1.14
 
 The following changes must be made to `ella-config.yml` to use this version: 
 - Remove `frequencies.view` and instead add to the new `annotation-config.yml` (see [Annotation](/technical/annotation.md)).
