@@ -36,7 +36,17 @@ from datalayer import (
     filters,
     queries,
 )
-from vardb.datamodel import allele, annotation, assessment, gene, genotype, sample, user, workflow
+from vardb.datamodel import (
+    allele,
+    annotation,
+    annotationshadow,
+    assessment,
+    gene,
+    genotype,
+    sample,
+    user,
+    workflow,
+)
 
 ### Magic Metadata
 
@@ -302,6 +312,14 @@ def load_genepanel_for_allele_ids(
         .one()
     )
 
+    hgnc_ids = (
+        session.query(annotationshadow.AnnotationShadowTranscript.hgnc_id)
+        .filter(
+            filters.in_(session, annotationshadow.AnnotationShadowTranscript.allele_id, allele_ids)
+        )
+        .scalar_all()
+    )
+
     annotation_transcripts_genepanel = queries.annotation_transcripts_genepanel(
         session, [(gp_name, gp_version)], allele_ids=allele_ids
     ).subquery()
@@ -322,9 +340,7 @@ def load_genepanel_for_allele_ids(
         .options(joinedload(gene.Phenotype.gene))
         .join(gene.genepanel_phenotype)
         .filter(
-            gene.Transcript.transcript_name
-            == annotation_transcripts_genepanel.c.genepanel_transcript,
-            gene.Phenotype.gene_id == gene.Transcript.gene_id,
+            filters.in_(session, gene.Phenotype.gene_id, hgnc_ids),
             gene.genepanel_phenotype.c.genepanel_name == gp_name,
             gene.genepanel_phenotype.c.genepanel_version == gp_version,
         )
@@ -333,8 +349,7 @@ def load_genepanel_for_allele_ids(
     geneassessments = (
         session.query(assessment.GeneAssessment)
         .filter(
-            assessment.GeneAssessment.gene_id
-            == annotation_transcripts_genepanel.c.genepanel_hgnc_id,
+            filters.in_(session, gene.Phenotype.gene_id, hgnc_ids),
             assessment.GeneAssessment.date_superceeded.is_(None),
         )
         .all()
@@ -351,6 +366,7 @@ def load_genepanel_for_allele_ids(
             gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
         )
         .filter(
+            filters.in_(session, gene.Transcript.gene_id, hgnc_ids),
             gene.genepanel_transcript.c.genepanel_name == gp_name,
             gene.genepanel_transcript.c.genepanel_version == gp_version,
         )
