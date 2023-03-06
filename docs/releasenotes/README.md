@@ -64,7 +64,7 @@ The CLI command `ella-cli export classifications` has been removed and export sc
 - [Removed export scripts](#removal-of-export-scripts).
 <!-- MR !727 -->
 - Upgraded Python to v3.11 and pydantic to v1.10.5.
-<!-- MR !731 -->
+<!-- MR !731, !734 -->
 - Updated parser and fetcher for PubMed records.
 <!-- MR !732 -->
 - Fixed a bug causing gene assessments not being loaded for variants where default transcript is missing from annotation.
