@@ -556,7 +556,7 @@ dump-schemas:
 #---------------------------------------------
 # TESTING (unit / modules)
 #---------------------------------------------
-.PHONY: test-build test-js test-python test-api test-api-migration test-cli test-report test-formatting \
+.PHONY: test-build test-js test-python test-api test-api-migration test-cli test-formatting \
 	test-e2e test-e2e-local _run_test _prep_test _run_e2e
 
 # all tests targets below first start a docker container with supervisor as process 1
@@ -595,9 +595,6 @@ test-api-migration: _run_test
 
 test-cli: TEST_TYPE = cli
 test-cli: _run_test
-
-test-report: TEST_TYPE = report
-test-report: _run_test
 
 test-formatting: TEST_TYPE = formatting
 test-formatting: _run_test

@@ -245,11 +245,6 @@ cli:
     script:
         - make test-cli
 
-report:
-    extends: .common-test
-    script:
-        - make test-report
-
 dump_schemas:
     extends: .common-test
     needs: ['e2e', 'api', 'python']
