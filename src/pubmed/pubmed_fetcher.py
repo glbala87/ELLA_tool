@@ -27,7 +27,7 @@ def output(filename: Optional[Path]):
         if filename:
             f = filename.open("w")
         else:
-            f = sys.stdout
+            f = sys.stdout  # type: ignore
         yield f
     finally:
         f.close()

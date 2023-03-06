@@ -1,0 +1,195 @@
+<PubmedBookArticle>
+    <BookDocument>
+        <PMID Version="1">20301425</PMID>
+        <ArticleIdList>
+            <ArticleId IdType="bookaccession">NBK1247</ArticleId>
+        </ArticleIdList>
+        <Book>
+            <Publisher>
+                <PublisherName>University of Washington, Seattle</PublisherName>
+                <PublisherLocation>Seattle (WA)</PublisherLocation>
+            </Publisher>
+            <BookTitle book="gene">GeneReviews(&#174;)</BookTitle>
+            <PubDate>
+                <Year>1993</Year>
+            </PubDate>
+            <BeginningDate>
+                <Year>1993</Year>
+            </BeginningDate>
+            <EndingDate>
+                <Year>2016</Year>
+            </EndingDate>
+            <AuthorList Type="editors">
+                <Author>
+                    <LastName>Pagon</LastName>
+                    <ForeName>Roberta A</ForeName>
+                    <Initials>RA</Initials>
+                </Author>
+                <Author>
+                    <LastName>Adam</LastName>
+                    <ForeName>Margaret P</ForeName>
+                    <Initials>MP</Initials>
+                </Author>
+                <Author>
+                    <LastName>Ardinger</LastName>
+                    <ForeName>Holly H</ForeName>
+                    <Initials>HH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Wallace</LastName>
+                    <ForeName>Stephanie E</ForeName>
+                    <Initials>SE</Initials>
+                </Author>
+                <Author>
+                    <LastName>Amemiya</LastName>
+                    <ForeName>Anne</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bean</LastName>
+                    <ForeName>Lora JH</ForeName>
+                    <Initials>LJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Bird</LastName>
+                    <ForeName>Thomas D</ForeName>
+                    <Initials>TD</Initials>
+                </Author>
+                <Author>
+                    <LastName>Fong</LastName>
+                    <ForeName>Chin-To</ForeName>
+                    <Initials>CT</Initials>
+                </Author>
+                <Author>
+                    <LastName>Mefford</LastName>
+                    <ForeName>Heather C</ForeName>
+                    <Initials>HC</Initials>
+                </Author>
+                <Author>
+                    <LastName>Smith</LastName>
+                    <ForeName>Richard JH</ForeName>
+                    <Initials>RJH</Initials>
+                </Author>
+                <Author>
+                    <LastName>Stephens</LastName>
+                    <ForeName>Karen</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+            </AuthorList>
+            <Medium>Internet</Medium>
+        </Book>
+        <ArticleTitle book="gene" part="brca1">BRCA1 and BRCA2 Hereditary Breast and Ovarian Cancer</ArticleTitle>
+        <Language>eng</Language>
+        <AuthorList Type="authors">
+            <Author>
+                <LastName>Petrucelli</LastName>
+                <ForeName>Nancie</ForeName>
+                <Initials>N</Initials>
+            </Author>
+            <Author>
+                <LastName>Daly</LastName>
+                <ForeName>Mary B</ForeName>
+                <Initials>MB</Initials>
+            </Author>
+            <Author>
+                <LastName>Feldman</LastName>
+                <ForeName>Gerald L</ForeName>
+                <Initials>GL</Initials>
+            </Author>
+        </AuthorList>
+        <PublicationType UI="D016454">Review</PublicationType>
+        <Abstract>
+            <AbstractText Label="CLINICAL CHARACTERISTICS">Hereditary breast and ovarian cancer syndrome (HBOC), caused by a germline pathogenic variant in BRCA1 or BRCA2, is characterized by an increased risk for breast cancer, ovarian cancer, prostate cancer, and pancreatic cancer. The lifetime risk for these cancers in individuals with a pathogenic variant in BRCA1 or BRCA2: 40%-80% for breast cancer. 11%-40% for ovarian cancer. 1%-10% for male breast cancer. Up to 39% for prostate cancer. 1%-7% for pancreatic cancer. Individuals with BRCA2 pathogenic variants may also be at an increased risk for melanoma. Prognosis for BRCA1/2-related cancer depends on the stage at which the cancer is diagnosed; however, studies on survival have revealed conflicting results for individuals with germline BRCA1 or BRCA2 pathogenic variants when compared to controls.</AbstractText>
+            <AbstractText Label="DIAGNOSIS/TESTING">An increased likelihood of a BRCA1 or BRCA2 pathogenic variant is suspected on the basis of certain personal and family history characteristics and various clinical criteria. A diagnosis of HBOC is made following molecular genetic testing in an individual or family with a germline BRCA1 or BRCA2 pathogenic variant. No currently available technique can guarantee the identification of all cancer-predisposing allelic variants in BRCA1 or BRCA2. Furthermore, variants of uncertain clinical significance may be identified.</AbstractText>
+            <AbstractText Label="MANAGEMENT">Treatment of manifestations: Treatment of breast and ovarian cancer in individuals with BRCA1- or BRCA2-related tumors is similar to that for sporadic forms of these cancers; however, new classes of drugs that specifically target the BRCA1/2 signaling pathways are being studied. Prevention of primary manifestations: Prophylactic mastectomy and/or oophorectomy and chemoprevention using tamoxifen (a partial estrogen antagonist) have been used, but have not been assessed by randomized trials or case-control studies in high-risk women. Surveillance: Breast cancer screening in women and men relies on a combination of monthly breast self-examination, annual or semiannual clinical breast examination, annual mammography, and breast MRI. In 2007, the American Cancer Society (ACS) added annual breast MRI to their screening recommendations for individuals with a germline pathogenic variant in BRCA1 or BRCA2. Annual pelvic ultrasound and/or CA-125 concentration has not been effective in detecting early-stage ovarian cancer, either in high-risk or average-risk women. Prostate cancer screening relies on annual digital rectal examination and prostate-specific antigen (PSA) testing. Screening of asymptomatic individuals for pancreatic cancer is not generally recommended. In those with a germline pathogenic variant in BRCA2, annual clinical examinations of the skin and eye are recommended. Evaluation of relatives at risk: Once a cancer-predisposing BRCA1 or BRCA2 germline variant has been identified in a family, testing of at-risk relatives can identify those family members who also have the familial variant and thus need increased surveillance and early intervention when a cancer is identified.</AbstractText>
+            <AbstractText Label="GENETIC COUNSELING">Germline pathogenic variants in BRCA1 and BRCA2 are inherited in an autosomal dominant manner. The vast majority of individuals with a BRCA1 or BRCA2 pathogenic variant have inherited it from a parent. However, because of incomplete penetrance, variable age of cancer development, cancer risk reduction resulting from prophylactic surgery, or early death, not all individuals with a BRCA1 or BRCA2 pathogenic variant have a parent affected with cancer. Each offspring of an individual with a BRCA1 or BRCA2 germline pathogenic variant has a 50% chance of inheriting the variant. Prenatal testing is possible for pregnancies at increased risk if the cancer-predisposing variant in the family is known; however, requests for prenatal diagnosis of adult-onset diseases are uncommon and require careful genetic counseling.</AbstractText>
+            <CopyrightInformation>Copyright &#169; 1993-2016, University of Washington, Seattle. All rights reserved.</CopyrightInformation>
+        </Abstract>
+        <Sections>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Summary">Summary</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Diagnosis">Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Clinical_Characteristics">Clinical Characteristics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetically_Related_Allelic_Disord">Genetically Related (Allelic) Disorders</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Differential_Diagnosis">Differential Diagnosis</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Management">Management</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Genetic_Counseling">Genetic Counseling</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Resources">Resources</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Molecular_Genetics">Molecular Genetics</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.References">References</SectionTitle>
+            </Section>
+            <Section>
+                <SectionTitle book="gene" part="brca1" sec="brca1.Chapter_Notes">Chapter Notes</SectionTitle>
+            </Section>
+        </Sections>
+        <ContributionDate>
+            <Year>1998</Year>
+            <Month>9</Month>
+            <Day>4</Day>
+        </ContributionDate>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>9</Month>
+            <Day>26</Day>
+        </DateRevised>
+        <GrantList CompleteYN="Y">
+            <Grant>
+                <GrantID>HHSN276201400262U</GrantID>
+                <Acronym>LM</Acronym>
+                <Agency>NLM NIH HHS</Agency>
+                <Country>United States</Country>
+            </Grant>
+        </GrantList>
+        <ItemList ListType="Synonyms">
+            <Item>HBOC</Item>
+        </ItemList>
+    </BookDocument>
+    <PubmedBookData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>9</Month>
+                <Day>26</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2010</Year>
+                <Month>3</Month>
+                <Day>20</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">20301425</ArticleId>
+        </ArticleIdList>
+    </PubmedBookData>
+</PubmedBookArticle>
+

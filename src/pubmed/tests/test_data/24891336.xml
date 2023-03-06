@@ -1,0 +1,235 @@
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">24891336</PMID>
+        <DateCreated>
+            <Year>2014</Year>
+            <Month>08</Month>
+            <Day>27</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2014</Year>
+            <Month>10</Month>
+            <Day>28</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2016</Year>
+            <Month>05</Month>
+            <Day>11</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Electronic">2326-5205</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>66</Volume>
+                    <Issue>9</Issue>
+                    <PubDate>
+                        <Year>2014</Year>
+                        <Month>Sep</Month>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Arthritis &amp; rheumatology (Hoboken, N.J.)</Title>
+            </Journal>
+            <ArticleTitle>Brief Report: Involvement of TNFRSF11A molecular defects in autoinflammatory disorders.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>2621-7</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1002/art.38727</ELocationID>
+            <Abstract>
+                <AbstractText Label="OBJECTIVE" NlmCategory="OBJECTIVE">Autoinflammatory disorders are caused by a primary dysfunction of the innate immune system. Among these disorders are hereditary recurrent fevers, which are characterized by recurrent episodes of fever and inflammatory manifestations affecting multiple tissues. Hereditary recurrent fevers often lack objective diagnostic criteria, thereby hampering the identification of disease-causing genes. This study was undertaken to identify a gene responsible for hereditary recurrent fevers.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">Copy number variations and point mutations were sought by array-comparative genomic hybridization and polymerase chain reaction sequencing, respectively. Serum cytokine levels were measured using Luminex technology. The effect of TNFRSF11A molecular defects on NF-&#954;B signaling in cells expressing wild-type and mutated forms of the receptor was evaluated by luciferase assay.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">A patient with multiple congenital anomalies and hereditary recurrent fever was found to carry a de novo heterozygous complex chromosomal rearrangement encompassing a duplication of TNFRSF11A, a gene known to regulate fever in rodents. We also identified a heterozygous frameshift mutation (p.Met416Cysfs*110) in TNFRSF11A in a mother and daughter with isolated hereditary recurrent fever. This mutation was associated with increased secretion of several inflammatory cytokines (tumor necrosis factor &#945; [TNF&#945;], interleukin-18 [IL-18], IL-1 receptor antagonist, interferon-&#947;) and altered the biologic effects of the receptor on NF-&#954;B signaling. The disease in the patients described herein exhibits striking clinical similarities to TNF receptor-associated periodic syndrome, another hereditary recurrent fever involving a gene of the same family (TNFRSF1A).</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">The involvement of TNFRSF11A in hereditary recurrent fever highlights the key role of this receptor in innate immunity. The present results also suggest that TNFRSF11A screening could serve as a new diagnostic test for autoinflammatory disorders.</AbstractText>
+                <CopyrightInformation>Copyright &#169; 2014 by the American College of Rheumatology.</CopyrightInformation>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>J&#233;ru</LastName>
+                    <ForeName>Isabelle</ForeName>
+                    <Initials>I</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>UMR S933, INSERM, Universit&#233; Pierre et Marie Curie Paris 6, H&#244;pital Trousseau and AP-HP, Paris, France.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Cochet</LastName>
+                    <ForeName>Emmanuelle</ForeName>
+                    <Initials>E</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Duquesnoy</LastName>
+                    <ForeName>Philippe</ForeName>
+                    <Initials>P</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hentgen</LastName>
+                    <ForeName>V&#233;ronique</ForeName>
+                    <Initials>V</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Copin</LastName>
+                    <ForeName>Bruno</ForeName>
+                    <Initials>B</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Mitjavila-Garcia</LastName>
+                    <ForeName>Maria Teresa</ForeName>
+                    <Initials>MT</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Sheykholeslami</LastName>
+                    <ForeName>Shayan</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Le Borgne</LastName>
+                    <ForeName>Ga&#235;lle</ForeName>
+                    <Initials>G</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Dastot-Le Moal</LastName>
+                    <ForeName>Florence</ForeName>
+                    <Initials>F</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Malan</LastName>
+                    <ForeName>Val&#233;rie</ForeName>
+                    <Initials>V</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Karabina</LastName>
+                    <ForeName>Sonia</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Mahevas</LastName>
+                    <ForeName>Mathieu</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Chantot-Bastaraud</LastName>
+                    <ForeName>Sandra</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Lecron</LastName>
+                    <ForeName>Jean-Claude</ForeName>
+                    <Initials>JC</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Faivre</LastName>
+                    <ForeName>Laurence</ForeName>
+                    <Initials>L</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Amselem</LastName>
+                    <ForeName>Serge</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D013485">Research Support, Non-U.S. Gov't</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Arthritis Rheumatol</MedlineTA>
+            <NlmUniqueID>101623795</NlmUniqueID>
+            <ISSNLinking>2326-5191</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D053246">Receptor Activator of Nuclear Factor-kappa B</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>AIM</CitationSubset>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D000328">Adult</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D002675">Child, Preschool</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D056915">DNA Copy Number Variations</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005838">Genotype</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D056660">Hereditary Autoinflammatory Diseases</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+                <QualifierName MajorTopicYN="N" UI="Q000378">metabolism</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007113">Immunity, Innate</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008297">Male</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008875">Middle Aged</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D009154">Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D053246">Receptor Activator of Nuclear Factor-kappa B</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+                <QualifierName MajorTopicYN="N" UI="Q000378">metabolism</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2013</Year>
+                <Month>8</Month>
+                <Day>2</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2014</Year>
+                <Month>5</Month>
+                <Day>22</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2014</Year>
+                <Month>6</Month>
+                <Day>4</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2014</Year>
+                <Month>6</Month>
+                <Day>4</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2014</Year>
+                <Month>10</Month>
+                <Day>29</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="doi">10.1002/art.38727</ArticleId>
+            <ArticleId IdType="pubmed">24891336</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+

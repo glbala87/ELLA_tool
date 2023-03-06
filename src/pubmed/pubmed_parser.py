@@ -1,3 +1,4 @@
+import html
 import logging
 import re
 import xml.etree.ElementTree as ET
@@ -19,7 +20,7 @@ class NewReference(BaseModel):
     abstract: Optional[str] = None
     pubmed_id: int
     published: bool = True
-    year: Optional[int] = None
+    year: Optional[str] = None
 
 
 log = logging.getLogger(__name__)
@@ -78,6 +79,7 @@ class PubMedParser(object):
         # a value. For that we use a non-greedy match-all ([\s\S]*?).
         # The lookahead pattern (?=\n[A-Z]*\s*-|$) stop the match-all
         # at either the next key, or at the end of the whole data string.
+        medline_text = html.unescape(medline_text)
         pattern = r"([A-Z]+)\s*-\s*([\s\S]*?)(?=\n[A-Z]*\s*-|$)"
         matches = re.findall(pattern, medline_text)
         pubmed_data: Dict[str, Any] = {}
@@ -99,14 +101,19 @@ class PubMedParser(object):
         reference = NewReference(pubmed_id=int(pubmed_data["PMID"]))
 
         authors = pubmed_data.get("AU")
+        if isinstance(authors, str):
+            authors = [authors]
+
         if authors is None:
-            reference.authors = "N/A"
+            reference.authors = pubmed_data.get("CN", "N/A")
         elif len(authors) > 2:
             reference.authors = authors[0] + " et al."
         else:
             reference.authors = " & ".join(authors)
 
-        reference.abstract = pubmed_data.get("AB", "")
+        reference.abstract = pubmed_data.get("AB", None)
+        if reference.abstract:
+            reference.abstract = re.sub(r"\s+([A-Z]{2,}:)", r"\n\1", reference.abstract)
 
         if not isinstance(reference_type, list):
             reference_type = [reference_type]
@@ -143,19 +150,35 @@ class PubMedParser(object):
             reference.title = pubmed_data["TI"]
             book_title: str = pubmed_data["BTI"]
             publisher: Optional[str] = pubmed_data.get("PB")
+            editors = pubmed_data.get("ED")
+            if editors:
+                if isinstance(editors, str):
+                    editors = [editors]
+                if len(editors) > 1:
+                    editors = f"{editors[0]} et al."
+                else:
+                    editors = editors[0]
+                book_title = f"In: {editors} (eds)., {book_title}"
+
             reference.journal = book_title
             if publisher:
                 reference.journal += f", {publisher}"
+                publisher_location = pubmed_data.get("PL")
+                if publisher_location:
+                    reference.journal += f", {publisher_location}."
         elif "Book" in reference_type:
             reference.title = pubmed_data["BTI"]
             reference.journal = pubmed_data.get("PB", "")
+            publisher_location = pubmed_data.get("PL")
+            if publisher_location:
+                reference.journal += f", {publisher_location}."  # type: ignore
         else:
             raise RuntimeError(f"Unknown reference type {reference_type}")
 
         if reference.journal:
             reference.journal = reference.journal.rstrip(":, ")
         year: str = pubmed_data["DP"]
-        reference.year = int(year.split(" ", 1)[0])
+        reference.year = year
         return reference
 
     def parse_pubmed_article(self, pubmed_article: ET.Element):
@@ -289,10 +312,9 @@ class PubMedParser(object):
         try:
             pages = self.get_field(pubmed_article, base_tree_journal % JournalPatterns.PAGES)
         except (AttributeError, TypeError):
-            journal_pattern += "."
             pass
         else:
-            journal_pattern += ", {pages}.".format(pages=pages)
+            journal_pattern += ", {pages}".format(pages=pages)
 
         return journal_pattern
 
@@ -363,6 +385,8 @@ class PubMedParser(object):
                 log.debug(f"Abstract text is NoneType: {abstract_parts!r}")
             else:
                 assert abstract_part.text
+                if "Label" in abstract_part.attrib:
+                    abstract += f"{abstract_part.attrib['Label']}: "
                 abstract += abstract_part.text + "\n"
 
         if not abstract.strip():
@@ -377,13 +401,13 @@ class PubMedParser(object):
         :param patterns: Patterns to search in author_list
         :return : Authors formatted as one string
         """
+
         if not author_list:
             log.warning("No authors found in XML")
             return NOT_IN_PUBMED
 
         try:
             authors = author_list.findall(AuthorPatterns.AUTHOR)
-            n_authors = len(authors)
         except AttributeError as e:
             log.warning(f"No authors found: {e}")
             return NOT_IN_PUBMED
@@ -406,9 +430,9 @@ class PubMedParser(object):
 
             authors_to_format.append(author_formatted)
 
-        authors_formatted = " & ".join(authors_to_format)
-
-        if n_authors > 2:
-            authors_formatted += " et al."
+        if len(authors_to_format) > 2:
+            authors_formatted = authors_to_format[0] + " et al."
+        else:
+            authors_formatted = " & ".join(authors_to_format)
 
         return authors_formatted

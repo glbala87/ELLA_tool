@@ -1,0 +1,155 @@
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">21550946</PMID>
+        <DateCreated>
+            <Year>2011</Year>
+            <Month>08</Month>
+            <Day>18</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2012</Year>
+            <Month>01</Month>
+            <Day>26</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>11</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Electronic">1934-2403</ISSN>
+                <JournalIssue CitedMedium="Internet">
+                    <Volume>17 Suppl 3</Volume>
+                    <PubDate>
+                        <MedlineDate>2011 Jul-Aug</MedlineDate>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Endocrine practice : official journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists</Title>
+                <ISOAbbreviation>Endocr Pract</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Preimplantation genetic diagnosis for hereditary endocrine disease.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>28-32</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.4158/EP11056.RA</ELocationID>
+            <Abstract>
+                <AbstractText Label="OBJECTIVE" NlmCategory="OBJECTIVE">To describe the process of preimplantation genetic diagnosis (PGD), which allows the selection of embryos without mutations for implantation, with specific application for mutations in GNAS.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">We identified a GNAS mutation in a patient with a severe form of Albright hereditary osteodystrophy and pseudohypoparathyroidism type 1a with phocomelia and performed PGD on embryos derived by in vitro fertilization in order to deliver an unaffected infant.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">After in vitro fertilization, embryos that were homozygous normal for GNAS were identified and implanted into the mother. Ultrasonography 34 days after embryo transfer showed a viable singleton intrauterine pregnancy. A normal-appearing male infant was born at 36.5 weeks of gestation. Newborn screening revealed normal results of thyroid function tests, and a buccal swab obtained when the child was 1 year old verified normal GNAS gene sequences.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">PGD is an alternative that can be offered for many genetic diseases and represents a method to decrease and potentially eliminate the transmission of severe genetic diseases. Patients with multiple endocrine neoplasia (MEN) type 2 with known RET gene mutations as well as those with other heritable disorders are candidates for PGD. Successful PGD in patients with MEN has not yet been reported and has met with some early difficulties, but it is believed that this technique will eventually be successful for MEN and other hereditary endocrine disorders.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Lietman</LastName>
+                    <ForeName>Steven A</ForeName>
+                    <Initials>SA</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Orthopedic Surgery, Cleveland Clinic Foundation Department of Biomedical Engineering, Cleveland Clinic Lerner Research Institute, 9500 Euclid Avenue, Cleveland, OH 44195, USA. lietmas@ccf.org</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <GrantList CompleteYN="Y">
+                <Grant>
+                    <GrantID>K08-AR47661</GrantID>
+                    <Acronym>AR</Acronym>
+                    <Agency>NIAMS NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+                <Grant>
+                    <GrantID>R01-DE018237.</GrantID>
+                    <Acronym>DE</Acronym>
+                    <Agency>NIDCR NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+                <Grant>
+                    <GrantID>UL1 RR024989</GrantID>
+                    <Acronym>RR</Acronym>
+                    <Agency>NCRR NIH HHS</Agency>
+                    <Country>United States</Country>
+                </Grant>
+            </GrantList>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+                <PublicationType UI="D052061">Research Support, N.I.H., Extramural</PublicationType>
+                <PublicationType UI="D013485">Research Support, Non-U.S. Gov't</PublicationType>
+                <PublicationType UI="D016454">Review</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Endocr Pract</MedlineTA>
+            <NlmUniqueID>9607439</NlmUniqueID>
+            <ISSNLinking>1530-891X</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>EC 3.6.1.-</RegistryNumber>
+                <NameOfSubstance UI="C406732">GNAS protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>EC 3.6.5.1</RegistryNumber>
+                <NameOfSubstance UI="D019205">GTP-Binding Protein alpha Subunits, Gs</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004700">Endocrine System Diseases</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000175">diagnosis</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D019205">GTP-Binding Protein alpha Subunits, Gs</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011247">Pregnancy</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D019836">Preimplantation Diagnosis</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000379">methods</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2011</Year>
+                <Month>5</Month>
+                <Day>10</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2011</Year>
+                <Month>5</Month>
+                <Day>10</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2012</Year>
+                <Month>1</Month>
+                <Day>27</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pii">R38UQ1HQ9227Q5VU</ArticleId>
+            <ArticleId IdType="doi">10.4158/EP11056.RA</ArticleId>
+            <ArticleId IdType="pubmed">21550946</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+
