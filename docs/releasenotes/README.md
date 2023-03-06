@@ -54,6 +54,8 @@ The CLI command `ella-cli export classifications` has been removed and export sc
 ### All changes
 <!-- MR !693, !723, !726, !728, !729 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
+<!-- MR !733 -->
+- Upgraded IGV.js in VISUAL to [v2.12.6](https://github.com/igvteam/igv.js/releases/tag/v2.12.6). This includes fixes for coloring items by pair orientation and insert size and bugs that affected rendering of bed files and amino acid translation.
 <!-- MR !711 -->
 - Added support for bigBed file format in VISUAL.
 <!-- MR !716 -->
