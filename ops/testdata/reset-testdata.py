@@ -216,6 +216,20 @@ class Context:
             exit(1)
 
 
+def analysis_paths(testset_str: str):
+    if testset_str is None:
+        testset = next(v for v in ANALYSES if v.is_default)
+    else:
+        testset = next((v for v in ANALYSES if v.name == testset_str), None)
+    if testset is None:
+        return []
+
+    testset_path = TESTDATA_DIR / testset.path
+    analysis_paths = [d for d in testset_path.iterdir() if d.is_dir()]
+    analysis_paths.sort()
+    return analysis_paths
+
+
 class CliActions(Enum):
     RESET = "reset"
     DUMP = "dump"
@@ -256,16 +270,7 @@ class DepositTestdata:
         :param test_set: Which set to import.
         """
 
-        if test_set is None:
-            testset = next(v for v in ANALYSES if v.is_default)
-        else:
-            testset = next(v for v in ANALYSES if v.name == test_set)
-
-        testset_path = TESTDATA_DIR / testset.path
-        analysis_paths = [d for d in testset_path.iterdir() if d.is_dir()]
-        analysis_paths.sort()
-
-        for analysis_path in analysis_paths:
+        for analysis_path in analysis_paths(test_set):
             analysis_files = [f for f in analysis_path.iterdir() if f.name.endswith(".analysis")]
             if len(analysis_files) > 1:
                 if feature_is_enabled("cnv"):
@@ -347,6 +352,14 @@ class DepositTestdata:
         logger.info("--------------------")
 
 
+def link_analyses(testset):
+    os.system(f"rm {os.environ['ANALYSES_INCOMING']}/*")
+    for analysis_path in analysis_paths(testset):
+        os.system(
+            f"ln -sf {analysis_path.absolute()} {os.environ['ANALYSES_INCOMING']}/{analysis_path.name}"
+        )
+
+
 ###
 ### Database functions
 ###
@@ -370,7 +383,7 @@ def restore_db(db: DB, remake: bool = False):
     db.disconnect()
 
 
-def reset_from_dump(db: DB, data: bytes):
+def reset_from_dump(db: DB, data: bytes, testset: str):
     drop_db(db, remake=False)
 
     p = subprocess.Popen(
@@ -381,6 +394,8 @@ def reset_from_dump(db: DB, data: bytes):
     p.communicate(gzip.decompress(data))
     p.wait()
 
+    link_analyses(testset)
+
 
 def reset(db: DB, test_set: str = "default"):
     logger.info("Resetting database from script")
@@ -388,6 +403,8 @@ def reset(db: DB, test_set: str = "default"):
 
     dt = DepositTestdata(db)
     dt.deposit_all(test_set)
+
+    link_analyses(test_set)
 
 
 ###
@@ -436,13 +453,14 @@ def reset_db(ctx: Context, testset: str):
 
     if ctx.has_dump():
         logger.info(f"Restoring database {DB_URL} from {ctx.dump_type} dump")
-        reset_from_dump(ctx.db, ctx.read_dump())
+        reset_from_dump(ctx.db, ctx.read_dump(), ctx.testset)
     elif ctx.testset not in AVAILABLE_TESTSETS:
         logger.error(f"Invalid or non-existent testset name: {ctx.testset}")
         exit(1)
     else:
         logger.info(f"Resetting {DB_URL} from legacy testset: {ctx.testset}")
         reset(ctx.db, ctx.testset)
+
     logger.info("Database reset")
 
 
