@@ -107,7 +107,7 @@ class ReferenceListResource(LogRequestResource):
             description: Created reference
         """
         if data.pubmedData is not None:
-            ref_data = PubMedParser().parse(data.pubmedData)
+            ref_data = PubMedParser().parse(data.pubmedData).dict()
 
             reference = (
                 session.query(assessment.Reference)
