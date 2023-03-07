@@ -107,4 +107,4 @@ ELLA's current access model revolves around gene panels, which control which ana
 
 - File: `usergroups.json`
 - Key: `genepanels`
-- Value: list of `[gene panel name], [version]`
+- Value: `[gene panel name], [version]` (latter is optional)

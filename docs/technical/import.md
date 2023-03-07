@@ -57,8 +57,8 @@ See also [Annotation configuration](/docs/technical/annotation.html#annotation-d
 
 ## Default import gene panel
 
-Gene panel that should be pre-selected when importing data through the [IMPORT function](/manual/data-import-reanalyses.html#import-variant-data), configured per [user group](/technical/users.html#user-groups). See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. : 
+Gene panel that should be pre-selected when importing data through the [IMPORT function](/manual/data-import-reanalyses.html#import-variant-data), configured per [user group](/technical/users.html#user-groups). See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `default_import_genepanel`
-- Value: `[gene panel name], [version]`
+- Value: `[gene panel name], [version]` (latter is optional)

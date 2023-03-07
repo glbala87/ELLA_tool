@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17
 
-Release date: TBD
+Release date: 09.03.2023
 
 ### Highlights
 
@@ -28,6 +28,8 @@ Note there are several [breaking changes](#small_red_triangle-breaking-changes-f
 The biggest change in this release is a new setup for gene panels. Although this doesn't add any new features in ELLA by itself, the new process for building, updating and configuring gene panels represent a significant improvement, both in terms of more easily keeping transcript and gene names updated and in terms of keeping manual configuration consistent across gene panels. 
 
 For details, see the [README](https://gitlab.com/alleles/genepanel-builder/-/blob/dev/README.md) in the separate repository [Genepanel builder](https://gitlab.com/alleles/genepanel-builder). 
+
+Note that these changes also make providing gene panel version in the usergroup config optional; see [User groups and gene panels](/technical/users.md#user-groups-and-gene-panels) and [Default import gene panel](/technical/import.md#default-import-gene-panel).
 
 ### :small_red_triangle: Breaking changes for 1.17
 
@@ -52,7 +54,7 @@ The configuration options `allow_notrelevant` and `allow_technical` have been re
 The CLI command `ella-cli export classifications` has been removed and export scripts will no longer be maintained as part of this source code. The last version of the script is [available here](https://gitlab.com/alleles/ella/-/blob/09f29eb05732899baf83a59e7c420b9dc0cebabb/src/vardb/export/dump_classification.py).
 
 ### All changes
-<!-- MR !693, !723, !726, !728, !729 -->
+<!-- MR !693, !723, !726, !728, !729, !735, !736 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
 <!-- MR !733 -->
 - Upgraded IGV.js in VISUAL to [v2.12.6](https://github.com/igvteam/igv.js/releases/tag/v2.12.6). This includes fixes for coloring items by pair orientation and insert size and bugs that affected rendering of bed files and amino acid translation.
