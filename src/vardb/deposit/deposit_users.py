@@ -1,11 +1,13 @@
-from typing import Dict, List
-import json
 import argparse
+import json
 import logging
-from sqlalchemy import tuple_
-from sqlalchemy.orm.exc import NoResultFound
+from typing import Dict, List
+
+from sqlalchemy import or_
+
 from api.config import config
-from vardb.datamodel import DB, user, gene, annotationshadow
+from datalayer import filters
+from vardb.datamodel import DB, annotationshadow, gene, user
 
 log = logging.getLogger(__name__)
 
@@ -27,25 +29,57 @@ def import_groups(session, groups, log=log.info):
         db_official_genepanels = (
             session.query(gene.Genepanel)
             .filter(
-                tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(group_data["genepanels"]),
+                or_(
+                    # If genepanel is specified with version, use that
+                    filters.in_(
+                        session,
+                        (gene.Genepanel.name, gene.Genepanel.version),
+                        [gp for gp in group_data["genepanels"] if len(gp) == 2],
+                    ),
+                    # Otherwise, pick all versions of a genepanel
+                    filters.in_(
+                        session,
+                        gene.Genepanel.name,
+                        [gp[0] for gp in group_data["genepanels"] if len(gp) == 1],
+                    ),
+                ),
                 gene.Genepanel.official.is_(True),
             )
             .all()
         )
 
-        if len(db_official_genepanels) != len(group_data["genepanels"]):
-            not_found = set(tuple(gp) for gp in group_data["genepanels"]) - set(
-                (gp.name, gp.version) for gp in db_official_genepanels
-            )
-            raise NoResultFound(
-                "Unable to find all genepanels in database: %s" % str(list(not_found))
-            )
+        for group_panel in group_data["genepanels"]:
+            if len(group_panel) == 2:
+                assert tuple(group_panel) in [
+                    (gp.name, gp.version) for gp in db_official_genepanels
+                ], f"Could not find genepanel {group_panel} in database"
+            else:
+                assert group_panel[0] in [
+                    gp.name for gp in db_official_genepanels
+                ], f"Could not find any genepanels named '{group_panel[0]}' in database"
 
         import_groups[group_name] = group_data.pop("import_groups", [group_name])
 
         if group_data.get("default_import_genepanel"):
             default_import_genepanel = group_data.pop("default_import_genepanel")
-            assert default_import_genepanel in group_data["genepanels"]
+
+            # Use specified version if provided, otherwise, use latest version
+            if len(default_import_genepanel) == 1:
+                latest_version = (
+                    session.query(gene.Genepanel.version)
+                    .filter(
+                        gene.Genepanel.name == default_import_genepanel[0],
+                        gene.Genepanel.official.is_(True),
+                    )
+                    .order_by(gene.Genepanel.date_created.desc())
+                    .scalar_all()[0]
+                )
+                default_import_genepanel = (default_import_genepanel[0], latest_version)
+
+            assert tuple(default_import_genepanel) in [
+                (gp.name, gp.version) for gp in db_official_genepanels
+            ], f"Could not find genepanel {default_import_genepanel} in database"
+
             group_data["default_import_genepanel_name"] = default_import_genepanel[0]
             group_data["default_import_genepanel_version"] = default_import_genepanel[1]
 
