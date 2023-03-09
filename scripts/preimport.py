@@ -148,7 +148,7 @@ def _get_transcript_data(transcripts):
     transcript_columns["name"] = lambda t: t["transcript_name"]
     transcript_columns["score"] = lambda t: "0.0"
     transcript_columns["strand"] = lambda t: t["strand"]
-    transcript_columns["tags"] = lambda t: ",".join(t["tags"])
+    transcript_columns["tags"] = lambda t: ",".join(t["tags"] or [])
     transcript_columns["HGNC id"] = lambda t: str(t["hgnc_id"])
     transcript_columns["HGNC symbol"] = lambda t: t["hgnc_symbol"]
     transcript_columns["inheritance"] = lambda t: t["inheritance"]
