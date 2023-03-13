@@ -64,8 +64,10 @@ The CLI command `ella-cli export classifications` has been removed and export sc
 - [Removed config option for disallowing Technical and Not relevant for Finalize](#changes-to-user-configuration) (set to always allowed).
 <!-- MR !717 -->
 - [Removed export scripts](#removal-of-export-scripts).
+<!-- MR !722 -->
+- Added support for VEP [v108.2](https://github.com/Ensembl/ensembl-vep/releases/tag/release%2F108.2).
 <!-- MR !727 -->
-- Upgraded Python to v3.11 and pydantic to v1.10.5.
+- Upgraded Python to [v3.11](https://www.python.org/downloads/release/python-3110/) and pydantic to [v1.10.5](https://pypi.org/project/pydantic/1.10.5/).
 <!-- MR !731, !734 -->
 - Updated parser and fetcher for PubMed records.
 <!-- MR !732 -->
