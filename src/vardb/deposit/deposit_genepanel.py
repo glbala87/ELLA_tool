@@ -162,7 +162,9 @@ class DepositGenepanel(object):
             self.session,
             gm.Gene,
             gene_rows,
-            compare_keys=["hgnc_id", "hgnc_symbol"],
+            include_pk="hgnc_id",
+            compare_keys=["hgnc_id"],
+            replace=True,
         ):
             gene_inserted_count += len(created)
             gene_reused_count += len(existing)
