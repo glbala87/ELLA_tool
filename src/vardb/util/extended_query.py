@@ -90,12 +90,12 @@ class ExtendedQuery(Query):
         If database user does not have write-access, this will return self.subquery(name)
         """
         has_write_access = self.session.execute(
-            "SELECT * FROM pg_catalog.has_schema_privilege(current_user, 'public', 'CREATE')"
+            "SELECT * FROM pg_catalog.has_schema_privilege(current_user, current_schema(), 'CREATE')"
         ).scalar()
 
         if not has_write_access:
             logger.warning(
-                "User does not have write access on schema 'public'. Will not create temp table."
+                "User does not have write access on current schema. Will not create temp table."
             )
             return self.subquery(name)
 
