@@ -8,6 +8,10 @@ from sqlalchemy.orm import Query
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Executable, ClauseElement, _literal_as_text
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class CreateTempTableAs(Executable, ClauseElement):
     def __init__(self, name, query):
@@ -82,7 +86,18 @@ class ExtendedQuery(Query):
         :warning: name is not escaped.
 
         Returns table() structure of query.
+
+        If database user does not have write-access, this will return self.subquery(name)
         """
+        has_write_access = self.session.execute(
+            "SELECT * FROM pg_catalog.has_schema_privilege(current_user, 'public', 'CREATE')"
+        ).scalar()
+
+        if not has_write_access:
+            logger.warning(
+                "User does not have write access on schema 'public'. Will not create temp table."
+            )
+            return self.subquery(name)
 
         prefix = "".join(random.choice(string.ascii_lowercase) for _ in range(8))
 
