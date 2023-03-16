@@ -108,12 +108,12 @@ RUN apt-get update && \
     apt-get -yqq update && apt-get install -yqq yarn && \
     echo "chromium: " && \
     curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchrome-linux.zip?alt=media > chrome_linux.zip && \
-    unzip chrome_linux.zip && \
+    unzip -o chrome_linux.zip && \
     ln -s /dist/chrome-linux/chrome /usr/bin/chrome && \
     rm chrome_linux.zip && \
     echo "chromedriver: " && \
     curl -L https://www.googleapis.com/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F1105487%2Fchromedriver_linux64.zip?alt=media > chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip && \
+    unzip -o chromedriver_linux64.zip && \
     ln -s /dist/chromedriver_linux64/chromedriver /usr/bin/chromedriver && \
     rm chromedriver_linux64.zip
 

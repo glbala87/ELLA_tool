@@ -529,7 +529,8 @@ def test_regions(
 
     rf = RegionFilter(session, None)
     tmp_gene_padding = rf.create_gene_padding_table(
-        [transcript.gene_id], {"splice_region": splice_region, "utr_region": utr_region}
+        (genepanel.name, genepanel.version),
+        {"splice_region": splice_region, "utr_region": utr_region},
     )
 
     assert session.query(*tmp_gene_padding.c).all() == [
