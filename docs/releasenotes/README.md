@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17
 
-Release date: 14.03.2023
+Release date: 16.03.2023
 
 ### Highlights
 
@@ -87,6 +87,7 @@ MR !713 Use submodules in review apps
 MR !714 Tech doc improvements; includes Makefile and testdata changes
 MR !715 Do not navigate on frontend from the backend
 MR !725 Fixed types used with validation turned off
+MR !738 Fallback to subquery when trying to create temp table as user without privileges
 -->
 - Fixes and improvements to development environment and code base.
 
