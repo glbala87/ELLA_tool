@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17
 
-Release date: 16.03.2023
+Release date: 21.03.2023
 
 ### Highlights
 
@@ -56,16 +56,18 @@ The CLI command `ella-cli export classifications` has been removed and export sc
 ### All changes
 <!-- MR !693, !723, !726, !728, !729, !735, !736, !737 -->
 - [Improved format of gene panels](#improved-format-of-gene-panels).
+<!-- MR !739 -->
+- Added link to [UCSC Genome Browser](https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19) in chromosome position in the [top bar](/manual/top-bar.md).
 <!-- MR !733 -->
 - Upgraded IGV.js in VISUAL to [v2.12.6](https://github.com/igvteam/igv.js/releases/tag/v2.12.6). This includes fixes for coloring items by pair orientation and insert size and bugs that affected rendering of bed files and amino acid translation.
 <!-- MR !711 -->
 - Added support for bigBed file format in VISUAL.
+<!-- MR !722 -->
+- Added support for VEP [v108.2](https://github.com/Ensembl/ensembl-vep/releases/tag/release%2F108.2).
 <!-- MR !716 -->
 - [Removed config option for disallowing Technical and Not relevant for Finalize](#changes-to-user-configuration) (set to always allowed).
 <!-- MR !717 -->
 - [Removed export scripts](#removal-of-export-scripts).
-<!-- MR !722 -->
-- Added support for VEP [v108.2](https://github.com/Ensembl/ensembl-vep/releases/tag/release%2F108.2).
 <!-- MR !727 -->
 - Upgraded Python to [v3.11](https://www.python.org/downloads/release/python-3110/) and pydantic to [v1.10.5](https://pypi.org/project/pydantic/1.10.5/).
 <!-- MR !731, !734 -->
