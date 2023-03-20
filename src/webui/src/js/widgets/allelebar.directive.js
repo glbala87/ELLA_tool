@@ -113,6 +113,12 @@ app.component('allelebar', {
                     },
                     getHGVSg(allele) {
                         return `${chrToContigRef(allele.chromosome)}:${allele.formatted.hgvsg}`
+                    },
+                    getUCSCLink() {
+                        return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${
+                            $ctrl.allele.chromosome
+                        }%3A${$ctrl.allele.start_position - 14}-${$ctrl.allele.open_end_position +
+                            15}`
                     }
                 })
             }
