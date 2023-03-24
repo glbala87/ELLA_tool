@@ -27,8 +27,8 @@ class TranscriptFull(Transcript):
     tx_start: int
     tx_end: int
     strand: StrandSymbol
-    cds_start: int
-    cds_end: int
+    cds_start: Optional[int]
+    cds_end: Optional[int]
     exon_starts: List[int]
     exon_ends: List[int]
 

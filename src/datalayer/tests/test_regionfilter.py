@@ -360,18 +360,30 @@ def create_transcript(draw):
     cds_exons = draw(
         st.lists(st.integers(min_value=0, max_value=num_exons - 1), min_size=2, max_size=2)
     )
-    cds_start_exon, cds_end_exon = tuple(sorted(cds_exons))
+    coding_exon_start, coding_exon_end = tuple(sorted(cds_exons))
 
     # Generate cds_start and cds_end within given exons
     cds_start = draw(
-        st.integers(min_value=exon_starts[cds_start_exon], max_value=exon_ends[cds_start_exon] - 1)
+        st.one_of(
+            st.integers(
+                min_value=exon_starts[coding_exon_start], max_value=exon_ends[coding_exon_start] - 1
+            ),
+            st.none(),
+        )
     )
     cds_end = draw(
-        st.integers(min_value=exon_starts[cds_end_exon] + 1, max_value=exon_ends[cds_end_exon])
+        st.one_of(
+            st.integers(
+                min_value=exon_starts[coding_exon_end] + 1, max_value=exon_ends[coding_exon_end]
+            ),
+            st.none(),
+        )
     )
 
-    # Since cds_start_exon could be equal to cds_end_exon, we add a check that the coding region actually has a span
-    ht.assume(cds_end > cds_start)
+    # Since coding_exon_start could be equal to coding_exon_end, we must enforce the assumption that
+    # the coding region actually has a non-trivial span whenever it is defined.
+    if cds_end is not None and cds_start is not None:
+        ht.assume(cds_end > cds_start)
 
     reversed = draw(st.booleans())
 
@@ -571,35 +583,36 @@ def test_regions(
 
     # Check coding regions
     expected_coding_regions = []
-    for exon_start, exon_end in zip(transcript.exon_starts, transcript.exon_ends):
-        # Work with closed intervals
-        exon_end -= 1
-        cds_end = transcript.cds_end - 1
+    if transcript.cds_start is not None and transcript.cds_end is not None:
+        for exon_start, exon_end in zip(transcript.exon_starts, transcript.exon_ends):
+            # Work with closed intervals
+            exon_end -= 1
+            cds_end = transcript.cds_end - 1
 
-        if exon_end < transcript.cds_start:
-            # Exon lies before coding region
-            continue
-        elif exon_start > cds_end:
-            # Exon lies after coding region
-            continue
+            if exon_end < transcript.cds_start:
+                # Exon lies before coding region
+                continue
+            elif exon_start > cds_end:
+                # Exon lies after coding region
+                continue
 
-        if transcript.cds_start > exon_start:
-            region_start = transcript.cds_start
-        else:
-            region_start = exon_start
+            if transcript.cds_start > exon_start:
+                region_start = transcript.cds_start
+            else:
+                region_start = exon_start
 
-        if cds_end < exon_end:
-            region_end = cds_end
-        else:
-            region_end = exon_end
+            if cds_end < exon_end:
+                region_end = cds_end
+            else:
+                region_end = exon_end
 
-        expected_coding_regions.append((region_start, region_end))
+            expected_coding_regions.append((region_start, region_end))
 
     assert set(expected_coding_regions) == set(coding_regions)
 
     # Check utr regions
     expected_utr_regions = []
-    if utr_region[0] != 0:
+    if transcript.cds_start and utr_region[0] != 0:
         expected_utr_regions.append(
             (
                 transcript.cds_start
@@ -607,7 +620,7 @@ def test_regions(
                 transcript.cds_start - 1,  # Exclude cds_start
             )
         )
-    if utr_region[1] != 0:
+    if transcript.cds_end and utr_region[1] != 0:
         # Exclude cds_end (cds_end is open_ended, but interval should be closed)
         expected_utr_regions.append(
             (
