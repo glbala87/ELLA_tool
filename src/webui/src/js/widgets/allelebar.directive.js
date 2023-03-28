@@ -115,10 +115,16 @@ app.component('allelebar', {
                         return `${chrToContigRef(allele.chromosome)}:${allele.formatted.hgvsg}`
                     },
                     getUCSCLink() {
-                        return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${
-                            $ctrl.allele.chromosome
-                        }%3A${$ctrl.allele.start_position - 14}-${$ctrl.allele.open_end_position +
-                            15}`
+                        let start = $ctrl.allele.start_position - 14
+                        let end = $ctrl.allele.open_end_position + 15
+                        console.log(start, end)
+                        if (
+                            $ctrl.allele.change_type === 'dup' ||
+                            $ctrl.allele.change_type === 'dup_tandem'
+                        ) {
+                            end = $ctrl.allele.start_position + $ctrl.allele.length + 15
+                        }
+                        return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${$ctrl.allele.chromosome}%3A${start}-${end}`
                     }
                 })
             }
