@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17
 
-Release date: 21.03.2023
+Release date: 28.03.2023
 
 ### Highlights
 
