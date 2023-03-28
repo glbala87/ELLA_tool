@@ -2,7 +2,7 @@
 
 [[toc]]
 
-Configuration of both deposit and view of annotation is defined using a YAML-file (see [annotation-config.yml](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/annotation-config.yml) for an example), deposited in the database using the [ella-cli](/technical/production-tasks.html). This file should contain two keys: 
+Configuration of both deposit and view of annotation is defined using a YAML-file (see [`annotation-config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/annotation-config.yml) for an example), deposited in the database using the [ella-cli](/technical/production-tasks.html). This file should contain two keys: 
 
 - `deposit`: Defines how the VCF data in the `INFO` column should be imported into the database.
 - `view`: Defines how the resulting annotation JSON (the `annotations` column in the `annotation` table) should be shown in the user interface. 
@@ -207,7 +207,7 @@ Subkey	|	Explanation |   Values
 `url_empty`*  | Link target of the title when no annotation is available | [string] (optional)
 `config`  | Configuration of the view, specific to each template | [object]
 
-*: URLs can be written as template strings, using the `allele` object and `attrs.linkText`. See [annotation-config.yml](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/annotation-config.yml) for examples.
+*: URLs can be written as template strings, using the `allele` object and `attrs.linkText`. See [`annotation-config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/annotation-config.yml) for examples.
 
 
 ### Templates

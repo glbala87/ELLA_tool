@@ -47,7 +47,9 @@ You can run `yarn test-watch` inside the container to watch for changes.
 
 ### End to end testing (e2e)
 
-We use webdriver.io for testing. See <http://webdriver.io>.
+If  you want to run tests on a specific database state, you can create a dump of that state to be reloaded later. See [testdata/README](https://gitlab.com/alleles/ella/-/blob/dev/ops/testdata/README.md).
+
+We use [webdriver.io](https://webdriver.io) for testing.
 
 CI tests include an end-to-end (e2e) test (`make e2e-test`). This will start Chrome inside the container and run the test suites.
 The e2e test can be run locally to check that the tests are passing but is unsuitable for authoring/editing tests.

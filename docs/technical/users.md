@@ -38,7 +38,7 @@ User example:
 ]
 ```
 
-See also [users.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.json) and [Reset user password](/technical/production-tasks.html#reset-user-password).
+See also [`users.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/users.json) and [Reset user password](/technical/production-tasks.html#reset-user-password).
 
 ::: warning NOTE
 For simplicity, `password` and `password_expiry` are provided in the testdata version of `users.json`. However, this should _not_ be done in production, as this may have undesired side effects. Instead, use the procedure [above](#users-and-passwords).
@@ -46,7 +46,7 @@ For simplicity, `password` and `password_expiry` are provided in the testdata ve
 
 ## User configuration
 
-Default settings for all users (shallow merged with usergroup's and user's config at runtime). See `/example_config.yml` for examples. 
+Default settings for all users (shallow merged with usergroup's and user's config at runtime). See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user`
@@ -87,7 +87,7 @@ A user group defines the configuration for different groups of users. This inclu
 - [Import and deposit](/technical/import.md)  
 - [User interface for groups](/technical/uioptions.html#configure-elements-to-show)
 
-See [usergroups.json](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.
+See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.
 
 To update the user groups, run the following command:
 
@@ -107,4 +107,4 @@ ELLA's current access model revolves around gene panels, which control which ana
 
 - File: `usergroups.json`
 - Key: `genepanels`
-- Value: list of `[gene panel name], [version]`
+- Value: `[gene panel name], [version]` (latter is optional)
