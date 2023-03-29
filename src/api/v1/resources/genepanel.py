@@ -1,24 +1,33 @@
-from collections import namedtuple
-from typing import List, Dict, Any
-from sqlalchemy import tuple_, func, literal, and_, desc, Float
-from sqlalchemy.sql import case
-from vardb.datamodel import gene, user as user_model
-from sqlalchemy import cast
+from itertools import groupby
+from typing import Any, Dict, List, Optional
+from datalayer import queries
+
+from sqlalchemy import Float, and_, cast, desc, func, literal, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import case
 from sqlalchemy.types import Integer
 
-from api.util.util import paginate, rest_filter, authenticate, request_json
-from api import schemas, ApiError
+from api import ApiError, schemas
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    EmptyResponse,
+    GenePanelListResponse,
+    GenePanelResponse,
+    GenePanelStatsResponse,
+)
+from api.util.util import authenticate, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
-from operator import itemgetter
-from itertools import groupby
+from vardb.datamodel import gene
+from vardb.datamodel import user as user_model
 
 
 class GenepanelListResource(LogRequestResource):
     @authenticate()
+    @validate_output(GenePanelListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(self, session: Session, rest_filter: Optional[Dict], user: user_model.User, **kwargs):
         """
         Returns a list of genepanels.
 
@@ -55,8 +64,9 @@ class GenepanelListResource(LogRequestResource):
         )
 
     @authenticate()
-    @request_json(["name", "version", "genes", "usergroups"])
-    def post(self, session, data=None, user=None):
+    @validate_output(EmptyResponse)
+    @request_json(required_fields=["name", "version", "genes", "usergroups"])
+    def post(self, session: Session, data: Dict[str, Any], user: user_model.User):
         """
         Creates a new genepanel.
 
@@ -83,7 +93,7 @@ class GenepanelListResource(LogRequestResource):
                     description: Genepanel version
                     type: string
                   genes:
-                    description: Object with transcripts and phenotypes
+                    description: Object with transcripts, phenotypes and inheritance
                     type: object
             description: Submitted data
         responses:
@@ -100,9 +110,11 @@ class GenepanelListResource(LogRequestResource):
 
         transcript_ids: List[int] = list()
         phenotype_ids: List[int] = list()
+        inheritance_by_hgnc_id: Dict[int, str] = {}
         for g in data["genes"]:
             transcript_ids += [t["id"] for t in g["transcripts"]]
             phenotype_ids += [p["id"] for p in g["phenotypes"]]
+            inheritance_by_hgnc_id[g["hgnc_id"]] = g["inheritance"]
 
         transcripts = (
             session.query(gene.Transcript)
@@ -130,6 +142,21 @@ class GenepanelListResource(LogRequestResource):
         genepanel = gene.Genepanel(
             name=data["name"], genome_reference="GRCh37", version=data["version"]
         )
+
+        junction_values = []
+        for tx in transcripts:
+            junction_values.append(
+                {
+                    "transcript_id": tx.id,
+                    "genepanel_name": data["name"],
+                    "genepanel_version": data["version"],
+                    "inheritance": inheritance_by_hgnc_id[tx.gene_id],
+                }
+            )
+        session.add(genepanel)
+        session.flush()
+        session.execute(gene.genepanel_transcript.insert(), junction_values)
+
         genepanel.transcripts = transcripts
         genepanel.phenotypes = phenotypes
 
@@ -162,12 +189,12 @@ class GenepanelListResource(LogRequestResource):
             )
 
         session.commit()
-        return None
 
 
 class GenepanelResource(LogRequestResource):
     @authenticate()
-    def get(self, session, name=None, version=None, user=None):
+    @validate_output(GenePanelResponse)
+    def get(self, session: Session, name: str, version: str, **kwargs):
         """
         Returns a single genepanel.
         ---
@@ -193,13 +220,12 @@ class GenepanelResource(LogRequestResource):
             raise ApiError("No genepanel name is provided")
         if version is None:
             raise ApiError("No genepanel version is provided")
-
         if (
             not session.query(gene.Genepanel.name, gene.Genepanel.version)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
             .count()
         ):
-            raise ApiError("Invalid genepanel name or version")
+            raise ApiError(f"Invalid genepanel name ({name}) or version ({version})")
 
         transcripts = (
             session.query(
@@ -207,6 +233,7 @@ class GenepanelResource(LogRequestResource):
                 gene.Gene.hgnc_id,
                 gene.Transcript.id,
                 gene.Transcript.transcript_name,
+                gene.Transcript.tags,
             )
             .join(gene.Genepanel.transcripts, gene.Transcript.gene)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (name, version))
@@ -232,17 +259,21 @@ class GenepanelResource(LogRequestResource):
             .all()
         )
 
+        inheritances = queries.inheritance_for_genepanel(session, name, version).all()
+
         genes: Dict[int, Any] = {}
         for t in transcripts:
             if t.hgnc_id in genes:
                 genes[t.hgnc_id]["transcripts"].append(
-                    {"id": t.id, "transcript_name": t.transcript_name}
+                    {"id": t.id, "transcript_name": t.transcript_name, "tags": t.tags}
                 )
             else:
                 genes[t.hgnc_id] = {
                     "hgnc_id": t.hgnc_id,
                     "hgnc_symbol": t.hgnc_symbol,
-                    "transcripts": [{"id": t.id, "transcript_name": t.transcript_name}],
+                    "transcripts": [
+                        {"id": t.id, "transcript_name": t.transcript_name, "tags": t.tags}
+                    ],
                     "phenotypes": [],
                 }
 
@@ -252,20 +283,23 @@ class GenepanelResource(LogRequestResource):
                     {"id": p.id, "inheritance": p.inheritance, "description": p.description}
                 )
 
+        for i in inheritances:
+            if i.hgnc_id in genes:
+                genes[i.hgnc_id]["inheritance"] = i.inheritance
+
         result_genes: List[Any] = list(genes.values())
         result_genes.sort(key=lambda x: x["hgnc_symbol"])
         for g in result_genes:
             g["transcripts"].sort(key=lambda x: x["transcript_name"])
             g["phenotypes"].sort(key=lambda x: x["inheritance"])
 
-        result = {"name": name, "version": version, "genes": result_genes}
-        return result
+        return {"name": name, "version": version, "genes": result_genes}
 
 
 class GenepanelStatsResource(LogRequestResource):
     @authenticate()
-    def get(self, session, name=None, version=None, user=None):
-
+    @validate_output(GenePanelStatsResponse)
+    def get(self, session: Session, name: str, version: str, user: user_model.User):
         if name is None:
             raise ApiError("No genepanel name is provided")
         if version is None:
@@ -275,27 +309,26 @@ class GenepanelStatsResource(LogRequestResource):
         # i.e. addition_cnt means that a panel given in result has N extra genes
         # compared to input gene panel. Similar for missing, the panel in result is
         # missing N genes present in input panel.
-
-        GenepanelEntry = namedtuple("GenepanelEntry", "name version official")
-        user_genepanels = [
-            GenepanelEntry(gp.name, gp.version, gp.official) for gp in user.group.genepanels
-        ]
-        if (name, version) not in [(gp.name, gp.version) for gp in user_genepanels]:
+        if (name, version) not in [(gp.name, gp.version) for gp in user.group.genepanels]:
             raise ApiError(f"Invalid genepanel name '{name}' or version '{version}'")
 
         # get only official genepanels
-        user_genepanels = [gp for gp in user_genepanels if gp.official]
+        official_genepanels: List[gene.Genepanel] = [
+            gp for gp in user.group.genepanels if gp.official
+        ]
         # get only max version for each genepanel name
-        user_genepanels = [
-            (k, max(map(itemgetter(1), v)))
-            for k, v in groupby(sorted(user_genepanels, key=itemgetter(0)), key=itemgetter(0))
+        latest_genepanels = [
+            (k, max(v, key=lambda x: x.version).version)
+            for k, v in groupby(
+                sorted(official_genepanels, key=lambda x: x.name), key=lambda x: x.name
+            )
         ]
 
         genepanel_gene_ids = (
             session.query(gene.Transcript.gene_id, gene.Genepanel.name, gene.Genepanel.version)
             .join(gene.genepanel_transcript)
             .join(gene.Genepanel)
-            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(user_genepanels))
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version).in_(latest_genepanels))
             .distinct()
         )
 
@@ -377,7 +410,7 @@ class GenepanelStatsResource(LogRequestResource):
             .limit(5)
         )
 
-        result = {"overlap": []}
+        result: Dict[str, List[Dict[str, Any]]] = {"overlap": []}
 
         for c in stats:
             result["overlap"].append(

@@ -10,7 +10,6 @@ Uses regexp programs to represent code patterns.
 
 
 class ACMGClassifier2015:
-
     # Regexp patterns
     PVS = re.compile("PVS.*")
     PS = re.compile("PS.*")
@@ -25,7 +24,6 @@ class ACMGClassifier2015:
     """
 
     def classify(self, passed_codes):
-
         codes_by_precedence = self.normalize_codes(passed_codes)
 
         # Rules according to the official ACMG guidelines

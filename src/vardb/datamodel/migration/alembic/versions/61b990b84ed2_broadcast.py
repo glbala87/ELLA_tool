@@ -17,7 +17,6 @@ import sqlalchemy as sa
 
 
 def upgrade():
-
     op.create_table(
         "broadcast",
         sa.Column("id", sa.Integer(), nullable=False),

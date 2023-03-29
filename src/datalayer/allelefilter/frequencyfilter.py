@@ -1,15 +1,16 @@
 import copy
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 from collections import OrderedDict
-from sqlalchemy import or_, and_, tuple_, cast
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
+from sqlalchemy import and_, cast, or_, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.elements import BinaryExpression, BooleanClauseList
 from sqlalchemy.sql.functions import func
-from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Integer
 
-from vardb.datamodel import gene, annotationshadow
 from datalayer import queries
+from vardb.datamodel import annotationshadow, gene
 
 
 class FrequencyFilter(object):
@@ -49,7 +50,6 @@ class FrequencyFilter(object):
         threshold_func: Callable,
         combine_func: Callable,
     ) -> BooleanClauseList:
-
         filters = list()
         for (
             group,
@@ -175,7 +175,6 @@ class FrequencyFilter(object):
         threshold_func: Callable,
         combine_func: Callable,
     ) -> Dict[Tuple[str, str], BooleanClauseList]:
-
         gp_filter = dict()  # {('HBOC', 'v01'): <SQLAlchemy filter>, ...}
 
         # Filter config could be loaded from json and have string keys for 'genes'
@@ -190,7 +189,6 @@ class FrequencyFilter(object):
             gp_key,
             allele_ids,
         ) in gp_allele_ids.items():  # loop over every genepanel, with related genes
-
             # Create the different kinds of frequency filters
             #
             # We have three types of filters:
@@ -215,7 +213,6 @@ class FrequencyFilter(object):
             # 1. Gene specific thresholds
             gene_specific_allele_ids = set()
             if per_gene_hgnc_ids:
-
                 # Optimization: adding filters for genes not present in our alleles
                 # is costly -> only filter the symbols
                 # that overlap with the alleles in question.
@@ -444,7 +441,6 @@ class FrequencyFilter(object):
         }
 
         for commonness_group, result in commonness_result.items():
-
             # Create query filter this genepanel
             gp_filters = self._create_freq_filter(
                 filter_config,

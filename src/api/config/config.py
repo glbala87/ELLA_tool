@@ -2,6 +2,7 @@
 
 import os
 import json
+from typing import Any, Dict
 import jsonschema
 import yaml
 
@@ -89,6 +90,9 @@ config.setdefault("transcripts", {})["consequences"] = [
     "missense_variant",
     "protein_altering_variant",
     "splice_region_variant",
+    "splice_donor_5th_base_variant",
+    "splice_donor_region_variant",
+    "splice_polypyrimidine_tract_variant",
     "incomplete_terminal_codon_variant",
     "start_retained_variant",
     "stop_retained_variant",
@@ -128,7 +132,7 @@ class FeatureNotEnabledError(RuntimeError):
         super().__init__(f"Feature '{feature}' is not enabled.")
 
 
-def get_user_config(app_config, usergroup_config, user_config):
+def get_user_config(app_config, usergroup_config, user_config) -> Dict[str, Any]:
     # Use json instead of copy.deepcopy for performance
     merged_config = json.loads(json.dumps(app_config.get("user", {}).get("user_config", {})))
     merged_config.update(json.loads(json.dumps((usergroup_config))))

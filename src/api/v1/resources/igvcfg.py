@@ -1,26 +1,31 @@
-import os
-import typing
-
-from vardb.datamodel import sample
-from api.v1.resource import LogRequestResource
-from api.util.util import authenticate
-from api import ApiError
-from enum import Enum, auto
-from typing import List, Dict, Any, Pattern
-from flask import request
-import json
-import itertools
 import copy
-import re
+import itertools
+import json
 import logging
+import os
+import re
+import typing
+from enum import auto
+from typing import Any, Dict, List, Pattern
+
+from api import ApiError
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import IgvTrackConfigListResponse
+from api.util.types import StrEnum
+from api.util.util import authenticate
+from api.v1.resource import LogRequestResource
+from flask import request
+from sqlalchemy.orm import Session
+from vardb.datamodel import sample, user
 
 log = logging.getLogger(__name__)
 
 
-class TrackType(Enum):
+class TrackType(StrEnum):
     bam = auto()
     bed = auto()
     bedgz = auto()
+    bigBed = auto()
     bigWig = auto()
     cram = auto()
     gff3gz = auto()
@@ -30,6 +35,8 @@ class TrackType(Enum):
 
 
 class TrackSuffixType:
+    __slots__ = ["type", "track_suffix", "idx_suffixes"]
+
     def __init__(self, track_suffix: str, idx_suffixes: List[str], type: TrackType):
         self.type = type
         self.track_suffix = track_suffix
@@ -40,6 +47,9 @@ VALID_TRACK_TYPES = [
     TrackSuffixType(".bam", [".bam.bai", ".bai"], TrackType.bam),
     TrackSuffixType(".bed", [], TrackType.bed),
     TrackSuffixType(".bed.gz", [".bed.gz.tbi"], TrackType.bedgz),
+    TrackSuffixType(".bb", [], TrackType.bigBed),
+    TrackSuffixType(".bigBed", [], TrackType.bigBed),
+    TrackSuffixType(".bw", [], TrackType.bigWig),
     TrackSuffixType(".bigWig", [], TrackType.bigWig),
     TrackSuffixType(".cram", [".cram.crai", ".crai"], TrackType.cram),
     TrackSuffixType(".gff3.gz", [".gff3.gz.tbi"], TrackType.gff3gz),
@@ -49,26 +59,26 @@ VALID_TRACK_TYPES = [
 ]
 
 
-class TrackSourceType(Enum):
-    DYNAMIC = auto()
-    STATIC = auto()
-    ANALYSIS = auto()
+class TrackSourceType(StrEnum):
+    DYNAMIC = "DYNAMIC"
+    STATIC = "STATIC"
+    ANALYSIS = "ANALYSIS"
 
 
 DYNAMIC_TRACK_PATHS = ["variants", "classifications", "genepanel", "regions_of_interest"]
 
 
-class TrackCfgKey(Enum):
-    applied_rules = auto()
-    limit_to_groups = auto()
-    url = auto()
-    igv = auto()
+class TrackCfgKey(StrEnum):
+    APPLIED_RULES = auto()
+    LIMIT_TO_GROUPS = auto()
+    URL = auto()
+    IGV = auto()
 
 
-class TrackCfgIgvKey(Enum):
-    name = "name"  # can't use auto() here - mypy compains :(
-    url = "url"
-    indexURL = "indexURL"
+class TrackCfgIgvKey(StrEnum):
+    NAME = auto()
+    URL = auto()
+    INDEXURL = "indexURL"
 
 
 class TrackSrcId:
@@ -76,16 +86,14 @@ class TrackSrcId:
 
     def __init__(self, source_type: TrackSourceType, rel_path: str):
         def _track_id(track_source_id: TrackSourceType, rel_track_path: str) -> str:
-            return f"{track_source_id.name}/{rel_track_path}"
+            return f"{track_source_id}/{rel_track_path}"
 
         self.source_type = source_type
         self.id = _track_id(source_type, rel_path)
         self.rel_path = rel_path
 
     @staticmethod
-    def from_rel_paths(
-        track_source_id: TrackSourceType, rel_path: List[str]
-    ):  # TODO: need a return type here
+    def from_rel_paths(track_source_id: TrackSourceType, rel_path: List[str]):
         return [TrackSrcId(track_source_id, sid) for sid in rel_path]
 
     @staticmethod
@@ -96,11 +104,11 @@ class TrackSrcId:
             return s
 
         for src_id in TrackSourceType:
-            tid = _rm_prefix(tid, f"{src_id.name}/")
+            tid = _rm_prefix(tid, f"{src_id}/")
         return tid
 
 
-def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, Any]:
+def load_raw_config(track_ids: List[TrackSrcId], usergroup_name: str) -> Dict[str, Any]:
     """Takes a list of track IDs and returns their raw config.
        This is done by checking if the tracks exist and by appling all config rules.
        The function is used in two siutations:
@@ -137,9 +145,9 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, An
     # apply configs to tracks (one config per track)
     track_cfgs = {}
     for track_src_id in track_ids:
-        dst_cfg: Dict[str, Any] = {
-            TrackCfgKey.applied_rules.name: [],
-            TrackCfgKey.igv.name: {TrackCfgIgvKey.name.name: track_src_id.id},
+        dst_cfg: Dict[TrackCfgKey, Any] = {
+            TrackCfgKey.APPLIED_RULES: [],
+            TrackCfgKey.IGV: {TrackCfgIgvKey.NAME: track_src_id.id},
         }
         # for each track, integrate maching configs
         for inp_cfg_id_pattern, inp_cfg_value in inp_cfg.items():
@@ -148,29 +156,29 @@ def load_raw_config(track_ids: List[TrackSrcId], usergroup_name) -> Dict[str, An
             if not compiled_regexes[inp_cfg_id_pattern].match(track_src_id.id):
                 continue
             # merge igv config separately to not overwite its configs
-            if TrackCfgKey.igv.name in inp_cfg_value:
-                dst_cfg[TrackCfgKey.igv.name] = {
-                    **dst_cfg[TrackCfgKey.igv.name],
-                    **inp_cfg_value[TrackCfgKey.igv.name],
+            if TrackCfgKey.IGV in inp_cfg_value:
+                dst_cfg[TrackCfgKey.IGV] = {
+                    **dst_cfg[TrackCfgKey.IGV],
+                    **inp_cfg_value[TrackCfgKey.IGV],
                 }
-                del inp_cfg_value[TrackCfgKey.igv.name]
+                del inp_cfg_value[TrackCfgKey.IGV]
             # need to deepcopy because we will modify the object
             dst_cfg = {**dst_cfg, **inp_cfg_value}
-            dst_cfg[TrackCfgKey.applied_rules.name].append(inp_cfg_id_pattern)
+            dst_cfg[TrackCfgKey.APPLIED_RULES].append(inp_cfg_id_pattern)
         track_cfgs[track_src_id.id] = dst_cfg
     # filter tracks by user
     for track_id in list(track_cfgs):  # creates copy of keys as we are deleting some in the loop
         cfg = track_cfgs[track_id]
         keep_track = True
-        # TODO: keep track if user == admin (maybe also keep limit_to_groups field)
-        keep_track = keep_track and TrackCfgKey.limit_to_groups.name in cfg.keys()
+        # TODO: keep track if user == admin (maybe also keep LIMIT_TO_GROUPS field)
+        keep_track = keep_track and TrackCfgKey.LIMIT_TO_GROUPS in cfg.keys()
         keep_track = keep_track and (
-            cfg[TrackCfgKey.limit_to_groups.name]
-            is None  # "limit_to_groups: null" enables public access
-            or any(g == usergroup_name for g in cfg[TrackCfgKey.limit_to_groups.name])
+            cfg[TrackCfgKey.LIMIT_TO_GROUPS]
+            is None  # "LIMIT_TO_GROUPS: null" enables public access
+            or any(g == usergroup_name for g in cfg[TrackCfgKey.LIMIT_TO_GROUPS])
         )
         # rm group key
-        cfg.pop(TrackCfgKey.limit_to_groups.name, None)
+        cfg.pop(TrackCfgKey.LIMIT_TO_GROUPS, None)
         # rm track?
         if not keep_track:
             del track_cfgs[track_id]
@@ -228,7 +236,8 @@ def search_rel_track_paths(tracks_path: typing.Optional[str]) -> List[str]:
 
 class AnalysisTrackList(LogRequestResource):
     @authenticate()
-    def get(self, session, analysis_id, user=None):
+    @validate_output(IgvTrackConfigListResponse)
+    def get(self, session: Session, analysis_id: int, user: user.User):
         # resolve some stuff that we will need later
         analysis_name, genepanel_name, genepanel_version = (
             session.query(
@@ -268,32 +277,28 @@ class AnalysisTrackList(LogRequestResource):
             # interpolate urls
             url_var = _get_url_vars(track_id)
             # we require generic urls
-            if TrackCfgKey.url.name not in cfg:
-                raise ApiError(f"no key '{TrackCfgKey.url.name}' found for track '{track_id}'")
+            if TrackCfgKey.URL not in cfg:
+                raise ApiError(f"no key '{TrackCfgKey.URL}' found for track '{track_id}'")
             for pattern, replacement in url_var.items():
-                cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name].replace(
-                    f"<{pattern}>", replacement
-                )
+                cfg[TrackCfgIgvKey.URL] = cfg[TrackCfgKey.URL].replace(f"<{pattern}>", replacement)
             # create igv entry if it's missing
-            if TrackCfgKey.igv.name not in cfg:
-                cfg[TrackCfgKey.igv.name] = {}
+            if TrackCfgKey.IGV not in cfg:
+                cfg[TrackCfgKey.IGV] = {}
             # write igv url
-            igv_cfg = cfg[TrackCfgKey.igv.name]
-            igv_cfg[TrackCfgIgvKey.url.name] = cfg[TrackCfgKey.url.name]
+            igv_cfg = cfg[TrackCfgKey.IGV]
+            igv_cfg[TrackCfgIgvKey.URL] = cfg[TrackCfgKey.URL]
             # remove un-interpolated url
-            del cfg[TrackCfgKey.url.name]
+            del cfg[TrackCfgKey.URL]
             # default track name
-            if TrackCfgIgvKey.name.name not in igv_cfg:
-                igv_cfg[TrackCfgIgvKey.name.name] = os.path.basename(track_id).split(".")[0]
+            if TrackCfgIgvKey.NAME not in igv_cfg:
+                igv_cfg[TrackCfgIgvKey.NAME] = os.path.basename(track_id).split(".")[0]
             for track_type in VALID_TRACK_TYPES:
                 # find track type
                 if not track_id.endswith(track_type.track_suffix):
                     continue
                 # has index file?
                 if len(track_type.idx_suffixes) > 0:
-                    igv_cfg[TrackCfgIgvKey.indexURL.name] = (
-                        igv_cfg[TrackCfgIgvKey.url.name] + "?index=1"
-                    )
+                    igv_cfg[TrackCfgIgvKey.INDEXURL] = igv_cfg[TrackCfgIgvKey.URL] + "?index=1"
                 # TODO: search on fs?
                 break
         return track_cfgs

@@ -37,8 +37,6 @@ const testUiConfig = {
                             'Review',
                             'Medical review'
                         ],
-                        allow_notrelevant: false,
-                        allow_technical: true,
                         allow_unclassified: false
                     }
                 }
@@ -328,6 +326,9 @@ const testUiConfig = {
             'missense_variant',
             'protein_altering_variant',
             'splice_region_variant',
+            'splice_donor_5th_base_variant',
+            'splice_donor_region_variant',
+            'splice_polypyrimidine_tract_variant',
             'incomplete_terminal_codon_variant',
             'start_retained_variant',
             'stop_retained_variant',
@@ -2462,7 +2463,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890607-G-T?gp_name=HBOC&gp_version=v01&allele_id=2118'
+                '/workflows/variants/GRCh37/13-32890607-G-T?gp_name=HBOC&gp_version=v1.0.0&allele_id=2118'
         }
     },
     2119: {
@@ -2778,7 +2779,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890645-GAC-G?gp_name=HBOC&gp_version=v01&allele_id=2119'
+                '/workflows/variants/GRCh37/13-32890645-GAC-G?gp_name=HBOC&gp_version=v1.0.0&allele_id=2119'
         }
     },
     2120: {
@@ -2950,7 +2951,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32890666-T-A?gp_name=HBOC&gp_version=v01&allele_id=2120'
+                '/workflows/variants/GRCh37/13-32890666-T-A?gp_name=HBOC&gp_version=v1.0.0&allele_id=2120'
         }
     },
     2121: {
@@ -3223,7 +3224,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32893218-A-T?gp_name=HBOC&gp_version=v01&allele_id=2121'
+                '/workflows/variants/GRCh37/13-32893218-A-T?gp_name=HBOC&gp_version=v1.0.0&allele_id=2121'
         }
     },
     2122: {
@@ -3409,7 +3410,7 @@ const testAlleleState = {
         },
         links: {
             workflow:
-                '/workflows/variants/GRCh37/13-32893243-G-T?gp_name=HBOC&gp_version=v01&allele_id=2122'
+                '/workflows/variants/GRCh37/13-32893243-G-T?gp_name=HBOC&gp_version=v1.0.0&allele_id=2122'
         }
     }
 }

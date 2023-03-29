@@ -5,7 +5,6 @@ from ..grm import GRM
 
 
 class GraTest(unittest.TestCase):
-
     jsonrules = [
         {
             "code": "BP1",

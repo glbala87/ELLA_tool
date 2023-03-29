@@ -4,10 +4,9 @@ Since it consists mostly of database queries, it's tested on a live database.
 """
 import pytest
 
-from datalayer.allelefilter.frequencyfilter import FrequencyFilter
-from vardb.datamodel import gene, annotationshadow
 from conftest import mock_allele_with_annotation
-
+from datalayer.allelefilter.frequencyfilter import FrequencyFilter
+from vardb.datamodel import annotationshadow, gene
 
 # prevent screen getting filled with output (useful when testing manually)
 # import logging
@@ -63,8 +62,10 @@ FILTER_ALLELES_FILTER_CONFIG = {
 }
 
 
-def create_genepanel():
+def create_genepanel(session):
     # Create fake genepanel for testing purposes
+    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add(genepanel)
 
     g1_ad = gene.Gene(hgnc_id=int(100000), hgnc_symbol="GENE1AD")
     g1_ar = gene.Gene(hgnc_id=int(200000), hgnc_symbol="GENE1AR")
@@ -75,6 +76,7 @@ def create_genepanel():
         transcript_name="NM_1AD.1",
         type="RefSeq",
         genome_reference="",
+        tags=None,
         chromosome="1",
         tx_start=1000,
         tx_end=1500,
@@ -83,6 +85,17 @@ def create_genepanel():
         cds_end=1430,
         exon_starts=[1100, 1200, 1300, 1400],
         exon_ends=[1160, 1260, 1360, 1460],
+    )
+    session.add(t1_ad)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        {
+            "transcript_id": t1_ad.id,
+            "genepanel_name": genepanel.name,
+            "genepanel_version": genepanel.version,
+            "inheritance": "AD",
+        },
     )
 
     t1_ar = gene.Transcript(
@@ -90,6 +103,7 @@ def create_genepanel():
         transcript_name="NM_1AR.1",
         type="RefSeq",
         genome_reference="",
+        tags=None,
         chromosome="1",
         tx_start=1000,
         tx_end=1500,
@@ -99,12 +113,24 @@ def create_genepanel():
         exon_starts=[1100, 1200, 1300, 1400],
         exon_ends=[1160, 1260, 1360, 1460],
     )
+    session.add(t1_ar)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        {
+            "transcript_id": t1_ar.id,
+            "genepanel_name": genepanel.name,
+            "genepanel_version": genepanel.version,
+            "inheritance": "AR",
+        },
+    )
 
     t2 = gene.Transcript(
         gene=g2,
         transcript_name="NM_2.1",
         type="RefSeq",
         genome_reference="",
+        tags=None,
         chromosome="2",
         tx_start=2000,
         tx_end=2500,
@@ -114,15 +140,25 @@ def create_genepanel():
         exon_starts=[2100, 2200, 2300, 2400],
         exon_ends=[2160, 2260, 2360, 2460],
     )
+    session.add(t2)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        {
+            "transcript_id": t2.id,
+            "genepanel_name": genepanel.name,
+            "genepanel_version": genepanel.version,
+            "inheritance": "AD/AR",
+        },
+    )
 
-    p1 = gene.Phenotype(gene=g1_ad, inheritance="AD", description="P1")
+    p1 = gene.Phenotype(gene=g1_ad, inheritance="IRRELEVANT", description="P1")
 
-    p2 = gene.Phenotype(gene=g1_ar, inheritance="AD,AR", description="P2")
+    p2 = gene.Phenotype(gene=g1_ar, inheritance="IRRELEVANT", description="P2")
 
-    genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add_all([p1, p2])
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2]
-    genepanel.phenotypes = [p1, p2]
+    session.flush()
     return genepanel
 
 
@@ -140,13 +176,11 @@ class TestFrequencyFilter(object):
         session.execute("UPDATE usergroup SET config='{}'")
         annotationshadow.create_shadow_tables(session, GLOBAL_CONFIG)
 
-        gp = create_genepanel()
-        session.add(gp)
+        create_genepanel(session)
         session.commit()
 
     @pytest.mark.aa(order=1)
     def test_commonness(self, session):
-
         # Filter config should end up being the following
         # (GENE2 has override in genepanel config, hence different threshold)
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
@@ -197,7 +231,7 @@ class TestFrequencyFilter(object):
             },
         )
 
-        # DOESNT_EXIST: should give 'default' group, since no connected 'AR' phenotype
+        # DOESNT_EXIST: should give 'default' group, since no connected 'AR' transcript
         # external: 0.30/0.1 , internal: 0.05/0.01
         a1nogene, _ = mock_allele_with_annotation(
             session,
@@ -490,7 +524,6 @@ class TestFrequencyFilter(object):
 
     @pytest.mark.aa(order=2)
     def test_frequency_filtering(self, session):
-
         # Filter config should end up being the following
         # GENE1AD: external: 0.005/0.001 , internal: 0.05/0.01
         # GENE1AR: external: 0.30/0.01 , internal: 0.05/0.01

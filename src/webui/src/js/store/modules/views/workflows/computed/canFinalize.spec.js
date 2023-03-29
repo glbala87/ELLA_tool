@@ -7,14 +7,12 @@ const defaultConfig = {
     workflowStatus: 'Review',
     status: 'Ongoing',
     requiredWorkflowStatus: ['Review'],
-    allowTechnical: true,
-    allowNotRelevant: true,
     allowUnclassified: false,
-    numTechnical: 0,
-    numNotRelevant: 0,
-    numUnclassified: 0,
     numClassified: 0,
-    numOutdated: 0
+    numNotRelevant: 0,
+    numOutdated: 0,
+    numTechnical: 0,
+    numUnclassified: 0
 }
 
 function createState(config) {
@@ -210,8 +208,6 @@ function createState(config) {
                             analysis: {
                                 finalize_requirements: {
                                     workflow_status: config.requiredWorkflowStatus,
-                                    allow_technical: config.allowTechnical,
-                                    allow_notrelevant: config.allowNotRelevant,
                                     allow_unclassified: config.allowUnclassified
                                 }
                             },
@@ -313,71 +309,9 @@ describe('canFinalize', function() {
     it('can finalize when no alleles', function() {
         // No variants
         const state = createState({
-            allowUnclassified: false,
-            allowNotRelevant: false,
-            allowTechnical: false
+            allowUnclassified: false
         })
         const result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: true,
-            messages: []
-        })
-    })
-
-    it('check allow_technical', function() {
-        let state = createState({
-            numTechnical: 1,
-            allowTechnical: false
-        })
-        let result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as technical, while this is disallowed in configuration.'
-            ]
-        })
-
-        state = createState({
-            numTechnical: 1,
-            allowTechnical: true
-        })
-        result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: true,
-            messages: []
-        })
-    })
-
-    it('check allow_notrelevant', function() {
-        let state = createState({
-            numNotRelevant: 1,
-            allowNotRelevant: false
-        })
-        let result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as not relevant, while this is disallowed in configuration.'
-            ]
-        })
-
-        state = createState({
-            numNotRelevant: 1,
-            allowNotRelevant: true
-        })
-        result = runCompute(canFinalize, {
             state,
             props: {}
         })
@@ -503,13 +437,11 @@ describe('canFinalize', function() {
 
     it('check require classifications, various cases', function() {
         let state = createState({
-            numUnclassified: 1,
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
-            allowUnclassified: false,
-            allowNotRelevant: true,
-            allowTechnical: true
+            numUnclassified: 1,
+            allowUnclassified: false
         })
         let result = runCompute(canFinalize, {
             state,
@@ -521,11 +453,10 @@ describe('canFinalize', function() {
         })
 
         state = createState({
-            numTechnical: 1,
-            numUnclassified: 1,
             numClassified: 3,
             numOutdated: 1,
-            allowTechnical: true,
+            numTechnical: 1,
+            numUnclassified: 1,
             allowUnclassified: false
         })
         result = runCompute(canFinalize, {
@@ -540,13 +471,11 @@ describe('canFinalize', function() {
         })
 
         state = createState({
-            numUnclassified: 1,
             numClassified: 1,
             numNotRelevant: 2,
             numTechnical: 2,
-            allowUnclassified: true,
-            allowNotRelevant: true,
-            allowTechnical: true
+            numUnclassified: 1,
+            allowUnclassified: true
         })
         result = runCompute(canFinalize, {
             state,
@@ -555,27 +484,6 @@ describe('canFinalize', function() {
         expect(result).toEqual({
             canFinalize: true,
             messages: []
-        })
-
-        state = createState({
-            numUnclassified: 1,
-            numClassified: 1,
-            numNotRelevant: 2,
-            numTechnical: 2,
-            allowUnclassified: true,
-            allowNotRelevant: false,
-            allowTechnical: false
-        })
-        result = runCompute(canFinalize, {
-            state,
-            props: {}
-        })
-        expect(result).toEqual({
-            canFinalize: false,
-            messages: [
-                'Some variants are marked as technical, while this is disallowed in configuration.',
-                'Some variants are marked as not relevant, while this is disallowed in configuration.'
-            ]
         })
     })
 

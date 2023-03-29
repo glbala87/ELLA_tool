@@ -59,7 +59,7 @@ function addCommands() {
             stdio: ['ignore', 'ignore', 'pipe']
         })
 
-        execSync(`psql ${process.env.DB_URL} < /ella/e2e-test-dump.sql`, {
+        execSync(`/ella/ops/testdata/reset-testdata.py reset --testset e2e`, {
             stdio: ['ignore', 'ignore', 'pipe']
         })
         console.log('Database reset from dump done!')
@@ -70,9 +70,10 @@ function addCommands() {
         // changed, so our wysiwyg editor loses focus. This code splits setValue() into their
         // individual commands and refocuses the editor in-between.
         $(editorSelector).click()
+        browser.pause(500)
         const elemId = Object.values(browser.findElement('css selector', editorWysiwygSelector))[0]
         browser.elementClear(elemId)
-        browser.pause(50)
+        browser.pause(500)
         $(editorSelector).click()
         $(editorWysiwygSelector).addValue(value)
     })

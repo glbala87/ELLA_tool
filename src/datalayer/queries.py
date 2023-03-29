@@ -1,18 +1,29 @@
 import datetime
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 import pytz
 from sqlalchemy import Text, and_, cast, func, literal_column, or_, text
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Integer
 
 from api.config import config
 from api.util import filterconfig_requirements
 from datalayer import filters
-from vardb.datamodel import allele, annotation, annotationshadow, assessment, gene, sample, workflow
+from vardb.datamodel import (
+    Base,
+    allele,
+    annotation,
+    annotationshadow,
+    assessment,
+    gene,
+    sample,
+    workflow,
+)
+from vardb.util.extended_query import ExtendedQuery
 
 
-def valid_alleleassessments_filter(session):
+def valid_alleleassessments_filter(session: Session):
     """
     Filter for including alleleassessments that have valid (not outdated) classifications.
     """
@@ -30,7 +41,7 @@ def valid_alleleassessments_filter(session):
     return [or_(*classification_filters), assessment.AlleleAssessment.date_superceeded.is_(None)]
 
 
-def allele_ids_with_valid_alleleassessments(session):
+def allele_ids_with_valid_alleleassessments(session: Session):
     """
     Query for all alleles that has no valid alleleassessments,
     as given by configuration's classification options.
@@ -49,7 +60,12 @@ def allele_ids_with_valid_alleleassessments(session):
 
 
 def workflow_by_status(
-    session, model, model_id_attr, workflow_status=None, status=None, finalized=None
+    session: Session,
+    model: Base,
+    model_id_attr: str,
+    workflow_status: Optional[str] = None,
+    status: Optional[str] = None,
+    finalized: Optional[bool] = None,
 ):
     """
     Fetches all allele_id/analysis_id where the last interpretation matches provided
@@ -242,7 +258,6 @@ def analysis_ids_for_user(session, user):
 
 
 def latest_interpretationlog_field(session, model, model_id_attr, field, model_ids=None):
-
     interpretationlog_filters = [~getattr(workflow.InterpretationLog, field).is_(None)]
     if model_ids:
         interpretationlog_filters.append(
@@ -297,32 +312,62 @@ def workflow_allele_review_comment(session, allele_ids=None):
 
 def distinct_inheritance_hgnc_ids_for_genepanel(session, inheritance, gp_name, gp_version):
     """
-    Fetches all hgnc_ids with _only_ {inheritance} phenotypes.
+    Fetches all hgnc_ids with _only_ {inheritance} transcripts.
 
     e.g. only 'AD' or only 'AR'
     """
-    # Get phenotypes having only one kind of inheritance
+    # Get genes with transcripts having only provided inheritance
     # e.g. only 'AD' or only 'AR' etc...
     hgnc_ids = (
-        session.query(gene.Phenotype.gene_id.label("hgnc_id"))
+        session.query(gene.Transcript.gene_id)
         .filter(
-            gene.Phenotype.id == gene.genepanel_phenotype.c.phenotype_id,
-            gene.genepanel_phenotype.c.genepanel_name == gp_name,
-            gene.genepanel_phenotype.c.genepanel_version == gp_version,
+            gene.genepanel_transcript.c.transcript_id == gene.Transcript.id,
+            gene.genepanel_transcript.c.genepanel_name == gp_name,
+            gene.genepanel_transcript.c.genepanel_version == gp_version,
         )
         .group_by(
-            gene.genepanel_phenotype.c.genepanel_name,
-            gene.genepanel_phenotype.c.genepanel_version,
-            gene.Phenotype.gene_id,
+            gene.Transcript.gene_id,
         )
-        .having(func.every(gene.Phenotype.inheritance == inheritance))
+        .having(func.every(gene.genepanel_transcript.c.inheritance == inheritance))
     )
 
     return hgnc_ids
 
 
-def allele_genepanels(session, genepanel_keys, allele_ids=None):
+def inheritance_for_genepanel(session, genepanel_name, genepanel_version, hgnc_ids=None):
+    """
+    Fetches inheritance for all genes in a gene panel or a subset of genes in a gene panel.
 
+    Also includes the transcript name for each inheritance.
+    """
+    inheritances = (
+        session.query(
+            gene.genepanel_transcript.c.inheritance,
+            gene.Transcript.gene_id.label("hgnc_id"),
+            gene.Transcript.transcript_name,
+        )
+        .join(
+            gene.Transcript,
+            gene.Transcript.id == gene.genepanel_transcript.c.transcript_id,
+        )
+        .filter(
+            gene.genepanel_transcript.c.genepanel_name == genepanel_name,
+            gene.genepanel_transcript.c.genepanel_version == genepanel_version,
+        )
+    )
+
+    if hgnc_ids is not None:
+        inheritances = inheritances.filter(
+            filters.in_(
+                session,
+                gene.Transcript.gene_id,
+                hgnc_ids,
+            )
+        )
+    return inheritances
+
+
+def allele_genepanels(session, genepanel_keys, allele_ids=None):
     result = (
         session.query(
             allele.Allele.id.label("allele_id"),
@@ -360,12 +405,11 @@ def allele_genepanels(session, genepanel_keys, allele_ids=None):
 
 
 def annotation_transcripts_genepanel(
-    session,
+    session: Session,
     genepanel_keys: Sequence[Tuple[str, str]],
     allele_ids: Sequence[int] = None,
     annotation_ids: Sequence[int] = None,
-):
-
+) -> ExtendedQuery:
     """
     Returns a joined representation of annotation transcripts against genepanel transcripts
     for given genepanel_keys.
@@ -409,7 +453,7 @@ def annotation_transcripts_genepanel(
     else:
         annotation_shadow_transcript_table = annotationshadow.AnnotationShadowTranscript
 
-    genepanel_transcripts = (
+    genepanel_transcripts: ExtendedQuery = (
         session.query(
             gene.Genepanel.name,
             gene.Genepanel.version,
@@ -482,7 +526,7 @@ def annotation_transcripts_genepanel(
     return result
 
 
-def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
+def get_valid_filter_configs(session: Session, usergroup_id: int, analysis_id: int = None):
     usergroup_filterconfigs = get_usergroup_filter_configs(session, usergroup_id)
     if analysis_id is None:
         if usergroup_filterconfigs.count() > 1:
@@ -511,7 +555,7 @@ def get_valid_filter_configs(session, usergroup_id, analysis_id=None):
     return usergroup_filterconfigs.filter(sample.FilterConfig.id.in_(valid_ids))
 
 
-def get_usergroup_filter_configs(session, usergroup_id):
+def get_usergroup_filter_configs(session: Session, usergroup_id: int) -> ExtendedQuery:
     return (
         session.query(sample.FilterConfig)
         .join(sample.UserGroupFilterConfig)

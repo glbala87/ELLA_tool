@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.schema import Table
 from sqlalchemy.sql.selectable import TableClause
-from sqlalchemy import or_, and_, tuple_, func, case, Column, MetaData, Integer
+from sqlalchemy import literal, or_, and_, tuple_, func, case, Integer
 from sqlalchemy import cast
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -15,9 +15,7 @@ class RegionFilter(object):
         self.session = session
         self.config = config
 
-    def create_gene_padding_table(
-        self, gene_ids: Tuple[int, int, int, int, int, int], filter_config: Dict[str, Any]
-    ) -> Table:
+    def create_gene_padding_table(self, gp_key, filter_config) -> Table:
         """
         Create a temporary table for the gene specific padding of the form
         ------------------------------------------------------------------------------------------------
@@ -30,33 +28,19 @@ class RegionFilter(object):
         Returns an ORM-representation of this table
         """
 
-        splice_region = filter_config["splice_region"]
-        utr_region = filter_config["utr_region"]
-        values = []
-        for gene_id in gene_ids:
-            values.append(
-                str((gene_id, splice_region[0], splice_region[1], utr_region[0], utr_region[1]))
+        # Fetch all gene ids associated with the genepanel
+        return (
+            self.session.query(
+                gene.Transcript.gene_id.label("hgnc_id"),
+                literal(filter_config["splice_region"][0]).label("exon_upstream"),
+                literal(filter_config["splice_region"][1]).label("exon_downstream"),
+                literal(filter_config["utr_region"][0]).label("coding_region_upstream"),
+                literal(filter_config["utr_region"][1]).label("coding_region_downstream"),
             )
-
-        self.session.execute("DROP TABLE IF EXISTS tmp_gene_padding;")
-        self.session.execute(
-            "CREATE TEMP TABLE tmp_gene_padding (hgnc_id Integer, exon_upstream Integer, exon_downstream Integer, coding_region_upstream Integer, coding_region_downstream Integer) ON COMMIT DROP;"
-        )
-
-        if values:
-            self.session.execute("INSERT INTO tmp_gene_padding VALUES {};".format(",".join(values)))
-            self.session.execute("ANALYZE tmp_gene_padding")
-
-        t = Table(
-            "tmp_gene_padding",
-            MetaData(),
-            Column("hgnc_id", Integer()),
-            Column("exon_upstream", Integer()),
-            Column("exon_downstream", Integer()),
-            Column("coding_region_upstream", Integer()),
-            Column("coding_region_downstream", Integer()),
-        )
-        return t
+            .join(gene.Genepanel.transcripts)
+            .join(gene.Gene)
+            .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
+        ).temp_table("tmp_gene_padding")
 
     def create_genepanel_transcripts_table(
         self, gp_key: Tuple[str, str], allele_ids: List[int], max_padding: int
@@ -352,18 +336,7 @@ class RegionFilter(object):
                 region_filtered[gp_key] = set()
                 continue
 
-            # Fetch all gene ids associated with the genepanel
-            gp_genes = (
-                self.session.query(gene.Transcript.gene_id, gene.Gene.hgnc_symbol)
-                .join(gene.Genepanel.transcripts)
-                .join(gene.Gene)
-                .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == gp_key)
-            )
-
-            gp_gene_ids, gp_gene_symbols = list(zip(*[(g[0], g[1]) for g in gp_genes]))
-
-            # Create temporary gene padding table for the genes in the genepanel
-            tmp_gene_padding = self.create_gene_padding_table(gp_gene_ids, filter_config)
+            tmp_gene_padding = self.create_gene_padding_table(gp_key, filter_config)
 
             max_padding = self.session.query(
                 func.abs(func.max(tmp_gene_padding.c.exon_upstream)),

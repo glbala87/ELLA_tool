@@ -1,12 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import urllib.request
-from contextlib import closing, contextmanager
-import xml.etree.ElementTree as ET
 import logging
-import json
+import sys
 import time
-from .pubmed_parser import PubMedParser
+import urllib.request
+import xml.etree.ElementTree as ET
+from contextlib import closing, contextmanager
+from pathlib import Path
+from typing import List, Optional
+
+
+from .pubmed_parser import PubMedParser, NewReference
 
 """
 This module can query the PubMed article database based on PubMed article IDs
@@ -18,108 +22,85 @@ log.setLevel(logging.INFO)
 
 
 @contextmanager
-def output(filename):
+def output(filename: Optional[Path]):
     try:
-        if filename is not None:
-            f = open(filename, "w")
+        if filename:
+            f = filename.open("w")
         else:
-            f = sys.stdout
+            f = sys.stdout  # type: ignore
         yield f
     finally:
         f.close()
 
 
-class PubMedFetcher(object):
-    BASE_URL_ENTREZ = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+class PubMedFetcher:
+    BASE_URL_ENTREZ = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils"
     BASE_DB = "pubmed"
     MAX_QUERY = 200  # Entrez can process so many IDs per query
     MIN_TIME_BETWEEN_QUERY = 0.1  # To avoid Entrez blacklisting
     WAIT_TIME = 30  # When Entrez gives faulty string, wait some seconds
 
-    def control_query_frequency(self, time_previous_query, wait_time=0):
+    def control_query_frequency(self, time_previous_query: float, wait_time: float = 0):
         """
         :param time_previous_query: Time of previous call to the function
         :param wait_time: Pause program wait_time seconds
         :return : Ensure that there are less than 3 queries per second
         """
         # When Entrez returns fawlty xml string, we manually request long pause
-        if wait_time > 0.0:
-            log.info(("Entrez may be blocking us. Waiting %d s" % wait_time))
-            time.sleep(wait_time)
+        if wait_time <= 0:
+            time_diff = time.time() - time_previous_query
+            if time_diff < self.MIN_TIME_BETWEEN_QUERY:
+                wait_time = self.MIN_TIME_BETWEEN_QUERY - time_diff
 
-        # If last query to Entrez was less than MIN_TIME_BETWEEN_QUERY s ago
-        time_diff = time.time() - time_previous_query
-        if time_diff < self.MIN_TIME_BETWEEN_QUERY:
-            postpone_query = self.MIN_TIME_BETWEEN_QUERY - time_diff
-            log.info(("Entrez may be blocking us. Waiting %d s" % postpone_query))
-            time.sleep(postpone_query)
+        if wait_time > 0:
+            log.info(f"Entrez may be blocking us. Waiting {wait_time}s")
+            time.sleep(wait_time)
 
         return time.time()
 
-    def query_entrez(self, pmid):
+    def query_entrez(self, pmid: List[str]):
         """
         :param pmid: One or more PubMed IDs
         :return : XML entries of PubMed database as string
         """
-        url_pattern = "{base_url}efetch.fcgi?db={db}&id={pmid}&retmode=xml"
 
-        if not hasattr(pmid, "__iter__"):  # If pmid is not a list
-            pmid = [pmid]
-
-        pmid = list(map(str, pmid))  # In case pmid are not strings
+        if len(pmid) > self.MAX_QUERY:
+            raise IndexError(
+                f"Max number of pmids in query is {self.MAX_QUERY}, but received {len(pmid)}"
+            )
 
         pmid_parsed = ",".join(pmid)
-
-        if pmid.__len__() > self.MAX_QUERY:
-            raise IndexError("Max number of pmids in query is %d" % self.MAX_QUERY)
-
-        q_url = url_pattern.format(base_url=self.BASE_URL_ENTREZ, db=self.BASE_DB, pmid=pmid_parsed)
-        log.debug("Query %s" % q_url)
+        q_url = f"{self.BASE_URL_ENTREZ}/efetch.fcgi?db={self.BASE_DB}&id={pmid_parsed}&retmode=xml"
+        log.debug(f"Query {q_url}")
 
         try:
             with closing(urllib.request.urlopen(q_url)) as q:
                 xml_raw = q.read()
         except IOError as e:
-            raise IOError("Error while reading Entrez database %s: %s" % (q_url, e))
+            raise IOError(f"Error while reading Entrez database {q_url}: {e}")
 
         return xml_raw
 
-    def import_pmids(self, pmid_filename):
-        """
-        :param pmid_filename: File with tab or line separated pmids
-        """
-        try:
-            with open(pmid_filename, "r") as f:
-                pmids = f.read()
-        except IOError as e:
-            raise IOError("Error wile reading %s: %s" % (pmid_filename, e))
-
-        return pmids.split()
-
-    def get_references_from_file(self, pmid_file, outfile=None):
+    def get_references_from_file(self, pmid_file: Path, outfile: Optional[Path] = None):
         """
         :param pmid_file: File with tab or line separated PubMed IDs
         :param outfile: Save references file (defaults to stdout)
         """
-
-        pmids = self.import_pmids(pmid_file)
+        pmids = pmid_file.read_text().split()
 
         return self.get_references(pmids, outfile)
 
-    def get_references(self, pmids, outfile=None):
+    def get_references(self, pmids: List[str], outfile: Optional[Path]):
         """
-        :param pmids: PubMed IDs (either one pmid or list of pmids)
+        :param pmids: PubMed IDs (list of one or more pmids)
         :param outfile: Save references to file (default stdout)
         """
 
-        assert isinstance(pmids, list)
-
-        n_refs = len(pmids)
-
         # Ensure that only MAX_QUERY ids are included per query
-        max_query = self.MAX_QUERY
-        n_partial_queries = int(n_refs % max_query > 0)
-        n_queries = n_refs // max_query + n_partial_queries
+        n_refs = len(pmids)
+        n_queries, leftover = divmod(n_refs, self.MAX_QUERY)
+        if leftover:
+            n_queries += 1
 
         # Initialize time of previous query
         t_prev_query = time.time()
@@ -127,15 +108,14 @@ class PubMedFetcher(object):
 
         with output(outfile) as out:
             for i_query in range(n_queries):
-                log.info(("Processing query number %s of %s" % (i_query + 1, n_queries)))
+                log.info(f"Processing query number {i_query+1} of {n_queries}")
                 # Query sub-set of all pmids
-                pmid_range = list(
-                    range(max_query * i_query, min(max_query * (i_query + 1), n_refs))
-                )
-
-                pmid_selection = [pmids[i_sel] for i_sel in pmid_range]
+                pmid_start = i_query * self.MAX_QUERY
+                pmid_end = min(pmid_start + self.MAX_QUERY, n_refs)
+                pmid_selection = pmids[pmid_start:pmid_end]
                 t_prev_query = self.control_query_frequency(t_prev_query)
 
+                references: List[NewReference] = []
                 for count in range(10):
                     try:
                         references = self.get_references_core(pmid_selection)
@@ -157,11 +137,11 @@ class PubMedFetcher(object):
                         )
                     else:
                         break
-                for ref in references:
-                    json.dump(ref, out, indent=None)
-                    out.write("\n")
 
-    def get_references_core(self, pmids):
+                for ref in references:
+                    out.write(ref.json(indent=None, exclude_none=True) + "\n")
+
+    def get_references_core(self, pmids: List[str]) -> List[NewReference]:
         """
         :param pmids: Pubmed IDs (Either one or a list)
         :return : List of references as dictionaries
@@ -203,6 +183,5 @@ class PubMedFetcher(object):
 
 
 if __name__ == "__main__":
-    import sys
-
-    PubMedFetcher().get_references_from_file(sys.argv[1])
+    input_file = Path(sys.argv[1])
+    PubMedFetcher().get_references_from_file(input_file)

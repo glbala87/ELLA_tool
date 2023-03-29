@@ -152,7 +152,6 @@ def bulk_insert_nonexisting(
         return q_fields, q_filter
 
     for batch_rows in batch(rows, batch_size):
-
         q_fields, q_filter = get_fields_filter(model, batch_rows, compare_keys)
         if include_pk:
             q_fields.append(getattr(model, include_pk))
@@ -257,7 +256,6 @@ class SampleImporter(object):
         return parsed_ped
 
     def process(self, sample_names, analysis, sample_type="HTS", ped_file=None):
-
         db_samples = list()
 
         ped_data = None
@@ -270,7 +268,6 @@ class SampleImporter(object):
         # Connect samples to mother and/or father  {(family_id, sample_id): {'father_id': ..., 'mother_id': ...}}
         parents_to_connect = defaultdict(dict)
         for sample_idx, sample_name in enumerate(sample_names):
-
             sample_ped_data = {}
             if len(sample_names) == 1:
                 sample_ped_data.update({"affected": True, "proband": True})
@@ -570,7 +567,6 @@ class GenotypeImporter(object):
         )
 
     def process(self):
-
         if not self.batch_items:
             return list(), list()
 

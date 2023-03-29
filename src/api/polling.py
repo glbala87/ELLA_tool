@@ -1,28 +1,30 @@
+import binascii
 import datetime
 import json
 import logging
-import traceback
-
-import time
-import urllib.request
-import urllib.error
-import urllib.parse
-from urllib.parse import urlencode
 import os
-import binascii
 import subprocess
 import tempfile
+import time
+import traceback
+from typing import Sequence
+import urllib.error
+import urllib.parse
+import urllib.request
 from os.path import join
 from pathlib import Path
+from urllib.parse import urlencode
+
 import pytz
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
+from vardb.datamodel.annotationjob import AnnotationJob
+from vardb.deposit.analysis_config import AnalysisConfigData
+from vardb.deposit.deposit_alleles import DepositAlleles
+from vardb.deposit.deposit_analysis import DepositAnalysis
 
 from api.config import config
 from api.util.genepanel_to_bed import genepanel_to_bed
-from vardb.datamodel import annotationjob
-from vardb.deposit.deposit_alleles import DepositAlleles
-from vardb.deposit.deposit_analysis import DepositAnalysis
-from vardb.deposit.analysis_config import AnalysisConfigData
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +66,7 @@ def encode_multipart_formdata(fields, files):
     LIMIT = "-" * 10 + binascii.hexlify(os.urandom(10)).decode()
     CRLF = "\r\n"
     L = []
-    for (key, value) in fields.items():
+    for key, value in fields.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"' % key)
         L.append("")
@@ -75,7 +77,7 @@ def encode_multipart_formdata(fields, files):
                 value = value + '"'
         value = str(value)
         L.append(value)
-    for (key, (filename, value)) in files.items():
+    for key, (filename, value) in files.items():
         L.append("--" + LIMIT)
         L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
         L.append("Content-Type: application/octet-stream")
@@ -100,32 +102,26 @@ def get_error_message(e):
 
 
 class AnnotationJobsInterface:
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
 
     def get_all(self):
-        query = self.session.query(annotationjob.AnnotationJob)
+        query = self.session.query(AnnotationJob)
         return query.all()
 
     def get_with_status(self, status):
         if isinstance(status, str):
             status = [status]
         assert isinstance(status, (tuple, list))
-        return self.session.query(annotationjob.AnnotationJob).filter(
-            annotationjob.AnnotationJob.status.in_(status)
-        )
+        return self.session.query(AnnotationJob).filter(AnnotationJob.status.in_(status))
 
-    def get_with_id(self, id):
-        return (
-            self.session.query(annotationjob.AnnotationJob)
-            .filter(annotationjob.AnnotationJob.id == id)
-            .one()
-        )
+    def get_with_id(self, id: int):
+        return self.session.query(AnnotationJob).filter(AnnotationJob.id == id).one()
 
     def create(self, data):
-        return annotationjob.AnnotationJob(**data)
+        return AnnotationJob(**data)
 
-    def patch(self, id, **kwargs):
+    def patch(self, id: int, **kwargs):
         patched = False
         job = self.get_with_id(id)
         allowed_keys = ["status", "message", "task_id"]
@@ -196,10 +192,10 @@ class AnnotationJobsInterface:
                 else:
                     raise RuntimeError("Unknown mode: %s" % mode)
 
-    def delete(self, job):
+    def delete(self, job: AnnotationJob):
         self.session.delete(job)
 
-    def add(self, data):
+    def add(self, data: AnnotationJob):
         self.session.add(data)
 
     def commit(self):
@@ -209,8 +205,9 @@ class AnnotationJobsInterface:
         self.session.rollback()
 
 
+# NOTE: This is calling anno API
 class AnnotationServiceInterface:
-    def __init__(self, url, session):
+    def __init__(self, url: str, session: Session):
         self.base = join(url, "api/v1")
         self.session = session
 
@@ -241,11 +238,11 @@ class AnnotationServiceInterface:
         k = urllib.request.urlopen(r)
         return json.loads(k.read().decode())
 
-    def process(self, task_id):
+    def process(self, task_id: str):
         k = urllib.request.urlopen(join(self.base, "process", task_id))
         return k.read().decode()
 
-    def status(self, task_id=None):
+    def status(self, task_id: str = None):
         """Get status of task_id or all tasks"""
         if task_id:
             k = urllib.request.urlopen(join(self.base, "status", task_id))
@@ -273,9 +270,9 @@ class AnnotationServiceInterface:
     def annotation_service_running(self):
         try:
             urllib.request.urlopen(join(self.base, "status"))
-            return {"running": True}, 200
+            return True
         except (urllib.error.HTTPError, urllib.error.URLError):
-            return {"running": False}, 200
+            return False
 
 
 def process_running(annotation_service, running_jobs):
@@ -295,7 +292,9 @@ def process_running(annotation_service, running_jobs):
         yield id, {"task_id": task_id, "status": status, "message": message}
 
 
-def process_submitted(annotation_service, submitted_jobs):
+def process_submitted(
+    annotation_service: AnnotationServiceInterface, submitted_jobs: Sequence[AnnotationJob]
+):
     for job in submitted_jobs:
         id = job.id
         # data = job.data
@@ -319,7 +318,9 @@ def process_submitted(annotation_service, submitted_jobs):
         yield id, {"task_id": task_id, "status": status, "message": message}
 
 
-def process_annotated(annotation_service, annotation_jobs, annotated_jobs):
+def process_annotated(
+    annotation_service: AnnotationServiceInterface, annotation_jobs, annotated_jobs
+):
     for job in annotated_jobs:
         id = job.id
         task_id = job.task_id
@@ -415,7 +416,6 @@ def polling(session):
 
 
 if __name__ == "__main__":
-
     from applogger import setup_logger
 
     setup_logger()

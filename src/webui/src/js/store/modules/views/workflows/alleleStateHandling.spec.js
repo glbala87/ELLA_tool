@@ -178,7 +178,7 @@ describe('Handling of allele state', () => {
             },
             selectedGenepanel: {
                 name: 'test',
-                version: 'v01'
+                version: 'v1.0.0'
             },
             interpretation: {
                 data: {

@@ -1,10 +1,22 @@
 """varDB datamodel classes for Gene and Transcript"""
 import datetime
+
 import pytz
-from sqlalchemy import Column, Integer, String, Enum, Table, Boolean, DateTime, Index, func
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Table,
+    func,
+)
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import relationship
 from sqlalchemy.schema import ForeignKeyConstraint, UniqueConstraint
 
 from vardb.datamodel import Base
@@ -17,8 +29,6 @@ class Gene(Base):
 
     hgnc_id = Column(Integer, primary_key=True)
     hgnc_symbol = Column(String, nullable=False)
-    ensembl_gene_id = Column(String, unique=True)
-    omim_entry_id = Column(Integer)
 
     __table_args__ = (
         Index(
@@ -43,9 +53,7 @@ class Transcript(Base):
     gene = relationship("Gene", lazy="joined")
     transcript_name = Column(String(), unique=True, nullable=False)
     type = Column(Enum("RefSeq", "Ensembl", "LRG", name="transcript_type"), nullable=False)
-    corresponding_refseq = Column(String())
-    corresponding_ensembl = Column(String())
-    corresponding_lrg = Column(String())
+    tags = Column(ARRAY(String), nullable=True)
     genome_reference = Column(String(), nullable=False)
     chromosome = Column(String(), nullable=False)
     tx_start = Column(Integer, nullable=False)
@@ -84,6 +92,7 @@ genepanel_transcript = Table(
     Column("genepanel_name", nullable=False),
     Column("genepanel_version", nullable=False),
     Column("transcript_id", Integer, ForeignKey("transcript.id"), nullable=False),
+    Column("inheritance", String(), nullable=False),
     ForeignKeyConstraint(
         ["genepanel_name", "genepanel_version"],
         ["genepanel.name", "genepanel.version"],
@@ -144,7 +153,7 @@ class Genepanel(Base):
     phenotypes = relationship("Phenotype", secondary=genepanel_phenotype)
 
     def __repr__(self):
-        return "<Genepanel('%s','%s', '%s')" % (self.name, self.version, self.genome_reference)
+        return f"<Genepanel('{self.name}','{self.version}', '{self.genome_reference}')>"
 
     def __str__(self):
         return "_".join((self.name, self.version, self.genome_reference))

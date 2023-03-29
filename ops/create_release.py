@@ -58,24 +58,24 @@ class Link:
         return f"{self.class_url}/{self.id}"
 
     def toJSON(self) -> Dict[str, str]:
-        """ Return a dict of strs for sending to gitlab API """
+        """Return a dict of strs for sending to gitlab API"""
         api_attrs = ["name", "url", "link_type", "filepath"]
         return {k: str(v) for k, v in self.__dict__.items() if k in api_attrs and v is not None}
 
     def save(self) -> "Link":
-        """ Create a link object on an existing release """
-        assert self.id == -1, f"Can't save an existing link, use old_link.update(new_link)"
+        """Create a link object on an existing release"""
+        assert self.id == -1, "Can't save an existing link, use old_link.update(new_link)"
         log(f"Adding new link for '{self.name}'")
         resp = requests.post(self.class_url, json=self.toJSON(), headers=headers)
         if resp.status_code != 201:
             error(f"Failed to add link: {resp.status_code} - {resp.json()['message']}")
             error(f"Link: {self}")
             exit(1)
-        log(f"Link created successfully")
+        log("Link created successfully")
         return Link.from_api(resp.json())
 
     def update(self, new_link: "Link") -> "Link":
-        """ Update an existing link with new data """
+        """Update an existing link with new data"""
         log(f"Updating '{self.name}' with new data")
         new_data = {k: v for k, v in new_link.toJSON().items() if v != getattr(self, k)}
         resp = requests.put(self.api_url, json=new_data, headers=headers)
@@ -83,12 +83,12 @@ class Link:
             error(f"Failed to update link {new_link}")
             breakpoint()
             exit(1)
-        log(f"Link updated successfully")
+        log("Link updated successfully")
         return Link.from_api(resp.json())
 
     @classmethod
     def from_api(cls, data: Dict[str, Any]) -> "Link":
-        """ generate a Link object from API GET link response """
+        """generate a Link object from API GET link response"""
         asset_root = f"{url_root}/-/releases/{args.tag}/downloads"
 
         if data.get("direct_asset_url"):
@@ -118,7 +118,7 @@ class ReleaseAssets:
     links: List[Link]
 
     def __post_init__(self):
-        assert len(self.links) > 0, f"Cannot instantiate empty link list"
+        assert len(self.links) > 0, "Cannot instantiate empty link list"
 
     def toJSON(self) -> Dict[Literal["links"], List[Dict[str, str]]]:
         return {"links": [l.toJSON() for l in self.links]}
@@ -144,7 +144,7 @@ class Release:
         return f"{self.class_url}/{self.id}"
 
     def toJSON(self) -> Dict[str, str]:
-        """ Return a dict of strs for sending to gitlab API """
+        """Return a dict of strs for sending to gitlab API"""
         api_attrs = ["name", "tag_name", "description", "ref", "milestones"]
         json_obj = {k: v for k, v in self.__dict__.items() if k in api_attrs and v is not None}
         if self.assets:
@@ -154,10 +154,8 @@ class Release:
         return json_obj
 
     def save(self) -> "Release":
-        """ Send API request to create Gitlab release """
-        assert (
-            self.id == -1
-        ), f"Cannot save an existing release, use old_release.update(new_release)"
+        """Send API request to create Gitlab release"""
+        assert self.id == -1, "Cannot save an existing release, use old_release.update(new_release)"
         resp = requests.post(self.class_url, headers=headers, json=self.toJSON())
         if resp.status_code != 201:
             error(
@@ -168,12 +166,12 @@ class Release:
         return self.from_api(resp.json())
 
     def update(self, new_release: "Release") -> "Release":
-        """ Updates an existing release """
+        """Updates an existing release"""
         raise NotImplementedError
 
     @classmethod
     def from_tag(cls, tag: str) -> "Release":
-        """ Get a Release object based on git tag """
+        """Get a Release object based on git tag"""
         resp = requests.get(f"{cls.class_url}/{tag}")
         if resp.status_code != 200:
             error(f"Failed to fetch release {tag}: {resp.status_code} - {resp.json()['message']}")
@@ -183,7 +181,7 @@ class Release:
 
     @classmethod
     def from_api(cls, data: Dict[str, Any]) -> "Release":
-        """ Create Release object from API GET release response """
+        """Create Release object from API GET release response"""
         dt_fields = ["created_at", "released_at"]
         filtered_data: Dict[str, Any] = dict()
         field_names = [f.name for f in fields(cls)]
@@ -227,7 +225,7 @@ def main():
 
 
 def run_cmd(cmd: List) -> Tuple[str, str]:
-    """ Run a command (list), and return str output from stdout and stderr on success """
+    """Run a command (list), and return str output from stdout and stderr on success"""
     resp = subprocess.run(cmd, capture_output=True)
     if resp.returncode == 0:
         return resp.stdout.decode("UTF-8"), resp.stderr.decode("UTF-8")
@@ -237,7 +235,7 @@ def run_cmd(cmd: List) -> Tuple[str, str]:
 
 
 def gen_links() -> ReleaseAssets:
-    """ Generate Link objects for a new release """
+    """Generate Link objects for a new release"""
     # also fairly brittle when moving to another repo
     bucket = f"{bucket_root}/{args.tag}"
     src_name = f"{gitlab_repo}-release-{args.tag}-dist.tgz"
@@ -261,7 +259,7 @@ def gen_links() -> ReleaseAssets:
 
 
 def gen_release_notes() -> str:
-    """ Generate release notes with docker image details and contents from existing docs """
+    """Generate release notes with docker image details and contents from existing docs"""
     # this is non-portable, so replace if using script with a diff repo
     notes_text = ["#### Docker Image\n\n", f"Docker image available: {docker_root}:{args.tag}\n\n"]
 
@@ -285,7 +283,7 @@ def gen_release_notes() -> str:
 
 
 def get_release_date() -> datetime.datetime:
-    """ Get commit date on tag for release created_at """
+    """Get commit date on tag for release created_at"""
     dt_str, _ = run_cmd(["git", "log", "-1", "--format=%cI", args.tag])
     return datetime.datetime.fromisoformat(dt_str.strip())
 

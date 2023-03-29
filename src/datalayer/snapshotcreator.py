@@ -1,28 +1,17 @@
-from typing import Sequence, Dict, Union
 import itertools
+from typing import Dict, Sequence, Tuple, Union
 
-from vardb.datamodel import workflow, assessment, annotation
+from api.util.types import FilteredAlleleCategories
+from sqlalchemy.orm.session import Session
+from vardb.datamodel import Base, annotation, assessment, workflow
 
 
 class SnapshotCreator(object):
-
-    EXCLUDED_FLAG = {
-        "classification": "CLASSIFICATION",
-        "frequency": "FREQUENCY",
-        "region": "REGION",
-        "ppy": "POLYPYRIMIDINE",
-        "gene": "GENE",
-        "quality": "QUALITY",
-        "consequence": "CONSEQUENCE",
-        "segregation": "SEGREGATION",
-        "inheritancemodel": "INHERITANCEMODEL",
-    }
-
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
 
-    def _allele_id_model_id(self, model, model_ids: Sequence[int]):
-        allele_ids_model_ids = (
+    def _allele_id_model_id(self, model: Base, model_ids: Sequence[int]):
+        allele_ids_model_ids: Sequence[Tuple[int, int]] = (
             self.session.query(getattr(model, "allele_id"), getattr(model, "id"))
             .filter(getattr(model, "id").in_(model_ids))
             .all()
@@ -42,7 +31,6 @@ class SnapshotCreator(object):
         allelereport_ids: Sequence[int],
         excluded_allele_ids: Dict = None,
     ) -> Sequence[Dict]:
-
         excluded: Dict = {}
 
         if interpretation_snapshot_model == "analysis":
@@ -84,7 +72,7 @@ class SnapshotCreator(object):
             if interpretation_snapshot_model == "analysis":
                 snapshot_item["analysisinterpretation_id"] = interpretation.id
                 snapshot_item["filtered"] = (
-                    SnapshotCreator.EXCLUDED_FLAG[excluded_category]
+                    FilteredAlleleCategories(excluded_category).name
                     if excluded_category is not None
                     else None
                 )

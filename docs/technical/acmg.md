@@ -24,7 +24,7 @@ See `/src/rule_engine/README` for details.
 
 ### User group rules
 
-[User group](/technical/users.html#user-groups)-specific ACMG value rules. See `/src/vardb/testdata/usergroups.json` for examples. 
+[User group](/technical/users.html#user-groups)-specific ACMG value rules. See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. 
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `config.acmg` 
@@ -63,4 +63,4 @@ Sort order and how long an interpretation should be considered valid (`outdated_
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment)) 
 - Key: `classification.options`
 
-See `/example_config.yml` for examples.
+See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.

@@ -71,7 +71,6 @@ def test_needs_verification_checks_no_data(allele, genotype):
 
 
 def test_needs_verification_positive(allele, genotype):
-
     # Heterozygous case
     allele["change_type"] = "SNP"
     genotype["type"] = "Heterozygous"
@@ -126,7 +125,6 @@ def test_needs_verification_hts_negative(allele, genotype):
 
 
 def test_needs_verification_negative(allele, genotype):
-
     # Heterozygous case
     allele["change_type"] = "indel"
     genotype["type"] = "Heterozygous"

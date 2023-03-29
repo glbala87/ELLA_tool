@@ -31,7 +31,6 @@ def ci_migration_head():
 
 
 def make_migration_base_db():
-
     db = DB()
     db.connect()
     Base.metadata.create_all(db.engine)  # noqa: F405

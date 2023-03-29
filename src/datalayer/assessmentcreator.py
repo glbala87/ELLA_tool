@@ -53,6 +53,13 @@ class AssessmentCreator(object):
         The created objects are not added to session/database.
         """
 
+        # Pydantic models converted to dict may have the key, but no value. Use the provided in that case
+        for sub_dict in [alleleassessment, *(referenceassessments or [])]:
+            if sub_dict.get("genepanel_name") is None:
+                sub_dict["genepanel_name"] = genepanel_name
+            if sub_dict.get("genepanel_version") is None:
+                sub_dict["genepanel_version"] = genepanel_version
+
         ra_created, ra_reused = self._create_or_reuse_referenceassessments(
             allele_id,
             user_id,

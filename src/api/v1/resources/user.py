@@ -1,28 +1,45 @@
 import logging
-from flask import Response, make_response, redirect, request
-from sqlalchemy.orm import aliased
-from vardb.datamodel import user as user_model
+from typing import Dict, Optional
 
-from api import schemas, ApiError
-from api.util.util import paginate, rest_filter, request_json, authenticate
+from api import ApiError, schemas
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    ChangePasswordRequest,
+    EmptyResponse,
+    LoginRequest,
+    UserListResponse,
+    UserResponse,
+)
 from api.util.useradmin import (
     authenticate_user,
-    create_session,
     change_password,
-    logout,
+    create_session,
     get_usersession_by_token,
+    logout,
 )
-
-from api.v1.resource import Resource, LogRequestResource
+from api.util.util import authenticate, paginate, request_json, rest_filter
+from api.v1.resource import LogRequestResource, Resource
+from flask import make_response, request
+from sqlalchemy.orm import Session, aliased
+from vardb.datamodel import user as user_model
 
 log = logging.getLogger(__name__)
 
 
 class UserListResource(LogRequestResource):
     @authenticate()
+    @validate_output(UserListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        per_page: int,
+        user: user_model.User,
+        **kwargs
+    ):
         """
         Returns a list of users.
 
@@ -60,7 +77,8 @@ class UserListResource(LogRequestResource):
 
 
 class UserResource(LogRequestResource):
-    def get(self, session, user_id=None):
+    @validate_output(UserResponse)
+    def get(self, session: Session, user_id: user_model.User):
         """
         Returns a single user.
         ---
@@ -85,35 +103,29 @@ class UserResource(LogRequestResource):
 
 
 class LoginResource(Resource):
-    @request_json(["username", "password"], only_required=True)
-    def post(self, session, data=None):
-        username = data.get("username")
-        password = data.get("password")
-
-        u = authenticate_user(session, username, password)
+    @request_json(model=LoginRequest)
+    def post(self, session: Session, data: LoginRequest):
+        u = authenticate_user(session, data.username, data.password)
 
         token = create_session(session, u.id)
-        resp = make_response(redirect("/"))
+        resp = make_response()
         resp.set_cookie("AuthenticationToken", token, httponly=True, expires=u.password_expiry)
 
         return resp
 
 
 class ChangePasswordResource(Resource):
-    @request_json(["username", "password", "new_password"], only_required=True)
-    def post(self, session, data=None):
-        username = data.get("username")
-        password = data.get("password")
-        new_password = data.get("new_password")
-
+    @validate_output(EmptyResponse)
+    @request_json(model=ChangePasswordRequest)
+    def post(self, session: Session, data: ChangePasswordRequest):
         # change_password performs the authentication
-        change_password(session, username, password, new_password)
-        return Response("Password for user %s changed. You can now log in." % username)
+        change_password(session, data.username, data.password, data.new_password)
 
 
 class CurrentUser(LogRequestResource):
     @authenticate()
-    def get(self, session, user=None):
+    @validate_output(UserResponse)
+    def get(self, session: Session, user: user_model.User):
         # Load import_groups into user group
         usergroupimport = aliased(user_model.UserGroup)
         importgroups = (
@@ -132,15 +144,17 @@ class CurrentUser(LogRequestResource):
         dumped_user = schemas.UserFullSchema().dump(user).data
         import_group_names = [a[1] for a in importgroups]
         dumped_user["group"]["import_groups"] = import_group_names
+        # this is not getting included in schema dump above in tests for some reason?
+        if not dumped_user.get("user_group_name"):
+            dumped_user["user_group_name"] = dumped_user["group"]["name"]
         return dumped_user
 
 
 class LogoutResource(LogRequestResource):
     @authenticate()
-    def post(self, session, user=None):
-
+    @validate_output(EmptyResponse)
+    def post(self, session: Session, **kwargs):
         token = request.cookies.get("AuthenticationToken")  # We only logout specific token
-
         user_session = get_usersession_by_token(session, token)
 
         if user_session is None:

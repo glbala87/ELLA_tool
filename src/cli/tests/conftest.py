@@ -12,7 +12,7 @@ def db_del(*args, **kwargs):
         pass
 
 
-DB.__del__ = db_del
+setattr(DB, "__del__", db_del)
 
 
 @pytest.fixture

@@ -104,7 +104,11 @@
         </td>
 
         <td>
-            <h3 class="full-title">{{ $ctrl.allele.formatted.genomicPosition }}</h3>
+            <h3 class="full-title">
+                <a-clip href="{{ $ctrl.getUCSCLink() }}"
+                    >{{ $ctrl.allele.formatted.genomicPosition }}
+                </a-clip>
+            </h3>
         </td>
     </tr>
 </table>

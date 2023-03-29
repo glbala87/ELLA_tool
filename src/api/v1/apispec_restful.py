@@ -66,7 +66,7 @@ def path_from_resource(spec, api, resource, **kwargs):
                 doc = dedent(doc)
                 operations[method]["description"] = desc
                 try:
-                    operations[method].update(yaml.load(doc))
+                    operations[method].update(yaml.load(doc, Loader=yaml.SafeLoader))
                 except Exception:
                     print("Error while parsing docstring for resource {}:".format(path))
                     traceback.print_exc()

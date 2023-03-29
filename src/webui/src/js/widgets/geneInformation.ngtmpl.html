@@ -30,19 +30,16 @@
         Inheritance
     </h4>
     {{ $ctrl.genepanelValues[$ctrl.hgncId].inheritance }}
+    <h4 class="section-title">Default transcript(s)</h4>
+    <ul class="popover-list indented">
+        <li ng-repeat="tx in $ctrl.genepanelValues[$ctrl.hgncId].transcripts">
+            {{ tx.transcript_name }} {{ $ctrl.getTranscriptTags(tx) }}
+        </li>
+    </ul>
     <h4 class="section-title">Phenotypes</h4>
     <ul class="popover-list indented">
         <li ng-repeat="ph in $ctrl.genepanelValues[$ctrl.hgncId].phenotypes">
             {{ ph.description }} ({{ ph.inheritance }})
-        </li>
-    </ul>
-    <h4 class="section-title">Transcripts</h4>
-    <ul class="popover-list indented">
-        <li>
-            Default(s):
-            <span ng-repeat="tx in $ctrl.genepanelValues[$ctrl.hgncId].transcripts">
-                {{ tx.transcript_name }}
-            </span>
         </li>
     </ul>
     <h4 class="section-title">BS1/BA1 cutoff</h4>

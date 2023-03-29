@@ -119,7 +119,9 @@ def add_fcs_to_db(session, filterconfigs):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
-@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
+@ht.settings(
+    suppress_health_check=(ht.HealthCheck.too_slow, ht.HealthCheck.function_scoped_fixture)
+)
 def test_filter_ordering(session, client, filterconfigs):
     session.rollback()
     session.query(sample.UserGroupFilterConfig).delete()
@@ -151,7 +153,9 @@ def test_filter_ordering(session, client, filterconfigs):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
-@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
+@ht.settings(
+    suppress_health_check=(ht.HealthCheck.too_slow, ht.HealthCheck.function_scoped_fixture)
+)
 def test_filterconfig_requirements(session, client, filterconfigs):
     # Add dummy schema that allows for any object
     jsonschema.JSONSchema.get_or_create(
@@ -225,7 +229,9 @@ def test_filterconfig_requirements(session, client, filterconfigs):
 
 
 @ht.given(st.one_of(filterconfig_strategy()))
-@ht.settings(suppress_health_check=(ht.HealthCheck.too_slow,))
+@ht.settings(
+    suppress_health_check=(ht.HealthCheck.too_slow, ht.HealthCheck.function_scoped_fixture)
+)
 def test_default_filterconfig(session, filterconfigs):
     session.rollback()
     # Add dummy schema that allows for any object

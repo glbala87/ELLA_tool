@@ -5,9 +5,7 @@ title: Overview
 # Setup: Overview
 
 ::: warning NOTE
-This documentation is a work in progress and is incomplete.
-
-Please contact developers for more details.
+This documentation is a work in progress and may be incomplete.
 :::
 
 Setup of ELLA in a demo, production and/or development environment, with logging and testing. 

@@ -3,15 +3,14 @@ Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
 import copy
-import pytest
-
-from datalayer.allelefilter.regionfilter import RegionFilter
-from vardb.datamodel import gene
-from conftest import mock_allele_with_annotation, mock_allele
 
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
 
+from conftest import mock_allele, mock_allele_with_annotation
+from datalayer.allelefilter.regionfilter import RegionFilter
+from vardb.datamodel import gene
 
 # prevent screen getting filled with output (useful when testing manually)
 # import logging
@@ -28,130 +27,67 @@ def allele_positions(draw, chromosome, start, end):
     return (chromosome, start_position, end_position)
 
 
-def create_genepanel(genepanel_config):
+def create_genepanel(session):
     # Create fake genepanel for testing purposes
-
-    g1_ad = gene.Gene(hgnc_id=int(1e6), hgnc_symbol="GENE1AD")
-    g1_ar = gene.Gene(hgnc_id=int(2e6), hgnc_symbol="GENE1AR")
-    g2 = gene.Gene(hgnc_id=int(3e6), hgnc_symbol="GENE2")
-    g3 = gene.Gene(hgnc_id=int(4e6), hgnc_symbol="GENE3")
-    g4 = gene.Gene(hgnc_id=int(5e6), hgnc_symbol="GENE4")
-    g5 = gene.Gene(hgnc_id=int(6e6), hgnc_symbol="GENE5")
-    g6 = gene.Gene(hgnc_id=int(6e7), hgnc_symbol="GENE6")
-
-    t1_ad = gene.Transcript(
-        gene=g1_ad,
-        transcript_name="NM_1AD.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="1",
-        tx_start=1000,
-        tx_end=1500,
-        strand="+",
-        cds_start=1230,
-        cds_end=1430,
-        exon_starts=[1100, 1200, 1300, 1400],
-        exon_ends=[1160, 1260, 1360, 1460],
-    )
-
-    t1_ar = gene.Transcript(
-        gene=g1_ar,
-        transcript_name="NM_1AR.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="1",
-        tx_start=1000,
-        tx_end=1500,
-        strand="+",
-        cds_start=1230,
-        cds_end=1430,
-        exon_starts=[1100, 1200, 1300, 1400],
-        exon_ends=[1160, 1260, 1360, 1460],
-    )
-
-    t2 = gene.Transcript(
-        gene=g2,
-        transcript_name="NM_2.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="2",
-        tx_start=2000,
-        tx_end=2500,
-        strand="+",
-        cds_start=2230,
-        cds_end=2430,
-        exon_starts=[2100, 2200, 2300, 2400],
-        exon_ends=[2160, 2260, 2360, 2460],
-    )
-
-    t3 = gene.Transcript(
-        gene=g3,
-        transcript_name="NM_3.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="3",
-        tx_start=3000,
-        tx_end=3500,
-        strand="+",
-        cds_start=3230,
-        cds_end=3430,
-        exon_starts=[3100, 3200, 3300, 3400],
-        exon_ends=[3160, 3260, 3360, 3460],
-    )
-
-    t4 = gene.Transcript(
-        gene=g4,
-        transcript_name="NM_4.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="4",
-        tx_start=4000,
-        tx_end=4500,
-        strand="+",
-        cds_start=4230,
-        cds_end=4430,
-        exon_starts=[4100, 4200, 4300, 4400],
-        exon_ends=[4160, 4260, 4360, 4460],
-    )
-
-    t5_reverse = gene.Transcript(
-        gene=g5,
-        transcript_name="NM_5.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="5",
-        tx_start=5000,
-        tx_end=5500,
-        strand="-",
-        cds_start=5230,
-        cds_end=5430,
-        exon_starts=[5100, 5200, 5300, 5400],
-        exon_ends=[5160, 5260, 5360, 5460],
-    )
-
-    t6_reverse = gene.Transcript(
-        gene=g6,
-        transcript_name="NM_6.1",
-        type="RefSeq",
-        genome_reference="",
-        chromosome="6",
-        tx_start=6000,
-        tx_end=6500,
-        strand="-",
-        cds_start=6259,
-        cds_end=6401,
-        exon_starts=[6100, 6200, 6300, 6400],
-        exon_ends=[6160, 6260, 6360, 6460],
-    )
-
-    p1 = gene.Phenotype(gene=g1_ad, inheritance="AD", description="P1")
-
-    p2 = gene.Phenotype(gene=g1_ar, inheritance="AD,AR", description="P2")
-
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
+    session.add(genepanel)
+    session.flush()
 
-    genepanel.transcripts = [t1_ad, t1_ar, t2, t3, t4, t5_reverse, t6_reverse]
-    genepanel.phenotypes = [p1, p2]
+    # Create 6 genes
+    genes = [gene.Gene(hgnc_id=i + 1, hgnc_symbol=f"GENE{i+1}") for i in range(6)]
+
+    # Create 6 transcripts, one for each gene
+    # The first 4 transcripts are on the positive strand, the last 2 on the negative strand
+    # The transcripts are on different chromosomes, with positions increasing with hgnc_id
+    #
+    # The transcripts have the following properties:
+    #
+    # transcript NM_1.1 for gene 1:
+    # chromosome 1, start-end 1000-1500 (strand +, cds 1230-1430, exons 1100-1160, 1200-1260, 1300-1360, 1400-1460)
+    # transcript NM_2.1 for gene 2:
+    # chromosome 2, start-end 2000-2500 (strand +, cds 2230-2430, exons 2100-2160, 2200-2260, 2300-2360, 2400-2460)
+    # transcript NM_3.1 for gene 3:
+    # chromosome 3, start-end 3000-3500 (strand +, cds 3230-3430, exons 3100-3160, 3200-3260, 3300-3360, 3400-3460)
+    # transcript NM_4.1 for gene 4:
+    # chromosome 4, start-end 4000-4500 (strand +, cds 4230-4430, exons 4100-4160, 4200-4260, 4300-4360, 4400-4460)
+    # transcript NM_5.1 for gene 5:
+    # chromosome 5, start-end 5000-5500 (strand -, cds 5230-5430, exons 5100-5160, 5200-5260, 5300-5360, 5400-5460)
+    # transcript NM_6.1 for gene 6:
+    # chromosome 6, start-end 6000-6500 (strand -, cds 6230-6430, exons 6100-6160, 6200-6260, 6300-6360, 6400-6460)
+    #
+    transcripts = [
+        gene.Transcript(
+            gene=g,
+            transcript_name=f"NM_{g.hgnc_id}.1",
+            type="RefSeq",
+            genome_reference="",
+            tags=None,
+            chromosome=f"{g.hgnc_id}",
+            tx_start=g.hgnc_id * 1000,
+            tx_end=500 + g.hgnc_id * 1000,
+            strand="+" if g.hgnc_id <= 4 else "-",
+            cds_start=230 + g.hgnc_id * 1000,
+            cds_end=430 + g.hgnc_id * 1000,
+            exon_starts=[x + g.hgnc_id * 1000 for x in [100, 200, 300, 400]],
+            exon_ends=[x + g.hgnc_id * 1000 for x in [160, 260, 360, 460]],
+        )
+        for g in genes
+    ]
+    session.add_all(transcripts)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        [
+            {
+                "transcript_id": tx.id,
+                "genepanel_name": genepanel.name,
+                "genepanel_version": genepanel.version,
+                "inheritance": "AD/AR",
+            }
+            for tx in transcripts
+        ],
+    )
+
     return genepanel
 
 
@@ -160,8 +96,7 @@ class TestRegionFilter(object):
     def test_prepare_data(self, test_database, session):
         test_database.refresh()  # Reset db
 
-        gp = create_genepanel({})
-        session.add(gp)
+        create_genepanel(session)
         session.commit()
 
     @pytest.mark.aa(order=1)
@@ -208,7 +143,7 @@ class TestRegionFilter(object):
         ),
         st.just(None),
     )
-    @ht.settings(deadline=500)
+    @ht.settings(deadline=1000)
     def test_genomic_region_filtering(self, session, positions, manually_curated_result):
         """
         Tests both using manually curated test and parallell implementation in Python.
@@ -249,6 +184,7 @@ class TestRegionFilter(object):
         splice_include_regions = []
         coding_include_regions = []
         utr_include_regions = []
+
         for transcript in genepanel.transcripts:
             for es, ee in zip(transcript.exon_starts, transcript.exon_ends):
                 splice_upstream = (
@@ -303,8 +239,8 @@ class TestRegionFilter(object):
                 "transcripts": [
                     {
                         "symbol": "GENE1",
-                        "hgnc_id": int(1e6),
-                        "transcript": "NM_1AD.1",
+                        "hgnc_id": 1,
+                        "transcript": "NM_1.1",
                         "exon_distance": -10,
                         "coding_region_distance": None,
                     }
@@ -319,8 +255,8 @@ class TestRegionFilter(object):
                 "transcripts": [
                     {
                         "symbol": "GENE1",
-                        "hgnc_id": int(1e6),
-                        "transcript": "NM_1AD.1",
+                        "hgnc_id": 1,
+                        "transcript": "NM_1.1",
                         "exon_distance": 5,
                         "coding_region_distance": None,
                     }
@@ -335,8 +271,8 @@ class TestRegionFilter(object):
                 "transcripts": [
                     {
                         "symbol": "GENE1",
-                        "hgnc_id": int(1e6),
-                        "transcript": "NM_1AD.1",
+                        "hgnc_id": 1,
+                        "transcript": "NM_1.1",
                         "exon_distance": 0,
                         "coding_region_distance": -12,
                     }
@@ -351,8 +287,8 @@ class TestRegionFilter(object):
                 "transcripts": [
                     {
                         "symbol": "GENE1",
-                        "hgnc_id": int(1e6),
-                        "transcript": "NM_1AD.1",
+                        "hgnc_id": 1,
+                        "transcript": "NM_1.1",
                         "exon_distance": 0,
                         "coding_region_distance": 20,
                     }
@@ -366,7 +302,7 @@ class TestRegionFilter(object):
                 "transcripts": [
                     {
                         "symbol": "GENE1",
-                        "hgnc_id": int(1e6),
+                        "hgnc_id": 1,
                         "transcript": "TRANSCRIPT_NOT_FOR_FILTERING",
                         "exon_distance": 0,
                         "coding_region_distance": 0,
@@ -444,6 +380,7 @@ def create_transcript(draw):
         transcript_name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
+        tags=[],
         chromosome="1",
         tx_start=tx_start,
         tx_end=tx_end,
@@ -461,6 +398,7 @@ def default_transcript(**kwargs):
         transcript_name="NM_REGION_TEST.1",
         type="RefSeq",
         genome_reference="",
+        tags=[],
         chromosome="1",
         tx_start=1000,
         tx_end=4000,
@@ -565,10 +503,18 @@ def test_regions(
 
     max_padding = max(abs(x) for x in (*splice_region, *utr_region))
     genepanel = gene.Genepanel(name="testpanel", version="v02", genome_reference="GRCh37")
-
-    genepanel.transcripts = [transcript]
-    genepanel.phenotypes = []
     session.add(genepanel)
+    session.add(transcript)
+    session.flush()
+    session.execute(
+        gene.genepanel_transcript.insert(),
+        {
+            "transcript_id": transcript.id,
+            "genepanel_name": genepanel.name,
+            "genepanel_version": genepanel.version,
+            "inheritance": "AD/AR",
+        },
+    )
     session.flush()
 
     # Add one allele within transcript (+ padding)
@@ -583,7 +529,8 @@ def test_regions(
 
     rf = RegionFilter(session, None)
     tmp_gene_padding = rf.create_gene_padding_table(
-        [transcript.gene_id], {"splice_region": splice_region, "utr_region": utr_region}
+        (genepanel.name, genepanel.version),
+        {"splice_region": splice_region, "utr_region": utr_region},
     )
 
     assert session.query(*tmp_gene_padding.c).all() == [

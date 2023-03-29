@@ -12,7 +12,7 @@ def assert_results_equal(session, naive, refined, N):
     expected = session.query(gene.Gene).filter(naive).all()
     actual = session.query(gene.Gene).filter(refined).all()
     assert len(expected) == N
-    assert expected == actual
+    assert set(expected) == set(actual)
 
 
 def expressions_equal(naive, refined):

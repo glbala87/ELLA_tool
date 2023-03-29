@@ -4,9 +4,13 @@ services:
     - docker:stable-dind
 
 variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    # don't remove artifacts directory
+    GIT_CLEAN_FLAGS: -ffdx -e images/
+
     # build vars
     DOCKER_DRIVER: overlay2
-    DOCKER_BUILDKIT: 1
+    DOCKER_BUILDKIT: '1'
     BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
 
     # repo vars
@@ -21,12 +25,12 @@ variables:
     # CI / release
     # Value is branch name when running on a branch pipeline, tag name for tag pipelines (releases)
     RELEASE_TAG: $CI_COMMIT_REF_NAME
-    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    RELEASE_IMAGE: $CI_REGISTRY_IMAGE:$RELEASE_TAG
     SIF_PREFIX: docker
 
     # singularity-in-docker
     SID_IMAGE: quay.io/singularity/singularity
-    SID_VERSION: v3.7.1
+    SID_VERSION: v3.8.1
     SID_SLUG: $SID_IMAGE:$SID_VERSION
 
     # from: https://gitlab.com/gitlab-org/cloud-deploy/-/releases/v0.3.3
@@ -34,8 +38,27 @@ variables:
 
     # Misc settings
     # ensure any breakpoints don't fire
-    PYTHONBREAKPOINT: 0
+    PYTHONBREAKPOINT: '0'
     DEBIAN_FRONTEND: noninteractive
+
+    # Feature flags
+    ENABLE_PYDANTIC: 'true'
+
+    # pre-populate variables/descriptions for manual trigger via gitlab.com UI
+    REF:
+        value: ''
+        description: 'Specify a branch from ella-testdata to use instead of the default'
+    UPSTREAM_TRIGGER:
+        value: ''
+        description: 'Set a descriptive name when using REF to run a testdata branch'
+
+default:
+    # allow running jobs to be canceled if a new pipeline starts before they finish
+    # ref: https://docs.gitlab.com/ee/ci/yaml/index.html#interruptible
+    interruptible: true
+    # use the small DO runners unless explicitly stated otherwise
+    tags:
+        - do-small
 
 stages:
     - build
@@ -72,27 +95,31 @@ stages:
 .docker-load: &docker-load cat $CI_CACHE_IMAGE_FILE | docker load || docker pull $IMAGE_NAME
 
 # base jobs
-.revapp: &revapp
+.revapp:
     stage: review
     before_script:
         - *apk-setup
         - *docker-login
-        - docker pull $REVAPP_IMAGE_NAME
     variables:
         REVAPP_REPLACE: 1
         REVAPP_NAME: $CI_BUILD_REF_SLUG
         REVAPP_COMMIT_SHA: $CI_COMMIT_SHA
 
-.common-test: &common-test
+.common-test:
     stage: test
     before_script:
         - *apk-setup
         - *docker-load
+        - make ci-set-testdata
     needs: ['build']
+    artifacts:
+        paths:
+            - logs/
+        name: ella-${CI_JOB_NAME}-errors-${CI_BUILD_REF_SLUG}
+        when: on_failure
+        expire_in: 2 weeks
     cache:
         <<: *cache-pull
-    tags:
-        - do-small
     except:
         - /^ops-.*$/
 
@@ -104,25 +131,32 @@ build:
         - *apk-setup
         - *docker-login
     script:
-        - make build BUILD_OPTIONS="$BUILD_OPTIONS --cache-from $IMAGE_NAME --cache-from $CI_REGISTRY_IMAGE:dev"
-        - docker push $IMAGE_NAME
-        - make build-review
-        - docker push $REVAPP_IMAGE_NAME
-        - mkdir -p images
-        - docker save $IMAGE_NAME > $CI_CACHE_IMAGE_FILE
+        - make ci-build-dev
     tags:
         - do-large
     cache:
         <<: *cache-push
 
+build_review:
+    extends: .revapp
+    script:
+        - make ci-build-review
+
 # review env failing should not block a merge
 start_review:
     extends: .revapp
+    needs: ['build_review']
     script:
         - make gitlab-review
     artifacts:
         reports:
             dotenv: deploy.env
+        paths:
+            - build.log
+            - review_env
+            - '*.env'
+        name: ella-$CI_COMMIT_REF_SLUG-$CI_JOB_NAME-$CI_JOB_STATUS
+        when: always
     environment:
         <<: *revapp-env
         url: http://$APP_IP
@@ -165,11 +199,19 @@ check_formatting:
     stage: formatting
     script:
         - make test-formatting
+    except:
+        variables:
+            - $UPSTREAM_TRIGGER
+
+check_testdata:
+    extends: .common-test
+    script:
+        - make test-testdata
 
 e2e:
     extends: .common-test
     script:
-        - PARALLEL_INSTANCES=2 make test-e2e
+        - make test-e2e
     artifacts:
         paths:
             - errorShots/
@@ -203,10 +245,15 @@ cli:
     script:
         - make test-cli
 
-report:
+dump_schemas:
     extends: .common-test
+    needs: ['e2e', 'api', 'python']
     script:
-        - make test-report
+        - make dump-schemas
+    artifacts:
+        paths:
+            - schemas_${CI_COMMIT_REF_NAME}.json
+            - schemas_${CI_COMMIT_REF_NAME}.ts
 
 release_docker:
     stage: release-docker
@@ -233,8 +280,6 @@ release_src:
             - dist/ella-release-*-dist.tgz
         name: src-$CI_COMMIT_REF_NAME
         expire_in: 1 week
-    tags:
-        - do-small
 
 release_singularity:
     image:

@@ -92,7 +92,6 @@ def upgrade():
         ordered_phenotypes[p_key].append(p)
 
     for phenotypes in list(ordered_phenotypes.values()):
-
         # Get genepanels that should connect to this phenotype
         genepanels = [(p["genepanel_name"], p["genepanel_version"]) for p in phenotypes]
 

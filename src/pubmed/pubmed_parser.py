@@ -1,47 +1,85 @@
-from typing import Dict, Union, Any
+import html
 import logging
 import re
 import xml.etree.ElementTree as ET
+from typing import Any, Dict, List, Optional, Union
+from pydantic import BaseModel
+
+from api.util.types import StrEnum
 
 """
 This module parses an PubmedArticle XML tree and returns the reference as
 a Python dictionary
 """
 
+
+class NewReference(BaseModel):
+    authors: Optional[str] = None
+    title: Optional[str] = None
+    journal: Optional[str] = None
+    abstract: Optional[str] = None
+    pubmed_id: int
+    published: bool = True
+    year: Optional[str] = None
+
+
 log = logging.getLogger(__name__)
 
-NOT_IN_PUBMED = "NOT IN PUBMED"
+NOT_IN_PUBMED = None
+STYLE_TAG_RE = re.compile("</?[ibu]>")
+
+
+class AuthorPatterns(StrEnum):
+    AUTHOR = "./Author"
+    LAST_NAME = "./LastName"
+    INITIALS = "./Initials"
+    COLLECTIVE_NAME = "./CollectiveName"
+
+
+class PublisherPatterns(StrEnum):
+    PUBLISHER_NAME = "PublisherName"
+    PUBLISHER_LOCATION = "PublisherLocation"
+
+
+class JournalPatterns(StrEnum):
+    JOURNAL_ISO = "ISOAbbreviation"
+    JOURNAL_TITLE = "Title"
+    VOLUME = "JournalIssue/Volume"
+    ISSUE = "JournalIssue/Issue"
+    PAGES = "../Pagination/MedlinePgn"
+
+
+XML_PATTERNS = Union[AuthorPatterns, PublisherPatterns, JournalPatterns]
 
 
 class PubMedParser(object):
-    def parse(self, data):
+    def parse(self, data: str):
         if self.is_pubmed_xml(data):
             return self.from_xml_string(data)
         else:
             return self.from_medline(data)
 
-    def is_pubmed_xml(self, data):
+    def is_pubmed_xml(self, data: str):
         try:
             ET.fromstring(data)
             return True
         except ET.ParseError:
             return False
 
-    def from_xml_string(self, pubmed_xml):
+    def from_xml_string(self, pubmed_xml: str):
         # Strip out basic formatting tags from xml
-        p = re.compile("</?[ibu]>")
-        pubmed_xml = re.sub(p, "", pubmed_xml)
+        pubmed_xml = re.sub(STYLE_TAG_RE, "", pubmed_xml)
 
         return self.parse_pubmed_article(ET.fromstring(pubmed_xml))
 
-    def from_medline(self, medline_text):
-
+    def from_medline(self, medline_text: str) -> NewReference:
         # Regex pattern:
         # Identify all keys - values, like "TI - Some text here"
         # Text is word wrapped from PUBMED, so we need to match line breaks within
         # a value. For that we use a non-greedy match-all ([\s\S]*?).
         # The lookahead pattern (?=\n[A-Z]*\s*-|$) stop the match-all
         # at either the next key, or at the end of the whole data string.
+        medline_text = html.unescape(medline_text)
         pattern = r"([A-Z]+)\s*-\s*([\s\S]*?)(?=\n[A-Z]*\s*-|$)"
         matches = re.findall(pattern, medline_text)
         pubmed_data: Dict[str, Any] = {}
@@ -60,20 +98,22 @@ class PubMedParser(object):
 
         reference_type = pubmed_data["PT"]
 
-        reference: Dict[str, Union[str, int]] = {}
-
-        reference["pubmed_id"] = int(pubmed_data["PMID"])
+        reference = NewReference(pubmed_id=int(pubmed_data["PMID"]))
 
         authors = pubmed_data.get("AU")
+        if isinstance(authors, str):
+            authors = [authors]
 
         if authors is None:
-            reference["authors"] = "N/A"
+            reference.authors = pubmed_data.get("CN", "N/A")
         elif len(authors) > 2:
-            reference["authors"] = authors[0] + " et al."
+            reference.authors = authors[0] + " et al."
         else:
-            reference["authors"] = " & ".join(authors)
+            reference.authors = " & ".join(authors)
 
-        reference["abstract"] = pubmed_data.get("AB", "")
+        reference.abstract = pubmed_data.get("AB", None)
+        if reference.abstract:
+            reference.abstract = re.sub(r"\s+([A-Z]{2,}:)", r"\n\1", reference.abstract)
 
         if not isinstance(reference_type, list):
             reference_type = [reference_type]
@@ -92,7 +132,7 @@ class PubMedParser(object):
                 "Retraction of Publication",
             ]
         ):
-            reference["title"] = pubmed_data["TI"]
+            reference.title = pubmed_data["TI"]
             journal = pubmed_data.get("TA")
             if not journal:
                 journal = pubmed_data["JT"]
@@ -100,36 +140,52 @@ class PubMedParser(object):
             issue = pubmed_data.get("IP", "")
             page = pubmed_data.get("PG", "")
 
-            reference["journal"] = "{journal}: {volume}{issue}, {page}".format(
+            reference.journal = "{journal}: {volume}{issue}, {page}".format(
                 journal=journal,
                 volume=volume if volume else "",
                 issue="({})".format(issue) if issue else "",
                 page=page,
             )
         elif "Book Chapter" in reference_type:
-            reference["title"] = pubmed_data["TI"]
-            book_title = pubmed_data["BTI"]
-            publisher = pubmed_data.get("PB")
-            reference["journal"] = book_title
+            reference.title = pubmed_data["TI"]
+            book_title: str = pubmed_data["BTI"]
+            publisher: Optional[str] = pubmed_data.get("PB")
+            editors = pubmed_data.get("ED")
+            if editors:
+                if isinstance(editors, str):
+                    editors = [editors]
+                if len(editors) > 1:
+                    editors = f"{editors[0]} et al."
+                else:
+                    editors = editors[0]
+                book_title = f"In: {editors} (eds)., {book_title}"
+
+            reference.journal = book_title
             if publisher:
-                reference["journal"] += f", {publisher}"
+                reference.journal += f", {publisher}"
+                publisher_location = pubmed_data.get("PL")
+                if publisher_location:
+                    reference.journal += f", {publisher_location}."
         elif "Book" in reference_type:
-            reference["title"] = pubmed_data["BTI"]
-            reference["journal"] = pubmed_data.get("PB", "")
+            reference.title = pubmed_data["BTI"]
+            reference.journal = pubmed_data.get("PB", "")
+            publisher_location = pubmed_data.get("PL")
+            if publisher_location:
+                reference.journal += f", {publisher_location}."  # type: ignore
         else:
             raise RuntimeError(f"Unknown reference type {reference_type}")
 
-        reference["journal"] = reference["journal"].rstrip(":, ")
-        year = pubmed_data["DP"]
-        reference["year"] = year.split(" ", 1)[0]
+        if reference.journal:
+            reference.journal = reference.journal.rstrip(":, ")
+        year: str = pubmed_data["DP"]
+        reference.year = year
         return reference
 
-    def parse_pubmed_article(self, pubmed_article):
+    def parse_pubmed_article(self, pubmed_article: ET.Element):
         """
         :param pubmed_article: An XML tree of the PubmedArticle
                                or PubmedBookArticle class
         """
-
         if pubmed_article.tag == "PubmedArticle":
             base_tree = "./MedlineCitation/Article/%s"
             base_tree_year = base_tree % "Journal/JournalIssue/PubDate/%s"
@@ -143,7 +199,7 @@ class PubMedParser(object):
 
         # Get field: pubmed_id
         pmid = int(self.get_field(pubmed_article, base_tree % "../PMID"))
-        log.debug("Processing %s" % str(pmid))
+        log.debug(f"Processing {pmid}")
 
         # Get field: year
         try:
@@ -165,14 +221,8 @@ class PubMedParser(object):
                 title_book = None
 
         # Get field: authors
-        author_patterns = {
-            "author": "./Author",
-            "last_name": "./LastName",
-            "initials": "./Initials",
-            "collective_name": "./CollectiveName",
-        }
         author_list = pubmed_article.find(base_tree % "AuthorList")
-        authors = self.format_authors(author_list, author_patterns)
+        authors = self.format_authors(author_list)
 
         # For books: Allow for fact that authors may turn out to be editors
         if pubmed_article.tag == "PubmedBookArticle":
@@ -181,55 +231,32 @@ class PubMedParser(object):
                 editors = authors
                 # Finding the actual authors:
                 author_list = pubmed_article.find(base_tree % "../AuthorList")
-                authors = self.format_authors(author_list, author_patterns)
+                authors = self.format_authors(author_list)
 
         # Get field: journal
         if pubmed_article.tag == "PubmedArticle":
             base_tree_journal = base_tree % "Journal/%s"
-            journal_patterns = {
-                "journal_iso": "ISOAbbreviation",
-                "journal_title": "Title",
-                "volume": "JournalIssue/Volume",
-                "issue": "JournalIssue/Issue",
-                "pages": "../Pagination/MedlinePgn",
-            }
-            journal = self.format_journal(pubmed_article, base_tree_journal, journal_patterns)
+            journal = self.format_journal(pubmed_article, base_tree_journal)
         else:
             base_tree_publisher = base_tree % "Publisher/%s"
-            publisher_patterns = {
-                "publisher_name": "PublisherName",
-                "publisher_location": "PublisherLocation",
-            }
             book_info = {"title_book": title_book, "editors": editors}
-            journal = self.format_book(
-                pubmed_article, base_tree_publisher, publisher_patterns, **book_info
-            )
+            journal = self.format_book(pubmed_article, base_tree_publisher, **book_info)
 
         # Get field: abstract
         abstract_parts = pubmed_article.findall(base_tree_abstract % "Abstract/AbstractText")
         abstract = self.format_abstract(abstract_parts)
 
-        reference = {
-            "pubmed_id": pmid,
-            "authors": authors,
-            "title": title,
-            "year": year,
-            "journal": journal,
-            "abstract": abstract,
-        }
-        return self.remove_empty_keys(reference)
-
-    def remove_empty_keys(self, reference):
-        """
-        :param reference: An reference as a dictionary
-        :return : reference with empty keys removed
-        """
-        for key, value in list(reference.items()):
-            if value == NOT_IN_PUBMED:
-                reference.pop(key, None)
+        reference = NewReference(
+            pubmed_id=pmid,
+            authors=authors,
+            title=title,
+            year=year,
+            journal=journal,
+            abstract=abstract,
+        )
         return reference
 
-    def get_field(self, pubmed_article, pattern):
+    def get_field(self, pubmed_article: ET.Element, pattern: str):
         """
         :param pubmed_article: An XML tree of the PubmedArticle class
         :param pattern: XPath search string
@@ -237,25 +264,21 @@ class PubMedParser(object):
         """
         article_field = pubmed_article.find(pattern)
 
-        try:
-            field_value = article_field.text
-        except AttributeError as e:
-            att_err = "Field %s was not found: %s" % (pattern, e)
+        if article_field is None or not getattr(article_field, "text", None):
+            att_err = f"Field '{pattern}' was not found"
             log.debug(att_err)
             raise AttributeError(att_err)
 
-        try:
-            if len(field_value) == 0:
-                len_err = "Field %s was empty string" % pattern
-                log.warning(len_err)
-        except TypeError as e:
-            type_err = "Field %s was NoneType: %s" % (pattern, e)
-            log.debug(type_err)
-            raise TypeError(type_err)
+        if article_field.text is None:
+            err_str = f"Field '{pattern}' was NoneType but expected string"
+            log.warning(err_str)
+            raise TypeError(err_str)
+        elif article_field.text == "":
+            log.debug(f"Field '{pattern}' was empty string")
 
-        return field_value
+        return article_field.text
 
-    def format_journal(self, pubmed_article, base_tree_journal, patterns):
+    def format_journal(self, pubmed_article: ET.Element, base_tree_journal: str):
         """
         :param pubmed_article: xml tree of PubmedArticle type
         :param base_tree_journal: path in xml tree to locate journal fields
@@ -264,38 +287,43 @@ class PubMedParser(object):
         """
 
         try:
-            title = self.get_field(pubmed_article, base_tree_journal % patterns["journal_iso"])
+            title = self.get_field(pubmed_article, base_tree_journal % JournalPatterns.JOURNAL_ISO)
         except AttributeError:
-            title = self.get_field(pubmed_article, base_tree_journal % patterns["journal_title"])
+            title = self.get_field(
+                pubmed_article, base_tree_journal % JournalPatterns.JOURNAL_TITLE
+            )
 
         journal_pattern = "{journal_title}: ".format(journal_title=title)
 
         try:
-            volume = self.get_field(pubmed_article, base_tree_journal % patterns["volume"])
+            volume = self.get_field(pubmed_article, base_tree_journal % JournalPatterns.VOLUME)
         except AttributeError:
             pass
         else:
             journal_pattern += "{volume}".format(volume=volume)
 
         try:
-            issue = self.get_field(pubmed_article, base_tree_journal % patterns["issue"])
+            issue = self.get_field(pubmed_article, base_tree_journal % JournalPatterns.ISSUE)
         except AttributeError:
             pass
         else:
             journal_pattern += "({issue})".format(issue=issue)
 
         try:
-            pages = self.get_field(pubmed_article, base_tree_journal % patterns["pages"])
+            pages = self.get_field(pubmed_article, base_tree_journal % JournalPatterns.PAGES)
         except (AttributeError, TypeError):
-            journal_pattern += "."
             pass
         else:
-            journal_pattern += ", {pages}.".format(pages=pages)
+            journal_pattern += ", {pages}".format(pages=pages)
 
         return journal_pattern
 
     def format_book(
-        self, pubmed_article, base_tree_publisher, patterns, editors=None, title_book=None
+        self,
+        pubmed_article: ET.Element,
+        base_tree_publisher: str,
+        editors: Optional[str] = None,
+        title_book: Optional[str] = None,
     ):
         """
         :param pubmed_article: xml tree of PubmedArticle type
@@ -324,7 +352,8 @@ class PubMedParser(object):
         # Get publisher name and location
         try:
             publisher_name = self.get_field(
-                pubmed_article, base_tree_publisher % patterns["publisher_name"]
+                pubmed_article,
+                base_tree_publisher % PublisherPatterns.PUBLISHER_NAME,
             )
         except AttributeError:
             pass
@@ -333,7 +362,8 @@ class PubMedParser(object):
 
         try:
             publisher_location = self.get_field(
-                pubmed_article, base_tree_publisher % patterns["publisher_location"]
+                pubmed_article,
+                base_tree_publisher % PublisherPatterns.PUBLISHER_LOCATION,
             )
         except AttributeError:
             pass
@@ -342,65 +372,67 @@ class PubMedParser(object):
 
         return book_pattern_start + ", ".join(book_pattern) + "."
 
-    def format_abstract(self, abstract_parts):
+    def format_abstract(self, abstract_parts: List[ET.Element]) -> Optional[str]:
         """
         :param abstract_parts: Abstract as list (e.g. Method, Result etc.)
         :return : Abstract formatted as one body UTF-8
         """
-        abstract = ""
+        abstract: str = ""
         for abstract_part in abstract_parts:
-            try:
+            if abstract_part is None:
+                log.debug(f"Abstract part is NoneType: {abstract_parts!r}")
+            elif getattr(abstract_part, "text", None) is None:
+                log.debug(f"Abstract text is NoneType: {abstract_parts!r}")
+            else:
+                assert abstract_part.text
+                if "Label" in abstract_part.attrib:
+                    abstract += f"{abstract_part.attrib['Label']}: "
                 abstract += abstract_part.text + "\n"
-            except TypeError as e:
-                log.debug("Abstract text is NoneType: %s" % e)
-            except AttributeError as e:
-                log.debug("Abstract part is NoneType: %s" % e)
 
-        if len(abstract) == 0:
+        if not abstract.strip():
             log.debug("Abstract text is empty")
-            abstract = NOT_IN_PUBMED
+            return NOT_IN_PUBMED
 
         return abstract.strip()
 
-    def format_authors(self, author_list, patterns):
+    def format_authors(self, author_list: Optional[ET.Element]) -> Optional[str]:
         """
         :param author_list: List of authors
         :param patterns: Patterns to search in author_list
         :return : Authors formatted as one string
         """
 
-        try:
-            authors = iter(author_list.findall(patterns["author"]))
-            n_authors = authors.__length_hint__()
-        except AttributeError as e:
-            log.warning("No authors found: %s" % e)
+        if not author_list:
+            log.warning("No authors found in XML")
             return NOT_IN_PUBMED
 
-        n_authors_to_format = 1 + int(n_authors == 2)
+        try:
+            authors = author_list.findall(AuthorPatterns.AUTHOR)
+        except AttributeError as e:
+            log.warning(f"No authors found: {e}")
+            return NOT_IN_PUBMED
+
         authors_to_format = []
-
-        for i_author in range(n_authors_to_format):
-            author = next(authors)
-
+        for i_author, author in enumerate(authors, 1):
             try:
-                name = self.get_field(author, patterns["last_name"])
+                name = self.get_field(author, AuthorPatterns.LAST_NAME)
             except AttributeError:
                 log.debug("Author #%s is collective name" % (i_author + 1))
-                name = self.get_field(author, patterns["collective_name"])
+                name = self.get_field(author, AuthorPatterns.COLLECTIVE_NAME)
 
             author_formatted = "{last_name}".format(last_name=name)
 
             try:
-                initials = self.get_field(author, patterns["initials"])
+                initials = self.get_field(author, AuthorPatterns.INITIALS)
                 author_formatted += " {initials}".format(initials=initials)
             except AttributeError:
                 log.debug("Author #%s has no initials" % (i_author + 1))
 
             authors_to_format.append(author_formatted)
 
-        authors_formatted = " & ".join(authors_to_format)
-
-        if n_authors > 2:
-            authors_formatted += " et al."
+        if len(authors_to_format) > 2:
+            authors_formatted = authors_to_format[0] + " et al."
+        else:
+            authors_formatted = " & ".join(authors_to_format)
 
         return authors_formatted

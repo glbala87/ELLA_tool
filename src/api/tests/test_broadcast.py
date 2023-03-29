@@ -4,7 +4,6 @@ from vardb.datamodel import user, broadcast
 
 
 def test_broadcast(test_database, session, client):
-
     test_database.refresh()
 
     # Test inital response being empty

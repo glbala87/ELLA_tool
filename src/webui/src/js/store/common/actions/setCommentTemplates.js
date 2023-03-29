@@ -16,7 +16,11 @@ const FIELDS = [
 
 export default function setCommentTemplates({ state }) {
     const userConfig = state.get('app.config.user.user_config')
-    if (!userConfig || !('comment_templates' in userConfig)) {
+    if (
+        !userConfig ||
+        !('comment_templates' in userConfig) ||
+        userConfig.comment_templates === null
+    ) {
         state.set('app.commentTemplates', [])
         return
     }
@@ -31,7 +35,11 @@ export default function setCommentTemplates({ state }) {
                 }
             }
         } catch (err) {
-            console.error('Error while retrieving templates from:', candidates, err)
+            console.error(
+                'Error while retrieving templates from:',
+                userConfig.comment_templates,
+                err
+            )
         }
         templates[field] = fieldTemplates
     }

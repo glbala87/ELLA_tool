@@ -7,16 +7,15 @@ Requires the use of postgresql and psycopg2.
 Should be tested and understood more deeply (how functions are called is somewhat 'magic').
 """
 
-import collections
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.ext.mutable import MutableDict, Mutable
+from sqlalchemy.ext.mutable import Mutable, MutableDict
 
 
 class JSONMutableDict(MutableDict):
     def __setitem__(self, key, value):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, Mapping):
             if not isinstance(value, JSONMutableDict):
                 value = JSONMutableDict.coerce(key, value)
         elif isinstance(value, list):
@@ -89,7 +88,7 @@ class MutableList(Mutable, list):
 
 class JSONMutableList(MutableList):
     def __setitem__(self, key, value):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, Mapping):
             if not isinstance(value, JSONMutableDict):
                 value = JSONMutableDict(value)
         elif isinstance(value, list):
@@ -99,7 +98,7 @@ class JSONMutableList(MutableList):
 
     def __getitem__(self, key):
         value = super(JSONMutableList, self).__getitem__(key)
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, Mapping):
             if not isinstance(value, JSONMutableDict):
                 value = JSONMutableDict.coerce(key, value)
                 value._parents = self._parents

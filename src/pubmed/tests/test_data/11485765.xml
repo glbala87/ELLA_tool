@@ -1,0 +1,223 @@
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="MEDLINE">
+        <PMID Version="1">11485765</PMID>
+        <DateCreated>
+            <Year>2001</Year>
+            <Month>08</Month>
+            <Day>03</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2001</Year>
+            <Month>09</Month>
+            <Day>13</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2013</Year>
+            <Month>11</Month>
+            <Day>21</Day>
+        </DateRevised>
+        <Article PubModel="Print">
+            <Journal>
+                <ISSN IssnType="Print">0021-5155</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>45</Volume>
+                    <Issue>4</Issue>
+                    <PubDate>
+                        <MedlineDate>2001 Jul-Aug</MedlineDate>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Japanese journal of ophthalmology</Title>
+                <ISOAbbreviation>Jpn. J. Ophthalmol.</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Peripherin/RDS gene mutation (Pro210Leu) and polymorphisms in Japanese patients with retinal dystrophies.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>355-8</MedlinePgn>
+            </Pagination>
+            <Abstract>
+                <AbstractText Label="PURPOSE" NlmCategory="OBJECTIVE">To determine the frequency of peripherin/RDS (retinal degeneration slow) gene mutations in Japanese patients with retinal dystrophies.</AbstractText>
+                <AbstractText Label="METHODS" NlmCategory="METHODS">We analyzed the peripherin/RDS gene in 54 unrelated Japanese patients with retinal dystrophies. Genomic DNA was amplified by polymerase chain reaction (PCR) and the PCR products were sequenced. We also examined 100 healthy subjects, seeking mutations or variations of the peripherin/RDS gene.</AbstractText>
+                <AbstractText Label="RESULTS" NlmCategory="RESULTS">Of the 54 Japanese patients, one with retinitis pigmentosa had a heterozygous C to T change at the second nucleotide at codon 210 of exon 2 (CCT to CTT/Pro210Leu) of the peripherin/RDS gene. None of the 100 individuals with normal fundi had the Pro210Leu mutation of the peripherin/RDS gene. Three variants of the peripherin/RDS gene (GTC to GTT/Val106Val, Glu304Gln, and Gly338Asp) were also found. The first variation (GTC to GTT/Val106Val) was silent. Two concurrent missense variations (Glu304Gln and Gly338Asp) were seen in 25.9% of the affected patients and in 29% of the healthy individuals.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">A novel mutation (Pro210Leu) of the peripherin/RDS gene has been found in one Japanese patient with retinitis pigmentosa. The alterations of Val106Val, Glu304Gln, and Gly338Asp may be polymorphic variants in the Japanese population.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Budu</LastName>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Ophthalmology, Faculty of Medicine, Toyama Medical and Pharmaceutical University, Toyama, Japan.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hayasaka</LastName>
+                    <ForeName>S</ForeName>
+                    <Initials>S</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Matsumoto</LastName>
+                    <ForeName>M</ForeName>
+                    <Initials>M</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Yamada</LastName>
+                    <ForeName>T</ForeName>
+                    <Initials>T</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Zhang</LastName>
+                    <ForeName>X Y</ForeName>
+                    <Initials>XY</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hayasaka</LastName>
+                    <ForeName>Y</ForeName>
+                    <Initials>Y</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+            </PublicationTypeList>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>United States</Country>
+            <MedlineTA>Jpn J Ophthalmol</MedlineTA>
+            <NlmUniqueID>0044652</NlmUniqueID>
+            <ISSNLinking>0021-5155</ISSNLinking>
+        </MedlineJournalInfo>
+        <ChemicalList>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D005136">Eye Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D007381">Intermediate Filament Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D008562">Membrane Glycoproteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D009419">Nerve Tissue Proteins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C578994">PRPH protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="D064531">Peripherins</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>0</RegistryNumber>
+                <NameOfSubstance UI="C578997">RDS protein, human</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>9DLQ4CIU6V</RegistryNumber>
+                <NameOfSubstance UI="D011392">Proline</NameOfSubstance>
+            </Chemical>
+            <Chemical>
+                <RegistryNumber>GMW67QNF9C</RegistryNumber>
+                <NameOfSubstance UI="D007930">Leucine</NameOfSubstance>
+            </Chemical>
+        </ChemicalList>
+        <CitationSubset>IM</CitationSubset>
+        <MeshHeadingList>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004252">DNA Mutational Analysis</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D004596">Electroretinography</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005136">Eye Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D005260">Female</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D006801">Humans</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007381">Intermediate Filament Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" Type="Geographic" UI="D007564">Japan</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000453">epidemiology</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D007930">Leucine</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008297">Male</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D008562">Membrane Glycoproteins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D008875">Middle Aged</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D009419">Nerve Tissue Proteins</DescriptorName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D010375">Pedigree</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D064531">Peripherins</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="Y" UI="D017354">Point Mutation</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D016133">Polymerase Chain Reaction</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011110">Polymorphism, Genetic</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D011392">Proline</DescriptorName>
+            </MeshHeading>
+            <MeshHeading>
+                <DescriptorName MajorTopicYN="N" UI="D012162">Retinal Degeneration</DescriptorName>
+                <QualifierName MajorTopicYN="N" UI="Q000208">ethnology</QualifierName>
+                <QualifierName MajorTopicYN="Y" UI="Q000235">genetics</QualifierName>
+            </MeshHeading>
+        </MeshHeadingList>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2001</Year>
+                <Month>8</Month>
+                <Day>4</Day>
+                <Hour>10</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2001</Year>
+                <Month>9</Month>
+                <Day>14</Day>
+                <Hour>10</Hour>
+                <Minute>1</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2001</Year>
+                <Month>8</Month>
+                <Day>4</Day>
+                <Hour>10</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>ppublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pubmed">11485765</ArticleId>
+            <ArticleId IdType="pii">S0021515501003343</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+

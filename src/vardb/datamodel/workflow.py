@@ -14,7 +14,6 @@ from vardb.util.mutjson import JSONMutableDict
 
 
 class InterpretationMixin(object):
-
     id = Column(Integer, primary_key=True)
     genepanel_name = Column(String, nullable=False)
     genepanel_version = Column(String, nullable=False)
@@ -62,7 +61,6 @@ class InterpretationMixin(object):
 
 
 class InterpretationSnapshotMixin(object):
-
     id = Column(Integer, primary_key=True)
     date_created = Column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.datetime.now(pytz.utc)
@@ -178,7 +176,7 @@ class AlleleInterpretation(Base, InterpretationMixin):
 
     @classmethod
     def get_or_create(cls, session, defaults=None, allele_id=None, **kwargs):
-        "Override to check that allele is not CNV. "
+        "Override to check that allele is not CNV."
         caller_type = (
             session.query(allele.Allele.caller_type).filter(allele.Allele.id == allele_id).scalar()
         )
@@ -243,7 +241,6 @@ class InterpretationStateHistory(Base):
 
 
 class InterpretationLog(Base):
-
     __tablename__ = "interpretationlog"
 
     id = Column(Integer, primary_key=True)

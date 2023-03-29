@@ -13,7 +13,8 @@ from vardb.deposit.annotationconverters.keyvalueconverter import KeyValueConvert
 class MetaConverter(AnnotationConverter):
     """Meta converter, using a pattern in the Description to fetch key-value pairs from the annotation.
     This can be used to fetch data from annotations like e.g. VEPs CSQ field or SpliceAI, which are pipe-separated
-    values, with keys provided in the description. Subelements can be used to extract only a subset of the keys."""
+    values, with keys provided in the description. Subelements can be used to extract only a subset of the keys.
+    """
 
     config: "Config"
     keys: Sequence[str]

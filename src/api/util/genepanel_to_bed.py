@@ -1,9 +1,9 @@
 from collections import OrderedDict
-from sqlalchemy import tuple_
-
-from vardb.datamodel import gene
 from typing import Dict
 
+from sqlalchemy import tuple_
+from sqlalchemy.orm import Session
+from vardb.datamodel import gene
 
 BED_COLUMNS: Dict = OrderedDict()
 BED_COLUMNS["#chromosome"] = lambda t: t.chromosome
@@ -11,7 +11,7 @@ BED_COLUMNS["txStart"] = lambda t: str(t.tx_start)
 BED_COLUMNS["txEnd"] = lambda t: str(t.tx_end)
 
 
-def genepanel_to_bed(session, genepanel_name, genepanel_version):
+def genepanel_to_bed(session: Session, genepanel_name: str, genepanel_version: str):
     genepanel = (
         session.query(gene.Genepanel)
         .filter(

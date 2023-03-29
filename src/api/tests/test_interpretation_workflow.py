@@ -1,13 +1,14 @@
 import datetime
+
 import pytest
 
-from vardb.datamodel import assessment, user as user_model
-
+from api.tests import interpretation_helper as ih
 from api.tests.workflow_helper import (
     WorkflowHelper,
     make_frontend_excluded_allele_backend_compliant,
 )
-from api.tests import interpretation_helper as ih
+from vardb.datamodel import assessment
+from vardb.datamodel import user as user_model
 
 """
 Test the interpretation workflow of
@@ -25,7 +26,7 @@ workflow specific test fixture and branching based on workflow.
 """
 
 ANALYSIS_ID = 2  # analysis_id = 2, allele 1-6
-ALLELE_ID = 18  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v01
+ALLELE_ID = 18  # allele id 18, brca2 c.1275A>G,  GRCh37/13-32906889-32906890-A-G?gp_name=HBOCUTV&gp_version=v1.0.0
 FILTERCONFIG_ID = 1
 
 ANALYSIS_ALLELE_IDS = [1, 3, 4, 7, 12, 13]
@@ -37,17 +38,16 @@ ALLELE_USERNAMES = ["testuser4", "testuser1", "testuser2"]
 @pytest.fixture(scope="module")
 def analysis_wh():
     return WorkflowHelper(
-        "analysis", ANALYSIS_ID, "HBOCUTV", "v01", filterconfig_id=FILTERCONFIG_ID
+        "analysis", ANALYSIS_ID, "HBOCUTV", "v1.0.0", filterconfig_id=FILTERCONFIG_ID
     )
 
 
 @pytest.fixture(scope="module")
 def allele_wh():
-    return WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v01")
+    return WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v1.0.0")
 
 
 def update_user_config(session, username, user_config):
-
     user = session.query(user_model.User).filter(user_model.User.username == username).one()
 
     user.config = user_config
@@ -124,17 +124,17 @@ class TestAlleleInterpretationWorkflow(object):
         test_database.refresh()
 
     @pytest.mark.ai(order=1)
-    def test_round_one_review(self, allele_wh):
+    def test_round_one_review(self, allele_wh: WorkflowHelper):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[0])
         allele_wh.perform_round(interpretation, "Review comment", new_workflow_status="Review")
 
     @pytest.mark.ai(order=2)
-    def test_round_two_finalize(self, allele_wh):
+    def test_round_two_finalize(self, allele_wh: WorkflowHelper):
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[1])
         allele_wh.perform_finalize_round(interpretation, "Finalize comment")
 
     @pytest.mark.ai(order=3)
-    def test_round_three_reopen_and_finalize(self, allele_wh):
+    def test_round_three_reopen_and_finalize(self, allele_wh: WorkflowHelper):
         allele_wh.reopen(ALLELE_USERNAMES[2])
         interpretation = allele_wh.start_interpretation(ALLELE_USERNAMES[2])
         allele_wh.perform_reopened_round(interpretation, "Reopened comment")
@@ -161,13 +161,13 @@ class TestOther(object):
             classification="1",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
         )
         session.add(aa)
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -184,7 +184,7 @@ class TestOther(object):
                 "allele_id": 1,
                 "evaluation": {"comment": "Something"},
                 "genepanel_name": "HBOC",
-                "genepanel_version": "v01",
+                "genepanel_version": "v1.0.0",
             }
         ]
 
@@ -220,7 +220,7 @@ class TestOther(object):
             reference_id=1,
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
             date_superceeded=datetime.datetime.now(),
         )
         session.add(ra)
@@ -233,7 +233,7 @@ class TestOther(object):
             reference_id=1,
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
             previous_assessment_id=1,
         )
 
@@ -241,7 +241,7 @@ class TestOther(object):
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -249,12 +249,14 @@ class TestOther(object):
         alleles = r.get_json()
 
         # Create alleleassessment
-        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v1.0.0")
         # Create allelereport
         allelereport = ih.allele_report_template(1)
 
         # Reusing old referenceassessment
-        referenceassessments = [{"id": 1, "reference_id": 1, "allele_id": 1}]  # outdated
+        referenceassessments = [
+            {"id": 1, "reference_id": 1, "reuse": True, "reuseCheckedId": 1, "allele_id": 1}
+        ]  # outdated
 
         r = ih.finalize_allele(
             "allele",
@@ -285,7 +287,7 @@ class TestOther(object):
             classification="1",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
             date_superceeded=datetime.datetime.now(),
         )
         session.add(aa)
@@ -298,14 +300,14 @@ class TestOther(object):
             classification="2",
             evaluation={},
             genepanel_name="HBOC",
-            genepanel_version="v01",
+            genepanel_version="v1.0.0",
             previous_assessment_id=1,
         )
         session.add(aa)
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -355,7 +357,7 @@ class TestFinalizationRequirements:
         session.commit()
 
         interpretation = ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         r = ih.get_alleles("allele", 1, interpretation["id"], [1])
@@ -364,7 +366,7 @@ class TestFinalizationRequirements:
         alleles = r.get_json()
 
         # Create alleleassessment
-        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(1, "HBOC", "v1.0.0")
         referenceassessments = []
         allelereport = ih.allele_report_template(1)
 
@@ -428,7 +430,7 @@ class TestFinalizationRequirements:
         r.status_code == 200
 
         ih.start_interpretation(
-            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "allele", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         r = ih.finalize_allele(
@@ -482,7 +484,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -495,7 +497,7 @@ class TestFinalizationRequirements:
 
         # Try finalizing a single allele
         allele_id = alleles[0]["id"]
-        alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v01")
+        alleleassessment = ih.allele_assessment_template(allele_id, "HBOC", "v1.0.0")
         referenceassessments = []
         allelereport = ih.allele_report_template(allele_id)
         r = ih.finalize_allele(
@@ -535,14 +537,14 @@ class TestFinalizationRequirements:
         )
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         # Finalize allele
         alleleassessment_ids = []
         allelereport_ids = []
         for allele in alleles:
-            alleleassessment = ih.allele_assessment_template(allele["id"], "HBOC", "v01")
+            alleleassessment = ih.allele_assessment_template(allele["id"], "HBOC", "v1.0.0")
             allelereport = ih.allele_report_template(allele["id"])
             referenceassessments = []
             r = ih.finalize_allele(
@@ -575,226 +577,7 @@ class TestFinalizationRequirements:
         )
         assert r.status_code == 200
 
-    @pytest.mark.ai(order=2)
-    def test_allow_technical(self, test_database, session):
-        """
-        Test finalization requirement allow_technical
-        """
-
-        test_database.refresh()
-
-        # Default user is testuser1
-        user_config = {
-            "workflows": {
-                "analysis": {
-                    "finalize_requirements": {
-                        "allow_technical": False,
-                        "allow_notrelevant": False,
-                        "allow_unclassified": False,
-                    }
-                }
-            }
-        }
-        update_user_config(session, "testuser1", user_config)
-
-        interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
-        )
-
-        filtered_allele_ids = ih.get_filtered_alleles(
-            "analysis", 1, interpretation["id"], filterconfig_id=1
-        ).get_json()
-
-        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
-        assert r.status_code == 200
-        alleles = r.get_json()
-
-        alleleassessment_ids = []
-        # Create assessment for all except first allele
-        for al in alleles[1:]:
-            aa = assessment.AlleleAssessment(
-                user_id=1,
-                allele_id=al["id"],
-                classification="1",
-                evaluation={},
-                genepanel_name="HBOC",
-                genepanel_version="v01",
-            )
-            session.add(aa)
-            session.commit()
-            alleleassessment_ids.append(aa.id)
-
-        # Make one variant unclassified, but reported as technical
-        allele_ids = [a["id"] for a in alleles]
-        notrelevant_allele_ids = []
-        technical_allele_ids = [alleles[0]["id"]]
-        allelereport_ids = []
-        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
-        custom_annotation_ids = []
-
-        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
-            filtered_allele_ids["excluded_alleles_by_caller_type"]
-        )
-
-        # allow_technical is False, so it should fail
-        r = ih.finalize(
-            "analysis",
-            1,
-            allele_ids,
-            annotation_ids,
-            custom_annotation_ids,
-            alleleassessment_ids,
-            allelereport_ids,
-            "testuser1",
-            excluded_allele_ids=flattened_excluded_allele_ids,
-            technical_allele_ids=technical_allele_ids,
-            notrelevant_allele_ids=notrelevant_allele_ids,
-        )
-        assert r.status_code == 500
-        assert (
-            r.get_json()["message"]
-            == "allow_technical is set to false, but some allele ids are marked technical"
-        )
-
-        # Allow technical and try again
-        user_config = {
-            "workflows": {
-                "analysis": {
-                    "finalize_requirements": {
-                        "allow_technical": True,
-                        "allow_notrelevant": False,
-                        "allow_unclassified": False,
-                    }
-                }
-            }
-        }
-        update_user_config(session, "testuser1", user_config)
-
-        r = ih.finalize(
-            "analysis",
-            1,
-            allele_ids,
-            annotation_ids,
-            custom_annotation_ids,
-            alleleassessment_ids,
-            allelereport_ids,
-            "testuser1",
-            excluded_allele_ids=flattened_excluded_allele_ids,
-            technical_allele_ids=technical_allele_ids,
-            notrelevant_allele_ids=notrelevant_allele_ids,
-        )
-        assert r.status_code == 200
-
     @pytest.mark.ai(order=3)
-    def test_allow_notrelevant(self, test_database, session):
-        """
-        Test finalization requirement allow_notrelevant
-        """
-
-        test_database.refresh()
-
-        # Default user is testuser1
-        user_config = {
-            "workflows": {
-                "analysis": {
-                    "finalize_requirements": {
-                        "allow_technical": False,
-                        "allow_notrelevant": False,
-                        "allow_unclassified": False,
-                    }
-                }
-            }
-        }
-        update_user_config(session, "testuser1", user_config)
-
-        interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
-        )
-
-        filtered_allele_ids = ih.get_filtered_alleles(
-            "analysis", 1, interpretation["id"], filterconfig_id=1
-        ).get_json()
-
-        r = ih.get_alleles("analysis", 1, interpretation["id"], filtered_allele_ids["allele_ids"])
-        assert r.status_code == 200
-        alleles = r.get_json()
-
-        alleleassessment_ids = []
-        # Create assessment for all except first allele
-        for al in alleles[1:]:
-            aa = assessment.AlleleAssessment(
-                user_id=1,
-                allele_id=al["id"],
-                classification="1",
-                evaluation={},
-                genepanel_name="HBOC",
-                genepanel_version="v01",
-            )
-            session.add(aa)
-            session.commit()
-            alleleassessment_ids.append(aa.id)
-
-        # Make one variant unclassified, but reported as not relevant
-        allele_ids = [a["id"] for a in alleles]
-        notrelevant_allele_ids = [alleles[0]["id"]]
-        technical_allele_ids = []
-        allelereport_ids = []
-        annotation_ids = [a["annotation"]["annotation_id"] for a in alleles]
-        custom_annotation_ids = []
-        flattened_excluded_allele_ids = make_frontend_excluded_allele_backend_compliant(
-            filtered_allele_ids["excluded_alleles_by_caller_type"]
-        )
-
-        # allow_notrelevant is False, so it should fail
-        r = ih.finalize(
-            "analysis",
-            1,
-            allele_ids,
-            annotation_ids,
-            custom_annotation_ids,
-            alleleassessment_ids,
-            allelereport_ids,
-            "testuser1",
-            excluded_allele_ids=flattened_excluded_allele_ids,
-            technical_allele_ids=technical_allele_ids,
-            notrelevant_allele_ids=notrelevant_allele_ids,
-        )
-        assert r.status_code == 500
-        assert (
-            r.get_json()["message"]
-            == "allow_notrelevant is set to false, but some allele ids are marked not relevant"
-        )
-
-        # Allow notrelevant and try again
-        user_config = {
-            "workflows": {
-                "analysis": {
-                    "finalize_requirements": {
-                        "allow_technical": False,
-                        "allow_notrelevant": True,
-                        "allow_unclassified": False,
-                    }
-                }
-            }
-        }
-        update_user_config(session, "testuser1", user_config)
-
-        r = ih.finalize(
-            "analysis",
-            1,
-            allele_ids,
-            annotation_ids,
-            custom_annotation_ids,
-            alleleassessment_ids,
-            allelereport_ids,
-            "testuser1",
-            excluded_allele_ids=flattened_excluded_allele_ids,
-            technical_allele_ids=technical_allele_ids,
-            notrelevant_allele_ids=notrelevant_allele_ids,
-        )
-        assert r.status_code == 200
-
-    @pytest.mark.ai(order=4)
     def test_allow_unclassified(self, test_database, session):
         """
         Test finalization requirement allow_unclassified
@@ -807,8 +590,6 @@ class TestFinalizationRequirements:
             "workflows": {
                 "analysis": {
                     "finalize_requirements": {
-                        "allow_technical": False,
-                        "allow_notrelevant": False,
                         "allow_unclassified": False,
                     }
                 }
@@ -817,7 +598,7 @@ class TestFinalizationRequirements:
         update_user_config(session, "testuser1", user_config)
 
         interpretation = ih.start_interpretation(
-            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v01"}
+            "analysis", 1, "testuser1", extra={"gp_name": "HBOC", "gp_version": "v1.0.0"}
         )
 
         filtered_allele_ids = ih.get_filtered_alleles(
@@ -837,7 +618,7 @@ class TestFinalizationRequirements:
                 classification="1",
                 evaluation={},
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v1.0.0",
             )
             session.add(aa)
             session.commit()
@@ -879,8 +660,6 @@ class TestFinalizationRequirements:
             "workflows": {
                 "analysis": {
                     "finalize_requirements": {
-                        "allow_technical": False,
-                        "allow_notrelevant": False,
                         "allow_unclassified": True,
                     }
                 }

@@ -3,22 +3,21 @@ Integration/unit test for the AlleleFilter module.
 Since it consists mostly of database queries, it's tested on a live database.
 """
 
-import pytest
 import hypothesis as ht
 import hypothesis.strategies as st
+import pytest
 
+from conftest import mock_allele_with_annotation
 from datalayer.allelefilter.genefilter import GeneFilter
 from vardb.datamodel import gene
-from conftest import mock_allele_with_annotation
 
 
-def create_genepanel(hgnc_ids_transcripts):
+def create_genepanel(session, hgnc_ids_transcripts):
     # Create fake genepanel for testing purposes
 
     genepanel = gene.Genepanel(name="testpanel", version="v01", genome_reference="GRCh37")
-
-    genepanel.transcripts = []
-    genepanel.phenotypes = []
+    session.add(genepanel)
+    session.flush()
 
     for hgnc_id, transcript_name in hgnc_ids_transcripts:
         g = gene.Gene(hgnc_id=hgnc_id, hgnc_symbol="GENE{}".format(hgnc_id))
@@ -28,6 +27,7 @@ def create_genepanel(hgnc_ids_transcripts):
             transcript_name=transcript_name,
             type="RefSeq",
             genome_reference="",
+            tags=None,
             chromosome="1",
             tx_start=1000,
             tx_end=1500,
@@ -37,8 +37,17 @@ def create_genepanel(hgnc_ids_transcripts):
             exon_starts=[1100, 1200, 1300, 1400],
             exon_ends=[1160, 1260, 1360, 1460],
         )
-
-        genepanel.transcripts.append(tx)
+        session.add(tx)
+        session.flush()
+        session.execute(
+            gene.genepanel_transcript.insert(),
+            {
+                "transcript_id": tx.id,
+                "genepanel_name": genepanel.name,
+                "genepanel_version": genepanel.version,
+                "inheritance": "AD/AR",
+            },
+        )
 
     return genepanel
 
@@ -141,7 +150,7 @@ class TestGeneFilter(object):
     )
     def test_gene_filter(self, session, gene_transcripts, annotations, fc, manually_curated_result):
         session.rollback()
-        gp = create_genepanel(gene_transcripts)
+        gp = create_genepanel(session, gene_transcripts)
         session.add(gp)
         gp_tx = [tx.transcript_name for tx in gp.transcripts]
 

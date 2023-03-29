@@ -13,7 +13,7 @@ Configuration related to the user interface and user experience in ELLA. Most ar
 
 ## Configure elements to show
 
-Configure user interface elements for different pages. See `/example_config.yml` for examples. 
+Configure user interface elements for different pages. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 
 ### OVERVIEW and INFO page
@@ -35,7 +35,7 @@ Subkey	|	Explanation |   Values
 `views`  |   Tabs to show on the OVERVIEW page.   |   `variants`: Variant centered workflow; <br>`analyses-by-findings`: Sample centered workflow, grouped by the findings in the analysis;<br>`import`: Manual import
 `show_variant_report`   |   Show/hide externally generated variant report on INFO page.   |   `true`/`false`
 
-Examples also in `/src/vardb/testdata/usergroups.json`.
+See [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples.
 
 #### Priority
 
@@ -63,7 +63,7 @@ Subkey	|	Explanation |   Values
 
 ### Comment field templates
 
-It is possible to define templates for most comment fields in ELLA, which are available to add for the user in the text format menu. This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. 
+It is possible to define templates for most comment fields in ELLA, which are available to add for the user in the text format menu. This is a [user group](/technical/users.html#user-groups) specific setting, see [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. 
 
 Templates can be defined as pure text or with basic html formatting in: 
 
@@ -82,7 +82,7 @@ Configuration of IGV and tracks shown in VISUAL mode.
 
 #### General IGV configuration
 
-General configuration of IGV; see `/example_config.yml` for examples.
+General configuration of IGV; see [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `igv`
@@ -92,7 +92,7 @@ Subkey	|	Explanation
 `reference`    |   Define what to show as reference data. 
 `valid_resource_files`    |   Files permitted accessible on `/igv/<file>` resource, relative to `$IGV_DATA` env.    
 
-All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igv.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
+All tracks and types have sensible configuration values, so configuration files are not strictly necessary. The default values are merged from the default values in `src/api/v1/resources/igvcfg.py` and the default values in [igv.js](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), with the former taking precedence.
 
 #### Types of tracks in VISUAL
 
@@ -119,7 +119,8 @@ Track type | Index file
 `.bam` | `.bam.bai, .bai`
 `.bed` | -
 `.bed.gz` | `.bed.gz.tbi`
-`.bigWig` | -
+`.bigBed` / `.bb` | -
+`.bigWig` / `.bw` | -
 `.cram` | `.cram.crai, .crai`
 `.gff3.gz` | `.gff3.gz.tbi`
 `.gtf.gz` | `.gtf.gz.tbi`
@@ -132,7 +133,7 @@ For best performance, we recommend using index and gzipped files whenever applic
 
 #### Track configuration
 
-- File: `$IGV_DATA/track_config.json` (see `/src/vardb/testdata/igv-data/track_config_default.json` for examples)
+- File: `$IGV_DATA/track_config.json` (see [`track_config_default.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/igv-data/track_config_default.json) for examples)
 - Key: [regex]
 
 Configuration of tracks is done using a single JSON file (`$IGV_DATA/track_config.json`; if no configuration is specified, `track_config_default.json` will be used). The keys of the configuration file are regular expressions (regex) that match file paths (see above). If a file path is matched by multiple regexes, their entries are merged (with the order defined by the position within the config file). 
@@ -155,7 +156,7 @@ Field | Description | Values
 
 ### Auto-text in REPORT
 
-Configure text to include automatically for different classifications on the REPORT page. See `/example_config.yml` for examples.
+Configure text to include automatically for different classifications on the REPORT page. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples.
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `report.classification_text`
@@ -165,7 +166,7 @@ Configure text to include automatically for different classifications on the REP
 
 ### Finalize requirements
 
-Define default requirements for finalizing a workflow for all users. Values will be used unless overridden by user group specific settings. See `/example_config.yml` for examples. 
+Define default requirements for finalizing a workflow for all users. Values will be used unless overridden by user group specific settings. See [`example_config.yml`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/example_config.yml) for examples. 
 
 - File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
 - Key: `user.user_config.workflows`
@@ -175,15 +176,13 @@ Separate settings are given for subkeys `allele.finalize_requirements` (VARIANTS
 Workflow    |   Subkey	|	Explanation |   Values
 :---    |   :---	|	:---    |	:---
 `allele` or `analysis`  |   `workflow_status`  |   Workflow statuses allowing finalization. |   [list of statuses]
-`analysis`  |   `allow_not_relevant`    |   Allow variants marked as "Not relevant" when finalizing.    |   `True` / `False`
-`analysis`  |   `allow_technical`    |   Allow variants marked as "Technical" when finalizing.    |  `True` / `False`
 `analysis`  |   `allow_unclassified`    |   Allow unclassified variants when finalizing.  |   `True` / `False`
 
 ### Define references as IGNORED
 
 Certain references retrieved from annotation sources such as ClinVar are generic and do not contain information relevant for any particular variant classification per se (an example is the [ACMG guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868)). These references can be set to be automatically [IGNORED](/manual/evidence-sections.html#reference-evaluation) in the reference evaluation module. 
 
-This is a [user group](/technical/users.html#user-groups) specific setting, see `/src/vardb/testdata/usergroups.json` for examples. PubMed IDs to be ignored should be added in:
+This is a [user group](/technical/users.html#user-groups) specific setting, see [`usergroups.json`](https://gitlab.com/alleles/ella-testdata/-/blob/main/testdata/fixtures/usergroups.json) for examples. PubMed IDs to be ignored should be added in:
 
 - File: `usergroups.json` (see [user groups](/technical/users.html#user-groups))
 - Key: `interpretation.autoIgnoreReferencePubmedIds`

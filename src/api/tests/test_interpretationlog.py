@@ -1,5 +1,5 @@
-from api.tests.workflow_helper import WorkflowHelper
 from api.tests import interpretation_helper as ih
+from api.tests.workflow_helper import WorkflowHelper
 
 ALLELE_ID = 1
 ANALYSIS_ID = 1
@@ -23,12 +23,12 @@ def check_log(
         == 1
     )
 
-    assert log["message"] == message
-    assert log["review_comment"] == review_comment
-    assert log["priority"] == priority
-    assert log["warning_cleared"] == warning_cleared
-    assert bool(log["alleleassessment"]) == alleleassessment
-    assert bool(log["allelereport"]) == allelereport
+    assert log.get("message") == message
+    assert log.get("review_comment") == review_comment
+    assert log.get("priority") == priority
+    assert log.get("warning_cleared") == warning_cleared
+    assert bool(log.get("alleleassessment")) == alleleassessment
+    assert bool(log.get("allelereport")) == allelereport
 
 
 def check_latest_log(
@@ -59,7 +59,6 @@ def check_latest_log(
 
 
 def test_allele_workflow(client, test_database):
-
     test_database.refresh()  # Reset db
 
     # Insert message
@@ -81,7 +80,7 @@ def test_allele_workflow(client, test_database):
     check_latest_log(client, "allele", message=message, editable=True)
 
     # Make sure it's not editable after one round
-    allele_wh = WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v01")
+    allele_wh = WorkflowHelper("allele", ALLELE_ID, "HBOCUTV", "v1.0.0")
     interpretation = allele_wh.start_interpretation("testuser1")
     allele_wh.perform_round(interpretation, "Some comment", new_workflow_status="Interpretation")
 
@@ -123,7 +122,6 @@ def test_allele_workflow(client, test_database):
 
 
 def test_analyses_workflow(client, test_database):
-
     test_database.refresh()  # Reset db
 
     # Insert message
@@ -146,7 +144,7 @@ def test_analyses_workflow(client, test_database):
 
     # Make sure it's not editable after one round
     analysis_wh = WorkflowHelper(
-        "analysis", ANALYSIS_ID, "HBOC", "v01", filterconfig_id=FILTERCONFIG_ID
+        "analysis", ANALYSIS_ID, "HBOC", "v1.0.0", filterconfig_id=FILTERCONFIG_ID
     )
     interpretation = analysis_wh.start_interpretation("testuser1")
     analysis_wh.perform_round(interpretation, "Some comment", new_workflow_status="Interpretation")

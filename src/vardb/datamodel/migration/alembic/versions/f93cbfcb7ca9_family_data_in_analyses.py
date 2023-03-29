@@ -156,5 +156,4 @@ def upgrade():
 
 
 def downgrade():
-
     raise NotImplementedError("Downgrade not supported")

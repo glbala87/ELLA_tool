@@ -27,7 +27,6 @@ class DepositAlleles(DepositFromVCF):
             db_genepanel = self.get_genepanel(gp_name, gp_version)
 
         for batch_records in batch_generator(iter(vi), BATCH_SIZE):
-
             if not annotation_only:
                 is_not_inside_transcripts = []
                 for record in batch_records:

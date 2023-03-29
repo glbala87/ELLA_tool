@@ -19,7 +19,6 @@ from sqlalchemy.dialects import postgresql
 
 
 def upgrade():
-
     op.create_table(
         "filterconfig",
         sa.Column("id", sa.Integer(), nullable=False),

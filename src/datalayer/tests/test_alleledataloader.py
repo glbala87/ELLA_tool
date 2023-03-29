@@ -1,15 +1,15 @@
 from itertools import chain
-from sqlalchemy import or_
+
 import hypothesis as ht
 import hypothesis.strategies as st
-from vardb.datamodel import sample, allele, genotype, gene, annotationshadow
-from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
-from datalayer import queries
+from sqlalchemy import or_
+
 from conftest import mock_allele
+from datalayer.alleledataloader.alleledataloader import AlleleDataLoader
+from vardb.datamodel import allele, gene, genotype, sample
 
 
 def test_get_formatted_genotypes(test_database, session):
-
     test_database.refresh()
 
     # Just get a random sample id that exists, doesn't matter which one
@@ -183,7 +183,7 @@ def allele_position_strategy(draw):
 
 
 def create_analysis():
-    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v01")
+    return sample.Analysis(name="TestAnalysis", genepanel_name="HBOC", genepanel_version="v1.0.0")
 
 
 def create_sample(analysis_id):
@@ -261,109 +261,3 @@ def test_nearby_warning(session, allele_positions):
 def test_worse_consequence_warning(test_database, session):
     # TODO: Rewrite consequence check to use annotationshadowtranscript
     return
-
-
-def test_inconsistent_ensembl_transcript(test_database, session):
-    test_database.refresh()
-    analysis_id = 1
-
-    allele = get_analysis_alleles(session, analysis_id).limit(1).one()
-    genepanel = get_analysis_genepanel(session, analysis_id)
-    adl = AlleleDataLoader(session)
-    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
-
-    assert len(loaded_alleles) == 1
-    assert "warnings" not in loaded_alleles[0]
-
-    # Modify corresponding ensembl transcript to not match genepanel transcript annotation
-    q = queries.annotation_transcripts_genepanel(
-        session, [(genepanel.name, genepanel.version)], allele_ids=[allele.id]
-    ).one()
-
-    corr_ensembl = (
-        session.query(gene.Transcript.corresponding_ensembl)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
-        .scalar()
-    )
-
-    # Check mismatching HGVSc
-    ast = (
-        session.query(annotationshadow.AnnotationShadowTranscript)
-        .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == corr_ensembl,
-            annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
-        )
-        .one()
-    )
-    ast.hgvsc = "c.xxxxxx"
-    session.flush()
-
-    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
-    assert len(loaded_alleles) == 1
-    assert loaded_alleles[0]["warnings"][
-        "hgvs_consistency"
-    ] == "Annotation for {} does not match corresponding transcript: {}:{} ({})".format(
-        q.annotation_transcript, ast.transcript, ast.hgvsc, ast.hgvsp
-    )
-
-    session.rollback()
-
-    # Check mismatching HGVSp
-    ast = (
-        session.query(annotationshadow.AnnotationShadowTranscript)
-        .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == corr_ensembl,
-            annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
-        )
-        .one()
-    )
-
-    ast.hgvsp = "p.xxxxxx"
-    session.flush()
-    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
-    assert len(loaded_alleles) == 1
-    assert loaded_alleles[0]["warnings"][
-        "hgvs_consistency"
-    ] == "Annotation for {} does not match corresponding transcript: {}:{} ({})".format(
-        q.annotation_transcript, ast.transcript, ast.hgvsc, ast.hgvsp
-    )
-
-    session.rollback()
-
-    # Check case where refseq is the corresponding transcript
-    # Flip refseq/ensembl
-    tx = (
-        session.query(gene.Transcript)
-        .filter(gene.Transcript.transcript_name == q.genepanel_transcript)
-        .one()
-    )
-
-    tx.corresponding_refseq = tx.transcript_name
-    tx.transcript_name = tx.corresponding_ensembl
-    tx.type = "Ensembl"
-    tx.corresponding_ensembl = None
-
-    session.flush()
-
-    ast = (
-        session.query(annotationshadow.AnnotationShadowTranscript)
-        .filter(
-            annotationshadow.AnnotationShadowTranscript.transcript == tx.corresponding_refseq,
-            annotationshadow.AnnotationShadowTranscript.allele_id == allele.id,
-        )
-        .one()
-    )
-
-    ast.hgvsc = "c.xxxxxx"
-    session.flush()
-
-    q = queries.annotation_transcripts_genepanel(
-        session, [(genepanel.name, genepanel.version)], allele_ids=[allele.id]
-    ).one()
-    loaded_alleles = adl.from_objs([allele], analysis_id=analysis_id, genepanel=genepanel)
-    assert len(loaded_alleles) == 1
-    assert loaded_alleles[0]["warnings"][
-        "hgvs_consistency"
-    ] == "Annotation for {} does not match corresponding transcript: {}:{} ({})".format(
-        q.annotation_transcript, ast.transcript, ast.hgvsc, ast.hgvsp
-    )

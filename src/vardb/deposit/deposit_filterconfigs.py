@@ -65,7 +65,6 @@ def deposit_filterconfigs(session, fc_configs):
                 result["fc_created"].append(fc_obj.id)
 
         for usergroup in fc_config["usergroups"]:
-
             usergroup_name = usergroup["name"]
             usergroup_id = (
                 session.query(user.UserGroup.id)

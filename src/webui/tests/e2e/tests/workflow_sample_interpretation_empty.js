@@ -17,7 +17,7 @@ let analysisPage = new AnalysisPage()
 const TITLE_INTERPRETATION = ' • INTERPRETATION'
 const TITLE_REVIEW = ' • REVIEW'
 const TITLE_MEDICAL_REVIEW = ' • MEDICAL REVIEW'
-const ANALYSIS_NAME = 'brca_e2e_test04.HBOCUTV_v01'
+const ANALYSIS_NAME = 'brca_e2e_test04.HBOCUTV_v1.0.0'
 
 describe('Sample workflow with an empty anaysis', function() {
     beforeAll(() => {

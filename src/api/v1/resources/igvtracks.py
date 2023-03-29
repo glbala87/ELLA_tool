@@ -1,50 +1,49 @@
-import os
-import mimetypes
 import logging
+import mimetypes
+import os
 from io import BytesIO
-from flask import request, Response, send_file
-from sqlalchemy import tuple_, func
-from api.config import config
-from vardb.datamodel import sample, gene, allele, assessment
-from api.v1.resource import LogRequestResource
-from api.util.util import authenticate, logger
-from datalayer import AlleleDataLoader
-from api import ApiError
-from . import igvcfg
+from typing import Dict, List
 
+from api import ApiError
+from api.config import config
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import SendFileResponse
+from api.util.util import authenticate, logger
+from api.v1.resource import LogRequestResource
+from datalayer import AlleleDataLoader
+from flask import Request, Response, request, send_file
+from sqlalchemy import func, tuple_
+from sqlalchemy.orm import Session
+from vardb.datamodel import allele, assessment, gene, sample, user
+
+from . import igvcfg
 
 log = logging.getLogger()
 
 AUTH_ERROR = ApiError("not authorized")
 
 
-def get_range(request):
+def get_range(request: Request):
     range_header = request.headers.get("Range", None)
-
-    if range_header is None:
-        return None, None
-
-    if "," in range_header:
-        raise RuntimeError("Multiple ranges not supported.")
+    start = end = None
 
     if range_header:
+        if "," in range_header:
+            raise RuntimeError("Multiple ranges not supported.")
+
         range = range_header.split("bytes=", 1)[1].split("-", 1)
 
         start = int(range[0])
-        if not range[1] == "":
+        if range[1]:
             end = int(range[1])
-        else:
-            end = None
     elif "start" in request.args:
         # Try GET params instead
         start = int(request.args.get("start"))
         end = int(request.args.get("end"))
-    else:
-        start = end = None
     return start, end
 
 
-def get_partial_response(path, start, end):
+def get_partial_response(path: str, start: int, end: int):
     size = os.path.getsize(path)
 
     if end is not None:
@@ -63,7 +62,7 @@ def get_partial_response(path, start, end):
     return rv
 
 
-def transcripts_to_bed(transcripts):
+def transcripts_to_bed(transcripts: List[gene.Transcript]):
     """Write transcripts as a bed file specialized for display in IGV"""
     template = "{chr}\t{tx_start}\t{tx_end}\t{name}\t1000.0\t{strand}\t{cds_start}\t{cds_end}\t.\t{num_exons}\t{exon_lengths}\t{exon_starts}\tfoo\n"
 
@@ -91,8 +90,7 @@ def transcripts_to_bed(transcripts):
     return data
 
 
-def get_classification_gff3(session):
-
+def get_classification_gff3(session: Session):
     all_aa = (
         session.query(
             allele.Allele.chromosome,
@@ -157,13 +155,11 @@ def get_classification_gff3(session):
     return "\n".join(lines)
 
 
-def get_alleles_from_db(session, analysis_id, allele_ids):
-
+def get_alleles_from_db(session: Session, analysis_id: int, allele_ids: List[int]):
     if not allele_ids:
         return []
 
     alleles = session.query(allele.Allele).filter(allele.Allele.id.in_(allele_ids)).all()
-
     analysis = session.query(sample.Analysis).filter(sample.Analysis.id == analysis_id).one()
 
     adl = AlleleDataLoader(session)
@@ -180,7 +176,9 @@ def get_alleles_from_db(session, analysis_id, allele_ids):
 
 
 class ChromPos:
-    def __init__(self, chr, pos):
+    __slots__ = ["chr", "pos"]
+
+    def __init__(self, chr: str, pos: int):
         self.chr = chr
         self.pos = pos
 
@@ -202,7 +200,9 @@ class ChromPos:
 
 
 class BedLine(ChromPos):
-    def __init__(self, chr, pos, end):
+    __slots__ = ["end"]
+
+    def __init__(self, chr: str, pos: int, end: int):
         super().__init__(chr, pos)
         self.end = end
 
@@ -210,8 +210,7 @@ class BedLine(ChromPos):
         return f"{self.chr}\t{self.pos}\t{self.end}"
 
 
-def get_regions_of_interest(session, analysis_id, allele_ids):
-
+def get_regions_of_interest(session: Session, analysis_id: int, allele_ids: List[int]):
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
 
     bed_lines = []
@@ -225,7 +224,20 @@ def get_regions_of_interest(session, analysis_id, allele_ids):
 
 
 class VcfLine(ChromPos):
-    def __init__(self, chr, pos, id, ref, alt, qual, filter_status, info, genotype_data):
+    __slots__ = ["id", "ref", "alt", "qual", "filter_status", "info", "genotype_data"]
+
+    def __init__(
+        self,
+        chr: str,
+        pos: int,
+        id: str,
+        ref: str,
+        alt: str,
+        qual: str,
+        filter_status: str,
+        info: List[str],
+        genotype_data: Dict[str, List[str]],
+    ):
         super().__init__(chr, pos)
         self.id = id
         self.ref = ref
@@ -260,7 +272,9 @@ class VcfLine(ChromPos):
 
 
 class Vcf:
-    def __init__(self, sample_names, data_lines):
+    __slots__ = ["sample_names", "data_lines"]
+
+    def __init__(self, sample_names: List[str], data_lines: List[VcfLine]):
         self.sample_names = sample_names
         self.data_lines = data_lines
 
@@ -284,8 +298,7 @@ class Vcf:
         return data_header + vcf_lines + "\n"
 
 
-def get_allele_vcf(session, analysis_id, allele_ids):
-
+def get_allele_vcf(session: Session, analysis_id: int, allele_ids: List[int]):
     allele_objs = get_alleles_from_db(session, analysis_id, allele_ids)
     sample_names = sorted(list(set([s["identifier"] for a in allele_objs for s in a["samples"]])))
 
@@ -298,7 +311,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
         qual = "N/A"
         filter_status = "N/A"
 
-        genotype_data = {"GT": [], "CN": []}  # Per sample entry
+        genotype_data: Dict[str, List[str]] = {"GT": [], "CN": []}  # Per sample entry
         for sample_name in sample_names:
             sample_data = next((s for s in a["samples"] if s["identifier"] == sample_name), None)
             if not sample_data:
@@ -341,8 +354,7 @@ def get_allele_vcf(session, analysis_id, allele_ids):
 
 class IgvSearchResource(LogRequestResource):
     @authenticate()
-    def get(self, session, user=None):
-
+    def get(self, session: Session, **kwargs):
         term = request.args.get("q")
         if not term:
             return []
@@ -404,7 +416,8 @@ class IgvSearchResource(LogRequestResource):
 
 class GenepanelBedResource(LogRequestResource):
     @authenticate()
-    def get(self, session, gp_name, gp_version, user=None):
+    @validate_output(SendFileResponse)
+    def get(self, session: Session, gp_name: str, gp_version: str, **kwargs):
         gp = (
             session.query(gene.Genepanel)
             .filter(tuple_(gene.Genepanel.name, gene.Genepanel.version) == (gp_name, gp_version))
@@ -418,8 +431,9 @@ class GenepanelBedResource(LogRequestResource):
 
 class ClassificationResource(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, user=None):
+    def get(self, session: Session, **kwargs):
         data = BytesIO()
         data.write(get_classification_gff3(session).encode())
         data.seek(0)
@@ -433,8 +447,9 @@ class ClassificationResource(LogRequestResource):
 
 class RegionsOfInterestTrack(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, analysis_id, user=None):
+    def get(self, session: Session, analysis_id: int, **kwargs):
         allele_ids = [
             int(aid) for aid in request.args.get("allele_ids", "").split(",") if aid != ""
         ]
@@ -446,8 +461,9 @@ class RegionsOfInterestTrack(LogRequestResource):
 
 class AnalysisVariantTrack(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, analysis_id, user=None):
+    def get(self, session: Session, analysis_id: int, **kwargs):
         allele_ids = [
             int(aid) for aid in request.args.get("allele_ids", "").split(",") if aid != ""
         ]
@@ -459,8 +475,9 @@ class AnalysisVariantTrack(LogRequestResource):
 
 class IgvResource(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, filename, user=None):
+    def get(self, filename: str, **kwargs):
         if "IGV_DATA" not in os.environ:
             raise ApiError("Missing IGV data location (env: $IGV_DATA).")
 
@@ -476,7 +493,7 @@ class IgvResource(LogRequestResource):
             return get_partial_response(final_path, start, end)
 
 
-def _get_first_index_path(track_path):
+def _get_first_index_path(track_path: str):
     """Multile index files may exists. This function returns only one"""
     for t in igvcfg.VALID_TRACK_TYPES:
         # right track type?
@@ -493,8 +510,9 @@ def _get_first_index_path(track_path):
 
 class StaticTrack(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, filepath, user=None):
+    def get(self, filepath: str, user: user.User, **kwargs):
         index: bool = request.args.get("index", "") == "1"
 
         # get track path
@@ -514,7 +532,8 @@ class StaticTrack(LogRequestResource):
         if not len(track_cfg.values()) == 1:
             raise AUTH_ERROR
         # get track
-        track_cfg = next(iter(track_cfg))
+        # TODO: mypy confused with the iter below, but track_cfg also not used after this. can it be removed?
+        track_cfg = next(iter(track_cfg))  # type: ignore
 
         if index:
             return send_file(_get_first_index_path(track_path))
@@ -528,8 +547,9 @@ class StaticTrack(LogRequestResource):
 
 class AnalysisTrack(LogRequestResource):
     @authenticate()
+    @validate_output(SendFileResponse)
     @logger(exclude=True)
-    def get(self, session, analysis_id, filename, user=None):
+    def get(self, session: Session, analysis_id: int, filename: str, **kwargs):
         index: bool = request.args.get("index", "") == "1"
 
         def _get_analysis_tracks_path(analysis_name):

@@ -11,7 +11,6 @@ class DB(object):
         self.session = None
 
     def connect(self, host=None, engine_kwargs=None):
-
         # Lazy load dependencies to avoid problems in code not actually using DB, but uses modules from which this module is referenced.
         from sqlalchemy import create_engine, event
         from sqlalchemy.orm import sessionmaker

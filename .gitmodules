@@ -1,0 +1,4 @@
+[submodule "ella-testdata"]
+	path = ella-testdata
+	url = ../ella-testdata.git
+	fetchRecurseSubmodules = true

@@ -27,7 +27,6 @@ AnalysisInterpretation = sa.table(
 
 
 def upgrade():
-
     conn = op.get_bind()
 
     def update_interpretation_state(model):

@@ -4,6 +4,9 @@
   </a>
 </div>
 
+[![Latest Release](https://gitlab.com/alleles/ella/-/badges/release.svg)](https://gitlab.com/alleles/ella/-/releases)
+[![dev pipeline status](https://gitlab.com/alleles/ella/badges/dev/pipeline.svg)](https://gitlab.com/alleles/ella/-/commits/dev)
+
 ELLA is an analysis tool for interpretation of genetic variants, see the [official website](http://allel.es) for more information.
 
 ### Setup

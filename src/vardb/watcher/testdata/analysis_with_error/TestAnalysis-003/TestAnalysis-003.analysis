@@ -1,6 +1,6 @@
 {
     "params": {
-        "genepanel": "HBOC_v01"
+        "genepanel": "HBOC_v1.0.0"
     },
     "type": "exome",
     "samples": [

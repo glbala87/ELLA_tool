@@ -1,13 +1,18 @@
-from vardb.datamodel import assessment
+from typing import Dict, Optional
 
 from api import schemas
-from api.util.util import paginate, rest_filter, authenticate
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import AlleleReportListResponse, AlleleReportResponse
+from api.util.util import authenticate, paginate, rest_filter
 from api.v1.resource import LogRequestResource
+from sqlalchemy.orm import Session
+from vardb.datamodel import assessment
 
 
 class AlleleReportResource(LogRequestResource):
     @authenticate()
-    def get(self, session, ar_id=None, user=None):
+    @validate_output(AlleleReportResponse)
+    def get(self, session: Session, ar_id: int, **kwargs):
         """
         Returns a single allelereport.
         ---
@@ -32,9 +37,17 @@ class AlleleReportResource(LogRequestResource):
 
 class AlleleReportListResource(LogRequestResource):
     @authenticate()
+    @validate_output(AlleleReportListResponse, paginated=True)
     @paginate
     @rest_filter
-    def get(self, session, rest_filter=None, page=None, per_page=10000, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        per_page: int = 10000,
+        **kwargs,
+    ):
         """
         Returns a list of allelereports.
 

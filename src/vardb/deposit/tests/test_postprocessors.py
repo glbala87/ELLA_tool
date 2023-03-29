@@ -8,7 +8,6 @@ class TestPostprocessors:
         test_database.refresh()
 
     def test_analysis_not_ready_warnings(self, session):
-
         # Use analysis id 1
         analysis = session.query(sample.Analysis).filter(sample.Analysis.id == 1).one()
 
@@ -75,7 +74,6 @@ class TestPostprocessors:
         assert interpretation.workflow_status == "Not ready"
 
     def test_analysis_finalize_without_findings(self, session):
-
         # Use analysis id 2
 
         # First test that it's not finalized
@@ -103,7 +101,7 @@ class TestPostprocessors:
             aa = assessment.AlleleAssessment(
                 allele_id=allele_id,
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v1.0.0",
                 classification="1",
                 user_id=1,
                 usergroup_id=1,
@@ -126,7 +124,6 @@ class TestPostprocessors:
         assert interpretation.finalized is True
 
     def test_analysis_tag_all_classified(self, session, test_database):
-
         test_database.refresh()
 
         # Use analysis id 2
@@ -148,7 +145,7 @@ class TestPostprocessors:
             aa = assessment.AlleleAssessment(
                 allele_id=allele_id,
                 genepanel_name="HBOC",
-                genepanel_version="v01",
+                genepanel_version="v1.0.0",
                 classification="5",
                 user_id=1,
                 usergroup_id=1,

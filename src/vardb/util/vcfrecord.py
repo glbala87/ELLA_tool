@@ -44,7 +44,8 @@ def numpy_to_list(a: Optional[np.ndarray]) -> Optional[List]:
 
 def commonsuffix(v: List[Union[str, bytes]]) -> Union[str, bytes]:
     "Common suffix is the same as the reversed common prefix of the reversed string"
-    return commonprefix([x[::-1] for x in v])[::-1]
+    # mypy complains about expecting os.PathLike, but commonprefix handles that implicitly
+    return commonprefix([x[::-1] for x in v])[::-1]  # type: ignore
 
 
 change_type_from_sv_alt_field = {
@@ -109,7 +110,6 @@ class VCFRecord(object):
         return int(self.variant.INFO["SVLEN"])
 
     def _sv_open_end_position(self, pos: int, change_type: str) -> int:
-
         if change_type == "dup" or change_type == "dup_tandem" or change_type == "ins":
             return pos + 1
         else:
@@ -245,7 +245,6 @@ class VCFRecord(object):
     def get_format_sample(
         self, property: str, sample_name: str, scalar: bool = False
     ) -> Optional[Union[Iterable[Any], int]]:
-
         if property == "GT":
             return self.sample_genotype(sample_name)
         else:

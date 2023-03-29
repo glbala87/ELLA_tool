@@ -1,0 +1,193 @@
+<PubmedArticle>
+    <MedlineCitation Owner="NLM" Status="PubMed-not-MEDLINE">
+        <PMID Version="1">23374456</PMID>
+        <DateCreated>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>11</Day>
+        </DateCreated>
+        <DateCompleted>
+            <Year>2013</Year>
+            <Month>02</Month>
+            <Day>12</Day>
+        </DateCompleted>
+        <DateRevised>
+            <Year>2014</Year>
+            <Month>07</Month>
+            <Day>14</Day>
+        </DateRevised>
+        <Article PubModel="Electronic">
+            <Journal>
+                <ISSN IssnType="Electronic">1752-1947</ISSN>
+                <JournalIssue CitedMedium="Print">
+                    <Volume>7</Volume>
+                    <PubDate>
+                        <Year>2013</Year>
+                    </PubDate>
+                </JournalIssue>
+                <Title>Journal of medical case reports</Title>
+                <ISOAbbreviation>J Med Case Rep</ISOAbbreviation>
+            </Journal>
+            <ArticleTitle>Vascular-type Ehlers-Danlos syndrome caused by a hitherto unknown genetic mutation: a case report.</ArticleTitle>
+            <Pagination>
+                <MedlinePgn>35</MedlinePgn>
+            </Pagination>
+            <ELocationID EIdType="doi" ValidYN="Y">10.1186/1752-1947-7-35</ELocationID>
+            <Abstract>
+                <AbstractText Label="UNLABELLED" />
+                <AbstractText Label="INTRODUCTION" NlmCategory="BACKGROUND">Vascular-type Ehlers-Danlos syndrome is an autosomal dominant disease that causes arterial spurting, intestinal perforation, uterine rupture and hemopneumothorax due to decreased production of type III collagen. The average age at death is 48 years old, and it is considered to be the most severe form of Ehlers-Danlos syndrome. We report the case of a 64-year-old Japanese woman and her 38-year-old daughter who were diagnosed with this disease.</AbstractText>
+                <AbstractText Label="CASE PRESENTATION" NlmCategory="METHODS">A 64-year-old Japanese woman was referred to our hospital because of right anterior chest pain following cough and pharyngeal discomfort. Pleurisy was suspected due to the presence of right pleural effusion, so the next day she was referred to our department, where a detailed examination led to the diagnosis of hemothorax. The bleeding that caused the right hemothorax was difficult to control, so our patient was transferred to the Department of Thoracic Surgery for hemostasis control. Our patient's personal history of uterine hemorrhage and skin ulcers, as well as the finding of skin fragility during surgery, were indicative of a weak connective tissue disease; therefore, after improvement of the hemothorax, a genetic analysis was performed. This revealed a heterozygous missense mutation in COL3A1, c.2411 G&gt;T p.Gly804Val (exon 36). A detailed investigation conducted at a later date revealed that her daughter also had the same genetic mutation. This led to the diagnosis of vascular-type Ehlers-Danlos syndrome characterized by a new gene mutation.</AbstractText>
+                <AbstractText Label="CONCLUSION" NlmCategory="CONCLUSIONS">We report a new genetic mutation associated with vascular-type Ehlers-Danlos syndrome. We present the clinical and imaging findings, and the disease and treatment course in this patient. We believe this information will be important in treating future cases of vascular-type Ehlers-Danlos syndrome in patients with this mutation.</AbstractText>
+            </Abstract>
+            <AuthorList CompleteYN="Y">
+                <Author ValidYN="Y">
+                    <LastName>Kashizaki</LastName>
+                    <ForeName>Fumihiro</ForeName>
+                    <Initials>F</Initials>
+                    <AffiliationInfo>
+                        <Affiliation>Department of Respiratory Medicine, Yokohama Municipal Citizen's Hospital, 56 Okazawa-cho, Hodogaya-ku, Yokohama, Kanagawa, 240-8555, Japan. fk_respiratory@yahoo.co.jp.</Affiliation>
+                    </AffiliationInfo>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Hatamochi</LastName>
+                    <ForeName>Atsushi</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Kamiya</LastName>
+                    <ForeName>Kazunori</ForeName>
+                    <Initials>K</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Yoshizu</LastName>
+                    <ForeName>Akira</ForeName>
+                    <Initials>A</Initials>
+                </Author>
+                <Author ValidYN="Y">
+                    <LastName>Okamoto</LastName>
+                    <ForeName>Hiroaki</ForeName>
+                    <Initials>H</Initials>
+                </Author>
+            </AuthorList>
+            <Language>eng</Language>
+            <PublicationTypeList>
+                <PublicationType UI="D016428">Journal Article</PublicationType>
+            </PublicationTypeList>
+            <ArticleDate DateType="Electronic">
+                <Year>2013</Year>
+                <Month>02</Month>
+                <Day>01</Day>
+            </ArticleDate>
+        </Article>
+        <MedlineJournalInfo>
+            <Country>England</Country>
+            <MedlineTA>J Med Case Rep</MedlineTA>
+            <NlmUniqueID>101293382</NlmUniqueID>
+            <ISSNLinking>1752-1947</ISSNLinking>
+        </MedlineJournalInfo>
+        <CommentsCorrectionsList>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Histopathology. 2010 Jun;56(7):944-50</RefSource>
+                <PMID Version="1">20500229</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Am J Med Genet. 1998 Apr 28;77(1):31-7</RefSource>
+                <PMID Version="1">9557891</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Lancet. 2010 Oct 30;376(9751):1476-84</RefSource>
+                <PMID Version="1">20825986</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>N Engl J Med. 2000 Mar 9;342(10):673-80</RefSource>
+                <PMID Version="1">10706896</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Eur Respir J. 2002 Jan;19(1):195-8</RefSource>
+                <PMID Version="1">11843319</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Hum Mol Genet. 1994 Sep;3(9):1617-20</RefSource>
+                <PMID Version="1">7833919</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Intern Med. 2009;48(9):717-22</RefSource>
+                <PMID Version="1">19420820</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Intern Med. 2010;49(16):1797-800</RefSource>
+                <PMID Version="1">20720362</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>J Vasc Surg. 2005 Jul;42(1):98-106</RefSource>
+                <PMID Version="1">16012458</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Circ J. 2007 Feb;71(2):261-5</RefSource>
+                <PMID Version="1">17251678</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Orphanet J Rare Dis. 2007;2:32</RefSource>
+                <PMID Version="1">17640391</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>J Nippon Med Sch. 2008 Oct;75(5):254-61</RefSource>
+                <PMID Version="1">19023163</PMID>
+            </CommentsCorrections>
+            <CommentsCorrections RefType="Cites">
+                <RefSource>Clin Genet. 1996 Dec;50(6):510-4</RefSource>
+                <PMID Version="1">9147885</PMID>
+            </CommentsCorrections>
+        </CommentsCorrectionsList>
+        <OtherID Source="NLM">PMC3567970</OtherID>
+    </MedlineCitation>
+    <PubmedData>
+        <History>
+            <PubMedPubDate PubStatus="received">
+                <Year>2012</Year>
+                <Month>8</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="accepted">
+                <Year>2012</Year>
+                <Month>11</Month>
+                <Day>28</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="aheadofprint">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>1</Day>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="entrez">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="pubmed">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>0</Minute>
+            </PubMedPubDate>
+            <PubMedPubDate PubStatus="medline">
+                <Year>2013</Year>
+                <Month>2</Month>
+                <Day>5</Day>
+                <Hour>6</Hour>
+                <Minute>1</Minute>
+            </PubMedPubDate>
+        </History>
+        <PublicationStatus>epublish</PublicationStatus>
+        <ArticleIdList>
+            <ArticleId IdType="pii">1752-1947-7-35</ArticleId>
+            <ArticleId IdType="doi">10.1186/1752-1947-7-35</ArticleId>
+            <ArticleId IdType="pubmed">23374456</ArticleId>
+            <ArticleId IdType="pmc">PMC3567970</ArticleId>
+        </ArticleIdList>
+    </PubmedData>
+</PubmedArticle>
+
+

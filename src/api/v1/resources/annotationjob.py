@@ -1,17 +1,39 @@
-from flask import request
+from typing import Dict, Optional
+
 from api import schemas
-from api.polling import AnnotationJobsInterface, AnnotationServiceInterface, ANNOTATION_SERVICE_URL
-from api.util.util import request_json, rest_filter, authenticate, logger, paginate
+from api.polling import ANNOTATION_SERVICE_URL, AnnotationJobsInterface, AnnotationServiceInterface
+from api.schemas.pydantic.v1 import validate_output
+from api.schemas.pydantic.v1.resources import (
+    AnnotationJobListResponse,
+    AnnotationJobResponse,
+    AnnotationSampleListResponse,
+    AnnotationServiceStatusResponse,
+    CreateAnnotationJobRequest,
+    EmptyResponse,
+    PatchAnnotationJobRequest,
+)
+from api.util.util import authenticate, logger, paginate, request_json, rest_filter
 from api.v1.resource import LogRequestResource
-from vardb.datamodel import annotationjob
+from flask import request
+from sqlalchemy.orm import Session
+from vardb.datamodel import annotationjob, user
 
 
 class AnnotationJobList(LogRequestResource):
     @authenticate()
+    @validate_output(AnnotationJobListResponse, paginated=True)
     @rest_filter
     @paginate
     @logger(exclude=True)
-    def get(self, session, rest_filter=None, page=None, per_page=None, user=None):
+    def get(
+        self,
+        session: Session,
+        rest_filter: Optional[Dict],
+        page: int,
+        per_page: int,
+        user: user.User,
+        **kwargs
+    ):
         """
         Lists annotation jobs in the system.
 
@@ -38,8 +60,9 @@ class AnnotationJobList(LogRequestResource):
         )
 
     @authenticate()
-    @request_json([], True)
-    def post(self, session, data=None, user=None):
+    @validate_output(AnnotationJobResponse)
+    @request_json(model=CreateAnnotationJobRequest)
+    def post(self, session: Session, data: CreateAnnotationJobRequest, user: user.User):
         """
         Creates an annotation job in the system.
 
@@ -48,8 +71,10 @@ class AnnotationJobList(LogRequestResource):
         tags:
             - Import
         """
-        data["user_id"] = user.id
-        annotation_job_data = annotationjob.AnnotationJob(**data)
+        # data["user_id"] = user.id
+        annotation_job_data = annotationjob.AnnotationJob(
+            **{**data.dump(exclude_none=True), "user_id": user.id}
+        )
         session.add(annotation_job_data)
         session.commit()
         return schemas.AnnotationJobSchema().dump(annotation_job_data).data
@@ -57,8 +82,9 @@ class AnnotationJobList(LogRequestResource):
 
 class AnnotationJob(LogRequestResource):
     @authenticate()
-    @request_json([], allowed=["status", "message", "task_id"])
-    def patch(self, session, id, data=None, user=None):
+    @validate_output(AnnotationJobResponse)
+    @request_json(model=PatchAnnotationJobRequest)
+    def patch(self, session: Session, id: int, data: PatchAnnotationJobRequest, **kwargs):
         """
         Updates an annotation job in the system.
 
@@ -69,12 +95,14 @@ class AnnotationJob(LogRequestResource):
         """
         annotationjob_interface = AnnotationJobsInterface(session)
         job = annotationjob_interface.patch(
-            id, status=data.get("status"), message=data.get("message"), task_id=data.get("task_id")
+            id, status=data.status, message=data.message, task_id=data.task_id
         )
         session.commit()
-        return schemas.AnnotationJobSchema().dump(job).data, 200
+        return schemas.AnnotationJobSchema().dump(job).data
 
-    def delete(self, session, id):
+    @authenticate()
+    @validate_output(EmptyResponse)
+    def delete(self, session: Session, id: int):
         """
         Removes an annotation job in the system.
 
@@ -90,11 +118,11 @@ class AnnotationJob(LogRequestResource):
         )
         session.delete(job)
         session.commit()
-        return None, 200
 
 
 class AnnotationServiceRunning(LogRequestResource):
-    def get(self, session):
+    @validate_output(AnnotationServiceStatusResponse)
+    def get(self, session: Session):
         """
         Checks status of annotation service.
 
@@ -104,11 +132,12 @@ class AnnotationServiceRunning(LogRequestResource):
             - Import
         """
         annotationservice_interface = AnnotationServiceInterface(ANNOTATION_SERVICE_URL, session)
-        return annotationservice_interface.annotation_service_running()
+        return {"running": annotationservice_interface.annotation_service_running()}
 
 
 class ImportSamples(LogRequestResource):
-    def get(self, session):
+    @validate_output(AnnotationSampleListResponse)
+    def get(self, session: Session):
         """
         Returns available samples from import service
 

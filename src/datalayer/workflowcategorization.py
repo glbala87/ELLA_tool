@@ -1,22 +1,26 @@
+from typing import Dict, List, Optional
+
+from api.util.types import AlleleCategories, AnalysisCategories
 from sqlalchemy import func
-from sqlalchemy.orm import aliased
-from vardb.datamodel import sample, workflow
+from sqlalchemy.orm import Session, aliased
+from vardb.datamodel import sample, user, workflow
+
 from datalayer import queries
 
 
-def get_categorized_alleles(session, user=None):
+def get_categorized_alleles(session: Session, user: Optional[user.User] = None):
     """
     Categorizes alleles according to workflow status and returns subqueries
     for their allele_ids per category.
     """
-    categories = [
-        ("not_started", queries.workflow_alleles_interpretation_not_started(session)),
-        ("marked_review", queries.workflow_alleles_review_not_started(session)),
-        ("ongoing", queries.workflow_alleles_ongoing(session)),
-    ]
+    categories = {
+        AlleleCategories.NOT_STARTED: queries.workflow_alleles_interpretation_not_started(session),
+        AlleleCategories.MARKED_REVIEW: queries.workflow_alleles_review_not_started(session),
+        AlleleCategories.ONGOING: queries.workflow_alleles_ongoing(session),
+    }
 
-    categorized_allele_ids = dict()
-    for key, subquery in categories:
+    categorized_allele_ids: Dict[str, List[workflow.AlleleInterpretation]] = dict()
+    for key, subquery in categories.items():
         filters = [workflow.AlleleInterpretation.allele_id.in_(subquery)]
         if user:
             filters.append(
@@ -31,23 +35,28 @@ def get_categorized_alleles(session, user=None):
     return categorized_allele_ids
 
 
-def get_categorized_analyses(session, user=None):
+def get_categorized_analyses(session: Session, user: Optional[user.User] = None):
     """
     Categorizes analyses according to workflow status and returns subqueries
     for their analysis_ids per category.
     """
     categories = {
-        "not_ready": queries.workflow_analyses_notready_not_started(session),
-        "not_started": queries.workflow_analyses_interpretation_not_started(session),
-        "marked_review": queries.workflow_analyses_review_not_started(session),
-        "marked_medicalreview": queries.workflow_analyses_medicalreview_not_started(session),
-        "ongoing": queries.workflow_analyses_ongoing(session),
+        AnalysisCategories.NOT_READY: queries.workflow_analyses_notready_not_started(session),
+        AnalysisCategories.NOT_STARTED: queries.workflow_analyses_interpretation_not_started(
+            session
+        ),
+        AnalysisCategories.MARKED_REVIEW: queries.workflow_analyses_review_not_started(session),
+        AnalysisCategories.MARKED_MEDICALREVIEW: queries.workflow_analyses_medicalreview_not_started(
+            session
+        ),
+        AnalysisCategories.ONGOING: queries.workflow_analyses_ongoing(session),
     }
     return categories
 
 
-def get_finalized_analysis_ids(session, user=None, page=None, per_page=None):
-
+def get_finalized_analysis_ids(
+    session: Session, user: user.User, page: Optional[int] = None, per_page: Optional[int] = None
+):
     user_analysis_ids = queries.analysis_ids_for_user(session, user)
 
     sorted_analysis_ids = (

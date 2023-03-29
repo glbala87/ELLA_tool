@@ -13,32 +13,6 @@ def _assert_all_interpretations_are_done(interpretations):
     ), "Expected all to be {}".format(expected_status)
 
 
-def _item_connected_to_allele_is_current(allele_id, items_source, expected_comment):
-    items = [item for item in items_source if item["allele_id"] == allele_id]
-    assert any(
-        map(
-            lambda a: a["date_superceeded"] is None
-            and a["evaluation"]["comment"] == expected_comment,
-            items,
-        )
-    ), "No assessment/report for allele {} that's current has comment '{}'".format(
-        allele_id, expected_comment
-    )
-
-
-def _item_connected_to_allele_has_been_superceeded(allele_id, items_source, expected_comment):
-    selected_items = [item for item in items_source if item["allele_id"] == allele_id]
-    assert any(
-        map(
-            lambda a: a["date_superceeded"] is not None
-            and a["evaluation"]["comment"] == expected_comment,
-            selected_items,
-        )
-    ), "no assessment/report for allele {} that has been superceeded has the comment '{}' ".format(
-        allele_id, expected_comment
-    )
-
-
 def _build_dummy_annotations(allele_ids):
     custom_annotations = list()  # currently left empty
     annotations = list()
@@ -63,7 +37,6 @@ class WorkflowHelper(object):
     def __init__(
         self, workflow_type, workflow_id, genepanel_name, genepanel_version, filterconfig_id=None
     ):
-
         assert genepanel_name and genepanel_version
 
         if workflow_type == "analysis" and not filterconfig_id:
@@ -193,7 +166,6 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
     def perform_finalize_round(self, interpretation, comment):
-
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
@@ -312,7 +284,6 @@ class WorkflowHelper(object):
         assert reloaded_interpretation["user"]["username"] == interpretation["user"]["username"]
 
     def perform_reopened_round(self, interpretation, comment):
-
         # We use the state as our source of assessments and reports:
         allele_assessments = interpretation["state"]["alleleassessments"]
         reference_assessments = interpretation["state"]["referenceassessments"]
@@ -378,7 +349,13 @@ class WorkflowHelper(object):
 
                 # Reuse reference assessment
                 allele_reference_assessments.append(
-                    {"id": ra["id"], "allele_id": allele_id, "reference_id": ra["reference_id"]}
+                    {
+                        "id": ra["id"],
+                        "allele_id": allele_id,
+                        "reference_id": ra["reference_id"],
+                        "reuse": True,
+                        "reuseCheckedId": ra["id"],
+                    }
                 )
 
             annotation_id = allele["annotation"]["annotation_id"]
@@ -445,7 +422,6 @@ class WorkflowHelper(object):
         )
 
     def check_finalize_allele(self, allele_id, interpretation):
-
         # Check alleleassessment in database
         state_alleleassessment = next(
             a for a in interpretation["state"]["alleleassessments"] if a["allele_id"] == allele_id
@@ -453,7 +429,7 @@ class WorkflowHelper(object):
         allele_assessments_in_db = ih.get_allele_assessments_by_allele(allele_id).get_json()
         assert allele_assessments_in_db
         latest_allele_assessment = next(
-            a for a in allele_assessments_in_db if not a["date_superceeded"]
+            a for a in allele_assessments_in_db if not a.get("date_superceeded")
         )
         if not state_alleleassessment.get("reuse"):
             assert (
@@ -476,7 +452,9 @@ class WorkflowHelper(object):
         )
         allele_reports_in_db = ih.get_allele_reports_by_allele(allele_id).get_json()
         assert allele_reports_in_db
-        latest_allele_report = next(a for a in allele_reports_in_db if not a["date_superceeded"])
+        latest_allele_report = next(
+            a for a in allele_reports_in_db if not a.get("date_superceeded")
+        )
         if not state_allelereport.get("reuse"):
             assert (
                 latest_allele_report["evaluation"]["comment"]
@@ -503,7 +481,7 @@ class WorkflowHelper(object):
                         for ra in reference_assessments_in_db
                         if ra["allele_id"] == allele_id
                         and ra["reference_id"] == state_referenceassessment["reference_id"]
-                        and ra["date_superceeded"] is None
+                        and ra.get("date_superceeded") is None
                     )
                 )
                 if "id" not in state_referenceassessment:

@@ -97,7 +97,6 @@ def allele_filter(session):
 class TestAlleleFilter(object):
     @pytest.mark.aa(order=0)
     def test_filter_alleles(self, session, allele_filter):
-
         # ---------
 
         # Test simple allele filter
@@ -210,7 +209,6 @@ class TestAlleleFilter(object):
 
     @pytest.mark.aa(order=1)
     def test_filter_analysis(self, session, allele_filter):
-
         # ---------
 
         # Test single analysis filter
