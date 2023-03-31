@@ -6,12 +6,25 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.17](#version-1-17)|
+[v1.17](#version-1-17)|[v1.17.1](#version-1-17-1)
 [v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4), [v1.16.5](#version-1-16-5)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
+
+## Version 1.17.1
+
+Release date: 31.03.2023
+
+### Highlights
+
+This is a bugfix release.
+
+### All changes
+
+<!-- MR !742 -->
+- Fixed a bug causing inability to finalize previously evaluated allele assessments.
 
 ## Version 1.17
 
@@ -99,7 +112,7 @@ Release date: 30.01.2023
 
 ### Highlights
 
-This is a bugfix release
+This is a bugfix release.
 
 ### All changes
 
