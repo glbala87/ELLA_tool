@@ -40,6 +40,7 @@ from api.schemas.pydantic.v1.genepanels import (
 from api.schemas.pydantic.v1.igv import TrackConfig
 from api.schemas.pydantic.v1.interpretationlog import CreateInterpretationLog, InterpretationLog
 from api.schemas.pydantic.v1.references import (
+    FallbackReferenceAssessment,
     NewReferenceAssessment,
     OptReferenceAssessment,
     Reference,
@@ -609,7 +610,12 @@ class FinalizeAlleleRequest(RequestValidator):
     annotation_id: int
     custom_annotation_id: Optional[int]
     alleleassessment: Union[ReusedAlleleAssessment, NewAlleleAssessment]
-    referenceassessments: List[Union[ReusedReferenceAssessment, NewReferenceAssessment]]
+    # TODO: List[Union[BaseModelSubclass1, BaseModelSubclass2]] messes up when the combination is combination of the subclasses
+    # See BaseModel._validate_unions
+    # Work around this having a fallback that should always validate (and include everything)
+    referenceassessments: List[
+        Union[ReusedReferenceAssessment, NewReferenceAssessment, FallbackReferenceAssessment]
+    ]
     allelereport: Union[ReusedAlleleReport, NewAlleleReport]
 
     endpoints = {
