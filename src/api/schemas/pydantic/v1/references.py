@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from api.schemas.pydantic.v1 import BaseModel
+from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.util.types import ReferenceEvalRelevance
-
 
 ###
 
@@ -100,8 +99,9 @@ class ReusedReferenceAssessment(BaseModel):
     id: int
     allele_id: int
     reference_id: int
-    reuse: bool
-    reuseCheckedId: int
+    evaluation: Optional[ReferenceEvaluation]  # If reuse is False only
+    reuse: Optional[bool]
+    reuseCheckedId: Optional[int]
 
 
 class NewReferenceAssessment(BaseModel):
@@ -110,3 +110,8 @@ class NewReferenceAssessment(BaseModel):
     reference_id: int
     genepanel_name: Optional[str] = None
     genepanel_version: Optional[str] = None
+
+
+class FallbackReferenceAssessment(ExtraOK):
+    allele_id: int
+    reference_id: int

@@ -105,6 +105,7 @@ class BaseModel(PydanticBase):
     # Pydantic gets easily confused identifying the "correct" BaseModel to use from a Union.
     # Here, we try/except to find a class that validates without error. This is pretty hacky, but
     # necessary with the current API structure re-using the same keys with different formats.
+    # TODO: Look into https://docs.pydantic.dev/usage/model_config/#smart-union
     @pydantic.root_validator(pre=True)
     def _validate_unions(cls, values: Dict):
         # look for any fields with types Union[BaseModel, ...]
