@@ -11,7 +11,6 @@
 Remember:
 
 - Add appropriate **Topic labels**
-- Assign **Weight**, if possible
 - Evaluate if issue should be `confidential` 
 
 --- DELETE ME ---
