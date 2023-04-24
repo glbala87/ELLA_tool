@@ -40,7 +40,7 @@ run() {
 run black --check /ella
 run mypy /ella/src
 run flake8
-run yarn prettier -l '**/*\.@(js|scss|json|css|html|yml)'
+run yarn prettier -l '**/*\.@(js|scss|json|css|html|yml)' --loglevel warn
 run yarn eslint /ella
 
 log red "FAILED: ${FAILED[*]}"
