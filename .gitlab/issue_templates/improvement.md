@@ -11,7 +11,6 @@
 Remember:
 
 - Add appropriate **Topic labels**
-- Assign **Weight**, if possible
 
 --- DELETE ME ---
 

@@ -2,12 +2,12 @@
 
 Update docs for [ELLA version].
 
+## Notes to review
+
 ## Related issues/MRs
 
 [Docs issue]
 
 [List related MRs]
-
-## Notes to review
 
 /label ~"code review::needs"
