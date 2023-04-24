@@ -9,6 +9,7 @@ const GENOTYPE_KEYS = [
     'variant_quality',
     'filter_status',
     'genotype_quality',
+    'genotype_likelihood',
     'sequencing_depth',
     'allele_depth',
     'allele_ratio',
