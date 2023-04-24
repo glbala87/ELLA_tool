@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, List, Optional, Union
 from api.schemas.pydantic.v1.allele_assessments import SuggestedAcmg
 from api.schemas.pydantic.v1.references import (
-    FallbackReferenceAssessment,
     NewReferenceAssessment,
     ReusedReferenceAssessment,
 )
@@ -60,9 +59,7 @@ class AlleleState(BaseModel):
     presented_alleleassessment_id: Optional[int] = None
     presented_allelereport_id: Optional[int] = None
     quality: Optional[Comment] = None
-    referenceassessments: List[
-        Union[NewReferenceAssessment, ReusedReferenceAssessment, FallbackReferenceAssessment]
-    ]
+    referenceassessments: List[Union[NewReferenceAssessment, ReusedReferenceAssessment]]
     report: Optional[Report] = None
     verification: Optional[Any] = None
     workflow: Optional[Workflow] = None
