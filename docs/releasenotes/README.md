@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17.1
 
-Release date: 31.03.2023
+Release date: 25.04.2023
 
 ### Highlights
 
@@ -25,6 +25,14 @@ This is a bugfix release.
 
 <!-- MR !742 -->
 - Fixed a bug causing inability to finalize previously evaluated allele assessments.
+<!-- MR !743 -->
+- Fixed a bug in parser and fetcher for PubMed records.
+<!-- 
+No further release notes necessary, but adding here for reference: 
+MR !744 Hetzner CI runner setup
+This MR: update issue and MR templates
+-->
+- Fixes and improvements to development environment and code base.
 
 ## Version 1.17
 
