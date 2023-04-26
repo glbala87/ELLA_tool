@@ -15,7 +15,7 @@ See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
 ## Version 1.17.1
 
-Release date: 25.04.2023
+Release date: 26.04.2023
 
 ### Highlights
 
@@ -30,7 +30,8 @@ This is a bugfix release.
 <!-- 
 No further release notes necessary, but adding here for reference: 
 MR !744 Hetzner CI runner setup
-This MR: update issue and MR templates
+MR !743 (extra) Update issue and MR templates
+MR !745 Use smart_union instead of _validate_unions
 -->
 - Fixes and improvements to development environment and code base.
 
