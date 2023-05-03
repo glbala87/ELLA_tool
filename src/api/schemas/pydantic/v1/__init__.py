@@ -92,6 +92,7 @@ class BaseModel(PydanticBase):
         validate_all = True
         allow_mutation = False
         extra = pydantic.Extra.forbid
+        smart_union = True
 
     def dump(self, **kwargs):
         "serializes to json string, then json.loads back in. optional params sent directly to self.json()"
@@ -101,54 +102,6 @@ class BaseModel(PydanticBase):
     def _meta(cls) -> Optional[Dict[str, Any]]:
         "overload to return custom schema.properties modifications"
         return None
-
-    # Pydantic gets easily confused identifying the "correct" BaseModel to use from a Union.
-    # Here, we try/except to find a class that validates without error. This is pretty hacky, but
-    # necessary with the current API structure re-using the same keys with different formats.
-    # TODO: Look into https://docs.pydantic.dev/usage/model_config/#smart-union
-    @pydantic.root_validator(pre=True)
-    def _validate_unions(cls, values: Dict):
-        # look for any fields with types Union[BaseModel, ...]
-        for field in cls.__fields__.values():
-            if values.get(field.name) is not None and get_origin(field.type_) is Union:
-                if not field.sub_fields:
-                    logger.warning(
-                        f"{cls.__name__}.{field.name} is Union, but has no sub_fields. Huh?"  # type: ignore
-                    )
-                    continue
-
-                is_seq = False
-                sub_fields = field.sub_fields
-                if len(field.sub_fields) == 1 and field.sub_fields[0].sub_fields:
-                    # e.g., List[Union[TypeA, TypeB]]
-                    is_seq = True
-                    sub_fields = field.sub_fields[0].sub_fields
-
-                # only attempt if all Union-ed types are BaseModel subtypes
-                field_types = [f.type_ for f in sub_fields if issubclass(f.type_, BaseModel)]
-                if len(field_types) == len(sub_fields):
-                    new_val = None
-                    errs = {}
-                    for ft in field_types:
-                        try:
-                            if is_seq:
-                                new_val = [ft.parse_obj(i) for i in values[field.name]]
-                            else:
-                                new_val = ft.parse_obj(values[field.name])  # type: ignore
-                            break
-                        except pydantic.ValidationError as e:
-                            errs[ft.__name__] = str(e)
-
-                    if new_val:
-                        values[field.name] = new_val
-                    elif len(errs) == len(field_types):
-                        raise ValueError(
-                            f"{field.name} failed all validation attempts\n"
-                            + "\n".join(f"{k}: {v}" for k, v in errs.items())
-                            + "\n"
-                        )
-
-        return values
 
 
 class ExtraOK(BaseModel):
