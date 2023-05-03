@@ -64,7 +64,7 @@ class Util {
         // Get element, scroll into view (middle of screen), and return element
         const el = this.element(selector)
         el.scrollIntoView({ block: 'center', inline: 'center' })
-        browser.pause(20) // Scrolling can take a tiny amount of time
+        browser.pause(50) // Scrolling can take a tiny amount of time
         return el
     }
 
