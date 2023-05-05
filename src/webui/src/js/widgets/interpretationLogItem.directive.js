@@ -95,7 +95,7 @@ app.component('interpretationLogItem', {
                         return classes
                     },
                     getAlleleAssessmentMessage() {
-                        const reportText = $ctrl.message.allelereport.allele_id
+                        const reportText = $ctrl.message.allelereport && $ctrl.message.allelereport.allele_id
                             ? ' and variant report'
                             : ''
                         return `Updated classification${reportText} for `
