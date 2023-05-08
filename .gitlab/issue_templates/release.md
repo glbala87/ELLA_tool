@@ -2,14 +2,6 @@
 
 Prepare and release [version]
 
---- DELETE ME ---
-
-Remember:
-
-- Assign **Weight**, if possible
-
---- DELETE ME ---
-
 ## Tasks specific for this release
 
 [List tasks that are specific for this release here]

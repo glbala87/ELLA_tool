@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import http.client
 import logging
 import sys
 import time
@@ -9,8 +10,7 @@ from contextlib import closing, contextmanager
 from pathlib import Path
 from typing import List, Optional
 
-
-from .pubmed_parser import PubMedParser, NewReference
+from .pubmed_parser import NewReference, PubMedParser
 
 """
 This module can query the PubMed article database based on PubMed article IDs
@@ -132,6 +132,14 @@ class PubMedFetcher:
                         # Try again
                         r_err = "Attempt %s: IOError from Entrez %s"
                         log.error(r_err % (count + 1, e2))
+                        t_prev_query = self.control_query_frequency(
+                            t_prev_query, wait_time=self.WAIT_TIME
+                        )
+                    except http.client.IncompleteRead as e3:
+                        # Entrez occationally has some problems with incomplete reads
+                        # Try again
+                        r_err = "Attempt %s: IncompleteRead from Entrez %s"
+                        log.error(r_err % (count + 1, e3))
                         t_prev_query = self.control_query_frequency(
                             t_prev_query, wait_time=self.WAIT_TIME
                         )

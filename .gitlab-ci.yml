@@ -1,17 +1,8 @@
 ---
-image: docker:stable
-services:
-    - docker:stable-dind
-
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
     # don't remove artifacts directory
     GIT_CLEAN_FLAGS: -ffdx -e images/
-
-    # build vars
-    DOCKER_DRIVER: overlay2
-    DOCKER_BUILDKIT: '1'
-    BUILD_OPTIONS: --build-arg BUILDKIT_INLINE_CACHE=1
 
     # repo vars
     PIPELINE_ID: ella-$CI_PIPELINE_ID
