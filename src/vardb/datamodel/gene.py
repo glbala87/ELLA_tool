@@ -59,8 +59,8 @@ class Transcript(Base):
     tx_start = Column(Integer, nullable=False)
     tx_end = Column(Integer, nullable=False)
     strand = Column(String(1), nullable=False)
-    cds_start = Column(Integer, nullable=False)
-    cds_end = Column(Integer, nullable=False)
+    cds_start = Column(Integer)
+    cds_end = Column(Integer)
     exon_starts = Column(ARRAY(Integer), nullable=False)
     exon_ends = Column(ARRAY(Integer), nullable=False)
 

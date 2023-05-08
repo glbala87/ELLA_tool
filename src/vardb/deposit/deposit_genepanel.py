@@ -36,6 +36,12 @@ class TranscriptRecord(BaseModel):
     exon_ends: List[int] = Field(alias="exon ends")
     # metadata: Optional[str] = Field(default=None, alias="metadata")
 
+    @validator("coding_start", "coding_end", pre=True)
+    def validate_coding_start_end(cls, v):
+        if v:
+            return v
+        return None
+
     @validator("exon_starts", "exon_ends", pre=True)
     def validate_exon_starts_ends(cls, v):
         if v is None:

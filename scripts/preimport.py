@@ -152,8 +152,8 @@ def _get_transcript_data(transcripts):
     transcript_columns["HGNC id"] = lambda t: str(t["hgnc_id"])
     transcript_columns["HGNC symbol"] = lambda t: t["hgnc_symbol"]
     transcript_columns["inheritance"] = lambda t: t["inheritance"]
-    transcript_columns["coding start"] = lambda t: str(t["cds_start"])
-    transcript_columns["coding end"] = lambda t: str(t["cds_end"])
+    transcript_columns["coding start"] = lambda t: str(t["cds_start"] or "")
+    transcript_columns["coding end"] = lambda t: str(t["cds_end"] or "")
     transcript_columns["exon starts"] = lambda t: ",".join(str(es) for es in t["exon_starts"])
     transcript_columns["exon ends"] = lambda t: ",".join(str(ee) for ee in t["exon_ends"])
     transcript_columns["metadata"] = lambda t: "{}"
@@ -195,27 +195,25 @@ def _get_exon_regions(transcripts):
         cds_start = t["cds_start"]
         cds_end = t["cds_end"]
         num_exons = len(t["exon_starts"])
-        for exon_no, (es, ee) in enumerate(zip(t["exon_starts"], t["exon_ends"])):
-            end = False
-            if ee < cds_start:
-                continue
-            elif es < cds_start:
-                es = cds_start
-            elif es > cds_end:
-                break
-
-            if ee > cds_end:
-                ee = cds_end
-                end = True
+        for exon_no, (exon_start, exon_end) in enumerate(zip(t["exon_starts"], t["exon_ends"])):
+            if cds_start:
+                if exon_end < cds_start:
+                    continue
+                if exon_start < cds_start:
+                    exon_start = cds_start
+            if cds_end:
+                if exon_start > cds_end:
+                    break
+                if exon_end > cds_end:
+                    exon_end = cds_end
 
             if strand == "-":
-                ranges.append((es, ee, num_exons - exon_no))
+                ranges.append((exon_start, exon_end, num_exons - exon_no))
             else:
-                ranges.append((es, ee, exon_no + 1))
-            if end:
-                break
-        for es, ee, exon_no in ranges:
-            row = [v(t, es, ee, exon_no) for v in list(exon_columns.values())]
+                ranges.append((exon_start, exon_end, exon_no + 1))
+
+        for exon_start, exon_end, exon_no in ranges:
+            row = [v(t, exon_start, exon_end, exon_no) for v in list(exon_columns.values())]
             rows.append(row)
 
     for r in sorted(rows, key=cmp_to_key(sort_rows)):
@@ -290,8 +288,8 @@ def main():
     priority = os.environ["PRIORITY"]
 
     phenotypes = get_phenotypes(conn, genepanel_name, genepanel_version)
-
     transcripts = get_transcripts(conn, genepanel_name, genepanel_version)
+
     preimport(
         sample_id, usergroup, genepanel_name, genepanel_version, transcripts, phenotypes, priority
     )

@@ -410,7 +410,7 @@ class VEPConverter(AnnotationConverter):
             # Filter out non-transcripts,
             # and only include normal RefSeq or Ensembl transcripts
             if full_tx_data.get("Feature_type") != "Transcript" or not any(
-                full_tx_data.get("Feature", "").startswith(t) for t in ["NM_", "ENST"]
+                full_tx_data.get("Feature", "").startswith(t) for t in ["NM_", "NR_", "ENST"]
             ):
                 continue
             try:
