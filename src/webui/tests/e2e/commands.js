@@ -76,6 +76,7 @@ function addCommands() {
         browser.pause(500)
         $(editorSelector).click()
         $(editorWysiwygSelector).addValue(value)
+        browser.pause(50)
     })
     browser.addCommand('psql', psql)
     browser.addCommand('getClass', (selector) =>

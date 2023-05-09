@@ -23,7 +23,7 @@ This is the only section on this page that is specific to the sample (analysis),
 
 ### Quality information 
 
-Quality information is tied to a particular sample, and is therefore only available in ANALYSES mode. In addition, only information from HTS data is provided. The following quality parameters are shown (from the VCF file; see <https://software.broadinstitute.org/gatk/documentation/article.php?id=1268> for details):
+Quality information is tied to a particular sample, and is therefore only available in ANALYSES mode. In addition, only information from HTS data is provided. The following quality parameters from the [VCF file](https://gatk.broadinstitute.org/hc/en-us/articles/360035531692-VCF-Variant-Call-Format) are shown :
 
   - Filter: `PASS` if all filters have passed, otherwise list filters that failed
 
@@ -34,8 +34,12 @@ Quality information is tied to a particular sample, and is therefore only availa
 
   - GQ: Genotype quality
     
-      - Derived from "Phred-scaled likelihood for genotype", which compares likelihood of possible genotypes
-      - 99 is the maximum
+      - Derived from PL (see below), comparing the difference between the second lowest PL to the lowest PL (0)
+      - Value is capped at 99
+
+  - PL: [Phred-scaled genotype likelihood](https://gatk.broadinstitute.org/hc/en-us/articles/360035890451-Calculation-of-PL-and-GQ-by-HaplotypeCaller-and-GenotypeGVCFs)
+      - Values are given for genotypes [REF/REF, REF/ALT, ALT/ALT]
+      - Most likely genotype is 0; the higher the other values, the less likely they are true
 
   - Depth: Number of reads covering the site
 
