@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 from api.schemas.pydantic.v1 import BaseModel, ExtraOK
 from api.util.types import GenotypeTypes
@@ -20,6 +20,7 @@ class GenotypeSampleData(ExtraOK):
     type: GenotypeTypes
     multiallelic: bool
     genotype_quality: Optional[int] = None
+    genotype_likelihood: List[int] = Field(default_factory=list)
     sequencing_depth: Optional[int] = None
     allele_depth: Dict = Field(default_factory=dict)
     copy_number: Optional[int] = None
