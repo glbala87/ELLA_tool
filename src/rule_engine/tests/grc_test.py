@@ -68,6 +68,14 @@ class ACMGClassifier2015Test(unittest.TestCase):
         path_res = classifier.pathogenic(["BS2", "BS4", "PVS1", "BP7", "PS3", "PP1"])
         self.assertListEqual(path_res, ["PVS1", "PS3"])  # 1PVS* AND >=1PS*
 
+        path_res = classifier.pathogenic(["BS2", "BP4", "BP6", "BP1", "PVS3", "BP3", "PM3", "BM1"])
+        self.assertListEqual(path_res, ["PVS3", "PM3"])  # 1PVS* AND 1PM*
+
+        path_res = classifier.pathogenic(
+            ["BS1", "BP2", "BP6", "BP1", "PVS1", "BP3", "PM3", "BP1", "PM2"]
+        )
+        self.assertListEqual(path_res, ["PVS1", "PM2", "PM3"])  # 1PVS* AND >1PM*
+
         path_res = classifier.pathogenic(["BS2", "PVS1", "BS4", "PVSX1"])
         self.assertListEqual(path_res, ["PVS1", "PVSX1"])  # >=2PVS*
 
@@ -136,10 +144,10 @@ class ACMGClassifier2015Test(unittest.TestCase):
         self.assertListEqual(lp_res, ["PM1", "PP1", "PP3", "PP4", "PP6"])  # 1PM* AND >=4PP*
 
         lp_res = classifier.likely_pathogenic(
-            ["BS2", "BP4", "BP6", "BP1", "PVS3", "BP3", "PM3", "BM1"]
+            ["BS2", "BP4", "BP6", "BP1", "PVS3", "BP3", "PP3", "BM1"]
         )
 
-        self.assertListEqual(lp_res, ["PVS3", "PM3"])  # 1PVFS* AND 1PM*
+        self.assertListEqual(lp_res, ["PVS3", "PP3"])  # 1PVS* AND 1PP*
 
         self.assertTrue(classifier.likely_pathogenic(["PVSX1", "PP6", "BS2"]))
 

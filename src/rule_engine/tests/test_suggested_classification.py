@@ -9,8 +9,7 @@ classifier_rules = {
     5: [
         ["PVS", "PVS"],
         ["PVS", "PS"],
-        ["PVS", "PM", "PM"],
-        ["PVS", "PM", "PP"],
+        ["PVS", "PM"],
         ["PVS", "PP", "PP"],
         ["PS", "PS"],
         ["PS", "PM", "PM", "PM"],
@@ -18,7 +17,6 @@ classifier_rules = {
         ["PS", "PM", "PP", "PP", "PP", "PP"],
     ],
     4: [
-        ["PVS", "PM"],
         ["PVS", "PP"],
         ["PS", "PM"],
         ["PS", "PP", "PP"],
