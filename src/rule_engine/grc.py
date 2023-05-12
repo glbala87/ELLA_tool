@@ -57,17 +57,20 @@ class ACMGClassifier2015:
 
     def pathogenic(self, codes):
         return self._OR(
+            # Not in original guidelines; added to fill logical gap
             self.contrib(self.PVS, codes, lambda n: n >= 2),
             self._AND(
                 self.contrib(self.PVS, codes, lambda n: n == 1),
                 (
                     self._OR(
                         self.contrib(self.PS, codes, lambda n: n >= 1),
-                        self.contrib(self.PM, codes, lambda n: n >= 2),
-                        self._AND(
-                            self.contrib(self.PM, codes, lambda n: n == 1),
-                            self.contrib(self.PP, codes, lambda n: n == 1),
-                        ),
+                        # Modified from n >= 2 as per recommendation from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG
+                        self.contrib(self.PM, codes, lambda n: n >= 1),
+                        # Removed, deprecated with above modification
+                        # self._AND(
+                        #     self.contrib(self.PM, codes, lambda n: n == 1),
+                        #     self.contrib(self.PP, codes, lambda n: n == 1),
+                        # ),
                         self.contrib(self.PP, codes, lambda n: n >= 2),
                     )
                 ),
@@ -98,11 +101,10 @@ class ACMGClassifier2015:
         return self._OR(
             self._AND(
                 self.contrib(self.PVS, codes, lambda n: n == 1),
-                self._OR(
-                    self.contrib(self.PM, codes, lambda n: n == 1),
-                    # NB: PVS + PP = class 4 is not based on official ACMG guidelines, but added to fill logical gap
-                    self.contrib(self.PP, codes, lambda n: n == 1),
-                ),
+                # Removed as per recommendation from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG (now gives Class 5)
+                # self.contrib(self.PM, codes, lambda n: n == 1),
+                # Not in original guidelines; added to fill logical gap
+                self.contrib(self.PP, codes, lambda n: n == 1),
             ),
             self._AND(
                 self.contrib(self.PS, codes, lambda n: n == 1),
@@ -130,6 +132,7 @@ class ACMGClassifier2015:
 
     def benign(self, codes):
         return self._OR(
+            # Modified from n == 1 to fill logical gap
             self.contrib(self.BA, codes, lambda n: n >= 1),
             self.contrib(self.BS, codes, lambda n: n >= 2),
         )
