@@ -96,9 +96,7 @@
                     tippy-placement="bottom"
                     tippy-popover-title="CONSEQUENCE"
                 >
-                    <span class="clickable">{{
-                        t.consequences | commaSeparated | noUnderscores
-                    }}</span>
+                    <span class="clickable">{{ t.consequences | commaSeparated | shortCsq }}</span>
                 </div>
             </h3>
         </td>

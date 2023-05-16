@@ -189,8 +189,8 @@ class Warnings(object):
                     transcript_data = next(
                         t for t in al["annotation"]["transcripts"] if t["transcript"] == w
                     )
-                    consequences[w] = ",".join(transcript_data["consequences"])
-                worse_consequence_warnings[al["id"]] = "Worse consequences found in: {}".format(
+                    consequences[w] = ", ".join(transcript_data["consequences"])
+                worse_consequence_warnings[al["id"]] = "Worse consequence found in: {}".format(
                     ", ".join(["{} ({})".format(k, v) for k, v in consequences.items()])
                 )
 
