@@ -180,9 +180,6 @@ class Warnings(object):
     def _check_worse_consequence(self):
         worse_consequence_warnings = dict()
         for al in self.alleles:
-            if al["caller_type"] == "cnv":
-                continue
-
             # Worse consequence
             worst_consequence = al.get("annotation", {}).get("worst_consequence", [])
             filtered_transcripts = al.get("annotation", {}).get("filtered_transcripts", [])
