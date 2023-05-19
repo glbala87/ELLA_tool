@@ -13,6 +13,20 @@ title: Latest releases
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
+## Version 1.XX.X
+
+Release date: XX.XX.2023
+<!-- TODO: Set version and date here and in main README; link in TOC -->
+
+### Highlights
+
+This release adds a small modification to the ACMG rules engine for Suggested class. 
+
+### All changes
+
+<!-- MR !753 -->
+- ELLA now suggests Class 5 (not 4) for combination 1 PVS + >=1 PM, based on recommendations from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG.
+
 ## Version 1.17.2
 
 Release date: 09.05.2023

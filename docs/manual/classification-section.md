@@ -137,7 +137,10 @@ Based on the particular ACMG criteria you have added, ELLA [suggests a classific
 <div class="figure"><img src="./img/suggested_class.png"></div>
 
 ::: warning NOTES
-Suggestions for classification are only made for `CLASS 1-5`, not the other choices below.
+Suggestions for classification are only made for Class 1-5, not the other choices below. Also note that ELLA's suggestion rules depart slightly from the original rules described in [Richards et al. 2015](https://www.nature.com/articles/gim201530), notably: 
+- 1 `PVS` + >=1 `PM` = Class 5, not Class 4 (based on recommendations from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG)
+- \>=2 `PVS` = Class 5 (to account for modified strength of non-PVS1 criteria)
+- 1 `PVS` + 1 `PP` = Class 4 (to account for logical gap)
 :::
 
 As with suggested criteria, you are free to ignore the suggestion, and you must always actively set a classification yourself before it takes effect. Once you have made a decision, select the corresponding class in the pull-down menu in the section bar:
