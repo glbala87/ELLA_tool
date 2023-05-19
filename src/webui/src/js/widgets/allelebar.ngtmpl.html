@@ -15,9 +15,8 @@
                         tippy-placement="bottom"
                         tippy-popover-title="GENE INFO"
                     >
-                        {{ t.symbol }}
+                        {{ t.symbol }} <i>{{ t.exon }}</i>
                     </span>
-                    <i>{{ t.exon }}</i>
                     <span
                         tippy-title="Has user-added gene comments"
                         class="tag"
@@ -30,7 +29,7 @@
         <td ng-if="!$ctrl.genepanel">
             <h3 class="full-title">
                 <span>
-                    {{ t.symbol }}<i>{{ t.exon }}</i>
+                    {{ t.symbol }} <i>{{ t.exon }}</i>
                 </span>
             </h3>
         </td>
@@ -92,9 +91,9 @@
                         tippy-placement="bottom"
                         tippy-popover-title="PROTEIN"
                     >
-                        <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b>
+                        <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b
+                        ><i> {{ $ctrl.formatCodons(t.codons) }}</i>
                     </span>
-                    <i>{{ $ctrl.formatCodons(t.codons) }}</i>
                 </div>
             </h3>
         </td>
