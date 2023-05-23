@@ -15,7 +15,7 @@
                         tippy-placement="bottom"
                         tippy-popover-title="GENE INFO"
                     >
-                        {{ t.symbol }} ({{ t.exon }})
+                        {{ t.symbol }} <i>{{ t.exon }}</i>
                     </span>
                     <span
                         tippy-title="Has user-added gene comments"
@@ -28,7 +28,9 @@
         </td>
         <td ng-if="!$ctrl.genepanel">
             <h3 class="full-title">
-                <span> {{ t.symbol }} ({{ t.exon }}) </span>
+                <span>
+                    {{ t.symbol }} <i>{{ t.exon }}</i>
+                </span>
             </h3>
         </td>
 
@@ -56,7 +58,15 @@
                             <span ng-if="$ctrl.genotypeDisplay.length > 1">
                                 {{ gt.sample_label }}:
                             </span>
-                            {{ gt.display }}
+                            <!-- poor mans if/else -->
+                            <ng-container
+                                ng-switch="$ctrl.isTruncateGenotypeDisplay(gt.display).toString()"
+                            >
+                                <span ng-switch-when="true"
+                                    >{{ $ctrl.truncatedGenotypeDisplay(gt.display) }}&#x2026;</span
+                                >
+                                <span ng-switch-default>{{ gt.display }}</span>
+                            </ng-container>
                             <span
                                 tippy-title="Homozygous"
                                 class="tag red"
@@ -81,9 +91,8 @@
                         tippy-placement="bottom"
                         tippy-popover-title="PROTEIN"
                     >
-                        <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b> ({{
-                            $ctrl.formatCodons(t.codons)
-                        }})
+                        <i ng-if="t.HGVSp">{{ t.protein }}:</i><b>{{ t.HGVSp }}</b
+                        ><i> {{ $ctrl.formatCodons(t.codons) }}</i>
                     </span>
                 </div>
             </h3>
@@ -96,9 +105,7 @@
                     tippy-placement="bottom"
                     tippy-popover-title="CONSEQUENCE"
                 >
-                    <span class="clickable">{{
-                        t.consequences | commaSeparated | noUnderscores
-                    }}</span>
+                    <span class="clickable">{{ t.consequences | commaSeparated | shortCsq }}</span>
                 </div>
             </h3>
         </td>

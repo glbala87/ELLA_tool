@@ -16,6 +16,15 @@ class Filters {
     }
 
     @Filter({
+        filterName: 'shortCsq'
+    })
+    shortCsq() {
+        return (text) => {
+            return text.replace(/_variant/g, '')
+        }
+    }
+
+    @Filter({
         filterName: 'dropREQ'
     })
     dropREQ() {

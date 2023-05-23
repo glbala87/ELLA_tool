@@ -4,7 +4,7 @@
             WORSE CONSEQUENCE FOUND IN:
             <ul>
                 <li ng-repeat="t in $ctrl.worstConsequenceTranscripts">
-                    {{ t.consequences.join(',') }} in {{ t.transcript }}
+                    {{ t.consequences.join(', ') | shortCsq }} in {{ t.transcript }}
                 </li>
             </ul>
         </div>
@@ -15,7 +15,7 @@
             tippy-popover-title="CONSEQUENCE"
         >
             <transcript-wrapper transcript="t">
-                <p ng-repeat="c in t.consequences">{{ c | noUnderscores }}</p>
+                <p ng-repeat="c in t.consequences">{{ c | shortCsq }}</p>
             </transcript-wrapper>
         </div>
     </cbbody>

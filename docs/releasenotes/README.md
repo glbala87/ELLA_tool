@@ -20,12 +20,15 @@ Release date: XX.XX.2023
 
 ### Highlights
 
-This release adds a small modification to the ACMG rules engine for Suggested class. 
+This release adds a small modification to the ACMG rules engine for Suggested class and several UI improvements. 
 
 ### All changes
 
 <!-- MR !753 -->
 - ELLA now suggests Class 5 (not 4) for combination 1 PVS + >=1 PM, based on recommendations from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG.
+<!-- MR !754 -->
+- "Worse consequence" warning is now shown also for CNVs.
+- Improved display of information in top bar, Consequence and Quality cards, and popovers.
 
 ## Version 1.17.2
 
