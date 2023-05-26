@@ -42,6 +42,7 @@ class AlleleFinalizeRequirementsConfig(BaseModel):
 
 class AlleleWorkflowConfig(BaseModel):
     finalize_requirements: AlleleFinalizeRequirementsConfig
+    can_start: Optional[bool]
 
 
 class AnalysisFinalizeRequirementsConfig(BaseModel):
@@ -51,6 +52,7 @@ class AnalysisFinalizeRequirementsConfig(BaseModel):
 
 class AnalysisWorkflowConfig(BaseModel):
     finalize_requirements: AnalysisFinalizeRequirementsConfig
+    can_start: Optional[bool]
 
 
 class WorkflowsConfig(BaseModel):
