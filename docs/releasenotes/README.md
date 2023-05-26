@@ -31,7 +31,6 @@ This release adds a small modification to the ACMG rules engine for Suggested cl
 - Improved display of information in top bar, Consequence and Quality cards, and popovers.
 <!-- MR !755 -->
 - Fixed bug causing error on loading ELLA for users with read-only access.
-
 <!-- MR !756 -->
 - Changed license from MIT to GNU GPL v3.
 
