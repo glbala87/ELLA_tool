@@ -32,6 +32,9 @@ This release adds a small modification to the ACMG rules engine for Suggested cl
 <!-- MR !755 -->
 - Fixed bug causing error on loading ELLA for users with read-only access.
 
+<!-- MR !756 -->
+- Changed license from MIT to GNU GPL v3.
+
 ## Version 1.17.2
 
 Release date: 09.05.2023
