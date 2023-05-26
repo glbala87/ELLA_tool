@@ -178,6 +178,19 @@ Workflow    |   Subkey	|	Explanation |   Values
 `allele` or `analysis`  |   `workflow_status`  |   Workflow statuses allowing finalization. |   [list of statuses]
 `analysis`  |   `allow_unclassified`    |   Allow unclassified variants when finalizing.  |   `True` / `False`
 
+### Disallow start (read-only access)
+
+Define if users can start an analysis and/or variant interpretation workflow. If set to false, users can only view and not make changes to analyses and/or stand-alone variant interpretations. Note however, that it's still possible to make changes in the Work log (add comments and/or change priority).
+
+- File: `ella_config.yml` (set by `ELLA_CONFIG` [env variable](/technical/production.html#setup-environment))
+- Key: `user.user_config.workflows`
+
+Separately set for subkeys `allele` (VARIANTS workflows) and `analysis` (ANALYSES workflows): 
+
+Workflow    |   Subkey	|	Explanation |   Values
+:---    |   :---	|	:---    |	:---
+`allele` or `analysis`  |   `can_start`  |   Allow user to start interpretation or analysis, respectively. |   `True` (default) / `False`
+
 ### Define references as IGNORED
 
 Certain references retrieved from annotation sources such as ClinVar are generic and do not contain information relevant for any particular variant classification per se (an example is the [ACMG guidelines](https://pubmed.ncbi.nlm.nih.gov/25741868)). These references can be set to be automatically [IGNORED](/manual/evidence-sections.html#reference-evaluation) in the reference evaluation module. 
