@@ -68,7 +68,8 @@
         "mtxr.sqltools",
         "redhat.vscode-yaml",
         "timonwong.shellcheck",
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        "GitHub.copilot"
     ],
     "containerEnv": {
         "DB_URL": "postgresql:///postgres",

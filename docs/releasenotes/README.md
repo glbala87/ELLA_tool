@@ -29,6 +29,8 @@ This release adds a small modification to the ACMG rules engine for Suggested cl
 <!-- MR !754 -->
 - "Worse consequence" warning is now shown also for CNVs.
 - Improved display of information in top bar, Consequence and Quality cards, and popovers.
+<!-- MR !755 -->
+- Fixed bug causing error on loading ELLA for users with read-only access.
 
 ## Version 1.17.2
 

@@ -198,6 +198,9 @@
                                                     }
                                                 }
                                             }
+                                        },
+                                        "can_start": {
+                                            "type": "boolean"
                                         }
                                     }
                                 },
@@ -228,6 +231,9 @@
                                                     "type": "boolean"
                                                 }
                                             }
+                                        },
+                                        "can_start": {
+                                            "type": "boolean"
                                         }
                                     }
                                 }
