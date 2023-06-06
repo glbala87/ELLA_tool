@@ -2153,16 +2153,16 @@ nav.warning {
         padding-right: 2rem;
     }
 
-    .user-input-left {
+    .user-input {
         max-width: 50rem;
-    }
-
-    .user-input-middle {
-        max-width: 2rem;
-    }
-
-    .user-input-right {
-        max-width: 70rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        .list {
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            padding-left: 1.8rem;
+            font-size: 1.4rem;
+        }
     }
 
     .import-selection {
