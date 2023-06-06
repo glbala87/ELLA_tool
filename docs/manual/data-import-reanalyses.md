@@ -46,13 +46,13 @@ The import job will be moved to the IMPORT HISTORY section with status DONE once
 Supported import data formats are explained in the list to the left of the input field;  Click on each list item for examples. 
 
 ::: danger WARNING
-The import module is **not able to convert HGVS cDNA names for variants outside the transcribed region** of a given transcript (e.g. promoter variants), as this is considered invalid in terms of the HGVS format by the conversion service. 
+The import module is **not able to convert HGVS cDNA names for variants outside the transcribed region** of a given transcript (e.g. promoter variants), as such naming may be ambiguous and therefore is not valid HGVS nomenclature. 
 
 To successfully import these variants, they must first be converted to **genome-based names**. 
 
 Example: `NM_000321.2:c.-193T>G (het)` → `13-48877856-T-G (het)`  
 
-Be careful when you do the conversion: If the transcript is reverse to the genome, you must use alleles that are complementary to the alleles given in the transcript!
+Be careful when you do the conversion: If the transcript is reverse to the genome, you must use alleles that are complementary to the alleles given in the transcript. [VariantValidator](https://variantvalidator.org/) may be useful when performing this conversion, as it uses the same rules at the ELLA importer. 
 :::
 
 ### Batch import
