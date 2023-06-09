@@ -12,8 +12,8 @@ import getClassification from '../../store/modules/views/workflows/interpretatio
 import getEditorReferences from '../../store/modules/views/workflows/interpretation/computed/getEditorReferences'
 import template from './reportcard.ngtmpl.html' // eslint-disable-line no-unused-vars
 
-function formatSNV(hgvs, allele, annotation, classification_text) {
-    hgvs += '\n'
+function formatSNV(allele, annotation, classification_text) {
+    let hgvs = ''
     if (annotation.HGVSc_short) {
         hgvs += `${annotation.transcript}(${annotation.symbol}):`
     }
@@ -33,8 +33,8 @@ function formatSNV(hgvs, allele, annotation, classification_text) {
     return hgvs
 }
 
-function formatCNV(hgvs, allele, annotation, classification_text) {
-    hgvs += '\n'
+function formatCNV(allele, annotation, classification_text) {
+    let hgvs = ''
     let hgvs_short = annotation.HGVSc_short || allele.formatted.hgvsg
 
     hgvs += `${chrToContigRef(allele.chromosome)}:${hgvs_short}`
@@ -50,7 +50,7 @@ function formatCNV(hgvs, allele, annotation, classification_text) {
 }
 
 function formatHGVS(allele, classification, config) {
-    let hgvs = ''
+    let hgvs = new Set()
     let classification_text = ''
 
     if (classification) {
@@ -59,16 +59,14 @@ function formatHGVS(allele, classification, config) {
 
     for (let annotation of allele.annotation.filtered) {
         if (allele.caller_type === 'snv') {
-            hgvs += formatSNV(hgvs, allele, annotation, classification_text)
+            hgvs.add(formatSNV(allele, annotation, classification_text))
         } else if (allele.caller_type === 'cnv') {
-            hgvs += formatCNV(hgvs, allele, annotation, classification_text)
+            hgvs.add(formatCNV(allele, annotation, classification_text))
         } else {
             throw Error(`caller_type not supported: ${allele.caller_type}`)
         }
-        hgvs += '\n'
     }
-    hgvs += ` `
-    return hgvs
+    return [...hgvs].join('\n')
 }
 
 const getReportAlleleData = Compute(
