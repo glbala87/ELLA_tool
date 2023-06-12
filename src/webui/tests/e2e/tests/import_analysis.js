@@ -61,7 +61,7 @@ describe('Import functionality', function() {
         expect(importPage.getImportSummary()).toBe(
             `Import Testsample1 on ${panelName} (custom) with 5 transcripts (5 genes).`
         )
-
+        importPage.selectImportUserGroup(1)
         importPage.importButton.click()
 
         expect(importPage.getActiveImportTitle(1)).toBe(

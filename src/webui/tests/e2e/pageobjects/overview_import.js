@@ -113,6 +113,10 @@ class Import extends Page {
         $(`.id-import-custom-panel-name`).setValue(name)
     }
 
+    selectImportUserGroup(idx) {
+        $(`.id-import-usergroup label:nth-child(${idx})`).click()
+    }
+
     getFilterResultText() {
         return $(`.id-import-filter-results-text`).getText()
     }
