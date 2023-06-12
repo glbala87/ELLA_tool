@@ -6,21 +6,21 @@ title: Latest releases
 
 |Major versions|Minor versions|
 |:--|:--|
-[v1.17](#version-1-17)|[v1.17.1](#version-1-17-1), [v1.17.2](#version-1-17-2)
+[v1.17](#version-1-17)|[v1.17.1](#version-1-17-1), [v1.17.2](#version-1-17-2), [v1.17.3](#version-1-17-3)
 [v1.16](#version-1-16)|[v1.16.1](#version-1-16-1), [v1.16.2](#version-1-16-2), [v1.16.3](#version-1-16-3), [v1.16.4](#version-1-16-4), [v1.16.5](#version-1-16-5)
 [v1.15](#version-1-15)|[v1.15.1](#version-1-15-1)
 [v1.14](#version-1-14)|[v1.14.1](#version-1-14-1), [v1.14.2](#version-1-14-2)
 
 See [older releases](/releasenotes/olderreleases.md) for earlier versions.
 
-## Version 1.XX.X
+## Version 1.17.3
 
-Release date: XX.XX.2023
+Release date: XX.06.2023
 <!-- TODO: Set version and date here and in main README; link in TOC -->
 
 ### Highlights
 
-This release adds a small modification to the ACMG rules engine for Suggested class and several UI improvements. 
+This release adds a small modification to the ACMG rules engine for Suggested class and several UI improvements and bugfixes. 
 
 ### All changes
 
@@ -28,9 +28,13 @@ This release adds a small modification to the ACMG rules engine for Suggested cl
 - ELLA now suggests Class 5 (not 4) for combination 1 PVS + >=1 PM, based on recommendations from Tavtigian (2018), ACGS (Ellard 2020) and CanVIG.
 <!-- MR !754 -->
 - "Worse consequence" warning is now shown also for CNVs.
-- Improved display of information in top bar, Consequence and Quality cards, and popovers.
+- Improved display of information in top bar, popovers, and Consequence and Quality cards.
 <!-- MR !755 -->
-- Fixed bug causing error on loading ELLA for users with read-only access.
+- Fixed a bug causing error on loading ELLA for users with read-only access.
+<!-- MR !758 -->
+- Fixed a bug causing non-persistance of chosen user groups when importing using custom gene panels.
+<!-- MR !760 -->
+- Fixed a bug causing the Report page to crash when there are many transcripts for an included variant.
 <!-- MR !759 -->
 - Improved help text for variant import. 
 <!-- MR !756 -->
